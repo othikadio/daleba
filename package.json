@@ -1,0 +1,29 @@
+{
+  "name": "daleba-core",
+  "version": "1.0.0",
+  "description": "DALEBA — Multi-AI Orchestration Core by Kadio Ulrich",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "db:migrate": "node scripts/migrate.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1",
+    "pg": "^8.11.3",
+    "@anthropic-ai/sdk": "^0.24.0",
+    "openai": "^4.47.1",
+    "axios": "^1.6.8",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
