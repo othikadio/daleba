@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tableau de bord — DALEBA</title>
+  <link rel="stylesheet" href="/css/booking.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .dashboard { max-width: 700px; margin: 0 auto; padding: 20px 16px 80px; }
+    .dash-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+    .dash-title { font-size:22px; font-weight:700; }
+    .badge { padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; }
+    .badge-green { background:var(--emerald-light); color:var(--emerald-dark); }
+    .badge-gray { background:var(--gray-100); color:var(--gray-600); }
+    .stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px; }
+    .stat-card { background:white; border-radius:var(--radius); padding:16px; border:1px solid var(--gray-200); text-align:center; }
+    .stat-num { font-size:28px; font-weight:700; color:var(--emerald); }
+    .stat-label { font-size:12px; color:var(--gray-400); margin-top:4px; }
+    .appt-list { display:flex; flex-direction:column; gap:10px; }
+    .appt-card { background:white; border-radius:var(--radius); padding:16px; border:1px solid var(--gray-200); display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    .appt-time { font-size:18px; font-weight:700; color:var(--emerald); min-width:54px; }
+    .appt-info { flex:1; }
+    .appt-client { font-size:15px; font-weight:600; }
+    .appt-service { font-size:13px; color:var(--gray-400); }
+    .status-btn { padding:6px 12px; border-radius:6px; border:none; font-size:12px; font-weight:600; cursor:pointer; }
+    .status-pending { background:var(--gray-100); color:var(--gray-600); }
+    .status-confirmed { background:var(--emerald-light); color:var(--emerald-dark); }
+    .status-completed { background:#dbeafe; color:#1d4ed8; }
+    .section-title { font-size:16px; font-weight:700; margin-bottom:14px; color:var(--gray-600); }
+    .login-screen { max-width:400px; margin:80px auto; padding:0 16px; }
+    .login-card { background:white; border-radius:var(--radius); padding:32px; border:1px solid var(--gray-200); }
+    .login-card h2 { font-size:22px; font-weight:700; margin-bottom:6px; }
+    .login-card p { color:var(--gray-400); font-size:14px; margin-bottom:24px; }
+    .empty { text-align:center; padding:40px 20px; color:var(--gray-400); font-size:15px; }
+    .logout-btn { background:none; border:1px solid var(--gray-200); padding:6px 14px; border-radius:6px; font-size:13px; cursor:pointer; color:var(--gray-600); }
+  </style>
+</head>
+<body>
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <h2>Connexion</h2>
+    <p>Espace employé — Kadio Coiffure</p>
+    <form id="loginForm" class="form">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="loginEmail" required />
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input type="password" id="loginPassword" required />
+      </div>
+      <button type="submit" class="btn-primary">Se connecter</button>
+    </form>
+  </div>
+</div>
+
+<div id="dashboardScreen" style="display:none">
+  <header class="header">
+    <div class="header-inner" style="display:flex;justify-content:space-between;align-items:center">
+      <div class="business-info">
+        <div class="business-avatar">K</div>
+        <div><h1 class="business-name">Kadio Coiffure</h1></div>
+      </div>
+      <button class="logout-btn" onclick="logout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <div class="dashboard">
+    <div class="dash-header">
+      <div class="dash-title">Aujourd'hui <span id="todayDate"></span></div>
+    </div>
+
+    <div class="stat-grid" id="statsGrid">
+      <div class="stat-card"><div class="stat-num" id="statTotal">–</div><div class="stat-label">RDV total</div></div>
+      <div class="stat-card"><div class="stat-num" id="statDone">–</div><div class="stat-label">Complétés</div></div>
+      <div class="stat-card"><div class="stat-num" id="statRevenue">–</div><div class="stat-label">Revenus ($)</div></div>
+    </div>
+
+    <div class="section-title">📅 RDV du jour</div>
+    <div id="apptList" class="appt-list">
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let token = localStorage.getItem('daleba_token');
+
+if (token) showDashboard();
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const res = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email: document.getElementById('loginEmail').value,
+      password: document.getElementById('loginPassword').value,
+    }),
+  });
+  const data = await res.json();
+  if (!res.ok) { alert(data.error); return; }
+  token = data.token;
+  localStorage.setItem('daleba_token', token);
+  showDashboard();
+});
+
+async function showDashboard() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('dashboardScreen').style.display = 'block';
+
+  document.getElementById('todayDate').textContent =
+    new Date().toLocaleDateString('fr-CA', { weekday:'long', day:'numeric', month:'long' });
+
+  await loadToday();
+  await loadStats();
+}
+
+async function loadToday() {
+  try {
+    const res = await fetch('/api/calendar/today', { headers: authHeader() });
+    const data = await res.json();
+
+    const container = document.getElementById('apptList');
+    container.innerHTML = '';
+
+    if (!data.appointments?.length) {
+      container.innerHTML = '<div class="empty">Aucun RDV aujourd\'hui 🎉</div>';
+      return;
+    }
+
+    for (const a of data.appointments) {
+      const time = new Date(a.start_time).toLocaleTimeString('fr-CA', { hour:'2-digit', minute:'2-digit' });
+      const el = document.createElement('div');
+      el.className = 'appt-card';
+      el.innerHTML = `
+        <div class="appt-time">${time}</div>
+        <div class="appt-info">
+          <div class="appt-client">${a.client_name}</div>
+          <div class="appt-service">${a.service_name}${a.staff_name ? ' · ' + a.staff_name : ''}</div>
+        </div>
+        <button class="status-btn status-${a.status}" onclick="updateStatus(${a.id}, '${a.status}', this)">
+          ${statusLabel(a.status)}
+        </button>
+      `;
+      container.appendChild(el);
+    }
+  } catch (err) {
+    if (err.message === '401') { logout(); }
+  }
+}
+
+async function loadStats() {
+  try {
+    const res = await fetch('/api/calendar/stats', { headers: authHeader() });
+    const data = await res.json();
+    document.getElementById('statTotal').textContent = data.today?.total || 0;
+    document.getElementById('statDone').textContent = data.today?.completed || 0;
+    document.getElementById('statRevenue').textContent = Number(data.today?.revenue || 0).toFixed(0);
+  } catch {}
+}
+
+async function updateStatus(id, current, btn) {
+  const next = current === 'pending' ? 'confirmed' : current === 'confirmed' ? 'completed' : 'completed';
+  try {
+    const res = await fetch(`/api/calendar/${id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', ...authHeader() },
+      body: JSON.stringify({ status: next }),
+    });
+    if (res.ok) {
+      btn.className = `status-btn status-${next}`;
+      btn.textContent = statusLabel(next);
+      btn.onclick = () => updateStatus(id, next, btn);
+      loadStats();
+    }
+  } catch {}
+}
+
+function statusLabel(s) {
+  return { pending:'En attente', confirmed:'Confirmé ✓', completed:'Terminé', cancelled:'Annulé', no_show:'No-show' }[s] || s;
+}
+
+function authHeader() {
+  return token ? { 'Authorization': `Bearer ${token}`, 'X-Business-ID': '1' } : {};
+}
+
+function logout() {
+  localStorage.removeItem('daleba_token');
+  location.reload();
+}
+</script>
+</body>
+</html>

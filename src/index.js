@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const routes = require('./api/routes');
 
+const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -14,11 +15,19 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(morgan('combined'));
 
+// Fichiers statiques (frontend)
+app.use(express.static(path.join(__dirname, '../public')));
+
 // Routes DALEBA
 app.use('/api', routes);
 
-// Route racine
-app.get('/', (req, res) => {
+// Dashboard → redirect
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/dashboard.html'));
+});
+
+// Route racine API
+app.get('/health', (req, res) => {
   res.json({
     name: 'DALEBA Core',
     version: '1.0.0',
