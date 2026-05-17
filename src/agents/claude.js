@@ -63,7 +63,8 @@ async function query(message, systemPrompt = '', history = []) {
     { role: 'user', content: message },
   ];
 
-  const finalSystemPrompt = systemPrompt || DALEBA_PERSONA;
+  // Priorité : systemPrompt explicite > DALEBA_SYSTEM_PROMPT (persona de guerre) > DALEBA_PERSONA legacy
+  const finalSystemPrompt = systemPrompt || DALEBA_SYSTEM_PROMPT || DALEBA_PERSONA;
 
   const response = await client.messages.create({
     model: 'claude-sonnet-4-5',
@@ -203,4 +204,4 @@ function clearWhatsAppSession(from) {
   whatsappSessions.delete(from);
 }
 
-module.exports = { query, handleWhatsApp, clearWhatsAppSession, DALEBA_PERSONA };
+module.exports = { query, handleWhatsApp, clearWhatsAppSession, DALEBA_PERSONA, callClaude: query };

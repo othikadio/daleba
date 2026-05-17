@@ -5,9 +5,9 @@
 
 const DEMO_BUSINESS = {
   id: 1,
-  name: 'Kadio Coiffure',
+  name: 'Kadio Coiffure et Esthétique',
   address: '615 Antoinette Robidoux, local 100, Longueuil, QC J4J 2V8',
-  phone: '+1 (450) 555-0123',
+  phone: '514-919-5970',
   email: 'contact@kadiocoiffure.ca',
   website: 'https://kadiocoiffure.ca',
   logo_url: null,
@@ -15,20 +15,22 @@ const DEMO_BUSINESS = {
 };
 
 const DEMO_SERVICES = [
-  { id: 1, name: 'Coupe Homme', description: 'Coupe classique + finitions', duration_min: 30, price: 25, category: 'Coupe' },
-  { id: 2, name: 'Coupe Femme', description: 'Coupe + brushing', duration_min: 60, price: 55, category: 'Coupe' },
-  { id: 3, name: 'Coupe Enfant', description: 'Coupe pour moins de 12 ans', duration_min: 20, price: 18, category: 'Coupe' },
-  { id: 4, name: 'Tresses Africaines', description: 'Tresses traditionnelles', duration_min: 180, price: 120, category: 'Tresses' },
-  { id: 5, name: 'Extensions', description: 'Pose d\'extensions naturelles', duration_min: 240, price: 180, category: 'Extensions' },
-  { id: 6, name: 'Coloration', description: 'Coloration complète + soin', duration_min: 120, price: 95, category: 'Coloration' },
-  { id: 7, name: 'Lissage Brésilien', description: 'Lissage kératine longue durée', duration_min: 180, price: 160, category: 'Lissage' },
-  { id: 8, name: 'Soin Hydratant', description: 'Masque + soin profond', duration_min: 45, price: 40, category: 'Soin' },
+  { id: 1, name: 'Coupe Homme', description: 'Dégradé, tondeuse, style afro — propre et soigné', duration_min: 45, price: 25, deposit: 5, category: 'coupe' },
+  { id: 2, name: 'Coupe Femme', description: 'Coupe, mise en forme, définition des boucles', duration_min: 60, price: 45, deposit: 9, category: 'coupe' },
+  { id: 3, name: 'Coupe Enfant', description: 'Coupes pour enfants dans une ambiance douce', duration_min: 30, price: 20, deposit: 0, category: 'coupe' },
+  { id: 4, name: 'Tresses (Box Braids)', description: 'Box braids, cornrows, goddess braids — toutes techniques', duration_min: 180, price: 120, deposit: 24, category: 'tresses' },
+  { id: 5, name: 'Extensions', description: 'Pose d\'extensions naturelles ou synthétiques', duration_min: 240, price: 180, deposit: 36, category: 'extensions' },
+  { id: 6, name: 'Dreadlocks', description: 'Création, entretien et retouche de dreadlocks', duration_min: 300, price: 200, deposit: 40, category: 'locs' },
+  { id: 7, name: 'Tissage', description: 'Tissage naturel et synthétique, cousu ou collé', duration_min: 180, price: 150, deposit: 30, category: 'tissage' },
+  { id: 8, name: 'Perruque', description: 'Pose et personnalisation de perruques full lace', duration_min: 120, price: 130, deposit: 26, category: 'perruque' },
+  { id: 9, name: 'Barbier/Dégradé', description: 'Dégradé rasé, beard trim, liner — sans dépôt', duration_min: 45, price: 25, deposit: 0, category: 'barbier' },
+  { id: 10, name: 'Traitement Capillaire', description: 'Soins hydratants, kératine, deep conditioning', duration_min: 60, price: 55, deposit: 11, category: 'soin' },
 ];
 
 const DEMO_STAFF = [
-  { id: 1, name: 'Ulrich Kadio', role_title: 'Directeur & Coiffeur', color: '#10b981', avatar_url: null, services: [1,2,3,4,5,6,7,8] },
-  { id: 2, name: 'Marie-Claire', role_title: 'Coiffeuse Senior', color: '#6366f1', avatar_url: null, services: [1,2,3,6,7,8] },
-  { id: 3, name: 'Aminata Diallo', role_title: 'Spécialiste Tresses', color: '#f59e0b', avatar_url: null, services: [4,5,8] },
+  { id: 1, name: 'Ulrich Kadio', role_title: 'Fondateur & Directeur artistique', color: '#C4622D', avatar_url: null, services: [1,2,3,4,5,6,7,8,9,10] },
+  { id: 2, name: 'Marie-Claire', role_title: 'Experte tresses & tissages', color: '#7A9E6E', avatar_url: null, services: [1,2,3,4,7,10] },
+  { id: 3, name: 'Aminata Diallo', role_title: 'Spécialiste extensions & perruques', color: '#C9933A', avatar_url: null, services: [4,5,6,7,8,10] },
 ];
 
 // Générer des créneaux disponibles pour une journée

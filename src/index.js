@@ -4,6 +4,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const routes = require('./api/routes');
+const { errorMiddleware, enableSelfHealing, logError } = require('./services/error-monitor');
+const { startFollowupCron } = require('./services/client-followup');
 
 const path = require('path');
 const app = express();
@@ -20,6 +22,9 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // Routes DALEBA
 app.use('/api', routes);
+
+// Middleware erreurs (Point 12)
+app.use(errorMiddleware);
 
 // Accueil (page principale)
 app.get('/', (req, res) => {
@@ -57,15 +62,35 @@ app.get('/health', (req, res) => {
   });
 });
 
+// ─── SELF-HEALING (Point 13) ─────────────────────────────────────────────────
+enableSelfHealing();
+
+process.on('uncaughtException', (err) => {
+  logError(err, 'UNCAUGHT_EXCEPTION');
+  console.error('💀 Erreur critique — DALEBA redémarre dans 3s...');
+  setTimeout(() => process.exit(1), 3000);
+});
+
+process.on('unhandledRejection', (reason) => {
+  logError(reason instanceof Error ? reason : new Error(String(reason)), 'UNHANDLED_REJECTION');
+  console.error('⚠️ Promesse rejetée non gérée:', reason);
+});
+
+// ─── CRON FOLLOWUP CLIENTS (Point 40) ────────────────────────────────────────
+if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  startFollowupCron();
+}
+
 // Démarrage — skip listen() en mode serverless (Vercel)
 if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   app.listen(PORT, () => {
     console.log(`
-╔══════════════════════════════════════╗
-║     DALEBA CORE v1.0 — EN LIGNE     ║
-║     Port: ${PORT}                       ║
-║     Propriétaire: Kadio Ulrich       ║
-╚══════════════════════════════════════╝
+╔══════════════════════════════════════════╗
+║     DALEBA CORE v2.0 — EN LIGNE         ║
+║     Port: ${PORT}                           ║
+║     Propriétaire: Kadio Ulrich           ║
+║     Piliers: I+II+III+IV+V actifs 🚀     ║
+╚══════════════════════════════════════════╝
     `);
   });
 }
