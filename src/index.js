@@ -52,15 +52,17 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Démarrage
-app.listen(PORT, () => {
-  console.log(`
+// Démarrage — skip listen() en mode serverless (Vercel)
+if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  app.listen(PORT, () => {
+    console.log(`
 ╔══════════════════════════════════════╗
 ║     DALEBA CORE v1.0 — EN LIGNE     ║
 ║     Port: ${PORT}                       ║
 ║     Propriétaire: Kadio Ulrich       ║
 ╚══════════════════════════════════════╝
-  `);
-});
+    `);
+  });
+}
 
 module.exports = app;
