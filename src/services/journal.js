@@ -4,7 +4,10 @@
  * Crée une courbe d'apprentissage ascendante de jour en jour
  */
 
-const { pool } = require('../memory/db');
+const { pool, DEMO_MODE } = require('../memory/db');
+
+// In-memory journal store for demo mode
+const journalStore = [];
 
 /**
  * Types d'entrées de journal
@@ -27,13 +30,17 @@ const ENTRY_TYPES = {
  */
 async function logEntry(type, summary, detail = '', metadata = {}) {
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  console.log(`📓 JOURNAL [${type.toUpperCase()}] ${summary}`);
+
+  if (DEMO_MODE) {
+    journalStore.push({ entry_date: today, entry_type: type, summary, detail, metadata, created_at: new Date() });
+    return;
+  }
 
   await pool.query(`
     INSERT INTO daleba_journal (entry_date, entry_type, summary, detail, metadata, created_at)
     VALUES ($1, $2, $3, $4, $5, NOW())
   `, [today, type, summary, detail, JSON.stringify(metadata)]);
-
-  console.log(`📓 JOURNAL [${type.toUpperCase()}] ${summary}`);
 }
 
 /**
@@ -42,6 +49,9 @@ async function logEntry(type, summary, detail = '', metadata = {}) {
  */
 async function getDailyJournal(date) {
   const d = date || new Date().toISOString().slice(0, 10);
+  if (DEMO_MODE) {
+    return journalStore.filter(e => e.entry_date === d);
+  }
   const result = await pool.query(`
     SELECT entry_type, summary, detail, metadata, created_at
     FROM daleba_journal
@@ -97,6 +107,9 @@ async function generateDailyReport(date) {
  * @param {number} days - Nombre de jours en arrière (défaut: 30)
  */
 async function getLearningCurve(days = 30) {
+  if (DEMO_MODE) {
+    return [];
+  }
   const result = await pool.query(`
     SELECT 
       entry_date,

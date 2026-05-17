@@ -1,20 +1,28 @@
 /**
  * DALEBA — Routes Réservation (PUBLIQUES)
  * Pas d'auth requis — accessible par tous les clients en ligne
- * Ces routes sont le cœur du système de booking
+ * Supporte le mode démo (pas de PostgreSQL)
  */
 
 const express = require('express');
 const router = express.Router();
-const { pool } = require('../memory/db');
-const appointments = require('../services/appointments');
+const { pool, DEMO_MODE } = require('../memory/db');
 const { requireTenant } = require('../middleware/tenant');
+const {
+  DEMO_BUSINESS, DEMO_SERVICES, DEMO_STAFF,
+  generateSlots, createDemoAppointment, demoAppointments,
+} = require('../services/demo-data');
 
-// Toutes les routes booking nécessitent un tenant résolu
-router.use(requireTenant);
+// En mode démo, on saute le middleware tenant
+if (!DEMO_MODE) {
+  router.use(requireTenant);
+}
 
 // GET /api/booking/info — Infos publiques de l'entreprise
 router.get('/info', async (req, res) => {
+  if (DEMO_MODE) {
+    return res.json({ business: DEMO_BUSINESS });
+  }
   try {
     const result = await pool.query(
       'SELECT name, address, phone, email, website, logo_url, settings FROM businesses WHERE id = $1 AND is_active = true',
@@ -29,6 +37,9 @@ router.get('/info', async (req, res) => {
 
 // GET /api/booking/services — Liste des services disponibles
 router.get('/services', async (req, res) => {
+  if (DEMO_MODE) {
+    return res.json({ services: DEMO_SERVICES });
+  }
   try {
     const result = await pool.query(
       'SELECT id, name, description, duration_min, price, category FROM services WHERE business_id = $1 AND is_active = true ORDER BY category, name',
@@ -40,10 +51,17 @@ router.get('/services', async (req, res) => {
   }
 });
 
-// GET /api/booking/staff — Liste des employés disponibles (pour un service)
+// GET /api/booking/staff — Liste des employés disponibles
 router.get('/staff', async (req, res) => {
+  if (DEMO_MODE) {
+    const { serviceId } = req.query;
+    let staff = DEMO_STAFF;
+    if (serviceId) {
+      staff = DEMO_STAFF.filter(s => s.services.includes(parseInt(serviceId)));
+    }
+    return res.json({ staff });
+  }
   const { serviceId } = req.query;
-
   try {
     let query = `
       SELECT id, name, role_title, color, avatar_url
@@ -51,14 +69,11 @@ router.get('/staff', async (req, res) => {
       WHERE business_id = $1 AND is_active = true
     `;
     const params = [req.businessId];
-
     if (serviceId) {
       query += ` AND ($2 = ANY(services) OR services = '{}')`;
       params.push(parseInt(serviceId));
     }
-
     query += ' ORDER BY name';
-
     const result = await pool.query(query, params);
     res.json({ staff: result.rows });
   } catch (err) {
@@ -67,15 +82,17 @@ router.get('/staff', async (req, res) => {
 });
 
 // GET /api/booking/slots — Créneaux disponibles
-// Query: ?staffId=1&serviceId=2&date=2026-05-20
 router.get('/slots', async (req, res) => {
   const { staffId, serviceId, date } = req.query;
-
   if (!staffId || !serviceId || !date) {
     return res.status(400).json({ error: 'staffId, serviceId et date requis' });
   }
-
+  if (DEMO_MODE) {
+    const slots = generateSlots(date, staffId);
+    return res.json({ slots, date, staffId });
+  }
   try {
+    const appointments = require('../services/appointments');
     const slots = await appointments.getAvailableSlots({
       businessId: req.businessId,
       staffId: parseInt(staffId),
@@ -96,16 +113,32 @@ router.post('/book', async (req, res) => {
   } = req.body;
 
   if (!staffId || !serviceId || !date || !time || !clientName) {
-    return res.status(400).json({
-      error: 'staffId, serviceId, date, time et clientName requis'
-    });
+    return res.status(400).json({ error: 'staffId, serviceId, date, time et clientName requis' });
   }
-
   if (!clientPhone && !clientEmail) {
     return res.status(400).json({ error: 'clientPhone ou clientEmail requis' });
   }
 
+  if (DEMO_MODE) {
+    const appointment = createDemoAppointment({
+      businessId: 1, staffId, serviceId, clientName, clientPhone, clientEmail, date, time, notes,
+    });
+    return res.status(201).json({
+      success: true,
+      appointment: {
+        id: appointment.id,
+        clientName: appointment.client_name,
+        service: appointment.service_name,
+        startTime: appointment.start_time,
+        endTime: appointment.end_time,
+        status: appointment.status,
+      },
+      message: '✅ RDV confirmé ! (Mode démonstration)',
+    });
+  }
+
   try {
+    const appointments = require('../services/appointments');
     const appointment = await appointments.createAppointment({
       businessId: req.businessId,
       staffId: parseInt(staffId),
@@ -113,7 +146,6 @@ router.post('/book', async (req, res) => {
       clientName, clientPhone, clientEmail,
       date, time, notes,
     });
-
     res.status(201).json({
       success: true,
       appointment: {
@@ -136,8 +168,13 @@ router.post('/book', async (req, res) => {
   }
 });
 
-// GET /api/booking/appointment/:id — Détails d'un RDV (pour la page de confirmation)
+// GET /api/booking/appointment/:id — Détails d'un RDV
 router.get('/appointment/:id', async (req, res) => {
+  if (DEMO_MODE) {
+    const appt = demoAppointments.find(a => a.id === parseInt(req.params.id));
+    if (!appt) return res.status(404).json({ error: 'RDV introuvable' });
+    return res.json({ appointment: appt });
+  }
   try {
     const result = await pool.query(`
       SELECT a.id, a.client_name, a.service_name, a.start_time, a.end_time,
@@ -148,7 +185,6 @@ router.get('/appointment/:id', async (req, res) => {
       JOIN businesses b ON b.id = a.business_id
       WHERE a.id = $1 AND a.business_id = $2
     `, [req.params.id, req.businessId]);
-
     if (!result.rows.length) return res.status(404).json({ error: 'RDV introuvable' });
     res.json({ appointment: result.rows[0] });
   } catch (err) {
@@ -156,14 +192,17 @@ router.get('/appointment/:id', async (req, res) => {
   }
 });
 
-// POST /api/booking/cancel/:id — Annuler un RDV (par le client)
+// POST /api/booking/cancel/:id — Annuler un RDV
 router.post('/cancel/:id', async (req, res) => {
+  if (DEMO_MODE) {
+    const appt = demoAppointments.find(a => a.id === parseInt(req.params.id));
+    if (!appt) return res.status(404).json({ error: 'RDV introuvable' });
+    appt.status = 'cancelled';
+    return res.json({ success: true, message: 'RDV annulé', appointment: appt });
+  }
   try {
-    const appt = await appointments.updateStatus(
-      parseInt(req.params.id),
-      req.businessId,
-      'cancelled'
-    );
+    const appointments = require('../services/appointments');
+    const appt = await appointments.updateStatus(parseInt(req.params.id), req.businessId, 'cancelled');
     res.json({ success: true, message: 'RDV annulé', appointment: appt });
   } catch (err) {
     res.status(500).json({ error: err.message });

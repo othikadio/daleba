@@ -21,6 +21,16 @@ app.use(express.static(path.join(__dirname, '../public')));
 // Routes DALEBA
 app.use('/api', routes);
 
+// Accueil (page principale)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/accueil.html'));
+});
+
+// Booking page
+app.get('/reservation', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
 // Dashboard → redirect
 app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/dashboard.html'));

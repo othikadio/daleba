@@ -6,7 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
-const { pool } = require('../memory/db');
+const { pool, DEMO_MODE } = require('../memory/db');
 const { generateToken, verifyToken, ROLES } = require('../middleware/auth');
 
 // POST /api/auth/register — Créer un compte (via invitation ou super_admin)
@@ -61,6 +61,18 @@ router.post('/login', async (req, res) => {
 
   if (!email || !password) {
     return res.status(400).json({ error: 'email et password requis' });
+  }
+
+  // Mode démo : login avec compte admin par défaut
+  if (DEMO_MODE) {
+    const DEMO_CREDENTIALS = [
+      { email: 'admin@kadiocoiffure.ca', password: 'demo1234', role: 'admin', name: 'Ulrich Kadio', businessId: 1 },
+      { email: 'staff@kadiocoiffure.ca', password: 'demo1234', role: 'staff', name: 'Marie-Claire', businessId: 1 },
+    ];
+    const match = DEMO_CREDENTIALS.find(u => u.email === email && u.password === password);
+    if (!match) return res.status(401).json({ error: 'Identifiants incorrects (démo: admin@kadiocoiffure.ca / demo1234)' });
+    const token = generateToken({ id: 1, email: match.email, name: match.name, role: match.role, businessId: match.businessId });
+    return res.json({ success: true, token, user: { id: 1, ...match }, demo: true });
   }
 
   try {

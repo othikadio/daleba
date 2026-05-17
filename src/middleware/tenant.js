@@ -4,7 +4,7 @@
  * Supporte : subdomain, header X-Business-ID, ou JWT payload
  */
 
-const { pool } = require('../memory/db');
+const { pool, DEMO_MODE } = require('../memory/db');
 
 /**
  * Résout le business_id depuis :
@@ -39,7 +39,7 @@ async function resolveTenant(req, res, next) {
   // Depuis le subdomain
   const host = req.hostname || '';
   const subdomain = host.split('.')[0];
-  if (subdomain && subdomain !== 'www' && subdomain !== 'api' && subdomain !== 'daleba') {
+  if (!DEMO_MODE && subdomain && subdomain !== 'www' && subdomain !== 'api' && subdomain !== 'daleba') {
     try {
       const result = await pool.query(
         'SELECT id FROM businesses WHERE slug = $1 AND is_active = true',
