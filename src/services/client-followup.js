@@ -99,8 +99,19 @@ async function checkAppointmentFollowups() {
 
   try {
     // Import dynamique pour éviter les dépendances circulaires
-    const { getAllAppointments } = require('./appointments');
-    const appointments = await getAllAppointments().catch(() => []);
+    // getAllAppointments peut ne pas exister selon la version du service
+    let appointments = [];
+    try {
+      const apptService = require('./appointments');
+      if (typeof apptService.getAllAppointments === 'function') {
+        appointments = await apptService.getAllAppointments();
+      } else {
+        // Fallback : pas de fonction getAllAppointments disponible
+        console.warn('⚠️ getAllAppointments non disponible — followup ignoré ce cycle');
+      }
+    } catch (importErr) {
+      console.warn('⚠️ Impossible de charger appointments service:', importErr.message);
+    }
 
     const now = Date.now();
 

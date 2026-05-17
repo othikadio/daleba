@@ -268,8 +268,13 @@ async function getWeeklyFinancialReport(tenantId = 'kadio') {
   };
 
   try {
-    const { getAllAppointments } = require('./appointments');
-    const appts = await getAllAppointments(tenantId).catch(() => []);
+    let appts = [];
+    try {
+      const apptService = require('./appointments');
+      if (typeof apptService.getAllAppointments === 'function') {
+        appts = await apptService.getAllAppointments(tenantId);
+      }
+    } catch (_) {}
     const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const weekAppts = appts.filter(a => new Date(a.created_at || a.date).getTime() >= weekAgo);
 
