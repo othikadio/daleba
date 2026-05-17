@@ -1,10 +1,10 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --emerald: #10b981;
-  --emerald-dark: #059669;
-  --emerald-light: #d1fae5;
-  --bg: #f9fafb;
+  --emerald: #C4622D;
+  --emerald-dark: #A8461A;
+  --emerald-light: #F5D5C3;
+  --bg: #FAF6F0;
   --white: #ffffff;
   --gray-50: #f9fafb;
   --gray-100: #f3f4f6;
