@@ -1,11 +1,25 @@
 /**
- * DALEBA — Routes Système : Journal + Rollback
+ * DALEBA — Routes Système : Journal + Rollback + Deploy + Auto-Apply
  */
 
 const express = require('express');
 const router = express.Router();
 const journal = require('../services/journal');
 const rollback = require('../services/rollback');
+const { triggerDeploy, getDeployStatus } = require('../services/cicd');
+const { logError } = require('../services/error-monitor');
+const fs = require('fs');
+const path = require('path');
+
+const DALEBA_MASTER_KEY = process.env.DALEBA_MASTER_KEY;
+
+function requireMasterKey(req, res, next) {
+  const key = req.headers['x-master-key'] || req.body?.masterKey;
+  if (!DALEBA_MASTER_KEY || key !== DALEBA_MASTER_KEY) {
+    return res.status(403).json({ error: 'Clé maître invalide' });
+  }
+  next();
+}
 
 // ─── JOURNAL DE BORD ────────────────────────────────────────────────
 
@@ -115,6 +129,104 @@ router.post('/vocal-command', async (req, res) => {
   }
 
   res.json({ intent: 'unknown', message: 'Commande non reconnue' });
+});
+
+// ─── DEPLOY (Point 15) ──────────────────────────────────────────────────
+
+// POST /api/system/deploy — Déclenche un redeploy Vercel
+router.post('/deploy', requireMasterKey, async (req, res) => {
+  const { reason } = req.body;
+  try {
+    const result = await triggerDeploy(reason || 'Manual deploy via API');
+    res.json(result);
+  } catch (err) {
+    logError(err, 'DEPLOY_TRIGGER');
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/system/deploy/status — Statut du dernier déploiement
+router.get('/deploy/status', async (req, res) => {
+  try {
+    const status = await getDeployStatus();
+    res.json(status);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── AUTO-APPLY (Point 16) ────────────────────────────────────────────────
+
+// POST /api/system/auto-apply — Applique du CSS/JS/config en live
+router.post('/auto-apply', requireMasterKey, async (req, res) => {
+  const { type, target, content } = req.body;
+
+  if (!type || !target || !content) {
+    return res.status(400).json({ error: 'type, target et content requis' });
+  }
+
+  const allowedTypes = ['css', 'js', 'config'];
+  if (!allowedTypes.includes(type)) {
+    return res.status(400).json({ error: `type doit être: ${allowedTypes.join('|')}` });
+  }
+
+  try {
+    // Déterminer le dossier cible
+    const baseDir = type === 'config'
+      ? path.join(__dirname, '../../src')
+      : path.join(__dirname, '../../public', type === 'css' ? 'css' : 'js');
+
+    const filePath = path.join(baseDir, target);
+
+    // Sécurité : rester dans le dossier autorisé
+    if (!filePath.startsWith(path.join(__dirname, '../..')) ) {
+      return res.status(403).json({ error: 'Chemin non autorisé' });
+    }
+
+    // Créer les dossiers parents si nécessaire
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+    // Écrire le fichier
+    fs.writeFileSync(filePath, content, 'utf8');
+
+    // Log dans les annales
+    const logEntry = {
+      timestamp: new Date().toISOString(),
+      type,
+      target,
+      appliedBy: 'auto',
+      contentLength: content.length,
+    };
+
+    const annalesDir = path.join(__dirname, '../../logs');
+    if (!fs.existsSync(annalesDir)) fs.mkdirSync(annalesDir, { recursive: true });
+    const annalesFile = path.join(annalesDir, `annales-${new Date().toISOString().slice(0, 10)}.json`);
+    let annales = [];
+    if (fs.existsSync(annalesFile)) {
+      try { annales = JSON.parse(fs.readFileSync(annalesFile, 'utf8')); } catch { annales = []; }
+    }
+    annales.push(logEntry);
+    fs.writeFileSync(annalesFile, JSON.stringify(annales, null, 2));
+
+    console.log(`📝 Auto-apply: ${type}/${target} (${content.length} chars)`);
+
+    // Déclencher un deploy si ce n'est pas du CSS pur
+    let deployResult = null;
+    if (type !== 'css') {
+      deployResult = await triggerDeploy(`Auto-apply: ${type}/${target}`).catch(() => null);
+    }
+
+    res.json({
+      success: true,
+      applied: logEntry,
+      deploy: deployResult,
+    });
+
+  } catch (err) {
+    logError(err, 'AUTO_APPLY');
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;
