@@ -58,25 +58,59 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
     return res.status(400).json({ error: 'Signature invalide' });
   }
 
-  // Traitement des événements Stripe
+  const bus = require('../services/event-bus');
+
+  // Traitement des événements Stripe → Event Bus temps réel
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object;
-      console.log(`✅ Paiement reçu — ${session.customer_email} — ${session.amount_total / 100} CAD`);
-      // TODO: marquer le RDV comme payé dans la DB
+      const amount = (session.amount_total / 100).toFixed(2);
+      bus.payment(`Paiement reçu: ${session.customer_email} — ${amount} CAD`, {
+        type: 'checkout_completed',
+        email: session.customer_email,
+        amount,
+        currency: session.currency?.toUpperCase() || 'CAD',
+        stripeSessionId: session.id,
+      });
+      break;
+    }
+    case 'invoice.payment_succeeded': {
+      const inv = event.data.object;
+      const amount = (inv.amount_paid / 100).toFixed(2);
+      bus.payment(`Abonnement facturé: ${inv.customer_email} — ${amount} CAD`, {
+        type: 'subscription_payment',
+        email: inv.customer_email,
+        amount,
+        subscriptionId: inv.subscription,
+      });
       break;
     }
     case 'invoice.payment_failed': {
       const invoice = event.data.object;
-      console.log(`❌ Paiement échoué — ${invoice.customer_email}`);
+      bus.emit('error', `Paiement échoué: ${invoice.customer_email}`, {
+        type: 'payment_failed',
+        email: invoice.customer_email,
+        invoiceId: invoice.id,
+      });
+      break;
+    }
+    case 'customer.subscription.created': {
+      bus.payment(`Nouvel abonnement: ${event.data.object.customer}`, {
+        type: 'subscription_created',
+        customerId: event.data.object.customer,
+        plan: event.data.object.plan?.nickname || 'Plan',
+      });
       break;
     }
     case 'customer.subscription.deleted': {
-      console.log(`🔴 Abonnement annulé — ${event.data.object.customer}`);
+      bus.emit('error', `Abonnement annulé: ${event.data.object.customer}`, {
+        type: 'subscription_deleted',
+        customerId: event.data.object.customer,
+      });
       break;
     }
     default:
-      console.log(`📌 Événement Stripe: ${event.type}`);
+      console.log(`📌 Événement Stripe non-traité: ${event.type}`);
   }
 
   res.json({ received: true });

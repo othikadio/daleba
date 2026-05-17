@@ -250,12 +250,27 @@ async function getPortfolio(userId) {
   };
 }
 
-// ─── POINT 28 — AUDIT FINANCIER KADIO COIFFURE ────────────────────────────────
+// ─── POINT 28 — AUDIT FINANCIER KADIO COIFFURE (Square + Stripe) ──────────────
 
 async function getWeeklyFinancialReport(tenantId = 'kadio') {
-  // Tente de collecter les données depuis les appointments et Stripe
+  // Tente Square en priorité, fallback sur appointments local
+  try {
+    const square = require('./square');
+    const squareReport = await square.getSquareWeeklyAudit();
+    return {
+      tenantId,
+      ...squareReport,
+      // On tente d'enrichir avec Stripe si dispo
+      stripeEnriched: false,
+    };
+  } catch (squareErr) {
+    // Fallback mode local si Square non configuré
+  }
+
+  // ── FALLBACK local ──────────────────────────────────────────────────────────
   const report = {
     tenantId,
+    source: 'local',
     period: {
       from: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
       to: new Date().toISOString().slice(0, 10),

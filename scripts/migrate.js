@@ -232,6 +232,24 @@ async function migrate() {
   `);
   console.log('✅ Tables: daleba_annales, daleba_sessions');
 
+  // ─── PILIER 11 : NOTES STRATÉGIQUES (strategic-memory) ────────────────
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS daleba_notes (
+      id SERIAL PRIMARY KEY,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      category VARCHAR(50) NOT NULL DEFAULT 'note',
+      tags JSONB DEFAULT '[]',
+      priority VARCHAR(20) DEFAULT 'normal',
+      author_id VARCHAR(100) DEFAULT 'ulrich',
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_daleba_notes_category ON daleba_notes(category);
+    CREATE INDEX IF NOT EXISTS idx_daleba_notes_created_at ON daleba_notes(created_at DESC);
+  `);
+  console.log('✅ Table: daleba_notes');
+
   // ─── SEED : Kadio Coiffure (business #1) ─────────────────────────
   await pool.query(`
     INSERT INTO businesses (name, slug, type, address, phone, timezone, currency)

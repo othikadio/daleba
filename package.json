@@ -10,20 +10,21 @@
     "reminders": "node scripts/reminder-cron.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "dotenv": "^16.3.1",
-    "pg": "^8.11.3",
     "@anthropic-ai/sdk": "^0.24.0",
-    "openai": "^4.47.1",
     "axios": "^1.6.8",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
     "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.0",
     "morgan": "^1.10.0",
-    "uuid": "^9.0.0",
+    "openai": "^4.47.1",
+    "pg": "^8.11.3",
+    "square": "^39.1.1",
     "stripe": "^14.0.0",
     "twilio": "^5.0.0",
-    "jsonwebtoken": "^9.0.0",
-    "bcryptjs": "^2.4.3"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
