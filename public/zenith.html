@@ -1,1598 +1,769 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DALEBA OS v1.0 — Interface ZENITH</title>
-  <meta name="description" content="Interface holographique DALEBA — Tableau de bord intelligent Kadio Coiffure" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-
-  <style>
-    /* ============================================================
-       RESET & VARIABLES
-    ============================================================ */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --emerald:        #00FF9F;
-      --emerald-dim:    rgba(0, 255, 159, 0.3);
-      --emerald-glow:   rgba(0, 255, 159, 0.08);
-      --emerald-border: rgba(0, 255, 159, 0.25);
-      --cyan:           #00D4FF;
-      --cyan-dim:       rgba(0, 212, 255, 0.3);
-      --terra:          #C4622D;
-      --terra-dim:      rgba(196, 98, 45, 0.4);
-      --bg:             #000000;
-      --bg-deep:        #050510;
-      --text-main:      #E8F8F0;
-      --text-dim:       rgba(232, 248, 240, 0.45);
-      --text-muted:     rgba(232, 248, 240, 0.2);
-      --white:          #FFFFFF;
-      --font-ui:        'Space Grotesk', sans-serif;
-      --font-mono:      'JetBrains Mono', monospace;
-    }
-
-    html, body {
-      width: 100%; height: 100%;
-      overflow: hidden;
-      background: var(--bg);
-      color: var(--text-main);
-      font-family: var(--font-ui);
-      user-select: none;
-    }
-
-    /* ============================================================
-       LAYOUT — 3 ROWS: header / main / input
-    ============================================================ */
-    #app {
-      display: flex;
-      flex-direction: column;
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* ============================================================
-       HEADER
-    ============================================================ */
-    #header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 28px;
-      border-bottom: 1px solid var(--emerald-border);
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(12px);
-      z-index: 100;
-      flex-shrink: 0;
-      height: 52px;
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .logo-text {
-      font-family: var(--font-mono);
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--emerald);
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-    }
-
-    .os-version {
-      font-family: var(--font-mono);
-      font-size: 0.65rem;
-      color: var(--text-dim);
-      letter-spacing: 0.1em;
-    }
-
-    .header-center {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .status-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--emerald);
-      box-shadow: 0 0 8px var(--emerald);
-      animation: pulse-dot 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--emerald); }
-      50% { opacity: 0.6; box-shadow: 0 0 16px var(--emerald); }
-    }
-
-    .status-label {
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      color: var(--emerald);
-      letter-spacing: 0.12em;
-    }
-
-    .ws-indicator {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-family: var(--font-mono);
-      font-size: 0.65rem;
-      color: var(--text-dim);
-      padding: 3px 10px;
-      border: 1px solid var(--emerald-border);
-      border-radius: 20px;
-    }
-
-    .ws-dot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--text-dim);
-    }
-
-    .ws-dot.connected { background: var(--emerald); }
-    .ws-dot.reconnecting { background: var(--terra); animation: pulse-dot 0.8s ease-in-out infinite; }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .nav-link {
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
-      color: var(--text-dim);
-      text-decoration: none;
-      letter-spacing: 0.08em;
-      transition: color 0.2s;
-    }
-    .nav-link:hover { color: var(--emerald); }
-
-    .power-btn {
-      background: none;
-      border: 1px solid var(--terra-dim);
-      color: var(--terra);
-      font-size: 0.75rem;
-      padding: 4px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-family: var(--font-mono);
-      transition: all 0.2s;
-    }
-    .power-btn:hover {
-      background: var(--terra-dim);
-      border-color: var(--terra);
-    }
-
-    /* ============================================================
-       MAIN AREA
-    ============================================================ */
-    #main {
-      flex: 1;
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* ============================================================
-       THREE.JS CANVAS
-    ============================================================ */
-    #planet-canvas {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: 1;
-    }
-
-    /* ============================================================
-       REFLECTION OVERLAY
-    ============================================================ */
-    #reflection-overlay {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 50;
-      text-align: center;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.4s ease;
-    }
-
-    #reflection-overlay.active { opacity: 1; }
-
-    .reflection-text {
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      color: var(--emerald);
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      animation: flicker 1.5s ease-in-out infinite;
-    }
-
-    @keyframes flicker {
-      0%, 100% { opacity: 1; }
-      45% { opacity: 0.7; }
-      50% { opacity: 0.4; }
-      55% { opacity: 0.9; }
-    }
-
-    /* ============================================================
-       FLOATING WIDGETS
-    ============================================================ */
-    .widget {
-      position: absolute;
-      z-index: 10;
-      width: 200px;
-      background: rgba(0, 255, 159, 0.04);
-      border: 1px solid var(--emerald-border);
-      border-radius: 6px;
-      padding: 14px;
-      backdrop-filter: blur(8px);
-      animation: widget-fadein 1.2s ease forwards;
-      opacity: 0;
-    }
-
-    @keyframes widget-fadein {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    #widget-salon    { top: 18px;  left: 18px;  animation-delay: 0.3s; }
-    #widget-system   { top: 18px;  right: 18px; animation-delay: 0.5s; }
-    #widget-activity { bottom: 18px; left: 18px; animation-delay: 0.7s; }
-    #widget-log      { bottom: 18px; right: 18px; animation-delay: 0.9s; }
-
-    .widget-title {
-      font-family: var(--font-mono);
-      font-size: 0.65rem;
-      font-weight: 700;
-      color: var(--emerald);
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-      border-bottom: 1px solid var(--emerald-border);
-      padding-bottom: 6px;
-    }
-
-    .widget-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 5px;
-    }
-
-    .widget-label {
-      font-family: var(--font-mono);
-      font-size: 0.6rem;
-      color: var(--text-dim);
-      letter-spacing: 0.05em;
-    }
-
-    .widget-value {
-      font-family: var(--font-mono);
-      font-size: 0.62rem;
-      color: var(--emerald);
-      font-weight: 500;
-    }
-
-    .widget-value.online {
-      color: var(--emerald);
-    }
-
-    .widget-value.terra {
-      color: var(--terra);
-    }
-
-    .widget-icon {
-      font-size: 0.75rem;
-      margin-right: 4px;
-    }
-
-    /* Glow effect on widgets */
-    .widget::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 6px;
-      box-shadow: 0 0 20px rgba(0, 255, 159, 0.04) inset;
-      pointer-events: none;
-    }
-
-    /* ============================================================
-       CHAT PANEL
-    ============================================================ */
-    #chat-panel {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      z-index: 20;
-      max-height: 35vh;
-      overflow-y: auto;
-      padding: 12px 28px 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      scrollbar-width: thin;
-      scrollbar-color: var(--emerald-border) transparent;
-    }
-
-    #chat-panel::-webkit-scrollbar { width: 3px; }
-    #chat-panel::-webkit-scrollbar-track { background: transparent; }
-    #chat-panel::-webkit-scrollbar-thumb { background: var(--emerald-border); border-radius: 2px; }
-
-    .msg {
-      display: flex;
-      flex-direction: column;
-      max-width: 70%;
-      animation: msg-in 0.3s ease;
-    }
-
-    @keyframes msg-in {
-      from { opacity: 0; transform: translateY(6px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .msg.user {
-      align-self: flex-end;
-      align-items: flex-end;
-    }
-
-    .msg.daleba {
-      align-self: flex-start;
-      align-items: flex-start;
-    }
-
-    .msg-sender {
-      font-family: var(--font-mono);
-      font-size: 0.55rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 3px;
-    }
-
-    .msg.daleba .msg-sender { color: var(--emerald-dim); }
-
-    .msg-bubble {
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      line-height: 1.5;
-      padding: 8px 12px;
-      border-radius: 6px;
-      max-width: 100%;
-      word-break: break-word;
-    }
-
-    .msg.user .msg-bubble {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      color: var(--white);
-    }
-
-    .msg.daleba .msg-bubble {
-      background: rgba(0, 255, 159, 0.06);
-      border: 1px solid var(--emerald-border);
-      color: var(--emerald);
-    }
-
-    .msg-prefix {
-      color: var(--cyan);
-      font-weight: 700;
-      margin-right: 6px;
-    }
-
-    /* Typing indicator */
-    #typing-indicator {
-      display: none;
-      align-self: flex-start;
-    }
-
-    #typing-indicator.active { display: flex; }
-
-    .typing-dots {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-      padding: 10px 14px;
-      background: rgba(0, 255, 159, 0.06);
-      border: 1px solid var(--emerald-border);
-      border-radius: 6px;
-    }
-
-    .typing-dot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--emerald);
-    }
-
-    .typing-dot:nth-child(1) { animation: tdot 1.2s ease-in-out 0s infinite; }
-    .typing-dot:nth-child(2) { animation: tdot 1.2s ease-in-out 0.2s infinite; }
-    .typing-dot:nth-child(3) { animation: tdot 1.2s ease-in-out 0.4s infinite; }
-
-    @keyframes tdot {
-      0%, 100% { opacity: 0.3; transform: scale(0.85); }
-      50% { opacity: 1; transform: scale(1.1); }
-    }
-
-    /* ============================================================
-       INPUT BAR
-    ============================================================ */
-    #input-bar {
-      display: flex;
-      align-items: center;
-      padding: 12px 28px 16px;
-      border-top: 1px solid rgba(0, 255, 159, 0.15);
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(12px);
-      z-index: 100;
-      flex-shrink: 0;
-      gap: 10px;
-    }
-
-    .prompt-sym {
-      font-family: var(--font-mono);
-      font-size: 1.1rem;
-      color: var(--emerald);
-      flex-shrink: 0;
-    }
-
-    #chat-input {
-      flex: 1;
-      background: rgba(255,255,255,0.025);
-      border: none;
-      border-bottom: 1px solid var(--emerald-border);
-      color: var(--white);
-      font-family: var(--font-mono);
-      font-size: 0.82rem;
-      padding: 6px 4px;
-      outline: none;
-      caret-color: var(--emerald);
-      transition: border-color 0.2s;
-    }
-
-    #chat-input::placeholder {
-      color: var(--emerald-dim);
-    }
-
-    #chat-input:focus {
-      border-bottom-color: var(--emerald);
-    }
-
-    #send-btn {
-      background: none;
-      border: 1px solid var(--emerald-border);
-      color: var(--emerald);
-      width: 34px; height: 34px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 0.9rem;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-      transition: all 0.2s;
-      font-family: var(--font-mono);
-    }
-
-    #send-btn:hover {
-      background: rgba(0,255,159,0.1);
-      border-color: var(--emerald);
-      box-shadow: 0 0 12px rgba(0,255,159,0.2);
-    }
-
-    #send-btn:active {
-      transform: scale(0.92);
-    }
-
-    /* ============================================================
-       FLASH OVERLAY
-    ============================================================ */
-    #flash-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(255,255,255,0);
-      pointer-events: none;
-      z-index: 999;
-      transition: background 0.1s;
-    }
-
-    /* ============================================================
-       SCANLINES (subtle ambient)
-    ============================================================ */
-    #scanlines {
-      position: fixed;
-      inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 3px,
-        rgba(0, 255, 159, 0.008) 3px,
-        rgba(0, 255, 159, 0.008) 4px
-      );
-      pointer-events: none;
-      z-index: 200;
-    }
-
-    /* ============================================================
-       MOBILE — hide widgets, show planet only
-    ============================================================ */
-    @media (max-width: 768px) {
-      .widget { display: none; }
-
-      #chat-panel { max-height: 40vh; padding: 8px 14px 4px; }
-      #input-bar  { padding: 10px 14px 12px; }
-      #header     { padding: 10px 14px; }
-    }
-
-    /* ============================================================
-       ERROR TOAST
-    ============================================================ */
-    #error-toast {
-      position: fixed;
-      top: 64px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(196, 98, 45, 0.15);
-      border: 1px solid rgba(196, 98, 45, 0.5);
-      color: var(--terra);
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
-      padding: 8px 18px;
-      border-radius: 4px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      z-index: 500;
-      opacity: 0;
-      transition: opacity 0.3s;
-      pointer-events: none;
-    }
-
-    #error-toast.show { opacity: 1; }
-
-    /* ============================================================
-       PLANET STATUS TEXT
-    ============================================================ */
-    #planet-status {
-      position: absolute;
-      bottom: 50%;
-      left: 50%;
-      transform: translateX(-50%) translateY(140px);
-      z-index: 15;
-      font-family: var(--font-mono);
-      font-size: 0.65rem;
-      color: var(--emerald-dim);
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.5s;
-      text-align: center;
-    }
-
-    #planet-status.visible { opacity: 1; }
-
-    /* ============================================================
-       GRID LINES (ambient bg)
-    ============================================================ */
-    #grid-bg {
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(0,255,159,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,255,159,0.025) 1px, transparent 1px);
-      background-size: 60px 60px;
-      pointer-events: none;
-      z-index: 0;
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>DALEBA OS — ZENITH</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --em:#00FF9F;
+  --em2:#50C878;
+  --cy:#00D4FF;
+  --terra:#C4622D;
+  --bg:#000;
+  --txt:#D0F0E0;
+  --dim:rgba(0,255,159,0.35);
+  --border:rgba(0,255,159,0.18);
+  --mono:'JetBrains Mono',monospace;
+  --ui:'Space Grotesk',sans-serif;
+}
+
+html,body{
+  width:100%;height:100%;
+  overflow:hidden;
+  background:#000;
+  color:var(--txt);
+  font-family:var(--ui);
+}
+
+/* ── LAYOUT ──────────────────────────────────────── */
+#shell{
+  display:flex;
+  flex-direction:column;
+  width:100vw;
+  height:100vh;
+  position:relative;
+  overflow:hidden;
+}
+
+/* ── HEADER ──────────────────────────────────────── */
+#hdr{
+  position:relative;
+  z-index:200;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 24px;
+  height:50px;
+  border-bottom:1px solid var(--border);
+  background:rgba(0,0,0,0.75);
+  backdrop-filter:blur(16px);
+  flex-shrink:0;
+}
+.logo{font-family:var(--mono);font-size:.9rem;font-weight:700;color:var(--em);letter-spacing:.18em}
+.ver{font-family:var(--mono);font-size:.58rem;color:rgba(0,255,159,.4);margin-left:8px}
+.online-dot{width:7px;height:7px;border-radius:50%;background:var(--em);box-shadow:0 0 10px var(--em);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.online-lbl{font-family:var(--mono);font-size:.65rem;color:var(--em);letter-spacing:.12em;margin-left:6px}
+.nav-links{display:flex;gap:16px}
+.nav-links a{font-family:var(--mono);font-size:.62rem;color:rgba(0,255,159,.5);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--em)}
+.ws-badge{font-family:var(--mono);font-size:.6rem;padding:3px 10px;border:1px solid var(--border);border-radius:20px;color:rgba(0,255,159,.5)}
+.ws-badge.live{color:var(--em);border-color:var(--dim)}
+
+/* ── SCENE (full remaining height) ──────────────── */
+#scene{
+  position:relative;
+  flex:1;
+  width:100%;
+  overflow:hidden;
+}
+
+/* Canvas THREE.JS — dimensions forcées via JS */
+#planet{
+  display:block;
+  position:absolute;
+  top:0;left:0;
+  /* width/height set by JS */
+}
+
+/* ── WIDGETS ──────────────────────────────────────── */
+.w{
+  position:absolute;
+  z-index:50;
+  width:188px;
+  background:rgba(0,0,0,0.55);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:12px 14px;
+  backdrop-filter:blur(12px);
+  animation:wfade .8s ease forwards;
+  opacity:0;
+}
+@keyframes wfade{to{opacity:1;transform:translateY(0)}from{opacity:0;transform:translateY(6px)}}
+#w1{top:16px;left:16px;animation-delay:.4s}
+#w2{top:16px;right:16px;animation-delay:.6s}
+#w3{bottom:72px;left:16px;animation-delay:.8s}
+#w4{bottom:72px;right:16px;animation-delay:1s}
+.wt{font-family:var(--mono);font-size:.6rem;font-weight:700;color:var(--em);letter-spacing:.15em;text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:8px}
+.wr{display:flex;justify-content:space-between;margin-bottom:4px}
+.wl{font-family:var(--mono);font-size:.58rem;color:rgba(255,255,255,.4)}
+.wv{font-family:var(--mono);font-size:.6rem;color:var(--em)}
+@media(max-width:640px){.w{display:none}}
+
+/* ── REFLECTION OVERLAY ──────────────────────────── */
+#reflex{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  z-index:60;
+  text-align:center;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .3s;
+}
+#reflex.on{opacity:1}
+.rtxt{font-family:var(--mono);font-size:.75rem;color:var(--em);letter-spacing:.25em;text-transform:uppercase;animation:flk 1.2s infinite}
+@keyframes flk{0%,100%{opacity:1}45%{opacity:.5}50%{opacity:.2}55%{opacity:.8}}
+
+/* ── INPUT BAR ────────────────────────────────────── */
+#bar{
+  position:relative;
+  z-index:200;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 20px;
+  height:54px;
+  border-top:1px solid var(--border);
+  background:rgba(0,0,0,0.8);
+  backdrop-filter:blur(16px);
+}
+.prompt{font-family:var(--mono);font-size:1rem;color:var(--em);flex-shrink:0}
+#msg{
+  flex:1;
+  background:transparent;
+  border:none;
+  outline:none;
+  color:var(--txt);
+  font-family:var(--mono);
+  font-size:.85rem;
+  caret-color:var(--em);
+}
+#msg::placeholder{color:rgba(0,255,159,.25)}
+#send{
+  background:none;
+  border:1px solid var(--dim);
+  color:var(--em);
+  font-family:var(--mono);
+  font-size:.8rem;
+  padding:5px 14px;
+  border-radius:4px;
+  cursor:pointer;
+  transition:all .2s;
+  flex-shrink:0;
+}
+#send:hover{background:rgba(0,255,159,.1)}
+
+/* ── CHAT PANEL ──────────────────────────────────── */
+#chat{
+  position:absolute;
+  bottom:60px;right:0;
+  width:340px;
+  max-height:calc(100% - 130px);
+  overflow-y:auto;
+  z-index:100;
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+#chat::-webkit-scrollbar{width:3px}
+#chat::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
+.bubble{
+  max-width:90%;
+  padding:8px 12px;
+  border-radius:6px;
+  font-family:var(--mono);
+  font-size:.72rem;
+  line-height:1.5;
+  animation:bub .3s ease;
+}
+@keyframes bub{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.bubble.user{align-self:flex-end;background:rgba(0,255,159,.08);border:1px solid rgba(0,255,159,.2);color:#fff}
+.bubble.daleba{align-self:flex-start;background:rgba(0,0,0,.5);border:1px solid var(--border);color:var(--em)}
+.bubble.daleba::before{content:'DALEBA › ';font-weight:700;letter-spacing:.05em}
+.typing{align-self:flex-start;font-family:var(--mono);font-size:.7rem;color:var(--dim);padding:4px 8px}
+.typing span{animation:dots 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes dots{0%,80%,100%{opacity:.2}40%{opacity:1}}
+@media(max-width:640px){#chat{width:100%}}
+</style>
 </head>
 <body>
-<div id="app">
-  <!-- Ambient background -->
-  <div id="grid-bg"></div>
-  <div id="scanlines"></div>
-  <div id="flash-overlay"></div>
+<div id="shell">
 
-  <!-- ─── HEADER ─── -->
-  <header id="header">
-    <div class="header-left">
-      <span class="logo-text">DALEBA OS</span>
-      <span class="os-version">v1.0 — Interface ZENITH</span>
+  <!-- HEADER -->
+  <div id="hdr">
+    <div style="display:flex;align-items:center">
+      <span class="logo">DALEBA</span>
+      <span class="ver">OS v2.0</span>
     </div>
-
-    <div class="header-center">
-      <div class="status-dot"></div>
-      <span class="status-label">ONLINE</span>
-      <div class="ws-indicator">
-        <div class="ws-dot" id="ws-dot"></div>
-        <span id="ws-label">WS</span>
-      </div>
+    <div style="display:flex;align-items:center">
+      <div class="online-dot"></div>
+      <span class="online-lbl">ONLINE</span>
     </div>
-
-    <div class="header-right">
-      <a href="/" class="nav-link">← Accueil</a>
-      <a href="/dashboard" class="nav-link">Dashboard</a>
-      <button class="power-btn" onclick="toggleSound()">♪</button>
-    </div>
-  </header>
-
-  <!-- ─── MAIN ─── -->
-  <div id="main">
-    <div id="planet-container" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
-    <canvas id="planet-canvas"></canvas>
-    </div>
-
-    <!-- Reflection Mode Overlay -->
-    <div id="reflection-overlay">
-      <div class="reflection-text">DALEBA calcule...</div>
-    </div>
-
-    <!-- Planet Status -->
-    <div id="planet-status"></div>
-
-    <!-- Floating Widgets -->
-    <div class="widget" id="widget-salon">
-      <div class="widget-title"><span class="widget-icon">📅</span>Salon Live</div>
-      <div class="widget-row">
-        <span class="widget-label">Aujourd'hui</span>
-        <span class="widget-value">Kadio Coiffure</span>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div class="nav-links">
+        <a href="/">← Accueil</a>
+        <a href="/reservation">Réserver</a>
+        <a href="/dashboard">Dashboard</a>
       </div>
-      <div class="widget-row">
-        <span class="widget-label">RDV</span>
-        <span class="widget-value" id="w-rdv">0 (démo)</span>
-      </div>
-      <div class="widget-row">
-        <span class="widget-label">Prochain</span>
-        <span class="widget-value" id="w-next">--</span>
-      </div>
-      <div class="widget-row">
-        <span class="widget-label">Coiffeurs actifs</span>
-        <span class="widget-value">3</span>
-      </div>
-    </div>
-
-    <div class="widget" id="widget-system">
-      <div class="widget-title"><span class="widget-icon">⚡</span>Système</div>
-      <div class="widget-row">
-        <span class="widget-label">Latence</span>
-        <span class="widget-value" id="w-latency">&lt;100ms</span>
-      </div>
-      <div class="widget-row">
-        <span class="widget-label">Modèle</span>
-        <span class="widget-value">Claude</span>
-      </div>
-      <div class="widget-row">
-        <span class="widget-label">Status</span>
-        <span class="widget-value online">● ONLINE</span>
-      </div>
-      <div class="widget-row">
-        <span class="widget-label">Heure</span>
-        <span class="widget-value" id="w-time">--:--</span>
-      </div>
-    </div>
-
-    <div class="widget" id="widget-activity">
-      <div class="widget-title"><span class="widget-icon">📊</span>Activité</div>
-      <div class="widget-row">
-        <span class="widget-label">Messages</span>
-        <span class="widget-value" id="w-messages">0</span>
-      </div>
-      <div class="widget-row">
-        <span class="widget-label">SMS envoyés</span>
-        <span class="widget-value" id="w-sms">0</span>
-      </div>
-      <div class="widget-row">
-        <span class="widget-label">RDV créés</span>
-        <span class="widget-value" id="w-created">0</span>
-      </div>
-    </div>
-
-    <div class="widget" id="widget-log">
-      <div class="widget-title"><span class="widget-icon">🔄</span>Dernier Log</div>
-      <div class="widget-row">
-        <span class="widget-label">Action</span>
-        <span class="widget-value" id="w-action" style="font-size:0.55rem">Système init.</span>
-      </div>
-      <div class="widget-row">
-        <span class="widget-label">Date</span>
-        <span class="widget-value" id="w-date">--</span>
-      </div>
-      <div class="widget-row">
-        <span class="widget-label">Build</span>
-        <span class="widget-value terra">ZENITH-3D</span>
-      </div>
-    </div>
-
-    <!-- Chat Panel -->
-    <div id="chat-panel">
-      <div class="msg daleba" id="welcome-msg">
-        <div class="msg-sender">DALEBA OS</div>
-        <div class="msg-bubble">
-          <span class="msg-prefix">DALEBA ›</span>Interface ZENITH initialisée. Système en ligne. Comment puis-je vous assister, Ulrich ?
-        </div>
-      </div>
-      <div class="msg" id="typing-indicator">
-        <div class="typing-dots">
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
-        </div>
-      </div>
+      <span class="ws-badge" id="wsbadge">HTTP ●</span>
     </div>
   </div>
 
-  <!-- ─── INPUT BAR ─── -->
-  <div id="input-bar">
-    <span class="prompt-sym">›</span>
-    <input
-      type="text"
-      id="chat-input"
-      placeholder="Parle à DALEBA..."
-      autocomplete="off"
-      spellcheck="false"
-    />
-    <button id="send-btn" title="Envoyer">↑</button>
+  <!-- SCENE 3D -->
+  <div id="scene">
+    <canvas id="planet"></canvas>
+
+    <!-- Floating widgets -->
+    <div class="w" id="w1">
+      <div class="wt">📅 Salon Live</div>
+      <div class="wr"><span class="wl">RDV aujourd'hui</span><span class="wv" id="w-rdv">0</span></div>
+      <div class="wr"><span class="wl">Prochain RDV</span><span class="wv">--</span></div>
+      <div class="wr"><span class="wl">Coiffeurs actifs</span><span class="wv">3</span></div>
+    </div>
+    <div class="w" id="w2">
+      <div class="wt">⚡ Système</div>
+      <div class="wr"><span class="wl">Latence</span><span class="wv">&lt;120ms</span></div>
+      <div class="wr"><span class="wl">Modèle IA</span><span class="wv">Claude</span></div>
+      <div class="wr"><span class="wl">Status</span><span class="wv">● ONLINE</span></div>
+    </div>
+    <div class="w" id="w3">
+      <div class="wt">📊 Activité</div>
+      <div class="wr"><span class="wl">Messages</span><span class="wv" id="w-msgs">0</span></div>
+      <div class="wr"><span class="wl">SMS envoyés</span><span class="wv">0</span></div>
+      <div class="wr"><span class="wl">RDV créés</span><span class="wv">0</span></div>
+    </div>
+    <div class="w" id="w4">
+      <div class="wt">🔄 Dernier log</div>
+      <div class="wr"><span class="wl" id="w-log" style="color:var(--em);font-size:.58rem">Système initialisé</span></div>
+      <div class="wr"><span class="wl" id="w-time" style="font-size:.55rem"></span></div>
+    </div>
+
+    <!-- Reflection overlay -->
+    <div id="reflex"><div class="rtxt">DALEBA calcule…</div></div>
+
+    <!-- Chat panel -->
+    <div id="chat"></div>
   </div>
 
-  <!-- Error Toast -->
-  <div id="error-toast">DALEBA recalibrant...</div>
+  <!-- INPUT BAR -->
+  <div id="bar">
+    <span class="prompt">›</span>
+    <input id="msg" type="text" placeholder="Parle à DALEBA… (entrée pour envoyer)" autocomplete="off" autocorrect="off" spellcheck="false"/>
+    <button id="send">↑ ENVOYER</button>
+  </div>
+
 </div>
+
+<!-- THREE.JS via UNPKG (fallback si cdnjs échoue) -->
+<script>
+(function(){
+  var s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js';
+  s.onerror=function(){
+    var s2=document.createElement('script');
+    s2.src='https://unpkg.com/three@0.134.0/build/three.min.js';
+    s2.onload=bootZenith;
+    s2.onerror=function(){ window._THREE_FAILED=true; bootZenith(); };
+    document.head.appendChild(s2);
+  };
+  s.onload=bootZenith;
+  document.head.appendChild(s);
+})();
+</script>
 
 <script>
 /* ============================================================
-   POINT 48 — Supprimer console.log en production
+   DALEBA ZENITH — Moteur principal
+   Ordre d'exécution :
+   1. Three.js chargé → bootZenith()
+   2. bootZenith() → initPlanet() → initThree() ou canvas2DFallback()
+   3. animate() loop → requestAnimationFrame infini
+   4. initChat() → input + API
+   5. connectHTTP() → polling /health toutes les 30s
 ============================================================ */
-(function() {
-  const noop = () => {};
-  if (location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-    console.log = noop;
-    console.debug = noop;
-    console.info = noop;
-  }
-})();
 
-/* ============================================================
-   AUDIO ENGINE — Point 47: Sons organiques via Web Audio API
-============================================================ */
-let audioCtx = null;
-let soundEnabled = true;
+// ── GLOBALS ──────────────────────────────────────────────
+var scene, camera, renderer, clock;
+var particleSystem, lineSegments;
+var rotSpeed = 0.0015, targetRot = 0.0015;
+var waveActive = false, waveTime = 0;
+var reflectionMode = false;
+var msgCount = 0;
+var sessionId = 'z-' + Math.random().toString(36).slice(2,10);
+var chatEl, msgEl, chatHistory = [];
 
-function getAudioCtx() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  return audioCtx;
-}
+// ── ENTRY POINT ──────────────────────────────────────────
+function bootZenith() {
+  // Mettre à jour l'heure widget
+  var wt = document.getElementById('w-time');
+  if(wt) wt.textContent = new Date().toLocaleString('fr-CA');
 
-function playPing() {
-  if (!soundEnabled) return;
+  chatEl  = document.getElementById('chat');
+  msgEl   = document.getElementById('msg');
+
+  // Restore history
   try {
-    const ctx = getAudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.value = 440;
-    osc.type = 'sine';
-    gain.gain.setValueAtTime(0.1, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.25);
-  } catch(e) {}
-}
-
-function playWhoosh() {
-  if (!soundEnabled) return;
-  try {
-    const ctx = getAudioCtx();
-    const bufSize = ctx.sampleRate * 0.5;
-    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < bufSize; i++) {
-      data[i] = (Math.random() * 2 - 1) * (1 - i / bufSize);
+    var saved = localStorage.getItem('daleba-chat');
+    if(saved) {
+      chatHistory = JSON.parse(saved).slice(-20);
+      chatHistory.forEach(function(m){ addBubble(m.role, m.text, false); });
     }
-    const source = ctx.createBufferSource();
-    source.buffer = buf;
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.value = 800;
-    filter.Q.value = 0.5;
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.06, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-    source.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
-    source.start(ctx.currentTime);
-  } catch(e) {}
+  } catch(_){}
+
+  // Init planète
+  initPlanet();
+
+  // Input
+  initInput();
+
+  // Polling HTTP (serverless-friendly, pas de WS)
+  connectHTTP();
 }
 
-function playTick() {
-  if (!soundEnabled) return;
-  try {
-    const ctx = getAudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.value = 880;
-    osc.type = 'square';
-    gain.gain.setValueAtTime(0.025, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.04);
-  } catch(e) {}
-}
-
-function toggleSound() {
-  soundEnabled = !soundEnabled;
-  const btn = document.querySelector('.power-btn');
-  if (btn) btn.textContent = soundEnabled ? '♪' : '♩';
-}
-
-/* ============================================================
-   SESSION ID — Point 49
-============================================================ */
-function getSessionId() {
-  let sid = sessionStorage.getItem('daleba_session');
-  if (!sid) {
-    sid = 'zenith_' + Math.random().toString(36).slice(2, 10) + '_' + Date.now();
-    sessionStorage.setItem('daleba_session', sid);
+// ── PLANET INIT ──────────────────────────────────────────
+function initPlanet() {
+  if(window._THREE_FAILED || typeof THREE === 'undefined') {
+    canvas2DFallback();
+    return;
   }
-  return sid;
-}
 
-/* ============================================================
-   PERSISTENCE — Point 49: localStorage historique
-============================================================ */
-const STORAGE_KEY = 'daleba_history';
-const MAX_HISTORY = 10;
+  var canvas = document.getElementById('planet');
+  var scene_el = document.getElementById('scene');
 
-function loadHistory() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch(e) { return []; }
-}
+  // FORCER les dimensions avec window.innerWidth/Height
+  // (canvas.offsetWidth est 0 si le layout n'est pas encore rendu)
+  var W = scene_el.clientWidth  || window.innerWidth;
+  var H = scene_el.clientHeight || (window.innerHeight - 104); // header(50) + bar(54)
 
-function saveToHistory(role, text) {
-  const history = loadHistory();
-  history.push({ role, text, ts: Date.now() });
-  if (history.length > MAX_HISTORY) history.splice(0, history.length - MAX_HISTORY);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
-}
-
-function restoreHistory() {
-  const history = loadHistory();
-  if (history.length === 0) return;
-  history.forEach(({ role, text }) => {
-    appendMessage(role === 'user' ? 'user' : 'daleba', text, false);
-  });
-}
-
-/* ============================================================
-   WIDGET CLOCK
-============================================================ */
-function updateClock() {
-  const now = new Date();
-  const el = document.getElementById('w-time');
-  if (el) {
-    el.textContent = now.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  if(W < 10 || H < 10) {
+    W = window.innerWidth;
+    H = window.innerHeight - 104;
   }
-  const dateEl = document.getElementById('w-date');
-  if (dateEl) {
-    dateEl.textContent = now.toLocaleDateString('fr-CA');
-  }
-}
 
-setInterval(updateClock, 1000);
-updateClock();
-
-/* ============================================================
-   THREE.JS PLANET — Points 41, 42
-============================================================ */
-let scene, camera, renderer;
-let particleSystem, lineSegments;
-let clock;
-
-// Planet state
-let rotationSpeed = 0.002;
-let targetRotationSpeed = 0.002;
-let reflectionMode = false;
-let waveTime = 0;
-let waveActive = false;
-let particlePositions, originalPositions;
-
-const PARTICLE_COUNT = 800;
-const SPHERE_RADIUS = 2.2;
-const LINE_DISTANCE = 0.8;
-
-function initThree() {
-  const canvas = document.getElementById('planet-canvas');
-  const W = canvas.offsetWidth;
-  const H = canvas.offsetHeight;
-
-  scene = new THREE.Scene();
-  clock = new THREE.Clock();
-
-  camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 100);
-  camera.position.set(0, 0, 6);
+  // Appliquer les dimensions au canvas AVANT de créer le renderer
+  canvas.width  = W;
+  canvas.height = H;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
 
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    initThree(canvas, W, H);
   } catch(e) {
-    throw new Error('WebGLRenderer failed: ' + e.message);
+    console.warn('[ZENITH] Three.js error:', e.message);
+    canvas2DFallback();
   }
-  renderer.setSize(W, H);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+}
+
+// ── THREE.JS INIT ─────────────────────────────────────────
+function initThree(canvas, W, H) {
+  scene  = new THREE.Scene();
+  clock  = new THREE.Clock();
+  camera = new THREE.PerspectiveCamera(55, W/H, 0.1, 100);
+  camera.position.set(0, 0, 5.5);
+
+  // Renderer — test WebGL explicitement d'abord
+  var testCtx = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if(!testCtx) throw new Error('No WebGL context');
+
+  renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, context: testCtx });
+  renderer.setSize(W, H, false); // false = ne pas modifier le style CSS
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.setClearColor(0x000000, 0);
 
-  // --- Particles ---
-  const geometry = new THREE.BufferGeometry();
-  particlePositions = new Float32Array(PARTICLE_COUNT * 3);
-  originalPositions = new Float32Array(PARTICLE_COUNT * 3);
-  const colors = new Float32Array(PARTICLE_COUNT * 3);
+  // ── LUMIÈRES ──
+  scene.add(new THREE.AmbientLight(0x003311, 2.0));
+  var dlight = new THREE.DirectionalLight(0x00ff9f, 1.5);
+  dlight.position.set(5, 5, 5);
+  scene.add(dlight);
+  var plight = new THREE.PointLight(0x00d4ff, 2.0, 20);
+  plight.position.set(-3, 2, 4);
+  scene.add(plight);
 
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    // Fibonacci sphere distribution
-    const phi = Math.acos(1 - 2 * (i + 0.5) / PARTICLE_COUNT);
-    const theta = Math.PI * (1 + Math.sqrt(5)) * i;
-    const x = SPHERE_RADIUS * Math.sin(phi) * Math.cos(theta);
-    const y = SPHERE_RADIUS * Math.sin(phi) * Math.sin(theta);
-    const z = SPHERE_RADIUS * Math.cos(phi);
+  // ── PLANÈTE DE PARTICULES ──
+  var N = 900;
+  var R = 2.0;
+  var positions = new Float32Array(N * 3);
+  var colors    = new Float32Array(N * 3);
+  var origPos   = new Float32Array(N * 3);
 
-    particlePositions[i * 3]     = x;
-    particlePositions[i * 3 + 1] = y;
-    particlePositions[i * 3 + 2] = z;
-    originalPositions[i * 3]     = x;
-    originalPositions[i * 3 + 1] = y;
-    originalPositions[i * 3 + 2] = z;
-
-    // Gradient émeraude → cyan (t = 0..1 by vertical position)
-    const t = (y / SPHERE_RADIUS + 1) / 2; // 0=bottom, 1=top
-    colors[i * 3]     = t * 0.0 + (1 - t) * 0.0;       // R: 0
-    colors[i * 3 + 1] = t * 1.0 + (1 - t) * 0.83;      // G: 0.83..1
-    colors[i * 3 + 2] = t * 0.62 + (1 - t) * 0.0;      // B: 0..0.62
+  for(var i = 0; i < N; i++) {
+    // Distribution Fibonacci (uniforme sur la sphère)
+    var phi   = Math.acos(1 - 2*(i+0.5)/N);
+    var theta = Math.PI*(1+Math.sqrt(5))*i;
+    var x = R * Math.sin(phi) * Math.cos(theta);
+    var y = R * Math.sin(phi) * Math.sin(theta);
+    var z = R * Math.cos(phi);
+    positions[i*3]   = origPos[i*3]   = x;
+    positions[i*3+1] = origPos[i*3+1] = y;
+    positions[i*3+2] = origPos[i*3+2] = z;
+    // Couleur : émeraude (#50C878) → cyan (#00D4FF) selon latitude
+    var t = (y/R + 1) / 2;
+    colors[i*3]   = (1-t)*0.31 + t*0.0;   // R
+    colors[i*3+1] = (1-t)*0.78 + t*0.83;  // G
+    colors[i*3+2] = (1-t)*0.47 + t*1.0;   // B
   }
 
-  geometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-  geometry.setAttribute('color',    new THREE.BufferAttribute(colors, 3));
-
-  const particleMat = new THREE.PointsMaterial({
-    size: 0.048,
-    vertexColors: true,
-    sizeAttenuation: true,
-    transparent: true,
-    opacity: 0.9,
-  });
-
-  particleSystem = new THREE.Points(geometry, particleMat);
+  particleSystem = window._particles = new THREE.Points(
+    Object.assign(new THREE.BufferGeometry(), {
+      _orig: origPos
+    }),
+    new THREE.PointsMaterial({ size: 0.055, vertexColors: true, sizeAttenuation: true, transparent: true, opacity: 1.0 })
+  );
+  particleSystem.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  particleSystem.geometry.setAttribute('color',    new THREE.BufferAttribute(colors, 3));
   scene.add(particleSystem);
 
-  // --- Connection Lines ---
-  buildLines();
+  // ── LIGNES DE CONNEXION ──
+  buildLines(positions, N, R);
 
-  // --- Ambient light for any meshes ---
-  scene.add(new THREE.AmbientLight(0x00ff9f, 0.1));
+  // ── ANNEAU ORBITAL ──
+  var ringGeo = new THREE.TorusGeometry(R * 1.35, 0.006, 6, 120);
+  var ringMat = new THREE.MeshBasicMaterial({ color: 0x00ff9f, transparent: true, opacity: 0.25 });
+  var ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.rotation.x = Math.PI / 2.8;
+  scene.add(ring);
+  window._ring = ring;
 
-  // --- Mouse drag orbit ---
-  setupMouseOrbit(canvas);
+  // ── HALO GLOW (sphère large, faces internes) ──
+  var haloGeo = new THREE.SphereGeometry(R * 1.15, 32, 32);
+  var haloMat = new THREE.MeshBasicMaterial({ color: 0x00ff9f, transparent: true, opacity: 0.04, side: THREE.BackSide });
+  scene.add(new THREE.Mesh(haloGeo, haloMat));
 
-  // --- Resize ---
-  window.addEventListener('resize', () => {
-    const w = canvas.offsetWidth, h = canvas.offsetHeight;
-    camera.aspect = w / h;
+  // ── RESIZE ──
+  window.addEventListener('resize', function() {
+    var se = document.getElementById('scene');
+    var nW = se.clientWidth  || window.innerWidth;
+    var nH = se.clientHeight || (window.innerHeight - 104);
+    canvas.width  = nW; canvas.height  = nH;
+    canvas.style.width  = nW+'px'; canvas.style.height = nH+'px';
+    camera.aspect = nW/nH;
     camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
+    renderer.setSize(nW, nH, false);
   });
 
+  // ── DRAG ORBIT ──
+  setupDrag(canvas);
+
+  // ── LANCER LA BOUCLE ──
   animate();
 
-  // Startup whoosh
-  setTimeout(playWhoosh, 400);
+  // Son de démarrage
+  playWhoosh();
 }
 
-function buildLines() {
-  if (lineSegments) {
-    scene.remove(lineSegments);
-    lineSegments.geometry.dispose();
-    lineSegments.material.dispose();
-  }
-
-  const linePositions = [];
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    const xi = particlePositions[i * 3];
-    const yi = particlePositions[i * 3 + 1];
-    const zi = particlePositions[i * 3 + 2];
-    for (let j = i + 1; j < PARTICLE_COUNT; j++) {
-      const dx = xi - particlePositions[j * 3];
-      const dy = yi - particlePositions[j * 3 + 1];
-      const dz = zi - particlePositions[j * 3 + 2];
-      const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
-      if (dist < LINE_DISTANCE) {
-        linePositions.push(xi, yi, zi, particlePositions[j*3], particlePositions[j*3+1], particlePositions[j*3+2]);
+// ── LIGNES DE CONNEXION ──────────────────────────────────
+function buildLines(positions, N, R) {
+  if(lineSegments) { scene.remove(lineSegments); lineSegments.geometry.dispose(); }
+  var verts = [];
+  var DIST2 = 0.75 * 0.75;
+  for(var i = 0; i < N; i++) {
+    for(var j = i+1; j < N; j++) {
+      var dx = positions[i*3]   - positions[j*3];
+      var dy = positions[i*3+1] - positions[j*3+1];
+      var dz = positions[i*3+2] - positions[j*3+2];
+      if(dx*dx+dy*dy+dz*dz < DIST2) {
+        verts.push(positions[i*3], positions[i*3+1], positions[i*3+2]);
+        verts.push(positions[j*3], positions[j*3+1], positions[j*3+2]);
       }
     }
   }
-
-  const lineGeo = new THREE.BufferGeometry();
-  lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
-  const lineMat = new THREE.LineBasicMaterial({
-    color: 0x00d4ff,
-    transparent: true,
-    opacity: 0.08,
-  });
-  lineSegments = new THREE.LineSegments(lineGeo, lineMat);
+  var lGeo = new THREE.BufferGeometry();
+  lGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(verts), 3));
+  lineSegments = new THREE.LineSegments(lGeo, new THREE.LineBasicMaterial({ color: 0x00ff9f, transparent: true, opacity: 0.12 }));
   scene.add(lineSegments);
 }
 
-// Mouse orbit state
-let isDragging = false;
-let prevMouse = { x: 0, y: 0 };
-let autoRotateX = 0, autoRotateY = 0;
-let dragDeltaX = 0, dragDeltaY = 0;
-
-function setupMouseOrbit(canvas) {
-  canvas.addEventListener('mousedown', e => {
-    isDragging = true;
-    prevMouse = { x: e.clientX, y: e.clientY };
-  });
-  window.addEventListener('mouseup', () => { isDragging = false; });
-  window.addEventListener('mousemove', e => {
-    if (!isDragging) return;
-    dragDeltaX = (e.clientX - prevMouse.x) * 0.008;
-    dragDeltaY = (e.clientY - prevMouse.y) * 0.008;
-    prevMouse = { x: e.clientX, y: e.clientY };
-  });
-
-  // Touch
-  canvas.addEventListener('touchstart', e => {
-    isDragging = true;
-    prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  }, { passive: true });
-  window.addEventListener('touchend', () => { isDragging = false; });
-  window.addEventListener('touchmove', e => {
-    if (!isDragging) return;
-    dragDeltaX = (e.touches[0].clientX - prevMouse.x) * 0.008;
-    dragDeltaY = (e.touches[0].clientY - prevMouse.y) * 0.008;
-    prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  }, { passive: true });
-}
-
-/* ============================================================
-   ANIMATION LOOP
-============================================================ */
-let time = 0;
-let pulsePhase = 0;
-let waveExpand = 0;
-
+// ── BOUCLE D'ANIMATION ────────────────────────────────────
 function animate() {
   requestAnimationFrame(animate);
-  const delta = clock.getDelta();
-  time += delta;
+  if(!renderer || !scene || !camera) return;
 
-  // Smooth rotation speed
-  rotationSpeed += (targetRotationSpeed - rotationSpeed) * 0.05;
+  var dt = clock.getDelta();
+  var t  = clock.getElapsedTime();
 
-  // Orbit from drag
-  if (isDragging) {
-    particleSystem.rotation.y += dragDeltaX;
-    particleSystem.rotation.x += dragDeltaY;
-    if (lineSegments) {
-      lineSegments.rotation.y = particleSystem.rotation.y;
-      lineSegments.rotation.x = particleSystem.rotation.x;
-    }
-    dragDeltaX *= 0.85;
-    dragDeltaY *= 0.85;
-  } else {
-    particleSystem.rotation.y += rotationSpeed;
-    if (lineSegments) lineSegments.rotation.y = particleSystem.rotation.y;
+  // Rotation planète
+  rotSpeed += (targetRot - rotSpeed) * 0.05;
+  if(particleSystem) {
+    particleSystem.rotation.y += rotSpeed;
+    if(window._ring) window._ring.rotation.z += rotSpeed * 0.4;
   }
 
-  // Subtle tilt oscillation
-  particleSystem.rotation.x = Math.sin(time * 0.15) * 0.12;
-  if (lineSegments) lineSegments.rotation.x = particleSystem.rotation.x;
-
-  // Pulsation (Point 41)
-  const pulse = 1 + Math.sin(time * 1.8) * 0.04;
-  particleSystem.scale.setScalar(pulse);
-  if (lineSegments) lineSegments.scale.setScalar(pulse);
-
-  // Wave effect (Point 43)
-  if (waveActive) {
-    waveExpand += delta * 2.5;
-    const geo = particleSystem.geometry;
-    const pos = geo.attributes.position.array;
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const ox = originalPositions[i * 3];
-      const oy = originalPositions[i * 3 + 1];
-      const oz = originalPositions[i * 3 + 2];
-      const dist = Math.sqrt(ox*ox + oy*oy + oz*oz);
-      const waveFactor = Math.max(0, Math.sin((dist - waveExpand) * 3) * 0.18 * Math.exp(-waveExpand * 0.3));
-      const nx = ox / dist;
-      const ny = oy / dist;
-      const nz = oz / dist;
-      pos[i * 3]     = ox + nx * waveFactor;
-      pos[i * 3 + 1] = oy + ny * waveFactor;
-      pos[i * 3 + 2] = oz + nz * waveFactor;
+  // Pulsation des particules
+  if(particleSystem) {
+    var pos = particleSystem.geometry.attributes.position.array;
+    var orig = particleSystem.geometry._orig;
+    if(orig) {
+      var pulse = 1 + Math.sin(t * 1.2) * 0.015;
+      for(var i = 0; i < pos.length; i++) pos[i] = orig[i] * pulse;
+      particleSystem.geometry.attributes.position.needsUpdate = true;
     }
-    geo.attributes.position.needsUpdate = true;
-    if (waveExpand > 4) {
-      waveActive = false;
-      waveExpand = 0;
-      resetParticles();
-    }
+    // Opacité en mode réflexion
+    particleSystem.material.opacity = reflectionMode ? 0.5 + Math.sin(t*4)*0.3 : 1.0;
   }
 
-  // Reflection mode colors (Point 44)
-  if (reflectionMode) {
-    const mat = particleSystem.material;
-    pulsePhase += delta * 4;
-    const intensity = 0.7 + Math.sin(pulsePhase) * 0.3;
-    mat.color = new THREE.Color(0, intensity, 0.6 * intensity);
-    mat.size = 0.06 + Math.sin(pulsePhase) * 0.01;
-    mat.needsUpdate = true;
-    if (lineSegments) {
-      lineSegments.material.opacity = 0.18 + Math.sin(pulsePhase) * 0.06;
+  // Onde sur frappe
+  if(waveActive) {
+    waveTime += dt * 3;
+    if(particleSystem) {
+      var pos2 = particleSystem.geometry.attributes.position.array;
+      var orig2 = particleSystem.geometry._orig;
+      if(orig2) {
+        for(var k = 0; k < pos2.length/3; k++) {
+          var dist = Math.sqrt(orig2[k*3]*orig2[k*3] + orig2[k*3+1]*orig2[k*3+1] + orig2[k*3+2]*orig2[k*3+2]);
+          var wave = Math.sin(dist * 3 - waveTime) * 0.08;
+          pos2[k*3]   = orig2[k*3]   * (1 + wave);
+          pos2[k*3+1] = orig2[k*3+1] * (1 + wave);
+          pos2[k*3+2] = orig2[k*3+2] * (1 + wave);
+        }
+        particleSystem.geometry.attributes.position.needsUpdate = true;
+      }
     }
-  } else {
-    particleSystem.material.color = new THREE.Color(1, 1, 1);
-    particleSystem.material.size = 0.048;
+    if(waveTime > Math.PI * 2) waveActive = false;
   }
 
   renderer.render(scene, camera);
 }
 
-function resetParticles() {
-  const pos = particleSystem.geometry.attributes.position.array;
-  for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
-    pos[i] = originalPositions[i];
-  }
-  particleSystem.geometry.attributes.position.needsUpdate = true;
-}
+// ── FALLBACK CANVAS 2D (si WebGL échoue) ─────────────────
+function canvas2DFallback() {
+  var canvas = document.getElementById('planet');
+  var se = document.getElementById('scene');
+  var W = se.clientWidth  || window.innerWidth;
+  var H = se.clientHeight || (window.innerHeight - 104);
+  canvas.width = W; canvas.height = H;
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
 
-/* ============================================================
-   POINT 43 — Wave on keystroke
-============================================================ */
-function triggerWave() {
-  waveActive = true;
-  waveExpand = 0;
-  const prevSpeed = targetRotationSpeed;
-  targetRotationSpeed = prevSpeed * 4;
-  setTimeout(() => { targetRotationSpeed = 0.002; }, 1500);
-}
-
-/* ============================================================
-   POINT 44 — Reflection Mode
-============================================================ */
-function enterReflectionMode() {
-  reflectionMode = true;
-  targetRotationSpeed = 0.009;
-  pulsePhase = 0;
-  const overlay = document.getElementById('reflection-overlay');
-  if (overlay) overlay.classList.add('active');
-  showPlanetStatus('DALEBA calcule...');
-}
-
-function exitReflectionMode() {
-  reflectionMode = false;
-  targetRotationSpeed = 0.002;
-  const overlay = document.getElementById('reflection-overlay');
-  if (overlay) overlay.classList.remove('active');
-  hidePlanetStatus();
-  flashWhite();
-  playPing();
-}
-
-function flashWhite() {
-  const el = document.getElementById('flash-overlay');
-  if (!el) return;
-  el.style.background = 'rgba(255,255,255,0.12)';
-  setTimeout(() => { el.style.background = 'rgba(255,255,255,0)'; }, 150);
-}
-
-/* ============================================================
-   PLANET STATUS TEXT
-============================================================ */
-function showPlanetStatus(text) {
-  const el = document.getElementById('planet-status');
-  if (el) { el.textContent = text; el.classList.add('visible'); }
-}
-
-function hidePlanetStatus() {
-  const el = document.getElementById('planet-status');
-  if (el) el.classList.remove('visible');
-}
-
-/* ============================================================
-   ERROR TOAST — Point 48
-============================================================ */
-let toastTimer = null;
-function showError(msg) {
-  const toast = document.getElementById('error-toast');
-  if (!toast) return;
-  toast.textContent = msg || 'DALEBA recalibrant...';
-  toast.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
-}
-
-/* ============================================================
-   CHAT — Point 50
-============================================================ */
-let messageCount = 0;
-
-function appendMessage(role, text, save = true) {
-  const panel = document.getElementById('chat-panel');
-  const typingEl = document.getElementById('typing-indicator');
-
-  const msg = document.createElement('div');
-  msg.className = 'msg ' + role;
-
-  const sender = document.createElement('div');
-  sender.className = 'msg-sender';
-  sender.textContent = role === 'user' ? 'VOUS' : 'DALEBA OS';
-
-  const bubble = document.createElement('div');
-  bubble.className = 'msg-bubble';
-
-  if (role === 'daleba') {
-    const prefix = document.createElement('span');
-    prefix.className = 'msg-prefix';
-    prefix.textContent = 'DALEBA ›';
-    bubble.appendChild(prefix);
-    bubble.appendChild(document.createTextNode(' ' + text));
-  } else {
-    bubble.textContent = text;
+  var ctx = canvas.getContext('2d');
+  var cx = W/2, cy = H/2;
+  var points = [];
+  // Générer 200 points sur sphère projetée
+  for(var i = 0; i < 200; i++) {
+    var phi = Math.acos(1 - 2*(i+0.5)/200);
+    var theta = Math.PI*(1+Math.sqrt(5))*i;
+    var x = Math.sin(phi)*Math.cos(theta);
+    var y = Math.sin(phi)*Math.sin(theta);
+    var z = Math.cos(phi);
+    points.push({x:x,y:y,z:z, ox:x, oy:y, oz:z});
   }
 
-  msg.appendChild(sender);
-  msg.appendChild(bubble);
+  var angle = 0;
+  var R = Math.min(W,H) * 0.3;
 
-  // Insert before typing indicator
-  panel.insertBefore(msg, typingEl);
+  function draw2D() {
+    requestAnimationFrame(draw2D);
+    ctx.clearRect(0,0,W,H);
+    angle += 0.008;
 
-  // Scroll to bottom
-  panel.scrollTop = panel.scrollHeight;
+    // Fond radial
+    var grad = ctx.createRadialGradient(cx,cy,0,cx,cy,R*1.3);
+    grad.addColorStop(0, 'rgba(0,255,159,0.06)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,W,H);
 
-  // Update activity widget
-  if (role === 'user') {
-    messageCount++;
-    const el = document.getElementById('w-messages');
-    if (el) el.textContent = messageCount;
-  }
+    // Projeter et dessiner les points avec rotation Y
+    var cos = Math.cos(angle), sin = Math.sin(angle);
+    var projected = points.map(function(p) {
+      var rx = p.ox*cos - p.oz*sin;
+      var ry = p.oy;
+      var rz = p.ox*sin + p.oz*cos;
+      var scale = (rz + 2) / 3;
+      return { sx: cx + rx*R*scale, sy: cy + ry*R*scale, z: rz, s: scale };
+    }).sort(function(a,b){ return a.z-b.z; });
 
-  // Update last log
-  const actionEl = document.getElementById('w-action');
-  if (actionEl) {
-    actionEl.textContent = role === 'user' ? 'Message envoyé' : 'Réponse DALEBA';
-  }
+    // Lignes entre proches
+    ctx.strokeStyle = 'rgba(0,255,159,0.12)';
+    ctx.lineWidth = 0.8;
+    for(var i = 0; i < projected.length; i++) {
+      for(var j = i+1; j < projected.length; j++) {
+        var dx = projected[i].sx - projected[j].sx;
+        var dy = projected[i].sy - projected[j].sy;
+        if(dx*dx+dy*dy < (R*0.35)*(R*0.35)) {
+          ctx.beginPath();
+          ctx.moveTo(projected[i].sx, projected[i].sy);
+          ctx.lineTo(projected[j].sx, projected[j].sy);
+          ctx.stroke();
+        }
+      }
+    }
 
-  if (save) saveToHistory(role, text);
-}
-
-function showTyping(show) {
-  const el = document.getElementById('typing-indicator');
-  if (el) el.className = 'msg ' + (show ? 'active' : '');
-  const panel = document.getElementById('chat-panel');
-  if (panel) panel.scrollTop = panel.scrollHeight;
-}
-
-/* ============================================================
-   DEMO RESPONSES (fallback si API indisponible)
-============================================================ */
-const DEMO_RESPONSES = [
-  "Salon Kadio Coiffure — système opérationnel. Je supervise 3 coiffeurs actifs aujourd'hui.",
-  "Analyse en cours... Votre planning est optimal pour les prochaines 48h.",
-  "Interface ZENITH initialisée. Tous les systèmes sont nominaux, Ulrich.",
-  "Je détecte une opportunité : envoyer un rappel SMS aux clients de la semaine passée ?",
-  "Module de réservation en ligne prêt. Souhaitez-vous que j'active les notifications automatiques ?",
-  "Traitement des données salon en cours. Performance : excellente.",
-  "DALEBA analyse votre flux de clients. Pic d'activité prévu vendredi.",
-];
-
-let demoIndex = 0;
-function getDemoResponse(msg) {
-  const lower = msg.toLowerCase();
-  if (lower.includes('bonjour') || lower.includes('salut') || lower.includes('hello')) {
-    return "Bonjour, Ulrich ! DALEBA est en ligne et prêt à optimiser votre salon Kadio Coiffure.";
-  }
-  if (lower.includes('rdv') || lower.includes('rendez-vous') || lower.includes('réservation')) {
-    return "Je peux gérer vos rendez-vous en temps réel. Pour l'instant en mode démo — connectez votre calendrier pour activer la synchronisation complète.";
-  }
-  if (lower.includes('sms') || lower.includes('client')) {
-    return "Module SMS opérationnel. Je peux envoyer des rappels automatiques 24h avant chaque rendez-vous. Souhaitez-vous l'activer ?";
-  }
-  const resp = DEMO_RESPONSES[demoIndex % DEMO_RESPONSES.length];
-  demoIndex++;
-  return resp;
-}
-
-/* ============================================================
-   POINT 50 — Envoi à l'API /api/chat
-============================================================ */
-async function sendToDALEBA(message) {
-  enterReflectionMode();
-  showTyping(true);
-
-  const t0 = Date.now();
-
-  try {
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, sessionId: getSessionId() }),
+    // Points
+    projected.forEach(function(p) {
+      var alpha = 0.4 + p.s * 0.6;
+      var size  = 1.5 + p.s * 2;
+      ctx.beginPath();
+      ctx.arc(p.sx, p.sy, size, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(0,255,159,' + alpha + ')';
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = '#00FF9F';
+      ctx.fill();
     });
 
-    const latency = Date.now() - t0;
-    const latEl = document.getElementById('w-latency');
-    if (latEl) latEl.textContent = latency + 'ms';
+    // Halo central
+    var g2 = ctx.createRadialGradient(cx,cy,0,cx,cy,R*0.5);
+    g2.addColorStop(0,'rgba(0,255,159,0.15)');
+    g2.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle = g2;
+    ctx.shadowBlur = 0;
+    ctx.beginPath();
+    ctx.arc(cx,cy,R*0.5,0,Math.PI*2);
+    ctx.fill();
+  }
+  draw2D();
+  document.getElementById('wsbadge').textContent = '2D ●';
+}
 
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+// ── DRAG ORBIT ─────────────────────────────────────────────
+function setupDrag(canvas) {
+  var dragging = false, lastX = 0, lastY = 0;
+  canvas.addEventListener('mousedown', function(e){ dragging=true; lastX=e.clientX; lastY=e.clientY; });
+  window.addEventListener('mouseup',   function(){ dragging=false; });
+  window.addEventListener('mousemove', function(e){
+    if(!dragging || !particleSystem) return;
+    var dx = (e.clientX-lastX)*0.008;
+    var dy = (e.clientY-lastY)*0.008;
+    particleSystem.rotation.y += dx;
+    particleSystem.rotation.x += dy;
+    if(window._ring){ window._ring.rotation.y += dx; }
+    lastX=e.clientX; lastY=e.clientY;
+  });
+  canvas.addEventListener('touchstart', function(e){ dragging=true; lastX=e.touches[0].clientX; lastY=e.touches[0].clientY; },{passive:true});
+  window.addEventListener('touchend',   function(){ dragging=false; });
+  window.addEventListener('touchmove',  function(e){
+    if(!dragging || !particleSystem) return;
+    var dx = (e.touches[0].clientX-lastX)*0.008;
+    particleSystem.rotation.y += dx;
+    if(window._ring) window._ring.rotation.y += dx;
+    lastX=e.touches[0].clientX; lastY=e.touches[0].clientY;
+  },{passive:true});
+}
 
-    const data = await res.json();
-    exitReflectionMode();
-    showTyping(false);
+// ── REFLECTION MODE ─────────────────────────────────────────
+function enterReflection() {
+  reflectionMode = true;
+  targetRot = 0.006;
+  var r = document.getElementById('reflex');
+  if(r) r.classList.add('on');
+}
+function exitReflection() {
+  reflectionMode = false;
+  targetRot = 0.0015;
+  var r = document.getElementById('reflex');
+  if(r) r.classList.remove('on');
+}
 
-    const reply = data.response || data.message || getDemoResponse(message);
-    appendMessage('daleba', reply);
+// ── CHAT ───────────────────────────────────────────────────
+function initInput() {
+  var sendBtn = document.getElementById('send');
+  if(!msgEl || !sendBtn) return;
+  sendBtn.addEventListener('click', sendMsg);
+  msgEl.addEventListener('keydown', function(e){ if(e.key==='Enter') sendMsg(); });
+}
 
-  } catch (err) {
-    exitReflectionMode();
-    showTyping(false);
-    // Fallback demo mode — no error text shown in UI (Point 48)
-    const fallback = getDemoResponse(message);
-    appendMessage('daleba', fallback);
+function sendMsg() {
+  if(!msgEl) return;
+  var txt = msgEl.value.trim();
+  if(!txt) return;
+  msgEl.value = '';
+  msgCount++;
+  var wm = document.getElementById('w-msgs');
+  if(wm) wm.textContent = msgCount;
+
+  addBubble('user', txt, true);
+  triggerWave();
+  enterReflection();
+
+  // Typing indicator
+  var typing = document.createElement('div');
+  typing.className = 'typing';
+  typing.innerHTML = '<span>●</span><span>●</span><span>●</span>';
+  if(chatEl) chatEl.appendChild(typing);
+  scrollChat();
+
+  fetch('/api/chat', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ message: txt, sessionId: sessionId })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(chatEl && typing.parentNode) chatEl.removeChild(typing);
+    exitReflection();
+    addBubble('daleba', d.response || d.message || 'Daleba est en ligne.', true);
+    var wl = document.getElementById('w-log');
+    if(wl) wl.textContent = 'Message reçu ✓';
+  })
+  .catch(function(){
+    if(chatEl && typing.parentNode) chatEl.removeChild(typing);
+    exitReflection();
+    addBubble('daleba', 'Recalibration en cours… Réessaie dans un instant. 🔄', true);
+  });
+}
+
+function addBubble(role, text, save) {
+  if(!chatEl) return;
+  var b = document.createElement('div');
+  b.className = 'bubble ' + role;
+  b.textContent = text;
+  chatEl.appendChild(b);
+  scrollChat();
+  if(save) {
+    chatHistory.push({ role: role, text: text });
+    if(chatHistory.length > 30) chatHistory = chatHistory.slice(-30);
+    try { localStorage.setItem('daleba-chat', JSON.stringify(chatHistory)); } catch(_){}
   }
 }
 
-/* ============================================================
-   INPUT HANDLING
-============================================================ */
-const inputEl = document.getElementById('chat-input');
-const sendBtn = document.getElementById('send-btn');
-
-function handleSend() {
-  const msg = inputEl.value.trim();
-  if (!msg) return;
-  appendMessage('user', msg);
-  inputEl.value = '';
-  sendToDALEBA(msg);
+function scrollChat() {
+  if(chatEl) chatEl.scrollTop = chatEl.scrollHeight;
 }
 
-inputEl.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    handleSend();
-  } else {
-    playTick();
-    triggerWave();
-  }
-});
+function triggerWave() {
+  waveActive = true; waveTime = 0;
+  if(particleSystem) { targetRot = 0.004; setTimeout(function(){ targetRot = 0.0015; }, 1500); }
+}
 
-sendBtn.addEventListener('click', handleSend);
-
-/* ============================================================
-   POINT 49 — WebSocket auto-reconnect with exponential backoff
-============================================================ */
-let ws = null;
-let wsRetry = 0;
-const WS_MAX_DELAY = 8000;
-let wsTimer = null;
-
-function connectWS() {
-  if (typeof WebSocket === 'undefined') return;
-
-  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = proto + '//' + location.host + '/ws';
-
+// ── SON (Web Audio API) ────────────────────────────────────
+function playWhoosh() {
   try {
-    ws = new WebSocket(wsUrl);
-  } catch(e) {
-    scheduleWSReconnect();
-    return;
-  }
-
-  ws.onopen = () => {
-    wsRetry = 0;
-    setWSDot('connected', 'WS ●');
-  };
-
-  ws.onclose = () => {
-    setWSDot('', 'WS ○');
-    scheduleWSReconnect();
-  };
-
-  ws.onerror = () => {
-    setWSDot('reconnecting', 'WS ↻');
-  };
-
-  ws.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data);
-      if (data.type === 'rdv_update') {
-        const el = document.getElementById('w-rdv');
-        if (el) el.textContent = data.count + ' aujourd\'hui';
-      }
-    } catch(e) {}
-  };
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var buf = ctx.createBuffer(1, ctx.sampleRate*0.4, ctx.sampleRate);
+    var d = buf.getChannelData(0);
+    for(var i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/d.length*6)*0.15;
+    var src = ctx.createBufferSource();
+    src.buffer = buf;
+    var f = ctx.createBiquadFilter();
+    f.type='bandpass'; f.frequency.value=400; f.Q.value=0.5;
+    src.connect(f); f.connect(ctx.destination);
+    src.start();
+  } catch(_){}
 }
 
-function scheduleWSReconnect() {
-  clearTimeout(wsTimer);
-  const delay = Math.min(1000 * Math.pow(2, wsRetry), WS_MAX_DELAY);
-  wsRetry++;
-  setWSDot('reconnecting', 'WS ↻');
-  wsTimer = setTimeout(connectWS, delay);
-}
+// ── HTTP POLLING (serverless-compatible) ──────────────────
+function connectHTTP() {
+  var badge = document.getElementById('wsbadge');
+  if(badge){ badge.textContent='HTTP ●'; badge.className='ws-badge live'; }
 
-function setWSDot(cls, label) {
-  const dot = document.getElementById('ws-dot');
-  const lbl = document.getElementById('ws-label');
-  if (dot) { dot.className = 'ws-dot ' + cls; }
-  if (lbl) { lbl.textContent = label || 'WS'; }
-}
-
-/* ============================================================
-   INIT
-============================================================ */
-// ─── WEBGL SAFE INIT avec fallback SVG 2D ───────────────────────────────────
-function initPlanet() {
-  // Test WebGL support
-  const testCanvas = document.createElement('canvas');
-  const gl = testCanvas.getContext('webgl') || testCanvas.getContext('experimental-webgl');
-  
-  if (!gl || typeof THREE === 'undefined') {
-    console.warn('WebGL non dispo — bascule SVG 2D');
-    initSVGFallback();
-    return;
-  }
-  
-  try {
-    initThree();
-  } catch(e) {
-    console.warn('Three.js crash:', e.message, '— bascule SVG 2D');
-    initSVGFallback();
-  }
-}
-
-// ─── FALLBACK ORBE SVG 2D ────────────────────────────────────────────────────
-function initSVGFallback() {
-  const container = document.getElementById('planet-container');
-  if (!container) return;
-  container.innerHTML = `
-    <svg id="orb-svg" viewBox="0 0 300 300" style="width:min(300px,80vw);height:min(300px,80vw);display:block;margin:auto;">
-      <defs>
-        <radialGradient id="orb-grad" cx="40%" cy="35%">
-          <stop offset="0%" stop-color="#00FFBF" stop-opacity="0.9"/>
-          <stop offset="60%" stop-color="#00D4FF" stop-opacity="0.5"/>
-          <stop offset="100%" stop-color="#003322" stop-opacity="0.2"/>
-        </radialGradient>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="6" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
-      <!-- Orbe principal -->
-      <circle cx="150" cy="150" r="110" fill="url(#orb-grad)" filter="url(#glow)" opacity="0.85">
-        <animateTransform attributeName="transform" type="rotate" from="0 150 150" to="360 150 150" dur="12s" repeatCount="indefinite"/>
-      </circle>
-      <!-- Anneau -->
-      <ellipse cx="150" cy="150" rx="130" ry="30" fill="none" stroke="#00FF9F" stroke-width="1" opacity="0.3">
-        <animateTransform attributeName="transform" type="rotate" from="0 150 150" to="360 150 150" dur="8s" repeatCount="indefinite"/>
-      </ellipse>
-      <!-- Points orbitaux -->
-      <circle r="4" fill="#00FF9F" filter="url(#glow)">
-        <animateMotion dur="6s" repeatCount="indefinite" path="M150,20 A130,130 0 1,1 149.9,20"/>
-      </circle>
-      <circle r="3" fill="#00D4FF" filter="url(#glow)">
-        <animateMotion dur="9s" repeatCount="indefinite" path="M150,30 A120,120 0 1,0 150.1,30"/>
-      </circle>
-      <!-- Pulsation centre -->
-      <circle cx="150" cy="150" r="20" fill="#00FF9F" opacity="0.6">
-        <animate attributeName="r" values="15;25;15" dur="2s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite"/>
-      </circle>
-    </svg>
-  `;
-  // Animation pulsation sur frappe
-  window._svgPulse = () => {
-    const orb = document.querySelector('#orb-svg circle');
-    if (orb) {
-      orb.style.transition = 'opacity 0.3s';
-      orb.style.opacity = '1';
-      setTimeout(() => { orb.style.opacity = '0.85'; }, 400);
-    }
-  };
-}
-
-// ─── WEBSOCKET avec timeout 1.5s puis HTTP polling ───────────────────────────
-let wsMode = 'ws'; // 'ws' | 'polling'
-let wsConnectionTimer = null;
-
-function connectWSSafe() {
-  if (typeof WebSocket === 'undefined') { switchToPolling(); return; }
-
-  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = proto + '//' + location.host + '/ws';
-
-  // Timeout 1.5s : si pas connecté, bascule polling
-  wsConnectionTimer = setTimeout(() => {
-    if (!ws || ws.readyState !== WebSocket.OPEN) {
-      if (ws) { try { ws.close(); } catch(_) {} }
-      switchToPolling();
-    }
-  }, 1500);
-
-  try {
-    ws = new WebSocket(wsUrl);
-  } catch(e) {
-    clearTimeout(wsConnectionTimer);
-    switchToPolling();
-    return;
-  }
-
-  ws.onopen = () => {
-    clearTimeout(wsConnectionTimer);
-    wsMode = 'ws';
-    wsRetry = 0;
-    setWSDot('connected', 'LIVE ●');
-  };
-
-  ws.onclose = () => {
-    clearTimeout(wsConnectionTimer);
-    if (wsMode === 'ws') {
-      setWSDot('reconnecting', 'WS ↻');
-      scheduleWSReconnect();
-    }
-  };
-
-  ws.onerror = () => {
-    clearTimeout(wsConnectionTimer);
-    setWSDot('reconnecting', 'WS ↻');
-  };
-
-  ws.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data);
-      if (data.type === 'rdv_update') {
-        const el = document.getElementById('w-rdv');
-        if (el) el.textContent = data.count + ' aujourd\'hui';
-      }
-    } catch(e) {}
-  };
-}
-
-function switchToPolling() {
-  wsMode = 'polling';
-  setWSDot('connected', 'HTTP ●');
-  // Poll /api/health toutes les 30s pour garder le widget à jour
-  setInterval(async () => {
-    try {
-      const r = await fetch('/health');
-      const d = await r.json();
-      if (d.status === 'online') setWSDot('connected', 'HTTP ●');
-    } catch(_) { setWSDot('', 'OFFLINE'); }
+  setInterval(function() {
+    fetch('/health')
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(badge) badge.textContent = d.status==='online' ? 'HTTP ●' : 'ERR';
+      })
+      .catch(function(){
+        if(badge){ badge.textContent='OFFLINE'; badge.className='ws-badge'; }
+      });
   }, 30000);
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  // Planet : WebGL avec fallback SVG automatique
-  initPlanet();
-
-  // Restaurer historique
-  restoreHistory();
-
-  // WebSocket avec timeout 1.5s → HTTP polling
-  setTimeout(connectWSSafe, 800);
-
-  // Focus input
-  setTimeout(() => { inputEl && inputEl.focus(); }, 600);
-});
 </script>
 </body>
 </html>
