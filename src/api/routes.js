@@ -20,11 +20,102 @@ const { postToInstagram, postToFacebook, getSocialStatus } = require('../service
 const { getFollowupStats, checkAppointmentFollowups } = require('../services/client-followup');
 const finance = require('../services/finance');
 const creative = require('../services/creative');
+const bus = require('../services/event-bus');
+const stats = require('../services/daleba-stats');
+const strategicMem = require('../services/strategic-memory');
 const claude = require('../agents/claude');
 const gpt4o = require('../agents/gpt4o');
 const deepseek = require('../agents/deepseek');
 
 const AGENTS = { claude, gpt4o, deepseek };
+
+// ─── ZENITH HUD ENDPOINTS ────────────────────────────────────────────────────
+
+// GET /api/stats — Stats snapshot pour le HUD Zenith (poll toutes les 25s)
+router.get('/stats', async (req, res) => {
+  try {
+    const s = await stats.getZenithStats();
+    res.json(s);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/zenith/stream — SSE temps réel pour le terminal HUD
+router.get('/zenith/stream', (req, res) => {
+  bus.subscribe(req, res);
+});
+
+// GET /api/zenith/finance — Données financières pour les graphiques
+router.get('/zenith/finance', async (req, res) => {
+  try {
+    const [timeSeries, projections] = await Promise.all([
+      stats.getFinancialTimeSeries(),
+      stats.getProjections(),
+    ]);
+    res.json({ timeSeries, projections, ts: new Date().toISOString() });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/zenith/events — Derniers 50 événements du bus (pour hydratation)
+router.get('/zenith/events', (req, res) => {
+  res.json({ events: bus.getRecent(50) });
+});
+
+// ─── MÉMOIRE STRATÉGIQUE ULRICH ──────────────────────────────────────────────
+
+// POST /api/memory — Sauvegarder une note/vision
+router.post('/memory', async (req, res) => {
+  try {
+    const note = await strategicMem.saveNote(req.body);
+    bus.system(`Note stratégique: [${note.category}] ${note.title.slice(0, 40)}`);
+    res.status(201).json({ success: true, note });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// GET /api/memory — Lister les notes
+router.get('/memory', async (req, res) => {
+  try {
+    const notes = await strategicMem.getNotes(req.query);
+    res.json({ notes, count: notes.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/memory/summary — Résumé pour le HUD
+router.get('/memory/summary', async (req, res) => {
+  try {
+    const summary = await strategicMem.getStrategicSummary();
+    res.json(summary);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PATCH /api/memory/:id — Modifier une note
+router.patch('/memory/:id', async (req, res) => {
+  try {
+    const note = await strategicMem.updateNote(req.params.id, req.body);
+    res.json({ success: true, note });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// DELETE /api/memory/:id
+router.delete('/memory/:id', async (req, res) => {
+  try {
+    await strategicMem.deleteNote(req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
 
 // Routes Auth (publiques)
 router.use('/auth', authRoutes);
@@ -67,6 +158,8 @@ router.post('/chat', async (req, res) => {
 
     // 5. Sauvegarde en mémoire
     await saveExchange(sid, message, result.content, model, reason);
+    stats.incrementChat(sid);
+    bus.chat(`[${model}] ${message.slice(0, 60)}${message.length > 60 ? '…' : ''}`, { model, sid: sid.slice(0, 8) });
 
     // 5b. Journal de bord - log automatique de chaque échange
     await logEntry(

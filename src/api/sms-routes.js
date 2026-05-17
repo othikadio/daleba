@@ -5,6 +5,8 @@
 const express = require('express');
 const router = express.Router();
 const twilio = require('../services/twilio');
+const bus = require('../services/event-bus');
+const dStats = require('../services/daleba-stats');
 
 // POST /api/sms/send — SMS libre
 router.post('/send', async (req, res) => {
@@ -16,6 +18,8 @@ router.post('/send', async (req, res) => {
 
   try {
     const result = await twilio.sendSMS(to, message);
+    dStats.incrementSMS();
+    bus.sms(`SMS envoyé → ${to.slice(-4).padStart(to.length,'*')}`, { chars: message.length });
     res.json({ success: true, ...result });
   } catch (err) {
     res.status(500).json({ error: err.message });
