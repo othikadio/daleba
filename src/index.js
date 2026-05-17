@@ -36,6 +36,11 @@ app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/dashboard.html'));
 });
 
+// Interface holographique ZENITH
+app.get('/zenith', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/zenith.html'));
+});
+
 // Route racine API
 app.get('/health', (req, res) => {
   res.json({
