@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Réservation — DALEBA</title>
+  <link rel="stylesheet" href="/css/booking.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-inner">
+        <div class="business-info">
+          <div class="business-avatar" id="businessAvatar">K</div>
+          <div>
+            <h1 class="business-name" id="businessName">Chargement...</h1>
+            <p class="business-address" id="businessAddress"></p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Steps progress -->
+    <div class="steps-bar">
+      <div class="step active" data-step="1">
+        <span class="step-num">1</span>
+        <span class="step-label">Service</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step" data-step="2">
+        <span class="step-num">2</span>
+        <span class="step-label">Coiffeur</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step" data-step="3">
+        <span class="step-num">3</span>
+        <span class="step-label">Date</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step" data-step="4">
+        <span class="step-num">4</span>
+        <span class="step-label">Vos infos</span>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <main class="main">
+
+      <!-- Step 1: Services -->
+      <section id="step-1" class="step-section">
+        <h2>Choisissez un service</h2>
+        <div id="servicesList" class="cards-grid">
+          <div class="skeleton"></div>
+          <div class="skeleton"></div>
+          <div class="skeleton"></div>
+        </div>
+      </section>
+
+      <!-- Step 2: Staff -->
+      <section id="step-2" class="step-section hidden">
+        <h2>Choisissez votre coiffeur</h2>
+        <div id="staffList" class="cards-grid"></div>
+        <button class="btn-back" onclick="goStep(1)">← Retour</button>
+      </section>
+
+      <!-- Step 3: Date & Time -->
+      <section id="step-3" class="step-section hidden">
+        <h2>Choisissez une date</h2>
+        <div class="date-picker">
+          <div class="date-nav">
+            <button class="btn-nav" id="prevWeek">‹</button>
+            <span id="dateRangeLabel"></span>
+            <button class="btn-nav" id="nextWeek">›</button>
+          </div>
+          <div id="dateDays" class="date-days"></div>
+        </div>
+        <div id="slotsSection" class="slots-section hidden">
+          <h3 id="slotsTitle">Créneaux disponibles</h3>
+          <div id="slotsList" class="slots-grid"></div>
+        </div>
+        <button class="btn-back" onclick="goStep(2)">← Retour</button>
+      </section>
+
+      <!-- Step 4: Client info -->
+      <section id="step-4" class="step-section hidden">
+        <h2>Vos informations</h2>
+        <div class="booking-summary" id="bookingSummary"></div>
+        <form id="clientForm" class="form">
+          <div class="form-group">
+            <label>Nom complet *</label>
+            <input type="text" id="clientName" placeholder="Ex: Marie Dupont" required />
+          </div>
+          <div class="form-group">
+            <label>Téléphone *</label>
+            <input type="tel" id="clientPhone" placeholder="+1 (514) 000-0000" required />
+          </div>
+          <div class="form-group">
+            <label>Email (optionnel)</label>
+            <input type="email" id="clientEmail" placeholder="marie@email.com" />
+          </div>
+          <div class="form-group">
+            <label>Notes (optionnel)</label>
+            <textarea id="clientNotes" placeholder="Ex: Allergie au parfum..."></textarea>
+          </div>
+          <button type="submit" class="btn-primary" id="submitBtn">
+            Confirmer mon RDV →
+          </button>
+        </form>
+        <button class="btn-back" onclick="goStep(3)">← Retour</button>
+      </section>
+
+      <!-- Step 5: Confirmation -->
+      <section id="step-5" class="step-section hidden">
+        <div class="confirmation">
+          <div class="check-icon">✓</div>
+          <h2>RDV confirmé !</h2>
+          <p class="confirm-sub">Un SMS de confirmation a été envoyé à votre téléphone.</p>
+          <div class="confirm-card" id="confirmCard"></div>
+          <button class="btn-primary" onclick="window.location.reload()">Prendre un autre RDV</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="/js/booking.js"></script>
+</body>
+</html>
