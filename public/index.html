@@ -813,6 +813,258 @@
     }
 
     /* =============================================
+       ABONNEMENTS
+    ============================================= */
+    #abonnements {
+      padding: 100px 5%;
+      background: var(--charcoal);
+    }
+
+    #abonnements .section-label { color: var(--terra-light); }
+    #abonnements h2 { color: var(--warm-white); }
+    #abonnements .section-header p { color: rgba(255,255,255,0.6); }
+
+    .abo-highlight {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 100px;
+      padding: 10px 20px;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 56px;
+    }
+
+    .abo-highlight strong { color: var(--terra-light); font-weight: 700; }
+    .abo-highlight::before { content: '⚡'; font-size: 1rem; }
+
+    .abo-grid {
+      max-width: 1060px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .abo-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 36px 28px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+    }
+
+    .abo-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .abo-card.featured {
+      border: 2px solid var(--terra);
+      background: rgba(196,98,45,0.12);
+      transform: translateY(-8px);
+      box-shadow: 0 24px 64px rgba(196,98,45,0.25);
+    }
+
+    .abo-card.featured:hover { transform: translateY(-12px); }
+
+    .abo-badge {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gold);
+      color: #fff;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 16px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+
+    .abo-tier {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 12px;
+    }
+
+    .abo-card.featured .abo-tier { color: var(--terra-light); }
+
+    .abo-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--warm-white);
+      margin-bottom: 6px;
+    }
+
+    .abo-tagline {
+      font-size: 0.83rem;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .abo-card.featured .abo-tagline { color: rgba(255,255,255,0.7); }
+
+    .abo-price-block {
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .abo-card.featured .abo-price-block { border-color: rgba(196,98,45,0.4); }
+
+    .abo-amount {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .abo-card.featured .abo-amount { color: var(--terra-light); }
+
+    .abo-currency {
+      font-size: 1.2rem;
+      vertical-align: super;
+      margin-right: 2px;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .abo-card.featured .abo-currency { color: var(--terra-light); }
+
+    .abo-period {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.4);
+      margin-top: 4px;
+    }
+
+    .abo-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      margin-bottom: 28px;
+    }
+
+    .abo-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.87rem;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.4;
+    }
+
+    .abo-features li .check {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.6);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .abo-card.featured .abo-features li .check {
+      background: rgba(196,98,45,0.35);
+      color: var(--terra-light);
+    }
+
+    .abo-features li strong {
+      color: var(--warm-white);
+      font-weight: 600;
+    }
+
+    .abo-no-deposit {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 20px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .abo-card.featured .abo-no-deposit {
+      background: rgba(196,98,45,0.15);
+      border-color: rgba(196,98,45,0.4);
+      color: var(--terra-light);
+    }
+
+    .abo-no-deposit span { font-size: 0.85rem; }
+
+    .btn-abo {
+      width: 100%;
+      justify-content: center;
+      background: rgba(255,255,255,0.08);
+      color: var(--warm-white);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 13px 24px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 4px;
+      letter-spacing: 0.02em;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .btn-abo:hover {
+      background: rgba(255,255,255,0.15);
+      border-color: rgba(255,255,255,0.4);
+      transform: translateY(-1px);
+    }
+
+    .abo-card.featured .btn-abo {
+      background: var(--terra);
+      border-color: var(--terra);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .abo-card.featured .btn-abo:hover {
+      background: var(--terra-dark);
+      border-color: var(--terra-dark);
+    }
+
+    .abo-note {
+      text-align: center;
+      margin-top: 44px;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .abo-note a { color: rgba(255,255,255,0.55); text-decoration: underline; }
+
+    @media (max-width: 900px) {
+      .abo-grid { grid-template-columns: 1fr; max-width: 420px; }
+      .abo-card.featured { transform: translateY(0); }
+    }
+
+    /* =============================================
        TEAM
     ============================================= */
     #equipe {
@@ -1328,6 +1580,7 @@
     <ul class="nav-links">
       <li><a href="#services">Services</a></li>
       <li><a href="#tarifs">Tarifs</a></li>
+      <li><a href="#abonnements">Abonnements</a></li>
       <li><a href="#galerie">Galerie</a></li>
       <li><a href="#equipe">Équipe</a></li>
       <li><a href="#contact">Contact</a></li>
@@ -1345,6 +1598,7 @@
     <ul>
       <li><a href="#services" onclick="toggleMenu()">Services</a></li>
       <li><a href="#tarifs" onclick="toggleMenu()">Tarifs</a></li>
+      <li><a href="#abonnements" onclick="toggleMenu()">Abonnements</a></li>
       <li><a href="#galerie" onclick="toggleMenu()">Galerie</a></li>
       <li><a href="#equipe" onclick="toggleMenu()">Équipe</a></li>
       <li><a href="#contact" onclick="toggleMenu()">Contact</a></li>
@@ -1597,6 +1851,87 @@
     </div>
   </section>
 
+  <!-- ======================== ABONNEMENTS ======================== -->
+  <section id="abonnements">
+    <div class="section-header">
+      <span class="section-label">Fidélité récompensée</span>
+      <h2>Nos formules d'abonnement</h2>
+      <p>Économisez jusqu'à 30% avec un forfait mensuel</p>
+    </div>
+
+    <div style="text-align:center;">
+      <div class="abo-highlight">
+        Avantage exclusif abonnés&nbsp;: <strong>aucun dépôt requis</strong> à la réservation — les clients sans abonnement paient 20% à la réservation.
+      </div>
+    </div>
+
+    <div class="abo-grid">
+
+      <!-- Essentiel -->
+      <div class="abo-card fade-up">
+        <div class="abo-tier">Essentiel</div>
+        <div class="abo-name">Essentiel</div>
+        <div class="abo-tagline">Idéal pour une visite régulière bi-mensuelle sans contrainte.</div>
+        <div class="abo-price-block">
+          <div class="abo-amount"><span class="abo-currency">$</span>59</div>
+          <div class="abo-period">par mois · sans engagement</div>
+        </div>
+        <ul class="abo-features">
+          <li><span class="check">✓</span><span><strong>2 coupes / mois</strong> — homme ou enfant</span></li>
+          <li><span class="check">✓</span><span>Priorité de réservation en ligne</span></li>
+          <li><span class="check">✓</span><span>Rappels SMS automatiques</span></li>
+          <li><span class="check">✓</span><span>Aucun dépôt à la réservation</span></li>
+        </ul>
+        <div class="abo-no-deposit"><span>🔒</span> Zéro dépôt — abonnés seulement</div>
+        <a href="/reservation.html" class="btn-abo">S'abonner →</a>
+      </div>
+
+      <!-- Premium -->
+      <div class="abo-card featured fade-up">
+        <div class="abo-badge">⭐ Le plus populaire</div>
+        <div class="abo-tier">Premium</div>
+        <div class="abo-name">Premium</div>
+        <div class="abo-tagline">Le meilleur rapport qualité/prix pour les habitués du salon.</div>
+        <div class="abo-price-block">
+          <div class="abo-amount"><span class="abo-currency">$</span>99</div>
+          <div class="abo-period">par mois · sans engagement</div>
+        </div>
+        <ul class="abo-features">
+          <li><span class="check">✓</span><span><strong>4 coupes / mois</strong> — tous types</span></li>
+          <li><span class="check">✓</span><span><strong>1 soin capillaire inclus</strong> par mois</span></li>
+          <li><span class="check">✓</span><span>Priorité de réservation — créneaux réservés</span></li>
+          <li><span class="check">✓</span><span>Aucun dépôt à la réservation</span></li>
+          <li><span class="check">✓</span><span>Rappels SMS & rappels 24h avant</span></li>
+        </ul>
+        <div class="abo-no-deposit"><span>🔒</span> Zéro dépôt — abonnés seulement</div>
+        <a href="/reservation.html" class="btn-abo">S'abonner maintenant →</a>
+      </div>
+
+      <!-- VIP -->
+      <div class="abo-card fade-up">
+        <div class="abo-tier">VIP</div>
+        <div class="abo-name">VIP</div>
+        <div class="abo-tagline">Accès illimité, tous services. Vous méritez le meilleur.</div>
+        <div class="abo-price-block">
+          <div class="abo-amount"><span class="abo-currency">$</span>149</div>
+          <div class="abo-period">par mois · sans engagement</div>
+        </div>
+        <ul class="abo-features">
+          <li><span class="check">✓</span><span><strong>Coupes illimitées</strong> — tous services</span></li>
+          <li><span class="check">✓</span><span>Soins, tresses & extensions inclus</span></li>
+          <li><span class="check">✓</span><span>Accès prioritaire — créneau garanti</span></li>
+          <li><span class="check">✓</span><span>Aucun dépôt à la réservation</span></li>
+          <li><span class="check">✓</span><span><strong>-10% boutique</strong> — produits capillaires</span></li>
+        </ul>
+        <div class="abo-no-deposit"><span>🔒</span> Zéro dépôt — abonnés seulement</div>
+        <a href="/reservation.html" class="btn-abo">S'abonner →</a>
+      </div>
+
+    </div>
+
+    <p class="abo-note">Résiliable à tout moment. Aucun frais caché. <a href="#contact">Des questions ?</a></p>
+  </section>
+
   <!-- ======================== ÉQUIPE ======================== -->
   <section id="equipe">
     <div class="section-header">
@@ -1786,6 +2121,7 @@
         <ul>
           <li><a href="#services">Services</a></li>
           <li><a href="#tarifs">Tarifs</a></li>
+          <li><a href="#abonnements">Abonnements</a></li>
           <li><a href="#galerie">Galerie</a></li>
           <li><a href="#equipe">Notre équipe</a></li>
           <li><a href="#avis">Avis clients</a></li>
