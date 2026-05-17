@@ -9,16 +9,20 @@ const path = require('path');
 const axios = require('axios');
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
-const LOGS_DIR = path.join(__dirname, '../../logs');
+// Sur Vercel/serverless : filesystem read-only → utiliser /tmp
+const IS_SERVERLESS = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const LOGS_DIR = IS_SERVERLESS
+  ? path.join('/tmp', 'daleba-logs')
+  : path.join(__dirname, '../../logs');
 const ALERT_PHONE = process.env.ALERT_PHONE || '+15149195970';
 const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID;
 const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 const TWILIO_FROM = process.env.TWILIO_PHONE_NUMBER;
 
-// Créer le dossier logs si nécessaire
-if (!fs.existsSync(LOGS_DIR)) {
-  fs.mkdirSync(LOGS_DIR, { recursive: true });
-}
+// Créer le dossier logs si nécessaire (try/catch pour serverless)
+try {
+  if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true });
+} catch (_) {}
 
 // ─── LOG D'ERREUR ────────────────────────────────────────────────────────────
 function getLogFile(date) {
@@ -47,7 +51,7 @@ function logError(error, context = {}) {
       }
     }
     entries.push(entry);
-    fs.writeFileSync(logFile, JSON.stringify(entries, null, 2));
+    try { fs.writeFileSync(logFile, JSON.stringify(entries, null, 2)); } catch (_) {}
   } catch (writeErr) {
     console.error('❌ Impossible d\'écrire le log d\'erreur:', writeErr.message);
   }

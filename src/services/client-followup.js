@@ -21,7 +21,9 @@ let sentLog = [];
 
 const fs = require('fs');
 const path = require('path');
-const TRACKER_FILE = path.join(__dirname, '../../logs/followup-sent.json');
+const IS_SERVERLESS = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const LOGS_DIR = IS_SERVERLESS ? '/tmp/daleba-logs' : path.join(__dirname, '../../logs');
+const TRACKER_FILE = path.join(LOGS_DIR, 'followup-sent.json');
 
 // Charger l'état persisté au démarrage
 function loadSentTracker() {
@@ -39,9 +41,10 @@ function loadSentTracker() {
 
 function saveSentTracker() {
   try {
-    const logsDir = path.dirname(TRACKER_FILE);
-    if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true });
-    fs.writeFileSync(TRACKER_FILE, JSON.stringify(sentLog, null, 2));
+    try {
+      if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true });
+      fs.writeFileSync(TRACKER_FILE, JSON.stringify(sentLog, null, 2));
+    } catch (_) {}
   } catch (err) {
     console.error('❌ Impossible de sauvegarder followup-sent.json:', err.message);
   }

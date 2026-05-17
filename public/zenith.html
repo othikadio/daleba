@@ -623,7 +623,9 @@
 
   <!-- ─── MAIN ─── -->
   <div id="main">
+    <div id="planet-container" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
     <canvas id="planet-canvas"></canvas>
+    </div>
 
     <!-- Reflection Mode Overlay -->
     <div id="reflection-overlay">
@@ -920,7 +922,11 @@ function initThree() {
   camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 100);
   camera.position.set(0, 0, 6);
 
-  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  } catch(e) {
+    throw new Error('WebGLRenderer failed: ' + e.message);
+  }
   renderer.setSize(W, H);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setClearColor(0x000000, 0);
@@ -1434,15 +1440,155 @@ function setWSDot(cls, label) {
 /* ============================================================
    INIT
 ============================================================ */
-document.addEventListener('DOMContentLoaded', () => {
-  // Initialize Three.js planet
-  initThree();
+// ─── WEBGL SAFE INIT avec fallback SVG 2D ───────────────────────────────────
+function initPlanet() {
+  // Test WebGL support
+  const testCanvas = document.createElement('canvas');
+  const gl = testCanvas.getContext('webgl') || testCanvas.getContext('experimental-webgl');
+  
+  if (!gl || typeof THREE === 'undefined') {
+    console.warn('WebGL non dispo — bascule SVG 2D');
+    initSVGFallback();
+    return;
+  }
+  
+  try {
+    initThree();
+  } catch(e) {
+    console.warn('Three.js crash:', e.message, '— bascule SVG 2D');
+    initSVGFallback();
+  }
+}
 
-  // Restore chat history from localStorage
+// ─── FALLBACK ORBE SVG 2D ────────────────────────────────────────────────────
+function initSVGFallback() {
+  const container = document.getElementById('planet-container');
+  if (!container) return;
+  container.innerHTML = `
+    <svg id="orb-svg" viewBox="0 0 300 300" style="width:min(300px,80vw);height:min(300px,80vw);display:block;margin:auto;">
+      <defs>
+        <radialGradient id="orb-grad" cx="40%" cy="35%">
+          <stop offset="0%" stop-color="#00FFBF" stop-opacity="0.9"/>
+          <stop offset="60%" stop-color="#00D4FF" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="#003322" stop-opacity="0.2"/>
+        </radialGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="6" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <!-- Orbe principal -->
+      <circle cx="150" cy="150" r="110" fill="url(#orb-grad)" filter="url(#glow)" opacity="0.85">
+        <animateTransform attributeName="transform" type="rotate" from="0 150 150" to="360 150 150" dur="12s" repeatCount="indefinite"/>
+      </circle>
+      <!-- Anneau -->
+      <ellipse cx="150" cy="150" rx="130" ry="30" fill="none" stroke="#00FF9F" stroke-width="1" opacity="0.3">
+        <animateTransform attributeName="transform" type="rotate" from="0 150 150" to="360 150 150" dur="8s" repeatCount="indefinite"/>
+      </ellipse>
+      <!-- Points orbitaux -->
+      <circle r="4" fill="#00FF9F" filter="url(#glow)">
+        <animateMotion dur="6s" repeatCount="indefinite" path="M150,20 A130,130 0 1,1 149.9,20"/>
+      </circle>
+      <circle r="3" fill="#00D4FF" filter="url(#glow)">
+        <animateMotion dur="9s" repeatCount="indefinite" path="M150,30 A120,120 0 1,0 150.1,30"/>
+      </circle>
+      <!-- Pulsation centre -->
+      <circle cx="150" cy="150" r="20" fill="#00FF9F" opacity="0.6">
+        <animate attributeName="r" values="15;25;15" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+  `;
+  // Animation pulsation sur frappe
+  window._svgPulse = () => {
+    const orb = document.querySelector('#orb-svg circle');
+    if (orb) {
+      orb.style.transition = 'opacity 0.3s';
+      orb.style.opacity = '1';
+      setTimeout(() => { orb.style.opacity = '0.85'; }, 400);
+    }
+  };
+}
+
+// ─── WEBSOCKET avec timeout 1.5s puis HTTP polling ───────────────────────────
+let wsMode = 'ws'; // 'ws' | 'polling'
+let wsConnectionTimer = null;
+
+function connectWSSafe() {
+  if (typeof WebSocket === 'undefined') { switchToPolling(); return; }
+
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsUrl = proto + '//' + location.host + '/ws';
+
+  // Timeout 1.5s : si pas connecté, bascule polling
+  wsConnectionTimer = setTimeout(() => {
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+      if (ws) { try { ws.close(); } catch(_) {} }
+      switchToPolling();
+    }
+  }, 1500);
+
+  try {
+    ws = new WebSocket(wsUrl);
+  } catch(e) {
+    clearTimeout(wsConnectionTimer);
+    switchToPolling();
+    return;
+  }
+
+  ws.onopen = () => {
+    clearTimeout(wsConnectionTimer);
+    wsMode = 'ws';
+    wsRetry = 0;
+    setWSDot('connected', 'LIVE ●');
+  };
+
+  ws.onclose = () => {
+    clearTimeout(wsConnectionTimer);
+    if (wsMode === 'ws') {
+      setWSDot('reconnecting', 'WS ↻');
+      scheduleWSReconnect();
+    }
+  };
+
+  ws.onerror = () => {
+    clearTimeout(wsConnectionTimer);
+    setWSDot('reconnecting', 'WS ↻');
+  };
+
+  ws.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      if (data.type === 'rdv_update') {
+        const el = document.getElementById('w-rdv');
+        if (el) el.textContent = data.count + ' aujourd\'hui';
+      }
+    } catch(e) {}
+  };
+}
+
+function switchToPolling() {
+  wsMode = 'polling';
+  setWSDot('connected', 'HTTP ●');
+  // Poll /api/health toutes les 30s pour garder le widget à jour
+  setInterval(async () => {
+    try {
+      const r = await fetch('/health');
+      const d = await r.json();
+      if (d.status === 'online') setWSDot('connected', 'HTTP ●');
+    } catch(_) { setWSDot('', 'OFFLINE'); }
+  }, 30000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Planet : WebGL avec fallback SVG automatique
+  initPlanet();
+
+  // Restaurer historique
   restoreHistory();
 
-  // Attempt WS connection (non-blocking)
-  setTimeout(connectWS, 1000);
+  // WebSocket avec timeout 1.5s → HTTP polling
+  setTimeout(connectWSSafe, 800);
 
   // Focus input
   setTimeout(() => { inputEl && inputEl.focus(); }, 600);

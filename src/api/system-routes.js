@@ -183,12 +183,14 @@ router.post('/auto-apply', requireMasterKey, async (req, res) => {
       return res.status(403).json({ error: 'Chemin non autorisé' });
     }
 
-    // Créer les dossiers parents si nécessaire
+    // Créer les dossiers parents si nécessaire (try/catch pour serverless)
     const dir = path.dirname(filePath);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-
-    // Écrire le fichier
-    fs.writeFileSync(filePath, content, 'utf8');
+    try {
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(filePath, content, 'utf8');
+    } catch (fsErr) {
+      return res.status(500).json({ error: 'Filesystem read-only (serverless)', detail: fsErr.message });
+    }
 
     // Log dans les annales
     const logEntry = {
@@ -199,15 +201,18 @@ router.post('/auto-apply', requireMasterKey, async (req, res) => {
       contentLength: content.length,
     };
 
-    const annalesDir = path.join(__dirname, '../../logs');
-    if (!fs.existsSync(annalesDir)) fs.mkdirSync(annalesDir, { recursive: true });
-    const annalesFile = path.join(annalesDir, `annales-${new Date().toISOString().slice(0, 10)}.json`);
-    let annales = [];
-    if (fs.existsSync(annalesFile)) {
-      try { annales = JSON.parse(fs.readFileSync(annalesFile, 'utf8')); } catch { annales = []; }
-    }
-    annales.push(logEntry);
-    fs.writeFileSync(annalesFile, JSON.stringify(annales, null, 2));
+    const IS_SL = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+    const annalesDir = IS_SL ? '/tmp/daleba-logs' : path.join(__dirname, '../../logs');
+    try {
+      if (!fs.existsSync(annalesDir)) fs.mkdirSync(annalesDir, { recursive: true });
+      const annalesFile = path.join(annalesDir, `annales-${new Date().toISOString().slice(0, 10)}.json`);
+      let annales = [];
+      if (fs.existsSync(annalesFile)) {
+        try { annales = JSON.parse(fs.readFileSync(annalesFile, 'utf8')); } catch { annales = []; }
+      }
+      annales.push(logEntry);
+      fs.writeFileSync(annalesFile, JSON.stringify(annales, null, 2));
+    } catch (_) {}
 
     console.log(`📝 Auto-apply: ${type}/${target} (${content.length} chars)`);
 
