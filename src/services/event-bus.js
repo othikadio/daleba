@@ -44,7 +44,9 @@ function emit(type, msg, data = {}) {
 
 /**
  * Abonne un res Express SSE au bus
- * Envoie les 20 derniers événements en rafale initiale
+ * - Ping initial "connected" pour confirmer la connexion au HUD
+ * - Replay des 20 derniers events pour hydratation initiale
+ * - Protection anti-fuite mémoire : cleanup sur close, error et finish
  */
 function subscribe(req, res) {
   res.setHeader('Content-Type', 'text/event-stream');
@@ -53,24 +55,43 @@ function subscribe(req, res) {
   res.setHeader('X-Accel-Buffering', 'no');
   res.flushHeaders();
 
-  // Replay des 20 derniers events pour hydratation initiale
+  // ── Ping initial de connexion ──────────────────────────────────────────────
+  const connectEvent = {
+    seq: 0,
+    ts: new Date().toISOString(),
+    type: 'system',
+    msg: '🔗 DALEBA Event Bus connecté — HUD Terminal prêt',
+    data: { connected: true, subscribers: subscribers.size + 1 },
+  };
+  res.write(`data: ${JSON.stringify(connectEvent)}\n\n`);
+
+  // ── Replay des 20 derniers events ──────────────────────────────────────────
   const replay = events.slice(-20);
   replay.forEach(e => {
-    res.write(`data: ${JSON.stringify(e)}\n\n`);
+    try { res.write(`data: ${JSON.stringify(e)}\n\n`); }
+    catch (_) {}
   });
 
-  // Keepalive ping toutes les 25s
+  // ── Keepalive ping toutes les 25s ──────────────────────────────────────────
   const keepalive = setInterval(() => {
     try { res.write(': ping\n\n'); }
-    catch (_) { clearInterval(keepalive); subscribers.delete(res); }
+    catch (_) {
+      clearInterval(keepalive);
+      subscribers.delete(res);
+    }
   }, 25000);
 
   subscribers.add(res);
 
-  req.on('close', () => {
+  // ── Cleanup complet sur toutes les déconnexions possibles ─────────────────
+  function cleanup() {
     clearInterval(keepalive);
     subscribers.delete(res);
-  });
+  }
+  req.on('close', cleanup);
+  req.on('aborted', cleanup);
+  res.on('error', cleanup);
+  res.on('finish', cleanup);
 }
 
 /**

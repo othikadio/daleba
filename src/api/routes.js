@@ -150,7 +150,11 @@ router.post('/chat', async (req, res) => {
 
     // 3. Injecter le persona DALEBA si pas de systemPrompt explicite (Point 11)
     const { DALEBA_SYSTEM_PROMPT } = require('../agents/persona');
-    const effectiveSystemPrompt = systemPrompt || DALEBA_SYSTEM_PROMPT;
+    const basePrompt = systemPrompt || DALEBA_SYSTEM_PROMPT;
+
+    // 3b. Pont Cérébral — injecte Square + mémoire stratégique si requête admin
+    const { enrichSystemPrompt } = require('../services/brain-context');
+    const effectiveSystemPrompt = await enrichSystemPrompt(message, basePrompt);
 
     // 4. Appel au modèle sélectionné
     const agent = AGENTS[model];
