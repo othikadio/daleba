@@ -5,10 +5,9 @@
 
 const twilio = require('twilio');
 
-const client = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
+const client = (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN)
+  ? twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
+  : null;
 
 const FROM_NUMBER = process.env.TWILIO_PHONE_NUMBER; // Numéro Twilio Kadio Coiffure
 
@@ -18,6 +17,10 @@ const FROM_NUMBER = process.env.TWILIO_PHONE_NUMBER; // Numéro Twilio Kadio Coi
  * @param {string} message - Contenu du SMS (max 160 chars recommandé)
  */
 async function sendSMS(to, message) {
+  if (!client) {
+    console.log(`[SMS DEMO] To: ${to} — ${message.slice(0, 50)}...`);
+    return { sid: 'demo', status: 'queued', to, sentAt: new Date() };
+  }
   const result = await client.messages.create({
     body: message,
     from: FROM_NUMBER,

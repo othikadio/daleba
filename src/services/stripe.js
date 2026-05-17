@@ -5,7 +5,9 @@
 
 const Stripe = require('stripe');
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY)
+  : null;
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
 /**
@@ -28,6 +30,7 @@ async function createCheckoutSession({
   successUrl = process.env.STRIPE_SUCCESS_URL || 'https://kadiocoiffure.com/confirmation',
   cancelUrl = process.env.STRIPE_CANCEL_URL || 'https://kadiocoiffure.com/annulation',
 }) {
+  if (!stripe) throw new Error('Stripe non configuré — ajoutez STRIPE_SECRET_KEY');
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     customer_email: clientEmail,
