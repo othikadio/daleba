@@ -1,5 +1,17 @@
 # 🧠 DALEBA — Plan Directeur Absolu (50 points)
 
+## 🚨 Mise à jour autonome — 17 mai 2026
+
+**Ce qui a été accompli pendant qu'Ulrich dormait :**
+- ✅ GitHub : repo `othikadio/daleba` créé et code pushé sur `main`
+- ✅ Vercel : déployé sur **https://daleba.vercel.app** (LIVE 🟢)
+- ✅ Mode démo complet (pas de PostgreSQL requis)
+- ✅ Page d'accueil Kadio Coiffure créée (`/accueil.html`)
+- ✅ Fix Stripe/Twilio/Claude/GPT-4o : initialisation sécurisée sans crash
+- ✅ Données démo Kadio Coiffure : 8 services, 3 coiffeurs, infos salon
+- ✅ Auth démo : admin@kadiocoiffure.ca / demo1234
+
+
 ## 🏛️ PILIER I : L'INFRASTRUCTURE ET LE ROUTAGE MULTI-IA GLOBAL
 
 - [x] 1. Initialisation du Noyau d'Orchestration Global
