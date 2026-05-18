@@ -27,6 +27,20 @@ const CHANNELS = {
 async function receiveMessage({ channel, from, text, sessionId }) {
   bus.chat(`[${channel.toUpperCase()}] De: ${from} — ${text.slice(0, 60)}`);
 
+  // ─── V22 : Human-in-the-loop — vérification avant tout traitement bot ─────
+  const { isHumanRequired, getOrCreateChatSession } = require('../memory/db');
+  const humanRequired = await isHumanRequired(from, channel).catch(() => false);
+  if (humanRequired) {
+    bus.system(`👤 [${channel.toUpperCase()}] Session ${from} en mode HUMAN — réponse bot gelée`);
+    // Notifie Ulrich du message entrant sans répondre au client
+    const { alertUlrich } = require('./twilio');
+    alertUlrich(
+      `Message entrant (${channel}) de ${from} en attente de ta réponse :\n"${text.slice(0, 120)}"`
+    ).catch(() => {});
+    return { intent: 'human_required', response: null, frozen: true };
+  }
+  // ─── Fin du bloc Human-in-the-loop ─────────────────────────────────────────
+
   // Déterminer l'intent du message
   const intent = detectIntent(text);
 
