@@ -91,6 +91,9 @@ process.on('unhandledRejection', (reason) => {
 // ─── CRON FOLLOWUP CLIENTS (Point 40) ────────────────────────────────────────
 if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   startFollowupCron();
+  // V20 — Cruise Control: routines autonomes fidélité + contenu social
+  const { startV20Crons } = require('./services/auto-scheduler');
+  startV20Crons();
 }
 
 // Démarrage — skip listen() en mode serverless (Vercel)

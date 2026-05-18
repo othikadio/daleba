@@ -527,10 +527,11 @@ router.post('/social/schedule', async (req, res) => {
   }
 });
 
-// POST /api/social/auto — Pipeline auto hebdomadaire
+// POST /api/social/auto — Pipeline auto hebdomadaire (3 posts: botanique + abonnements + TikTok)
 router.post('/social/auto', async (req, res) => {
   try {
-    const posts = await social.autoGenerateWeeklyContent();
+    const { generateWeeklyTriple } = require('../services/auto-scheduler');
+    const posts = await generateWeeklyTriple(req.body?.perfContext || '');
     res.json({ success: true, posts, count: posts.length });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -579,7 +580,7 @@ router.post('/salon/booking', async (req, res) => {
 
 // POST /api/salon/botanique — Diagnostic capillaire + recommandations Bar à Plantes
 router.post('/salon/botanique', async (req, res) => {
-  const { name, hairType, concerns, currentProducts, goals } = req.body;
+  const { name, phone, email, hairType, concerns, currentProducts, goals } = req.body;
   if (!concerns) return res.status(400).json({ error: 'concerns requis (ex: sécheresse, casse, etc.)' });
 
   try {
@@ -589,23 +590,47 @@ router.post('/salon/botanique', async (req, res) => {
     const systemPrompt = `Tu es l'experte en soins capillaires du Bar à Plantes de Kadio Coiffure.
 Tu maîtrises les soins botaniques naturels pour cheveux afro, crépus, bouclés et défrisés.
 Produits phares: huiles essentielles, beurres (karité, cacao), plantes (hibiscus, moringa, aloe vera).
-Ton diagnostic est personnalisé, professionnel et accessible.`;
+Inclure TOUJOURS: 1) Recette maison personnalisée avec proportions exactes, 2) Routine hebdomadaire, 3) CTA réservation.
+Ton diagnostic est professionnel, accessible et chaleureux.`;
 
     const query = `Diagnostic capillaire pour ${name || 'ce client'}:
 - Type de cheveux: ${hairType || 'non précisé'}
-- Problèmes: ${concerns}
+- Problèmes principaux: ${concerns}
 - Produits actuels: ${currentProducts || 'non précisé'}
 - Objectifs: ${goals || 'non précisé'}
 
-Donne: 1) Analyse du profil capillaire 2) Routine soins recommandée 3) Produits botaniques adaptés 4) Conseil pro Kadio Coiffure`;
+Génère:
+1) Analyse du profil capillaire
+2) RECETTE BOTANIQUE PERSONNALISÉE (ingrédients + proportions + mode d'application)
+3) Routine soins hebdomadaire (3 étapes max)
+4) Lien réservation soin Bar à Plantes: https://daleba.vercel.app/reservation`;
 
     const result = await claude.query(query, systemPrompt, []);
+    const diagnosticText = result.content;
+
+    // ── Envoi automatique SMS/WhatsApp si téléphone fourni ──────────────────
+    if (phone) {
+      const twilio = require('../services/twilio');
+      const shortMsg = `Bonjour ${name || ''} ! 🌿 Voici votre diagnostic capillaire personnalisé du Bar à Plantes Kadio Coiffure :\n\n${diagnosticText.slice(0, 600)}${diagnosticText.length > 600 ? '...' : ''}\n\n📅 Réservez votre soin: https://daleba.vercel.app/reservation`;
+
+      // Tentative WhatsApp en priorité, fallback SMS
+      const dest = `whatsapp:${phone}`;
+      twilio.sendSMS(dest, shortMsg).catch(() => {
+        // Fallback SMS classique
+        twilio.sendSMS(phone, shortMsg).catch(err => {
+          bus.emit('error', `[BOTANIQUE] Envoi SMS échoué: ${err.message}`);
+        });
+      });
+
+      bus.sms(`[BOTANIQUE] Diagnostic envoyé à ${phone}`);
+    }
 
     res.json({
       success: true,
-      diagnostic: result.content,
+      diagnostic: diagnosticText,
       profile: { name, hairType, concerns, goals },
-      bookingCta: 'Réservez votre consultation Bar à Plantes: daleba.vercel.app/reservation',
+      smsSent: !!phone,
+      bookingCta: 'https://daleba.vercel.app/reservation',
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
