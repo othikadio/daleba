@@ -405,4 +405,211 @@ router.get('/journal/today', async (req, res) => {
   }
 });
 
+// ─── COMMUNICATION HUB (V19) ─────────────────────────────────────────────────────────────────
+const commHub = require('../services/communication-hub');
+
+// Webhook WhatsApp (Twilio ou Meta Cloud API)
+router.post('/webhook/whatsapp', async (req, res) => {
+  const parsed = commHub.parseWhatsAppWebhook(req.body);
+  if (!parsed) return res.sendStatus(200);
+  try {
+    await commHub.receiveMessage(parsed);
+  } catch (err) {
+    bus.emit('error', `WhatsApp webhook: ${err.message}`);
+  }
+  res.sendStatus(200);
+});
+
+// Webhook Facebook Messenger
+router.post('/webhook/facebook', async (req, res) => {
+  if (req.query['hub.verify_token'] === process.env.META_VERIFY_TOKEN) {
+    return res.send(req.query['hub.challenge']);
+  }
+  const parsed = commHub.parseFacebookWebhook(req.body);
+  if (parsed) await commHub.receiveMessage(parsed).catch(() => {});
+  res.sendStatus(200);
+});
+
+// Webhook Instagram DMs
+router.post('/webhook/instagram', async (req, res) => {
+  if (req.query['hub.verify_token'] === process.env.META_VERIFY_TOKEN) {
+    return res.send(req.query['hub.challenge']);
+  }
+  const parsed = commHub.parseInstagramWebhook(req.body);
+  if (parsed) await commHub.receiveMessage(parsed).catch(() => {});
+  res.sendStatus(200);
+});
+
+// Webhook SMS Twilio entrant
+router.post('/webhook/sms', async (req, res) => {
+  const parsed = commHub.parseSMSWebhook(req.body);
+  if (!parsed) return res.sendStatus(200);
+  try {
+    const { response } = await commHub.receiveMessage(parsed);
+    // Réponse TwiML si Twilio attend une réponse directe
+    res.set('Content-Type', 'text/xml');
+    res.send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
+  } catch (err) {
+    bus.emit('error', `SMS webhook: ${err.message}`);
+    res.sendStatus(200);
+  }
+});
+
+// ─── LOYALTY ENGINE (V19) ────────────────────────────────────────────────────────────────────
+const loyalty = require('../services/loyalty-engine');
+
+// GET /api/loyalty/summary — Résumé du programme fidélité (HUD)
+router.get('/loyalty/summary', async (req, res) => {
+  try {
+    const summary = await loyalty.getLoyaltySummary();
+    res.json(summary);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/loyalty/profile/:phone — Profil fidélité d'un client
+router.get('/loyalty/profile/:phone', async (req, res) => {
+  try {
+    const profile = await loyalty.getLoyaltyProfile(req.params.phone);
+    if (!profile) return res.status(404).json({ error: 'Client non trouvé' });
+    res.json(profile);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/loyalty/award — Créditer des points manuellement
+router.post('/loyalty/award', async (req, res) => {
+  const { phone, name, amountCAD, squareCustomerId } = req.body;
+  if (!phone || !amountCAD) return res.status(400).json({ error: 'phone et amountCAD requis' });
+  try {
+    const record = await loyalty.awardPoints({ phone, name, amountCAD, squareCustomerId, source: 'manual' });
+    res.json({ success: true, record });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/loyalty/campaign — Déclencher campagne réengagement
+router.post('/loyalty/campaign', async (req, res) => {
+  const { inactiveDays = 30 } = req.body;
+  try {
+    const result = await loyalty.runReengagementCampaign(inactiveDays);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── SOCIAL SCHEDULER (V19) ─────────────────────────────────────────────────────────────────
+const social = require('../services/social-scheduler');
+
+// POST /api/social/generate — Générer du contenu via LLM
+router.post('/social/generate', async (req, res) => {
+  const { topic, style, platform, language } = req.body;
+  if (!topic) return res.status(400).json({ error: 'topic requis' });
+  try {
+    const content = await social.generateContent({ topic, style, platform, language });
+    res.json(content);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/social/schedule — Planifier une publication
+router.post('/social/schedule', async (req, res) => {
+  try {
+    const post = await social.schedulePost(req.body);
+    res.status(201).json({ success: true, post });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/social/auto — Pipeline auto hebdomadaire
+router.post('/social/auto', async (req, res) => {
+  try {
+    const posts = await social.autoGenerateWeeklyContent();
+    res.json({ success: true, posts, count: posts.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/social/publish — Publier les posts en attente
+router.post('/social/publish', async (req, res) => {
+  try {
+    const result = await social.publishPendingPosts();
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── SALON WEB API (V19) ────────────────────────────────────────────────────────────────────────
+
+// POST /api/salon/booking — Requêtes de réservation depuis le site web
+router.post('/salon/booking', async (req, res) => {
+  const { name, phone, email, service, preferredDate, message: clientMsg, channel = 'web' } = req.body;
+  if (!name || !phone) return res.status(400).json({ error: 'name et phone requis' });
+
+  try {
+    bus.booking(`Demande web: ${name} — ${service || 'service non précisé'}`);
+
+    // Analyse brain-context pour réponse intelligente
+    const { enrichSystemPrompt } = require('../services/brain-context');
+    const claude = require('../agents/claude');
+    const { DALEBA_SYSTEM_PROMPT } = require('../agents/persona');
+
+    const query = `Nouveau lead web: ${name} (${phone}${email ? ', '+email : ''}) souhaite ${service || 'un rendez-vous'} le ${preferredDate || 'date non précisée'}. Message: "${clientMsg || ''}". Prépare une confirmation et demande les infos manquantes.`;
+    const enriched = await enrichSystemPrompt(query, DALEBA_SYSTEM_PROMPT);
+    const result = await claude.query(query, enriched, []);
+
+    res.json({
+      success: true,
+      message: 'Demande reçue',
+      dalebaSuggestion: result.content,
+      lead: { name, phone, email, service, preferredDate },
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/salon/botanique — Diagnostic capillaire + recommandations Bar à Plantes
+router.post('/salon/botanique', async (req, res) => {
+  const { name, hairType, concerns, currentProducts, goals } = req.body;
+  if (!concerns) return res.status(400).json({ error: 'concerns requis (ex: sécheresse, casse, etc.)' });
+
+  try {
+    bus.system(`[BOTANIQUE] Diagnostic: ${name || 'client'} — ${concerns}`);
+
+    const claude = require('../agents/claude');
+    const systemPrompt = `Tu es l'experte en soins capillaires du Bar à Plantes de Kadio Coiffure.
+Tu maîtrises les soins botaniques naturels pour cheveux afro, crépus, bouclés et défrisés.
+Produits phares: huiles essentielles, beurres (karité, cacao), plantes (hibiscus, moringa, aloe vera).
+Ton diagnostic est personnalisé, professionnel et accessible.`;
+
+    const query = `Diagnostic capillaire pour ${name || 'ce client'}:
+- Type de cheveux: ${hairType || 'non précisé'}
+- Problèmes: ${concerns}
+- Produits actuels: ${currentProducts || 'non précisé'}
+- Objectifs: ${goals || 'non précisé'}
+
+Donne: 1) Analyse du profil capillaire 2) Routine soins recommandée 3) Produits botaniques adaptés 4) Conseil pro Kadio Coiffure`;
+
+    const result = await claude.query(query, systemPrompt, []);
+
+    res.json({
+      success: true,
+      diagnostic: result.content,
+      profile: { name, hairType, concerns, goals },
+      bookingCta: 'Réservez votre consultation Bar à Plantes: daleba.vercel.app/reservation',
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

@@ -250,6 +250,49 @@ async function migrate() {
   `);
   console.log('✅ Table: daleba_notes');
 
+  // ─── LOYALTY ENGINE ──────────────────────────────────────────────────────
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS daleba_loyalty (
+      id                    SERIAL PRIMARY KEY,
+      square_customer_id    TEXT,
+      phone                 TEXT UNIQUE,
+      name                  TEXT,
+      email                 TEXT,
+      points                INTEGER DEFAULT 0,
+      total_spent           DECIMAL(10,2) DEFAULT 0,
+      last_visit            TIMESTAMPTZ,
+      source                TEXT DEFAULT 'square',
+      reengagement_sent_at  TIMESTAMPTZ DEFAULT '2000-01-01',
+      created_at            TIMESTAMPTZ DEFAULT NOW(),
+      updated_at            TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_loyalty_phone   ON daleba_loyalty(phone);
+    CREATE INDEX IF NOT EXISTS idx_loyalty_points  ON daleba_loyalty(points DESC);
+    CREATE INDEX IF NOT EXISTS idx_loyalty_visit   ON daleba_loyalty(last_visit);
+  `);
+  console.log('✅ Table: daleba_loyalty');
+
+  // ─── SOCIAL CONTENT QUEUE ────────────────────────────────────────────────
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS daleba_content_queue (
+      id            SERIAL PRIMARY KEY,
+      platform      TEXT NOT NULL,
+      content       TEXT NOT NULL,
+      media_url     TEXT,
+      topic         TEXT,
+      style         TEXT,
+      status        TEXT DEFAULT 'pending',
+      scheduled_at  TIMESTAMPTZ NOT NULL,
+      published_at  TIMESTAMPTZ,
+      error         TEXT,
+      created_at    TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_content_status    ON daleba_content_queue(status);
+    CREATE INDEX IF NOT EXISTS idx_content_platform  ON daleba_content_queue(platform);
+    CREATE INDEX IF NOT EXISTS idx_content_scheduled ON daleba_content_queue(scheduled_at);
+  `);
+  console.log('✅ Table: daleba_content_queue');
+
   // ─── SEED : Kadio Coiffure (business #1) ─────────────────────────
   await pool.query(`
     INSERT INTO businesses (name, slug, type, address, phone, timezone, currency)
