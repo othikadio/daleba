@@ -10,6 +10,7 @@ const bookingRoutes = require('./booking-routes');
 const calendarRoutes = require('./calendar-routes');
 const voiceRoutes    = require('./voice-routes');   // V22 — Agent Vocal
 const onboardingRoutes = require('./onboarding-routes'); // V23 — SaaS Multi-Tenant
+const videoRoutes = require('./video-routes'); // V24 — Studio Vidéo Botanique
 const { requireAuth } = require('../middleware/auth');
 const { resolveTenant } = require('../middleware/tenant');
 const { v4: uuidv4 } = require('uuid');
@@ -246,6 +247,9 @@ router.use('/calendar', calendarRoutes);
 
 // V22 — Twilio Voice Webhooks (non authentifiés — validés par signature Twilio)
 router.use('/webhook', voiceRoutes);
+
+// V24 — Studio Vidéo Botanique
+router.use('/video', videoRoutes);
 
 // ─── ROUTES SOCIAL META (Point 38) ───────────────────────────────────────
 

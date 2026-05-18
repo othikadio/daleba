@@ -10,8 +10,14 @@ const bus = require('./event-bus');
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
 
-const ULRICH_PHONE    = process.env.ULRICH_PHONE_NUMBER;   // ex: +15141234567
+const voiceConfig = require('./voice-config'); // V24 — config centralisée
+const ULRICH_PHONE    = process.env.ULRICH_PHONE_NUMBER;   // ex: +15149193973
 const TWILIO_NUMBER   = process.env.TWILIO_PHONE_NUMBER;
+
+// V24 — warn au démarrage si escalade désactivée
+if (!process.env.ULRICH_PHONE_NUMBER) {
+  console.warn('⚠️ [VOICE] ULRICH_PHONE_NUMBER non configuré — escalade désactivée');
+}
 const DALEBA_BASE_URL = process.env.DALEBA_BASE_URL || process.env.RAILWAY_PUBLIC_DOMAIN
   ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
   : 'https://daleba-production.up.railway.app';
@@ -121,15 +127,88 @@ function detectKeywordEscalation(text) {
 
 // ─── ANALYSE LLM ─────────────────────────────────────────────────────────────
 
+// ─── V24 : Disponibilités Square en temps réel ─────────────────────────────
+async function getSquareAvailability() {
+  try {
+    const square = require('./square');
+    const now = new Date();
+    const in7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+    // Services du catalogue
+    let servicesLine = 'Non disponibles';
+    try {
+      const { objects = [] } = await square.getCatalogItems('ITEM,ITEM_VARIATION');
+      const services = objects
+        .filter(o => o.type === 'ITEM' && o.item_data)
+        .map(o => {
+          const d = o.item_data;
+          const v = (d.variations || [])[0];
+          const price = v?.item_variation_data?.price_money?.amount
+            ? `${(v.item_variation_data.price_money.amount / 100).toFixed(0)}$` : '';
+          const dur = v?.item_variation_data?.service_duration
+            ? `${Math.round(v.item_variation_data.service_duration / 60000)}min` : '';
+          return [d.name, dur, price].filter(Boolean).join(' ');
+        })
+        .filter(Boolean).slice(0, 6);
+      if (services.length) servicesLine = services.join(' | ');
+    } catch (_) {}
+
+    // Créneaux dispo (simplifié — prochains jours ouvrables)
+    const HOURS = { 1:{o:9,c:19},2:{o:9,c:19},3:{o:9,c:19},4:{o:9,c:19},5:{o:9,c:19},6:{o:8,c:17} };
+    let { bookings = [] } = await square.getBookings(now.toISOString(), in7Days.toISOString())
+      .catch(() => ({ bookings: [] }));
+    const takenSlots = new Set(bookings
+      .filter(b => !['CANCELLED_BY_CUSTOMER','CANCELLED_BY_SELLER'].includes(b.status))
+      .map(b => b.start_at ? new Date(b.start_at).toISOString().slice(0,16) : null)
+      .filter(Boolean));
+
+    const slots = [];
+    let d = new Date(now);
+    for (let i = 0; i < 3 && slots.length < 2; i++) {
+      d.setDate(d.getDate() + (i === 0 ? 0 : 1));
+      const day = d.getDay();
+      const h = HOURS[day];
+      if (!h) continue;
+      const daySlots = [];
+      for (let hr = h.o; hr < h.c; hr += 1) {
+        const slotDt = new Date(d);
+        slotDt.setHours(hr, 0, 0, 0);
+        if (slotDt <= now) continue;
+        const key = slotDt.toISOString().slice(0,16);
+        if (!takenSlots.has(key)) daySlots.push(`${hr}h00`);
+        if (daySlots.length >= 3) break;
+      }
+      if (daySlots.length) {
+        const label = i === 0 ? 'Aujourd\'hui' : i === 1 ? 'Demain' : d.toLocaleDateString('fr-CA',{weekday:'long'});
+        slots.push(`${label}: ${daySlots.join(', ')}`);
+      }
+    }
+
+    return `Services: ${servicesLine}\nCréneaux disponibles:\n${slots.join('\n') || 'Aucun créneau libre dans les 3 prochains jours'}`;
+  } catch (err) {
+    bus.system(`⚠️ [VOICE] getSquareAvailability error: ${err.message}`);
+    return 'Disponibilités momentanément indisponibles — inviter à rappeler ou visiter kadiocoiffure.com';
+  }
+}
+
 async function analyzeWithLLM(speechText, callerNumber) {
   try {
     const { enrichSystemPrompt } = require('./brain-context');
     const claude = require('../agents/claude');
     const { DALEBA_SYSTEM_PROMPT } = require('../agents/persona');
 
+    // V24 — injecter les dispo Square en temps réel
+    const availability = await getSquareAvailability();
+
     const voiceSystemPrompt = `${DALEBA_SYSTEM_PROMPT}
 
-Tu es en train de traiter un appel vocal entrant pour Kadio Coiffure.
+Tu es Béatrice, assistante vocale de ${voiceConfig.SALON_NAME}.
+Adresse: ${voiceConfig.SALON_ADDRESS}
+Site: ${voiceConfig.SALON_WEBSITE}
+Horaires: Lun-Ven ${voiceConfig.HOURS.weekdays}, Sam ${voiceConfig.HOURS.saturday}, Dim ${voiceConfig.HOURS.sunday}
+
+${availability}
+
 Analyse le message du client et réponds avec un JSON STRICT (sans markdown) :
 {
   "intent": "booking|cancel|reschedule|info|complaint|general",
@@ -141,7 +220,8 @@ Analyse le message du client et réponds avec un JSON STRICT (sans markdown) :
 RÈGLES :
 - frustrationScore > 70 si le client est très en colère, impoli, ou répète sa demande plusieurs fois
 - response doit être courte (vocale), chaleureuse, concrète
-- Pour un RDV, confirme toujours ce que tu comprends et demande les infos manquantes`;
+- Pour un RDV: propose 2-3 créneaux concrets depuis les disponibilités ci-dessus
+- Pour finaliser un RDV: diriger vers ${voiceConfig.SALON_WEBSITE} ou rappel au ${TWILIO_NUMBER}`;
 
     const enriched = await enrichSystemPrompt(speechText, voiceSystemPrompt).catch(() => voiceSystemPrompt);
     const raw = await claude.chat(speechText, [], enriched);

@@ -197,4 +197,50 @@ router.post('/chat-sessions/:id/release', async (req, res) => {
   }
 });
 
+// ─── ROUTE 6 : TEST VOCAL (DEV ONLY) ────────────────────────────────────────
+
+/**
+ * POST /api/webhook/voice/test
+ * Simule un appel sans Twilio pour tester l'agent vocal
+ * Body: { speechText: "Je voudrais un rendez-vous demain matin" }
+ * Retourne: { intent, frustrationScore, llmResponse, twiml, availability }
+ * Disponible uniquement en NODE_ENV !== 'production'
+ */
+router.post('/voice/test', async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ error: 'Endpoint non disponible en production' });
+  }
+
+  const { speechText = 'Je voudrais un rendez-vous demain matin' } = req.body;
+
+  try {
+    const fakeSid    = `TEST-${Date.now()}`;
+    const fakeNumber = '+15140000000';
+
+    // Récupérer les disponibilités Square
+    const availability = await voiceAgent.getSquareAvailability().catch(
+      () => 'Disponibilités non disponibles (Square non configuré en dev)'
+    );
+
+    // Analyser via l'agent vocal complet
+    const result = await voiceAgent.handleSpeechResult({
+      speechResult: speechText,
+      callSid:      fakeSid,
+      callerNumber: fakeNumber,
+    });
+
+    res.json({
+      test:             true,
+      speechText,
+      intent:           result.intent,
+      frustrationScore: result.frustrationScore,
+      escalated:        result.escalated || false,
+      twiml:            result.twiml,
+      availability,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message, stack: err.stack });
+  }
+});
+
 module.exports = router;
