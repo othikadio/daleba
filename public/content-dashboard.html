@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DALEBA — Contenu Social</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #000;
+    color: #00FF9F;
+    font-family: 'Courier New', monospace;
+    min-height: 100vh;
+    padding: 24px;
+  }
+  h1 { font-size: 1.2rem; letter-spacing: 4px; color: #00D4FF; margin-bottom: 8px; }
+  .subtitle { font-size: 0.7rem; color: #444; letter-spacing: 2px; margin-bottom: 32px; }
+  .toolbar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+  button {
+    background: transparent;
+    border: 1px solid #00FF9F;
+    color: #00FF9F;
+    padding: 8px 20px;
+    font-family: inherit;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  button:hover { background: #00FF9F; color: #000; }
+  button.danger { border-color: #C4622D; color: #C4622D; }
+  button.danger:hover { background: #C4622D; color: #000; }
+  button.approve { border-color: #00FF9F; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .card {
+    border: 1px solid #1a1a1a;
+    padding: 16px;
+    position: relative;
+    transition: border-color .2s;
+  }
+  .card:hover { border-color: #00FF9F33; }
+  .card.approved { border-color: #00FF9F55; }
+  .card.rejected { opacity: 0.4; }
+  .platform {
+    display: inline-block;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    padding: 2px 8px;
+    border: 1px solid currentColor;
+    margin-bottom: 10px;
+  }
+  .platform.instagram { color: #E1306C; }
+  .platform.facebook  { color: #1877F2; }
+  .platform.tiktok    { color: #fff; }
+  .topic { font-size: 0.75rem; color: #00D4FF; margin-bottom: 8px; }
+  .content {
+    font-size: 0.72rem;
+    color: #888;
+    line-height: 1.6;
+    max-height: 120px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+  }
+  .meta { font-size: 0.65rem; color: #333; margin-bottom: 12px; }
+  .actions { display: flex; gap: 8px; }
+  .status-badge {
+    position: absolute;
+    top: 12px; right: 12px;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    padding: 2px 6px;
+    border: 1px solid;
+  }
+  .status-badge.pending  { border-color: #555; color: #555; }
+  .status-badge.approved { border-color: #00FF9F; color: #00FF9F; }
+  .status-badge.rejected { border-color: #C4622D; color: #C4622D; }
+  .empty { text-align: center; padding: 60px; color: #333; letter-spacing: 2px; }
+  #log { margin-top: 24px; font-size: 0.65rem; color: #333; }
+</style>
+</head>
+<body>
+
+<h1>◈ DALEBA — CONTENU SOCIAL</h1>
+<p class="subtitle">TABLEAU DE BORD DE VALIDATION — SEMAINE EN COURS</p>
+
+<div class="toolbar">
+  <button onclick="loadQueue()">↺ ACTUALISER</button>
+  <button onclick="generateAuto()">⚡ GÉNÉRER CETTE SEMAINE</button>
+  <button onclick="approveAll()">✓ TOUT APPROUVER</button>
+  <button class="danger" onclick="testAlert()">🔔 TEST ALERTE COMMANDANT</button>
+</div>
+
+<div class="grid" id="grid">
+  <div class="empty">Chargement...</div>
+</div>
+
+<div id="log"></div>
+
+<script>
+const API = '/api';
+
+function log(msg) {
+  const el = document.getElementById('log');
+  el.textContent = `> ${msg}`;
+  setTimeout(() => { el.textContent = ''; }, 4000);
+}
+
+async function loadQueue() {
+  const r = await fetch(`${API}/social/queue`);
+  const data = await r.json();
+  const grid = document.getElementById('grid');
+
+  if (!data.posts || data.posts.length === 0) {
+    grid.innerHTML = '<div class="empty">AUCUN POST EN ATTENTE<br><br>Cliquez sur ⚡ GÉNÉRER CETTE SEMAINE</div>';
+    return;
+  }
+
+  grid.innerHTML = data.posts.map(p => `
+    <div class="card ${p.status}" id="card-${p.id}">
+      <span class="status-badge ${p.status}">${p.status.toUpperCase()}</span>
+      <span class="platform ${p.platform}">${p.platform.toUpperCase()}</span>
+      <div class="topic">${p.topic || ''}</div>
+      <div class="content">${p.content || ''}</div>
+      <div class="meta">
+        Planifié: ${p.scheduled_at ? new Date(p.scheduled_at).toLocaleDateString('fr-CA') : '—'}
+        ${p.style ? ` · ${p.style}` : ''}
+      </div>
+      ${p.status === 'pending' ? `
+      <div class="actions">
+        <button class="approve" onclick="approvePost(${p.id})">✓ VALIDER</button>
+        <button class="danger" onclick="rejectPost(${p.id})">✗ REJETER</button>
+      </div>` : ''}
+    </div>
+  `).join('');
+}
+
+async function approvePost(id) {
+  const r = await fetch(`${API}/social/approve/${id}`, { method: 'POST' });
+  const data = await r.json();
+  if (data.success) {
+    const card = document.getElementById(`card-${id}`);
+    if (card) { card.className = 'card approved'; card.querySelector('.actions')?.remove(); card.querySelector('.status-badge').textContent = 'APPROUVÉ'; card.querySelector('.status-badge').className = 'status-badge approved'; }
+    log(`Post #${id} approuvé ✓`);
+  }
+}
+
+async function rejectPost(id) {
+  const r = await fetch(`${API}/social/queue/${id}`, { method: 'DELETE' });
+  const data = await r.json();
+  if (data.success) {
+    const card = document.getElementById(`card-${id}`);
+    if (card) card.className = 'card rejected';
+    log(`Post #${id} rejeté`);
+  }
+}
+
+async function approveAll() {
+  const cards = document.querySelectorAll('.card.pending, .card:not(.approved):not(.rejected)');
+  for (const card of cards) {
+    const id = card.id.replace('card-', '');
+    if (id) await approvePost(parseInt(id));
+  }
+  log('Tous les posts approuvés');
+}
+
+async function generateAuto() {
+  log('Génération en cours...');
+  const r = await fetch(`${API}/social/auto`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+  const data = await r.json();
+  log(`${data.count || 0} posts générés`);
+  setTimeout(loadQueue, 1000);
+}
+
+async function testAlert() {
+  log('Envoi alerte test...');
+  const r = await fetch(`${API}/commander/test`, { method: 'POST' });
+  const data = await r.json();
+  log(data.sent ? `Alerte envoyée via ${data.channel}` : `Alerte simulée (${data.reason})`);
+}
+
+// Route Express pour cette page
+loadQueue();
+</script>
+</body>
+</html>

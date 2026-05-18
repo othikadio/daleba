@@ -637,4 +637,86 @@ Génère:
   }
 });
 
+// ─── COMMANDER ALERTS (V21) ────────────────────────────────────────────────
+const alerts = require('../services/commander-alerts');
+
+// POST /api/commander/test — Envoyer une alerte de test à Ulrich
+router.post('/commander/test', async (req, res) => {
+  try {
+    const result = await alerts.sendTestAlert();
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/commander/status — Statut du système d'alertes
+router.get('/commander/status', (req, res) => {
+  res.json({
+    active: true,
+    ulrichConfigured: !!process.env.ULRICH_PHONE_NUMBER,
+    twilioConfigured: !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN),
+    thresholds: alerts.THRESHOLDS,
+    nextChecks: {
+      bigPayments: 'toutes les heures',
+      lastMinuteCancellations: 'toutes les heures',
+      weeklyRevenue: 'toutes les heures',
+    },
+  });
+});
+
+// POST /api/commander/check — Déclencher un scan manuel immédiat
+router.post('/commander/check', async (req, res) => {
+  try {
+    await alerts.runAllAlertChecks();
+    res.json({ success: true, message: 'Scan complet déclenché' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── CONTENT QUEUE HUD (V21) ────────────────────────────────────────────────
+
+// GET /api/social/queue — Posts en attente de validation (pour HUD/admin)
+router.get('/social/queue', async (req, res) => {
+  try {
+    const { pool, DEMO_MODE } = require('../memory/db');
+    if (DEMO_MODE) return res.json({ posts: [], demo: true });
+    const result = await pool.query(
+      `SELECT * FROM daleba_content_queue WHERE status = 'pending' ORDER BY scheduled_at ASC LIMIT 20`
+    );
+    res.json({ posts: result.rows, count: result.rows.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/social/approve/:id — Approuver un post (status → approved)
+router.post('/social/approve/:id', async (req, res) => {
+  try {
+    const { pool } = require('../memory/db');
+    const result = await pool.query(
+      `UPDATE daleba_content_queue SET status = 'approved', updated_at = NOW() WHERE id = $1 RETURNING *`,
+      [req.params.id]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'Post non trouvé' });
+    bus.system(`[SOCIAL] Post #${req.params.id} approuvé par Ulrich`);
+    res.json({ success: true, post: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/social/queue/:id — Rejeter/supprimer un post
+router.delete('/social/queue/:id', async (req, res) => {
+  try {
+    const { pool } = require('../memory/db');
+    await pool.query(`UPDATE daleba_content_queue SET status = 'rejected' WHERE id = $1`, [req.params.id]);
+    bus.system(`[SOCIAL] Post #${req.params.id} rejeté`);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

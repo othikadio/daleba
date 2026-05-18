@@ -201,8 +201,6 @@ function startV20Crons() {
   // Routine fidélité: premier run dans 5 min (sanity check), puis chaque dimanche soir
   setTimeout(async () => {
     bus.system('[V20] Cruise Control V20 — Routines fidélité & contenu actives');
-    // Ne pas déclencher immédiatement les campagnes SMS au démarrage
-    // Juste programmer les prochaines exécutions
     const loyaltyIn = msUntilNextSundayEvening();
     const socialIn  = msUntilNextMondayMorning();
 
@@ -211,9 +209,16 @@ function startV20Crons() {
 
     setTimeout(runLoyaltyReengagement, loyaltyIn);
     setTimeout(runSocialContentGeneration, socialIn);
+
+    // V21 — Commander Alerts: scan toutes les heures
+    const { runAllAlertChecks } = require('./commander-alerts');
+    bus.system('[V21] Commander Alerts actif — scan Square toutes les heures');
+    setInterval(runAllAlertChecks, 60 * 60 * 1000); // chaque heure
+    // Premier scan dans 10 minutes
+    setTimeout(runAllAlertChecks, 10 * 60 * 1000);
   }, 5 * 60 * 1000);
 
-  console.log('[V20] Crons programmés: fidélité (dim 20h UTC) + contenu (lun 14h UTC)');
+  console.log('[V20/V21] Crons programmés: fidélité + contenu + alertes commandant');
 }
 
 module.exports = { startV20Crons, generateWeeklyTriple, runLoyaltyReengagement, runSocialContentGeneration };

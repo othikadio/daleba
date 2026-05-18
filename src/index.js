@@ -53,6 +53,11 @@ app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/dashboard.html'));
 });
 
+// Tableau de bord contenu social (V21)
+app.get('/admin/content', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/content-dashboard.html'));
+});
+
 // Interface holographique ZENITH
 app.get('/zenith', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/zenith.html'));
