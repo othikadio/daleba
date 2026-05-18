@@ -429,6 +429,7 @@ module.exports = {
   executeEscalation,
   buildDialStatusTwiml,
   detectKeywordEscalation,
+  getSquareAvailability,
   ESCALATION_KEYWORDS,
   FRUSTRATION_THRESHOLD,
 };
