@@ -97,6 +97,20 @@
 
 <div id="log"></div>
 
+<!-- ═══ STUDIO VIDÉO BOTANIQUE (V24) ══════════════════════════════════════════ -->
+<div style="margin-top:40px; border-top:1px solid #1a1a1a; padding-top:32px;">
+  <h2 style="font-size:1rem; letter-spacing:4px; color:#00D4FF; margin-bottom:6px;">◈ STUDIO VIDÉO BOTANIQUE</h2>
+  <p style="font-size:0.65rem; color:#444; letter-spacing:2px; margin-bottom:20px;">GÉNÉRATION AUTOMATIQUE — KADIO COIFFURE</p>
+  <div class="toolbar">
+    <button onclick="generateVideo(0)">🎬 GÉNÉRER VIDÉO #1 — RICIN &amp; AVOCAT</button>
+    <button onclick="generateVideo(1)">🎬 GÉNÉRER VIDÉO #2 — KARITÉ &amp; ALOE</button>
+    <button onclick="loadVideos()">↺ ACTUALISER</button>
+  </div>
+  <div class="grid" id="video-grid">
+    <div class="empty">Cliquez sur 🎬 pour générer une vidéo botanique</div>
+  </div>
+</div>
+
 <script>
 const API = '/api';
 
@@ -181,6 +195,95 @@ async function testAlert() {
 
 // Route Express pour cette page
 loadQueue();
+
+// ═══ STUDIO VIDÉO ══════════════════════════════════════════════════════════
+
+const pollingJobs = new Set();
+
+async function generateVideo(tipIndex) {
+  log(`🎬 Génération vidéo botanique tip #${tipIndex}...`);
+  try {
+    const r = await fetch(`${API}/video/generate-botanical`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ businessId: 1, tipIndex }),
+    });
+    const data = await r.json();
+    if (!data.success) { log(`❌ Erreur: ${data.error}`); return; }
+    log(`✓ Job #${data.jobId} créé (${data.mode}) — ${data.status}`);
+    await loadVideos();
+    if (data.status === 'rendering') {
+      pollingJobs.add(data.jobId);
+      pollVideoStatus(data.jobId);
+    }
+  } catch (err) {
+    log(`❌ ${err.message}`);
+  }
+}
+
+async function loadVideos() {
+  try {
+    const r = await fetch(`${API}/video/list`);
+    const data = await r.json();
+    const grid = document.getElementById('video-grid');
+    if (!data.videos || data.videos.length === 0) {
+      grid.innerHTML = '<div class="empty">AUCUNE VIDÉO<br><br>Cliquez sur 🎬 pour en générer une</div>';
+      return;
+    }
+    grid.innerHTML = data.videos.map(v => {
+      const statusColor = v.status === 'done' ? '#00FF9F' : v.status === 'rendering' ? '#00D4FF' : v.status === 'error' ? '#C4622D' : '#888';
+      const statusLabel = { done: 'TERMINÉE', rendering: 'EN COURS', demo: 'DÉMO', error: 'ERREUR', pending: 'EN ATTENTE' }[v.status] || v.status.toUpperCase();
+      return `
+        <div class="card" id="vcard-${v.id}">
+          <span class="status-badge" style="border-color:${statusColor}; color:${statusColor};" id="vstatus-${v.id}">${statusLabel}</span>
+          <span class="platform" style="color:#c8e6c9; border-color:#c8e6c9;">VIDÉO</span>
+          <div class="topic">${v.topic || 'Botanique'}</div>
+          <div class="content" style="font-size:0.65rem; color:#555; margin-bottom:10px;">${v.style || ''}</div>
+          ${(v.status === 'demo' || v.status === 'done') ? `
+          <div style="margin-bottom:12px; border:1px solid #1a3a2a; border-radius:4px; overflow:hidden; height:160px; position:relative;">
+            <iframe src="${API}/video/preview/${v.id}" style="width:222%; height:222%; border:none; transform:scale(0.45); transform-origin:top left;" scrolling="no"></iframe>
+          </div>` : `
+          <div style="margin-bottom:12px; padding:20px; text-align:center; color:#333; font-size:0.65rem;">
+            ${v.status === 'rendering' ? '⏳ Rendu Creatomate en cours...' : '—'}
+          </div>`}
+          <div class="actions">
+            <button onclick="window.open('${API}/video/preview/${v.id}', '_blank')">👁️ PREVIEW</button>
+            ${v.status === 'done' && v.media_url ? `<button class="approve" onclick="window.open('${v.media_url}', '_blank')">📥 TÉLÉCHARGER</button>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch (err) {
+    log(`❌ loadVideos: ${err.message}`);
+  }
+}
+
+async function pollVideoStatus(jobId) {
+  if (!pollingJobs.has(jobId)) return;
+  try {
+    const r = await fetch(`${API}/video/status/${jobId}`);
+    const data = await r.json();
+    const badge = document.getElementById(`vstatus-${jobId}`);
+    if (badge) {
+      const label = { done: 'TERMINÉE', rendering: 'EN COURS', demo: 'DÉMO', error: 'ERREUR' }[data.status] || data.status.toUpperCase();
+      const color = data.status === 'done' ? '#00FF9F' : data.status === 'error' ? '#C4622D' : '#00D4FF';
+      badge.textContent = label;
+      badge.style.color = color;
+      badge.style.borderColor = color;
+    }
+    if (data.status === 'done' || data.status === 'error' || data.status === 'demo') {
+      pollingJobs.delete(jobId);
+      loadVideos();
+    } else {
+      setTimeout(() => pollVideoStatus(jobId), 3000);
+    }
+  } catch (_) {
+    setTimeout(() => pollVideoStatus(jobId), 3000);
+  }
+}
+
+loadVideos();
+
 </script>
 </body>
 </html>
