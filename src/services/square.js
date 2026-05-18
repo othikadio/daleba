@@ -6,8 +6,8 @@
 
 const bus = require('./event-bus');
 
-const SQUARE_BASE = 'https://connect.squareupstaging.com'; // sandbox
-// const SQUARE_BASE = 'https://connect.squareup.com'; // production
+// const SQUARE_BASE = 'https://connect.squareupstaging.com'; // sandbox
+const SQUARE_BASE = 'https://connect.squareup.com'; // production ✅
 
 const SQUARE_TOKEN = process.env.SQUARE_ACCESS_TOKEN;
 const LOCATION_ID  = process.env.SQUARE_LOCATION_ID;
