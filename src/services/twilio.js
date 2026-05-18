@@ -4,6 +4,7 @@
  */
 
 const twilio = require('twilio');
+const { getTwilioContext } = require('./tenant-integrations');
 
 const client = (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN)
   ? twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
@@ -15,8 +16,28 @@ const FROM_NUMBER = process.env.TWILIO_PHONE_NUMBER; // Numéro Twilio Kadio Coi
  * Envoie un SMS simple
  * @param {string} to - Numéro destinataire (format E.164 ex: +15141234567)
  * @param {string} message - Contenu du SMS (max 160 chars recommandé)
+ * @param {number|null} businessId - Si fourni, utilise le compte Twilio du tenant
  */
-async function sendSMS(to, message) {
+async function sendSMS(to, message, businessId = null) {
+  // Multi-tenant: si businessId fourni, utiliser le compte Twilio du tenant
+  if (businessId && client) {
+    try {
+      const ctx = await getTwilioContext(businessId);
+      if (ctx.accountSid && ctx.authToken) {
+        const dynamicClient = twilio(ctx.accountSid, ctx.authToken);
+        const result = await dynamicClient.messages.create({
+          body: message,
+          from: ctx.phoneNumber,
+          to,
+        });
+        return { sid: result.sid, status: result.status, to: result.to, sentAt: result.dateCreated };
+      }
+    } catch (err) {
+      console.warn(`[TWILIO] Fallback global pour business #${businessId}: ${err.message}`);
+    }
+  }
+
+  // Fallback global (rétrocompatibilité)
   if (!client) {
     console.log(`[SMS DEMO] To: ${to} — ${message.slice(0, 50)}...`);
     return { sid: 'demo', status: 'queued', to, sentAt: new Date() };

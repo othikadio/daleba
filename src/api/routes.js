@@ -9,6 +9,7 @@ const businessRoutes = require('./business-routes');
 const bookingRoutes = require('./booking-routes');
 const calendarRoutes = require('./calendar-routes');
 const voiceRoutes    = require('./voice-routes');   // V22 — Agent Vocal
+const onboardingRoutes = require('./onboarding-routes'); // V23 — SaaS Multi-Tenant
 const { requireAuth } = require('../middleware/auth');
 const { resolveTenant } = require('../middleware/tenant');
 const { v4: uuidv4 } = require('uuid');
@@ -120,6 +121,9 @@ router.delete('/memory/:id', async (req, res) => {
 
 // Routes Auth (publiques)
 router.use('/auth', authRoutes);
+
+// Routes Onboarding SaaS (publiques — V23)
+router.use('/onboarding', onboardingRoutes);
 
 // Routes Entreprises (super_admin)
 router.use('/businesses', requireAuth, businessRoutes);
