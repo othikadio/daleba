@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DALEBA — Esthétique</title>
+<style>
+:root{--bg:#0a0a0f;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--accent:#7c3aed;--success:#10b981;--warn:#f59e0b;--danger:#ef4444;--text:#e2e8f0;--muted:#64748b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:Inter,-apple-system,sans-serif;min-height:100vh}
+.header{background:rgba(255,255,255,0.03);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;gap:16px}
+.logo{font-size:18px;font-weight:700;color:var(--accent)}
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:20px 24px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.stat-val{font-size:26px;font-weight:700;color:var(--accent)}
+.stat-lbl{font-size:12px;color:var(--muted);margin-top:4px}
+.tabs{display:flex;gap:0;padding:0 24px;border-bottom:1px solid var(--border)}
+.tab{padding:10px 20px;cursor:pointer;font-size:13px;color:var(--muted);border-bottom:2px solid transparent}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.section{padding:20px 24px;display:none}.section.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.card h4{font-size:14px;font-weight:600;margin-bottom:12px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+input,select,textarea{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;width:100%}
+textarea{min-height:80px;resize:vertical}
+.btn{border:none;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{opacity:.85}
+.btn-success{background:rgba(16,185,129,.15);color:var(--success);border:1px solid rgba(16,185,129,.3)}
+.analysis-result{background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,.2);border-radius:10px;padding:16px;margin-top:16px}
+.botanical-tag{display:inline-block;background:rgba(16,185,129,.1);color:var(--success);border:1px solid rgba(16,185,129,.2);border-radius:20px;padding:4px 12px;font-size:11px;margin:3px}
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:all .2s}
+.upload-zone:hover{border-color:var(--accent);background:rgba(124,58,237,.04)}
+.upload-zone img{max-width:100%;max-height:200px;border-radius:8px;margin-top:12px}
+.widget-code{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;padding:16px;font-family:monospace;font-size:12px;color:#10b981;overflow-x:auto;white-space:pre}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="logo">DALEBA</span>
+  <span style="color:var(--muted);font-size:14px">/ Esthétique &amp; Widgets</span>
+  <span style="margin-left:auto;font-size:11px;color:var(--muted)" id="lastUpdate"></span>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-val" id="statClients">—</div><div class="stat-lbl">Fiches esthétiques</div></div>
+  <div class="stat"><div class="stat-val" id="statAnalyses" style="color:var(--success)">—</div><div class="stat-lbl">Analyses aujourd'hui</div></div>
+  <div class="stat"><div class="stat-val" id="statFormulas" style="color:var(--warn)">—</div><div class="stat-lbl">Formulations actives</div></div>
+  <div class="stat"><div class="stat-val" id="statWidgets">—</div><div class="stat-lbl">Widgets actifs</div></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('analysis')">🔬 Analyse Cutanée</div>
+  <div class="tab" onclick="switchTab('records')">📋 Fiches Clients</div>
+  <div class="tab" onclick="switchTab('formulas')">🌿 Bar à Plantes</div>
+  <div class="tab" onclick="switchTab('widget')">⚙️ Widget Réservation</div>
+</div>
+
+<!-- Analyse Cutanée -->
+<div class="section active" id="tab-analysis">
+  <div class="grid">
+    <div class="card" style="grid-column:1/-1;max-width:500px">
+      <h4>📸 Nouvelle Analyse Cutanée</h4>
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('imgInput').click()">
+        <div>🖼️ Cliquer pour importer une photo (peau / cuir chevelu)</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">JPG, PNG · max 10 Mo</div>
+        <img id="previewImg" style="display:none">
+      </div>
+      <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="previewImage(this)">
+      <div style="margin-top:12px">
+        <input type="text" id="clientIdInput" placeholder="ID ou prénom client (optionnel)" style="margin-bottom:8px">
+        <button class="btn btn-primary" onclick="runAnalysis()" id="analyzeBtn">🔬 Lancer l'analyse IA</button>
+      </div>
+      <div id="analysisResult"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Fiches Clients -->
+<div class="section" id="tab-records">
+  <div style="margin-bottom:16px;display:flex;gap:12px">
+    <input type="text" id="searchClient" placeholder="Rechercher un client..." style="width:240px" oninput="filterClients()">
+    <button class="btn btn-primary" onclick="showNewRecordForm()">+ Nouvelle fiche</button>
+  </div>
+  <div id="recordsList" class="grid"></div>
+</div>
+
+<!-- Bar à Plantes -->
+<div class="section" id="tab-formulas">
+  <div class="grid" id="formulasList"></div>
+  <div class="card" style="margin-top:16px">
+    <h4>➕ Déduire des ingrédients (soin en cabine)</h4>
+    <div class="form-row">
+      <input type="text" id="ingredientName" placeholder="Ingrédient (ex: Aloe Vera)">
+      <input type="number" id="ingredientQty" placeholder="Quantité (grammes)" step="0.1">
+    </div>
+    <button class="btn btn-primary" onclick="deductIngredient()">Soustraire de l'inventaire</button>
+    <div id="deductResult" style="margin-top:8px;font-size:12px;color:var(--success)"></div>
+  </div>
+</div>
+
+<!-- Widget -->
+<div class="section" id="tab-widget">
+  <div class="grid">
+    <div class="card">
+      <h4>🔧 Générateur de Widget</h4>
+      <input type="text" id="widgetTenantId" placeholder="Tenant ID" style="margin-bottom:8px" value="kadio">
+      <input type="text" id="widgetKey" placeholder="Clé API (tk_...)" style="margin-bottom:8px">
+      <input type="text" id="widgetSalon" placeholder="Nom du salon" style="margin-bottom:8px" value="Kadio Coiffure">
+      <input type="color" id="widgetColor" value="#7c3aed" style="width:60px;padding:4px;margin-bottom:8px">
+      <button class="btn btn-primary" onclick="generateWidget()">Générer le snippet</button>
+    </div>
+    <div class="card">
+      <h4>📋 Code à intégrer</h4>
+      <div class="widget-code" id="widgetSnippet">&lt;!-- Générez d'abord le widget --&gt;</div>
+      <button class="btn btn-success" style="margin-top:8px" onclick="copyWidget()">📋 Copier</button>
+    </div>
+    <div class="card">
+      <h4>👁️ Aperçu</h4>
+      <div id="widgetPreview" style="background:#fff;border-radius:8px;padding:12px;min-height:200px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:13px">
+        Aperçu après génération
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOKEN = localStorage.getItem('daleba_token') || '';
+const authH = { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' };
+
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  const tabs = ['analysis','records','formulas','widget'];
+  document.querySelectorAll('.tab')[tabs.indexOf(id)]?.classList.add('active');
+  document.getElementById('tab-' + id)?.classList.add('active');
+  if (id === 'records') loadRecords();
+  if (id === 'formulas') loadFormulas();
+}
+
+function previewImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('previewImg');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    img.dataset.base64 = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function runAnalysis() {
+  const btn = document.getElementById('analyzeBtn');
+  const img = document.getElementById('previewImg');
+  if (!img.dataset.base64) { alert('Importez une image d\'abord'); return; }
+  btn.textContent = '⏳ Analyse en cours...'; btn.disabled = true;
+  try {
+    const r = await fetch('/api/v1/aesthetics/analyze-skin', {
+      method: 'POST', headers: authH,
+      body: JSON.stringify({ imageBase64: img.dataset.base64, clientId: document.getElementById('clientIdInput').value || null }),
+    }).then(r => r.json());
+    const d = r.data || {};
+    document.getElementById('analysisResult').innerHTML = `
+      <div class="analysis-result">
+        <div style="font-weight:600;margin-bottom:10px">Résultats — Score: ${Math.round((d.confidence_score||0)*100)}%</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Hydratation: <strong>${d.hydration_index||'—'}</strong> · Texture: ${d.texture||'—'} · Irritations: ${d.irritation_zones||'—'}</div>
+        <div style="margin-bottom:8px">🌿 Botaniques recommandés:</div>
+        ${(d.recommended_botanicals||[]).map(b => '<span class="botanical-tag">' + b.ingredient + '</span>').join('')}
+        <div style="margin-top:10px;font-size:12px;color:var(--muted);font-style:italic">${d.wellness_note||''}</div>
+        <div style="margin-top:8px;font-size:10px;color:#64748b">${d.disclaimer||''}</div>
+      </div>`;
+  } catch(e) { document.getElementById('analysisResult').innerHTML = '<div style="color:var(--danger)">Erreur: ' + e.message + '</div>'; }
+  btn.textContent = '🔬 Lancer l\'analyse IA'; btn.disabled = false;
+}
+
+async function loadRecords() {
+  document.getElementById('recordsList').innerHTML = '<div style="color:var(--muted);padding:20px">Chargement...</div>';
+  const r = await fetch('/api/v1/aesthetics/records?all=1', { headers: authH }).then(r=>r.json()).catch(()=>({data:{}}));
+  const records = r.data?.records || [];
+  if (!records.length) { document.getElementById('recordsList').innerHTML = '<div style="color:var(--muted)">Aucune fiche esthétique.</div>'; return; }
+  document.getElementById('recordsList').innerHTML = records.map(rec => `
+    <div class="card">
+      <div style="font-weight:600">${rec.client_name||rec.client_id}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Type: ${rec.skin_type||'—'} · Mélanine: ${rec.melanin_level||'—'}</div>
+      <div style="margin-top:8px">${(rec.botanical_prefs||[]).map(b=>'<span class="botanical-tag">'+b+'</span>').join('')}</div>
+    </div>
+  `).join('');
+}
+
+function showNewRecordForm() {
+  alert('Utilisez POST /api/v1/aesthetics/records pour créer une fiche');
+}
+
+function filterClients() {}
+
+async function loadFormulas() {
+  document.getElementById('formulasList').innerHTML = '<div style="color:var(--muted)">Formulations Bar à Plantes — connectées à l\'inventaire.</div>';
+}
+
+async function deductIngredient() {
+  const name = document.getElementById('ingredientName').value;
+  const qty  = parseFloat(document.getElementById('ingredientQty').value);
+  if (!name || !qty) { alert('Ingrédient et quantité requis'); return; }
+  const r = await fetch('/api/v1/aesthetics/inventory/deduct', {
+    method: 'POST', headers: authH,
+    body: JSON.stringify({ formulationId: null, quantitiesUsed: [{ name, qty_grams: qty }] }),
+  }).then(r=>r.json()).catch(()=>({success:false}));
+  document.getElementById('deductResult').textContent = r.success ? `✅ ${qty}g de ${name} déduits` : `Erreur: ${r.error||'inconnue'}`;
+}
+
+function generateWidget() {
+  const tid   = document.getElementById('widgetTenantId').value || 'kadio';
+  const key   = document.getElementById('widgetKey').value || 'tk_demo';
+  const salon = document.getElementById('widgetSalon').value || 'Salon';
+  const color = document.getElementById('widgetColor').value;
+  const snippet = `<!-- Widget DALEBA — Réservation en ligne -->
+<div data-daleba-widget></div>
+<script
+  src="https://daleba-api-production.up.railway.app/api/v1/aesthetics/widget/${tid}"
+  data-salon="${salon}"
+  data-color="${color}"
+  async
+  crossorigin="anonymous">
+<\/script>`;
+  document.getElementById('widgetSnippet').textContent = snippet;
+  document.getElementById('widgetPreview').innerHTML = `<div style="background:${color};color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;text-align:center">📅 ${salon} — Widget Prêt</div>`;
+}
+
+function copyWidget() {
+  navigator.clipboard.writeText(document.getElementById('widgetSnippet').textContent).then(()=>alert('Copié !'));
+}
+
+document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('fr-CA');
+</script>
+</body>
+</html>

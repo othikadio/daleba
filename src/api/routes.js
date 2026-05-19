@@ -403,7 +403,11 @@ router.use('/', integrationRoutes); // [088] /api/docs (mount sur la racine auss
 router.use('/v1/onboarding', v1OnboardingRoutes);
 // V6 — Staff Management [313-319]
 const staffRoutes = require('./staff-routes');
+const aestheticsRoutes = require('./aesthetics-routes');  // V7 [351-367]
 router.use('/v1/staff', staffRoutes);
+router.use('/v1/aesthetics', aestheticsRoutes);
+const widgetRoutes = require('./widget-routes'); // V7 [359-364]
+router.use('/v1/widgets', widgetRoutes);
 router.use('/admin/tenants', adminTenantsRoutes);
 
 // ─── ROUTES SOCIAL META (Point 38) ───────────────────────────────────────
