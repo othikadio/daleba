@@ -186,20 +186,21 @@ function isHUDOnly(message) {
  * @param {string} message — message complet
  */
 function reportMetricChange(metricKey, value, message) {
+  const msg = message || `Métrique ${metricKey}: ${value}`; // [073] message optionnel
   const existing = ALERT_STORE.get(`metric::${metricKey}`);
   const hasChanged = !existing || existing.lastValue !== String(value);
 
   if (!hasChanged) {
     // [073] Valeur identique → HUD uniquement
     const bus = (() => { try { return require('./event-bus'); } catch { return null; } })();
-    if (bus) bus.system(`📊 ${message.slice(0, 80)}`);
-    return { smsRequired: false, reason: 'metric_unchanged', hudUpdated: true };
+    if (bus) bus.system(`📊 ${msg.slice(0, 80)}`);
+    return { smsRequired: false, suppressed: true, reason: 'metric_unchanged', hudUpdated: true };
   }
 
   // Valeur changée → mise à jour du store + SMS autorisé
   ALERT_STORE.set(`metric::${metricKey}`, {
     lastValue: String(value), updatedAt: Date.now(),
-    messagePreview: message.slice(0, 80),
+    messagePreview: msg.slice(0, 80),
     type: 'metric', lastSentAt: Date.now(), count: 1, suppressedCount: 0,
   });
   return { smsRequired: true };
