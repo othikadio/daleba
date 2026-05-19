@@ -731,4 +731,118 @@ router.delete('/social/queue/:id', async (req, res) => {
   }
 });
 
+// ─── V25 : POSTE DE COMMANDEMENT — ENDPOINTS ────────────────────────────────
+
+// POST /api/commander/chat — Chat direct avec Béatrice depuis le dashboard admin
+router.post('/commander/chat', async (req, res) => {
+  try {
+    const { message, history = [] } = req.body;
+    if (!message) return res.status(400).json({ error: 'message requis' });
+
+    const claudeAgent = require('../agents/claude');
+    const { enrichSystemPrompt } = require('../services/brain-context');
+
+    const systemBase = `Tu es Béatrice, l'IA de DALEBA — système de gestion intelligent pour Kadio Coiffure.
+Tu parles directement à Ulrich (le propriétaire) depuis son Poste de Commandement Admin.
+Sois concise, professionnelle et proactive. Tu as accès aux données Square, aux alertes et aux logs.
+Réponds en français. Si Ulrich pose des questions opérationnelles (RDV, revenus, alertes), synthétise les données disponibles.
+Date/heure actuelle : ${new Date().toLocaleString('fr-CA', { timeZone: 'America/Toronto' })}`;
+
+    const enriched = await enrichSystemPrompt(message, systemBase).catch(() => systemBase);
+    const response = await claudeAgent.chat(message, history, enriched);
+
+    bus.system(`[COMMANDER/CHAT] Ulrich: ${message.slice(0, 60)}`);
+    res.json({ response, ts: new Date().toISOString() });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/commander/daily-report — Rapport quotidien visuel (Square + alertes + logs)
+router.get('/commander/daily-report', async (req, res) => {
+  try {
+    const journal = require('../services/journal');
+    const today = new Date().toISOString().slice(0, 10);
+
+    // Stats Square + système
+    let zenithStats = {};
+    try { zenithStats = await stats.getZenithStats(); } catch (e) { zenithStats = {}; }
+
+    // Journal du jour
+    let journalEntries = [];
+    try { journalEntries = await journal.getDailyJournal(today); } catch (e) { journalEntries = []; }
+
+    // Alertes commander
+    const commanderStatus = {
+      active: true,
+      ulrichConfigured: !!process.env.ULRICH_PHONE_NUMBER,
+      twilioConfigured: !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN),
+    };
+
+    // Queue sociale en attente
+    let pendingSocialCount = 0;
+    try {
+      const { pool } = require('../memory/db');
+      const r = await pool.query(`SELECT COUNT(*) FROM daleba_content_queue WHERE status = 'pending'`);
+      pendingSocialCount = parseInt(r.rows[0]?.count || '0', 10);
+    } catch (e) { pendingSocialCount = 0; }
+
+    bus.system(`[COMMANDER/REPORT] Rapport quotidien généré pour ${today}`);
+
+    res.json({
+      date: today,
+      generatedAt: new Date().toISOString(),
+      stats: {
+        appointmentsToday:  zenithStats.appointmentsToday  || 0,
+        revenueToday:       zenithStats.revenueToday       || 0,
+        clientsTotal:       zenithStats.clientsTotal       || 0,
+        smsEnvoyes:         zenithStats.smsSent            || 0,
+        chatRequests:       zenithStats.chatRequests       || 0,
+        bookingsMade:       zenithStats.bookingsMade       || 0,
+      },
+      security: {
+        commanderActive:    commanderStatus.active,
+        ulrichConfigured:   commanderStatus.ulrichConfigured,
+        twilioConfigured:   commanderStatus.twilioConfigured,
+        recentAlerts:       zenithStats.recentAlerts || [],
+      },
+      social: {
+        pendingApproval:    pendingSocialCount,
+      },
+      journal: journalEntries.slice(-10).map(e => ({
+        type:    e.entry_type,
+        summary: e.summary,
+        ts:      e.created_at,
+      })),
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/webhook/voice/test — Simulation d'appel (dev/admin, sans Twilio)
+router.post('/webhook/voice/test', async (req, res) => {
+  try {
+    const { speech = 'Bonjour, je voudrais prendre un rendez-vous pour samedi prochain' } = req.body;
+    const voiceAgent = require('../services/voice-agent');
+
+    // Appel direct à analyzeWithLLM exposé via module
+    const result = await voiceAgent.testAnalyze(speech, '+15141234567');
+
+    bus.system(`[VOICE/TEST] Simulation: "${speech.slice(0, 50)}" → intent=${result.intent}`);
+    res.json({
+      success:         true,
+      speech,
+      intent:          result.intent,
+      frustrationScore: result.frustrationScore,
+      llmResponse:     result.llmResponse,
+      bookingDetails:  result.bookingDetails || {},
+      escalate:        result.frustrationScore >= 70,
+      ts:              new Date().toISOString(),
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

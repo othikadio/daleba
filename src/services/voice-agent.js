@@ -423,6 +423,11 @@ async function _smsUlrichMissedEscalation(status) {
 
 // ─── EXPORTS ─────────────────────────────────────────────────────────────────
 
+// Exposé pour les tests admin (V25)
+async function testAnalyze(speechText, callerNumber) {
+  return analyzeWithLLM(speechText, callerNumber);
+}
+
 module.exports = {
   buildWelcomeTwiml,
   handleSpeechResult,
@@ -430,6 +435,7 @@ module.exports = {
   buildDialStatusTwiml,
   detectKeywordEscalation,
   getSquareAvailability,
+  testAnalyze,
   ESCALATION_KEYWORDS,
   FRUSTRATION_THRESHOLD,
 };

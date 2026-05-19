@@ -54,6 +54,10 @@ app.get('/dashboard', (req, res) => {
 });
 
 // Tableau de bord contenu social (V21)
+app.get('/admin/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin-dashboard.html'));
+});
+
 app.get('/admin/content', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/content-dashboard.html'));
 });
