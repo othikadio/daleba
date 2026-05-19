@@ -1213,4 +1213,7 @@ router.get('/finances/tax-rates', (req, res) => {
   res.json({ rates: tenantFinances.TAX_RATES });
 });
 
+const fundingRoutes = require('./funding-routes'); // [507-514] Financement
+router.use('/v1/funding', fundingRoutes);
+
 module.exports = router;
