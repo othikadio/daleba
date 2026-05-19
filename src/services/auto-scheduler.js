@@ -214,7 +214,8 @@ function startV20Crons() {
     const { runAllAlertChecks } = require('./commander-alerts');
     bus.system('[V21] Commander Alerts actif — scan Square toutes les heures');
     setInterval(runAllAlertChecks, 60 * 60 * 1000);
-    setTimeout(runAllAlertChecks, 10 * 60 * 1000);
+    // NOTE: le setTimeout initial est supprimé — évitait le cooldown persistant
+    // et générait une alerte BAISSE_CA à chaque redémarrage Railway [FIX anti-spam]
 
     // V26 — Marketing Autonome: scan agenda chaque lundi matin
     const { runMarketingWorker } = require('./autonomous-marketing');

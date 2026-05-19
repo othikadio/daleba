@@ -18,14 +18,31 @@ const THRESHOLDS = {
   INACTIVITY_ALERT_DAYS: 45,   // Aucun paiement depuis 45j → alerte
 };
 
-// Anti-spam: une alerte par type par heure max
-const alertCooldown = new Map();
-const COOLDOWN_MS = 60 * 60 * 1000; // 1 heure
+// Anti-spam: cooldown persistant via fichier /tmp (survit aux redémarrages Railway)
+// BAISSE_CA = 24h minimum (comparaison hebdo, pas de raison de répéter)
+const fs = require('fs');
+const COOLDOWN_FILE = '/tmp/daleba-alert-cooldowns.json';
+const COOLDOWN_MS_BY_TYPE = {
+  BAISSE_CA:             24 * 60 * 60 * 1000, // 24h — comparaison hebdo
+  GROS_PAIEMENT:          1 * 60 * 60 * 1000, // 1h
+  ANNULATION_DERNIERE_MINUTE: 30 * 60 * 1000, // 30min
+  DEFAULT:                1 * 60 * 60 * 1000, // 1h
+};
+
+function _loadCooldowns() {
+  try { return JSON.parse(fs.readFileSync(COOLDOWN_FILE, 'utf8')); } catch { return {}; }
+}
+function _saveCooldowns(data) {
+  try { fs.writeFileSync(COOLDOWN_FILE, JSON.stringify(data)); } catch {}
+}
 
 function canAlert(type) {
-  const last = alertCooldown.get(type) || 0;
-  if (Date.now() - last < COOLDOWN_MS) return false;
-  alertCooldown.set(type, Date.now());
+  const cooldowns = _loadCooldowns();
+  const last = cooldowns[type] || 0;
+  const windowMs = COOLDOWN_MS_BY_TYPE[type] || COOLDOWN_MS_BY_TYPE.DEFAULT;
+  if (Date.now() - last < windowMs) return false;
+  cooldowns[type] = Date.now();
+  _saveCooldowns(cooldowns);
   return true;
 }
 
