@@ -8,8 +8,9 @@ const bus = require('./event-bus');
 
 // Base de données de composés croisés (allergènes)
 const CROSS_ALLERGEN_MAP = {
-  'noix':              ['huile de noix', 'beurre de noix', 'extrait de noisette', 'noix de macadamia'],
-  'fruits à coque':    ['huile de noix', 'beurre d\'amande', 'huile d\'argan', 'lait de coco', 'beurre de karité'],
+  'noix':              ['huile de noix', 'beurre de noix', 'extrait de noisette', 'noix de macadamia', 'huile de macadamia', 'macadamia'],
+  'fruits à coque':    ['huile de noix', 'beurre d\'amande', 'huile d\'argan', 'lait de coco', 'beurre de karité', 'huile de macadamia', 'macadamia', 'noisette', 'cajou', 'pistache'],
+  'macadamia':         ['huile de macadamia', 'noix de macadamia', 'beurre de macadamia'],
   'gluten':            ['avoine colloïdale', 'son d\'avoine', 'orge', 'seigle'],
   'latex':             ['aloe vera', 'figuier de barbarie', 'papaye'],
   'parfum':            ['lavande', 'rose musquée', 'ylang ylang', 'néroli', 'bergamote', 'géranium'],
