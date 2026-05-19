@@ -39,18 +39,26 @@ async function resolveTenant(req, res, next) {
   // Depuis le subdomain
   const host = req.hostname || '';
   const subdomain = host.split('.')[0];
-  if (!DEMO_MODE && subdomain && subdomain !== 'www' && subdomain !== 'api' && subdomain !== 'daleba') {
+  if (!DEMO_MODE && pool && subdomain && subdomain !== 'www' && subdomain !== 'api' && subdomain !== 'daleba') {
     try {
-      const result = await pool.query(
-        'SELECT id FROM businesses WHERE slug = $1 AND is_active = true',
-        [subdomain]
-      );
-      if (result.rows.length > 0) {
-        req.businessId = result.rows[0].id;
-        return next();
+      // Vérifier si la table businesses et la colonne slug existent avant de requêter
+      const tableCheck = await pool.query(`
+        SELECT column_name FROM information_schema.columns
+        WHERE table_name = 'businesses' AND column_name = 'slug' LIMIT 1
+      `);
+      if (tableCheck.rows.length > 0) {
+        const result = await pool.query(
+          'SELECT id FROM businesses WHERE slug = $1 AND is_active = true',
+          [subdomain]
+        );
+        if (result.rows.length > 0) {
+          req.businessId = result.rows[0].id;
+          return next();
+        }
       }
+      // Table/colonne absente — silencieux, pas d’erreur dans les logs
     } catch (err) {
-      console.error('Tenant resolution error:', err.message);
+      // Silencieux en production — la table businesses sera créée lors du setup multi-tenant
     }
   }
 
