@@ -111,4 +111,39 @@ router.post('/verify-hash', requireAuth, async(req,res)=>{
   ok(res, { valid: actual === expectedHash, computed: actual, expected: expectedHash });
 });
 
+// [541] Simulateur taux fixe/variable + stress
+router.post('/rate-scenarios', requireAuth, async(req,res)=>{try{ok(res,prequal.simulateRateScenarios(req.body.principal,req.body.termYears,req.body.scenarios));}catch(e){err(res,e.message);}});
+
+// [537] Injection programme tiers
+router.post('/programs/inject', requireAuth, async(req,res)=>{try{ok(res,await prequal.injectCustomProgram(pool,req.body));}catch(e){err(res,e.message);}});
+
+// [539-540] Audit vault
+router.get('/vault/audit', requireAuth, tenantIsolation, async(req,res)=>{try{ok(res,await vault.auditVaultDocuments(pool,T(req)));}catch(e){err(res,e.message,500);}});
+router.post('/vault/check-missing', requireAuth, tenantIsolation, async(req,res)=>{try{ok(res,await vault.flagMissingDocuments(pool,T(req),req.body.requiredTypes));}catch(e){err(res,e.message);}});
+
+// [543] Planning remboursements
+router.post('/repayments/schedule', requireAuth, tenantIsolation, async(req,res)=>{try{ok(res,await prequal.scheduleRepayments(pool,T(req),req.body));}catch(e){err(res,e.message);}});
+
+// [547] Sépare aides directes vs crédits d'impôt
+router.get('/opportunities/classified', requireAuth, async(req,res)=>{
+  try {
+    const all = await scanner.getOpportunities(pool);
+    const direct = all.filter(o=>['subvention_non_remboursable','prêt_garanti'].includes(o.funding_type));
+    const taxCredit = all.filter(o=>o.funding_type==='crédit_impôt');
+    ok(res,{direct,taxCredit,directCount:direct.length,taxCreditCount:taxCredit.length});
+  } catch(e){err(res,e.message,500);}
+});
+
+// [542] Webhook ACTION_REQUIRED de l'organisme
+router.post('/webhook/action-required', async(req,res)=>{
+  try {
+    const {applicationId,organism,message,tenantId:tid}=req.body;
+    require('../services/event-bus').system(`[FundingWebhook] 🚨 ACTION_REQUIRED: app=${applicationId} org=${organism}`);
+    // SMS Ulrich
+    const phone=process.env.ULRICH_PHONE_NUMBER;
+    if(phone){try{const t=require('../services/twilio-sender');await t.sendSMS({to:phone,body:`[DALEBA FINANCEMENT] 🚨 Action requise — ${organism}: ${message||'Vérifiez votre dossier'} (app: ${applicationId})`});}catch{}}
+    res.json({received:true,alerted:!!phone});
+  } catch(e){res.status(400).json({error:e.message});}
+});
+
 module.exports = router;

@@ -1216,4 +1216,7 @@ router.get('/finances/tax-rates', (req, res) => {
 const fundingRoutes = require('./funding-routes'); // [507-514] Financement
 router.use('/v1/funding', fundingRoutes);
 
+const accountingRoutes = require('./accounting-routes'); // [551-557] Comptabilité & Taxes
+router.use('/v1/accounting', accountingRoutes);
+
 module.exports = router;

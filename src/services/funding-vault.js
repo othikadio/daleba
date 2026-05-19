@@ -111,4 +111,55 @@ async function listDocuments(pool, tenantId) {
   return r.rows;
 }
 
-module.exports = { storeDocument, retrieveDocument, listDocuments, encrypt, decrypt, maskIdentityData, initSchema };
+// [539] Audit quotidien des documents — vérifie expiration
+async function auditVaultDocuments(pool, tenantId) {
+  await initSchema(pool);
+  const r = await pool.query(
+    `SELECT doc_id,doc_type,filename,checksum,created_at FROM tenant_funding_documents WHERE tenant_id=$1`,
+    [tenantId]
+  ).catch(() => ({ rows:[] }));
+
+  const now = Date.now();
+  const EXPIRY_RULES = {
+    'neq':              365, // 1 an
+    'statuts':          3650, // 10 ans
+    'etats_financiers': 365, // 1 an
+    'identite':         1825, // 5 ans
+    'attestation_rq':   90,  // 90 jours
+    'autre':            365,
+  };
+
+  const expired=[], valid=[], urgent=[];
+  for (const doc of r.rows) {
+    const maxDays = EXPIRY_RULES[doc.doc_type] || 365;
+    const ageDays = (now - new Date(doc.created_at).getTime()) / 86400000;
+    const daysLeft = maxDays - ageDays;
+    if (daysLeft <= 0) expired.push({...doc, daysLeft:Math.floor(daysLeft)});
+    else if (daysLeft <= 30) urgent.push({...doc, daysLeft:Math.floor(daysLeft)});
+    else valid.push({...doc, daysLeft:Math.floor(daysLeft)});
+  }
+
+  if (expired.length > 0) {
+    bus.system(`[VaultAudit] ⚠️ ${expired.length} document(s) expiré(s) pour ${tenantId}`);
+    bus.emit('vault:documents_expired', {tenantId, expired});
+  }
+  return {tenantId, audited:r.rows.length, expired, urgent, valid};
+}
+
+// [540] Génère une tâche prioritaire HUD si document critique manquant/expiré
+async function flagMissingDocuments(pool, tenantId, requiredDocTypes=['neq','etats_financiers']) {
+  await initSchema(pool);
+  const r = await pool.query(
+    `SELECT doc_type FROM tenant_funding_documents WHERE tenant_id=$1`,
+    [tenantId]
+  ).catch(() => ({rows:[]}));
+  const existing = new Set(r.rows.map(d=>d.doc_type));
+  const missing  = requiredDocTypes.filter(t => !existing.has(t));
+  if (missing.length > 0) {
+    bus.system(`[VaultAudit] 🔴 Documents manquants: ${missing.join(', ')} — tâche prioritaire HUD générée`);
+    bus.emit('hud:priority_task', {tenantId, type:'funding_doc_missing', missing, priority:'HIGH'});
+  }
+  return {missing, complete: missing.length===0};
+}
+
+module.exports = { storeDocument, retrieveDocument, listDocuments, encrypt, decrypt, maskIdentityData, initSchema, auditVaultDocuments, flagMissingDocuments };

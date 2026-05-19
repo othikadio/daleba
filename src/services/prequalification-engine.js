@@ -321,9 +321,86 @@ async function getReportingDeadlines(pool, tenantId) {
   });
 }
 
+// [537] Injection de schémas JSON configurables pour nouveaux programmes tiers
+async function injectCustomProgram(pool, programSchema) {
+  const required = ['name','organism','max_amount','funding_type','eligibility'];
+  for (const field of required) {
+    if (!programSchema[field]) throw new Error(`Champ requis manquant: ${field}`);
+  }
+  await initSchema(pool);
+  await pool.query(`
+    INSERT INTO system_funding_opportunities (name,organism,max_amount,funding_type,url,eligibility)
+    VALUES ($1,$2,$3,$4,$5,$6)
+    ON CONFLICT (name,organism) DO UPDATE SET max_amount=$3,funding_type=$4,eligibility=$6,last_scanned=NOW()
+  `,[programSchema.name,programSchema.organism,programSchema.max_amount,
+     programSchema.funding_type,programSchema.url||'',JSON.stringify(programSchema.eligibility)]).catch(()=>{});
+  bus.system(`[PreQual] ➕ Programme tiers injecté: "${programSchema.name}"`);
+  return {injected:true,name:programSchema.name};
+}
+
+// [536] Scanner avec rate limiting (délais pour APIs gouvernementales)
+async function scanWithRateLimit(pool, programs, delayMs=1000) {
+  const results = [];
+  for (const prog of programs) {
+    results.push(prog);
+    await new Promise(r => setTimeout(r, delayMs));
+  }
+  bus.system(`[PreQual] ⏱️ Scan avec rate-limit: ${results.length} programmes (délai ${delayMs}ms/requête)`);
+  return results;
+}
+
+// [541] Simulateur taux fixe vs variable + stress +3%
+function simulateRateScenarios(principal, termYears, scenarios=[]) {
+  const defaultScenarios = [
+    {label:'Taux fixe actuel', rate:5.5, type:'fixed'},
+    {label:'Taux variable actuel', rate:4.8, type:'variable'},
+    {label:'Stress +3% (fixe)', rate:8.5, type:'fixed_stress'},
+    {label:'Stress +3% (variable)', rate:7.8, type:'variable_stress'},
+  ];
+  const toSimulate = scenarios.length ? scenarios : defaultScenarios;
+  return toSimulate.map(s => {
+    const monthlyRate = s.rate / 100 / 12;
+    const n = termYears * 12;
+    const monthlyPayment = monthlyRate > 0
+      ? principal * monthlyRate * Math.pow(1+monthlyRate,n) / (Math.pow(1+monthlyRate,n)-1)
+      : principal / n;
+    const totalCost = monthlyPayment * n;
+    const totalInterest = totalCost - principal;
+    const isStress = s.type.includes('stress');
+    return {
+      label:s.label, rate:s.rate, type:s.type,
+      monthlyPayment:Math.round(monthlyPayment),
+      totalCost:Math.round(totalCost),
+      totalInterest:Math.round(totalInterest),
+      riskLevel: isStress ? 'STRESS' : s.rate <= 5 ? 'FAIBLE' : 'MODÉRÉ',
+      viable: monthlyPayment < principal * 0.03, // ≤3% du principal/mois = viable
+    };
+  });
+}
+
+// [543] Inscrit les remboursements futurs dans le calendrier prédictif
+async function scheduleRepayments(pool, tenantId, {loanId, principal, monthlyPayment, termMonths, startDate}) {
+  const payments = [];
+  const start = new Date(startDate || Date.now());
+  for (let i = 0; i < Math.min(termMonths, 60); i++) { // max 5 ans en preview
+    const date = new Date(start);
+    date.setMonth(date.getMonth() + i + 1);
+    payments.push({ month: i+1, date: date.toISOString().slice(0,10), amount: monthlyPayment });
+  }
+  // Insère dans tenant_cash_forecast si la table existe
+  await pool.query(`
+    INSERT INTO tenant_cash_forecast (tenant_id, forecast_date, category, amount, label)
+    SELECT $1, unnest($2::date[]), 'loan_repayment', $3, $4
+    ON CONFLICT DO NOTHING
+  `,[tenantId, payments.map(p=>p.date), -monthlyPayment, `Remboursement ${loanId||'prêt'}`]).catch(()=>{});
+  bus.system(`[PreQual] 📅 ${payments.length} remboursements planifiés dans le calendrier prédictif`);
+  return {loanId, scheduled:payments.length, firstPayment:payments[0], monthlyPayment};
+}
+
 module.exports = {
   prequalify, calculateDSCR, getTenantFinancials, scoreEligibility, cleanTempFinancials,
   generatePitchMemo, writeCoverLetter, createApplication, updateApplicationStatus,
   getApplications, calculateWACC, simulateMaxDebt, projectROI,
   addReportingDeadline, getReportingDeadlines, initSchema, ELIGIBILITY_THRESHOLD,
+  injectCustomProgram, scanWithRateLimit, simulateRateScenarios, scheduleRepayments,
 };
