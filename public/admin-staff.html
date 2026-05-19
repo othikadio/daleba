@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DALEBA — Équipe</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --accent: #7c3aed;
+      --accent-dim: rgba(124,58,237,0.18);
+      --success: #10b981;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --card: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      padding: 0 0 60px;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #7c3aed, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+    }
+    .header-sep { color: var(--border); font-size: 18px; }
+    .header-title { font-size: 14px; font-weight: 600; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; }
+    .badge-count {
+      background: var(--accent-dim);
+      border: 1px solid rgba(124,58,237,0.4);
+      color: #a78bfa;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 999px;
+    }
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+    .live-dot {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; color: var(--success);
+    }
+    .live-dot::before {
+      content: '';
+      display: block; width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 0 0 rgba(16,185,129,0.5);
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+      70%  { box-shadow: 0 0 0 7px rgba(16,185,129,0); }
+      100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      padding: 7px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+      font-family: inherit;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:hover { opacity: .85; }
+    .btn-accent {
+      background: linear-gradient(135deg, #7c3aed, #6d28d9);
+      color: #fff;
+    }
+    .btn-warn  { background: rgba(245,158,11,0.18); color: var(--warn); border: 1px solid rgba(245,158,11,0.35); }
+    .btn-danger{ background: rgba(239,68,68,0.18);  color: var(--danger); border: 1px solid rgba(239,68,68,0.35); }
+    .btn-muted { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--border); }
+
+    /* ── Alert Banner ── */
+    .alert-banner {
+      background: rgba(239,68,68,0.12);
+      border-bottom: 1px solid rgba(239,68,68,0.35);
+      padding: 10px 28px;
+      font-size: 13px;
+      color: var(--danger);
+      line-height: 1.6;
+    }
+
+    /* ── Main wrapper ── */
+    .main { padding: 24px 28px; max-width: 1400px; margin: 0 auto; }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      backdrop-filter: blur(8px);
+    }
+    .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .stat-value { font-size: 28px; font-weight: 800; }
+    .stat-sub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .stat-accent { color: #a78bfa; }
+    .stat-success{ color: var(--success); }
+    .stat-warn   { color: var(--warn); }
+    .stat-text   { color: var(--text); }
+
+    /* ── Section title ── */
+    .section-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+    }
+    .section-title { font-size: 15px; font-weight: 700; letter-spacing: 0.5px; }
+
+    /* ── Staff grid ── */
+    .staff-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+    .staff-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      cursor: pointer;
+      transition: border-color .2s, box-shadow .2s;
+      backdrop-filter: blur(8px);
+    }
+    .staff-card:hover {
+      border-color: rgba(124,58,237,0.45);
+      box-shadow: 0 0 22px rgba(124,58,237,0.15);
+    }
+    .avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 800; color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 0 12px rgba(124,58,237,0.4);
+    }
+    .status-badge {
+      font-size: 10px; font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .s-active     { background: rgba(16,185,129,0.15); color: var(--success); border: 1px solid rgba(16,185,129,0.35); }
+    .s-on_leave   { background: rgba(245,158,11,0.15); color: var(--warn);    border: 1px solid rgba(245,158,11,0.35); }
+    .s-terminated { background: rgba(239,68,68,0.15);  color: var(--danger);  border: 1px solid rgba(239,68,68,0.35); }
+
+    .occ-track {
+      background: rgba(255,255,255,0.08);
+      border-radius: 4px; height: 7px;
+      overflow: hidden; margin: 6px 0 2px;
+    }
+    .occ-bar {
+      height: 100%; border-radius: 4px;
+      transition: width 0.6s cubic-bezier(.4,0,.2,1);
+    }
+    .occ-label { font-size: 11px; color: var(--muted); text-align: right; }
+
+    .skills-row { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
+    .skill-tag {
+      font-size: 10px; padding: 2px 8px;
+      background: rgba(124,58,237,0.12);
+      border: 1px solid rgba(124,58,237,0.25);
+      color: #a78bfa;
+      border-radius: 999px;
+    }
+
+    /* ── Report section ── */
+    .report-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px 24px;
+      backdrop-filter: blur(8px);
+      overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      text-align: left;
+      padding: 8px 12px;
+      font-size: 10px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      white-space: nowrap;
+    }
+    tbody tr { transition: background .15s; }
+    tbody tr:hover { background: rgba(255,255,255,0.03); }
+    tbody td {
+      padding: 10px 12px;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      white-space: nowrap;
+    }
+
+    /* ── Modals ── */
+    .modal {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(6px);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.show { display: flex; }
+    .modal-box {
+      background: #16161f;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      width: 400px;
+      max-width: 95vw;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+    }
+    .modal-box h4 { font-size: 16px; font-weight: 700; margin-bottom: 20px; }
+    .modal-box label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 6px; margin-top: 14px; }
+    .modal-box input[type=range] {
+      width: 100%; accent-color: var(--accent);
+      height: 4px; cursor: pointer;
+    }
+    .range-val { font-size: 13px; font-weight: 700; color: #a78bfa; margin-top: 4px; text-align: right; }
+    .modal-box input[type=datetime-local],
+    .modal-box input[type=text] {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 13px;
+      padding: 9px 12px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .modal-box input[type=datetime-local]:focus,
+    .modal-box input[type=text]:focus { border-color: rgba(124,58,237,0.5); }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .header { padding: 12px 16px; }
+      .main { padding: 16px; }
+      .header-title { display: none; }
+    }
+    @media (max-width: 500px) {
+      .stats-bar { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ── Spinner ── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    /* ── Divider ── */
+    .divider { height: 1px; background: var(--border); margin: 28px 0; }
+
+    /* ── Empty state ── */
+    .empty-state {
+      color: var(--muted);
+      text-align: center;
+      padding: 40px 20px;
+      font-size: 14px;
+    }
+    .empty-icon { font-size: 36px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<div class="header">
+  <span class="logo">DALEBA</span>
+  <span class="header-sep">/</span>
+  <span class="header-title">Équipe</span>
+  <span class="badge-count" id="activeBadge">0 actifs</span>
+  <div class="header-right">
+    <div class="live-dot">Temps réel</div>
+    <button id="syncBtn" class="btn btn-accent" onclick="syncSquare()">⚡ Sync Square</button>
+  </div>
+</div>
+
+<!-- ══════════ ALERT BANNER ══════════ -->
+<div id="alertBanner" style="display:none" class="alert-banner"></div>
+
+<!-- ══════════ MAIN ══════════ -->
+<div class="main">
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-label">Employés actifs</div>
+      <div class="stat-value stat-accent" id="statActive">—</div>
+      <div class="stat-sub">sur <span id="statTotal">0</span> au total</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Taux occupation moyen</div>
+      <div class="stat-value stat-warn" id="statOccupancy">—</div>
+      <div class="stat-sub">tous employés actifs</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">CA total équipe</div>
+      <div class="stat-value stat-success" id="statCA">—</div>
+      <div class="stat-sub">CAD ce mois</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Pourboires du mois</div>
+      <div class="stat-value stat-text" id="statTips">—</div>
+      <div class="stat-sub">CAD cumulés</div>
+    </div>
+  </div>
+
+  <!-- Staff grid -->
+  <div class="section-header">
+    <span class="section-title">👥 Membres de l'équipe</span>
+    <span style="font-size:12px;color:var(--muted)" id="lastRefresh"></span>
+  </div>
+  <div id="staffGrid" class="staff-grid">
+    <div class="empty-state" style="grid-column:1/-1">
+      <div class="empty-icon">👤</div>
+      Chargement de l'équipe…
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Rapport quinzaine -->
+  <div class="report-section">
+    <div class="section-header" style="margin-bottom:16px">
+      <h3 class="section-title">📊 Rapport Quinzaine</h3>
+      <button onclick="generateReport()" class="btn btn-accent">📊 Générer</button>
+    </div>
+    <div id="reportSection">
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        Cliquez "Générer" pour calculer la quinzaine en cours.
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- ══════════ MODAL COMMISSION ══════════ -->
+<div class="modal" id="commModal" onclick="if(event.target===this) this.classList.remove('show')">
+  <div class="modal-box">
+    <h4 id="commTitle">Commission</h4>
+
+    <label>Services (%)</label>
+    <input type="range" id="commService" min="0" max="100" step="1"
+           oninput="document.getElementById('commServiceVal').textContent=this.value+'%'">
+    <div class="range-val" id="commServiceVal">40%</div>
+
+    <label>Produits botaniques (%)</label>
+    <input type="range" id="commProduct" min="0" max="100" step="1"
+           oninput="document.getElementById('commProductVal').textContent=this.value+'%'">
+    <div class="range-val" id="commProductVal">10%</div>
+
+    <div class="modal-actions">
+      <button class="btn btn-muted" onclick="document.getElementById('commModal').classList.remove('show')">Annuler</button>
+      <button class="btn btn-accent" onclick="saveCommission()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL BLOCAGE AGENDA ══════════ -->
+<div class="modal" id="blockModal" onclick="if(event.target===this) this.classList.remove('show')">
+  <div class="modal-box">
+    <h4 id="blockTitle">Bloquer agenda</h4>
+
+    <label>Du</label>
+    <input type="datetime-local" id="blockFrom">
+
+    <label>Au</label>
+    <input type="datetime-local" id="blockTo">
+
+    <label>Raison</label>
+    <input type="text" id="blockReason" placeholder="Congé, formation, absence…">
+
+    <div class="modal-actions">
+      <button class="btn btn-muted" onclick="document.getElementById('blockModal').classList.remove('show')">Annuler</button>
+      <button class="btn btn-danger" onclick="saveBlock()">🔒 Bloquer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ JAVASCRIPT ══════════ -->
+<script>
+  const state = {
+    staff: [],
+    report: null,
+    alerts: [],
+    tenantId: 'kadio',
+  };
+
+  // ── Auth fetch ──────────────────────────────────────────────────────────────
+  function authFetch(url, opts = {}) {
+    const token = localStorage.getItem('daleba_token') || '';
+    return fetch(url, {
+      ...opts,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        ...(opts.headers || {}),
+      },
+    }).then(r => r.json()).catch(() => null);
+  }
+
+  // ── Load staff ──────────────────────────────────────────────────────────────
+  async function loadStaff() {
+    const r = await authFetch('/api/v1/staff');
+    state.staff = r?.data?.staff || [];
+    renderStaffCards();
+    updateStats();
+    const now = new Date();
+    document.getElementById('lastRefresh').textContent =
+      'Mis à jour ' + now.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ── Load alerts ─────────────────────────────────────────────────────────────
+  async function loadAlerts() {
+    const r = await authFetch('/api/v1/staff/alerts');
+    state.alerts = r?.data?.activeAlerts || [];
+    renderAlerts();
+  }
+
+  // ── Generate report ─────────────────────────────────────────────────────────
+  async function generateReport() {
+    const section = document.getElementById('reportSection');
+    section.innerHTML = '<div class="empty-state"><span class="spinner"></span> Calcul en cours…</div>';
+    const r = await authFetch('/api/v1/staff/payouts/report');
+    state.report = r?.data;
+    renderReport();
+  }
+
+  // ── Sync Square ─────────────────────────────────────────────────────────────
+  async function syncSquare() {
+    const btn = document.getElementById('syncBtn');
+    btn.innerHTML = '<span class="spinner"></span> Sync…';
+    btn.disabled = true;
+    await authFetch('/api/v1/staff/sync', { method: 'POST' });
+    await loadStaff();
+    btn.innerHTML = '⚡ Sync Square';
+    btn.disabled = false;
+  }
+
+  // ── Update commission ───────────────────────────────────────────────────────
+  async function updateCommission(squareId, commissionRate, productRate) {
+    await authFetch(`/api/v1/staff/${squareId}/commission`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        commission_rate: commissionRate,
+        product_commission_rate: productRate,
+      }),
+    });
+    loadStaff();
+  }
+
+  // ── Block agenda ────────────────────────────────────────────────────────────
+  async function blockAgenda(squareId, from, to, reason) {
+    await authFetch(`/api/v1/staff/${squareId}/block`, {
+      method: 'POST',
+      body: JSON.stringify({ from, to, reason }),
+    });
+  }
+
+  // ── Mark paid ───────────────────────────────────────────────────────────────
+  async function markPaid(squareId) {
+    await authFetch(`/api/v1/staff/payouts/${squareId}/paid`, { method: 'POST' });
+    generateReport();
+  }
+
+  // ── Render: occupancy bar ───────────────────────────────────────────────────
+  function occupancyBar(rate) {
+    const pct = Math.round((rate || 0) * 100);
+    let color;
+    if (pct > 80) color = '#f59e0b';
+    else if (pct > 60) color = '#7c3aed';
+    else color = '#10b981';
+    return `
+      <div class="occ-track">
+        <div class="occ-bar" style="width:${pct}%;background:${color}"></div>
+      </div>
+      <div class="occ-label">${pct}%</div>`;
+  }
+
+  // ── Initials ────────────────────────────────────────────────────────────────
+  function initials(name) {
+    return (name || 'E').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  }
+
+  // ── Format CAD ─────────────────────────────────────────────────────────────
+  function fmtCAD(n) {
+    if (n == null) return '—';
+    return Number(n).toLocaleString('fr-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  // ── Render: staff cards ─────────────────────────────────────────────────────
+  function renderStaffCards() {
+    const grid = document.getElementById('staffGrid');
+    if (!state.staff.length) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-icon">👥</div>
+          Aucun employé trouvé. Cliquez <strong>Sync Square</strong> pour importer l'équipe.
+        </div>`;
+      return;
+    }
+    grid.innerHTML = state.staff.map(emp => {
+      const status   = (emp.status || 'ACTIVE').toUpperCase();
+      const statusCls = 's-' + status.toLowerCase().replace(' ', '_');
+      const commRate = emp.commission_rate ?? 40;
+      const prodRate = emp.product_commission_rate ?? 10;
+      const occ = emp.occupancy?.occupancyRate || 0;
+      const skills = (emp.specialties || []).slice(0, 4);
+      const skillsHtml = skills.length
+        ? `<div class="skills-row">${skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}</div>`
+        : '';
+      return `
+        <div class="staff-card">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+            <div class="avatar">${initials(emp.name)}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${emp.name || 'Employé'}</div>
+              <div style="font-size:12px;color:var(--muted)">${emp.role || 'Styliste'}</div>
+            </div>
+            <span class="status-badge ${statusCls}">${status}</span>
+          </div>
+
+          <div style="font-size:11px;color:var(--muted);margin-bottom:2px">Taux d'occupation</div>
+          ${occupancyBar(occ)}
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px;font-size:12px">
+            <div>
+              <div style="color:var(--muted);margin-bottom:2px">CA net</div>
+              <div style="font-weight:600;font-size:13px">${fmtCAD(emp.metrics?.netRevenue)} <span style="color:var(--muted);font-size:10px">CAD</span></div>
+            </div>
+            <div>
+              <div style="color:var(--muted);margin-bottom:2px">Comm. svc</div>
+              <div style="font-weight:600;color:#a78bfa">${commRate}%</div>
+            </div>
+            <div>
+              <div style="color:var(--muted);margin-bottom:2px">Comm. prod</div>
+              <div style="font-weight:600;color:#a78bfa">${prodRate}%</div>
+            </div>
+          </div>
+
+          ${skillsHtml}
+
+          <div style="display:flex;gap:8px;margin-top:16px" onclick="event.stopPropagation()">
+            <button class="btn btn-accent" style="flex:1;font-size:12px;padding:7px 10px"
+              onclick="openCommModal('${emp.square_id}','${(emp.name||'').replace(/'/g,"\\'")}',${commRate},${prodRate})">
+              ✏️ Commission
+            </button>
+            <button class="btn btn-warn" style="flex:1;font-size:12px;padding:7px 10px"
+              onclick="openBlockModal('${emp.square_id}','${(emp.name||'').replace(/'/g,"\\'")}')">
+              🔒 Bloquer
+            </button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Render: alerts banner ───────────────────────────────────────────────────
+  function renderAlerts() {
+    const banner = document.getElementById('alertBanner');
+    if (!state.alerts.length) { banner.style.display = 'none'; return; }
+    banner.style.display = 'block';
+    banner.innerHTML = '🚨 &nbsp;' + state.alerts.map(a =>
+      `<strong>${a.staffSquareId || a.employeeName || 'Employé'}</strong> — ${a.serviceName || 'service'} — <strong>${a.minutesLate} min de retard</strong>`
+    ).join(' &nbsp;|&nbsp; ');
+  }
+
+  // ── Render: payouts report ──────────────────────────────────────────────────
+  function renderReport() {
+    const section = document.getElementById('reportSection');
+    if (!state.report?.employees?.length) {
+      section.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div>Aucune donnée pour la période.</div>`;
+      return;
+    }
+    const heads = ['Employé', 'Heures', 'CA Net', 'Comm. Svces', 'Comm. Prods', 'Pourboires', 'Total', 'Action'];
+    section.innerHTML = `
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">
+        Période : <strong style="color:var(--text)">${state.report.period || '—'}</strong>
+        &nbsp;·&nbsp; Grand total : <strong style="color:var(--success)">${fmtCAD(state.report.grandTotal)} CAD</strong>
+      </div>
+      <table>
+        <thead><tr>${heads.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>
+          ${state.report.employees.map(e => `
+            <tr>
+              <td style="font-weight:500">${e.name || '—'}</td>
+              <td style="color:var(--muted)">${e.heuresTravaillees ?? '—'}h</td>
+              <td>${fmtCAD(e.caNetGenere)} CAD</td>
+              <td style="color:#a78bfa">${fmtCAD(e.commissionServices)} CAD</td>
+              <td style="color:#a78bfa">${fmtCAD(e.commissionProduits)} CAD</td>
+              <td style="color:var(--success)">${fmtCAD(e.pourboires)} CAD</td>
+              <td style="font-weight:700">${fmtCAD(e.totalBrut)} CAD</td>
+              <td>
+                <button class="btn btn-accent" style="font-size:11px;padding:5px 10px"
+                  onclick="markPaid('${e.squareId}')">✅ Payer</button>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+  }
+
+  // ── Update header stats ──────────────────────────────────────────────────────
+  function updateStats() {
+    const active = state.staff.filter(s => (s.status || '').toUpperCase() === 'ACTIVE');
+    document.getElementById('statActive').textContent   = active.length;
+    document.getElementById('statTotal').textContent    = state.staff.length;
+    document.getElementById('activeBadge').textContent  = active.length + ' actifs';
+
+    if (active.length) {
+      const avgOcc = active.reduce((sum, s) => sum + (s.occupancy?.occupancyRate || 0), 0) / active.length;
+      document.getElementById('statOccupancy').textContent = Math.round(avgOcc * 100) + '%';
+    } else {
+      document.getElementById('statOccupancy').textContent = '—';
+    }
+
+    const totalCA = state.staff.reduce((sum, s) => sum + (s.metrics?.netRevenue || 0), 0);
+    document.getElementById('statCA').textContent = fmtCAD(totalCA);
+
+    const totalTips = state.staff.reduce((sum, s) => sum + (s.metrics?.tips || 0), 0);
+    document.getElementById('statTips').textContent = fmtCAD(totalTips);
+  }
+
+  // ── Modal: Commission ────────────────────────────────────────────────────────
+  let _commTarget = null;
+
+  function openCommModal(squareId, name, commRate, prodRate) {
+    _commTarget = squareId;
+    document.getElementById('commTitle').textContent = `Commission — ${name}`;
+    const svcEl = document.getElementById('commService');
+    const prdEl = document.getElementById('commProduct');
+    svcEl.value = commRate;
+    prdEl.value = prodRate;
+    document.getElementById('commServiceVal').textContent = commRate + '%';
+    document.getElementById('commProductVal').textContent = prodRate + '%';
+    document.getElementById('commModal').classList.add('show');
+  }
+
+  async function saveCommission() {
+    if (!_commTarget) return;
+    const svc = +document.getElementById('commService').value;
+    const prd = +document.getElementById('commProduct').value;
+    document.getElementById('commModal').classList.remove('show');
+    await updateCommission(_commTarget, svc, prd);
+  }
+
+  // ── Modal: Block agenda ──────────────────────────────────────────────────────
+  let _blockTarget = null;
+
+  function openBlockModal(squareId, name) {
+    _blockTarget = squareId;
+    document.getElementById('blockTitle').textContent = `Bloquer agenda — ${name}`;
+    document.getElementById('blockFrom').value   = '';
+    document.getElementById('blockTo').value     = '';
+    document.getElementById('blockReason').value = '';
+    document.getElementById('blockModal').classList.add('show');
+  }
+
+  async function saveBlock() {
+    if (!_blockTarget) return;
+    const from   = document.getElementById('blockFrom').value;
+    const to     = document.getElementById('blockTo').value;
+    const reason = document.getElementById('blockReason').value.trim() || 'Blocage admin';
+    if (!from || !to) { alert('Veuillez renseigner les deux dates.'); return; }
+    if (new Date(from) >= new Date(to)) { alert('La date de fin doit être après la date de début.'); return; }
+    document.getElementById('blockModal').classList.remove('show');
+    await blockAgenda(_blockTarget, from, to, reason);
+  }
+
+  // ── Init ─────────────────────────────────────────────────────────────────────
+  loadStaff();
+  loadAlerts();
+  setInterval(() => { loadStaff(); loadAlerts(); }, 60000);
+</script>
+</body>
+</html>

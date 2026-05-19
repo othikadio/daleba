@@ -200,8 +200,11 @@ process.on('unhandledRejection', (reason) => {
 if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   startFollowupCron();
   // V20 — Cruise Control: routines autonomes fidélité + contenu social
-  const { startV20Crons } = require('./services/auto-scheduler');
+  const { startV20Crons, scheduleBiweeklyPayrollClose } = require('./services/auto-scheduler');
   startV20Crons();
+  // [323] Cron clôture quinzaine de paie
+  const { pool: dbPool } = require('./memory/db');
+  scheduleBiweeklyPayrollClose(dbPool);
   // DARE — Metacortex: health check loop + monitor continu
   dare.startHealthCheckLoop(120000);
   dareMonitor.start();

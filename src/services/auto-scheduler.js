@@ -249,4 +249,36 @@ function startV20Crons() {
   console.log('[V20/V21/V26] Crons programmés: fidélité + contenu + alertes + marketing + finances');
 }
 
-module.exports = { startV20Crons, generateWeeklyTriple, runLoyaltyReengagement, runSocialContentGeneration };
+// [323] Cron clôture de paie — tous les dimanches à 23h59 UTC (bi-mensuel via flag)
+// Bascule PENDING → APPROVED pour les lignes de la quinzaine écoulée
+function scheduleBiweeklyPayrollClose(pool) {
+  const SUNDAY_23H59_MS = (() => {
+    const now    = new Date();
+    const day    = now.getDay(); // 0=dim
+    const daysToNextSunday = day === 0 ? 7 : 7 - day;
+    const next   = new Date(now);
+    next.setDate(now.getDate() + daysToNextSunday);
+    next.setUTCHours(23, 59, 0, 0);
+    return next.getTime() - Date.now();
+  })();
+
+  setTimeout(function runClose() {
+    const now = new Date();
+    // Seulement le 1er et 3ème dimanche du mois (quinzaine)
+    const weekNum = Math.ceil(now.getDate() / 7);
+    if (weekNum === 1 || weekNum === 3) {
+      pool.query(`
+        UPDATE staff_payouts SET status='APPROVED', paid_at=NOW()
+        WHERE status='PENDING' AND created_at < NOW() - INTERVAL '13 days'
+      `).then(r => {
+        bus.system(`[PayrollClose] ✅ Clôture quinzaine: ${r.rowCount} lignes → APPROVED`);
+      }).catch(e => bus.system(`[PayrollClose] Erreur: ${e.message}`));
+    }
+    // Reprogramme pour le dimanche suivant (7 jours)
+    setTimeout(runClose, 7 * 24 * 60 * 60 * 1000);
+  }, SUNDAY_23H59_MS);
+
+  bus.system(`[PayrollClose] Cron quinzaine programmé (prochain dimanche 23h59 UTC)`);
+}
+
+module.exports = { startV20Crons, generateWeeklyTriple, runLoyaltyReengagement, runSocialContentGeneration, scheduleBiweeklyPayrollClose };

@@ -401,6 +401,9 @@ router.use('/v1/integration/ext-app', integrationRoutes); // [082] External App 
 router.use('/', integrationRoutes); // [088] /api/docs (mount sur la racine aussi)
 // V5 — Onboarding Multi-Tenant [251-289]
 router.use('/v1/onboarding', v1OnboardingRoutes);
+// V6 — Staff Management [313-319]
+const staffRoutes = require('./staff-routes');
+router.use('/v1/staff', staffRoutes);
 router.use('/admin/tenants', adminTenantsRoutes);
 
 // ─── ROUTES SOCIAL META (Point 38) ───────────────────────────────────────
