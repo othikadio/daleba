@@ -21,7 +21,7 @@ const DEFAULT_TIERS = [
 
 // [410] Créneaux "Happy Hour" par défaut (historiquement creux)
 const DEFAULT_HAPPY_HOURS = [
-  { day: 2, startH: 10, endH: 12 },  // Mardi 10h-12h
+  { day: 2, startH: 10, endH: 11 },  // Mardi 10h-11h
   { day: 3, startH: 14, endH: 16 },  // Mercredi 14h-16h
   { day: 4, startH: 10, endH: 11 },  // Jeudi 10h-11h
 ];
