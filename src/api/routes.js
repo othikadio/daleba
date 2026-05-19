@@ -266,7 +266,65 @@ router.use('/webhook', voiceRoutes);
 
 // V24 — Studio Vidéo Botanique
 router.use('/video', videoRoutes);
-router.use('/dare', dareRoutes); // DARE — Metacortex Routing Engine
+router.use('/dare', dareRoutes);
+
+// ─── STUDIO MEDIA ROUTES [101-119] ────────────────────────────────────────────
+
+// GET /api/studio/status — État du watcher + queue
+router.get('/studio/status', (req, res) => {
+  const watcher = require('../services/studio-watcher');
+  res.json(watcher.getStatus());
+});
+
+// POST /api/studio/process — Trigger manuel d'un rush [102]
+router.post('/studio/process', async (req, res) => {
+  const { filePath, formats } = req.body;
+  if (!filePath) return res.status(400).json({ error: 'filePath requis' });
+  try {
+    const { MediaAgent } = require('../agents/MediaAgent');
+    const agent = new MediaAgent();
+    const agentId = agent.agentId;
+    // Lancement asynchrone
+    agent.run({ action: 'full_pipeline', filePath, formats: formats || ['reels', 'square', 'story'] })
+      .catch(e => console.error('[Studio] Pipeline error:', e.message));
+    res.json({ agentId, status: 'RUNNING', filePath });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/studio/inspect — Inspection métadonnées [104]
+router.post('/studio/inspect', async (req, res) => {
+  const { filePath } = req.body;
+  if (!filePath) return res.status(400).json({ error: 'filePath requis' });
+  try {
+    const inspector = require('../services/media-inspector');
+    const metadata = await inspector.inspectFile(filePath);
+    res.json(metadata);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/studio/trends — Tendances actuelles [108]
+router.get('/studio/trends', async (req, res) => {
+  try {
+    const scraper = require('../services/trend-scraper');
+    const trends = await scraper.getLatestTrends();
+    res.json(trends);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/studio/trigger-watcher — Force re-scan du fichier
+router.post('/studio/trigger-watcher', (req, res) => {
+  const { filePath } = req.body;
+  if (!filePath) return res.status(400).json({ error: 'filePath requis' });
+  const watcher = require('../services/studio-watcher');
+  watcher.triggerFile(filePath);
+  res.json({ triggered: true, filePath });
+}); // DARE — Metacortex Routing Engine
 router.use('/commander', commanderRoutes); // Commander — DAE + Swarm + Shield
 router.use('/v1/integration/ext-app', integrationRoutes); // [082] External App API
 router.use('/', integrationRoutes); // [088] /api/docs (mount sur la racine aussi)

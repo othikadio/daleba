@@ -13,6 +13,9 @@ const swarm = require('./services/swarm');
 const maintenance = require('./services/maintenance');
 const shield = require('./services/notification-shield');
 const cmdInterpreter = require('./services/command-interpreter');
+const studioWatcher  = require('./services/studio-watcher');
+const trendScraper   = require('./services/trend-scraper');
+const mediaInspector = require('./services/media-inspector');
 
 const path = require('path');
 const app = express();
@@ -141,6 +144,10 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   maintenance.startAutoCleanup();
   // pg-pool indexes [090]
   maintenance.ensureIndexes().catch(e => console.warn('[Boot] Indexes:', e.message));
+  // Studio Watcher [102] + Trend Scheduler [108]
+  mediaInspector.ensureStudioTable().catch(e => console.warn('[Boot] studio_assets:', e.message));
+  studioWatcher.start();
+  trendScraper.startTrendScheduler();
   // Daily Digest — 20h heure salon [075]
   const ULRICH_PHONE = process.env.ULRICH_PHONE_NUMBER;
   const TWILIO_FROM  = process.env.TWILIO_PHONE_NUMBER;
