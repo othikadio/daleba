@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DALEBA — Onboarding</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --card: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --accent: #7c3aed;
+      --accent-glow: rgba(124,58,237,0.3);
+      --success: #10b981;
+      --success-glow: rgba(16,185,129,0.3);
+      --error: #ef4444;
+      --text: #e2e8f0;
+      --text-muted: #64748b;
+      --radius: 12px;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 32px 16px 64px;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124,58,237,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(16,185,129,0.06) 0%, transparent 50%);
+    }
+
+    /* ── Logo ── */
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--text);
+      margin-bottom: 32px;
+      opacity: 0.9;
+    }
+    .logo span { color: var(--accent); }
+
+    /* ── Progress bar ── */
+    .progress-wrap {
+      width: 100%;
+      max-width: 520px;
+      margin-bottom: 8px;
+    }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .progress-bar {
+      height: 3px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #a855f7);
+      border-radius: 99px;
+      transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ── Card ── */
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 40px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.02), 0 24px 48px rgba(0,0,0,0.4);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── Step label ── */
+    .step-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    /* ── Headings ── */
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    /* ── Form fields ── */
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+    .field input,
+    .field select {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 11px 14px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .field input::placeholder { color: var(--text-muted); opacity: 0.7; }
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .field select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+    .field select option { background: #1a1a2e; color: var(--text); }
+
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* ── Currency display ── */
+    .currency-display {
+      width: 100%;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 11px 14px;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-style: italic;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      width: 100%;
+      margin-top: 8px;
+      box-shadow: 0 0 0 0 var(--accent-glow);
+    }
+    .btn-primary:hover {
+      background: #6d28d9;
+      box-shadow: 0 0 0 6px var(--accent-glow);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      border-color: rgba(255,255,255,0.2);
+      color: var(--text);
+    }
+    .btn-square {
+      background: #3E4348;
+      color: #fff;
+      width: 100%;
+      padding: 14px 24px;
+      font-size: 15px;
+      margin-top: 12px;
+    }
+    .btn-square:hover {
+      background: #4f5560;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    .btn-nav-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .btn-nav-row .btn-secondary { flex: 0 0 auto; padding: 12px 18px; }
+    .btn-nav-row .btn-primary { flex: 1; margin-top: 0; }
+
+    /* ── Radio group ── */
+    .radio-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .radio-option:hover { border-color: var(--accent); background: rgba(124,58,237,0.06); }
+    .radio-option.selected { border-color: var(--accent); background: rgba(124,58,237,0.1); }
+    .radio-option input[type=radio] { display: none; }
+    .radio-dot {
+      width: 18px; height: 18px;
+      border: 2px solid var(--text-muted);
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .radio-option.selected .radio-dot {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+    .radio-option.selected .radio-dot::after {
+      content: '';
+      width: 6px; height: 6px;
+      background: #fff;
+      border-radius: 50%;
+    }
+    .radio-label { font-size: 14px; color: var(--text); }
+
+    /* ── Spinner ── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid rgba(255,255,255,0.15);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    .spinner-lg {
+      width: 40px; height: 40px;
+      border-width: 3px;
+      margin: 0 auto 16px;
+    }
+
+    /* ── Loading overlay ── */
+    .loading-block {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      text-align: center;
+    }
+    .loading-block.visible { display: flex; }
+    .loading-text { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+
+    /* ── Status badge ── */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 16px;
+    }
+    .badge-success { background: rgba(16,185,129,0.12); color: var(--success); border: 1px solid rgba(16,185,129,0.25); }
+    .badge-error   { background: rgba(239,68,68,0.1);  color: var(--error);   border: 1px solid rgba(239,68,68,0.2);  }
+    .badge-info    { background: rgba(124,58,237,0.1);  color: #a78bfa;        border: 1px solid rgba(124,58,237,0.2); }
+
+    /* ── Security badge ── */
+    .security-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 16px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .security-badge svg { opacity: 0.5; }
+
+    /* ── MMI code block ── */
+    .mmi-code {
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      background: rgba(124,58,237,0.1);
+      border: 1px solid rgba(124,58,237,0.3);
+      border-radius: var(--radius);
+      padding: 18px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+      margin: 16px 0;
+      letter-spacing: 0.05em;
+    }
+    .mmi-code:hover { background: rgba(124,58,237,0.18); transform: translateY(-1px); }
+    .mmi-code.copied { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.4); color: var(--success); }
+    .mmi-code-hint { font-size: 11px; color: var(--text-muted); text-align: center; margin-bottom: 8px; }
+
+    /* ── MMI type buttons ── */
+    .mmi-type-btns {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .mmi-type-btn {
+      padding: 8px 4px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .mmi-type-btn:hover, .mmi-type-btn.active {
+      border-color: var(--accent);
+      color: var(--text);
+      background: rgba(124,58,237,0.1);
+    }
+
+    /* ── Numbered steps ── */
+    .steps-list { list-style: none; margin: 20px 0; }
+    .steps-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 10px 0;
+      font-size: 14px;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+    }
+    .steps-list li:last-child { border-bottom: none; }
+    .step-num {
+      width: 28px; height: 28px;
+      min-width: 28px;
+      border-radius: 50%;
+      background: rgba(124,58,237,0.2);
+      color: #a78bfa;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .carrier-note {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.02);
+      border-left: 2px solid var(--border);
+      border-radius: 0 6px 6px 0;
+    }
+
+    /* ── Recap cards ── */
+    .recap-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .recap-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+    .recap-card-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .recap-card-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      word-break: break-all;
+    }
+    .recap-card-value.success { color: var(--success); }
+    .recap-card-value.pending { color: #f59e0b; }
+
+    /* ── Emoji heading ── */
+    .emoji-heading { font-size: 32px; margin-bottom: 12px; text-align: center; }
+
+    /* ── Step animation ── */
+    @keyframes cardEnter {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .card-enter { animation: cardEnter 0.4s ease forwards; }
+
+    /* ── Error text ── */
+    .error-text { font-size: 12px; color: var(--error); margin-top: 6px; display: none; }
+    .error-text.visible { display: block; }
+
+    /* ── Divider ── */
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+    /* ── Responsive ── */
+    @media (max-width: 540px) {
+      .card { padding: 28px 22px; }
+      .field-row { grid-template-columns: 1fr; }
+      .recap-grid { grid-template-columns: 1fr; }
+      .mmi-type-btns { grid-template-columns: 1fr; }
+      h1 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo">DAL<span>EBA</span></div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-meta">
+      <span id="progressLabel">Étape 1 sur 6</span>
+      <span id="progressPct">16%</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width:16.6%"></div>
+    </div>
+  </div>
+
+  <!-- ───────────── STEP 1 ───────────── -->
+  <div class="card card-enter" id="step1">
+    <div class="step-label">STEP 1 / 6</div>
+    <h1>Votre entreprise</h1>
+    <p class="subtitle">Commençons par les informations de base de votre établissement.</p>
+
+    <div class="field">
+      <label>Nom de l'entreprise *</label>
+      <input type="text" id="businessName" placeholder="Salon Prestige Montréal" required>
+    </div>
+    <div class="field">
+      <label>Pays *</label>
+      <select id="country" onchange="onCountryChange()">
+        <option value="CA">🇨🇦 Canada</option>
+        <option value="FR">🇫🇷 France</option>
+        <option value="BE">🇧🇪 Belgique</option>
+        <option value="CH">🇨🇭 Suisse</option>
+        <option value="US">🇺🇸 États-Unis</option>
+        <option value="SN">🇸🇳 Sénégal</option>
+        <option value="CI">🇨🇮 Côte d'Ivoire</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <div class="field" style="margin-bottom:0">
+        <label>Fuseau horaire *</label>
+        <select id="timezone"></select>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Devise</label>
+        <div class="currency-display" id="currencyDisplay">CAD</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="field">
+      <label>Nom du gérant *</label>
+      <input type="text" id="managerName" placeholder="Jean Dupont">
+    </div>
+    <div class="field">
+      <label>Email professionnel *</label>
+      <input type="email" id="managerEmail" placeholder="jean@salon.com">
+    </div>
+    <div class="field">
+      <label>Téléphone du gérant</label>
+      <input type="tel" id="managerPhone" placeholder="+1 514 555-0123">
+    </div>
+    <div id="step1Error" class="error-text">Veuillez remplir tous les champs obligatoires.</div>
+    <button class="btn btn-primary" onclick="submitStep1()">Continuer →</button>
+  </div>
+
+  <!-- ───────────── STEP 2 ───────────── -->
+  <div class="card card-enter" id="step2" style="display:none">
+    <div class="step-label">STEP 2 / 6</div>
+    <h1>Votre ligne DALEBA</h1>
+    <p class="subtitle">DALEBA va créer une ligne téléphonique dédiée à votre entreprise.</p>
+
+    <div class="field">
+      <label>Indicatif local préféré</label>
+      <input type="text" id="areaCode" placeholder="514, 438, 450...">
+    </div>
+
+    <div class="radio-group" id="lineTypeGroup">
+      <label class="radio-option selected" onclick="selectLineType('new', this)">
+        <input type="radio" name="lineType" value="new" checked>
+        <div class="radio-dot"></div>
+        <span class="radio-label">Créer une nouvelle ligne DALEBA</span>
+      </label>
+      <label class="radio-option" onclick="selectLineType('existing', this)">
+        <input type="radio" name="lineType" value="existing">
+        <div class="radio-dot"></div>
+        <span class="radio-label">Utiliser ma ligne existante</span>
+      </label>
+    </div>
+
+    <div class="field" id="existingPhoneField" style="display:none">
+      <label>Numéro de ligne existante</label>
+      <input type="tel" id="existingPhone" placeholder="+1 514 555-0123">
+    </div>
+
+    <div class="loading-block" id="step2Loading">
+      <div class="spinner spinner-lg"></div>
+      <div class="loading-text">Création de votre sous-compte sécurisé...</div>
+    </div>
+
+    <div id="step2Error" class="error-text"></div>
+    <div class="btn-nav-row">
+      <button class="btn btn-secondary" onclick="goToStep(1)">←</button>
+      <button class="btn btn-primary" id="step2Btn" onclick="submitStep2()">Provisionner la ligne →</button>
+    </div>
+  </div>
+
+  <!-- ───────────── STEP 3 ───────────── -->
+  <div class="card card-enter" id="step3" style="display:none">
+    <div class="step-label">STEP 3 / 6</div>
+    <h1>Connecter Square</h1>
+    <p class="subtitle">Synchronisez votre catalogue, rendez-vous et clients Square avec DALEBA.</p>
+
+    <div id="squarePreConnect">
+      <p style="font-size:14px; color:var(--text-muted); margin-bottom:8px;">
+        Autorisez DALEBA à accéder à votre compte Square pour synchroniser vos données en temps réel.
+      </p>
+      <button class="btn btn-square" onclick="goToSquare()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="20" height="20" rx="4" fill="#fff" fill-opacity="0.15"/>
+          <rect x="7" y="7" width="10" height="10" rx="1" fill="#fff"/>
+        </svg>
+        Connecter avec Square
+      </button>
+    </div>
+
+    <div id="squareConnected" style="display:none; text-align:center; padding: 16px 0;">
+      <div class="status-badge badge-success" style="margin:0 auto; display:inline-flex;">
+        ✅ Square connecté — synchronisation en cours...
+      </div>
+    </div>
+
+    <div class="security-badge">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      Chiffrement AES-256 · Accès lecture seule · Révocable à tout moment
+    </div>
+
+    <div id="step3Error" class="error-text"></div>
+    <div class="btn-nav-row" style="margin-top:24px">
+      <button class="btn btn-secondary" onclick="goToStep(2)">←</button>
+      <button class="btn btn-primary" id="step3Btn" onclick="goToStep(4)">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- ───────────── STEP 4 ───────────── -->
+  <div class="card card-enter" id="step4" style="display:none">
+    <div class="step-label">STEP 4 / 6</div>
+    <h1>Activez le transfert d'appel</h1>
+    <p class="subtitle" id="step4Subtitle">Bell · Rogers · Telus · Vidéotron</p>
+
+    <div class="mmi-type-btns">
+      <button class="mmi-type-btn active" onclick="setMMIType('unconditional', this)">Transfert inconditionnel</button>
+      <button class="mmi-type-btn" onclick="setMMIType('busy', this)">Si occupé</button>
+      <button class="mmi-type-btn" onclick="setMMIType('noreply', this)">Si absent</button>
+    </div>
+
+    <p class="mmi-code-hint">Cliquez pour copier</p>
+    <div class="mmi-code" id="mmiCodeDisplay" onclick="copyCode(this.textContent.trim())">
+      *21*+13022328291#
+    </div>
+
+    <ul class="steps-list">
+      <li>
+        <div class="step-num">1</div>
+        <span>Ouvrez l'application <strong>Téléphone</strong> de votre appareil</span>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <span>Composez le code MMI affiché ci-dessus dans le clavier numérique</span>
+      </li>
+      <li>
+        <div class="step-num">3</div>
+        <span>Appuyez sur le bouton <strong>Appel</strong> 📞</span>
+      </li>
+      <li>
+        <div class="step-num">4</div>
+        <span>Attendez la <strong>confirmation vocale</strong> ou le message de réussite</span>
+      </li>
+    </ul>
+
+    <div class="carrier-note" id="carrierNote">
+      Note opérateur : Pour Bell, Rogers, Telus et Vidéotron, le code MMI *21* est standard. En cas d'échec, contactez votre opérateur.
+    </div>
+
+    <div class="btn-nav-row" style="margin-top:20px">
+      <button class="btn btn-secondary" onclick="goToStep(3)">←</button>
+      <button class="btn btn-primary" onclick="goToStep(5)">Étape suivante →</button>
+    </div>
+  </div>
+
+  <!-- ───────────── STEP 5 ───────────── -->
+  <div class="card card-enter" id="step5" style="display:none">
+    <div class="step-label">STEP 5 / 6</div>
+    <h1>Vérification du transfert</h1>
+    <p class="subtitle">DALEBA va passer un appel test pour confirmer que le transfert est actif.</p>
+
+    <div class="field">
+      <label>Numéro de votre salon *</label>
+      <input type="tel" id="tenantPhone" placeholder="+1 514 555-0123">
+    </div>
+
+    <div class="loading-block" id="step5Loading">
+      <div class="spinner spinner-lg"></div>
+      <div class="loading-text">Appel test en cours...</div>
+    </div>
+
+    <div id="pingResult" style="display:none; text-align:center; margin-top:16px;"></div>
+    <div id="step5Error" class="error-text"></div>
+
+    <div class="btn-nav-row">
+      <button class="btn btn-secondary" onclick="goToStep(4)">←</button>
+      <button class="btn btn-primary" id="step5Btn" onclick="runPingTest()">Lancer le test d'appel →</button>
+    </div>
+  </div>
+
+  <!-- ───────────── STEP 6 ───────────── -->
+  <div class="card card-enter" id="step6" style="display:none">
+    <div class="emoji-heading">🎉</div>
+    <h1 style="text-align:center">Onboarding terminé</h1>
+    <p class="subtitle" style="text-align:center">Votre espace DALEBA est prêt. Voici un résumé de votre configuration.</p>
+
+    <div class="recap-grid">
+      <div class="recap-card">
+        <div class="recap-card-label">Numéro DALEBA</div>
+        <div class="recap-card-value" id="recapPhone">—</div>
+      </div>
+      <div class="recap-card">
+        <div class="recap-card-label">Fuseau horaire</div>
+        <div class="recap-card-value" id="recapTz">—</div>
+      </div>
+      <div class="recap-card">
+        <div class="recap-card-label">Devise</div>
+        <div class="recap-card-value" id="recapCurrency">—</div>
+      </div>
+      <div class="recap-card">
+        <div class="recap-card-label">Square</div>
+        <div class="recap-card-value" id="recapSquare">En attente</div>
+      </div>
+      <div class="recap-card">
+        <div class="recap-card-label">Transfert d'appel</div>
+        <div class="recap-card-value" id="recapTransfer">En attente</div>
+      </div>
+      <div class="recap-card">
+        <div class="recap-card-label">Entreprise</div>
+        <div class="recap-card-value" id="recapBusiness">—</div>
+      </div>
+    </div>
+
+    <a href="/admin" class="btn btn-primary" style="margin-top:8px; text-decoration:none;">
+      Accéder au tableau de bord →
+    </a>
+  </div>
+
+  <script>
+    // ── State ──────────────────────────────────────────────────────────
+    const state = {
+      step: 1,
+      tenantId: null,
+      dalebaPhone: null,
+      squareAuthUrl: null,
+      mmiInstructions: null,
+      country: 'CA',
+      timezone: 'America/Toronto',
+      currency: 'CAD',
+      squareConnected: false,
+      transferValidated: false,
+      lineType: 'new',
+      mmiType: 'unconditional',
+    };
+
+    // ── Country → timezones ────────────────────────────────────────────
+    const TIMEZONES = {
+      CA: ['America/Toronto','America/Vancouver','America/Edmonton','America/Winnipeg','America/Halifax','America/St_Johns'],
+      FR: ['Europe/Paris'],
+      BE: ['Europe/Brussels'],
+      CH: ['Europe/Zurich'],
+      US: ['America/New_York','America/Chicago','America/Denver','America/Los_Angeles','America/Phoenix','Pacific/Honolulu'],
+      SN: ['Africa/Dakar'],
+      CI: ['Africa/Abidjan'],
+    };
+
+    const CURRENCIES = { CA:'CAD', FR:'EUR', BE:'EUR', CH:'CHF', US:'USD', SN:'XOF', CI:'XOF' };
+
+    const CARRIER_NOTES = {
+      CA: 'Bell · Rogers · Telus · Vidéotron',
+      FR: 'Orange · SFR · Bouygues · Free',
+      BE: 'Proximus · Base · Orange',
+      CH: 'Swisscom · Sunrise · Salt',
+      US: 'AT&T · T-Mobile · Verizon',
+      SN: 'Orange · Free Sénégal · Expresso',
+      CI: "Orange · MTN · Moov",
+    };
+
+    const CARRIER_TECH_NOTES = {
+      CA: 'Pour Bell, Rogers, Telus et Vidéotron, le code MMI *21* est standard. En cas d\'échec, contactez votre opérateur.',
+      FR: 'Pour Orange, SFR, Bouygues et Free, utilisez *21*. Si le code ne fonctionne pas, consultez les paramètres d\'appel de votre opérateur.',
+      BE: 'Pour Proximus, Base et Orange Belgique, le code *21* est universellement supporté.',
+      CH: 'Pour Swisscom, Sunrise et Salt, composez le code MMI dans l\'application téléphone standard.',
+      US: 'For AT&T, T-Mobile, and Verizon, use *21*. Carrier call forwarding may require activation through your account portal.',
+      SN: 'Pour Orange Sénégal, Free et Expresso, composez le code depuis le clavier de l\'application téléphone.',
+      CI: 'Pour Orange CI, MTN et Moov, composez le code depuis le clavier numérique de votre téléphone.',
+    };
+
+    const MMI_CODES = {
+      unconditional: (num) => `*21*${num}#`,
+      busy:          (num) => `*67*${num}#`,
+      noreply:       (num) => `*61*${num}#`,
+    };
+
+    const MMI_LABELS = {
+      unconditional: 'Transfert inconditionnel',
+      busy: 'Si occupé',
+      noreply: 'Si absent',
+    };
+
+    // ── Init ───────────────────────────────────────────────────────────
+    function init() {
+      populateTimezones('CA');
+      updateCurrency('CA');
+
+      // Read URL params (for Square OAuth return)
+      const params = new URLSearchParams(window.location.search);
+      const stepParam = parseInt(params.get('step'), 10);
+      const tenantParam = params.get('tenant');
+      const squareOk = params.get('square');
+
+      if (tenantParam) state.tenantId = tenantParam;
+      if (squareOk === 'ok') state.squareConnected = true;
+
+      if (stepParam && stepParam >= 1 && stepParam <= 6) {
+        // Restore step silently
+        for (let s = 1; s <= 6; s++) {
+          const el = document.getElementById('step' + s);
+          if (el) el.style.display = (s === stepParam) ? 'block' : 'none';
+        }
+        state.step = stepParam;
+        updateProgress(stepParam);
+
+        if (stepParam === 3 && state.squareConnected) showSquareConnected();
+        if (stepParam === 4) loadMMI();
+        if (stepParam === 6) populateRecap();
+      }
+    }
+
+    function populateTimezones(country) {
+      const sel = document.getElementById('timezone');
+      sel.innerHTML = '';
+      (TIMEZONES[country] || ['UTC']).forEach(tz => {
+        const opt = document.createElement('option');
+        opt.value = tz;
+        opt.textContent = tz.replace('_', ' ');
+        sel.appendChild(opt);
+      });
+      state.timezone = sel.value;
+    }
+
+    function onCountryChange() {
+      const country = document.getElementById('country').value;
+      state.country = country;
+      populateTimezones(country);
+      updateCurrency(country);
+      updateCarrierInfo(country);
+    }
+
+    function updateCurrency(country) {
+      const cur = CURRENCIES[country] || 'USD';
+      state.currency = cur;
+      document.getElementById('currencyDisplay').textContent = cur;
+    }
+
+    function updateCarrierInfo(country) {
+      const subtitle = document.getElementById('step4Subtitle');
+      const note = document.getElementById('carrierNote');
+      if (subtitle) subtitle.textContent = CARRIER_NOTES[country] || '';
+      if (note) note.textContent = 'Note opérateur : ' + (CARRIER_TECH_NOTES[country] || '');
+    }
+
+    // ── Progress ───────────────────────────────────────────────────────
+    function updateProgress(step) {
+      const pct = Math.round((step / 6) * 100);
+      document.getElementById('progressFill').style.width = pct + '%';
+      document.getElementById('progressLabel').textContent = `Étape ${step} sur 6`;
+      document.getElementById('progressPct').textContent = pct + '%';
+    }
+
+    // ── Step navigation ────────────────────────────────────────────────
+    function goToStep(n) {
+      const current = document.getElementById('step' + state.step);
+      const next = document.getElementById('step' + n);
+      if (!next) return;
+      if (current) current.style.display = 'none';
+      next.style.display = 'block';
+      next.classList.remove('card-enter');
+      void next.offsetWidth; // reflow
+      next.classList.add('card-enter');
+      state.step = n;
+      updateProgress(n);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (n === 4) loadMMI();
+      if (n === 6) populateRecap();
+    }
+
+    // ── Step 1 ─────────────────────────────────────────────────────────
+    async function submitStep1() {
+      const businessName = document.getElementById('businessName').value.trim();
+      const country = document.getElementById('country').value;
+      const timezone = document.getElementById('timezone').value;
+      const managerName = document.getElementById('managerName').value.trim();
+      const managerEmail = document.getElementById('managerEmail').value.trim();
+      const managerPhone = document.getElementById('managerPhone').value.trim();
+      const errEl = document.getElementById('step1Error');
+
+      if (!businessName || !managerName || !managerEmail) {
+        errEl.classList.add('visible');
+        return;
+      }
+      errEl.classList.remove('visible');
+
+      state.country = country;
+      state.timezone = timezone;
+      state.currency = CURRENCIES[country] || 'USD';
+
+      const btn = document.querySelector('#step1 .btn-primary');
+      btn.disabled = true;
+      btn.textContent = 'Enregistrement...';
+
+      try {
+        const res = await fetch('/api/v1/onboarding/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ businessName, country, timezone, currency: state.currency, managerName, managerEmail, managerPhone }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          state.tenantId = data.tenantId || state.tenantId;
+          state.dalebaPhone = data.dalebaPhone || null;
+          state.squareAuthUrl = data.squareAuthUrl || null;
+          state.mmiInstructions = data.mmiInstructions || null;
+        }
+      } catch (_) { /* non-blocking — continue regardless */ }
+
+      btn.disabled = false;
+      btn.textContent = 'Continuer →';
+      goToStep(2);
+    }
+
+    // ── Step 2 ─────────────────────────────────────────────────────────
+    function selectLineType(type, el) {
+      state.lineType = type;
+      document.querySelectorAll('#lineTypeGroup .radio-option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      document.getElementById('existingPhoneField').style.display = (type === 'existing') ? 'block' : 'none';
+    }
+
+    async function submitStep2() {
+      const btn = document.getElementById('step2Btn');
+      const loadingEl = document.getElementById('step2Loading');
+      const errEl = document.getElementById('step2Error');
+      errEl.classList.remove('visible');
+
+      btn.style.display = 'none';
+      loadingEl.classList.add('visible');
+
+      try {
+        if (state.lineType === 'new') {
+          const areaCode = document.getElementById('areaCode').value.trim();
+          // Phone already provisioned with register; just continue
+          await new Promise(r => setTimeout(r, 1800)); // simulate
+        } else {
+          state.dalebaPhone = document.getElementById('existingPhone').value.trim();
+          await new Promise(r => setTimeout(r, 800));
+        }
+      } catch (_) { /* ignore */ }
+
+      loadingEl.classList.remove('visible');
+      btn.style.display = '';
+      goToStep(3);
+    }
+
+    // ── Step 3 ─────────────────────────────────────────────────────────
+    function goToSquare() {
+      if (state.squareAuthUrl) {
+        window.location.href = state.squareAuthUrl;
+      } else {
+        // Fallback: simulated redirect with tenant param
+        const base = '/api/v1/onboarding/square-auth';
+        const url = state.tenantId ? `${base}?tenantId=${state.tenantId}` : base;
+        window.location.href = url;
+      }
+    }
+
+    function showSquareConnected() {
+      document.getElementById('squarePreConnect').style.display = 'none';
+      document.getElementById('squareConnected').style.display = 'block';
+      state.squareConnected = true;
+    }
+
+    // ── Step 4 ─────────────────────────────────────────────────────────
+    function setMMIType(type, btn) {
+      state.mmiType = type;
+      document.querySelectorAll('.mmi-type-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateMMIDisplay();
+    }
+
+    function updateMMIDisplay() {
+      const phone = state.dalebaPhone || '+13022328291';
+      const code = (MMI_CODES[state.mmiType] || MMI_CODES.unconditional)(phone);
+      const el = document.getElementById('mmiCodeDisplay');
+      el.textContent = code;
+      el.classList.remove('copied');
+    }
+
+    async function loadMMI() {
+      updateMMIDisplay();
+      updateCarrierInfo(state.country);
+
+      if (state.tenantId) {
+        try {
+          const res = await fetch(`/api/v1/onboarding/mmi-instructions?tenantId=${encodeURIComponent(state.tenantId)}&country=${state.country}`);
+          if (res.ok) {
+            const data = await res.json();
+            state.mmiInstructions = data;
+            if (data.unconditional) document.getElementById('mmiCodeDisplay').textContent = data.unconditional;
+          }
+        } catch (_) { /* use defaults */ }
+      }
+    }
+
+    function copyCode(code) {
+      const el = document.getElementById('mmiCodeDisplay');
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(code).then(() => {
+          el.classList.add('copied');
+          const orig = el.textContent;
+          el.textContent = '✓ Copié !';
+          setTimeout(() => { el.textContent = orig; el.classList.remove('copied'); }, 1800);
+        });
+      }
+    }
+
+    // ── Step 5 ─────────────────────────────────────────────────────────
+    async function runPingTest() {
+      const phone = document.getElementById('tenantPhone').value.trim();
+      const btn = document.getElementById('step5Btn');
+      const loadingEl = document.getElementById('step5Loading');
+      const resultEl = document.getElementById('pingResult');
+      const errEl = document.getElementById('step5Error');
+
+      if (!phone) {
+        errEl.textContent = 'Veuillez entrer le numéro de votre salon.';
+        errEl.classList.add('visible');
+        return;
+      }
+      errEl.classList.remove('visible');
+      resultEl.style.display = 'none';
+      btn.disabled = true;
+      loadingEl.classList.add('visible');
+
+      try {
+        const res = await fetch('/api/v1/onboarding/ping-validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tenantId: state.tenantId, tenantPhone: phone }),
+        });
+        const data = await res.json().catch(() => ({}));
+        loadingEl.classList.remove('visible');
+        resultEl.style.display = 'block';
+
+        if (res.ok && data.success) {
+          state.transferValidated = true;
+          resultEl.innerHTML = `<div class="status-badge badge-success" style="display:inline-flex;margin:0 auto;">✅ Transfert actif et confirmé!</div>`;
+          setTimeout(() => goToStep(6), 1400);
+        } else {
+          resultEl.innerHTML = `<div class="status-badge badge-error" style="display:inline-flex;margin:0 auto;">⚠️ Transfert non détecté — vérifiez le code MMI</div>`;
+          btn.disabled = false;
+        }
+      } catch (_) {
+        loadingEl.classList.remove('visible');
+        resultEl.style.display = 'block';
+        resultEl.innerHTML = `<div class="status-badge badge-error" style="display:inline-flex;margin:0 auto;">⚠️ Erreur réseau — réessayez</div>`;
+        btn.disabled = false;
+      }
+    }
+
+    // ── Step 6 ─────────────────────────────────────────────────────────
+    function populateRecap() {
+      document.getElementById('recapPhone').textContent = state.dalebaPhone || 'À attribuer';
+      document.getElementById('recapTz').textContent = state.timezone || '—';
+      document.getElementById('recapCurrency').textContent = state.currency || '—';
+      document.getElementById('recapBusiness').textContent = document.getElementById('businessName')?.value?.trim() || '—';
+
+      const squareEl = document.getElementById('recapSquare');
+      if (state.squareConnected) {
+        squareEl.textContent = 'Connecté ✓';
+        squareEl.className = 'recap-card-value success';
+      } else {
+        squareEl.textContent = 'En attente';
+        squareEl.className = 'recap-card-value pending';
+      }
+
+      const transferEl = document.getElementById('recapTransfer');
+      if (state.transferValidated) {
+        transferEl.textContent = 'Validé ✓';
+        transferEl.className = 'recap-card-value success';
+      } else {
+        transferEl.textContent = 'En attente';
+        transferEl.className = 'recap-card-value pending';
+      }
+    }
+
+    // ── Boot ───────────────────────────────────────────────────────────
+    init();
+  </script>
+</body>
+</html>

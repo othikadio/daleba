@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DALEBA — Locataires</title>
+<style>
+:root{--bg:#0a0a0f;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--accent:#7c3aed;--ag:rgba(124,58,237,0.25);--danger:#ef4444;--warn:#f59e0b;--ok:#10b981;--text:#e2e8f0;--muted:#64748b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:Inter,-apple-system,sans-serif;min-height:100vh}
+.header{background:rgba(255,255,255,0.03);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;gap:16px}
+.logo{font-size:18px;font-weight:700;color:var(--accent)}
+.badge{background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);border-radius:20px;padding:3px 10px;font-size:11px}
+.live-dot{width:8px;height:8px;background:var(--ok);border-radius:50%;animation:pulse 2s infinite;margin-left:auto}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:20px 24px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.stat-val{font-size:28px;font-weight:700;color:var(--accent)}
+.stat-lbl{font-size:12px;color:var(--muted);margin-top:4px}
+.controls{padding:0 24px 12px;display:flex;gap:12px;align-items:center}
+input[type=text]{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-size:14px;width:260px}
+.btn{border:none;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;transition:all 0.2s}
+.btn-accent{background:var(--accent);color:#fff}.btn-accent:hover{opacity:0.85}
+.btn-danger{background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3)}.btn-danger:hover{background:rgba(239,68,68,0.25)}
+.btn-warn{background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 16px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.03)}
+tr:hover td{background:rgba(124,58,237,0.06);cursor:pointer}
+.status-badge{border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600}
+.s-active{background:rgba(16,185,129,0.15);color:#10b981}
+.s-onboarding{background:rgba(245,158,11,0.15);color:#f59e0b;animation:pulse 2s infinite}
+.s-suspended{background:rgba(239,68,68,0.15);color:#ef4444}
+.s-deleted{background:rgba(100,116,139,0.15);color:#64748b}
+.actions{display:flex;gap:6px}
+.panel{position:fixed;right:-420px;top:0;width:400px;height:100vh;background:#111118;border-left:1px solid var(--border);padding:24px;overflow-y:auto;transition:right 0.3s ease;z-index:100}
+.panel.open{right:0}
+.panel h3{font-size:16px;font-weight:600;margin-bottom:16px}
+.detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.detail-row:last-child{border:none}
+.dval{color:var(--text);font-weight:500}
+.dlbl{color:var(--muted)}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+.modal.show{display:flex}
+.modal-box{background:#111118;border:1px solid var(--border);border-radius:14px;padding:28px;width:360px}
+.modal-box h4{margin-bottom:12px;font-size:16px}
+.modal-box input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:14px;margin-bottom:14px}
+.modal-box .actions{justify-content:flex-end}
+.section{padding:0 24px 24px}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="logo">DALEBA</span>
+  <span style="color:var(--muted);font-size:14px">/ Locataires</span>
+  <span class="badge">Ulrich uniquement</span>
+  <span id="liveDot" class="live-dot" title="Données temps réel"></span>
+  <span id="lastUpdate" style="font-size:11px;color:var(--muted);margin-left:6px"></span>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-val" id="statTotal">—</div><div class="stat-lbl">Locataires total</div></div>
+  <div class="stat"><div class="stat-val" id="statActive" style="color:var(--ok)">—</div><div class="stat-lbl">Actifs</div></div>
+  <div class="stat"><div class="stat-val" id="statBoarding" style="color:var(--warn)">—</div><div class="stat-lbl">En onboarding</div></div>
+  <div class="stat"><div class="stat-val" id="statRevenue" style="color:var(--accent)">—</div><div class="stat-lbl">Revenus plateforme (CAD)</div></div>
+</div>
+
+<div class="controls">
+  <input type="text" id="filterInput" placeholder="Filtrer par nom ou ID..." oninput="filterTable()">
+  <button class="btn btn-accent" onclick="loadTenants()">↻ Actualiser</button>
+  <button class="btn" onclick="exportCSV()" style="background:var(--card);border:1px solid var(--border)">⬇ Export CSV</button>
+</div>
+
+<div class="section">
+  <table>
+    <thead>
+      <tr>
+        <th>Salon</th><th>Pays / TZ</th><th>Statut</th>
+        <th>Transactions</th><th>Appels</th><th>Infra CAD</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tenantTable"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:32px">Chargement...</td></tr></tbody>
+  </table>
+</div>
+
+<!-- Panel détails -->
+<div class="panel" id="detailPanel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+    <h3 id="panelTitle">Détails</h3>
+    <button onclick="closePanel()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px">✕</button>
+  </div>
+  <div id="panelContent"></div>
+</div>
+
+<!-- Modal confirmation résiliation -->
+<div class="modal" id="terminateModal">
+  <div class="modal-box">
+    <h4>⚠️ Confirmer la résiliation</h4>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Tapez le nom exact du salon pour confirmer :</p>
+    <input type="text" id="confirmInput" placeholder="Nom du salon...">
+    <div class="actions">
+      <button class="btn" onclick="closeModal()" style="background:var(--card);border:1px solid var(--border);margin-right:8px">Annuler</button>
+      <button class="btn btn-danger" onclick="confirmTerminate()">Résilier définitivement</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let allTenants = [];
+let pendingTerminate = null;
+
+function statusBadge(s) {
+  const map = { active:'s-active', onboarding:'s-onboarding', suspended:'s-suspended', deleted:'s-deleted', draft:'s-onboarding' };
+  const labels = { active:'Actif', onboarding:'Onboarding', suspended:'Suspendu', deleted:'Résilié', draft:'Draft' };
+  return `<span class="status-badge ${map[s]||'s-deleted'}">${labels[s]||s}</span>`;
+}
+
+async function loadTenants() {
+  try {
+    const r = await fetch('/api/admin/tenants');
+    const d = await r.json();
+    if (!d.success) return;
+    allTenants = d.data.tenants || [];
+    document.getElementById('statTotal').textContent   = d.data.total || allTenants.length;
+    document.getElementById('statActive').textContent  = d.data.totalActive || 0;
+    document.getElementById('statBoarding').textContent = d.data.totalOnboarding || 0;
+    document.getElementById('statRevenue').textContent = (d.data.platformRevenue||0).toFixed(2);
+    document.getElementById('lastUpdate').textContent  = new Date().toLocaleTimeString('fr-CA');
+    renderTable(allTenants);
+  } catch(e) { console.error(e); }
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('tenantTable');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:32px">Aucun locataire trouvé.</td></tr>'; return; }
+  tbody.innerHTML = data.map(t => `
+    <tr onclick="showDetails('${t.tenant_id}')">
+      <td><strong>${t.tenant_name||'—'}</strong><br><span style="color:var(--muted);font-size:11px">${t.tenant_id}</span></td>
+      <td>${t.country||'—'}<br><span style="color:var(--muted);font-size:11px">${(t.timezone||'').split('/')[1]||''}</span></td>
+      <td>${statusBadge(t.status)}</td>
+      <td>${t.metrics?.transactions?.count||0}<br><span style="color:var(--muted);font-size:11px">${(t.metrics?.transactions?.volumeCAD||0).toFixed(2)} CAD</span></td>
+      <td>${t.metrics?.calls?.count||0}</td>
+      <td>${(t.metrics?.infraCostCAD||0).toFixed(4)}</td>
+      <td onclick="event.stopPropagation()" class="actions">
+        ${t.status!=='suspended' ? `<button class="btn btn-warn" onclick="suspendTenant('${t.tenant_id}')">⏸</button>` : `<button class="btn" onclick="reactivate('${t.tenant_id}')" style="background:rgba(16,185,129,0.1);color:var(--ok);border:1px solid rgba(16,185,129,0.3)">▶</button>`}
+        <button class="btn btn-danger" onclick="openTerminate('${t.tenant_id}','${(t.tenant_name||'').replace(/'/g,'\\'')}')">✕</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterTable() {
+  const q = document.getElementById('filterInput').value.toLowerCase();
+  renderTable(allTenants.filter(t => (t.tenant_name||'').toLowerCase().includes(q) || t.tenant_id.includes(q)));
+}
+
+async function showDetails(tenantId) {
+  const r = await fetch(`/api/admin/tenants/${tenantId}`);
+  const d = await r.json();
+  if (!d.success) return;
+  const t = d.data;
+  document.getElementById('panelTitle').textContent = t.tenant_name || tenantId;
+  document.getElementById('panelContent').innerHTML = `
+    <div class="detail-row"><span class="dlbl">Tenant ID</span><span class="dval">${t.tenant_id}</span></div>
+    <div class="detail-row"><span class="dlbl">Statut</span><span class="dval">${statusBadge(t.status)}</span></div>
+    <div class="detail-row"><span class="dlbl">Pays</span><span class="dval">${t.country} · ${t.currency}</span></div>
+    <div class="detail-row"><span class="dlbl">Timezone</span><span class="dval">${t.timezone}</span></div>
+    <div class="detail-row"><span class="dlbl">Gérant</span><span class="dval">${t.manager_name||'—'}</span></div>
+    <div class="detail-row"><span class="dlbl">Email</span><span class="dval">${t.manager_email||'—'}</span></div>
+    <div class="detail-row"><span class="dlbl">Tél. gérant</span><span class="dval">${t.manager_phone||'—'}</span></div>
+    <div class="detail-row"><span class="dlbl">Transactions</span><span class="dval">${t.metrics?.transactions?.count||0} · ${(t.metrics?.transactions?.volumeCAD||0).toFixed(2)} CAD</span></div>
+    <div class="detail-row"><span class="dlbl">Appels</span><span class="dval">${t.metrics?.calls?.count||0}</span></div>
+    <div class="detail-row"><span class="dlbl">Coût infra</span><span class="dval">${(t.metrics?.infraCostCAD||0).toFixed(4)} CAD</span></div>
+    <div class="detail-row"><span class="dlbl">Credentials</span><span class="dval">${(t.credentialKeys||[]).join(', ')||'—'}</span></div>
+    <div class="detail-row"><span class="dlbl">Inscrit le</span><span class="dval">${t.created_at?new Date(t.created_at).toLocaleDateString('fr-CA'):'—'}</span></div>
+  `;
+  document.getElementById('detailPanel').classList.add('open');
+}
+function closePanel() { document.getElementById('detailPanel').classList.remove('open'); }
+
+async function suspendTenant(id) {
+  if (!confirm(`Suspendre le tenant ${id} ?`)) return;
+  await fetch(`/api/admin/tenants/${id}/suspend`, { method:'POST' });
+  loadTenants();
+}
+async function reactivate(id) {
+  await fetch(`/api/admin/tenants/${id}/reactivate`, { method:'POST' });
+  loadTenants();
+}
+function openTerminate(id, name) {
+  pendingTerminate = { id, name };
+  document.getElementById('confirmInput').value = '';
+  document.getElementById('terminateModal').classList.add('show');
+}
+function closeModal() { document.getElementById('terminateModal').classList.remove('show'); pendingTerminate = null; }
+async function confirmTerminate() {
+  if (!pendingTerminate) return;
+  const val = document.getElementById('confirmInput').value;
+  if (val !== pendingTerminate.name) { alert('Nom incorrect — annulé.'); return; }
+  await fetch(`/api/admin/tenants/${pendingTerminate.id}`, { method:'DELETE', headers:{ 'x-confirm-name': val } });
+  closeModal();
+  loadTenants();
+}
+function exportCSV() {
+  if (!allTenants.length) return;
+  const h = ['tenant_id','tenant_name','country','status','transactions','volume_cad','calls','infra_cad'];
+  const rows = allTenants.map(t => [t.tenant_id,t.tenant_name,t.country,t.status,t.metrics?.transactions?.count||0,(t.metrics?.transactions?.volumeCAD||0).toFixed(2),t.metrics?.calls?.count||0,(t.metrics?.infraCostCAD||0).toFixed(4)]);
+  const csv  = [h,...rows].map(r=>r.join(',')).join('\n');
+  const a    = document.createElement('a');
+  a.href     = 'data:text/csv,' + encodeURIComponent(csv);
+  a.download = `daleba-tenants-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+}
+loadTenants();
+setInterval(loadTenants, 30000);
+</script>
+</body>
+</html>

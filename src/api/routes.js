@@ -15,6 +15,8 @@ const dareRoutes = require('./dare-routes'); // DARE — Dynamic Agnostic Routin
 const financeRoutes = require('./finance-routes'); // Section 4 — Finances + Fiscal + Cashflow
 const commanderRoutes = require('./commander-routes'); // Commander — DAE + Swarm + Rollback
 const integrationRoutes = require('./integration-routes'); // Integration Hub + Docs
+const v1OnboardingRoutes  = require('./v1-onboarding-routes');  // V5 — Onboarding Multi-Tenant [251-289]
+const adminTenantsRoutes  = require('./admin-tenants-routes');  // V5 — Admin Tenants Panel [273-274]
 const { requireAuth } = require('../middleware/auth');
 const { resolveTenant } = require('../middleware/tenant');
 const { v4: uuidv4 } = require('uuid');
@@ -397,6 +399,9 @@ router.get('/studio/slots', (req, res) => {
 router.use('/commander', commanderRoutes); // Commander — DAE + Swarm + Shield
 router.use('/v1/integration/ext-app', integrationRoutes); // [082] External App API
 router.use('/', integrationRoutes); // [088] /api/docs (mount sur la racine aussi)
+// V5 — Onboarding Multi-Tenant [251-289]
+router.use('/v1/onboarding', v1OnboardingRoutes);
+router.use('/admin/tenants', adminTenantsRoutes);
 
 // ─── ROUTES SOCIAL META (Point 38) ───────────────────────────────────────
 

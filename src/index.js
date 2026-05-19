@@ -131,6 +131,11 @@ app.post('/api/auth/studio-token', (req, res) => {
   res.json({ token: generateStudioToken({ email: 'ulrich@kadio' }) });
 });
 
+// [273-274] Interface admin locataires
+app.get('/admin/tenants', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin-tenants.html'));
+});
+
 app.get('/admin/onboarding', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-onboarding.html'));
 });

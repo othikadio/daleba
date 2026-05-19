@@ -190,8 +190,11 @@ async function executeIntent(intent, params = {}) {
       try {
         const square  = require('./square');
         const audit   = await square.getSquareWeeklyAudit();
-        const taxDig  = require('./tax-digest').generateTaxDigest('QC', audit?.revenue?.total || 0, 'kadio');
-        return `Rapport journalier: chiffre d'affaires ${audit.revenue?.total || 0}$. TPS ${taxDig.tps}$, TVQ ${taxDig.tvq}$. ${audit.appointments?.total || 0} rendez-vous. Taux complétion: ${audit.appointments?.completionRate || 0}%.`;
+        // TPS 5% + TVQ 9.975% calculés directement sur le CA journalier
+        const revenue = Number(audit?.revenue?.total) || 0;
+        const tps     = (revenue * 0.05).toFixed(2);
+        const tvq     = (revenue * 0.09975).toFixed(2);
+        return `Rapport journalier: chiffre d'affaires ${revenue.toFixed(2)}$. TPS ${tps}$, TVQ ${tvq}$. ${audit.appointments?.total || 0} rendez-vous. Taux complétion: ${audit.appointments?.completionRate || 0}%.`;
       } catch {
         return 'Rapport journalier indisponible. Vérifiez la connexion Square.';
       }

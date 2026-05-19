@@ -1,12 +1,64 @@
 /**
- * Voice Session Store — DALEBA Metacortex Points 227-229
+ * Voice Session Store — DALEBA Metacortex Points 227-229, 270
  *
  * [227] Call Concurrency Handler — 50 flux parallèles, zéro fuite de contexte
  * [228] State Machine par CallSid — cache mémoire Redis-compatible (Map volatilisable)
  * [229] État: étape, customer_id, service_id, historique phrases
+ * [270] Isolation totale: jamais de mutualisation de sessions vocales entre tenants.
  */
 
 'use strict';
+
+// ─── [270] TENANT-ISOLATED SESSION MAP ────────────────────────────────────────
+// Isolation totale [270]: jamais de mutualisation de sessions vocales entre tenants.
+// key: tenantId:callSid
+
+const _sessions = new Map(); // key: tenantId:callSid
+
+// ─── [270] TENANT-ISOLATED API ────────────────────────────────────────────────
+
+/**
+ * Retourne la session vocale isolée par tenantId [270]
+ */
+function getSession(callSid, tenantId) {
+  return _sessions.get(`${tenantId}:${callSid}`) || null;
+}
+
+/**
+ * Stocke avec clé tenantId:callSid [270]
+ */
+function setSession(callSid, tenantId, data) {
+  _sessions.set(`${tenantId}:${callSid}`, { ...data, callSid, tenantId, updatedAt: Date.now() });
+}
+
+/**
+ * Supprime une session [270]
+ */
+function deleteSession(callSid, tenantId) {
+  _sessions.delete(`${tenantId}:${callSid}`);
+}
+
+/**
+ * Retourne toutes les sessions du tenant (jamais cross-tenant) [270]
+ */
+function getAllSessions(tenantId) {
+  const prefix = `${tenantId}:`;
+  const result = [];
+  for (const [key, val] of _sessions.entries()) {
+    if (key.startsWith(prefix)) result.push(val);
+  }
+  return result;
+}
+
+/**
+ * Purge toutes les sessions d'un tenant [270]
+ */
+function clearTenantSessions(tenantId) {
+  const prefix = `${tenantId}:`;
+  for (const key of _sessions.keys()) {
+    if (key.startsWith(prefix)) _sessions.delete(key);
+  }
+}
 
 // ─── [227] CONCURRENCY LIMITER ────────────────────────────────────────────────
 
@@ -139,6 +191,13 @@ function getConcurrencyStats() {
 // ─── EXPORTS ─────────────────────────────────────────────────────────────────
 
 module.exports = {
+  // [270] Tenant-isolated API
+  getSession,
+  setSession,
+  deleteSession,
+  getAllSessions,
+  clearTenantSessions,
+  // Legacy API [227-229]
   STEPS,
   createSession,
   getOrCreate,
