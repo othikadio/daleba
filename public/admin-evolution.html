@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DALEBA — Évolution Autonome</title>
+<style>
+:root{--bg:#0a0a0f;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--accent:#7c3aed;--success:#10b981;--warn:#f59e0b;--danger:#ef4444;--text:#e2e8f0;--muted:#64748b;--cyber:#00f5ff}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace,sans-serif;min-height:100vh;overflow-x:hidden}
+.header{background:rgba(0,245,255,0.04);border-bottom:1px solid rgba(0,245,255,0.15);padding:14px 24px;display:flex;align-items:center;gap:12px}
+.logo{font-size:18px;font-weight:700;color:var(--cyber);text-shadow:0 0 20px rgba(0,245,255,0.5)}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--cyber);box-shadow:0 0 8px var(--cyber);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.3)}}
+.kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:16px 24px}
+.kc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;position:relative;overflow:hidden}
+.kc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kc.cyber::before{background:linear-gradient(90deg,var(--cyber),var(--accent))}
+.kc.danger::before{background:var(--danger)}
+.kc.success::before{background:var(--success)}
+.kc.warn::before{background:var(--warn)}
+.kv{font-size:22px;font-weight:700;color:var(--cyber);font-variant-numeric:tabular-nums}
+.kl{font-size:10px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.tabs{display:flex;padding:0 24px;border-bottom:1px solid var(--border);margin-bottom:0}
+.tab{padding:10px 18px;cursor:pointer;font-size:12px;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s}
+.tab.active{color:var(--cyber);border-bottom-color:var(--cyber)}
+.section{display:none;padding:16px 24px 24px}.section.active{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
+.panel h4{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+/* [613] Flux temps réel */
+#flux-container{height:320px;overflow-y:auto;border:1px solid rgba(0,245,255,0.12);border-radius:8px;background:rgba(0,0,0,0.4);padding:10px;font-size:11px;font-family:monospace}
+.flux-item{padding:4px 8px;border-bottom:1px solid rgba(255,255,255,0.04);animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.flux-item .ts{color:var(--muted);margin-right:8px}
+.flux-item.staged{color:var(--cyber)}
+.flux-item.poison{color:var(--danger)}
+.flux-item.approved{color:var(--success)}
+.flux-item.banned{color:var(--warn)}
+/* [613] Radar IA */
+#radar{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.radar-item{background:rgba(0,245,255,0.04);border:1px solid rgba(0,245,255,0.1);border-radius:8px;padding:10px;font-size:11px}
+.radar-item strong{color:var(--cyber);display:block;margin-bottom:4px}
+.radar-bar{height:4px;background:rgba(255,255,255,0.08);border-radius:2px;margin-top:6px;overflow:hidden}
+.radar-fill{height:100%;background:linear-gradient(90deg,var(--cyber),var(--accent));border-radius:2px;transition:width .5s}
+/* Quarantaine */
+.q-item{padding:10px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px;display:flex;align-items:center;gap:8px}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.b-cyber{background:rgba(0,245,255,0.1);color:var(--cyber)}
+.b-danger{background:rgba(239,68,68,0.12);color:var(--danger)}
+.b-warn{background:rgba(245,158,11,0.12);color:var(--warn)}
+.b-green{background:rgba(16,185,129,0.12);color:var(--success)}
+.b-purple{background:rgba(124,58,237,0.15);color:#a78bfa}
+/* Attaques */
+.attack-item{padding:8px;border-left:3px solid var(--danger);margin-bottom:6px;background:rgba(239,68,68,0.04);border-radius:0 6px 6px 0;font-size:11px}
+/* Sandbox */
+textarea{background:rgba(0,0,0,0.5);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--cyber);font-family:monospace;font-size:12px;width:100%;resize:vertical;min-height:100px}
+.btn{border:none;border-radius:8px;padding:8px 16px;font-size:12px;cursor:pointer;margin-right:6px;margin-bottom:6px;font-family:monospace}
+.btn-cyber{background:rgba(0,245,255,0.1);color:var(--cyber);border:1px solid rgba(0,245,255,0.3)}
+.btn-cyber:hover{background:rgba(0,245,255,0.2)}
+.btn-danger{background:rgba(239,68,68,0.15);color:var(--danger);border:1px solid rgba(239,68,68,0.3)}
+.result-box{margin-top:10px;padding:10px;background:rgba(0,0,0,0.4);border-radius:8px;font-size:11px;font-family:monospace;white-space:pre-wrap;max-height:150px;overflow:auto}
+/* Logs audit */
+.log-item{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px;display:flex;gap:10px}
+.log-sig{color:var(--muted);font-family:monospace;font-size:9px}
+input{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:12px;font-family:monospace;width:100%;margin-bottom:8px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="pulse"></div>
+  <span class="logo">DALEBA EVOLUTION</span>
+  <span style="color:var(--muted);font-size:12px">/ Cerveau Autonome — Section 13</span>
+  <span style="margin-left:auto;font-size:10px;color:var(--cyber)" id="ts">—</span>
+</div>
+
+<!-- KPIs [613] -->
+<div class="kpi">
+  <div class="kc cyber"><div class="kv" id="kStaged">—</div><div class="kl">Skills en quarantaine</div></div>
+  <div class="kc success"><div class="kv" id="kCertified" style="color:var(--success)">—</div><div class="kl">Certifiées saines</div></div>
+  <div class="kc danger"><div class="kv" id="kPoison" style="color:var(--danger)">—</div><div class="kl">Attaques bloquées</div></div>
+  <div class="kc warn"><div class="kv" id="kPending" style="color:var(--warn)">—</div><div class="kl">En attente OUI/NON</div></div>
+  <div class="kc success"><div class="kv" id="kInjected" style="color:var(--success)">—</div><div class="kl">Skills assimilées</div></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active"  onclick="switchTab('flux')">📡 Flux temps réel</div>
+  <div class="tab" onclick="switchTab('radar')">🌐 Radar IA</div>
+  <div class="tab" onclick="switchTab('quarantine')">🔒 Quarantaine</div>
+  <div class="tab" onclick="switchTab('attacks')">🚨 Attaques</div>
+  <div class="tab" onclick="switchTab('sandbox')">⚗️ Sandbox</div>
+  <div class="tab" onclick="switchTab('audit')">📋 Audit [614]</div>
+</div>
+
+<!-- [613] FLUX TEMPS RÉEL -->
+<div class="section active" id="tab-flux">
+  <div class="panel">
+    <h4>📡 Détections en temps réel <span style="color:var(--cyber);margin-left:auto" id="fluxCount">0</span></h4>
+    <div id="flux-container"><div style="color:var(--muted);padding:10px">En attente de détections...</div></div>
+    <div style="margin-top:10px;display:flex;gap:8px">
+      <button class="btn btn-cyber" onclick="runScan()">🔍 Scanner GitHub maintenant</button>
+      <button class="btn btn-cyber" onclick="crawlAI()">📡 Crawler IA releases</button>
+    </div>
+    <div id="scanResult" style="margin-top:8px;font-size:11px;color:var(--success)"></div>
+  </div>
+</div>
+
+<!-- [613] RADAR IA -->
+<div class="section" id="tab-radar">
+  <div class="panel">
+    <h4>🌐 Radar IA mondial — Sources surveillées</h4>
+    <div id="radar">
+      <div class="radar-item"><strong>Anthropic / Claude</strong><span style="color:var(--muted)">Prompt Caching, Vision, Context</span><div class="radar-bar"><div class="radar-fill" style="width:95%"></div></div></div>
+      <div class="radar-item"><strong>OpenAI / GPT</strong><span style="color:var(--muted)">Function Calling, Structured Output</span><div class="radar-bar"><div class="radar-fill" style="width:88%"></div></div></div>
+      <div class="radar-item"><strong>DeepSeek</strong><span style="color:var(--muted)">Reasoning R1, DeepSeek V3</span><div class="radar-bar"><div class="radar-fill" style="width:76%"></div></div></div>
+      <div class="radar-item"><strong>LangChain</strong><span style="color:var(--muted)">Agent Tools, RAG, Chains</span><div class="radar-bar"><div class="radar-fill" style="width:82%"></div></div></div>
+    </div>
+    <div style="margin-top:14px;font-size:11px;color:var(--muted)">Mise à jour hebdomadaire automatique · <span id="nextScan">—</span></div>
+  </div>
+</div>
+
+<!-- [613] QUARANTAINE -->
+<div class="section" id="tab-quarantine">
+  <div class="panel">
+    <h4>🔒 Skills en quarantaine <button class="btn btn-cyber" style="margin-left:auto" onclick="loadPool()">Actualiser</button></h4>
+    <div id="pool-list"><div style="color:var(--muted);font-size:12px">Chargement...</div></div>
+  </div>
+</div>
+
+<!-- [613] ATTAQUES BLOQUÉES -->
+<div class="section" id="tab-attacks">
+  <div class="panel">
+    <h4>🚨 Attaques bloquées — Sources bannies <button class="btn btn-danger" style="margin-left:auto" onclick="loadBanned()">Actualiser</button></h4>
+    <div id="attacks-list"></div>
+  </div>
+</div>
+
+<!-- SANDBOX [604,605,606] -->
+<div class="section" id="tab-sandbox">
+  <div class="grid2">
+    <div class="panel">
+      <h4>⚗️ Sandbox hermétique [604,605]</h4>
+      <textarea id="sandboxCode" placeholder="// Coller le code à analyser...">const x = Math.pow(2, 10); x;</textarea>
+      <button class="btn btn-cyber" onclick="runSandbox()">🔬 Analyser en sandbox</button>
+      <div id="sandboxResult" class="result-box" style="display:none"></div>
+    </div>
+    <div class="panel">
+      <h4>☠️ Détecteur de poison [606]</h4>
+      <textarea id="poisonCode" placeholder="// Coller le code à scanner pour injections..."></textarea>
+      <input type="text" id="poisonSource" placeholder="URL source (https://github.com/...)">
+      <button class="btn btn-danger" onclick="runPoison()">🔍 Scanner pour attaques</button>
+      <div id="poisonResult" class="result-box" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- [614] AUDIT LOGS -->
+<div class="section" id="tab-audit">
+  <div class="panel">
+    <h4>📋 Logs sécurité signés SHA-256 [614] <button class="btn btn-cyber" style="margin-left:auto" onclick="loadAudit()">Actualiser</button></h4>
+    <div id="audit-list"><div style="color:var(--muted);font-size:12px">Chargement...</div></div>
+  </div>
+</div>
+
+<script>
+const H={'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('daleba_token')||'')};
+const fluxItems=[];let fluxCount=0;
+
+// [613] Mise à jour timestamp + KPIs toutes les secondes
+setInterval(()=>{
+  document.getElementById('ts').textContent=new Date().toLocaleTimeString('fr-CA')+' UTC';
+},1000);
+
+function switchTab(id){
+  ['flux','radar','quarantine','attacks','sandbox','audit'].forEach((t,i)=>{
+    document.querySelectorAll('.tab')[i].classList.toggle('active',t===id);
+    document.getElementById('tab-'+t).classList.toggle('active',t===id);
+  });
+  if(id==='quarantine')loadPool();
+  if(id==='attacks')loadBanned();
+  if(id==='audit')loadAudit();
+}
+
+function addFluxItem(msg,type='staged'){
+  const c=document.getElementById('flux-container');
+  const ts=new Date().toLocaleTimeString('fr-CA');
+  const div=document.createElement('div');
+  div.className=`flux-item ${type}`;
+  div.innerHTML=`<span class="ts">${ts}</span>${msg}`;
+  c.insertBefore(div,c.firstChild);
+  if(c.children.length>100)c.removeChild(c.lastChild);
+  fluxCount++;
+  document.getElementById('fluxCount').textContent=fluxCount;
+}
+
+async function loadStats(){
+  const r=await fetch('/api/v1/evolution/stats',{headers:H}).then(r=>r.json()).catch(()=>({data:{stats:{}}}));
+  const s=r.data?.stats||{};
+  document.getElementById('kStaged').textContent   =s.staged_evolution||0;
+  document.getElementById('kCertified').textContent=s.certified_safe||0;
+  document.getElementById('kPoison').textContent   =s.poison_detected||0;
+  document.getElementById('kPending').textContent  =s.assimilation_requested||0;
+  document.getElementById('kInjected').textContent =s.injected||0;
+}
+
+async function runScan(){
+  document.getElementById('scanResult').textContent='⏳ Scan GitHub en cours...';
+  addFluxItem('🔍 Lancement scan GitHub...','staged');
+  const r=await fetch('/api/v1/evolution/scan',{method:'POST',headers:H,body:JSON.stringify({})}).then(r=>r.json()).catch(()=>({success:false}));
+  if(r.success){
+    const d=r.data;
+    document.getElementById('scanResult').textContent=`✅ ${d.staged||0} skills stagées (${d.found||0} trouvées)`;
+    addFluxItem(`✅ Scan GitHub: ${d.staged||0} nouvelles skills en quarantaine`,'staged');
+    await loadStats();
+  } else {
+    document.getElementById('scanResult').textContent=r.error||'Erreur';
+    addFluxItem(`⚠️ Scan GitHub: ${r.error||'Erreur'}`,'poison');
+  }
+}
+
+async function crawlAI(){
+  addFluxItem('📡 Crawl sources IA mondiales (Anthropic, OpenAI, DeepSeek, LangChain)...','staged');
+  const r=await fetch('/api/v1/evolution/crawl-ai',{method:'POST',headers:H,body:'{}'}).then(r=>r.json()).catch(()=>({success:false}));
+  if(r.success) addFluxItem(`📡 ${r.data?.sources?.length||4} sources IA surveillées`,'staged');
+}
+
+async function loadPool(){
+  const r=await fetch('/api/v1/evolution/pool',{headers:H}).then(r=>r.json()).catch(()=>({data:[]}));
+  const items=r.data||[];
+  const badges={staged_evolution:'b-cyber',poison_detected:'b-danger',certified_safe:'b-green',assimilation_requested:'b-warn',injected:'b-green',rejected:'b-purple',rollback_triggered:'b-danger'};
+  document.getElementById('pool-list').innerHTML=items.length
+    ?items.map(i=>`<div class="q-item"><span class="badge ${badges[i.status]||'b-cyber'}">${i.status?.replace(/_/g,' ')}</span><span style="flex:1">${i.title}</span><span style="color:var(--muted)">${i.source_type}</span><span style="color:var(--cyber)">${i.perf_estimate||''}</span></div>`).join('')
+    :'<div style="color:var(--muted);padding:12px;font-size:12px">Aucune skill en quarantaine.</div>';
+}
+
+async function loadBanned(){
+  const r=await fetch('/api/v1/evolution/banned',{headers:H}).then(r=>r.json()).catch(()=>({data:[]}));
+  const items=r.data||[];
+  document.getElementById('attacks-list').innerHTML=items.length
+    ?items.map(i=>`<div class="attack-item">🚫 <strong>${i.url_pattern}</strong><br><span style="color:var(--muted)">${i.reason||'POISON_ATTEMPT_DETECTED'} — ${new Date(i.banned_at).toLocaleDateString('fr-CA')}</span></div>`).join('')
+    :'<div style="color:var(--muted);padding:12px;font-size:12px">Aucune source bannie.</div>';
+}
+
+async function loadAudit(){
+  const r=await fetch('/api/v1/evolution/security-logs',{headers:H}).then(r=>r.json()).catch(()=>({data:[]}));
+  const items=r.data||[];
+  document.getElementById('audit-list').innerHTML=items.length
+    ?`<table style="width:100%;border-collapse:collapse"><thead><tr style="font-size:10px;color:var(--muted)"><th style="padding:6px;text-align:left">ACTION</th><th>SKILL</th><th>SHA-256</th><th>DATE</th></tr></thead><tbody>${items.map(l=>`<tr style="border-bottom:1px solid rgba(255,255,255,.04);font-size:11px"><td style="padding:6px;color:var(--cyber)">${l.action}</td><td style="padding:6px">${l.skill_id||'—'}</td><td style="padding:6px" class="log-sig">${(l.signature||'').slice(0,16)}...</td><td style="padding:6px;color:var(--muted)">${new Date(l.created_at).toLocaleDateString('fr-CA')}</td></tr>`).join('')}</tbody></table>`
+    :'<div style="color:var(--muted);padding:12px;font-size:12px">Aucun log.</div>';
+}
+
+async function runSandbox(){
+  const code=document.getElementById('sandboxCode').value;
+  const r=await fetch('/api/v1/evolution/sandbox/analyze',{method:'POST',headers:H,body:JSON.stringify({code})}).then(r=>r.json()).catch(()=>({success:false}));
+  const box=document.getElementById('sandboxResult');
+  box.style.display='block';
+  const d=r.data||{};
+  box.style.color=d.success?'#10b981':'#ef4444';
+  box.textContent=JSON.stringify(d,null,2);
+  addFluxItem(`⚗️ Sandbox: ${d.success?'✅ sain':'❌ bloqué'} — hash: ${d.hash||'?'}`,'staged');
+}
+
+async function runPoison(){
+  const code=document.getElementById('poisonCode').value;
+  const source=document.getElementById('poisonSource').value;
+  const r=await fetch('/api/v1/evolution/poison/detect',{method:'POST',headers:H,body:JSON.stringify({code,source})}).then(r=>r.json()).catch(()=>({success:false}));
+  const box=document.getElementById('poisonResult');
+  box.style.display='block';
+  const d=r.data||{};
+  box.style.color=d.poisoned?'#ef4444':'#10b981';
+  box.textContent=JSON.stringify({status:d.status,threats:d.threats,hash:d.hash},null,2);
+  if(d.poisoned) addFluxItem(`🚨 POISON DÉTECTÉ: ${d.threats?.join(', ')} — ${source}`,'poison');
+  else addFluxItem(`✅ Code certifié sain — ${source}`,'approved');
+}
+
+// Init
+document.getElementById('nextScan').textContent='Prochain scan: '+new Date(Date.now()+7*24*3600*1000).toLocaleDateString('fr-CA');
+loadStats();
+setInterval(loadStats,30000);
+
+// [613] Simulation flux initial
+setTimeout(()=>{
+  addFluxItem('🚀 DALEBA EvolutionAgent actif — surveillance en cours','staged');
+  addFluxItem('📡 Sources surveillées: Anthropic, OpenAI, DeepSeek, LangChain','staged');
+},500);
+</script>
+</body>
+</html>
