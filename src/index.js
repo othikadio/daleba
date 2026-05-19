@@ -10,6 +10,9 @@ const { startFollowupCron } = require('./services/client-followup');
 const dare = require('./agents/dare');
 const dareMonitor = require('./services/dare-monitor');
 const swarm = require('./services/swarm');
+const maintenance = require('./services/maintenance');
+const shield = require('./services/notification-shield');
+const cmdInterpreter = require('./services/command-interpreter');
 
 const path = require('path');
 const app = express();
@@ -121,6 +124,18 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   dareMonitor.start();
   // Swarm — Orchestrateur micro-agents
   swarm.start();
+  // Maintenance — nettoyage disque toutes les 4h [089]
+  maintenance.startAutoCleanup();
+  // pg-pool indexes [090]
+  maintenance.ensureIndexes().catch(e => console.warn('[Boot] Indexes:', e.message));
+  // Daily Digest — 20h heure salon [075]
+  const ULRICH_PHONE = process.env.ULRICH_PHONE_NUMBER;
+  const TWILIO_FROM  = process.env.TWILIO_PHONE_NUMBER;
+  if (ULRICH_PHONE && TWILIO_FROM) {
+    shield.scheduleDailyDigest(async (digest) => {
+      await shield.shieldedSMS(ULRICH_PHONE, TWILIO_FROM, digest, { windowMs: 0 });
+    });
+  }
 }
 
 // Démarrage — skip listen() en mode serverless (Vercel)

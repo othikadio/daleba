@@ -12,9 +12,11 @@ const express = require('express');
 const router  = express.Router();
 const twilio  = require('twilio');
 
-const voiceAgent  = require('../services/voice-agent');
+const voiceAgent        = require('../services/voice-agent');
+const voiceCommander    = require('../services/voice-commander');
+const cmdInterpreter    = require('../services/command-interpreter');
 const { createChatSession, updateSessionStatus, getOrCreateChatSession } = require('../memory/db');
-const bus         = require('../services/event-bus');
+const bus               = require('../services/event-bus');
 
 // ─── VALIDATION SIGNATURE TWILIO ──────────────────────────────────────────────
 
@@ -240,6 +242,55 @@ router.post('/voice/test', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message, stack: err.stack });
   }
+});
+
+// ─── POSTE DE COMMANDEMENT VOCAL [092-096] ────────────────────────────────────────
+
+// [092] Appel entrant du Commandant — détourne le flux client standard [093]
+router.post('/voice/commander', validateTwilioSignature, (req, res) => {
+  const { From, CallSid } = req.body;
+  if (!voiceCommander.isCommanderCall(From)) {
+    // Redirige vers le flux client standard si ce n'est pas Ulrich
+    return res.redirect(307, `${process.env.DALEBA_BASE_URL}/api/webhook/voice`);
+  }
+  bus.system(`🏦 Appel Commandant détecté [${CallSid}] — Poste de Commandement activé`);
+  res.type('text/xml').send(voiceCommander.buildCommanderWelcomeTwiml());
+});
+
+// [094] Traitement de l'ordre vocal transcrit
+router.post('/voice/commander/order', validateTwilioSignature, async (req, res) => {
+  const { SpeechResult = '', CallSid, From } = req.body;
+  bus.system(`🎤 Ordre Commandant: "${SpeechResult.slice(0, 60)}"`);
+  const twiml = await voiceCommander.handleCommanderOrder(SpeechResult, CallSid);
+  res.type('text/xml').send(twiml);
+});
+
+// [096] Confirmation vocale action critique
+router.post('/voice/commander/confirm', validateTwilioSignature, async (req, res) => {
+  const { SpeechResult = '', CallSid } = req.body;
+  const twiml = await voiceCommander.handleCommanderConfirm(SpeechResult, CallSid);
+  res.type('text/xml').send(twiml);
+});
+
+// ─── WEBHOOK SMS ENTRANT (commandes Commandant) [076-080] ───────────────────
+
+router.post('/sms/incoming', async (req, res) => {
+  const { Body = '', From = '' } = req.body;
+  res.type('text/xml').send('<Response></Response>'); // Twilio ACK immédiat
+
+  // Traitement asynchrone — ne pas bloquer le webhook
+  setImmediate(async () => {
+    const result = await cmdInterpreter.handleIncoming(Body, From, 'sms');
+    if (!result.handled || !result.response) return;
+
+    // Réponse SMS via Twilio
+    try {
+      const twilio_client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+      await twilio_client.messages.create({ body: result.response, from: process.env.TWILIO_PHONE_NUMBER, to: From });
+    } catch (err) {
+      console.error('[CmdInterp] Erreur envoi réponse SMS:', err.message);
+    }
+  });
 });
 
 module.exports = router;

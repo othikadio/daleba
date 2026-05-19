@@ -13,6 +13,7 @@ const onboardingRoutes = require('./onboarding-routes'); // V23 — SaaS Multi-T
 const videoRoutes = require('./video-routes'); // V24 — Studio Vidéo Botanique
 const dareRoutes = require('./dare-routes'); // DARE — Dynamic Agnostic Routing Engine
 const commanderRoutes = require('./commander-routes'); // Commander — DAE + Swarm + Rollback
+const integrationRoutes = require('./integration-routes'); // Integration Hub + Docs
 const { requireAuth } = require('../middleware/auth');
 const { resolveTenant } = require('../middleware/tenant');
 const { v4: uuidv4 } = require('uuid');
@@ -137,10 +138,22 @@ router.use(resolveTenant);
 
 // POST /api/chat — Point d'entrée principal DALEBA (avec persona de guerre)
 router.post('/chat', async (req, res) => {
-  const { message, sessionId, forceModel, systemPrompt } = req.body;
+  const { message, sessionId, forceModel, systemPrompt, senderPhone, senderTelegramId } = req.body;
 
   if (!message) {
     return res.status(400).json({ error: 'Message requis' });
+  }
+
+  // [076-080] Intercept commandes Commandant (SMS ou Telegram)
+  const cmdInterp = require('../services/command-interpreter');
+  const senderKey = senderPhone || senderTelegramId;
+  const channel   = senderTelegramId ? 'telegram' : (senderPhone ? 'sms' : null);
+  if (senderKey && channel) {
+    const cmdResult = await cmdInterp.handleIncoming(message, senderKey, channel).catch(() => null);
+    if (cmdResult?.handled && cmdResult?.response) {
+      return res.json({ response: cmdResult.response, _command: true });
+    }
+    if (cmdResult?.blocked) return res.json({ response: '', _blocked: true });
   }
 
   const sid = sessionId || uuidv4();
@@ -255,6 +268,8 @@ router.use('/webhook', voiceRoutes);
 router.use('/video', videoRoutes);
 router.use('/dare', dareRoutes); // DARE — Metacortex Routing Engine
 router.use('/commander', commanderRoutes); // Commander — DAE + Swarm + Shield
+router.use('/v1/integration/ext-app', integrationRoutes); // [082] External App API
+router.use('/', integrationRoutes); // [088] /api/docs (mount sur la racine aussi)
 
 // ─── ROUTES SOCIAL META (Point 38) ───────────────────────────────────────
 

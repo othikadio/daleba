@@ -165,11 +165,135 @@ setInterval(() => {
   }
 }, 60 * 60 * 1000);
 
+// ─── SMART SUPPRESSION [073] ─────────────────────────────────────────────────
+// Même métrique financière ou même code d'erreur → HUD only, silence SMS
+
+const HUD_ONLY_PATTERNS = [
+  /chiffre d'affaires|ca |revenue|\d+\.\d+\$|total.*\$/i,
+  /HTTP (4\d\d|5\d\d)/i,
+  /taux d'erreur|error rate/i,
+  /latence|latency|\d+ms/i,
+];
+
+function isHUDOnly(message) {
+  return HUD_ONLY_PATTERNS.some(p => p.test(message));
+}
+
+/**
+ * Envoie sur HUD seulement si la métrique n'a pas changé
+ * @param {string} metricKey — clé unique de la métrique (ex: 'ca_daily')
+ * @param {string|number} value — valeur actuelle
+ * @param {string} message — message complet
+ */
+function reportMetricChange(metricKey, value, message) {
+  const existing = ALERT_STORE.get(`metric::${metricKey}`);
+  const hasChanged = !existing || existing.lastValue !== String(value);
+
+  if (!hasChanged) {
+    // [073] Valeur identique → HUD uniquement
+    const bus = (() => { try { return require('./event-bus'); } catch { return null; } })();
+    if (bus) bus.system(`📊 ${message.slice(0, 80)}`);
+    return { smsRequired: false, reason: 'metric_unchanged', hudUpdated: true };
+  }
+
+  // Valeur changée → mise à jour du store + SMS autorisé
+  ALERT_STORE.set(`metric::${metricKey}`, {
+    lastValue: String(value), updatedAt: Date.now(),
+    messagePreview: message.slice(0, 80),
+    type: 'metric', lastSentAt: Date.now(), count: 1, suppressedCount: 0,
+  });
+  return { smsRequired: true };
+}
+
+// ─── CADENCE DYNAMIQUE [074] ──────────────────────────────────────────────────
+// Fenêtre élargie pendant forte affluence (moins de notifications)
+
+/**
+ * Retourne la fenêtre de déduplication adaptée à l'heure actuelle
+ * Heures creuses (8h-10h, 18h-21h) → 30 min
+ * Heures d'affluence (10h-17h) → 90 min
+ * Nuit → 3h
+ */
+function getDynamicWindow() {
+  const h = new Date().getUTCHours() - 4; // America/Toronto UTC-4
+  const localH = ((h % 24) + 24) % 24;
+
+  if (localH >= 23 || localH < 8)  return 3 * 60 * 60 * 1000;  // nuit → 3h
+  if (localH >= 10 && localH < 17) return 90 * 60 * 1000;       // affluence → 90min
+  return DEFAULT_WINDOW_MS;                                       // transition → 60min
+}
+
+// ─── DAILY DIGEST [075] ───────────────────────────────────────────────────────
+
+const digestQueue = [];  // { type, message, ts }
+
+function queueForDigest(type, message) {
+  digestQueue.push({ type, message: message.slice(0, 120), ts: Date.now() });
+}
+
+/**
+ * Génère le Daily Digest consolidé — scannable en < 10 secondes
+ */
+function buildDailyDigest() {
+  if (digestQueue.length === 0) return null;
+
+  const byType = {};
+  for (const item of digestQueue) {
+    if (!byType[item.type]) byType[item.type] = [];
+    byType[item.type].push(item.message);
+  }
+
+  const icons = { cost_alert: '💰', provider_down: '🔴', auth_error: '🔑',
+                   error: '⚠️', info: 'ℹ️', sms: '📱' };
+
+  const lines = [
+    `📋 DALEBA — Résumé ${new Date().toLocaleDateString('fr-CA')}`,
+    '─'.repeat(30),
+  ];
+
+  for (const [type, messages] of Object.entries(byType)) {
+    const icon = icons[type] || '•';
+    lines.push(`${icon} ${type.toUpperCase()} (${messages.length}x)`);
+    // Max 3 exemples par catégorie
+    messages.slice(0, 3).forEach(m => lines.push(`  · ${m}`));
+    if (messages.length > 3) lines.push(`  · … +${messages.length - 3} autres`);
+  }
+
+  lines.push('─'.repeat(30));
+  lines.push('Répondez STATUT pour les logs complets.');
+
+  digestQueue.length = 0;  // Reset après génération
+  return lines.join('\n');
+}
+
+// Planifie le digest quotidien à 20h heure salon (America/Toronto = UTC-4)
+function scheduleDailyDigest(sendFn) {
+  function scheduleNext() {
+    const now = new Date();
+    const target = new Date();
+    target.setUTCHours(24, 0, 0, 0); // 20h Toronto = 00h UTC
+    if (target <= now) target.setUTCDate(target.getUTCDate() + 1);
+    const delay = target - now;
+    setTimeout(async () => {
+      const digest = buildDailyDigest();
+      if (digest && sendFn) await sendFn(digest);
+      scheduleNext();
+    }, delay);
+  }
+  scheduleNext();
+}
+
 // ─── EXPORTS ─────────────────────────────────────────────────────────────────
 
 module.exports = {
   canSend, markSent,
   shieldedSMS, shieldedAlert,
   getShieldStatus, clearShield,
-  DEFAULT_WINDOW_MS,
+  DEFAULT_WINDOW_MS, getDynamicWindow,
+  // [073]
+  isHUDOnly, reportMetricChange,
+  // [074]
+  getDynamicWindow,
+  // [075]
+  queueForDigest, buildDailyDigest, scheduleDailyDigest,
 };
