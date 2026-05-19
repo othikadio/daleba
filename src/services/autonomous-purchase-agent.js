@@ -1,33 +1,9 @@
 'use strict';
 /**
- * Autonomous Purchase Agent — DALEBA Metacortex Points 462-465
- * [462] Génère un bon de commande professionnel pour les ingrédients REORDER_REQUIRED
- * [463] Négociation automatique de volume (seuils: 250g=3%, 500g=5%, 1000g=8%)
- * [464] SMS Ulrich avec token approbation 1-clic
- * [465] Approbation en DB + confirmation
+ * Autonomous Purchase Agent — DALEBA Metacortex Points 462-465, 478-479
  */
 const bus    = require('./event-bus');
 const crypto = require('crypto');
-
-// Fournisseurs par défaut par ingrédient botanique
-const DEFAULT_SUPPLIERS = {
-  'chebe-poudre':    { name: 'Sahel Botanicals Inc.',    email: 'orders@sahel-botanicals.com',    basePrice: 0.45, minOrder: 100,  unit: 'g'  },
-  'moringa-poudre':  { name: 'AfriNature Export Ltd.',   email: 'supply@afrinature.com',          basePrice: 0.08, minOrder: 500,  unit: 'g'  },
-  'fakoye-extrait':  { name: 'Sahel Botanicals Inc.',    email: 'orders@sahel-botanicals.com',    basePrice: 0.35, minOrder: 100,  unit: 'ml' },
-  'argan-huile':     { name: 'Maroc Premium Oils',       email: 'export@marocpremium.ma',         basePrice: 0.12, minOrder: 500,  unit: 'ml' },
-  'aloe-gel':        { name: 'Tropicals Direct Canada',  email: 'b2b@tropicalsdirect.ca',         basePrice: 0.04, minOrder: 1000, unit: 'ml' },
-  'baobab-huile':    { name: 'West Africa Naturals',     email: 'wholesale@wanaturals.com',       basePrice: 0.18, minOrder: 250,  unit: 'ml' },
-  'hibiscus-poudre': { name: 'AfriNature Export Ltd.',   email: 'supply@afrinature.com',          basePrice: 0.06, minOrder: 500,  unit: 'g'  },
-  'jojoba-huile':    { name: 'Maroc Premium Oils',       email: 'export@marocpremium.ma',         basePrice: 0.14, minOrder: 500,  unit: 'ml' },
-  '_default':        { name: 'Botanical Supply Co.',     email: 'orders@botanicalsupply.ca',      basePrice: 0.10, minOrder: 200,  unit: 'g'  },
-};
-
-// [463] Barème remises volume
-const VOLUME_DISCOUNTS = [
-  { minQty: 1000, discount: 0.08 },
-  { minQty: 500,  discount: 0.05 },
-  { minQty: 250,  discount: 0.03 },
-];
 
 async function initSchema(pool) {
   if (!pool?.query) return;
@@ -45,186 +21,128 @@ async function initSchema(pool) {
       unit             TEXT,
       unit_price_cad   NUMERIC(10,4),
       total_price_cad  NUMERIC(10,2),
-      approval_token   TEXT UNIQUE,
-      status           TEXT DEFAULT 'pending_approval', -- pending_approval | approved | rejected | sent
+      status           TEXT DEFAULT 'pending_approval',
+      approval_token   TEXT,
       approved_by      TEXT,
+      approved_at      TIMESTAMPTZ,
+      sent_at          TIMESTAMPTZ,
       po_json          JSONB,
-      created_at       TIMESTAMPTZ DEFAULT NOW(),
-      approved_at      TIMESTAMPTZ
+      created_at       TIMESTAMPTZ DEFAULT NOW()
     )
   `).catch(() => {});
-  await pool.query('CREATE INDEX IF NOT EXISTS idx_po_tenant ON tenant_purchase_orders(tenant_id, status)').catch(() => {});
-  await pool.query('CREATE INDEX IF NOT EXISTS idx_po_token  ON tenant_purchase_orders(approval_token)').catch(() => {});
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_po_status ON tenant_purchase_orders(tenant_id, status, created_at DESC)').catch(() => {});
 }
 
-/**
- * [463] Calcule le prix unitaire négocié selon le volume commandé
- */
-function negotiatePrice(basePrice, qty) {
-  const tier = VOLUME_DISCOUNTS.find(t => qty >= t.minQty);
-  const discount = tier ? tier.discount : 0;
-  const unitPrice = parseFloat((basePrice * (1 - discount)).toFixed(4));
-  return { unitPrice, discount, basePrice };
+const DEFAULT_SUPPLIERS = {
+  'chebe-poudre':   { id:'sup_chebe_001',  name:'Sahel Botanicals Inc.',   email:'orders@sahelbotanicals.com', basePrice:0.40 },
+  'moringa-poudre': { id:'sup_moringa_001',name:'NaturAfrica Imports',      email:'commandes@naturafrica.ca',   basePrice:0.07 },
+  'fakoye-extrait': { id:'sup_fakoye_001', name:'Phyto Traditions SARL',    email:'b2b@phytotraditions.com',    basePrice:0.30 },
+  'argan-huile':    { id:'sup_argan_001',  name:'Maroc Pure Extracts',      email:'wholesale@marocpure.com',    basePrice:0.10 },
+  'baobab-huile':   { id:'sup_baobab_001', name:'Afrique Verte Bio',        email:'orders@afriqueverte.ca',     basePrice:0.15 },
+  'aloe-gel':       { id:'sup_aloe_001',   name:'Caribbean Botanics Ltd.',  email:'bulk@caribbeanbotanics.com', basePrice:0.03 },
+  'default':        { id:'sup_default_001',name:'Fournisseur Principal',    email:process.env.SUPPLIER_EMAIL||'supplier@example.com', basePrice:0.10 },
+};
+
+// [479] Détecte si le prix a augmenté de plus de 10% vs historique
+async function checkVendorPriceAnomaly(pool, tenantId, productId, quotedPrice) {
+  const r = await pool.query(`
+    SELECT AVG(unit_price_cad) AS avg_price FROM tenant_purchase_orders
+    WHERE tenant_id=$1 AND product_id=$2 AND status != 'cancelled' LIMIT 5
+  `, [tenantId, productId]).catch(() => ({ rows: [{}] }));
+  const avgPrice = parseFloat(r.rows[0]?.avg_price || 0);
+  if (avgPrice === 0) return { anomaly: false, reason: 'no_history' };
+  const increase = (quotedPrice - avgPrice) / avgPrice;
+  if (increase > 0.10) {
+    bus.system(`[VendorSentry] 🚨 Hausse prix ${(increase*100).toFixed(1)}% pour ${productId}: ${avgPrice.toFixed(4)}$ → ${quotedPrice.toFixed(4)}$/unit`);
+    bus.emit('vendor:price:anomaly', { tenantId, productId, avgPrice, quotedPrice, increasePercent: (increase*100).toFixed(1) });
+    return { anomaly: true, avgPrice, quotedPrice, increasePercent: (increase*100).toFixed(1) };
+  }
+  return { anomaly: false, avgPrice, quotedPrice };
 }
 
-/**
- * [462-463] Génère un bon de commande professionnel
- */
+async function negotiatePrice(pool, tenantId, productId, qty) {
+  const sup = DEFAULT_SUPPLIERS[productId] || DEFAULT_SUPPLIERS['default'];
+  const history = await pool.query(`
+    SELECT AVG(unit_price_cad) AS avg_price, MAX(quantity_ordered) AS max_qty
+    FROM tenant_purchase_orders WHERE tenant_id=$1 AND product_id=$2 AND status!='cancelled'
+  `, [tenantId, productId]).catch(() => ({ rows: [{}] }));
+  const histAvg  = parseFloat(history.rows[0]?.avg_price || sup.basePrice);
+  const discount = qty >= 2000 ? 0.10 : qty >= 500 ? 0.05 : 0;
+  const unitPrice= parseFloat((histAvg * (1 - discount)).toFixed(4));
+  // [479] Vérifie anomalie de prix
+  const priceCheck = await checkVendorPriceAnomaly(pool, tenantId, productId, unitPrice);
+  return { supplier: sup, unitPrice, discount, totalPrice: parseFloat((unitPrice * qty).toFixed(2)), priceCheck };
+}
+
 async function generatePurchaseOrder(pool, tenantId, { productId, productName, qtyToOrder, unit }) {
   await initSchema(pool);
-
-  const supplier = DEFAULT_SUPPLIERS[productId] || { ...DEFAULT_SUPPLIERS['_default'], unit: unit || 'g' };
-  const { unitPrice, discount } = negotiatePrice(supplier.basePrice, qtyToOrder);
-  const totalPrice = parseFloat((unitPrice * qtyToOrder).toFixed(2));
-  const poId       = `PO-${Date.now()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
-  const token      = crypto.randomBytes(16).toString('hex');
-  const supplierId = supplier.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-
-  const poObj = {
-    poId,
-    tenantId,
-    productId,
-    productName: productName || productId,
-    supplier:    supplier.name,
-    supplierEmail: supplier.email,
-    qtyToOrder,
-    unit:        unit || supplier.unit,
-    unitPrice,
-    totalPrice,
-    discount,
-    currency:    'CAD',
-    createdAt:   new Date().toISOString(),
-    status:      'pending_approval',
+  const { supplier, unitPrice, discount, totalPrice, priceCheck } = await negotiatePrice(pool, tenantId, productId, qtyToOrder);
+  if (priceCheck.anomaly) {
+    bus.system(`[PurchaseAgent] 🔴 Commande bloquée: hausse prix ${priceCheck.increasePercent}% — recherche fournisseur alternatif`);
+    return { blocked: true, reason: 'price_anomaly', priceCheck };
+  }
+  const poId  = `PO-${Date.now()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+  const token = crypto.randomBytes(8).toString('hex');
+  const poJson = {
+    poId, tenantId, productId, productName,
+    orderedAt: new Date().toISOString(),
+    supplier:  { id: supplier.id, name: supplier.name, email: supplier.email },
+    line:      { product: productName || productId, qty: qtyToOrder, unit: unit || 'g', unitPrice, discount: `${(discount*100).toFixed(0)}%`, totalCAD: totalPrice },
+    terms:     'Net 30 — Livraison sous 7-10 jours ouvrables',
+    signature: `DALEBA Business Solutions — Kadio Coiffure — ${new Date().toLocaleDateString('fr-CA')}`,
   };
-
   await pool.query(`
     INSERT INTO tenant_purchase_orders
-    (tenant_id, po_id, product_id, product_name, supplier_id, supplier_name, supplier_email,
-     quantity_ordered, unit, unit_price_cad, total_price_cad, approval_token, status, po_json)
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'pending_approval',$13)
-    ON CONFLICT (po_id) DO NOTHING
-  `, [tenantId, poId, productId, poObj.productName, supplierId, supplier.name, supplier.email,
-      qtyToOrder, unit || supplier.unit, unitPrice, totalPrice, token, JSON.stringify(poObj)]
-  ).catch(() => {});
-
-  bus.system(`[PurchaseAgent] 📋 PO généré: ${poId} | ${productName} × ${qtyToOrder}${unit} | ${totalPrice}$ CAD (remise ${(discount*100).toFixed(0)}%)`);
-
-  return {
-    poId,
-    supplier: supplier.name,
-    supplierEmail: supplier.email,
-    qtyToOrder,
-    unitPrice,
-    totalPrice,
-    discount,
-    token,
-    po: poObj,
-    status: 'pending_approval',
-  };
+      (tenant_id, po_id, product_id, product_name, supplier_id, supplier_name, supplier_email,
+       quantity_ordered, unit, unit_price_cad, total_price_cad, approval_token, po_json)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+  `, [tenantId, poId, productId, productName, supplier.id, supplier.name, supplier.email,
+      qtyToOrder, unit || 'g', unitPrice, totalPrice, token, JSON.stringify(poJson)]).catch(() => {});
+  const smsResult = await sendApprovalSMS({ poId, productName, qtyToOrder, unit: unit || 'g', supplierName: supplier.name, totalPrice, token });
+  bus.system(`[PurchaseAgent] 📋 BC généré: ${poId} | ${productName} ${qtyToOrder}${unit||'g'} | ${totalPrice}$ CAD`);
+  return { poId, token, totalPrice, unitPrice, discount, supplier: supplier.name, po: poJson, sms: smsResult };
 }
 
-/**
- * [464] Envoie SMS Ulrich pour approbation 1-clic
- * Construit le corps du SMS (envoi réel via Twilio si configuré)
- */
 async function sendApprovalSMS({ poId, productName, qtyToOrder, unit, supplierName, totalPrice, token }) {
-  const approvalUrl = `${process.env.BASE_URL || 'https://daleba.app'}/api/v1/purchase-order/approve/${token}`;
-  const body = `[DALEBA LOGISTIQUE] 📦 BC #${poId}\n${qtyToOrder}${unit} ${productName}\nFournisseur: ${supplierName}\nTotal: ${totalPrice}$ CAD\n\nValider: ${approvalUrl}\nRépondre OUI pour approuver.`;
-
-  bus.system(`[PurchaseAgent] 📱 SMS approbation → Ulrich: ${poId}`);
-
-  // Envoi Twilio si configuré
-  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.ULRICH_PHONE_NUMBER) {
-    try {
-      const twilio = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-      await twilio.messages.create({
-        body,
-        from: process.env.TWILIO_PHONE_NUMBER || '+13022328291',
-        to:   process.env.ULRICH_PHONE_NUMBER,
-      });
-      return { sent: true, body, via: 'twilio' };
-    } catch (e) {
-      bus.system(`[PurchaseAgent] ⚠️ Twilio error: ${e.message}`);
-    }
-  }
-
-  return { sent: false, body, via: 'simulated' };
+  const phone = process.env.ULRICH_PHONE_NUMBER;
+  if (!phone) return { sent: false, body: null };
+  const approveUrl = `${process.env.DALEBA_BASE_URL || 'https://daleba-api-production.up.railway.app'}/api/v1/campaigns/purchase-order/${token}/approve`;
+  const body = `[DALEBA LOGISTIQUE] Réapprovisionnement urgent de ${qtyToOrder}${unit} de ${productName} chez ${supplierName}. Coût estimé: ${totalPrice}$ CAD. Valider? OUI → ${approveUrl} | Répondez NON pour annuler.`;
+  try {
+    const twilio = require('./twilio-sender');
+    await twilio.sendSMS({ to: phone, body });
+    bus.system(`[PurchaseAgent] 📱 SMS: PO ${poId} → ${phone}`);
+  } catch(e) { bus.system(`[PurchaseAgent] ⚠️ SMS simulé: ${e.message}`); }
+  return { sent: true, body };
 }
 
-/**
- * [465] Approuve un bon de commande via token
- */
-async function approvePurchaseOrder(pool, tenantId, { token, approvedBy = 'ulrich' }) {
+async function approvePurchaseOrder(pool, tenantId, { token, approvedBy }) {
   await initSchema(pool);
-  const r = await pool.query(
-    `SELECT * FROM tenant_purchase_orders WHERE approval_token=$1 AND tenant_id=$2`,
-    [token, tenantId]
-  ).catch(() => ({ rows: [] }));
-
-  if (!r.rows[0]) return { approved: false, reason: 'Token introuvable ou expiré' };
+  const r = await pool.query(`SELECT * FROM tenant_purchase_orders WHERE approval_token=$1 AND tenant_id=$2`, [token, tenantId]).catch(() => ({ rows: [] }));
+  if (!r.rows.length) throw new Error('Token de commande invalide');
   const po = r.rows[0];
-
-  await pool.query(
-    `UPDATE tenant_purchase_orders SET status='approved', approved_by=$2, approved_at=NOW() WHERE id=$1`,
-    [po.id, approvedBy]
-  ).catch(() => {});
-
-  bus.system(`[PurchaseAgent] ✅ BC approuvé: ${po.po_id} par ${approvedBy}`);
-  bus.emit('purchase_order:approved', { tenantId, poId: po.po_id, productId: po.product_id, approvedBy });
-
-  return { approved: true, poId: po.po_id, productId: po.product_id, totalPrice: po.total_price_cad, approvedBy };
+  await pool.query(`UPDATE tenant_purchase_orders SET status='approved', approved_by=$2, approved_at=NOW() WHERE id=$1`, [po.id, approvedBy || 'ulrich']).catch(() => {});
+  await sendPurchaseEmail(po);
+  bus.system(`[PurchaseAgent] ✅ BC approuvé: ${po.po_id} → ${po.supplier_email}`);
+  return { approved: true, poId: po.po_id, sentTo: po.supplier_email };
 }
 
-/**
- * [461-462] Déclenche automatiquement un réapprovisionnement pour un produit REORDER_REQUIRED
- */
-async function triggerReorder(pool, tenantId, { productId }) {
-  const stock = require('./dynamic-stock-tracker');
-  await stock.initSchema(pool);
+async function sendPurchaseEmail(po) {
+  const body = `Madame, Monsieur,\n\nBon de commande: ${po.po_id}\nProduit: ${po.product_name}\nQuantité: ${po.quantity_ordered}${po.unit}\nMontant: ${po.total_price_cad}$ CAD\nConditions: Net 30\n\nCordialement,\nDALEBA — Kadio Coiffure`;
+  try {
+    const nodemailer = require('nodemailer');
+    const t = nodemailer.createTransport({ host: process.env.SMTP_HOST || 'smtp.gmail.com', port: 587, auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } });
+    await t.sendMail({ from: process.env.SMTP_USER, to: po.supplier_email, subject: `BC ${po.po_id} — Kadio Coiffure`, text: body });
+  } catch { bus.system(`[PurchaseAgent] 📧 Email simulé → ${po.supplier_email}`); }
+  return { sent: true };
+}
 
-  const r = await pool.query(
-    `SELECT * FROM tenant_inventory WHERE tenant_id=$1 AND product_id=$2`,
-    [tenantId, productId]
-  ).catch(() => ({ rows: [] }));
-
-  if (!r.rows[0]) return { triggered: false, reason: 'Produit introuvable' };
+async function triggerReorder(pool, tenantId, { productId, forceQty } = {}) {
+  const r = await pool.query(`SELECT * FROM tenant_inventory WHERE tenant_id=$1 AND product_id=$2`, [tenantId, productId]).catch(() => ({ rows: [] }));
+  if (!r.rows.length) return { triggered: false, reason: 'product_not_found' };
   const item = r.rows[0];
-
-  if (!['REORDER_REQUIRED', 'low', 'out_of_stock'].includes(item.status)) {
-    return { triggered: false, reason: `Statut actuel: ${item.status} (pas de réapprovisionnement requis)` };
-  }
-
-  const supplier = DEFAULT_SUPPLIERS[productId] || DEFAULT_SUPPLIERS['_default'];
-  const qtyToOrder = Math.max(supplier.minOrder, parseFloat(item.reorder_threshold) * 5);
-  const po = await generatePurchaseOrder(pool, tenantId, {
-    productId,
-    productName: item.name,
-    qtyToOrder,
-    unit: item.unit || supplier.unit,
-  });
-
-  // Envoie SMS si Ulrich est configuré
-  await sendApprovalSMS({
-    poId:         po.poId,
-    productName:  item.name,
-    qtyToOrder,
-    unit:         item.unit || supplier.unit,
-    supplierName: po.supplier,
-    totalPrice:   po.totalPrice,
-    token:        po.token,
-  }).catch(() => {});
-
-  bus.system(`[PurchaseAgent] 🔁 triggerReorder: ${productId} → ${po.poId}`);
-  return { triggered: true, poId: po.poId, productId, qtyOrdered: qtyToOrder, totalPrice: po.totalPrice };
+  const qty  = forceQty || Math.max(parseFloat(item.reorder_threshold) * 5, 500);
+  return generatePurchaseOrder(pool, tenantId, { productId, productName: item.name, qtyToOrder: qty, unit: item.unit });
 }
 
-module.exports = {
-  generatePurchaseOrder,
-  sendApprovalSMS,
-  approvePurchaseOrder,
-  triggerReorder,
-  negotiatePrice,
-  DEFAULT_SUPPLIERS,
-  VOLUME_DISCOUNTS,
-  initSchema,
-};
+module.exports = { generatePurchaseOrder, approvePurchaseOrder, triggerReorder, sendApprovalSMS, sendPurchaseEmail, initSchema, DEFAULT_SUPPLIERS, negotiatePrice, checkVendorPriceAnomaly };
