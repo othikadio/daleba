@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DALEBA — Campagnes & Logistique</title>
+<style>
+:root{--bg:#0a0a0f;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--accent:#7c3aed;--success:#10b981;--warn:#f59e0b;--danger:#ef4444;--text:#e2e8f0;--muted:#64748b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:Inter,-apple-system,sans-serif;min-height:100vh}
+.header{background:rgba(255,255,255,0.03);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;gap:12px}
+.logo{font-size:18px;font-weight:700;color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:20px 24px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.stat-val{font-size:24px;font-weight:700;color:var(--accent)}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:4px}
+.tabs{display:flex;padding:0 24px;border-bottom:1px solid var(--border)}
+.tab{padding:10px 20px;cursor:pointer;font-size:13px;color:var(--muted);border-bottom:2px solid transparent}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.section{padding:20px 24px;display:none}.section.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.card h4{font-size:14px;font-weight:600;margin-bottom:12px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:8px 12px;font-size:11px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.badge{display:inline-block;border-radius:20px;padding:2px 10px;font-size:11px}
+.b-green{background:rgba(16,185,129,.12);color:var(--success)}
+.b-warn{background:rgba(245,158,11,.12);color:var(--warn)}
+.b-red{background:rgba(239,68,68,.12);color:var(--danger)}
+/* Jauge stock */
+.gauge{background:rgba(255,255,255,0.06);border-radius:20px;height:8px;overflow:hidden;margin-top:6px}
+.gauge-fill{height:100%;border-radius:20px;transition:width .4s}
+.gauge-ok{background:var(--success)}.gauge-low{background:var(--warn)}.gauge-critical{background:var(--danger)}
+input,select{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;width:100%;margin-bottom:10px}
+.btn{border:none;border-radius:8px;padding:10px 18px;font-size:13px;cursor:pointer;transition:all .2s;margin-right:8px}
+.btn-primary{background:var(--accent);color:#fff}.btn-danger{background:var(--danger);color:#fff}
+.btn-warn{background:rgba(245,158,11,.15);color:var(--warn);border:1px solid rgba(245,158,11,.3)}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="logo">DALEBA</span>
+  <span style="color:var(--muted);font-size:14px">/ Campagnes & Logistique</span>
+  <span style="margin-left:auto;font-size:11px;color:var(--muted)" id="ts"></span>
+</div>
+<div class="stats">
+  <div class="stat"><div class="stat-val" id="sRoas">—</div><div class="stat-lbl">ROAS moyen</div></div>
+  <div class="stat"><div class="stat-val" id="sCpc" style="color:var(--warn)">—</div><div class="stat-lbl">CPC moyen ($)</div></div>
+  <div class="stat"><div class="stat-val" id="sLeads">—</div><div class="stat-lbl">Leads (30j)</div></div>
+  <div class="stat"><div class="stat-val" id="sStock" style="color:var(--danger)">—</div><div class="stat-lbl">Produits REORDER</div></div>
+</div>
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('campaigns')">📣 Campagnes</div>
+  <div class="tab" onclick="switchTab('stock')">🌿 Inventaire</div>
+  <div class="tab" onclick="switchTab('orders')">📋 Bons de commande</div>
+  <div class="tab" onclick="switchTab('actions')">⚡ Actions rapides</div>
+</div>
+
+<!-- CAMPAGNES -->
+<div class="section active" id="tab-campaigns">
+  <div id="campaignsList" style="color:var(--muted);font-size:13px">Chargement...</div>
+</div>
+
+<!-- INVENTAIRE -->
+<div class="section" id="tab-stock">
+  <div class="grid" id="stockGrid">Chargement...</div>
+</div>
+
+<!-- BONS DE COMMANDE -->
+<div class="section" id="tab-orders">
+  <div class="grid">
+    <div class="card">
+      <h4>➕ Générer un bon de commande</h4>
+      <input type="text" id="poProductId" placeholder="product_id (ex: chebe-poudre)">
+      <input type="text" id="poProductName" placeholder="Nom produit">
+      <input type="number" id="poQty" placeholder="Quantité (g ou ml)" min="1">
+      <input type="text" id="poUnit" placeholder="Unité (g ou ml)" value="g">
+      <button class="btn btn-primary" onclick="generatePO()">Générer BC + SMS Ulrich</button>
+      <div id="poResult" style="margin-top:12px;font-size:12px;color:var(--success)"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTIONS RAPIDES [469] -->
+<div class="section" id="tab-actions">
+  <div class="grid">
+    <div class="card">
+      <h4>🚀 Lancer une campagne [469]</h4>
+      <input type="number" id="campBudget" placeholder="Budget quotidien ($)" value="30">
+      <select id="campPlatform"><option value="meta">Meta Ads</option><option value="google">Google Ads</option><option value="both">Les deux</option></select>
+      <button class="btn btn-primary" onclick="launchCampaign()">Lancer campagne</button>
+      <div id="campResult" style="margin-top:12px;font-size:12px;color:var(--success)"></div>
+    </div>
+    <div class="card">
+      <h4>⚙️ Seuil d'alerte inventaire [469]</h4>
+      <input type="text" id="threshProductId" placeholder="product_id">
+      <input type="number" id="threshValue" placeholder="Nouveau seuil (g ou ml)">
+      <button class="btn btn-warn" onclick="updateThreshold()">Mettre à jour le seuil</button>
+      <div id="threshResult" style="margin-top:12px;font-size:12px"></div>
+    </div>
+    <div class="card">
+      <h4>📊 Digest Marketing Mensuel [475]</h4>
+      <button class="btn btn-primary" onclick="loadDigest()">Générer le rapport ROI</button>
+      <div id="digestResult" style="margin-top:12px;font-size:13px"></div>
+    </div>
+    <div class="card">
+      <h4>⏸ Vérifier ROAS & Pauses auto [467]</h4>
+      <button class="btn btn-danger" onclick="checkRoas()">Vérifier ROAS (pause si < 1.5)</button>
+      <div id="roasResult" style="margin-top:12px;font-size:12px"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const H={'Authorization':'Bearer '+(localStorage.getItem('daleba_token')||''),'Content-Type':'application/json'};
+document.getElementById('ts').textContent=new Date().toLocaleTimeString('fr-CA');
+
+function switchTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  const ids=['campaigns','stock','orders','actions'];
+  document.querySelectorAll('.tab')[ids.indexOf(id)]?.classList.add('active');
+  document.getElementById('tab-'+id)?.classList.add('active');
+  if(id==='campaigns')loadCampaigns();
+  if(id==='stock')loadStock();
+}
+
+async function loadCampaigns(){
+  const r=await fetch('/api/v1/campaigns/performance',{headers:H}).then(r=>r.json()).catch(()=>({data:{}}));
+  const camps=r.data?.campaigns||[];
+  const totalSpend=camps.reduce((s,c)=>s+parseFloat(c.total_spend||0),0);
+  const avgRoas=camps.length?camps.reduce((s,c)=>s+(c.roas||0),0)/camps.length:0;
+  const avgCpc=camps.length?camps.reduce((s,c)=>s+(c.cpc||0),0)/camps.length:0;
+  const leads=camps.reduce((s,c)=>s+(c.conversions||0),0);
+  document.getElementById('sRoas').textContent=avgRoas.toFixed(2);
+  document.getElementById('sCpc').textContent=avgCpc.toFixed(3);
+  document.getElementById('sLeads').textContent=leads;
+  document.getElementById('campaignsList').innerHTML=camps.length?`<table><thead><tr><th>Campagne</th><th>Plateforme</th><th>Budget/j</th><th>Dépensé</th><th>ROAS</th><th>CTR%</th><th>Statut</th></tr></thead><tbody>${camps.map(c=>`<tr><td>${c.name||c.campaign_id}</td><td>${c.platform}</td><td>${c.daily_budget||0}$</td><td>${c.total_spend||0}$</td><td><strong style="color:${c.roas>=1.5?'var(--success)':'var(--danger)'}">${c.roas||0}</strong></td><td>${c.ctr||0}%</td><td><span class="badge ${c.status==='active'?'b-green':c.status==='paused'?'b-warn':'b-red'}">${c.status}</span></td></tr>`).join('')}</tbody></table>`:'<p style="color:var(--muted);font-size:13px">Aucune campagne.</p>';
+}
+
+async function loadStock(){
+  const r=await fetch('/api/v1/campaigns/stock/status',{headers:H}).then(r=>r.json()).catch(()=>({data:{}}));
+  const items=r.data?.items||[];
+  const reorder=items.filter(i=>i.status==='REORDER_REQUIRED').length;
+  document.getElementById('sStock').textContent=reorder;
+  document.getElementById('stockGrid').innerHTML=items.length?items.map(i=>{
+    const pct=Math.min(parseFloat(i.quantity)/Math.max(parseFloat(i.reorder_threshold)*3,1)*100,100);
+    const cls=i.status==='ok'?'gauge-ok':i.status==='low'?'gauge-low':'gauge-critical';
+    return `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${i.name}</strong><div style="font-size:12px;color:var(--muted)">${i.quantity}${i.unit} disponibles</div></div><span class="badge ${i.status==='ok'?'b-green':i.status==='low'?'b-warn':'b-red'}">${i.status}</span></div><div class="gauge" style="margin-top:10px"><div class="gauge-fill ${cls}" style="width:${pct}%"></div></div><div style="font-size:11px;color:var(--muted);margin-top:4px">Seuil: ${i.reorder_threshold}${i.unit}</div></div>`;
+  }).join(''):'<p style="color:var(--muted)">Inventaire vide.</p>';
+}
+
+async function generatePO(){
+  const r=await fetch('/api/v1/campaigns/purchase-order/generate',{method:'POST',headers:H,body:JSON.stringify({productId:document.getElementById('poProductId').value,productName:document.getElementById('poProductName').value,qtyToOrder:parseFloat(document.getElementById('poQty').value),unit:document.getElementById('poUnit').value})}).then(r=>r.json()).catch(()=>({success:false}));
+  document.getElementById('poResult').textContent=r.success?`✅ BC ${r.data?.poId} — ${r.data?.totalPrice}$ CAD (SMS envoyé)`:r.error||'Erreur';
+}
+
+async function launchCampaign(){
+  const r=await fetch('/api/v1/campaigns/build',{method:'POST',headers:H,body:JSON.stringify({budget:parseFloat(document.getElementById('campBudget').value),platform:document.getElementById('campPlatform').value})}).then(r=>r.json()).catch(()=>({success:false}));
+  document.getElementById('campResult').textContent=r.success?`✅ Campagne ${r.data?.campaignId} créée — ${r.data?.budget}$/j`:r.error||'Erreur';
+}
+
+async function updateThreshold(){
+  document.getElementById('threshResult').textContent='⚠️ Mise à jour seuil: contactez le backend /api/v1/campaigns/stock/status';
+}
+
+async function loadDigest(){
+  const r=await fetch('/api/v1/campaigns/digest',{headers:H}).then(r=>r.json()).catch(()=>({data:{}}));
+  const d=r.data||{};
+  document.getElementById('digestResult').innerHTML=`<strong>Total investi:</strong> ${d.totalInvested||0}$<br><strong>Leads:</strong> ${d.leads||0}<br><strong>CAC:</strong> ${d.cac||'N/A'}$<br><strong>ROAS:</strong> ${d.roas||'N/A'}<br><strong>Profit net:</strong> ${d.netProfit||0}$`;
+}
+
+async function checkRoas(){
+  const r=await fetch('/api/v1/campaigns/roas/check',{headers:H}).then(r=>r.json()).catch(()=>({data:{}}));
+  document.getElementById('roasResult').textContent=r.data?.paused?.length?`⏸ ${r.data.paused.length} campagne(s) pausée(s) pour ROAS < 1.5`:'✅ Toutes les campagnes au-dessus du seuil';
+}
+
+loadCampaigns();
+</script>
+</body>
+</html>
