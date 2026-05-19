@@ -83,21 +83,34 @@ app.get('/zenith', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/zenith.html'));
 });
 
-// Route racine API
-app.get('/health', (req, res) => {
-  res.json({
-    name: 'DALEBA Core',
-    version: '1.0.0',
-    status: 'online',
+// [098] Health endpoint deep — 99.9% uptime target
+app.get('/health', async (req, res) => {
+  const deep = req.query.deep === 'true';
+  const ts   = new Date().toISOString();
+
+  const base = {
+    name: 'DALEBA Core', version: '2.0.0',
+    status: 'online', ts,
+    uptime: Math.round(process.uptime()) + 's',
+    memory: { heapUsedMB: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) },
     owner: 'Kadio Ehouman Ulrich',
-    endpoints: {
-      chat: 'POST /api/chat',
-      history: 'GET /api/history/:sessionId',
-      status: 'GET /api/status',
-      emergency: 'POST /api/emergency-stop',
-    },
-  });
+  };
+
+  if (!deep) return res.json(base);
+
+  // Deep health: DARE + DB + Twilio check
+  const checks = {};
+  try { const dare = require('./agents/dare'); checks.dare = dare.getStatus().providers.filter(p => p.health.status === 'healthy').length + ' providers healthy'; } catch { checks.dare = 'error'; }
+  try { const m = require('./services/maintenance'); await m.query('SELECT 1'); checks.db = 'ok'; } catch { checks.db = 'error'; }
+  try { checks.twilio = process.env.TWILIO_ACCOUNT_SID ? 'configured' : 'missing'; } catch { checks.twilio = 'error'; }
+  try { const am = require('./services/agent-manager'); checks.agents = am.getStatus().stats.liveAgents + ' live'; } catch { checks.agents = 'error'; }
+
+  const allOk = !Object.values(checks).some(v => v === 'error');
+  res.status(allOk ? 200 : 503).json({ ...base, checks, healthy: allOk });
 });
+
+// Alias /ping pour Railway healthcheck
+app.get('/ping', (_, res) => res.send('pong'));
 
 // ─── SELF-HEALING (Point 13) ─────────────────────────────────────────────────
 enableSelfHealing();

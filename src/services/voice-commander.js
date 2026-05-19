@@ -56,6 +56,9 @@ const INTENT_MAP = {
   get_appointments:    { fn: 'getTodayAppointments',      critical: false },
   get_status:          { fn: 'getSystemStatus',           critical: false },
   get_alerts:          { fn: 'getRecentAlerts',           critical: false },
+  get_full_report:     { fn: 'getFullReport',             critical: false },
+  get_swarm:           { fn: 'getSwarmStatus',            critical: false },
+  get_errors:          { fn: 'getRecentErrors',           critical: false },
   deploy_patch:        { fn: 'deployLatestPatch',         critical: true  },
   rollback:            { fn: 'rollbackLastDeploy',        critical: true  },
   send_promo:          { fn: 'sendPromoSMS',              critical: true  },
@@ -127,8 +130,32 @@ async function executeIntent(intent, params = {}) {
       const dare = require('../agents/dare');
       const status = dare.getStatus();
       const issues = status.providers.filter(p => p.health.status !== 'healthy');
-      if (issues.length === 0) return "Aucune alerte active. Tous les systèmes sont opérationnels.";
-      return `${issues.length} alerte${issues.length > 1 ? 's' : ''} : ${issues.map(p => `${p.name} est ${p.health.status}`).join('. ')}.`;
+      const bridled = status.stats.bridledProviders || [];
+      if (issues.length === 0 && bridled.length === 0) return "Aucune alerte active. Tous les systèmes sont opérationnels, Commandant.";
+      const parts = [];
+      if (issues.length) parts.push(`${issues.length} provider${issues.length > 1 ? 's' : ''} en difficulté: ${issues.map(p => p.name).join(', ')}`);
+      if (bridled.length) parts.push(`${bridled.join(', ')} bridé pour dépassement budgétaire horaire`);
+      return parts.join('. ') + '.';
+    }
+
+    // [097] Rapport financier complet lu à voix haute
+    case 'get_full_report': {
+      try {
+        const square = require('./square');
+        const dare   = require('../agents/dare');
+        const audit  = await square.getSquareWeeklyAudit();
+        const dStatus = dare.getStatus();
+        const healthy = dStatus.providers.filter(p => p.health.status === 'healthy').length;
+        return [
+          `Rapport complet DALEBA.`,
+          `Chiffre d'affaires: ${audit.revenue?.total || 'indisponible'} dollars canadiens.`,
+          `Rendez-vous: ${audit.appointments?.total || 0} au total, ${audit.appointments?.completed || 0} complétés, ${audit.appointments?.noShow || 0} absences.`,
+          `Abonnements actifs: ${audit.activeSubscriptions || 0}.`,
+          `Système: ${healthy} providers IA actifs, ${dStatus.stats.failovers} failovers, coût estimé ${dStatus.stats.estimatedCostUSD} dollars.`,
+        ].join(' ');
+      } catch {
+        return "Les données complètes sont temporairement indisponibles. Vérifiez la connexion Square.";
+      }
     }
 
     case 'swarm_status': {
