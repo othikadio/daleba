@@ -213,12 +213,39 @@ function startV20Crons() {
     // V21 — Commander Alerts: scan toutes les heures
     const { runAllAlertChecks } = require('./commander-alerts');
     bus.system('[V21] Commander Alerts actif — scan Square toutes les heures');
-    setInterval(runAllAlertChecks, 60 * 60 * 1000); // chaque heure
-    // Premier scan dans 10 minutes
+    setInterval(runAllAlertChecks, 60 * 60 * 1000);
     setTimeout(runAllAlertChecks, 10 * 60 * 1000);
+
+    // V26 — Marketing Autonome: scan agenda chaque lundi matin
+    const { runMarketingWorker } = require('./autonomous-marketing');
+    const marketingIn = msUntilNextMondayMorning();
+    bus.system(`[V26] Marketing autonome → lundi matin (dans ${Math.round(marketingIn / 3600000)}h)`);
+    setTimeout(async () => {
+      while (true) {
+        await runMarketingWorker().catch(e => bus.system(`[V26] Marketing error: ${e.message}`));
+        await new Promise(r => setTimeout(r, 7 * 24 * 60 * 60 * 1000)); // hebdo
+      }
+    }, marketingIn);
+
+    // V26 — Sync financière quotidienne
+    const { runDailyFinanceSync, initFinancesTable } = require('./tenant-finances');
+    await initFinancesTable().catch(() => {});
+    bus.system('[V26] Sync financière quotidienne activée (23h00)');
+    const msUntilMidnight = () => {
+      const n = new Date(); const m = new Date(n);
+      m.setHours(23,0,0,0); if (m <= n) m.setDate(m.getDate() + 1);
+      return m - n;
+    };
+    setTimeout(async () => {
+      while (true) {
+        await runDailyFinanceSync().catch(e => bus.system(`[V26] Finance sync error: ${e.message}`));
+        await new Promise(r => setTimeout(r, 24 * 60 * 60 * 1000));
+      }
+    }, msUntilMidnight());
+
   }, 5 * 60 * 1000);
 
-  console.log('[V20/V21] Crons programmés: fidélité + contenu + alertes commandant');
+  console.log('[V20/V21/V26] Crons programmés: fidélité + contenu + alertes + marketing + finances');
 }
 
 module.exports = { startV20Crons, generateWeeklyTriple, runLoyaltyReengagement, runSocialContentGeneration };

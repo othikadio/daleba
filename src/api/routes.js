@@ -845,4 +845,84 @@ router.post('/webhook/voice/test', async (req, res) => {
   }
 });
 
+// ─── V26 : ONBOARDING UNIVERSEL & CERVEAU AUTONOME ──────────────────────────────
+
+const onboardingTelephony = require('../services/onboarding-telephony');
+const autonomousMarketing = require('../services/autonomous-marketing');
+const tenantFinances      = require('../services/tenant-finances');
+
+// POST /api/onboarding/telephony — Lancer l'onboarding téléphonique complet
+router.post('/onboarding/telephony', async (req, res) => {
+  try {
+    const { tenantId, tenantName, tenantEmail, countryCode, areaCode, existingPhone } = req.body;
+    if (!tenantId || !tenantName) return res.status(400).json({ error: 'tenantId et tenantName requis' });
+    const result = await onboardingTelephony.runTelephonyOnboarding({
+      tenantId, tenantName, tenantEmail, countryCode, areaCode, existingPhone,
+    });
+    res.json(result);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/onboarding/forwarding — Générer instructions transfert d'appel uniquement
+router.post('/onboarding/forwarding', (req, res) => {
+  try {
+    const { tenantPhone, dalebaNumber, countryCode = 'CA' } = req.body;
+    if (!tenantPhone || !dalebaNumber) return res.status(400).json({ error: 'tenantPhone et dalebaNumber requis' });
+    const result = onboardingTelephony.generateForwardingInstructions(tenantPhone, dalebaNumber, countryCode);
+    res.json(result);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/onboarding/mmi-codes — Liste des codes MMI par pays
+router.get('/onboarding/mmi-codes', (req, res) => {
+  const codes = {};
+  for (const [code, profile] of Object.entries(onboardingTelephony.MMI_PROFILES)) {
+    if (code === 'DEFAULT') continue;
+    codes[code] = { country: profile.country, prefix: profile.prefix, note: profile.carrierNote };
+  }
+  res.json({ countries: codes, total: Object.keys(codes).length });
+});
+
+// POST /api/marketing/analyze — Analyser le taux de remplissage agenda
+router.post('/marketing/analyze', async (req, res) => {
+  try {
+    const { tenantId } = req.body;
+    const analysis = await autonomousMarketing.analyzeWeekFillRate(tenantId);
+    res.json(analysis);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/marketing/worker — Lancer le worker marketing autonome
+router.post('/marketing/worker', async (req, res) => {
+  try {
+    const { tenantId } = req.body;
+    const result = await autonomousMarketing.runMarketingWorker(tenantId);
+    res.json(result);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/finances/report — Rapport financier tenant
+router.get('/finances/report', async (req, res) => {
+  try {
+    const { tenantId = 'kadio', period = 'month' } = req.query;
+    const report = await tenantFinances.getTenantFinancialReport(tenantId, period);
+    res.json(report);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/finances/sync — Sync manuelle des paiements Square
+router.post('/finances/sync', async (req, res) => {
+  try {
+    const { tenantId = 'kadio', countryCode = 'CA', province = 'QC' } = req.body;
+    await tenantFinances.initFinancesTable();
+    const result = await tenantFinances.runDailyFinanceSync(tenantId, countryCode, province);
+    res.json({ success: true, ...result });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/finances/tax-rates — Taux de taxes par pays
+router.get('/finances/tax-rates', (req, res) => {
+  res.json({ rates: tenantFinances.TAX_RATES });
+});
+
 module.exports = router;
