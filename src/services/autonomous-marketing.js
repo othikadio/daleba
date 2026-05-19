@@ -153,7 +153,8 @@ async function runMarketingWorker(tenantId = null) {
 
     try {
       const claude = require('../agents/claude');
-      promoContent = await claude.chat(prompt, [], null);
+      const r = await claude.query(prompt, '', []);
+      promoContent = typeof r === 'string' ? r : (r.content || r.text || '');
     } catch (e) {
       bus.system(`[MARKETING] Erreur LLM: ${e.message}`);
       promoContent = `🌟 Quelques créneaux disponibles cette semaine chez Kadio Coiffure ! Profitez-en pour prendre soin de vous. Réservez en ligne dès maintenant 💇‍♀️ #KadioCoiffure #Longueuil #Coiffure #RendezVousDisponible`;

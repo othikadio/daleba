@@ -749,7 +749,9 @@ Réponds en français. Si Ulrich pose des questions opérationnelles (RDV, reven
 Date/heure actuelle : ${new Date().toLocaleString('fr-CA', { timeZone: 'America/Toronto' })}`;
 
     const enriched = await enrichSystemPrompt(message, systemBase).catch(() => systemBase);
-    const response = await claudeAgent.chat(message, history, enriched);
+    // claude.query(message, systemPrompt, history) — retourne { content, model, usage }
+    const result = await claudeAgent.query(message, enriched, history);
+    const response = typeof result === 'string' ? result : (result.content || result.text || JSON.stringify(result));
 
     bus.system(`[COMMANDER/CHAT] Ulrich: ${message.slice(0, 60)}`);
     res.json({ response, ts: new Date().toISOString() });

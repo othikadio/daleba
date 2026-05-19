@@ -224,7 +224,8 @@ RÈGLES :
 - Pour finaliser un RDV: diriger vers ${voiceConfig.SALON_WEBSITE} ou rappel au ${TWILIO_NUMBER}`;
 
     const enriched = await enrichSystemPrompt(speechText, voiceSystemPrompt).catch(() => voiceSystemPrompt);
-    const raw = await claude.chat(speechText, [], enriched);
+    const result = await claude.query(speechText, enriched, []);
+    const raw = typeof result === 'string' ? result : (result.content || result.text || '');
 
     // Parser le JSON LLM
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
