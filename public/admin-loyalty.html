@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DALEBA — Fidélité & Réputation</title>
+<style>
+:root{--bg:#0a0a0f;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--accent:#7c3aed;--success:#10b981;--warn:#f59e0b;--danger:#ef4444;--text:#e2e8f0;--muted:#64748b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:Inter,-apple-system,sans-serif;min-height:100vh}
+.header{background:rgba(255,255,255,0.03);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;gap:12px}
+.logo{font-size:18px;font-weight:700;color:var(--accent)}
+.stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:20px 24px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.stat-val{font-size:24px;font-weight:700;color:var(--accent)}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:4px}
+.tabs{display:flex;padding:0 24px;border-bottom:1px solid var(--border)}
+.tab{padding:10px 20px;cursor:pointer;font-size:13px;color:var(--muted);border-bottom:2px solid transparent}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.section{padding:20px 24px;display:none}.section.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.card h4{font-size:14px;font-weight:600;margin-bottom:12px;color:var(--text)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:8px 12px;font-size:11px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.badge{display:inline-block;border-radius:20px;padding:2px 10px;font-size:11px}
+.badge-green{background:rgba(16,185,129,.12);color:var(--success)}
+.badge-warn{background:rgba(245,158,11,.12);color:var(--warn)}
+.badge-red{background:rgba(239,68,68,.12);color:var(--danger)}
+.tier{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;align-items:center;gap:12px}
+.tier-pts{font-size:22px;font-weight:700;color:var(--accent)}
+input,select{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;width:100%;margin-bottom:10px}
+.btn{border:none;border-radius:8px;padding:10px 18px;font-size:13px;cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{opacity:.85}
+.complaint{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:14px;margin-bottom:10px}
+.complaint-rating{color:var(--danger);font-weight:600}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="logo">DALEBA</span>
+  <span style="color:var(--muted);font-size:14px">/ Fidélité & Réputation Google</span>
+  <span style="margin-left:auto;font-size:11px;color:var(--muted)" id="ts"></span>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-val" id="sCards">—</div><div class="stat-lbl">Cartes fidélité</div></div>
+  <div class="stat"><div class="stat-val" id="sPts" style="color:var(--success)">—</div><div class="stat-lbl">Points en circulation</div></div>
+  <div class="stat"><div class="stat-val" id="sRef" style="color:var(--warn)">—</div><div class="stat-lbl">Parrainages convertis</div></div>
+  <div class="stat"><div class="stat-val" id="sRev">—</div><div class="stat-lbl">Avis Google générés</div></div>
+  <div class="stat"><div class="stat-val" id="sComp" style="color:var(--danger)">—</div><div class="stat-lbl">Doléances non résolues</div></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('overview')">📊 Vue d'ensemble</div>
+  <div class="tab" onclick="switchTab('clients')">💎 Clients</div>
+  <div class="tab" onclick="switchTab('referrals')">🔗 Parrainage</div>
+  <div class="tab" onclick="switchTab('reviews')">⭐ Réputation</div>
+  <div class="tab" onclick="switchTab('tiers')">🏆 Paliers</div>
+</div>
+
+<div class="section active" id="tab-overview">
+  <div class="grid">
+    <div class="card">
+      <h4>🔥 Top Parrains du Mois</h4>
+      <table><thead><tr><th>Client</th><th>Parrainages</th></tr></thead><tbody id="topReferrers"><tr><td colspan="2" style="color:var(--muted)">Chargement...</td></tr></tbody></table>
+    </div>
+    <div class="card">
+      <h4>🚨 Doléances Récentes</h4>
+      <div id="complaintsList" style="color:var(--muted);font-size:13px">Chargement...</div>
+    </div>
+    <div class="card">
+      <h4>💰 Happy Hour Actif ?</h4>
+      <div id="happyHourStatus" style="font-size:28px;text-align:center;padding:16px">Vérification...</div>
+      <div style="font-size:12px;color:var(--muted);text-align:center">Mar 10h-12h · Mer 14h-16h · Jeu 10h-11h</div>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="tab-clients">
+  <div style="display:flex;gap:12px;margin-bottom:16px">
+    <input type="text" id="searchCustomer" placeholder="Rechercher par ID client..." style="width:240px" oninput="searchBalance()">
+    <button class="btn btn-primary" onclick="searchBalance()">Consulter solde</button>
+  </div>
+  <div id="balanceResult"></div>
+</div>
+
+<div class="section" id="tab-referrals">
+  <div class="grid">
+    <div class="card">
+      <h4>➕ Générer un code parrainage</h4>
+      <input type="text" id="refCustomerId" placeholder="Customer ID">
+      <input type="text" id="refCustomerName" placeholder="Prénom Nom">
+      <input type="tel" id="refCustomerPhone" placeholder="+1 514...">
+      <button class="btn btn-primary" onclick="generateRef()">Générer REF-CODE</button>
+      <div id="refResult" style="margin-top:12px;font-size:13px;color:var(--success)"></div>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="tab-reviews">
+  <div class="grid">
+    <div class="card">
+      <h4>📩 Envoyer une demande d'avis</h4>
+      <input type="text" id="rvTxId" placeholder="Transaction ID (tx_...)">
+      <input type="text" id="rvCustId" placeholder="Customer ID">
+      <input type="text" id="rvName" placeholder="Prénom client">
+      <input type="tel" id="rvPhone" placeholder="+1 514...">
+      <button class="btn btn-primary" onclick="scheduleReview()">Envoyer SMS (90min delay)</button>
+      <div id="rvResult" style="margin-top:10px;font-size:12px;color:var(--success)"></div>
+    </div>
+    <div class="card">
+      <h4>⭐ Doléances privées</h4>
+      <div id="feedbackList" style="color:var(--muted);font-size:13px">Aucune doléance en attente.</div>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="tab-tiers">
+  <div class="grid">
+    <div class="tier"><div style="font-size:28px">💧</div><div><div style="font-weight:600">Brume Botanique</div><div class="tier-pts">500 pts</div><div style="font-size:12px;color:var(--muted)">Brume Botanique offerte</div></div></div>
+    <div class="tier"><div style="font-size:28px">🌿</div><div><div style="font-weight:600">Soin Capillaire Profond</div><div class="tier-pts">1 000 pts</div><div style="font-size:12px;color:var(--muted)">Soin Capillaire Profond offert</div></div></div>
+    <div class="tier"><div style="font-size:28px">✨</div><div><div style="font-weight:600">Crédit Salon 25$</div><div class="tier-pts">1 500 pts</div><div style="font-size:12px;color:var(--muted)">25$ de crédit au salon</div></div></div>
+    <div class="tier"><div style="font-size:28px">🏆</div><div><div style="font-weight:600">Crédit Salon 50$</div><div class="tier-pts">2 000 pts</div><div style="font-size:12px;color:var(--muted)">50$ de crédit au salon</div></div></div>
+  </div>
+</div>
+
+<script>
+const H = {'Authorization':'Bearer '+(localStorage.getItem('daleba_token')||''),'Content-Type':'application/json'};
+document.getElementById('ts').textContent = new Date().toLocaleTimeString('fr-CA');
+
+function switchTab(id){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  const tabs=['overview','clients','referrals','reviews','tiers'];
+  document.querySelectorAll('.tab')[tabs.indexOf(id)]?.classList.add('active');
+  document.getElementById('tab-'+id)?.classList.add('active');
+  if(id==='overview')loadStats();
+}
+
+async function loadStats(){
+  const r=await fetch('/api/v1/loyalty/admin/stats',{headers:H}).then(r=>r.json()).catch(()=>({data:{}}));
+  const d=r.data||{};
+  document.getElementById('sCards').textContent=d.loyaltyCards||0;
+  document.getElementById('sPts').textContent=(d.totalPoints||0).toLocaleString();
+  document.getElementById('sRef').textContent=d.conversions||0;
+  document.getElementById('sRev').textContent=d.googleReviews||0;
+  document.getElementById('sComp').textContent=d.pendingComplaints||0;
+  const tops=d.topReferrers||[];
+  document.getElementById('topReferrers').innerHTML=tops.length?tops.map(t=>`<tr><td>${t.referrer_id}</td><td><strong>${t.conversions}</strong></td></tr>`).join(''):'<tr><td colspan="2" style="color:var(--muted)">Aucun parrainage ce mois</td></tr>';
+  // Happy hour
+  const now=new Date();const dow=now.getDay()===0?7:now.getDay();const h=now.getHours();
+  const hh=([{day:2,s:10,e:12},{day:3,s:14,e:16},{day:4,s:10,e:11}]).some(x=>x.day===dow&&h>=x.s&&h<x.e);
+  document.getElementById('happyHourStatus').textContent=hh?'✅ ACTIF — Points ×2 !':'⏸ Inactif';
+  document.getElementById('happyHourStatus').style.color=hh?'var(--success)':'var(--muted)';
+}
+
+async function searchBalance(){
+  const id=document.getElementById('searchCustomer').value.trim();
+  if(!id)return;
+  const r=await fetch('/api/v1/loyalty/balance/'+encodeURIComponent(id),{headers:H}).then(r=>r.json()).catch(()=>({data:{}}));
+  const d=r.data||{};
+  document.getElementById('balanceResult').innerHTML=`<div class="card" style="max-width:400px"><h4>Solde: ${d.customerId||id}</h4><div style="font-size:28px;font-weight:700;color:var(--accent)">${d.balance||0} pts</div><div style="font-size:12px;color:var(--muted);margin-top:4px">Lifetime: ${d.lifetime||0} pts | Code: ${d.referralCode||'—'}</div>${(d.availableRewards||[]).map(rr=>'<div style="margin-top:8px;padding:8px;background:rgba(16,185,129,.08);border-radius:8px;font-size:13px">'+rr.emoji+' '+rr.name+': <strong>'+rr.reward+'</strong></div>').join('')}</div>`;
+}
+
+async function generateRef(){
+  const r=await fetch('/api/v1/loyalty/referral/code',{method:'POST',headers:H,body:JSON.stringify({customerId:document.getElementById('refCustomerId').value,customerName:document.getElementById('refCustomerName').value,customerPhone:document.getElementById('refCustomerPhone').value})}).then(r=>r.json()).catch(()=>({data:{}}));
+  document.getElementById('refResult').textContent=r.data?.code?`Code: ${r.data.code} — ${r.data.message}`:'Erreur';
+}
+
+async function scheduleReview(){
+  const r=await fetch('/api/v1/loyalty/review/schedule',{method:'POST',headers:H,body:JSON.stringify({txId:document.getElementById('rvTxId').value,customerId:document.getElementById('rvCustId').value,customerName:document.getElementById('rvName').value,customerPhone:document.getElementById('rvPhone').value})}).then(r=>r.json()).catch(()=>({data:{}}));
+  document.getElementById('rvResult').textContent=r.data?.token?`✅ Planifié — Token: ${r.data.token.slice(0,16)}...`:'Erreur';
+}
+
+loadStats();
+</script>
+</body>
+</html>

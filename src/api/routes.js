@@ -408,6 +408,9 @@ router.use('/v1/staff', staffRoutes);
 router.use('/v1/aesthetics', aestheticsRoutes);
 const widgetRoutes = require('./widget-routes'); // V7 [359-364]
 router.use('/v1/widgets', widgetRoutes);
+const loyaltyRoutes = require('./loyalty-routes'); // [415-418]
+router.use('/v1/loyalty', loyaltyRoutes);
+router.use('/v1/feedback', loyaltyRoutes); // pour /feedback/:token
 router.use('/admin/tenants', adminTenantsRoutes);
 
 // ─── ROUTES SOCIAL META (Point 38) ───────────────────────────────────────
