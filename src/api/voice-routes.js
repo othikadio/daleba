@@ -186,7 +186,48 @@ router.post('/voice/status', twilioAuthMiddleware, async (req, res) => {
     }
   } catch (_) {}
 
+  // [227] Libérer la slot de concurrence
+  VoiceAgentV4.cleanupSession(CallSid);
   res.sendStatus(204);
+});
+
+// [221] OTP VOCAL — vérification code 4 chiffres
+router.post('/voice/otp-verify', twilioAuthMiddleware, async (req, res) => {
+  const { CallSid, From, SpeechResult } = req.body;
+  const otp = require('../services/voice-otp');
+  // Extraire les chiffres du texte vocal (ex: "trois sept deux un" → fuzzy)
+  const digits = (SpeechResult || '').replace(/\D/g, '').slice(0, 4);
+  const result = otp.verify(CallSid, digits);
+  if (result.valid) {
+    const msg = 'Code vérifié. Vous pouvez procéder.';
+    twimlResponse(res, twimlGen.buildGenericTwiML(msg, { callbackPath: '/api/webhook/voice/gather' }));
+  } else {
+    const msg = result.reason === 'Trop de tentatives'
+      ? 'Trop de tentatives incorrectes. Au revoir.'
+      : `Code incorrect. ${result.attemptsLeft > 0 ? result.attemptsLeft + ' tentative(s) restante(s).' : 'Dernier essai.'}  Veuillez réessayer.`;
+    const hangup = result.reason === 'Trop de tentatives';
+    twimlResponse(res, twimlGen.buildGenericTwiML(msg, { callbackPath: '/api/webhook/voice/otp-verify', hangup }));
+  }
+});
+
+// [222] Annulation RDV vocal
+router.post('/voice/cancel-booking', twilioAuthMiddleware, async (req, res) => {
+  const { CallSid, From, SpeechResult } = req.body;
+  const bookingId = req.query.bookingId;
+  const slotLabel = req.query.slotLabel || '';
+  if (!bookingId) return twimlResponse(res, twimlGen.buildGenericTwiML('Je ne trouve pas votre réservation. Pouvez-vous rappeler le numéro de confirmation?'));
+  try {
+    const result = await VoiceAgentV4.handleCancellation({ callSid: CallSid, squareBookingId: bookingId, from: From, slotLabel: decodeURIComponent(slotLabel) });
+    twimlResponse(res, result.twiml);
+  } catch (err) {
+    twimlResponse(res, twimlGen.buildGenericTwiML('Erreur technique lors de l\'annulation. Veuillez rappeler.', { hangup: true }));
+  }
+});
+
+// [227] GET concurrency stats
+router.get('/voice/concurrency', (req, res) => {
+  const sessionStore = require('../services/voice-session-store');
+  res.json(sessionStore.getConcurrencyStats());
 });
 
 // ─── ROUTE 5 : API CONTRÔLE HUMAN-IN-THE-LOOP (dashboard Ulrich) ─────────────

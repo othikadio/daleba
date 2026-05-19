@@ -1,20 +1,24 @@
 /**
- * VoiceAgent — DALEBA Metacortex Points 201-218
+ * VoiceAgent — DALEBA Metacortex Points 201-235
  *
- * [201] Hérite de BaseAgent — scope strict téléphonie/TwiML/Square Appointments
- * [210] Couplage DARE pour Intent Extraction < 800ms
- * [211] 5 profils d'intention: BOOKING, MODIFICATION, CANCELLATION, INQUIRY, ESCALATION
- * [212-215] Square Appointments — disponibilités + format fr-CA
- * [216-218] Identification client + création + CreateBooking autonome
+ * [201-218] Socle V4: BaseAgent, TwiML, DARE intent, Square Appointments
+ * [219-222] Persistance DB, SMS confirmation, OTP, CancelBooking
+ * [223-226] Voice Stress Monitor, escalade, TwiML Dial, SMS Commandant
+ * [227-230] Session store 50 flux, State Machine, gestion silences
+ * [235] Fallback mécanique si DARE offline
  */
 
 'use strict';
 
-const { BaseAgent } = require('./base-agent');
-const dare       = require('./dare');
-const twiml      = require('../services/twiml-generator');
-const appts      = require('../services/square-appointments');
-const bus        = require('../services/event-bus');
+const { BaseAgent }    = require('./base-agent');
+const dare             = require('./dare');
+const twiml            = require('../services/twiml-generator');
+const appts            = require('../services/square-appointments');
+const bus              = require('../services/event-bus');
+const sessionStore     = require('../services/voice-session-store');    // [227-229]
+const stressMonitor    = require('../services/voice-stress-monitor');   // [223-226]
+const otp              = require('../services/voice-otp');               // [221]
+const bookingManager   = require('../services/voice-booking-manager');  // [219-222,235]
 
 // ─── CONSTANTES [211] ─────────────────────────────────────────────────────────
 
@@ -96,14 +100,18 @@ class VoiceAgent extends BaseAgent {
 
     const customerName = customer?.given_name || null;
 
-    // Initialiser la session
+    // [228] Initialiser via session store (concurrent-safe)
+    const session = sessionStore.getOrCreate(callSid, {
+      from, to, tenantId: tenantId || 'kadio',
+      tenantName: tenantName || 'Kadio Coiffure',
+      customerId:   customer?.id   || null,
+      customerName: customerName,
+      step: sessionStore.STEPS.WELCOME,
+    });
+    // Compat V18 — garder this._sessions synchro
     this._sessions.set(callSid, {
-      callSid, from, to, tenantId,
-      customer,
-      intent:      null,
-      selectedSlot: null,
-      pendingName:  null,
-      step:         'gather',
+      callSid, from, to, tenantId, customer,
+      intent: null, selectedSlot: null, pendingName: null, step: 'gather',
     });
 
     const twimlStr = twiml.buildWelcomeTwiML({
@@ -192,20 +200,58 @@ Réponds UNIQUEMENT avec un objet JSON: {"intent":"BOOKING","confidence":0.95}`;
 
   async handleGather({ callSid, speechText, from, timeout }) {
     const session = this._sessions.get(callSid) || { from, step: 'gather', customer: null };
+    const storeSession = sessionStore.getOrCreate(callSid, { from });
 
+    // [230] Gestion silences / bruits de fond — max 2 tentatives
     if (timeout || !speechText?.trim()) {
-      const msg = session.customer?.given_name
-        ? `Désolé ${session.customer.given_name}, je n'ai pas entendu. Vous pouvez répéter?`
+      storeSession.emptyRetries = (storeSession.emptyRetries || 0) + 1;
+      if (storeSession.emptyRetries >= 2) {
+        // [230] Escalade silencieuse après 2 échecs
+        bus.system(`[VoiceAgent] ${callSid} — escalade silencieuse après ${storeSession.emptyRetries} silences`);
+        const fallbackMsg = 'Je ne vous entends pas bien. Je vais vous transférer à notre équipe.';
+        return {
+          twiml:    stressMonitor.buildEscalationTwiML({ customerName: session.customer?.given_name, reason: 'Silence répété' }),
+          intent:   INTENTS.ESCALATION, escalated: true, reason: 'silent_escalation',
+        };
+      }
+      // [230] Relance douce (tentative 1)
+      const name = session.customer?.given_name;
+      const retryMsg = name
+        ? `Désolé ${name}, je n'ai pas bien entendu. Pouvez-vous répéter?`
         : 'Je n\'ai pas bien entendu. Pouvez-vous répéter votre demande?';
-      return { twiml: twiml.buildGenericTwiML(msg, { callbackPath: '/api/webhook/voice/gather' }), intent: null };
+      return { twiml: twiml.buildGenericTwiML(retryMsg, { callbackPath: '/api/webhook/voice/gather' }), intent: null };
     }
+
+    // Réinitialiser le compteur de silences si du contenu est reçu [230]
+    storeSession.emptyRetries = 0;
+
+    // [229] Historique des phrases
+    sessionStore.addToHistory(callSid, 'user', speechText);
+
+    // [223] Voice Stress Monitor — analyse frustration en parallèle (non-bloquant)
+    const stressPromise = stressMonitor.analyzeFrustration(speechText, storeSession.history || []);
 
     // [210] Extraction intention < 800ms
     const { intent, latencyMs, source } = await this.extractIntent(speechText);
     session.intent = intent;
     session.lastSpeech = speechText;
+    sessionStore.update(callSid, { step: intent, lastIntent: intent });
 
-    bus.system(`[VoiceAgent] ${callSid} | Intent: ${intent} (${latencyMs}ms via ${source}) | "${speechText.slice(0,50)}"`);
+    // [223] Récupérer le score de frustration (déjà calculé en parallèle)
+    let frustrationScore = 0;
+    try {
+      const stress = await stressPromise;
+      frustrationScore = stress.frustrationScore;
+      sessionStore.update(callSid, { frustrationScore, frustrationHistory: [...(storeSession.frustrationHistory||[]), frustrationScore] });
+    } catch {}
+
+    bus.system(`[VoiceAgent] ${callSid} | Intent: ${intent} (${latencyMs}ms) | Stress: ${frustrationScore}/100`);
+
+    // [224] Vérifier escalade par frustration ou mot-clé
+    const escCheck = stressMonitor.shouldEscalate(frustrationScore, speechText);
+    if (escCheck.escalate) {
+      return this._handleStressEscalation(session, storeSession, escCheck.reason, frustrationScore);
+    }
 
     // [211] Router selon les 5 profils
     switch (intent) {
@@ -216,6 +262,29 @@ Réponds UNIQUEMENT avec un objet JSON: {"intent":"BOOKING","confidence":0.95}`;
       case INTENTS.ESCALATION:   return this._handleEscalationIntent(session);
       default:                   return this._handleInquiryIntent(session, speechText);
     }
+  }
+
+  // [224-226] ESCALADE PAR FRUSTRATION ──────────────────────────────────────────
+
+  async _handleStressEscalation(session, storeSession, reason, frustrationScore) {
+    const callSid = session.callSid || storeSession?.callSid;
+    // [226] SMS d'alerte contextuel au Commandant
+    stressMonitor.sendCommanderAlert({
+      customerName:    session.customer?.given_name || storeSession?.customerName || 'Client',
+      phoneNumber:     session.from || storeSession?.phoneNumber,
+      reason,
+      frustrationScore,
+      callHistory:     storeSession?.history || [],
+      callSid,
+    }).catch(()=>{}); // fire-and-forget
+
+    // [225] TwiML <Say>+<Dial> vers Ulrich
+    const escalTwiml = stressMonitor.buildEscalationTwiML({
+      customerName: session.customer?.given_name,
+      reason, callSid,
+    });
+    sessionStore.update(callSid, { step: sessionStore.STEPS.ESCALATED });
+    return { twiml: escalTwiml, intent: INTENTS.ESCALATION, escalated: true, reason };
   }
 
   // ─── [212-215] BOOKING FLOW ───────────────────────────────────────────────
@@ -379,20 +448,55 @@ Réponds UNIQUEMENT avec un objet JSON: {"intent":"BOOKING","confidence":0.95}`;
       return { twiml: twiml.buildGenericTwiML(msg, { hangup: true }), confirmed: false, error: booking.error };
     }
 
+    // [219] Persister dans tenant_appointments CONFIRMED
+    bookingManager.persistBooking(booking, {
+      tenantId: session.tenantId || 'kadio', callSid,
+      customerId: customer?.id, customerName: customer?.given_name,
+      customerPhone: from, serviceId: serviceVariationId,
+      serviceName: services[0]?.name,
+    }).catch(()=>{});
+
+    // [220] SMS confirmation post-booking
+    bookingManager.sendConfirmationSMS({
+      customerPhone: from, customerName: customer?.given_name,
+      slotLabel, serviceName: services[0]?.name || 'votre service',
+      squareBookingId: booking.id,
+    }).catch(()=>{});
+
+    sessionStore.update(callSid, { step: sessionStore.STEPS.CONFIRMING, bookingId: booking.id, slotLabel });
+
     const confirmTwiml = twiml.buildConfirmationTwiML({
       customerName: customer?.given_name,
-      slotLabel,
-      serviceName: services[0]?.name || 'votre service',
+      slotLabel, serviceName: services[0]?.name || 'votre service',
     });
 
-    bus.system(`[VoiceAgent] ✅ Réservation confirmée: ${booking.id} | ${slotLabel} | ${from}`);
+    bus.system(`[VoiceAgent] ✅ [219] CONFIRMED | ${booking.id} | ${slotLabel} | [220] SMS déclenché`);
     return { twiml: confirmTwiml, confirmed: true, booking, slotLabel };
   }
 
-  // ─── NETTOYAGE SESSION ────────────────────────────────────────────────────
+  // ─── [222] ANNULATION COMPLÈTE ────────────────────────────────────────────
+
+  async handleCancellation({ callSid, squareBookingId, from, slotLabel }) {
+    const session      = this._sessions.get(callSid) || {};
+    const storeSession = sessionStore.getOrCreate(callSid, { from });
+    const result = await bookingManager.cancelBooking(squareBookingId, {
+      customerPhone: from,
+      customerName:  session.customer?.given_name || storeSession.customerName,
+      slotLabel,
+      tenantId:      session.tenantId || storeSession.tenantId || 'kadio',
+    });
+    const msg = result.squareCancelled
+      ? 'Votre rendez-vous a bien été annulé. Vous recevrez une confirmation par SMS. À bientôt!'
+      : "J'ai enregistré votre demande d'annulation. Un représentant va la traiter. Merci.";
+    sessionStore.update(callSid, { step: sessionStore.STEPS.ENDED });
+    return { twiml: twiml.buildGenericTwiML(msg, { hangup: true }), ...result };
+  }
+
+  // ─── NETTOYAGE SESSION [227] ─────────────────────────────────────────────
 
   cleanupSession(callSid) {
     this._sessions.delete(callSid);
+    sessionStore.closeSession(callSid); // [227] libère slot concurrence
   }
 }
 

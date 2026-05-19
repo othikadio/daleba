@@ -25,13 +25,16 @@ function isCommanderCall(fromNumber) {
 
 // ─── TWIML ACCUEIL COMMANDANT [092, 093] ─────────────────────────────────────
 
+// [231-232] Accueil militaire exclusif Ulrich
 function buildCommanderWelcomeTwiml() {
   const twiml = new VoiceResponse();
 
-  twiml.say(
-    { voice: 'Polly.Lea-Neural', language: 'fr-CA' },
-    'Poste de commandement activé. Commandant, je vous écoute. Donnez votre ordre.'
-  );
+  // [232] Accueil militaire
+  const say = twiml.say({ voice: 'Polly.Lea-Neural', language: 'fr-CA' });
+  say.break({ time: '200ms' });
+  say.addText('Poste de commandement actif.');
+  say.break({ time: '350ms' });
+  say.addText('J\'écoute vos ordres, Commandant.');
 
   twiml.gather({
     input: 'speech',
@@ -52,6 +55,11 @@ function buildCommanderWelcomeTwiml() {
 // ─── MAPPING INTENTS → FONCTIONS [094] ────────────────────────────────────────
 
 const INTENT_MAP = {
+  // [233] Aliases spec exacts
+  CA_DAILY:            { fn: 'getDailyFinancialReport',   critical: false },
+  SWARM_STATUS:        { fn: 'getSwarmStatus',            critical: false },
+  ERRORS:              { fn: 'getRecentErrors',           critical: false },
+  // Aliases V22 (compat)
   get_revenue:         { fn: 'getDailyFinancialReport',   critical: false },
   get_appointments:    { fn: 'getTodayAppointments',      critical: false },
   get_status:          { fn: 'getSystemStatus',           critical: false },
@@ -59,15 +67,18 @@ const INTENT_MAP = {
   get_full_report:     { fn: 'getFullReport',             critical: false },
   get_swarm:           { fn: 'getSwarmStatus',            critical: false },
   get_errors:          { fn: 'getRecentErrors',           critical: false },
+  // [234] Actions critiques — exigent confirmation vocale
   deploy_patch:        { fn: 'deployLatestPatch',         critical: true  },
   rollback:            { fn: 'rollbackLastDeploy',        critical: true  },
   send_promo:          { fn: 'sendPromoSMS',              critical: true  },
   pause_alerts:        { fn: 'pauseAlerts',               critical: false },
-  update_price:        { fn: 'updateServicePrice',        critical: true  },
+  update_price:        { fn: 'updateServicePrice',        critical: true  },  // [234]
   delete_data:         { fn: 'deleteData',                critical: true  },
   cancel_appointment:  { fn: 'cancelAppointment',         critical: true  },
   swarm_status:        { fn: 'getSwarmStatus',            critical: false },
   daily_digest:        { fn: 'getDailyDigest',            critical: false },
+  DEPLOY:              { fn: 'deployLatestPatch',         critical: true  },  // [234]
+  PRICE_UPDATE:        { fn: 'updateServicePrice',        critical: true  },  // [234]
 };
 
 // ─── EXTRACTION D'INTENT [094] ───────────────────────────────────────────────
@@ -173,6 +184,52 @@ async function executeIntent(intent, params = {}) {
     case 'pause_alerts':
       require('./notification-shield').clearShield();
       return "Alertes suspendues pour 60 minutes.";
+
+    // [233] CA_DAILY → getDailyFinancialReport()
+    case 'CA_DAILY': {
+      try {
+        const square  = require('./square');
+        const audit   = await square.getSquareWeeklyAudit();
+        const taxDig  = require('./tax-digest').generateTaxDigest('QC', audit?.revenue?.total || 0, 'kadio');
+        return `Rapport journalier: chiffre d'affaires ${audit.revenue?.total || 0}$. TPS ${taxDig.tps}$, TVQ ${taxDig.tvq}$. ${audit.appointments?.total || 0} rendez-vous. Taux complétion: ${audit.appointments?.completionRate || 0}%.`;
+      } catch {
+        return 'Rapport journalier indisponible. Vérifiez la connexion Square.';
+      }
+    }
+
+    // [233] SWARM_STATUS → getSwarmStatus()
+    case 'SWARM_STATUS': {
+      try {
+        const swarm = require('./swarm');
+        const s     = swarm.getSwarmStatus();
+        return `Swarm actif: ${s.stats.activeAgents} agents. ${s.stats.totalCompleted} tâches completées. ${s.stats.totalFailed} échecs. ${s.stats.totalRunning || 0} en cours.`;
+      } catch {
+        return 'Statut swarm indisponible.';
+      }
+    }
+
+    // [233] ERRORS → lit le dernier patch généré par error-watcher
+    case 'ERRORS':
+    case 'get_errors': {
+      try {
+        const watcher = require('./error-watcher');
+        const report  = await watcher.getLatestPatch?.() || watcher.getErrorSummary?.() || null;
+        if (report?.patch) return `Dernier patch: ${report.patch.slice(0, 120)}`;
+        if (report?.recent?.length) return `${report.recent.length} erreur(s) récente(s). Dernière: ${report.recent[0]?.message?.slice(0,80)}.`;
+        return 'Aucune erreur récente détectée.';
+      } catch {
+        return 'Module de surveillance des erreurs non accessible.';
+      }
+    }
+
+    // [234] Actions critiques: déclenchées par buildConfirmationTwiml, pas directement
+    case 'DEPLOY':
+    case 'deploy_patch':
+      return '⚠️ Déploiement: confirmation vocale requise. Dites « confirmer déploiement » pour procéder.';
+
+    case 'PRICE_UPDATE':
+    case 'update_price':
+      return '⚠️ Modification de prix: confirmation vocale requise. Dites « confirmer mise à jour prix » pour procéder.';
 
     default:
       return `Ordre reçu. L'action ${intent} sera traitée par le système.`;
@@ -323,6 +380,7 @@ async function handleCommanderConfirm(transcript, callSid) {
 module.exports = {
   isCommanderCall,
   buildCommanderWelcomeTwiml,
+  buildConfirmationTwiml,  // [234]
   handleCommanderOrder,
   handleCommanderConfirm,
   extractIntent, executeIntent,
