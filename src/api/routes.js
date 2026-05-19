@@ -11,10 +11,12 @@ const calendarRoutes = require('./calendar-routes');
 const voiceRoutes    = require('./voice-routes');   // V22 — Agent Vocal
 const onboardingRoutes = require('./onboarding-routes'); // V23 — SaaS Multi-Tenant
 const videoRoutes = require('./video-routes'); // V24 — Studio Vidéo Botanique
+const dareRoutes = require('./dare-routes'); // DARE — Dynamic Agnostic Routing Engine
 const { requireAuth } = require('../middleware/auth');
 const { resolveTenant } = require('../middleware/tenant');
 const { v4: uuidv4 } = require('uuid');
 const { selectModel, explainRouting } = require('../router');
+const dare = require('../agents/dare');
 const { saveExchange, getHistory, saveAnnale } = require('../memory/db');
 const { logEntry, ENTRY_TYPES } = require('../services/journal');
 const { logError } = require('../services/error-monitor');
@@ -143,9 +145,10 @@ router.post('/chat', async (req, res) => {
   const sid = sessionId || uuidv4();
 
   try {
-    // 1. Sélection du modèle optimal
-    const model = selectModel(message, { forceModel });
-    const reason = explainRouting(model, message);
+    // 1. Sélection du modèle optimal via DARE
+    const dareResult = dare.selectProvider(message, { forceProvider: forceModel });
+    const model = dareResult.provider;
+    const reason = dareResult.reason;
 
     // 2. Récupération de l'historique
     const rawHistory = await getHistory(sid, 8);
@@ -162,9 +165,8 @@ router.post('/chat', async (req, res) => {
     const { enrichSystemPrompt } = require('../services/brain-context');
     const effectiveSystemPrompt = await enrichSystemPrompt(message, basePrompt);
 
-    // 4. Appel au modèle sélectionné
-    const agent = AGENTS[model];
-    const result = await agent.query(message, effectiveSystemPrompt, history);
+    // 4. Appel au modèle sélectionné via DARE (avec failover automatique)
+    const result = await dare.executeWithFailover(message, effectiveSystemPrompt, history, { forceProvider: forceModel });
 
     // 5. Sauvegarde en mémoire
     await saveExchange(sid, message, result.content, model, reason);
@@ -250,6 +252,7 @@ router.use('/webhook', voiceRoutes);
 
 // V24 — Studio Vidéo Botanique
 router.use('/video', videoRoutes);
+router.use('/dare', dareRoutes); // DARE — Metacortex Routing Engine
 
 // ─── ROUTES SOCIAL META (Point 38) ───────────────────────────────────────
 
