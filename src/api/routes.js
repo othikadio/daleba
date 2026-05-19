@@ -411,6 +411,8 @@ router.use('/v1/widgets', widgetRoutes);
 const loyaltyRoutes = require('./loyalty-routes'); // [415-418]
 router.use('/v1/loyalty', loyaltyRoutes);
 router.use('/v1/feedback', loyaltyRoutes); // pour /feedback/:token
+const campaignRoutes = require('./campaign-routes'); // [453-466] Ads Autonome + Stock + PO
+router.use('/v1/campaigns', campaignRoutes);
 router.use('/admin/tenants', adminTenantsRoutes);
 
 // ─── ROUTES SOCIAL META (Point 38) ───────────────────────────────────────
