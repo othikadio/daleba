@@ -207,9 +207,7 @@ router.post('/chat-sessions/:id/release', async (req, res) => {
  * Disponible uniquement en NODE_ENV !== 'production'
  */
 router.post('/voice/test', async (req, res) => {
-  if (process.env.NODE_ENV === 'production') {
-    return res.status(404).json({ error: 'Endpoint non disponible en production' });
-  }
+  // Admin endpoint — accessible en production depuis le dashboard /admin/dashboard
 
   const { speechText = 'Je voudrais un rendez-vous demain matin' } = req.body;
 
@@ -235,6 +233,7 @@ router.post('/voice/test', async (req, res) => {
       intent:           result.intent,
       frustrationScore: result.frustrationScore,
       escalated:        result.escalated || false,
+      llmResponse:      result.llmResponse || result.response || '',
       twiml:            result.twiml,
       availability,
     });

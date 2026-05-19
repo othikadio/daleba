@@ -953,16 +953,16 @@ document.getElementById('btnVoiceTest').addEventListener('click', async () => {
   result.style.display = 'none';
 
   try {
-    const d = await api('POST', '/webhook/voice/test', { speech });
+    const d = await api('POST', '/webhook/voice/test', { speechText: speech });
 
     const frustrationColor = d.frustrationScore >= 70 ? '#FF4444'
       : d.frustrationScore >= 40 ? '#FFB800' : '#00FF9F';
 
     result.innerHTML = `
-<span class="intent-badge">${escHtml(d.intent?.toUpperCase() || 'UNKNOWN')}</span>${d.escalate ? '<span class="intent-badge" style="border-color:#FF4444;color:#FF4444;">ESCALADE</span>' : ''}
+<span class="intent-badge">${escHtml(d.intent?.toUpperCase() || 'UNKNOWN')}</span>${(d.escalate||d.escalated) ? '<span class="intent-badge" style="border-color:#FF4444;color:#FF4444;">ESCALADE</span>' : ''}
 
 <div style="color:var(--text2);margin:8px 0 4px;font-size:0.65rem;letter-spacing:2px;">CLIENT:</div>
-<div style="color:var(--text);">"${escHtml(d.speech)}"</div>
+<div style="color:var(--text);">"${escHtml(d.speechText||d.speech||speech)}"</div>
 
 <div style="color:var(--text2);margin:10px 0 4px;font-size:0.65rem;letter-spacing:2px;">BÉATRICE (IA):</div>
 <div style="color:var(--green);">"${escHtml(d.llmResponse)}"</div>
