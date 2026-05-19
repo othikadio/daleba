@@ -1,20 +1,27 @@
 /**
- * DALEBA V4 Section 5 — Routes Webhook Twilio Voice (Points 201-218)
+ * DALEBA V4 Section 5 — Routes Webhook Twilio Voice (Points 201-250)
  *
  * POST /api/webhook/voice          → appel entrant (accueil TwiML) [202]
  * POST /api/webhook/voice/gather   → transcription → DARE intent [210-211]
  * POST /api/webhook/voice/identity → capture identité client inconnu [217]
  * POST /api/webhook/voice/booking-confirm → confirmation RDV [218]
- * POST /api/webhook/voice/status   → statut fin d'appel
- * POST /api/webhook/voice/dial-status → résultat du transfert Ulrich
+ * POST /api/webhook/voice/recording-status → callback enregistrement [237]
+ * POST /api/webhook/voice/status   → statut fin d'appel [242]
+ * GET  /api/voice/calls/today      → journal HUD [239]
  */
 
 const express = require('express');
 const router  = express.Router();
 const twilio  = require('twilio');
 
-// [203] Middleware de validation cryptographique HMAC-SHA1
-const { twilioAuthMiddleware } = require('../middleware/twilio-auth');
+// [203] Middleware HMAC-SHA1
+const { twilioAuthMiddleware }  = require('../middleware/twilio-auth');
+// [236] Wrapper try/catch suprême
+const { safeVoiceRoute }        = require('../middleware/voice-error-handler');
+// [237-238,242,243] Call recorder
+const callRecorder              = require('../services/call-recorder');
+// [239-241] Call log
+const callLog                   = require('../services/call-log');
 
 const voiceAgent        = require('../services/voice-agent');     // V22 — escalade
 const VoiceAgentV4      = require('../agents/VoiceAgent');         // V4  — BaseAgent
@@ -63,8 +70,8 @@ function twimlResponse(res, twiml) {
 
 // ─── ROUTE 1 : APPEL ENTRANT ──────────────────────────────────────────────────
 
-// [202] Endpoint principal appels entrants | [203] HMAC-SHA1 twilioAuthMiddleware
-router.post('/voice', twilioAuthMiddleware, async (req, res) => {
+// [202] [236] Endpoint principal — safeVoiceRoute = jamais de 500
+router.post('/voice', twilioAuthMiddleware, safeVoiceRoute(async (req, res) => {
   // [204] Variables Twilio standardisées
   const { CallSid, From, To, CallStatus } = req.body;
   bus.system(`📞 Appel entrant | ${From} → ${To} | ${CallSid} | ${CallStatus || 'ringing'}`);
@@ -96,12 +103,12 @@ router.post('/voice', twilioAuthMiddleware, async (req, res) => {
       'Bonjour, merci d\'appeler. Nous rencontrons un problème technique. Veuillez rappeler dans quelques instants.');
     twimlResponse(res, fallback.toString());
   }
-});
+}));
 
 // ─── ROUTE 2 : TRANSCRIPTION CLIENT ──────────────────────────────────────────
 
-// [210-211] Gather: Speech → DARE intent extraction < 800ms
-router.post('/voice/gather', twilioAuthMiddleware, async (req, res) => {
+// [210-211] [236] Gather — safeVoiceRoute
+router.post('/voice/gather', twilioAuthMiddleware, safeVoiceRoute(async (req, res) => {
   const { CallSid, From, SpeechResult, Confidence } = req.body;
   const speechText = SpeechResult || '';
   const isTimeout  = req.query.timeout === '1';
@@ -131,7 +138,7 @@ router.post('/voice/gather', twilioAuthMiddleware, async (req, res) => {
     bus.system(`❌ Gather route error: ${err.message}`);
     twimlResponse(res, twimlGen.buildGenericTwiML("Je suis désolé, je n'ai pas bien compris. Pouvez-vous répéter?"));
   }
-});
+}));
 
 // [217] Capture identité client inconnu
 router.post('/voice/identity', twilioAuthMiddleware, async (req, res) => {
@@ -174,21 +181,66 @@ router.post('/voice/dial-status', twilioAuthMiddleware, async (req, res) => {
 
 // ─── ROUTE 4 : STATUT FIN D'APPEL ────────────────────────────────────────────
 
-router.post('/voice/status', twilioAuthMiddleware, async (req, res) => {
+// [236] safeVoiceRoute + [242] destruction état + [243] masquage + [245] coupe SMS
+router.post('/voice/status', twilioAuthMiddleware, safeVoiceRoute(async (req, res) => {
   const { CallSid, CallStatus, CallDuration, From } = req.body;
-  bus.system(`📊 Call ended [${CallSid}] status=${CallStatus} duration=${CallDuration}s`);
+  // [243] Masquer le numéro dans les logs
+  const fromMasked = callRecorder.maskPhone(From);
+  bus.system(`📊 Call ${CallStatus} [${CallSid}] from=${fromMasked} duration=${CallDuration}s`);
 
-  // Reset session au statut bot_handling après fin d'appel si elle était en escalade
+  if (CallStatus === 'completed') {
+    // [242] Destruction d'état diaogue à la fin de l'appel
+    callRecorder.onCallCompleted(CallSid);
+    VoiceAgentV4.cleanupSession(CallSid);
+
+    // [245] Lever la suspension SMS non-urgents après fin d'escalade
+    const shield = require('../services/notification-shield');
+    if (shield.isEscalationMuted?.()) shield.resumeNonUrgent?.();
+
+    // [241] Log final de l'appel
+    await callLog.upsertCallLog(CallSid, {
+      from: From, status: 'completed',
+      endedAt: new Date().toISOString(),
+      durationS: parseInt(CallDuration) || null,
+    }).catch(()=>{});
+  }
+
   try {
     const session = await getOrCreateChatSession({ clientId: From, channel: 'voice', callSid: CallSid });
-    if (session.status === 'human_required') {
-      // Garde le human_required actif — Ulrich doit le reset manuellement via dashboard
-    }
+    if (session.status === 'human_required') { /* Ulrich reset manuellement */ }
   } catch (_) {}
 
-  // [227] Libérer la slot de concurrence
-  VoiceAgentV4.cleanupSession(CallSid);
   res.sendStatus(204);
+}));
+
+// [237] Callback Twilio enregistrement audio
+router.post('/voice/recording-status', twilioAuthMiddleware, safeVoiceRoute(async (req, res) => {
+  const { CallSid, RecordingSid, RecordingUrl, RecordingDuration, From } = req.body;
+  bus.system(`🎤 Enregistrement reçu | ${callRecorder.maskPhone(From)} | ${RecordingSid}`);
+
+  // [238] Sauvegarder métadonnées chiffrées
+  await callRecorder.saveRecordingMetadata({
+    callSid: CallSid, recordingSid: RecordingSid, recordingUrl: RecordingUrl,
+    duration: parseInt(RecordingDuration) || 0,
+    tenantId: 'kadio', from: From,
+  });
+
+  // Lier au call log
+  await callLog.upsertCallLog(CallSid, { recordingSid: RecordingSid }).catch(()=>{});
+  res.sendStatus(204);
+}));
+
+// [239-240] API Journal appels pour HUD
+router.get('/calls/today', async (req, res) => {
+  const tenantId = req.query.tenant || 'kadio';
+  const logs = await callLog.getTodayCallLogs(tenantId, 100);
+  res.json(logs);
+});
+
+router.get('/calls/:callSid', async (req, res) => {
+  const log = await callLog.getCallLog(req.params.callSid);
+  if (!log) return res.status(404).json({ error: 'Not found' });
+  res.json(log);
 });
 
 // [221] OTP VOCAL — vérification code 4 chiffres

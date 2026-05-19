@@ -78,7 +78,9 @@ class VoiceAgent extends BaseAgent {
   async execute(payload) {
     const { callSid, speechText, from, to, tenantId, customerName, step } = payload;
 
-    this._log('info', `Appel ${callSid} | From: ${from} | Step: ${step || 'welcome'}`);
+    // [243] Masquer le numéro dans les logs
+    const { maskPhone } = require('../services/call-recorder');
+    this._log('info', `Appel ${callSid} | From: ${maskPhone(from)} | Step: ${step || 'welcome'}`);
 
     // Router selon l'étape du flux
     switch (step) {
@@ -268,6 +270,9 @@ Réponds UNIQUEMENT avec un objet JSON: {"intent":"BOOKING","confidence":0.95}`;
 
   async _handleStressEscalation(session, storeSession, reason, frustrationScore) {
     const callSid = session.callSid || storeSession?.callSid;
+    // [245] Suspendre les SMS non-urgents pendant l'éscalade
+    try { require('../services/notification-shield').muteNonUrgent(); } catch {}
+
     // [226] SMS d'alerte contextuel au Commandant
     stressMonitor.sendCommanderAlert({
       customerName:    session.customer?.given_name || storeSession?.customerName || 'Client',

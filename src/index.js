@@ -35,6 +35,20 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// [244] Compression gzip — minimise transfert Railway → Twilio
+const compression = require('compression');
+app.use(compression({
+  // Exclure les routes TwiML du gzip : Twilio attend du XML brut sans encoding
+  // Les autres routes (JSON, HTML) bénéficient de la compression
+  filter: (req, res) => {
+    const ct = res.getHeader('Content-Type') || '';
+    if (String(ct).includes('application/xml')) return false; // TwiML sans gzip [244]
+    return compression.filter(req, res);
+  },
+  threshold: 1024, // Compresser seulement si > 1KB
+  level: 6,
+}));
+
 // Middlewares
 app.use(helmet({
   contentSecurityPolicy: {
@@ -91,6 +105,22 @@ app.get('/admin/studio', (req, res) => {
 // [181] Dashboard financier
 app.get('/admin/finances', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-finances.html'));
+});
+// [239-240] Journal des appels HUD
+app.get('/admin/calls', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin-calls.html'));
+});
+// [241] API calls today — proxy route (voice-routes étant sous /api/webhook)
+app.get('/api/voice/calls/today', async (req, res) => {
+  const callLog = require('./services/call-log');
+  res.json(await callLog.getTodayCallLogs(req.query.tenant || 'kadio', 100));
+});
+app.get('/api/voice/recording/:sid', (req, res) => {
+  // [240] Proxy audio depuis Twilio (auth requise en prod)
+  const sid = req.params.sid;
+  if (!process.env.TWILIO_ACCOUNT_SID) return res.status(404).json({ error: 'Twilio non configuré' });
+  const url = `https://api.twilio.com/2010-04-01/Accounts/${process.env.TWILIO_ACCOUNT_SID}/Recordings/${sid}.mp3`;
+  res.redirect(url);
 });
 // [148] Token studio pour accès exports
 app.post('/api/auth/studio-token', (req, res) => {
@@ -213,6 +243,16 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
       await shield.shieldedSMS(ULRICH_PHONE, TWILIO_FROM, digest, { windowMs: 0 });
     });
   }
+  // [241] Scan post-appel vocal toutes les heures (stocks botaniques)
+  const callLogSvc = require('./services/call-log');
+  setInterval(() => {
+    callLogSvc.analyzeNewVoiceBookings('kadio').catch(()=>{});
+  }, 60 * 60 * 1000); // 1h
+  // [238] Purge enregistrements expirés toutes les 24h
+  const callRecorderSvc = require('./services/call-recorder');
+  setInterval(() => {
+    callRecorderSvc.purgeExpiredRecordings().catch(()=>{});
+  }, 24 * 60 * 60 * 1000); // 24h
 }
 
 // Démarrage — skip listen() en mode serverless (Vercel)

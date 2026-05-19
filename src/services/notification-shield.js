@@ -286,6 +286,23 @@ function scheduleDailyDigest(sendFn) {
 
 // ─── EXPORTS ─────────────────────────────────────────────────────────────────
 
+// [245] Suspension SMS non-urgents pendant escalade vocale
+let _escalationMuted = false;
+
+function muteNonUrgent() {
+  _escalationMuted = true;
+  try { require('./event-bus').system('[Shield][245] SMS non-urgents suspendus'); } catch {}
+  // Auto-rétablissement après 30min max
+  setTimeout(() => { _escalationMuted = false; }, 30 * 60 * 1000);
+}
+
+function resumeNonUrgent() {
+  _escalationMuted = false;
+  try { require('./event-bus').system('[Shield][245] SMS non-urgents rétablis'); } catch {}
+}
+
+function isEscalationMuted() { return _escalationMuted; }
+
 module.exports = {
   canSend, markSent,
   shieldedSMS, shieldedAlert,
@@ -297,4 +314,6 @@ module.exports = {
   getDynamicWindow,
   // [075]
   queueForDigest, buildDailyDigest, scheduleDailyDigest,
+  // [245] Escalade vocale
+  muteNonUrgent, resumeNonUrgent, isEscalationMuted,
 };

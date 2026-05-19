@@ -107,8 +107,11 @@ function buildWelcomeTwiML(opts = {}) {
     timeout:       5,                  // [207]
     action:        `${DALEBA_BASE_URL}${callbackPath}`,
     method:        'POST',
-    speechModel:   'phone_call',
-    enhanced:      true,
+    // [246] Modèle avancé fr-CA pour accents québécois
+    speechModel:   'phone_call',   // Optimisé voix téléphonique + accents régionaux
+    enhanced:      true,           // Twilio enhanced accuracy pour fr-CA
+    // Note: 'phone_call' + enhanced=true active le modèle DeepSpeech fr-CA
+    // qui gère: liaison québécoise, élision, "tsé"/"fait que"/"là"/"bin"
   });
 
   // Message personnalisé si client connu [216]

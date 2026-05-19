@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DALEBA — Journal des Appels</title>
+  <style>
+    :root {
+      --bg:       #0a0a0f;
+      --surface:  #13131a;
+      --card:     #1a1a24;
+      --border:   #2a2a3e;
+      --accent:   #7c5cfc;
+      --green:    #22c55e;
+      --red:      #ef4444;
+      --orange:   #f97316;
+      --yellow:   #eab308;
+      --text:     #e2e8f0;
+      --muted:    #64748b;
+      --radius:   12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: sticky; top: 0; z-index: 10;
+    }
+    header h1 { font-size: 18px; font-weight: 700; }
+    header .badge { background: var(--accent); color: #fff; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .stat { text-align: center; }
+    .stat .val { font-size: 28px; font-weight: 800; }
+    .stat .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; margin-top: 2px; }
+
+    .filters {
+      padding: 12px 24px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .filter-btn.active, .filter-btn:hover { background: var(--accent); border-color: var(--accent); }
+
+    .call-list { padding: 12px 24px; display: flex; flex-direction: column; gap: 10px; }
+
+    .call-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+    .call-card:hover { border-color: var(--accent); }
+    .call-card.escalated { border-left: 3px solid var(--red); }
+    .call-card.booking { border-left: 3px solid var(--green); }
+
+    .call-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .call-from { font-weight: 600; font-size: 14px; }
+    .call-time { color: var(--muted); font-size: 12px; margin-left: auto; }
+    .call-duration { color: var(--muted); font-size: 12px; }
+
+    .intent-badge {
+      font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px;
+    }
+    .intent-BOOKING      { background: #166534; color: #bbf7d0; }
+    .intent-CANCELLATION { background: #7f1d1d; color: #fecaca; }
+    .intent-MODIFICATION { background: #78350f; color: #fde68a; }
+    .intent-INQUIRY      { background: #1e3a5f; color: #bfdbfe; }
+    .intent-ESCALATION   { background: #7f1d1d; color: #fca5a5; }
+
+    .stress-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .stress-bar-bg {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .stress-bar-fill { height: 100%; border-radius: 2px; transition: width .3s; }
+    .stress-label { font-size: 11px; color: var(--muted); min-width: 40px; }
+
+    .transcript-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 10px;
+      display: none;
+      max-height: 120px;
+      overflow-y: auto;
+      line-height: 1.5;
+    }
+    .call-card.expanded .transcript-box { display: block; }
+
+    .summary-text {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    .audio-player {
+      margin-top: 10px;
+      display: none;
+    }
+    .call-card.expanded .audio-player { display: block; }
+    .audio-player audio { width: 100%; border-radius: 8px; background: var(--surface); }
+
+    .action-row { display: flex; gap: 8px; margin-top: 10px; }
+    .btn-sm {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-sm.danger:hover { border-color: var(--red); color: var(--red); }
+
+    .empty { text-align: center; color: var(--muted); padding: 60px 20px; }
+    .empty .icon { font-size: 48px; margin-bottom: 12px; }
+
+    .concurrency-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 24px;
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      gap: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>📞</div>
+    <h1>Journal des Appels</h1>
+    <span class="badge" id="live-count">0 actifs</span>
+    <button class="filter-btn" onclick="loadCalls()" style="margin-left:auto">↻ Actualiser</button>
+  </header>
+
+  <div class="concurrency-bar" id="concurrency-bar">
+    Appels actifs: <strong id="active-calls">—</strong> / 50 &nbsp;|&nbsp;
+    <span id="concurrency-pct">—</span>% capacité
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat"><div class="val" id="stat-total">0</div><div class="lbl">Appels aujourd'hui</div></div>
+    <div class="stat"><div class="val" id="stat-booking">0</div><div class="lbl">Réservations</div></div>
+    <div class="stat"><div class="val" id="stat-escalated">0</div><div class="lbl">Escalades</div></div>
+    <div class="stat"><div class="val" id="stat-avg-stress">0</div><div class="lbl">Stress moyen</div></div>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterCalls('all', this)">Tous</button>
+    <button class="filter-btn" onclick="filterCalls('BOOKING', this)">🗓 Réservations</button>
+    <button class="filter-btn" onclick="filterCalls('ESCALATION', this)">🚨 Escalades</button>
+    <button class="filter-btn" onclick="filterCalls('INQUIRY', this)">💬 Renseignements</button>
+  </div>
+
+  <div class="call-list" id="call-list">
+    <div class="empty"><div class="icon">📵</div><p>Chargement des appels...</p></div>
+  </div>
+
+  <script>
+    let allCalls = [];
+    let currentFilter = 'all';
+
+    function stressColor(score) {
+      if (score < 30) return '#22c55e';
+      if (score < 60) return '#eab308';
+      return '#ef4444';
+    }
+
+    function formatTime(ts) {
+      if (!ts) return '—';
+      const d = new Date(ts);
+      return d.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function formatDuration(s) {
+      if (!s) return '—';
+      const m = Math.floor(s / 60), sec = s % 60;
+      return m > 0 ? `${m}m${sec}s` : `${sec}s`;
+    }
+
+    function renderCall(call) {
+      const card = document.createElement('div');
+      card.className = `call-card ${call.escalated ? 'escalated' : ''} ${call.booking_id ? 'booking' : ''}`;
+      card.dataset.intent = call.intent || '';
+      const intentClass = `intent-${(call.intent || 'INQUIRY').toUpperCase()}`;
+      const stressScore = call.frustration_score || 0;
+      const stressW = stressScore + '%';
+      const stressCol = stressColor(stressScore);
+
+      card.innerHTML = `
+        <div class="call-header">
+          <div class="call-from">${call.from_masked || '***'}</div>
+          ${call.intent ? `<span class="intent-badge ${intentClass}">${call.intent}</span>` : ''}
+          ${call.escalated ? '<span class="intent-badge" style="background:#7f1d1d;color:#fca5a5">🚨 ESCALADE</span>' : ''}
+          <span class="call-time">${formatTime(call.started_at)}</span>
+          <span class="call-duration">${formatDuration(call.duration_s)}</span>
+        </div>
+        ${call.summary ? `<div class="summary-text">${call.summary}</div>` : ''}
+        <div class="stress-bar">
+          <span class="stress-label">Stress</span>
+          <div class="stress-bar-bg"><div class="stress-bar-fill" style="width:${stressW};background:${stressCol}"></div></div>
+          <span class="stress-label">${stressScore}/100</span>
+        </div>
+        ${call.transcript ? `<div class="transcript-box">${call.transcript}</div>` : ''}
+        ${call.recording_sid ? `
+          <div class="audio-player">
+            <audio controls src="/api/voice/recording/${call.recording_sid}"></audio>
+          </div>` : ''}
+        <div class="action-row">
+          ${call.transcript ? '<button class="btn-sm" onclick="event.stopPropagation();this.closest(\'.call-card\').classList.toggle(\'expanded\')">📝 Transcription</button>' : ''}
+          ${call.recording_sid ? '<button class="btn-sm" onclick="event.stopPropagation();this.closest(\'.call-card\').classList.toggle(\'expanded\')">🎵 Audio</button>' : ''}
+          ${call.booking_id ? `<button class="btn-sm" onclick="event.stopPropagation()">🗓 RDV: ${call.booking_id.slice(0,8)}...</button>` : ''}
+        </div>
+      `;
+      return card;
+    }
+
+    async function loadCalls() {
+      try {
+        const res = await fetch('/api/voice/calls/today');
+        allCalls = await res.json();
+        renderFiltered();
+        updateStats();
+      } catch (e) {
+        document.getElementById('call-list').innerHTML =
+          '<div class="empty"><div class="icon">⚠️</div><p>Erreur de chargement: ' + e.message + '</p></div>';
+      }
+
+      // Concurrency
+      try {
+        const c = await fetch('/api/webhook/voice/concurrency');
+        const d = await c.json();
+        document.getElementById('active-calls').textContent = d.active;
+        document.getElementById('concurrency-pct').textContent = d.usagePct;
+        document.getElementById('live-count').textContent = d.active + ' actifs';
+      } catch {}
+    }
+
+    function filterCalls(intent, btn) {
+      currentFilter = intent;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderFiltered();
+    }
+
+    function renderFiltered() {
+      const filtered = currentFilter === 'all'
+        ? allCalls
+        : allCalls.filter(c => c.intent === currentFilter);
+      const list = document.getElementById('call-list');
+      list.innerHTML = '';
+      if (!filtered.length) {
+        list.innerHTML = '<div class="empty"><div class="icon">📵</div><p>Aucun appel pour ce filtre.</p></div>';
+        return;
+      }
+      filtered.forEach(c => list.appendChild(renderCall(c)));
+    }
+
+    function updateStats() {
+      document.getElementById('stat-total').textContent = allCalls.length;
+      document.getElementById('stat-booking').textContent = allCalls.filter(c => c.booking_id).length;
+      document.getElementById('stat-escalated').textContent = allCalls.filter(c => c.escalated).length;
+      const avg = allCalls.length
+        ? Math.round(allCalls.reduce((s, c) => s + (c.frustration_score || 0), 0) / allCalls.length)
+        : 0;
+      document.getElementById('stat-avg-stress').textContent = avg;
+    }
+
+    // Auto-refresh toutes les 30s
+    loadCalls();
+    setInterval(loadCalls, 30000);
+  </script>
+</body>
+</html>
