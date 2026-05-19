@@ -22,9 +22,13 @@ const analyticsScraper  = require('./services/analytics-scraper');
 const commentHandler    = require('./services/comment-handler');
 const tokenVault        = require('./services/token-vault');
 const mediaCleanup      = require('./services/media-cleanup');
-const transactionIngester = require('./services/transaction-ingester');
-const cashflowEngine    = require('./services/cashflow-engine');
-const costTracker       = require('./services/infrastructure-cost-tracker');
+const transactionIngester  = require('./services/transaction-ingester');
+const cashflowEngine       = require('./services/cashflow-engine');
+const costTracker          = require('./services/infrastructure-cost-tracker');
+const taxDigestSvc         = require('./services/tax-digest');
+const metaAdsSvc           = require('./services/meta-ads');
+const financialSimulator   = require('./services/financial-simulator');
+const budgetGuard          = require('./services/budget-guard');
 const { studioStaticGuard } = require('./middleware/studio-auth');
 
 const path = require('path');
@@ -83,6 +87,10 @@ app.get('/admin/images', (req, res) => {
 // [139] Studio Media HUD
 app.get('/admin/studio', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-studio.html'));
+});
+// [181] Dashboard financier
+app.get('/admin/finances', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin-finances.html'));
 });
 // [148] Token studio pour accès exports
 app.post('/api/auth/studio-token', (req, res) => {
@@ -190,6 +198,13 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   cashflowEngine.startCashflowScheduler();
   // [168] Infrastructure cost tracker + persistance horaire
   costTracker.startCostPersistenceScheduler();
+  // [186] Rapport hebdomadaire dimanche 23h59
+  taxDigestSvc.startWeeklyReportScheduler();
+  // [176] Meta Ads pull toutes les 12h
+  metaAdsSvc.startAdSpendScheduler();
+  // [190, 198] Tables coûts fixes + index SaaS scale
+  financialSimulator.ensureFixedCostsTable().catch(e => console.warn('[Boot] fixed_costs:', e.message));
+  financialSimulator.ensureSaaSScaleIndexes().catch(e => console.warn('[Boot] saas_scale:', e.message));
   // Daily Digest — 20h heure salon [075]
   const ULRICH_PHONE = process.env.ULRICH_PHONE_NUMBER;
   const TWILIO_FROM  = process.env.TWILIO_PHONE_NUMBER;

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DALEBA Finances — Tableau de Bord</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#070a0f;--surface:#0d1117;--border:#1e2530;
+  --gold:#D4AF37;--blue:#58a6ff;--green:#3fb950;
+  --red:#f85149;--purple:#bc8cff;--text:#e6edf3;--muted:#8b949e;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter','Helvetica Neue',sans-serif;min-height:100vh}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* HEADER */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header h1{font-size:1.1rem;font-weight:700;color:var(--gold);letter-spacing:.05em}
+.header .dot{width:8px;height:8px;background:var(--green);border-radius:50%;display:inline-block;margin-right:8px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* LAYOUT */
+.page{padding:24px;max-width:1400px;margin:0 auto}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+/* SECTION TITLE */
+.sec{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:24px 0 12px;display:flex;align-items:center;gap:8px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* KPI CARDS */
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+.kpi-label{font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.kpi-value{font-size:1.9rem;font-weight:800;line-height:1}
+.kpi-sub{font-size:.72rem;color:var(--muted);margin-top:6px}
+.kpi-delta{font-size:.75rem;font-weight:700;padding:2px 7px;border-radius:12px;display:inline-block;margin-top:4px}
+.delta-up{background:rgba(63,185,80,.15);color:var(--green)}
+.delta-dn{background:rgba(248,81,73,.15);color:var(--red)}
+.kpi.gold{border-color:rgba(212,175,55,.3)}
+.kpi.gold .kpi-value{color:var(--gold)}
+.kpi.green .kpi-value{color:var(--green)}
+.kpi.red .kpi-value{color:var(--red)}
+
+/* BAR CHART [182] */
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px}
+.chart-title{font-size:.8rem;font-weight:700;margin-bottom:16px;color:var(--text)}
+.bar-wrap{display:flex;align-items:flex-end;gap:3px;height:140px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{background:linear-gradient(to top,var(--gold),rgba(212,175,55,.4));border-radius:3px 3px 0 0;width:100%;min-height:2px;transition:height .4s ease}
+.bar-label{font-size:.58rem;color:var(--muted);white-space:nowrap;transform:rotate(-30deg);transform-origin:top center;margin-top:2px}
+.bar-val{font-size:.55rem;color:var(--muted)}
+
+/* TAX METER [182] */
+.tax-meter{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px}
+.tax-title{font-size:.8rem;font-weight:700;margin-bottom:14px}
+.tax-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.tax-row:last-child{border-bottom:none}
+.tax-name{font-size:.75rem;color:var(--muted);font-weight:600}
+.tax-amt{font-size:1rem;font-weight:800;color:var(--gold)}
+.tax-progress{height:4px;background:var(--border);border-radius:2px;margin-top:4px}
+.tax-progress-fill{height:100%;border-radius:2px;background:var(--gold);transition:width .6s ease}
+
+/* AD SPEND [182] */
+.ad-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.ad-row:last-child{border-bottom:none}
+.ad-name{flex:1;font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ad-spend{font-size:.85rem;font-weight:700;color:var(--red);min-width:60px;text-align:right}
+.roas-badge{padding:2px 7px;border-radius:12px;font-size:.65rem;font-weight:700}
+.roas-ok{background:rgba(63,185,80,.15);color:var(--green)}
+.roas-low{background:rgba(248,81,73,.15);color:var(--red)}
+.roas-warn{background:rgba(212,175,55,.15);color:var(--gold)}
+
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse;font-size:.75rem}
+.data-table th{text-align:left;padding:8px 12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)}
+.data-table td{padding:8px 12px;border-bottom:1px solid rgba(30,37,48,.5)}
+.data-table tr:hover td{background:rgba(255,255,255,.02)}
+.badge{display:inline-block;padding:2px 7px;border-radius:12px;font-size:.65rem;font-weight:700}
+.badge-ok{background:rgba(63,185,80,.15);color:var(--green)}
+.badge-flagged{background:rgba(248,81,73,.15);color:var(--red)}
+
+/* BUTTONS */
+.btn{padding:7px 14px;border-radius:6px;font-size:.75rem;font-weight:700;border:none;cursor:pointer;transition:all .15s}
+.btn-gold{background:var(--gold);color:#000}.btn-gold:hover{background:#e8c84a}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}.btn-ghost:hover{color:var(--text)}
+.btn-red{background:rgba(248,81,73,.15);color:var(--red);border:1px solid rgba(248,81,73,.3)}
+
+/* ALERTS */
+.alert{padding:12px 16px;border-radius:8px;margin-bottom:12px;font-size:.8rem;font-weight:600;display:flex;align-items:center;gap:10px}
+.alert-warn{background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.3);color:var(--gold)}
+.alert-red{background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);color:var(--red)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div><span class="dot"></span><h1>DALEBA FINANCES — Tableau de Bord</h1></div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span id="lastUpdate" style="font-size:.7rem;color:var(--muted)">Chargement…</span>
+    <button class="btn btn-gold" onclick="refreshAll()">↻ Refresh</button>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- ALERTES -->
+  <div id="alertsZone"></div>
+
+  <!-- KPIs PRINCIPAUX [172, 182] -->
+  <div class="sec">📊 Indicateurs clés — 30 derniers jours</div>
+  <div class="grid4">
+    <div class="kpi gold">
+      <div class="kpi-label">CA Brut</div>
+      <div class="kpi-value" id="kpiGross">—</div>
+      <div class="kpi-sub">Total facturé TTC</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">CA Net</div>
+      <div class="kpi-value" id="kpiNet">—</div>
+      <div class="kpi-sub">Hors taxes</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Panier Moyen</div>
+      <div class="kpi-value" id="kpiBasket" style="color:var(--blue)">—</div>
+      <div class="kpi-sub">Par transaction</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Transactions</div>
+      <div class="kpi-value" id="kpiTxCount" style="color:var(--purple)">—</div>
+      <div class="kpi-sub">Ce mois</div>
+    </div>
+  </div>
+
+  <!-- GRAPHIQUE + TAXES + AD SPEND [182] -->
+  <div class="sec">📈 CA quotidien · Taxes · Publicité</div>
+  <div class="grid3">
+
+    <!-- Bar chart CA quotidien [182] -->
+    <div class="chart-card" style="grid-column:1/2">
+      <div class="chart-title">CA Net — 7 derniers jours</div>
+      <div class="bar-wrap" id="barChart">
+        <div style="color:var(--muted);font-size:.75rem;align-self:center;margin:auto">Chargement…</div>
+      </div>
+    </div>
+
+    <!-- Compteur taxes [182] -->
+    <div class="tax-meter">
+      <div class="tax-title">💰 Taxes accumulées (trimestre)</div>
+      <div class="tax-row">
+        <div>
+          <div class="tax-name">TPS — Fédéral (5%)</div>
+          <div class="tax-progress"><div class="tax-progress-fill" id="tpsBar" style="width:0%"></div></div>
+        </div>
+        <div class="tax-amt" id="tpsAmt">—</div>
+      </div>
+      <div class="tax-row">
+        <div>
+          <div class="tax-name">TVQ — Provincial (9.975%)</div>
+          <div class="tax-progress"><div class="tax-progress-fill" id="tvqBar" style="width:0%"></div></div>
+        </div>
+        <div class="tax-amt" id="tvqAmt">—</div>
+      </div>
+      <div class="tax-row" style="padding-top:12px">
+        <div class="tax-name" style="color:var(--text)">TOTAL À DÉCLARER</div>
+        <div class="tax-amt" id="taxTotal" style="font-size:1.2rem">—</div>
+      </div>
+      <div id="taxDeadline" style="font-size:.68rem;color:var(--muted);margin-top:8px;text-align:right"></div>
+    </div>
+
+    <!-- Dépenses pub Meta Ads [182] -->
+    <div class="chart-card">
+      <div class="chart-title">📢 Meta Ads — Campagnes actives</div>
+      <div id="adSpendList">
+        <div style="color:var(--muted);font-size:.75rem">Chargement…</div>
+      </div>
+      <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:.72rem;color:var(--muted)">Total dépensé:</span>
+        <span style="font-weight:800;color:var(--red)" id="adTotalSpend">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASHFLOW FORECAST -->
+  <div class="sec">🔮 Prévision trésorerie — 7 prochains jours</div>
+  <div id="forecastZone">
+    <div style="color:var(--muted);font-size:.8rem">Chargement prévisions…</div>
+  </div>
+
+  <!-- TRANSACTIONS FLAGGED [162] -->
+  <div class="sec">🚨 Transactions suspectes (Audit Shield)</div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+    <table class="data-table">
+      <thead><tr>
+        <th>Tx ID</th><th>Montant</th><th>Écart</th><th>Raison</th><th>Date</th>
+      </tr></thead>
+      <tbody id="flaggedTable">
+        <tr><td colspan="5" style="color:var(--muted);text-align:center;padding:20px">Chargement…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const API = '/api';
+
+// ─── KPIs + LEDGER [172] ──────────────────────────────────────────────────────
+async function loadKPIs() {
+  const r = await fetch(`${API}/v1/finances/report`).then(r=>r.json()).catch(()=>({}));
+  if (r.error) { showAlert('warn', `Rapport: ${r.error}`); return; }
+
+  setText('kpiGross',    r.ca_brut     ? `$${r.ca_brut.toFixed(2)}` : '—');
+  setText('kpiNet',      r.ca_net      ? `$${r.ca_net.toFixed(2)}`  : '—');
+  setText('kpiBasket',   r.panier_moyen ? `$${r.panier_moyen.toFixed(2)}` : '—');
+  setText('kpiTxCount',  r.tx_count    || '—');
+}
+
+// ─── BAR CHART 7 JOURS [182] ─────────────────────────────────────────────────
+async function loadBarChart() {
+  const r = await fetch(`${API}/v1/finances/ledger?since=${d(-7)}`).then(r=>r.json()).catch(()=>({}));
+  const rows = r.rows || [];
+  if (!rows.length) return;
+
+  const byDay = {};
+  rows.forEach(row => { byDay[row.day || 'Inconnu'] = (byDay[row.day] || 0) + parseFloat(row.total_net || 0); });
+
+  const days = Array.from({length:7}, (_,i) => {
+    const d2 = new Date(Date.now() - (6-i)*86400000);
+    return { label: d2.toLocaleDateString('fr-CA',{weekday:'short'}), key: d2.toISOString().split('T')[0] };
+  });
+
+  const vals = days.map(d2 => byDay[d2.key] || 0);
+  const maxV = Math.max(...vals, 1);
+
+  document.getElementById('barChart').innerHTML = days.map((d2,i) => `
+    <div class="bar-col">
+      <div class="bar-val">$${vals[i].toFixed(0)}</div>
+      <div class="bar" style="height:${Math.round((vals[i]/maxV)*110)+10}px"></div>
+      <div class="bar-label">${d2.label}</div>
+    </div>
+  `).join('');
+}
+
+// ─── TAXES TRIMESTRE [182] ────────────────────────────────────────────────────
+async function loadTaxMeter() {
+  const r = await fetch(`${API}/v1/finances/tax-digest`).then(r=>r.json()).catch(()=>({}));
+  if (r.error) return;
+
+  const tps = r.aDeclarer?.tps || 0;
+  const tvq = r.aDeclarer?.tvq || 0;
+  const tot = r.aDeclarer?.total || 0;
+  const maxT = Math.max(tps, tvq, 1);
+
+  setText('tpsAmt', `$${tps.toFixed(2)}`);
+  setText('tvqAmt', `$${tvq.toFixed(2)}`);
+  setText('taxTotal', `$${tot.toFixed(2)}`);
+  document.getElementById('tpsBar').style.width = `${Math.round(tps/maxT*100)}%`;
+  document.getElementById('tvqBar').style.width = `${Math.round(tvq/maxT*100)}%`;
+  if (r.deadline) setText('taxDeadline', `Échéance: ${r.deadline}`);
+}
+
+// ─── META ADS [182] ──────────────────────────────────────────────────────────
+async function loadAdSpend() {
+  const r = await fetch(`${API}/v1/finances/ads/spend`).then(r=>r.json()).catch(()=>({}));
+  const campaigns = r.campaigns || [];
+  if (!campaigns.length) {
+    setText('adSpendList', '<div style="color:var(--muted);font-size:.75rem">Aucune campagne active ou META_ACCESS_TOKEN non configuré</div>');
+    setText('adTotalSpend', '—');
+    return;
+  }
+
+  document.getElementById('adSpendList').innerHTML = campaigns.map(c => {
+    const roas = c.roas || 0;
+    const roasClass = roas >= 1.5 ? 'roas-ok' : roas >= 1 ? 'roas-warn' : 'roas-low';
+    return `<div class="ad-row">
+      <div class="ad-name">${c.name}</div>
+      <div class="ad-spend">-$${(c.spend||0).toFixed(2)}</div>
+      ${roas > 0 ? `<span class="roas-badge ${roasClass}">ROAS ${roas.toFixed(1)}x</span>` : ''}
+    </div>`;
+  }).join('');
+
+  setText('adTotalSpend', `-$${(r.totalSpend||0).toFixed(2)} USD`);
+}
+
+// ─── FORECAST [165] ──────────────────────────────────────────────────────────
+async function loadForecast() {
+  const r = await fetch(`${API}/v1/finances/cashflow/forecast`).then(r=>r.json()).catch(()=>({}));
+  if (r.status === 'insufficient_data' || !r.forecast) {
+    setText('forecastZone', '<div style="color:var(--muted);font-size:.8rem">Données insuffisantes — moins de 7 jours de transactions</div>');
+    return;
+  }
+
+  const alert = r.isDropAlert ? `<div class="alert alert-red">⚠️ PREDICTIVE_DROP — Projection $${r.weekTotal?.toFixed(2)} (${r.dropRatio}% vs référence). Contenu de relance requis.</div>` : '';
+  const bars = (r.forecast || []).map(f =>
+    `<div class="kpi" style="padding:12px 14px">
+      <div class="kpi-label">${f.label}</div>
+      <div class="kpi-value" style="font-size:1.1rem;color:var(--blue)">$${f.predicted.toFixed(0)}</div>
+      <div class="kpi-sub">${f.date}</div>
+    </div>`
+  ).join('');
+
+  document.getElementById('forecastZone').innerHTML = alert +
+    `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px">${bars}</div>`;
+}
+
+// ─── FLAGS [162] ─────────────────────────────────────────────────────────────
+async function loadFlagged() {
+  const r = await fetch(`${API}/v1/finances/ledger/flags`).then(r=>r.json()).catch(()=>({}));
+  const rows = r.flagged || [];
+  if (!rows.length) {
+    document.getElementById('flaggedTable').innerHTML =
+      '<tr><td colspan="5" style="color:var(--muted);text-align:center;padding:16px">✅ Aucune transaction suspecte</td></tr>';
+    return;
+  }
+  document.getElementById('flaggedTable').innerHTML = rows.map(r2 => `
+    <tr>
+      <td style="font-family:monospace;font-size:.7rem">${r2.tx_id.slice(0,20)}…</td>
+      <td>$${parseFloat(r2.amount_gross).toFixed(2)}</td>
+      <td style="color:var(--red)">$${(r2.audit_delta||0).toFixed(2)}</td>
+      <td><span class="badge badge-flagged">${r2.audit_reason||'FLAGGED'}</span></td>
+      <td style="color:var(--muted)">${new Date(r2.timestamp_utc).toLocaleDateString('fr-CA')}</td>
+    </tr>
+  `).join('');
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function setText(id, val) { const e=document.getElementById(id); if(e) e.textContent=val; }
+function d(delta) { return new Date(Date.now()+delta*86400000).toISOString().split('T')[0]; }
+function showAlert(type, msg) {
+  const z = document.getElementById('alertsZone');
+  if(!z) return;
+  z.insertAdjacentHTML('afterbegin', `<div class="alert alert-${type==='red'?'red':'warn'}">${msg}</div>`);
+}
+
+async function refreshAll() {
+  setText('lastUpdate','Actualisation…');
+  await Promise.all([loadKPIs(), loadBarChart(), loadTaxMeter(), loadAdSpend(), loadForecast(), loadFlagged()]);
+  setText('lastUpdate', `Mis à jour: ${new Date().toLocaleTimeString('fr-CA')}`);
+}
+
+refreshAll();
+setInterval(refreshAll, 60000); // Refresh 60s [182]
+</script>
+</body>
+</html>

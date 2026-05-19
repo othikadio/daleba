@@ -202,6 +202,10 @@ async function ensureTables() {
     CREATE INDEX IF NOT EXISTS idx_ledger_source    ON tenant_ledgers(source);
     CREATE INDEX IF NOT EXISTS idx_ledger_audit     ON tenant_ledgers(audit_status);
     CREATE INDEX IF NOT EXISTS idx_ledger_sale_type ON tenant_ledgers(sale_type);
+    -- [187] Index composites SUM/AVG < 100ms
+    CREATE INDEX IF NOT EXISTS idx_ledger_tenant_ts     ON tenant_ledgers(tenant_id, timestamp_utc DESC);
+    CREATE INDEX IF NOT EXISTS idx_ledger_tenant_status ON tenant_ledgers(tenant_id, audit_status, timestamp_utc DESC);
+    CREATE INDEX IF NOT EXISTS idx_ledger_tenant_type   ON tenant_ledgers(tenant_id, sale_type, timestamp_utc DESC);
   `);
 
   // [163] staff_tips — pourboires par employé
@@ -296,6 +300,25 @@ async function ingestTransaction(source, rawTx, opts = {}) {
       `, [uto.tenant_id, uto.tx_id, uto.employee_id, uto.amount_tip, uto.currency, uto.timestamp_utc])
         .catch(() => {});
     }
+  }
+
+  // [188] Alerte paiement > 500$
+  if (uto.amount_gross >= 500) {
+    const shield = require('./notification-shield');
+    const alertMsg = [
+      `⚠️ Paiement élevé détecté`,
+      `Montant: $${uto.amount_gross.toFixed(2)} ${uto.currency}`,
+      `Mode: ${uto.payment_mode}`,
+      `Type: ${uto.sale_type}`,
+      `ID: ${uto.tx_id.slice(-12)}`,
+      `${new Date(uto.timestamp_utc).toLocaleString('fr-CA', { timeZone: 'America/Toronto' })}`,
+    ].join('\n');
+    await shield.shieldedSMS(
+      process.env.ULRICH_PHONE_NUMBER, alertMsg,
+      `high_payment_${uto.tx_id}`,
+      { priority: 'high', cooldownMs: 0 } // Pas de cooldown — chaque gros paiement compte
+    ).catch(() => {});
+    bus.system(`🚨 Paiement élevé: $${uto.amount_gross} ${uto.currency} — ${uto.tx_id}`);
   }
 
   // Broadcast sur le bus

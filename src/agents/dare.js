@@ -225,7 +225,15 @@ async function withExponentialBackoff(fn, providerId, options = {}) {
 // ─── COST CAP ENFORCEMENT [030, 037] ────────────────────────────────────────
 
 function checkCostCap(providerId) {
-  // [030] Plafond mensuel global
+  // [170] BudgetGuard global — blocage instantané si cap dépassé
+  try {
+    const guard = require('../services/budget-guard');
+    guard.checkBudget(`dare:${providerId}`, 0.002); // estimation conservatrice
+  } catch (bgErr) {
+    if (bgErr.code === 'BUDGET_EXCEEDED') throw bgErr; // propager
+    // guard non disponible au boot — continuer
+  }
+  // [030] Plafond mensuel local DARE
   const monthlyTotal = Object.values(usageStats.costByProvider).reduce((a, b) => a + b, 0);
   if (monthlyTotal >= CFG.monthlyBudgetUSD) {
     throw new Error(`[DARE] Plafond mensuel atteint (${monthlyTotal.toFixed(2)}$ / ${CFG.monthlyBudgetUSD}$). Approbation Commandant requise.`);
@@ -487,8 +495,10 @@ async function executeWithFailover(message, systemPrompt, history, options = {})
       // Mise à jour stats
       usageStats.requestsTotal++;
       usageStats.requestsByProvider[providerId] = (usageStats.requestsByProvider[providerId] || 0) + 1;
-      updateCostTracking(providerId, costUSD);
+      updateCostTracking(providerId, costUSD, result.usage);
       trackRequest(providerId, true, costUSD);
+      // [170] BudgetGuard — enregistrer la dépense réelle
+      try { require('../services/budget-guard').recordSpend(`dare:${providerId}`, costUSD); } catch {}
 
       return {
         ...result,
