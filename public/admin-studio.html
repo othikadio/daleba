@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DALEBA Studio — Media HUD</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #070a0f; --surface: #0d1117; --border: #1e2530;
+  --gold: #D4AF37; --blue: #58a6ff; --green: #3fb950;
+  --red: #f85149; --purple: #bc8cff; --text: #e6edf3; --muted: #8b949e;
+}
+body { background: var(--bg); color: var(--text); font-family: 'Inter', 'Helvetica Neue', sans-serif; min-height: 100vh; }
+
+/* HEADER */
+.header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.header h1 { font-size: 1.1rem; font-weight: 700; color: var(--gold); letter-spacing: 0.05em; }
+.header .status-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; display: inline-block; margin-right: 8px; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* LAYOUT */
+.layout { display: grid; grid-template-columns: 1fr 380px; gap: 0; height: calc(100vh - 57px); overflow: hidden; }
+.main { overflow-y: auto; padding: 24px; }
+.sidebar { background: var(--surface); border-left: 1px solid var(--border); overflow-y: auto; padding: 16px; }
+
+/* SECTIONS */
+.section-title { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* CARDS */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; transition: border-color .2s; }
+.card:hover { border-color: #2d3748; }
+
+/* QUEUE ITEMS [140] */
+.queue-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; cursor: grab; transition: all .2s; }
+.queue-item:hover { border-color: var(--gold); transform: translateX(2px); }
+.queue-item.dragging { opacity: 0.5; }
+.queue-thumb { width: 54px; height: 96px; background: #1a1f2e; border-radius: 6px; object-fit: cover; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 1.4rem; }
+.queue-info { flex: 1; min-width: 0; }
+.queue-title { font-size: .85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.queue-meta { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+.queue-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.btn { padding: 5px 10px; border-radius: 5px; font-size: .72rem; font-weight: 600; border: none; cursor: pointer; transition: all .15s; }
+.btn-gold  { background: var(--gold); color: #000; }
+.btn-gold:hover  { background: #e8c84a; }
+.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+.btn-ghost:hover { color: var(--text); border-color: var(--text); }
+.btn-red   { background: rgba(248,81,73,.15); color: var(--red); border: 1px solid rgba(248,81,73,.3); }
+.btn-red:hover { background: rgba(248,81,73,.25); }
+
+/* STATUS BADGES */
+.badge { display: inline-block; padding: 2px 7px; border-radius: 20px; font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.badge-pending   { background: rgba(212,175,55,.15); color: var(--gold); }
+.badge-published { background: rgba(63,185,80,.15); color: var(--green); }
+.badge-failed    { background: rgba(248,81,73,.15); color: var(--red); }
+.badge-running   { background: rgba(88,166,255,.15); color: var(--blue); }
+
+/* PLATFORM ICONS */
+.platform { font-size: .7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+.platform-ig { background: linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.platform-tt { color: var(--text); }
+
+/* RENDER GRID [139] */
+.renders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.render-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; transition: border-color .2s; }
+.render-card:hover { border-color: var(--gold); }
+.render-preview { width: 100%; aspect-ratio: 9/16; background: #1a1f2e; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+.render-preview.landscape { aspect-ratio: 16/9; }
+.render-preview.square { aspect-ratio: 1/1; }
+.render-meta { padding: 8px 10px; }
+.render-format { font-size: .72rem; font-weight: 700; color: var(--gold); }
+.render-name { font-size: .7rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* STATS CHARTS [139] */
+.stats-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+.stats-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--gold), var(--purple)); transition: width 1s ease; }
+.stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.stat-label { font-size: .75rem; color: var(--muted); }
+.stat-value { font-size: .85rem; font-weight: 700; color: var(--text); }
+
+/* SLOTS [126] */
+.slot { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; margin-bottom: 6px; background: rgba(255,255,255,.03); border: 1px solid var(--border); }
+.slot-time { font-size: 1rem; font-weight: 800; color: var(--gold); width: 52px; }
+.slot-info { flex: 1; }
+.slot-name { font-size: .8rem; font-weight: 600; }
+.slot-next { font-size: .68rem; color: var(--muted); }
+.slot-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.slot-active { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
+.slot-waiting { background: var(--muted); }
+
+/* LIVE FEED */
+.feed-item { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: .75rem; line-height: 1.5; }
+.feed-ts { color: var(--muted); font-size: .65rem; margin-right: 6px; }
+
+/* SCROLL */
+::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <span class="status-dot" id="statusDot"></span>
+    <h1>DALEBA STUDIO — Media HUD</h1>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span id="queueCount" style="font-size:.75rem;color:var(--muted)">Chargement…</span>
+    <button class="btn btn-gold" onclick="refreshAll()">↻ Refresh</button>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- PUBLICATION QUEUE [140] -->
+    <div class="section-title">📋 File de publication</div>
+    <div id="queueList">
+      <div style="color:var(--muted);font-size:.8rem;padding:20px 0">Chargement de la file…</div>
+    </div>
+
+    <!-- RENDERS [139] -->
+    <div class="section-title" style="margin-top:24px">🎬 Renders récents</div>
+    <div class="renders-grid" id="rendersGrid">
+      <div style="color:var(--muted);font-size:.8rem">Chargement…</div>
+    </div>
+
+    <!-- ANALYTICS [139] -->
+    <div class="section-title" style="margin-top:24px">📊 Performance publications</div>
+    <div id="analyticsPanel">
+      <div style="color:var(--muted);font-size:.8rem">Chargement des stats…</div>
+    </div>
+
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- CRÉNEAUX [126] -->
+    <div class="section-title">🕐 Créneaux publication</div>
+    <div id="slotsList">
+      <div class="slot"><div class="slot-time">08:00</div><div class="slot-info"><div class="slot-name">Matin</div><div class="slot-next">Calcul…</div></div><div class="slot-status slot-waiting"></div></div>
+      <div class="slot"><div class="slot-time">12:30</div><div class="slot-info"><div class="slot-name">Midi</div><div class="slot-next">Calcul…</div></div><div class="slot-status slot-waiting"></div></div>
+      <div class="slot"><div class="slot-time">19:00</div><div class="slot-info"><div class="slot-name">Soir</div><div class="slot-next">Calcul…</div></div><div class="slot-status slot-waiting"></div></div>
+    </div>
+
+    <!-- ACTIONS RAPIDES [140] -->
+    <div class="section-title" style="margin-top:20px">⚡ Actions rapides</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="btn btn-gold" style="width:100%;padding:10px" onclick="forcePublishNext()">🚀 Publier maintenant</button>
+      <button class="btn btn-ghost" style="width:100%" onclick="refreshTrends()">📈 Refresh tendances</button>
+      <button class="btn btn-ghost" style="width:100%" onclick="runAnalytics()">📊 Lancer analytics</button>
+    </div>
+
+    <!-- LIVE FEED -->
+    <div class="section-title" style="margin-top:20px">📡 Activité temps réel</div>
+    <div id="liveFeed" style="max-height:300px;overflow-y:auto"></div>
+
+  </div>
+</div>
+
+<script>
+const API = '/api';
+let queueData = [];
+
+// ─── QUEUE [140] ─────────────────────────────────────────────────────────────
+
+async function loadQueue() {
+  const r = await fetch(`${API}/studio/queue`).then(r => r.json()).catch(() => ({}));
+  queueData = r.items || [];
+  document.getElementById('queueCount').textContent = `${queueData.length} éléments`;
+  renderQueue(queueData);
+}
+
+function renderQueue(items) {
+  const el = document.getElementById('queueList');
+  if (!items.length) { el.innerHTML = '<div style="color:var(--muted);font-size:.8rem;padding:20px 0">File vide — déposez un rush dans /public/studio</div>'; return; }
+
+  el.innerHTML = items.slice(0, 20).map((item, i) => `
+    <div class="queue-item" draggable="true" data-id="${item.id}" data-idx="${i}" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dropItem(event)">
+      <div class="queue-thumb">🎬</div>
+      <div class="queue-info">
+        <div class="queue-title">${item.seo_title || item.file_path?.split('/').pop() || 'Sans titre'}</div>
+        <div class="queue-meta">
+          <span class="badge badge-${item.status}">${item.status}</span>
+          <span class="platform platform-${item.platform === 'instagram' ? 'ig' : 'tt'}">${item.platform || '—'}</span>
+          ${item.scheduled_at ? `· ${new Date(item.scheduled_at).toLocaleString('fr-CA', {hour:'2-digit',minute:'2-digit',day:'2-digit',month:'short'})}` : ''}
+        </div>
+      </div>
+      <div class="queue-actions">
+        <button class="btn btn-gold" onclick="publishNow('${item.id}','${item.platform}')">▶ Publier</button>
+        <button class="btn btn-ghost" onclick="previewItem('${item.id}')">👁</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Drag & Drop reorder [140]
+let dragIdx = null;
+function dragStart(e) { dragIdx = +e.currentTarget.dataset.idx; e.currentTarget.classList.add('dragging'); }
+function dragOver(e)  { e.preventDefault(); }
+function dropItem(e) {
+  const targetIdx = +e.currentTarget.dataset.idx;
+  if (dragIdx === null || dragIdx === targetIdx) return;
+  const moved = queueData.splice(dragIdx, 1)[0];
+  queueData.splice(targetIdx, 0, moved);
+  dragIdx = null;
+  renderQueue(queueData);
+}
+
+// [140] Force upload immédiat
+async function publishNow(id, platform) {
+  addFeedItem(`🚀 Publication forcée: ${platform}…`);
+  const r = await fetch(`${API}/studio/publish-now`, {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ itemId: id, platform })
+  }).then(r => r.json()).catch(e => ({ error: e.message }));
+  addFeedItem(r.error ? `❌ Erreur: ${r.error}` : `✅ Publié: ${r.postId || r.status}`);
+  loadQueue();
+}
+
+// ─── RENDERS [139] ───────────────────────────────────────────────────────────
+
+function renderRendersGrid() {
+  const formats = [
+    { key: 'reels',     icon: '📱', label: 'Reels', ratio: '' },
+    { key: 'square',    icon: '⬛', label: 'Square', ratio: 'square' },
+    { key: 'landscape', icon: '🖥',  label: 'YouTube', ratio: 'landscape' },
+    { key: 'story',     icon: '⚡', label: 'Story 15s', ratio: '' },
+  ];
+  document.getElementById('rendersGrid').innerHTML = formats.map(f => `
+    <div class="render-card">
+      <div class="render-preview ${f.ratio}">${f.icon}</div>
+      <div class="render-meta">
+        <div class="render-format">${f.label}</div>
+        <div class="render-name">En attente de rush…</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── ANALYTICS [139] ─────────────────────────────────────────────────────────
+
+async function loadAnalytics() {
+  const r = await fetch(`${API}/studio/analytics`).then(r => r.json()).catch(() => ({}));
+  const stats = r.stats || [];
+  if (!stats.length) {
+    document.getElementById('analyticsPanel').innerHTML = '<div style="color:var(--muted);font-size:.8rem">Aucune publication encore — les stats apparaîtront ici</div>';
+    return;
+  }
+  document.getElementById('analyticsPanel').innerHTML = stats.map(s => `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-weight:700;font-size:.9rem">${s.platform === 'instagram' ? '📸 Instagram' : '🎵 TikTok'}</span>
+        <span style="font-size:.75rem;color:var(--muted)">${s.total_posts} publications</span>
+      </div>
+      <div class="stat-row"><span class="stat-label">Vues moyennes</span><span class="stat-value">${Math.round(s.avg_views || 0).toLocaleString()}</span></div>
+      <div class="stats-bar"><div class="stats-bar-fill" style="width:${Math.min((s.avg_views/1000)*100,100)}%"></div></div>
+      <div class="stat-row" style="margin-top:10px"><span class="stat-label">Engagement moyen</span><span class="stat-value" style="color:var(--gold)">${(+s.avg_engagement || 0).toFixed(2)}%</span></div>
+      <div class="stats-bar"><div class="stats-bar-fill" style="width:${Math.min(s.avg_engagement*10,100)}%"></div></div>
+      <div class="stat-row" style="margin-top:10px"><span class="stat-label">Meilleure perf</span><span class="stat-value" style="color:var(--green)">${Math.round(s.max_views || 0).toLocaleString()} vues</span></div>
+    </div>
+  `).join('');
+}
+
+// ─── CRÉNEAUX [126] ──────────────────────────────────────────────────────────
+
+async function loadSlots() {
+  const r = await fetch(`${API}/studio/slots`).then(r => r.json()).catch(() => ({}));
+  if (!r.slots) return;
+  const now = Date.now();
+  document.getElementById('slotsList').innerHTML = r.slots.map(s => {
+    const next = s.next ? new Date(s.next) : null;
+    const mins = next ? Math.round((next - now) / 60000) : null;
+    const isNext = mins !== null && mins >= 0 && mins < 30;
+    return `<div class="slot">
+      <div class="slot-time">${String(s.hour).padStart(2,'0')}:${String(s.minute).padStart(2,'0')}</div>
+      <div class="slot-info">
+        <div class="slot-name">${s.id === 'morning' ? 'Matin' : s.id === 'noon' ? 'Midi' : 'Soir'}</div>
+        <div class="slot-next">${next ? `Prochain: ${next.toLocaleString('fr-CA',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'short'})}` : '—'}</div>
+      </div>
+      <div class="slot-status ${isNext ? 'slot-active' : 'slot-waiting'}"></div>
+    </div>`;
+  }).join('');
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────────────────────────
+
+async function forcePublishNext() {
+  const pending = queueData.find(i => i.status === 'pending');
+  if (!pending) { addFeedItem('⚠️ Aucun item en attente'); return; }
+  await publishNow(pending.id, pending.platform);
+}
+
+async function refreshTrends() {
+  addFeedItem('🔄 Refresh tendances…');
+  await fetch(`${API}/studio/trends`).catch(() => {});
+  addFeedItem('✅ Tendances mises à jour');
+}
+
+async function runAnalytics() {
+  addFeedItem('📊 Lancement analytics…');
+  await loadAnalytics();
+  addFeedItem('✅ Analytics chargées');
+}
+
+// ─── SSE LIVE FEED ────────────────────────────────────────────────────────────
+
+function connectSSE() {
+  const es = new EventSource('/api/events');
+  es.onmessage = (e) => {
+    try {
+      const d = JSON.parse(e.data);
+      if (d.type === 'system' || d.message) addFeedItem(d.message || d.data);
+    } catch {}
+  };
+  es.onerror = () => setTimeout(connectSSE, 5000);
+}
+
+function addFeedItem(text) {
+  const feed = document.getElementById('liveFeed');
+  const now  = new Date().toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  feed.insertAdjacentHTML('afterbegin', `<div class="feed-item"><span class="feed-ts">${now}</span>${text}</div>`);
+  // Garder max 50 items
+  while (feed.children.length > 50) feed.removeChild(feed.lastChild);
+}
+
+function previewItem(id) {
+  const item = queueData.find(i => i.id === id);
+  if (item) addFeedItem(`👁 Preview: ${item.seo_title || id}`);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+
+async function refreshAll() {
+  await Promise.all([loadQueue(), loadAnalytics(), loadSlots()]);
+  renderRendersGrid();
+}
+
+refreshAll();
+connectSSE();
+setInterval(refreshAll, 30000); // Auto-refresh 30s [140]
+</script>
+</body>
+</html>

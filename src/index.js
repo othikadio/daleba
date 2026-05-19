@@ -20,6 +20,9 @@ const contentQueue      = require('./services/content-queue');
 const mediaScheduler    = require('./services/media-scheduler');
 const analyticsScraper  = require('./services/analytics-scraper');
 const commentHandler    = require('./services/comment-handler');
+const tokenVault        = require('./services/token-vault');
+const mediaCleanup      = require('./services/media-cleanup');
+const { studioStaticGuard } = require('./middleware/studio-auth');
 
 const path = require('path');
 const app = express();
@@ -44,6 +47,8 @@ app.use(express.json({ limit: '10mb' }));
 app.use(morgan('combined'));
 
 // Fichiers statiques (frontend)
+// [148] Protéger /public/studio/exports
+app.use('/studio/exports', studioStaticGuard);
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Routes DALEBA
@@ -71,6 +76,18 @@ app.get('/dashboard', (req, res) => {
 // Tableau de bord contenu social (V21)
 app.get('/admin/images', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-images.html'));
+});
+// [139] Studio Media HUD
+app.get('/admin/studio', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin-studio.html'));
+});
+// [148] Token studio pour accès exports
+app.post('/api/auth/studio-token', (req, res) => {
+  const { secret } = req.body || {};
+  const expected = process.env.ADMIN_SECRET || process.env.ANTHROPIC_API_KEY?.slice(-8);
+  if (!expected || secret !== expected) return res.status(401).json({ error: 'Secret invalide' });
+  const { generateStudioToken } = require('./middleware/studio-auth');
+  res.json({ token: generateStudioToken({ email: 'ulrich@kadio' }) });
 });
 
 app.get('/admin/onboarding', (req, res) => {
@@ -148,6 +165,9 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   maintenance.startAutoCleanup();
   // pg-pool indexes [090]
   maintenance.ensureIndexes().catch(e => console.warn('[Boot] Indexes:', e.message));
+  // [144] Token Vault + Log Filter
+  tokenVault.loadFromEnv();
+  tokenVault.installLogFilter();
   // Studio Watcher [102] + Trend Scheduler [108]
   mediaInspector.ensureStudioTable().catch(e => console.warn('[Boot] studio_assets:', e.message));
   studioWatcher.start();
@@ -159,6 +179,8 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   // Analytics 24h [132] + Comment Poller [135]
   analyticsScraper.startAnalyticsScheduler();
   commentHandler.startCommentPoller(30 * 60 * 1000); // toutes les 30min
+  // [143] Cleanup post-publication toutes les 3h
+  mediaCleanup.startCleanupScheduler();
   // Daily Digest — 20h heure salon [075]
   const ULRICH_PHONE = process.env.ULRICH_PHONE_NUMBER;
   const TWILIO_FROM  = process.env.TWILIO_PHONE_NUMBER;

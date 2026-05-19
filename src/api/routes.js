@@ -326,12 +326,22 @@ router.post('/studio/trigger-watcher', (req, res) => {
   res.json({ triggered: true, filePath });
 });
 
-// POST /api/studio/queue — Ajouter à la file de publication [124-125]
+// POST /api/studio/queue — Ajouter à la file de publication [124-125, 141]
 router.post('/studio/queue', async (req, res) => {
   try {
-    const queue = require('../services/content-queue');
-    const item  = await queue.addToQueue(req.body);
+    const queue  = require('../services/content-queue');
+    const item   = await queue.addToQueue(req.body);
     res.status(201).json(item);
+    // [141] Génération thumbnail en arrière-plan
+    setImmediate(async () => {
+      try {
+        const thumb = require('../services/thumbnail-generator');
+        await thumb.attachThumbnailToQueueItem(
+          item.id, req.body.sceneAnalysis,
+          req.body.seoTitle || req.body.title, req.body.platform
+        );
+      } catch (e) { console.warn('[Studio] Thumbnail:', e.message); }
+    });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

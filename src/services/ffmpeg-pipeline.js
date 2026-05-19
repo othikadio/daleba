@@ -23,6 +23,26 @@ const { execSync } = require('child_process');
 
 if (ffmpegStatic) ffmpeg.setFfmpegPath(ffmpegStatic);
 
+// [145] Wrapper nice: spawn FFmpeg avec priorité basse pour ne pas bloquer l'API
+// Utilise le binaire enveloppé dans nice -n 10 sur Linux
+const _isLinux = process.platform === 'linux';
+if (_isLinux) {
+  const originalPath = ffmpegStatic || 'ffmpeg';
+  const { execSync: _exec } = require('child_process');
+  try {
+    _exec('which nice', { stdio: 'ignore' });
+    // Override: tous les spawn FFmpeg passeront par nice -n 10
+    const _origSpawn = require('child_process').spawn;
+    require('child_process').spawn = function(cmd, args, opts) {
+      if (cmd === originalPath || (typeof cmd === 'string' && cmd.endsWith('ffmpeg'))) {
+        return _origSpawn('nice', ['-n', '10', cmd, ...args], opts);
+      }
+      return _origSpawn(cmd, args, opts);
+    };
+    console.log('[FFmpeg] [145] Process priority basse (nice -n 10) activée');
+  } catch { /* nice non disponible — continue sans */ }
+}
+
 // ─── FORMAT SPECS [115] ──────────────────────────────────────────────────────
 
 const FORMAT_SPECS = {

@@ -65,6 +65,7 @@ class MediaAgent extends BaseAgent {
     switch (action) {
 
       // [104] Inspecter les métadonnées d'un rush
+      // Returns: { resolution, fps, codec, bitrate, duration, audio, qualityScore }
       case 'inspect': {
         const inspector = require('../services/media-inspector');
         return inspector.inspectFile(params.filePath);
@@ -106,9 +107,41 @@ class MediaAgent extends BaseAgent {
         return this._runFullPipeline(params);
       }
 
-      default:
+      // [147] HOOK 3D / VFX EXTENSION POINT
+      // Pour intégrer la génération 3D ou les effets visuels avancés :
+      //
+      //   case 'generate_3d': {
+      //     const vfx = require('../services/vfx-engine'); // à créer
+      //     return vfx.generate3DOverlay(params.filePath, params.style);
+      //   }
+      //
+      //   case 'apply_vfx': {
+      //     const vfx = require('../services/vfx-engine');
+      //     return vfx.applyEffect(params.filePath, params.effectId, params.intensity);
+      //   }
+      //
+      // Les connecteurs sont enregistrables via:
+      //   MediaAgent.registerAction('my_effect', async (params) => { ... })
+
+      default: {
+        // [147] Actions dynamiques enregistrables au runtime
+        if (MediaAgent._customActions?.has(action)) {
+          return MediaAgent._customActions.get(action).call(this, params);
+        }
         throw new Error(`MediaAgent: action inconnue — "${action}"`);
+      }
     }
+  }
+
+  // [147] Registre d'actions dynamiques (VFX, 3D, plugins)
+  static registerAction(name, handler) {
+    if (!MediaAgent._customActions) MediaAgent._customActions = new Map();
+    MediaAgent._customActions.set(name, handler);
+    console.log(`[MediaAgent] Action enregistrée: ${name}`);
+  }
+
+  static getRegisteredActions() {
+    return [...(MediaAgent._customActions?.keys() || [])];
   }
 
   // ─── PIPELINE COMPLET ──────────────────────────────────────────────────────
