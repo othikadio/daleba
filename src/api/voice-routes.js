@@ -1,39 +1,59 @@
 /**
- * DALEBA V22 — Routes Webhook Twilio Voice
- * POST /api/webhook/voice         → appel entrant (accueil TwiML)
- * POST /api/webhook/voice/gather  → transcription client reçue
- * POST /api/webhook/voice/status  → statut fin d'appel
- * POST /api/webhook/voice/dial-status → résultat du transfert Ulrich
+ * DALEBA V4 Section 5 — Routes Webhook Twilio Voice (Points 201-218)
  *
- * Toutes les réponses sont du TwiML (Content-Type: application/xml)
+ * POST /api/webhook/voice          → appel entrant (accueil TwiML) [202]
+ * POST /api/webhook/voice/gather   → transcription → DARE intent [210-211]
+ * POST /api/webhook/voice/identity → capture identité client inconnu [217]
+ * POST /api/webhook/voice/booking-confirm → confirmation RDV [218]
+ * POST /api/webhook/voice/status   → statut fin d'appel
+ * POST /api/webhook/voice/dial-status → résultat du transfert Ulrich
  */
 
 const express = require('express');
 const router  = express.Router();
 const twilio  = require('twilio');
 
-const voiceAgent        = require('../services/voice-agent');
+// [203] Middleware de validation cryptographique HMAC-SHA1
+const { twilioAuthMiddleware } = require('../middleware/twilio-auth');
+
+const voiceAgent        = require('../services/voice-agent');     // V22 — escalade
+const VoiceAgentV4      = require('../agents/VoiceAgent');         // V4  — BaseAgent
+const twimlGen          = require('../services/twiml-generator'); // V4  — TwiML [206]
 const voiceCommander    = require('../services/voice-commander');
 const cmdInterpreter    = require('../services/command-interpreter');
 const { createChatSession, updateSessionStatus, getOrCreateChatSession } = require('../memory/db');
 const bus               = require('../services/event-bus');
 
-// ─── VALIDATION SIGNATURE TWILIO ──────────────────────────────────────────────
+// ─── [206] HELPER TWIML RESPONSE — no-cache strict ───────────────────────────
 
-function validateTwilioSignature(req, res, next) {
-  // Désactivé en démo/dev, actif en production
-  if (process.env.NODE_ENV !== 'production' || !process.env.TWILIO_AUTH_TOKEN) {
-    return next();
+function twimlResponse(res, twimlStr) {
+  twimlGen.setNoCacheHeaders(res);  // [206] Cache-Control: no-cache
+  res.send(twimlStr);
+}
+
+// ─── [205] RÉSOLUTION TENANT PAR NUMÉRO TWILIO ───────────────────────────────
+
+async function resolveTenant(twilioNumber) {
+  // Lookup dans tenant_settings pour identifier le salon
+  // Si SQUARE_LOCATION_ID configuré et numéro Twilio correspond → kadio
+  const dalebaNumber = process.env.TWILIO_PHONE_NUMBER || '+13022328291';
+  if (!twilioNumber || twilioNumber === dalebaNumber) {
+    return { tenantId: 'kadio', tenantName: 'Kadio Coiffure', locationId: process.env.SQUARE_LOCATION_ID || 'LTDE9RP9PSHX7' };
   }
-  const authToken   = process.env.TWILIO_AUTH_TOKEN;
-  const signature   = req.headers['x-twilio-signature'] || '';
-  const url         = `${process.env.DALEBA_BASE_URL || ''}${req.originalUrl}`;
-  const isValid     = twilio.validateRequest(authToken, signature, url, req.body);
-  if (!isValid) {
-    bus.system('⚠️ Requête Twilio refusée — signature invalide');
-    return res.status(403).send('Forbidden');
-  }
-  next();
+  // En mode multi-tenant: interroger la DB
+  try {
+    const maintenance = require('../services/maintenance');
+    const pool = maintenance.getPool();
+    if (pool) {
+      const r = await pool.query(
+        `SELECT tenant_id, tenant_name, location_id FROM tenant_settings WHERE twilio_number = $1 LIMIT 1`,
+        [twilioNumber]
+      ).catch(() => ({ rows: [] }));
+      if (r.rows[0]) return r.rows[0];
+    }
+  } catch {}
+  // Fallback
+  return { tenantId: 'kadio', tenantName: 'Kadio Coiffure', locationId: process.env.SQUARE_LOCATION_ID };
 }
 
 function twimlResponse(res, twiml) {
@@ -43,99 +63,108 @@ function twimlResponse(res, twiml) {
 
 // ─── ROUTE 1 : APPEL ENTRANT ──────────────────────────────────────────────────
 
-router.post('/voice', validateTwilioSignature, async (req, res) => {
-  const { CallSid, From, To } = req.body;
+// [202] Endpoint principal appels entrants | [203] HMAC-SHA1 twilioAuthMiddleware
+router.post('/voice', twilioAuthMiddleware, async (req, res) => {
+  // [204] Variables Twilio standardisées
+  const { CallSid, From, To, CallStatus } = req.body;
+  bus.system(`📞 Appel entrant | ${From} → ${To} | ${CallSid} | ${CallStatus || 'ringing'}`);
 
   try {
-    // Créer ou récupérer la session chat pour cet appelant
-    const session = await getOrCreateChatSession({
-      clientId:  From || 'unknown',
-      channel:   'voice',
-      callSid:   CallSid,
-    });
+    // [205] Identifier le tenant par numéro Twilio
+    const tenant = await resolveTenant(To);
 
-    // Si session humaine en cours → transfert direct sans salutation bot
-    if (session.status === 'human_required') {
-      bus.system(`👤 Session ${session.id} en mode humain — transfert direct`);
-      const { executeEscalation } = voiceAgent;
-      const { twiml } = await executeEscalation({
-        callSid:      CallSid,
-        callerNumber: From,
-        speechResult: 'Rappel automatique — session en mode humain',
-        reason:       'Session marquée human_required',
-        intent:       'escalation',
-      });
-      return twimlResponse(res, twiml);
+    // Session human-in-the-loop check (V22)
+    const session = await getOrCreateChatSession({ clientId: From || 'unknown', channel: 'voice', callSid: CallSid }).catch(() => null);
+    if (session?.status === 'human_required') {
+      bus.system(`👤 Session en mode humain — transfert direct`);
+      const esc = await voiceAgent.executeEscalation?.({ callSid: CallSid, callerNumber: From, speechResult: 'Rappel', reason: 'human_required', intent: 'escalation' })
+        .catch(() => ({ twiml: twimlGen.buildGenericTwiML('Je vous transfère.', { hangup: false }) }));
+      return twimlResponse(res, esc.twiml);
     }
 
-    const twiml = voiceAgent.buildWelcomeTwiml(CallSid);
-    twimlResponse(res, twiml);
+    // [201, 216] VoiceAgent V4 — accueil + identification client
+    const result = await VoiceAgentV4.execute({
+      step: 'welcome', callSid: CallSid, from: From, to: To,
+      tenantId: tenant.tenantId, tenantName: tenant.tenantName,
+    });
+    twimlResponse(res, result.twiml);
+
   } catch (err) {
     bus.system(`❌ Voice route error: ${err.message}`);
-    // Fallback gracieux
     const fallback = new (require('twilio').twiml.VoiceResponse)();
-    fallback.say(
-      { voice: 'Polly.Lea-Neural', language: 'fr-CA' },
-      'Bonjour, merci d\'appeler Kadio Coiffure. Nous rencontrons un problème technique. Veuillez rappeler dans quelques instants. Au revoir.'
-    );
+    fallback.say({ voice: 'Polly.Lea-Neural', language: 'fr-CA' },
+      'Bonjour, merci d\'appeler. Nous rencontrons un problème technique. Veuillez rappeler dans quelques instants.');
     twimlResponse(res, fallback.toString());
   }
 });
 
 // ─── ROUTE 2 : TRANSCRIPTION CLIENT ──────────────────────────────────────────
 
-router.post('/voice/gather', validateTwilioSignature, async (req, res) => {
+// [210-211] Gather: Speech → DARE intent extraction < 800ms
+router.post('/voice/gather', twilioAuthMiddleware, async (req, res) => {
   const { CallSid, From, SpeechResult, Confidence } = req.body;
+  const speechText = SpeechResult || '';
+  const isTimeout  = req.query.timeout === '1';
+  bus.system(`🎙️ Gather [${CallSid}] conf=${Confidence || 'N/A'}: "${speechText.slice(0, 80)}"`);
 
   try {
-    const speechText = SpeechResult || '';
-    bus.system(`🎙️ Gather [${CallSid}] conf=${Confidence || 'N/A'}: "${speechText.slice(0, 80)}"`);
-
-    // Session Human-in-the-loop check
-    const session = await getOrCreateChatSession({ clientId: From, channel: 'voice', callSid: CallSid });
-
-    if (session.status === 'human_required') {
-      const { twiml } = await voiceAgent.executeEscalation({
-        callSid: CallSid, callerNumber: From, speechResult: speechText,
-        reason: 'Session human_required active', intent: 'escalation',
-      });
-      return twimlResponse(res, twiml);
+    const session = await getOrCreateChatSession({ clientId: From, channel: 'voice', callSid: CallSid }).catch(() => null);
+    if (session?.status === 'human_required') {
+      const esc = await voiceAgent.executeEscalation({ callSid: CallSid, callerNumber: From, speechResult: speechText, reason: 'human_required', intent: 'escalation' })
+        .catch(() => ({ twiml: twimlGen.buildGenericTwiML('Je vous transfère.', { hangup: false }) }));
+      if (esc.escalated && session) await updateSessionStatus(session.id, 'human_required', { lastText: speechText }).catch(()=>{});
+      return twimlResponse(res, esc.twiml);
     }
 
-    const result = await voiceAgent.handleSpeechResult({
-      speechResult: speechText,
-      callSid:      CallSid,
-      callerNumber: From,
+    // [210] VoiceAgent V4 — DARE intent extraction
+    const result = await VoiceAgentV4.execute({
+      step: 'gather', callSid: CallSid, from: From,
+      speechText, timeout: isTimeout,
     });
 
-    // Mettre à jour le statut de session si escalade déclenchée
-    if (result.escalated) {
-      await updateSessionStatus(session.id, 'human_required', {
-        reason:   result.reason,
-        lastText: speechText,
-        callSid:  CallSid,
-      });
+    if (result.escalated && session) {
+      await updateSessionStatus(session.id, 'human_required', { reason: 'ESCALATION', lastText: speechText, callSid: CallSid }).catch(()=>{});
     }
 
     twimlResponse(res, result.twiml);
   } catch (err) {
     bus.system(`❌ Gather route error: ${err.message}`);
-    const fallback = new (require('twilio').twiml.VoiceResponse)();
-    fallback.say(
-      { voice: 'Polly.Lea-Neural', language: 'fr-CA' },
-      'Je suis désolée, je n\'ai pas bien compris. Pouvez-vous répéter votre demande s\'il vous plaît ?'
-    );
-    fallback.gather({
-      input: 'speech', action: `${process.env.DALEBA_BASE_URL}/api/webhook/voice/gather`,
-      method: 'POST', language: 'fr-CA', speechTimeout: 'auto', timeout: 8,
-    });
-    twimlResponse(res, fallback.toString());
+    twimlResponse(res, twimlGen.buildGenericTwiML("Je suis désolé, je n'ai pas bien compris. Pouvez-vous répéter?"));
   }
 });
 
+// [217] Capture identité client inconnu
+router.post('/voice/identity', twilioAuthMiddleware, async (req, res) => {
+  const { CallSid, From, SpeechResult } = req.body;
+  const identityStep = req.query.step || 'firstname';
+  try {
+    const result = await VoiceAgentV4.execute({
+      step: 'identity', callSid: CallSid, from: From,
+      speechText: SpeechResult || '', identityStep,
+    });
+    twimlResponse(res, result.twiml);
+  } catch (err) {
+    twimlResponse(res, twimlGen.buildGenericTwiML('Pardon, pouvez-vous répéter votre prénom?'));
+  }
+});
+
+// [218] Confirmation réservation après choix oral
+router.post('/voice/booking-confirm', twilioAuthMiddleware, async (req, res) => {
+  const { CallSid, From, SpeechResult } = req.body;
+  try {
+    const result = await VoiceAgentV4.execute({
+      step: 'booking_confirm', callSid: CallSid, from: From,
+      speechText: SpeechResult || '',
+    });
+    twimlResponse(res, result.twiml);
+  } catch (err) {
+    twimlResponse(res, twimlGen.buildGenericTwiML("Erreur technique. Votre réservation n'a pas pu être confirmée.", { hangup: true }));
+  }
+});;
+
 // ─── ROUTE 3 : STATUT DU DIAL (résultat transfert Ulrich) ────────────────────
 
-router.post('/voice/dial-status', validateTwilioSignature, async (req, res) => {
+router.post('/voice/dial-status', twilioAuthMiddleware, async (req, res) => {
   const { CallSid, DialCallStatus, From } = req.body;
   bus.system(`📞 Dial status [${CallSid}]: ${DialCallStatus}`);
 
@@ -145,7 +174,7 @@ router.post('/voice/dial-status', validateTwilioSignature, async (req, res) => {
 
 // ─── ROUTE 4 : STATUT FIN D'APPEL ────────────────────────────────────────────
 
-router.post('/voice/status', validateTwilioSignature, async (req, res) => {
+router.post('/voice/status', twilioAuthMiddleware, async (req, res) => {
   const { CallSid, CallStatus, CallDuration, From } = req.body;
   bus.system(`📊 Call ended [${CallSid}] status=${CallStatus} duration=${CallDuration}s`);
 
@@ -247,7 +276,7 @@ router.post('/voice/test', async (req, res) => {
 // ─── POSTE DE COMMANDEMENT VOCAL [092-096] ────────────────────────────────────────
 
 // [092] Appel entrant du Commandant — détourne le flux client standard [093]
-router.post('/voice/commander', validateTwilioSignature, (req, res) => {
+router.post('/voice/commander', twilioAuthMiddleware, (req, res) => {
   const { From, CallSid } = req.body;
   if (!voiceCommander.isCommanderCall(From)) {
     // Redirige vers le flux client standard si ce n'est pas Ulrich
@@ -258,7 +287,7 @@ router.post('/voice/commander', validateTwilioSignature, (req, res) => {
 });
 
 // [094] Traitement de l'ordre vocal transcrit
-router.post('/voice/commander/order', validateTwilioSignature, async (req, res) => {
+router.post('/voice/commander/order', twilioAuthMiddleware, async (req, res) => {
   const { SpeechResult = '', CallSid, From } = req.body;
   bus.system(`🎤 Ordre Commandant: "${SpeechResult.slice(0, 60)}"`);
   const twiml = await voiceCommander.handleCommanderOrder(SpeechResult, CallSid);
@@ -266,7 +295,7 @@ router.post('/voice/commander/order', validateTwilioSignature, async (req, res) 
 });
 
 // [096] Confirmation vocale action critique
-router.post('/voice/commander/confirm', validateTwilioSignature, async (req, res) => {
+router.post('/voice/commander/confirm', twilioAuthMiddleware, async (req, res) => {
   const { SpeechResult = '', CallSid } = req.body;
   const twiml = await voiceCommander.handleCommanderConfirm(SpeechResult, CallSid);
   res.type('text/xml').send(twiml);
