@@ -111,10 +111,16 @@ async function sendErrorAlertSMS(errorContext, patchSuggestion) {
   ].join('\n');
 
   try {
-    const twilio = require('./twilio');
-    const result = await twilio.sendSMS(ULRICH_PHONE, smsBody);
+    // [071-072] Anti-boucle : déduplication sur 60 minutes
+    const shield = require('./notification-shield');
+    const from = process.env.TWILIO_PHONE_NUMBER;
+    const result = await shield.shieldedSMS(ULRICH_PHONE, from, smsBody);
+    if (result.suppressed) {
+      bus.system(`[WATCHER] SMS dédupliqué (${result.reason})`);
+      return { sent: false, suppressed: true, reason: result.reason };
+    }
     bus.system(`[WATCHER] SMS alerte envoyé à Ulrich: ${errorContext.classification.type}`);
-    return { sent: true, channel: 'sms', messageId: result?.sid };
+    return { sent: true, channel: 'sms' };
   } catch (err) {
     bus.system(`[WATCHER] Erreur SMS: ${err.message}`);
     return { sent: false, error: err.message };

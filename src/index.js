@@ -9,6 +9,7 @@ const errorWatcher = require('./services/error-watcher'); // V27 — Filet de S�
 const { startFollowupCron } = require('./services/client-followup');
 const dare = require('./agents/dare');
 const dareMonitor = require('./services/dare-monitor');
+const swarm = require('./services/swarm');
 
 const path = require('path');
 const app = express();
@@ -117,7 +118,9 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   startV20Crons();
   // DARE — Metacortex: health check loop + monitor continu
   dare.startHealthCheckLoop(120000);
-  dareMonitor.start(); // [025, 033, 036, 037, 047]
+  dareMonitor.start();
+  // Swarm — Orchestrateur micro-agents
+  swarm.start();
 }
 
 // Démarrage — skip listen() en mode serverless (Vercel)

@@ -56,23 +56,27 @@ function sanitize(obj) {
 // ─── ALERTE SMS COMMANDANT [028, 037] ────────────────────────────────────────
 
 async function alertCommandant(message, priority = 'normal') {
-  const twilio = getTwilio();
   const bus = getEventBus();
-
   const phone = process.env.ULRICH_PHONE_NUMBER;
   const from  = process.env.TWILIO_PHONE_NUMBER;
 
   // Push sur le bus HUD
   if (bus) bus.system(`🚨 DARE: ${message.slice(0, 80)}`);
 
-  if (!twilio || !phone || !from) {
+  if (!phone || !from) {
     console.warn('[DARE Monitor] SMS non envoyé (config Twilio manquante):', message.slice(0, 100));
     return;
   }
 
   try {
+    // [071-072] Anti-boucle : shield de déduplication 60 min
+    const shield = require('./notification-shield');
     const prefix = priority === 'critical' ? '🔴 DALEBA CRITIQUE' : '⚠️ DALEBA ALERTE';
-    await twilio.sendSMS(phone, from, `${prefix}\n${message}\n\nRépondez DARE STATUS pour détails.`);
+    const fullMsg = `${prefix}\n${message}\n\nRépondez DARE STATUS pour détails.`;
+    const result = await shield.shieldedSMS(phone, from, fullMsg);
+    if (result.suppressed) {
+      console.log(`[DARE Monitor] SMS dédupliqué: ${result.reason}`);
+    }
   } catch (err) {
     console.error('[DARE Monitor] Échec envoi SMS:', err.message);
   }

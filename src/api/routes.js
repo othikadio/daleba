@@ -12,6 +12,7 @@ const voiceRoutes    = require('./voice-routes');   // V22 — Agent Vocal
 const onboardingRoutes = require('./onboarding-routes'); // V23 — SaaS Multi-Tenant
 const videoRoutes = require('./video-routes'); // V24 — Studio Vidéo Botanique
 const dareRoutes = require('./dare-routes'); // DARE — Dynamic Agnostic Routing Engine
+const commanderRoutes = require('./commander-routes'); // Commander — DAE + Swarm + Rollback
 const { requireAuth } = require('../middleware/auth');
 const { resolveTenant } = require('../middleware/tenant');
 const { v4: uuidv4 } = require('uuid');
@@ -253,6 +254,7 @@ router.use('/webhook', voiceRoutes);
 // V24 — Studio Vidéo Botanique
 router.use('/video', videoRoutes);
 router.use('/dare', dareRoutes); // DARE — Metacortex Routing Engine
+router.use('/commander', commanderRoutes); // Commander — DAE + Swarm + Shield
 
 // ─── ROUTES SOCIAL META (Point 38) ───────────────────────────────────────
 
