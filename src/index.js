@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const routes = require('./api/routes');
 const { errorMiddleware, enableSelfHealing, logError } = require('./services/error-monitor');
+const errorWatcher = require('./services/error-watcher'); // V27 — Filet de Sécurité
 const { startFollowupCron } = require('./services/client-followup');
 
 const path = require('path');
@@ -37,6 +38,7 @@ app.use('/api', routes);
 
 // Middleware erreurs (Point 12)
 app.use(errorMiddleware);
+app.use(errorWatcher.middleware); // V27 — surveillance 4xx/5xx + patch SMS Ulrich
 
 // Accueil (page principale)
 app.get('/', (req, res) => {

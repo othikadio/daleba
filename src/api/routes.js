@@ -847,6 +847,56 @@ router.post('/webhook/voice/test', async (req, res) => {
   }
 });
 
+// ─── V27 : OMNICORE ALPHA — PIPELINE MÉDIA & FILET SÉCURITÉ ───────────────
+
+const videoPipeline = require('../services/video-pipeline');
+const errorWatcher  = require('../services/error-watcher');
+
+// GET /api/video/platforms — Profils plateformes disponibles
+router.get('/video/platforms', (req, res) => {
+  res.json({ platforms: videoPipeline.PLATFORM_PROFILES });
+});
+
+// POST /api/video/test — Génère une vidéo de test (color bars) sans source externe
+router.post('/video/test', async (req, res) => {
+  try {
+    const result = await videoPipeline.generateTestVideo();
+    res.json({ success: true, ...result });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/video/subtitles — Génère un SRT à partir d'un script
+router.post('/video/subtitles', async (req, res) => {
+  try {
+    const { script, durationSec = 30 } = req.body;
+    if (!script) return res.status(400).json({ error: 'script requis' });
+    const lines = await videoPipeline.generateSubtitles(script, durationSec);
+    const srt   = videoPipeline.buildSRT(lines);
+    res.json({ lines, srt, count: lines.length });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/errors/report — Rapport des erreurs récentes
+router.get('/errors/report', (req, res) => {
+  const report = errorWatcher.getErrorReport(parseInt(req.query.limit) || 20);
+  res.json(report);
+});
+
+// POST /api/errors/test-alert — Déclenche une alerte SMS test (dev/admin)
+router.post('/errors/test-alert', async (req, res) => {
+  try {
+    const fakeCtx = {
+      method: 'POST', path: '/api/test',
+      statusCode: 500, errorMessage: 'Test alerte error-watcher V27',
+      classification: errorWatcher.classifyError(500, '/api/test', 'Test'),
+      ts: new Date().toISOString(),
+    };
+    const patch  = await errorWatcher.generatePatchSuggestion(fakeCtx);
+    const result = await errorWatcher.sendErrorAlertSMS(fakeCtx, patch);
+    res.json({ success: true, patch, smsResult: result });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // ─── V26 : ONBOARDING UNIVERSEL & CERVEAU AUTONOME ──────────────────────────────
 
 const onboardingTelephony = require('../services/onboarding-telephony');
