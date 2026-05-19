@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DALEBA — Financement & Subventions</title>
+<style>
+:root{--bg:#0a0a0f;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--accent:#7c3aed;--success:#10b981;--warn:#f59e0b;--danger:#ef4444;--text:#e2e8f0;--muted:#64748b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:Inter,-apple-system,sans-serif;min-height:100vh}
+.header{background:rgba(255,255,255,0.03);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;gap:12px}
+.logo{font-size:18px;font-weight:700;color:var(--accent)}
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:20px 24px}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.kpi-val{font-size:22px;font-weight:700;color:var(--accent)}
+.kpi-lbl{font-size:11px;color:var(--muted);margin-top:4px}
+/* KANBAN pipeline */
+.pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:0 24px 20px}
+.lane{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;min-height:200px}
+.lane-title{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.app-card{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;font-size:12px}
+.app-card strong{display:block;margin-bottom:4px;font-size:13px}
+.badge{display:inline-block;border-radius:20px;padding:2px 8px;font-size:10px}
+.b-green{background:rgba(16,185,129,.12);color:var(--success)}
+.b-warn{background:rgba(245,158,11,.12);color:var(--warn)}
+.b-red{background:rgba(239,68,68,.12);color:var(--danger)}
+.b-purple{background:rgba(124,58,237,.15);color:#a78bfa}
+/* Panels */
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:0 24px 20px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.panel h4{font-size:14px;font-weight:600;margin-bottom:14px}
+input,select,textarea{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;width:100%;margin-bottom:8px}
+textarea{resize:vertical;min-height:80px}
+.btn{border:none;border-radius:8px;padding:10px 18px;font-size:13px;cursor:pointer;margin-right:6px;margin-bottom:6px}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-warn{background:rgba(245,158,11,.15);color:var(--warn);border:1px solid rgba(245,158,11,.3)}
+.tabs{display:flex;padding:0 24px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.tab{padding:10px 18px;cursor:pointer;font-size:13px;color:var(--muted);border-bottom:2px solid transparent}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.section{display:none}.section.active{display:block}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="logo">DALEBA</span>
+  <span style="color:var(--muted);font-size:14px">/ Financement & Subventions</span>
+  <span style="margin-left:auto;font-size:11px;color:var(--muted)" id="ts"></span>
+</div>
+
+<!-- KPIs -->
+<div class="kpi">
+  <div class="kpi-card"><div class="kpi-val" id="kTotal">—</div><div class="kpi-lbl">Dossiers actifs</div></div>
+  <div class="kpi-card"><div class="kpi-val" id="kApproved" style="color:var(--success)">—</div><div class="kpi-lbl">Approuvés</div></div>
+  <div class="kpi-card"><div class="kpi-val" id="kFunds" style="color:#a78bfa">—$</div><div class="kpi-lbl">Fonds potentiels</div></div>
+  <div class="kpi-card"><div class="kpi-val" id="kOpps">—</div><div class="kpi-lbl">Opportunités détectées</div></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('pipeline')">📊 Pipeline</div>
+  <div class="tab" onclick="switchTab('tools')">⚙️ Outils</div>
+  <div class="tab" onclick="switchTab('vault')">🔒 Coffre-fort</div>
+  <div class="tab" onclick="switchTab('deadlines')">📅 Échéances</div>
+</div>
+
+<!-- PIPELINE KANBAN [516] -->
+<div class="section active" id="tab-pipeline">
+  <div class="pipeline">
+    <div class="lane"><div class="lane-title">🔍 Opportunités</div><div id="lane-matched"></div></div>
+    <div class="lane"><div class="lane-title">📝 En préparation</div><div id="lane-progress"></div></div>
+    <div class="lane"><div class="lane-title">📤 Soumis</div><div id="lane-submitted"></div></div>
+    <div class="lane"><div class="lane-title">✅ Approuvé</div><div id="lane-approved"></div></div>
+    <div class="lane"><div class="lane-title">❌ Refusé</div><div id="lane-rejected"></div></div>
+  </div>
+</div>
+
+<!-- OUTILS [517] -->
+<div class="section" id="tab-tools">
+  <div class="panels">
+    <div class="panel">
+      <h4>🚀 Lancer pré-qualification</h4>
+      <button class="btn btn-primary" onclick="runPrequalify()">Analyser les opportunités</button>
+      <div id="prequalResult" style="margin-top:10px;font-size:12px;color:var(--success)"></div>
+    </div>
+    <div class="panel">
+      <h4>📊 Simulateur RCSD [505]</h4>
+      <input type="number" id="noi" placeholder="Excédent net d'exploitation ($)">
+      <input type="number" id="ds" placeholder="Service de la dette annuel ($)">
+      <button class="btn btn-primary" onclick="calcDSCR()">Calculer RCSD</button>
+      <div id="dscrResult" style="margin-top:10px;font-size:12px"></div>
+    </div>
+    <div class="panel">
+      <h4>💰 Endettement maximal [532]</h4>
+      <button class="btn btn-primary" onclick="calcMaxDebt()">Calculer capacité d'emprunt</button>
+      <div id="debtResult" style="margin-top:10px;font-size:12px"></div>
+    </div>
+    <div class="panel">
+      <h4>📈 ROI post-financement [521]</h4>
+      <input type="number" id="roiAmount" placeholder="Montant financement ($)">
+      <select id="roiPurpose"><option value="expansion">Expansion</option><option value="equipment">Équipement</option></select>
+      <button class="btn btn-primary" onclick="calcROI()">Projeter le ROI</button>
+      <div id="roiResult" style="margin-top:10px;font-size:12px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- COFFRE-FORT [517] -->
+<div class="section" id="tab-vault">
+  <div class="panels">
+    <div class="panel">
+      <h4>📤 Téléverser un document [517]</h4>
+      <select id="docType"><option value="neq">NEQ</option><option value="statuts">Statuts de constitution</option><option value="etats_financiers">États financiers</option><option value="identite">Pièce d'identité</option><option value="autre">Autre</option></select>
+      <input type="text" id="docName" placeholder="Nom du fichier">
+      <textarea id="docContent" placeholder="Contenu du document (texte)"></textarea>
+      <input type="text" id="adminSig" placeholder="Signature admin (x-daleba-sig)">
+      <button class="btn btn-primary" onclick="uploadDoc()">Chiffrer et stocker</button>
+      <div id="uploadResult" style="margin-top:10px;font-size:12px;color:var(--success)"></div>
+    </div>
+    <div class="panel">
+      <h4>📋 Documents stockés</h4>
+      <button class="btn btn-warn" onclick="loadDocs()">Actualiser</button>
+      <div id="docsList" style="margin-top:10px;font-size:12px;color:var(--muted)">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- ÉCHÉANCES [531] -->
+<div class="section" id="tab-deadlines">
+  <div class="panels">
+    <div class="panel">
+      <h4>📅 Ajouter une échéance de reddition</h4>
+      <input type="text" id="dlAppId" placeholder="ID application (APP-...)">
+      <input type="text" id="dlProgram" placeholder="Nom du programme">
+      <input type="date" id="dlDate">
+      <button class="btn btn-primary" onclick="addDeadline()">Planifier rappel</button>
+      <div id="dlResult" style="margin-top:10px;font-size:12px"></div>
+    </div>
+    <div class="panel">
+      <h4>⚠️ Échéances à venir</h4>
+      <button class="btn btn-warn" onclick="loadDeadlines()">Actualiser</button>
+      <div id="dlList" style="margin-top:10px;font-size:12px;color:var(--muted)">—</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const H={'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('daleba_token')||'')};
+document.getElementById('ts').textContent=new Date().toLocaleTimeString('fr-CA');
+function switchTab(id){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['pipeline','tools','vault','deadlines'][i]===id));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('tab-'+id)?.classList.add('active');
+  if(id==='pipeline')loadPipeline();
+  if(id==='vault')loadDocs();
+  if(id==='deadlines')loadDeadlines();
+}
+const STATUS_LABELS={opportunity_matched:'matched',application_in_progress:'progress',submitted:'submitted',approved:'approved',rejected:'rejected',draft:'matched'};
+async function loadPipeline(){
+  const r=await fetch('/api/v1/funding/applications',{headers:H}).then(r=>r.json()).catch(()=>({data:[]}));
+  const apps=r.data||[];
+  ['matched','progress','submitted','approved','rejected'].forEach(s=>document.getElementById('lane-'+s).innerHTML='');
+  let total=0,approved=0,funds=0;
+  apps.forEach(a=>{
+    total++; if(a.status==='approved'){approved++;funds+=parseFloat(a.max_amount||0);}
+    const laneKey=STATUS_LABELS[a.status]||'matched';
+    const lane=document.getElementById('lane-'+laneKey);
+    if(lane) lane.innerHTML+=`<div class="app-card"><strong>${a.program_name}</strong><div style="color:var(--muted)">${(a.max_amount||0).toLocaleString('fr-CA')}$</div><div><span class="badge b-purple">${(a.eligibility_pct||0).toFixed(0)}%</span></div></div>`;
+  });
+  document.getElementById('kTotal').textContent=total;
+  document.getElementById('kApproved').textContent=approved;
+  document.getElementById('kFunds').textContent=funds.toLocaleString('fr-CA')+'$';
+  // Opps
+  const r2=await fetch('/api/v1/funding/opportunities',{headers:H}).then(r=>r.json()).catch(()=>({data:[]}));
+  document.getElementById('kOpps').textContent=(r2.data||[]).length;
+}
+async function runPrequalify(){
+  document.getElementById('prequalResult').textContent='⏳ Analyse en cours...';
+  const r=await fetch('/api/v1/funding/prequalify',{headers:H}).then(r=>r.json()).catch(()=>({success:false}));
+  document.getElementById('prequalResult').textContent=r.success?`✅ ${r.data?.matchedCount||0} opportunités matchées sur ${r.data?.totalOpportunities||0} programmes`:r.error||'Erreur';
+}
+async function calcDSCR(){
+  const r=await fetch('/api/v1/funding/dscr',{method:'POST',headers:H,body:JSON.stringify({netOperatingIncome:parseFloat(document.getElementById('noi').value)||0,debtService:parseFloat(document.getElementById('ds').value)||0})}).then(r=>r.json()).catch(()=>({data:{}}));
+  const d=r.data||{};
+  document.getElementById('dscrResult').innerHTML=`<strong>RCSD: ${d.dscr||'N/A'}</strong> — ${d.interpretation||'—'}<br>${d.recommendation||''}`;
+}
+async function calcMaxDebt(){
+  const r=await fetch('/api/v1/funding/max-debt',{headers:H}).then(r=>r.json()).catch(()=>({data:{}}));
+  const d=r.data||{};
+  document.getElementById('debtResult').innerHTML=`<strong>Capacité max: ${(d.maxDebt||0).toLocaleString('fr-CA')}$</strong><br>${d.interpretation||'—'}<br><small style="color:var(--muted)">${d.assumptions||''}</small>`;
+}
+async function calcROI(){
+  const r=await fetch('/api/v1/funding/roi',{method:'POST',headers:H,body:JSON.stringify({amount:parseFloat(document.getElementById('roiAmount').value)||25000,purpose:document.getElementById('roiPurpose').value})}).then(r=>r.json()).catch(()=>({data:{}}));
+  const d=r.data||{};
+  document.getElementById('roiResult').innerHTML=`<strong>ROI 3 ans: ${d.roi3y||'N/A'}</strong><br>Gain annuel net: ${(d.annualNetGain||0).toLocaleString('fr-CA')}$<br>Remboursement en: ${d.paybackYears} an(s)`;
+}
+async function uploadDoc(){
+  const sig=document.getElementById('adminSig').value;
+  const r=await fetch('/api/v1/funding/vault/store',{method:'POST',headers:{...H,'x-daleba-sig':sig},body:JSON.stringify({docType:document.getElementById('docType').value,filename:document.getElementById('docName').value,content:document.getElementById('docContent').value})}).then(r=>r.json()).catch(()=>({success:false}));
+  document.getElementById('uploadResult').textContent=r.success?`✅ Stocké: ${r.data?.docId} (SHA-256: ${r.data?.checksum})`:r.error||'Erreur';
+}
+async function loadDocs(){
+  const r=await fetch('/api/v1/funding/vault',{headers:H}).then(r=>r.json()).catch(()=>({data:[]}));
+  const docs=r.data||[];
+  document.getElementById('docsList').innerHTML=docs.length?docs.map(d=>`<div style="padding:6px 0;border-bottom:1px solid var(--border)"><strong>${d.filename}</strong> <span class="badge b-purple">${d.doc_type}</span><div style="color:var(--muted)">${d.size_bytes} chars — ${d.checksum}</div></div>`).join(''):'Aucun document.';
+}
+async function addDeadline(){
+  const r=await fetch('/api/v1/funding/deadlines',{method:'POST',headers:H,body:JSON.stringify({appId:document.getElementById('dlAppId').value,programName:document.getElementById('dlProgram').value,deadline:document.getElementById('dlDate').value})}).then(r=>r.json()).catch(()=>({success:false}));
+  document.getElementById('dlResult').textContent=r.success?'✅ Rappel planifié (30j avant échéance)':r.error||'Erreur';
+}
+async function loadDeadlines(){
+  const r=await fetch('/api/v1/funding/deadlines',{headers:H}).then(r=>r.json()).catch(()=>({data:[]}));
+  const dl=r.data||[];
+  document.getElementById('dlList').innerHTML=dl.length?dl.map(d=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);${d.needsReminder?'color:var(--warn)':''}"><strong>${d.program_name}</strong><br>${new Date(d.deadline).toLocaleDateString('fr-CA')} — ${d.daysUntil}j restants ${d.needsReminder?'⚠️':''}</div>`).join(''):'Aucune échéance.';
+}
+loadPipeline();
+</script>
+</body>
+</html>
