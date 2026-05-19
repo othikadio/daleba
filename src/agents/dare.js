@@ -250,9 +250,14 @@ function checkCostCap(providerId) {
   }
 }
 
-function updateCostTracking(providerId, costUSD) {
+function updateCostTracking(providerId, costUSD, usage) {
   usageStats.costUSD += costUSD;
   usageStats.costByProvider[providerId] = (usageStats.costByProvider[providerId] || 0) + costUSD;
+  // [169] Sync infra-cost-tracker
+  try {
+    const tracker = require('../services/infrastructure-cost-tracker');
+    tracker.onDARECost(providerId, costUSD, usage || {});
+  } catch { /* tracker non chargé au boot initial */ }
 
   // [037] Fenêtre horaire
   if (usageStats.costThisHour[providerId]) {

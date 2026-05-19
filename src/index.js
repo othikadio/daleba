@@ -22,6 +22,9 @@ const analyticsScraper  = require('./services/analytics-scraper');
 const commentHandler    = require('./services/comment-handler');
 const tokenVault        = require('./services/token-vault');
 const mediaCleanup      = require('./services/media-cleanup');
+const transactionIngester = require('./services/transaction-ingester');
+const cashflowEngine    = require('./services/cashflow-engine');
+const costTracker       = require('./services/infrastructure-cost-tracker');
 const { studioStaticGuard } = require('./middleware/studio-auth');
 
 const path = require('path');
@@ -181,6 +184,12 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   commentHandler.startCommentPoller(30 * 60 * 1000); // toutes les 30min
   // [143] Cleanup post-publication toutes les 3h
   mediaCleanup.startCleanupScheduler();
+  // [160] Init tables finances (tenant_ledgers + staff_tips)
+  transactionIngester.ensureTables().catch(e => console.warn('[Boot] finances tables:', e.message));
+  // [164] Cashflow forecast 23h30 UTC
+  cashflowEngine.startCashflowScheduler();
+  // [168] Infrastructure cost tracker + persistance horaire
+  costTracker.startCostPersistenceScheduler();
   // Daily Digest — 20h heure salon [075]
   const ULRICH_PHONE = process.env.ULRICH_PHONE_NUMBER;
   const TWILIO_FROM  = process.env.TWILIO_PHONE_NUMBER;

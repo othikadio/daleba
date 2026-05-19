@@ -12,6 +12,7 @@ const voiceRoutes    = require('./voice-routes');   // V22 — Agent Vocal
 const onboardingRoutes = require('./onboarding-routes'); // V23 — SaaS Multi-Tenant
 const videoRoutes = require('./video-routes'); // V24 — Studio Vidéo Botanique
 const dareRoutes = require('./dare-routes'); // DARE — Dynamic Agnostic Routing Engine
+const financeRoutes = require('./finance-routes'); // Section 4 — Finances + Fiscal + Cashflow
 const commanderRoutes = require('./commander-routes'); // Commander — DAE + Swarm + Rollback
 const integrationRoutes = require('./integration-routes'); // Integration Hub + Docs
 const { requireAuth } = require('../middleware/auth');
@@ -267,6 +268,7 @@ router.use('/webhook', voiceRoutes);
 // V24 — Studio Vidéo Botanique
 router.use('/video', videoRoutes);
 router.use('/dare', dareRoutes);
+router.use('/v1/finances', financeRoutes); // [152] Webhook finances + fiscal + cashflow
 
 // ─── STUDIO MEDIA ROUTES [101-119] ────────────────────────────────────────────
 
