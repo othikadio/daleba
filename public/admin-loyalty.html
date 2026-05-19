@@ -180,6 +180,30 @@ async function scheduleReview(){
 }
 
 loadStats();
+
+// [419] Ajustement manuel solde
+async function adjustBalance(){
+  const cid   = prompt('Customer ID:');
+  const pts   = parseInt(prompt('Points à ajouter (négatif pour déduire):'));
+  const reason= prompt('Raison:') || 'Ajustement manuel';
+  if(!cid||isNaN(pts)){alert('Annulé');return;}
+  const endpoint = pts>0 ? '/api/v1/loyalty/award' : '/api/v1/loyalty/redeem';
+  const body     = pts>0
+    ? {customerId:cid,amountNet:pts,itemType:'manual_adjust',txId:'manual_'+Date.now(),transactionAt:new Date().toISOString()}
+    : {customerId:cid,points:Math.abs(pts),reason};
+  const r = await fetch(endpoint,{method:'POST',headers:H,body:JSON.stringify(body)}).then(r=>r.json()).catch(()=>({success:false}));
+  alert(r.success?`✅ ${Math.abs(pts)} pts ${pts>0?'ajoutés':'déduits'} — Nouveau solde: ${r.data?.balance||'—'}`:'Erreur: '+(r.error||'?'));
+  loadStats();
+}
+
+// [419] Valider récompense exceptionnelle 1 clic
+async function validateReward(){
+  const cid  = prompt('Customer ID:');
+  const reward = prompt('Récompense exceptionnelle (ex: Soin VIP offert):');
+  if(!cid||!reward){alert('Annulé');return;}
+  const r = await fetch('/api/v1/loyalty/award',{method:'POST',headers:H,body:JSON.stringify({customerId:cid,amountNet:0,itemType:'exceptional_reward',txId:'reward_'+Date.now(),transactionAt:new Date().toISOString(),reason:reward})}).then(r=>r.json()).catch(()=>({success:false}));
+  alert(r.success?`✅ Récompense validée pour ${cid}`:'Erreur');
+}
 </script>
 </body>
 </html>

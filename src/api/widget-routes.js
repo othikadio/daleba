@@ -149,4 +149,18 @@ router.post('/booking/create', widgetAuth, async (req, res) => {
   } catch(e) { err(res, e.message, 500); }
 });
 
+// [432] GET /widgets/loyalty/balance — Solde points en temps réel pour widget
+router.get('/loyalty/balance', widgetAuth, async (req, res) => {
+  try {
+    const tenantId    = req.widgetTenantId;
+    const customerId  = req.query.customerId || req.query.phone;
+    if (!customerId) return err(res, 'customerId ou phone requis');
+
+    const pts    = require('../services/dynamic-points-engine');
+    const balance= await pts.getBalance(pool, tenantId, customerId);
+    res.set('Cache-Control', 'no-cache'); // temps réel [376 ne s'applique pas ici]
+    ok(res, balance);
+  } catch(e) { err(res, e.message, 500); }
+});
+
 module.exports = router;
