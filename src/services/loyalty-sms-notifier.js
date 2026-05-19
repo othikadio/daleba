@@ -63,7 +63,7 @@ async function sendReferralSuccessSMS({ referrerPhone, referrerName, refereeName
     await twilio.sendSMS({ to: referrerPhone, body });
     bus.system(`[LoyaltySMS] ✅ SMS parrainage: ${referrerName} ← ${firstName} converti`);
     return { sent: true, body };
-  } catch(e) { return { sent: false, error: e.message }; }
+  } catch(e) { return { sent: false, error: e.message, body }; }
 }
 
 module.exports = { sendPointsGainSMS, processExpiryReminders, sendReferralSuccessSMS };
