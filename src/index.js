@@ -8,6 +8,7 @@ const { errorMiddleware, enableSelfHealing, logError } = require('./services/err
 const errorWatcher = require('./services/error-watcher'); // V27 — Filet de Sécurité
 const { startFollowupCron } = require('./services/client-followup');
 const dare = require('./agents/dare');
+const dareMonitor = require('./services/dare-monitor');
 
 const path = require('path');
 const app = express();
@@ -114,11 +115,9 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   // V20 — Cruise Control: routines autonomes fidélité + contenu social
   const { startV20Crons } = require('./services/auto-scheduler');
   startV20Crons();
-  // DARE — Metacortex: health check loop (toutes les 2 min)
+  // DARE — Metacortex: health check loop + monitor continu
   dare.startHealthCheckLoop(120000);
-  dare.healthEmitter.on('provider_down', ({ providerId, error }) => {
-    console.error(`[DARE] ⚠️ Provider DOWN: ${providerId} — ${error}`);
-  });
+  dareMonitor.start(); // [025, 033, 036, 037, 047]
 }
 
 // Démarrage — skip listen() en mode serverless (Vercel)

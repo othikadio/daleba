@@ -1,7 +1,13 @@
 const Anthropic = require('@anthropic-ai/sdk');
 const { DALEBA_SYSTEM_PROMPT } = require('./persona');
 
-const client = process.env.ANTHROPIC_API_KEY ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }) : null;
+// [032] Prompt Caching — réduit les coûts de ~50% sur les system prompts répétitifs
+const client = process.env.ANTHROPIC_API_KEY
+  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  : null;
+
+// Cache activé pour les system prompts > 1024 tokens
+const PROMPT_CACHE_THRESHOLD = 1024;
 
 // ─── PERSONA DALEBA (Pilier II — Point 11) ───────────────────────────────────
 // Persona principale importée depuis persona.js
@@ -66,12 +72,25 @@ async function query(message, systemPrompt = '', history = []) {
   // Priorité : systemPrompt explicite > DALEBA_SYSTEM_PROMPT (persona de guerre) > DALEBA_PERSONA legacy
   const finalSystemPrompt = systemPrompt || DALEBA_SYSTEM_PROMPT || DALEBA_PERSONA;
 
-  const response = await client.messages.create({
+  // [032] Prompt caching — active le cache si le system prompt est long (> 1024 tokens estimés)
+  const estimatedTokens = Math.ceil((finalSystemPrompt || '').length / 4);
+  const useCache = estimatedTokens >= PROMPT_CACHE_THRESHOLD;
+
+  const systemParam = useCache
+    ? [{ type: 'text', text: finalSystemPrompt, cache_control: { type: 'ephemeral' } }]
+    : finalSystemPrompt;
+
+  const createParams = {
     model: 'claude-sonnet-4-5',
     max_tokens: 4096,
-    system: finalSystemPrompt,
+    system: systemParam,
     messages,
-  });
+  };
+
+  // Beta header requis pour prompt caching
+  const response = await (useCache
+    ? client.beta.promptCaching.messages.create(createParams)
+    : client.messages.create(createParams));
 
   return {
     model: 'claude',
