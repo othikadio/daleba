@@ -118,4 +118,64 @@ router.get('/admin/stats', requireAuth, async (req, res) => {
   } catch(e) { err(res, e.message, 500); }
 });
 
+const { maskPhoneMiddleware } = require('../services/loyalty-phone-mask');
+const transfer  = require('../services/loyalty-transfer');
+const stampCard = require('../services/stamp-card-engine');
+const velGuard  = require('../services/referral-velocity-guard');
+const liabCache = require('../services/loyalty-liability-cache');
+
+// [445] Masquage téléphone sur toutes les routes du module
+router.use(maskPhoneMiddleware);
+
+// [441] POST /loyalty/transfer
+router.post('/transfer', requireAuth, async (req, res) => {
+  try {
+    const r = await transfer.transferPoints(pool, getTenant(req), { ...req.body, approvedBy: req.user?.id || 'manager' });
+    ok(res, r);
+  } catch(e) { err(res, e.message); }
+});
+
+// [444] POST /loyalty/stamp
+router.post('/stamp', requireAuth, async (req, res) => {
+  try {
+    const r = await stampCard.addStamp(pool, getTenant(req), req.body);
+    ok(res, r);
+  } catch(e) { err(res, e.message); }
+});
+
+// [448] GET /loyalty/liability
+router.get('/liability', requireAuth, async (req, res) => {
+  try {
+    const r = await liabCache.getLiabilityCached(pool, getTenant(req));
+    ok(res, r);
+  } catch(e) { err(res, e.message, 500); }
+});
+
+// [443] Alerte VIP dans processFeedback — intégrée via event-bus (listener dans auto-scheduler)
+// [447] GET /loyalty/referral/velocity/:code
+router.get('/referral/velocity/:code', requireAuth, async (req, res) => {
+  try {
+    const r = await velGuard.checkVelocity(pool, getTenant(req), req.params.code);
+    ok(res, r);
+  } catch(e) { err(res, e.message); }
+});
+
+// [442] GET /loyalty/reputation/chart — évolution note moyenne
+router.get('/reputation/chart', requireAuth, async (req, res) => {
+  try {
+    const tenantId = getTenant(req);
+    const r = await pool.query(`
+      SELECT DATE_TRUNC('week', created_at) AS week,
+             AVG(rating) AS avg_rating,
+             COUNT(*) AS total,
+             COUNT(CASE WHEN status='redirected' THEN 1 END) AS google_redirects,
+             COUNT(CASE WHEN status='complaint' THEN 1 END) AS complaints
+      FROM tenant_review_tokens
+      WHERE tenant_id=$1 AND rating IS NOT NULL
+      GROUP BY week ORDER BY week DESC LIMIT 12
+    `, [tenantId]).catch(() => ({ rows: [] }));
+    ok(res, { weeks: r.rows });
+  } catch(e) { err(res, e.message, 500); }
+});
+
 module.exports = router;
