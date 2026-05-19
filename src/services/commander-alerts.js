@@ -18,10 +18,9 @@ const THRESHOLDS = {
   INACTIVITY_ALERT_DAYS: 45,   // Aucun paiement depuis 45j → alerte
 };
 
-// Anti-spam: cooldown persistant via fichier /tmp (survit aux redémarrages Railway)
-// BAISSE_CA = 24h minimum (comparaison hebdo, pas de raison de répéter)
-const fs = require('fs');
-const COOLDOWN_FILE = '/tmp/daleba-alert-cooldowns.json';
+// Anti-spam: cooldown persistant en base PostgreSQL (Railway /tmp est éphémère — ne jamais utiliser)
+// FIX CRITIQUE [2026-05-19]: /tmp est purgé à chaque restart Railway → spam garanti si fichier
+// Solution: table daleba_alert_cooldowns en PostgreSQL (seul stockage persistant sur Railway)
 const COOLDOWN_MS_BY_TYPE = {
   BAISSE_CA:             24 * 60 * 60 * 1000, // 24h — comparaison hebdo
   GROS_PAIEMENT:          1 * 60 * 60 * 1000, // 1h
@@ -29,20 +28,56 @@ const COOLDOWN_MS_BY_TYPE = {
   DEFAULT:                1 * 60 * 60 * 1000, // 1h
 };
 
-function _loadCooldowns() {
-  try { return JSON.parse(fs.readFileSync(COOLDOWN_FILE, 'utf8')); } catch { return {}; }
-}
-function _saveCooldowns(data) {
-  try { fs.writeFileSync(COOLDOWN_FILE, JSON.stringify(data)); } catch {}
+// ─── COOLDOWNS DB-PERSISTANTS (PostgreSQL — survit aux restarts Railway) ────────
+// In-memory fallback si la DB n'est pas encore disponible au boot
+const _memCooldowns = {};
+
+async function _initCooldownTable(pool) {
+  if (!pool?.query) return;
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS daleba_alert_cooldowns (
+      alert_type TEXT PRIMARY KEY,
+      last_sent  BIGINT NOT NULL DEFAULT 0
+    )
+  `).catch(() => {});
 }
 
-function canAlert(type) {
-  const cooldowns = _loadCooldowns();
-  const last = cooldowns[type] || 0;
+async function canAlertDB(type, pool) {
   const windowMs = COOLDOWN_MS_BY_TYPE[type] || COOLDOWN_MS_BY_TYPE.DEFAULT;
-  if (Date.now() - last < windowMs) return false;
-  cooldowns[type] = Date.now();
-  _saveCooldowns(cooldowns);
+  const now = Date.now();
+  try {
+    if (pool?.query) {
+      await _initCooldownTable(pool);
+      const r = await pool.query(
+        `SELECT last_sent FROM daleba_alert_cooldowns WHERE alert_type=$1`,
+        [type]
+      );
+      const last = r.rows[0] ? parseInt(r.rows[0].last_sent) : 0;
+      if (now - last < windowMs) return false;
+      await pool.query(
+        `INSERT INTO daleba_alert_cooldowns (alert_type, last_sent) VALUES ($1,$2)
+         ON CONFLICT (alert_type) DO UPDATE SET last_sent=$2`,
+        [type, now]
+      );
+      return true;
+    }
+  } catch (e) {
+    bus.system(`[ALERT] DB cooldown indisponible, fallback mémoire: ${e.message}`);
+  }
+  // Fallback mémoire si DB down
+  const last = _memCooldowns[type] || 0;
+  if (now - last < windowMs) return false;
+  _memCooldowns[type] = now;
+  return true;
+}
+
+// Compatibilité sync pour appels sans pool (legacy) — utilise fallback mémoire
+function canAlert(type) {
+  const windowMs = COOLDOWN_MS_BY_TYPE[type] || COOLDOWN_MS_BY_TYPE.DEFAULT;
+  const now = Date.now();
+  const last = _memCooldowns[type] || 0;
+  if (now - last < windowMs) return false;
+  _memCooldowns[type] = now;
   return true;
 }
 
@@ -165,11 +200,11 @@ async function checkWeeklyRevenueAlert() {
     if (prevCA > 0) {
       const dropPct = ((prevCA - currentCA) / prevCA) * 100;
       if (dropPct >= THRESHOLDS.REVENUE_DROP_PCT) {
-        await sendCommanderAlert(
-          'BAISSE_CA',
-          '📉',
-          `Baisse de CA détectée cette semaine!\nSemaine actuelle: *${currentCA.toFixed(2)} CAD*\nSemaine précédente: *${prevCA.toFixed(2)} CAD*\nBaisse: *${dropPct.toFixed(1)}%*\nAction recommandée: activer campagne réengagement.`
-        );
+        // ⛔ BAISSE_CA SMS DÉSACTIVÉ [FIX 2026-05-19] — spam boucle Railway
+        // La métrique est loguée dans le bus et visible dans le HUD uniquement.
+        // Réactiver après revue de code avec Ulrich.
+        bus.system(`[ALERT-HUD-ONLY] 📉 BAISSE_CA ${dropPct.toFixed(1)}% — SMS neutralisé (visible HUD)`);
+        // await sendCommanderAlert('BAISSE_CA', '📉', `...`); // NEUTRALISÉ
       }
     }
   } catch (_) {}

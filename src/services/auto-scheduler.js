@@ -210,12 +210,12 @@ function startV20Crons() {
     setTimeout(runLoyaltyReengagement, loyaltyIn);
     setTimeout(runSocialContentGeneration, socialIn);
 
-    // V21 — Commander Alerts: scan toutes les heures
+    // V21 — Commander Alerts: BAISSE_CA SMS neutralisé [FIX 2026-05-19]
+    // Le setInterval est conservé pour les autres alertes (GROS_PAIEMENT, ANNULATION)
+    // mais BAISSE_CA ne déclenche plus de SMS (HUD uniquement) jusqu'à revue de code.
     const { runAllAlertChecks } = require('./commander-alerts');
-    bus.system('[V21] Commander Alerts actif — scan Square toutes les heures');
+    bus.system('[V21] Commander Alerts actif — BAISSE_CA SMS neutralisé (HUD only)');
     setInterval(runAllAlertChecks, 60 * 60 * 1000);
-    // NOTE: le setTimeout initial est supprimé — évitait le cooldown persistant
-    // et générait une alerte BAISSE_CA à chaque redémarrage Railway [FIX anti-spam]
 
     // V26 — Marketing Autonome: scan agenda chaque lundi matin
     const { runMarketingWorker } = require('./autonomous-marketing');
