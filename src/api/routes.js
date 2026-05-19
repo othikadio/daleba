@@ -1219,4 +1219,7 @@ router.use('/v1/funding', fundingRoutes);
 const accountingRoutes = require('./accounting-routes'); // [551-557] Comptabilité & Taxes
 router.use('/v1/accounting', accountingRoutes);
 
+const evolutionRoutes = require('./evolution-routes'); // [601-612] Évolution Autonome
+router.use('/v1/evolution', evolutionRoutes);
+
 module.exports = router;
