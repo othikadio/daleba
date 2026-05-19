@@ -847,6 +847,78 @@ router.post('/webhook/voice/test', async (req, res) => {
   }
 });
 
+// ─── V29 : ARMURE VISUELLE ABSOLUE ────────────────────────────────
+
+const imageEngine   = require('../services/image-engine');
+const imageUpscaler = require('../services/image-upscaler');
+
+// GET /api/image/styles — Styles tenant disponibles
+router.get('/image/styles', (req, res) => {
+  res.json({ styles: imageEngine.TENANT_STYLES });
+});
+
+// POST /api/image/generate — Génération visuel d'élite
+router.post('/image/generate', async (req, res) => {
+  try {
+    const { prompt, style = 'beauty', model, tenantName, width, height } = req.body;
+    if (!prompt) return res.status(400).json({ error: 'prompt requis' });
+    const result = await imageEngine.generateEliteVisual(prompt, style, { model, tenantName, width, height });
+    res.json(result);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/image/enrich-prompt — Enrichissement prompt seul (preview avant génération)
+router.post('/image/enrich-prompt', async (req, res) => {
+  try {
+    const { prompt, style = 'beauty', tenantName } = req.body;
+    if (!prompt) return res.status(400).json({ error: 'prompt requis' });
+    const enriched = await imageEngine.enrichVisualPrompt(prompt, style, tenantName || 'Kadio Coiffure');
+    const model    = imageEngine.selectModel(style, style);
+    res.json({ original: prompt, enriched, recommendedModel: model, style });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/image/variants — Génération multi-variantes A/B
+router.post('/image/variants', async (req, res) => {
+  try {
+    const { prompt, style = 'social', count = 2 } = req.body;
+    if (!prompt) return res.status(400).json({ error: 'prompt requis' });
+    const result = await imageEngine.generateVisualVariants(prompt, style, Math.min(count, 4));
+    res.json(result);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/image/upscale — Upscale + finition 4K
+router.post('/image/upscale', async (req, res) => {
+  try {
+    const { imageUrl, imageType = 'product' } = req.body;
+    if (!imageUrl) return res.status(400).json({ error: 'imageUrl requis' });
+    const result = await imageUpscaler.runUpscalePipeline(imageUrl, imageType);
+    res.json(result);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/image/full — Génération + upscale en une passe
+router.post('/image/full', async (req, res) => {
+  try {
+    const { prompt, style = 'beauty', imageType, tenantName } = req.body;
+    if (!prompt) return res.status(400).json({ error: 'prompt requis' });
+
+    // 1. Générer
+    const generated = await imageEngine.generateEliteVisual(prompt, style, { tenantName });
+
+    // 2. Upscale si image disponible (pas en mode mock)
+    let upscaled = null;
+    if (generated.url && !generated.url.includes('placehold.co')) {
+      upscaled = await imageUpscaler.runUpscalePipeline(
+        generated.url, imageType || style
+      ).catch(e => ({ error: e.message }));
+    }
+
+    res.json({ generated, upscaled });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // ─── V27 : OMNICORE ALPHA — PIPELINE MÉDIA & FILET SÉCURITÉ ───────────────
 
 const videoPipeline = require('../services/video-pipeline');

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DALEBA — Studio Visuel V29</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#000;--bg1:#0a0a0a;--bg2:#111;--border:#1e1e1e;--border2:#2a2a2a;--green:#00FF9F;--blue:#00D4FF;--amber:#FFB800;--red:#FF4444;--purple:#BF5FFF;--muted:#444;--text:#e0e0e0;--text2:#888}
+body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;font-size:13px;min-height:100vh}
+.hdr{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;border-bottom:1px solid var(--border);background:var(--bg1);position:sticky;top:0;z-index:100}
+.hdr h1{font-size:.85rem;letter-spacing:4px;color:var(--purple);font-weight:normal}
+.hdr .nav a{color:var(--muted);text-decoration:none;font-size:.7rem;letter-spacing:2px;margin-left:16px;transition:color .2s}
+.hdr .nav a:hover{color:var(--green)}
+.body{display:grid;grid-template-columns:380px 1fr;min-height:calc(100vh - 50px);gap:1px;background:var(--border)}
+.panel{background:var(--bg);padding:20px;overflow-y:auto}
+.ptitle{font-size:.6rem;letter-spacing:4px;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.ptitle::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--purple)}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.field label{font-size:.6rem;letter-spacing:2px;color:var(--muted)}
+.field textarea,.field input,.field select{background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:10px 12px;font-family:inherit;font-size:.78rem;outline:none;transition:border-color .2s;resize:vertical}
+.field textarea:focus,.field input:focus,.field select:focus{border-color:var(--purple)}
+.field textarea::placeholder,.field input::placeholder{color:var(--muted)}
+.btn{background:transparent;border:1px solid var(--purple);color:var(--purple);padding:10px 20px;font-family:inherit;font-size:.7rem;letter-spacing:2px;cursor:pointer;transition:all .2s}
+.btn:hover{background:var(--purple);color:#fff}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn:disabled:hover{background:transparent;color:var(--purple)}
+.btn-green{border-color:var(--green);color:var(--green)}
+.btn-green:hover{background:var(--green);color:#000}
+.btn-amber{border-color:var(--amber);color:var(--amber)}
+.btn-amber:hover{background:var(--amber);color:#000}
+.btn-full{width:100%;padding:14px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:.75rem}
+.style-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+.style-card{border:1px solid var(--border2);padding:8px;cursor:pointer;transition:all .2s;font-size:.65rem;line-height:1.5}
+.style-card:hover,.style-card.sel{border-color:var(--purple);background:rgba(191,95,255,.05);color:var(--text)}
+.style-card .sname{color:var(--purple);font-size:.6rem;letter-spacing:2px;margin-bottom:2px}
+.model-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.model-chip{font-size:.6rem;padding:4px 10px;border:1px solid var(--border2);color:var(--muted);cursor:pointer;transition:all .2s;letter-spacing:1px}
+.model-chip:hover,.model-chip.sel{border-color:var(--purple);color:var(--purple)}
+.div-line{height:1px;background:var(--border2);margin:16px 0}
+/* Gallery */
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding:4px}
+.img-card{border:1px solid var(--border2);background:var(--bg1);position:relative;transition:border-color .2s}
+.img-card:hover{border-color:var(--purple)}
+.img-card img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--bg2)}
+.img-card .img-meta{padding:10px;font-size:.65rem}
+.img-card .img-model{color:var(--purple);letter-spacing:2px;margin-bottom:4px}
+.img-card .img-prompt{color:var(--text2);line-height:1.5;max-height:36px;overflow:hidden}
+.img-card .img-actions{display:flex;gap:6px;margin-top:8px}
+.img-card .img-actions button{font-size:.55rem;padding:3px 8px;letter-spacing:1px}
+.enrich-box{background:var(--bg2);border:1px solid var(--border2);padding:12px;font-size:.72rem;color:var(--text2);line-height:1.7;margin-bottom:12px;display:none}
+.enrich-box.visible{display:block}
+.enrich-box strong{color:var(--purple)}
+.badge{display:inline-block;padding:2px 7px;font-size:.55rem;letter-spacing:1px;border:1px solid currentColor}
+.badge-ok{color:var(--green)}.badge-warn{color:var(--amber)}.badge-err{color:var(--red)}.badge-info{color:var(--blue)}
+.spin{display:inline-block;width:10px;height:10px;border:1px solid var(--muted);border-top-color:var(--purple);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.result-block{border:1px solid var(--border2);padding:12px;margin-bottom:10px;font-size:.75rem;line-height:1.7}
+.result-block.ok{border-color:rgba(0,255,159,.3)}
+.result-block.err{border-color:rgba(255,68,68,.3)}
+.sbar{position:fixed;bottom:0;left:0;right:0;background:var(--bg1);border-top:1px solid var(--border);padding:6px 24px;display:flex;align-items:center;gap:20px;font-size:.6rem;letter-spacing:2px;z-index:100}
+.sdot{width:5px;height:5px;border-radius:50%}
+.son{background:var(--green);box-shadow:0 0 4px var(--green)}
+.swarn{background:var(--amber)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border2)}
+@media(max-width:700px){.body{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div style="display:flex;align-items:center;gap:12px">
+    <span style="width:7px;height:7px;border-radius:50%;background:var(--purple);box-shadow:0 0 8px var(--purple);display:inline-block"></span>
+    <h1>DALEBA STUDIO VISUEL V29</h1>
+    <span style="font-size:.6rem;color:var(--muted);letter-spacing:2px">/ ARMURE VISUELLE ABSOLUE</span>
+  </div>
+  <div class="nav">
+    <a href="/admin/dashboard">COMMAND CENTER</a>
+    <a href="/admin/content">SOCIAL</a>
+    <a href="/zenith">ZENITH</a>
+  </div>
+</header>
+
+<div class="body">
+
+  <!-- ══ PANNEAU CONTRÔLE ══ -->
+  <div class="panel">
+    <div class="ptitle">MOTEUR D'ÉLITE V29</div>
+
+    <!-- Prompt -->
+    <div class="field">
+      <label>PROMPT VISUEL *</label>
+      <textarea id="prompt" rows="3" placeholder="Ex: Femme souriante après soin capillaire botanique, cheveux brillants..."></textarea>
+    </div>
+
+    <!-- Enrichissement -->
+    <button class="btn btn-full" id="btnEnrich" onclick="enrichPrompt()" style="margin-bottom:8px;font-size:.65rem">
+      <span id="enrichTxt">✦ ENRICHIR VIA CLAUDE (PREVIEW)</span>
+    </button>
+    <div class="enrich-box" id="enrichBox"></div>
+
+    <!-- Styles -->
+    <div style="font-size:.6rem;letter-spacing:2px;color:var(--muted);margin-bottom:8px">STYLE TENANT</div>
+    <div class="style-grid" id="styleGrid"></div>
+
+    <!-- Modèle -->
+    <div style="font-size:.6rem;letter-spacing:2px;color:var(--muted);margin-bottom:8px">MODÈLE (AUTO SI VIDE)</div>
+    <div class="model-row">
+      <div class="model-chip sel" onclick="selModel(this,'')">AUTO</div>
+      <div class="model-chip" onclick="selModel(this,'flux-pro')">FLUX PRO</div>
+      <div class="model-chip" onclick="selModel(this,'flux-schnell')">FLUX FAST</div>
+      <div class="model-chip" onclick="selModel(this,'dalle3')">DALL-E 3</div>
+    </div>
+
+    <div class="div-line"></div>
+
+    <!-- Actions -->
+    <button class="btn btn-full btn-green" id="btnGen" onclick="generate()">
+      <span id="genTxt">🎨 GÉNÉRER VISUEL D'ÉLITE</span>
+    </button>
+    <button class="btn btn-full btn-amber" id="btnVariants" onclick="generateVariants()">
+      <span id="varTxt">◈ GÉNÉRER 2 VARIANTES A/B</span>
+    </button>
+
+    <div class="div-line"></div>
+
+    <!-- Upscale section -->
+    <div style="font-size:.6rem;letter-spacing:3px;color:var(--muted);margin-bottom:10px">UPSCALE / FINITION 4K</div>
+    <div class="field">
+      <label>URL IMAGE À UPSCALER</label>
+      <input type="url" id="upscaleUrl" placeholder="https://... ou URL générée ci-dessus"/>
+    </div>
+    <div class="field">
+      <label>TYPE D'IMAGE</label>
+      <select id="upscaleType">
+        <option value="product">Produit / Générique</option>
+        <option value="portrait">Portrait (GFPGAN activé)</option>
+        <option value="botanique">Botanique / Macro</option>
+        <option value="social">Social Media</option>
+      </select>
+    </div>
+    <button class="btn btn-full" onclick="upscaleImage()">
+      <span id="upscaleTxt">⬆ UPSCALE 4K + FINITION</span>
+    </button>
+
+    <div id="statusPanel" style="margin-top:12px"></div>
+  </div>
+
+  <!-- ══ GALERIE ══ -->
+  <div class="panel" style="padding:16px">
+    <div class="ptitle">GALERIE DE PRODUCTION</div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+      <button class="btn" onclick="clearGallery()" style="font-size:.6rem;padding:5px 12px">✗ VIDER</button>
+      <span id="galleryCount" style="font-size:.6rem;color:var(--muted);align-self:center">0 visuels</span>
+      <span style="margin-left:auto;font-size:.6rem;color:var(--muted)" id="modelStatus"></span>
+    </div>
+    <div class="gallery" id="gallery">
+      <div style="color:var(--muted);font-size:.72rem;padding:20px;grid-column:1/-1;text-align:center">
+        Générez un visuel pour le voir apparaître ici.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="sbar">
+  <div style="display:flex;align-items:center;gap:6px"><div class="sdot son"></div><span>DALEBA API</span></div>
+  <div style="display:flex;align-items:center;gap:6px"><div class="sdot" id="sbReplicate"></div><span>REPLICATE</span></div>
+  <div style="display:flex;align-items:center;gap:6px"><div class="sdot" id="sbOpenAI"></div><span>DALL-E</span></div>
+  <div style="display:flex;align-items:center;gap:6px;margin-left:auto"><span style="color:var(--muted)">STUDIO V29</span></div>
+</div>
+<div style="height:32px"></div>
+
+<script>
+const API = '/api';
+let selectedStyle = 'beauty';
+let selectedModel = '';
+const gallery     = [];
+
+const STYLES = {
+  beauty:    { label: 'Beauté haut de gamme', desc: 'Portrait, 85mm, lumière dorée' },
+  botanique: { label: 'Science botanique',    desc: 'Macro, herbes, minimalisme' },
+  promo:     { label: 'Contenu promo',        desc: 'Magazine, bold, impactant' },
+  portrait:  { label: 'Portrait coiffure',    desc: 'Studio 3 points, textures' },
+  social:    { label: 'Social Media',         desc: 'Instagram-worthy, vibrant' },
+};
+
+function esc(s){ return String(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+
+async function api(method, path, body){
+  const r = await fetch(API+path,{method,headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
+  const d = await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(d.error||r.statusText);
+  return d;
+}
+
+// Init styles
+function initStyles(){
+  const g = document.getElementById('styleGrid');
+  g.innerHTML = Object.entries(STYLES).map(([k,v])=>`
+    <div class="style-card ${k===selectedStyle?'sel':''}" onclick="selStyle(this,'${k}')">
+      <div class="sname">${k.toUpperCase()}</div>
+      <div>${esc(v.label)}</div>
+      <div style="color:var(--muted);font-size:.6rem">${esc(v.desc)}</div>
+    </div>
+  `).join('');
+}
+
+function selStyle(el, key){
+  document.querySelectorAll('.style-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedStyle = key;
+}
+
+function selModel(el, val){
+  document.querySelectorAll('.model-chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedModel = val;
+}
+
+// Enrichissement
+async function enrichPrompt(){
+  const prompt = document.getElementById('prompt').value.trim();
+  if(!prompt){ alert('Entre un prompt'); return; }
+  const btn = document.getElementById('btnEnrich');
+  btn.disabled = true;
+  document.getElementById('enrichTxt').innerHTML = `<span class="spin"></span>ENRICHISSEMENT...`;
+  try{
+    const d = await api('POST','/image/enrich-prompt',{prompt,style:selectedStyle});
+    const box = document.getElementById('enrichBox');
+    box.className = 'enrich-box visible';
+    box.innerHTML = `
+      <div style="margin-bottom:6px"><span class="badge badge-info">ORIGINAL</span></div>
+      <div style="color:var(--text2);margin-bottom:10px">${esc(d.original)}</div>
+      <div style="margin-bottom:6px"><span class="badge badge-ok">ENRICHI</span> <span style="color:var(--muted);font-size:.6rem">→ ${esc(d.recommendedModel)}</span></div>
+      <strong>${esc(d.enriched)}</strong>
+    `;
+  } catch(e){
+    document.getElementById('enrichBox').className='enrich-box visible';
+    document.getElementById('enrichBox').innerHTML=`<span style="color:var(--red)">⚠ ${esc(e.message)}</span>`;
+  } finally{
+    btn.disabled=false;
+    document.getElementById('enrichTxt').textContent='✦ ENRICHIR VIA CLAUDE (PREVIEW)';
+  }
+}
+
+// Génération
+async function generate(){
+  const prompt = document.getElementById('prompt').value.trim();
+  if(!prompt){ alert('Entre un prompt'); return; }
+  const btn=document.getElementById('btnGen');
+  btn.disabled=true;
+  document.getElementById('genTxt').innerHTML=`<span class="spin"></span>GÉNÉRATION EN COURS...`;
+
+  try{
+    const d = await api('POST','/image/generate',{
+      prompt, style:selectedStyle,
+      model: selectedModel || undefined,
+    });
+    addToGallery(d);
+    showStatus(`✅ Visuel généré — ${d.model} — ${d.latencyMs}ms`,'ok');
+  } catch(e){
+    showStatus(`❌ ${e.message}`,'err');
+  } finally{
+    btn.disabled=false;
+    document.getElementById('genTxt').textContent='🎨 GÉNÉRER VISUEL D\'ÉLITE';
+  }
+}
+
+async function generateVariants(){
+  const prompt = document.getElementById('prompt').value.trim();
+  if(!prompt){ alert('Entre un prompt'); return; }
+  const btn=document.getElementById('btnVariants');
+  btn.disabled=true;
+  document.getElementById('varTxt').innerHTML=`<span class="spin"></span>VARIANTES EN COURS...`;
+
+  try{
+    const d = await api('POST','/image/variants',{prompt,style:selectedStyle,count:2});
+    (d.variants||[]).forEach(v => { if(!v.error) addToGallery(v); });
+    showStatus(`✅ ${d.variants?.length||0} variantes générées`,'ok');
+  } catch(e){
+    showStatus(`❌ ${e.message}`,'err');
+  } finally{
+    btn.disabled=false;
+    document.getElementById('varTxt').textContent='◈ GÉNÉRER 2 VARIANTES A/B';
+  }
+}
+
+async function upscaleImage(){
+  const url = document.getElementById('upscaleUrl').value.trim();
+  if(!url){ alert('Entre une URL'); return; }
+  const type = document.getElementById('upscaleType').value;
+  document.getElementById('upscaleTxt').innerHTML=`<span class="spin"></span>UPSCALE EN COURS...`;
+
+  try{
+    const d = await api('POST','/image/upscale',{imageUrl:url,imageType:type});
+    if(d.error) throw new Error(d.error);
+    showStatus(`✅ Upscale terminé — ${d.dimensions?.width}×${d.dimensions?.height} — ${d.steps?.length} étapes`,'ok');
+  } catch(e){
+    showStatus(`❌ ${e.message}`,'err');
+  } finally{
+    document.getElementById('upscaleTxt').textContent='⬆ UPSCALE 4K + FINITION';
+  }
+}
+
+function addToGallery(data){
+  gallery.unshift(data);
+  const g = document.getElementById('gallery');
+  const note = data.note ? `<span class="badge badge-warn">${esc(data.note.slice(0,40))}</span>` : '';
+  const card = document.createElement('div');
+  card.className = 'img-card';
+  card.innerHTML = `
+    <img src="${esc(data.url||'')}" alt="visuel généré" loading="lazy"
+      onerror="this.style.background='#111';this.style.display='flex';this.style.alignItems='center';this.style.justifyContent='center'" />
+    <div class="img-meta">
+      <div class="img-model">${esc((data.model||'?').toUpperCase())} <span style="color:var(--muted)">${data.latencyMs||'?'}ms</span> ${note}</div>
+      <div class="img-prompt">${esc((data.enrichedPrompt||data.originalPrompt||'').slice(0,80))}</div>
+      <div class="img-actions">
+        <a href="${esc(data.url||'#')}" target="_blank" style="text-decoration:none">
+          <button class="btn" style="font-size:.55rem;padding:3px 8px">↗ OUVRIR</button>
+        </a>
+        <button class="btn btn-amber" style="font-size:.55rem;padding:3px 8px" onclick="document.getElementById('upscaleUrl').value='${esc(data.url||'')}';document.getElementById('upscaleType').value='${selectedStyle}'">⬆ 4K</button>
+      </div>
+    </div>
+  `;
+  if(g.querySelector('[style*="Générez"]')) g.innerHTML='';
+  g.prepend(card);
+  document.getElementById('galleryCount').textContent = `${gallery.length} visuel${gallery.length>1?'s':''}`;
+}
+
+function showStatus(msg, type){
+  const el = document.getElementById('statusPanel');
+  el.innerHTML = `<div class="result-block ${type==='ok'?'ok':'err'}">${esc(msg)}</div>`;
+  setTimeout(()=>{ el.innerHTML=''; }, 8000);
+}
+
+function clearGallery(){
+  gallery.length=0;
+  document.getElementById('gallery').innerHTML=`<div style="color:var(--muted);font-size:.72rem;padding:20px;grid-column:1/-1;text-align:center">Générez un visuel pour le voir apparaître ici.</div>`;
+  document.getElementById('galleryCount').textContent='0 visuels';
+}
+
+async function init(){
+  initStyles();
+  try{
+    const d = await api('GET','/image/styles');
+    const models = Object.keys(d.styles||{});
+    document.getElementById('modelStatus').textContent = `${models.length} styles disponibles`;
+
+    // Check modèles disponibles
+    const status = await api('GET','/commander/status').catch(()=>null);
+    if(status){
+      document.getElementById('sbOpenAI').className = 'sdot son';
+    }
+    document.getElementById('sbReplicate').className = process.env?.REPLICATE_API_TOKEN ? 'sdot son' : 'sdot swarn';
+  } catch{}
+}
+
+init();
+</script>
+</body>
+</html>
