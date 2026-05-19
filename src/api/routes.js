@@ -324,6 +324,63 @@ router.post('/studio/trigger-watcher', (req, res) => {
   const watcher = require('../services/studio-watcher');
   watcher.triggerFile(filePath);
   res.json({ triggered: true, filePath });
+});
+
+// POST /api/studio/queue — Ajouter à la file de publication [124-125]
+router.post('/studio/queue', async (req, res) => {
+  try {
+    const queue = require('../services/content-queue');
+    const item  = await queue.addToQueue(req.body);
+    res.status(201).json(item);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/studio/queue — État de la file
+router.get('/studio/queue', async (req, res) => {
+  try {
+    const pool = require('../services/maintenance').getPool();
+    if (!pool) return res.json({ items: [], error: 'DB non disponible' });
+    const r = await pool.query('SELECT * FROM daleba_content_queue ORDER BY created_at DESC LIMIT 50');
+    res.json({ items: r.rows, count: r.rowCount });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/studio/publish-now — Publication manuelle immédiate [129]
+router.post('/studio/publish-now', async (req, res) => {
+  const { itemId, platform } = req.body;
+  try {
+    const pool = require('../services/maintenance').getPool();
+    const r    = pool ? await pool.query('SELECT * FROM daleba_content_queue WHERE id=$1', [itemId]) : { rows: [] };
+    const item = r.rows[0];
+    if (!item) return res.status(404).json({ error: 'Item introuvable' });
+    const publisher = require('../services/social-publisher');
+    const result    = await publisher.publishItem({ ...item, platform: platform || item.platform });
+    res.json(result);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/studio/analytics — Stats publications [132]
+router.get('/studio/analytics', async (req, res) => {
+  try {
+    const pool = require('../services/maintenance').getPool();
+    if (!pool) return res.json({ error: 'DB non disponible' });
+    const r = await pool.query(`
+      SELECT platform, AVG(engagement_rate) as avg_engagement, AVG(views) as avg_views,
+        COUNT(*) as total_posts, MAX(views) as max_views
+      FROM daleba_content_queue WHERE status='published' AND analytics_at IS NOT NULL
+      GROUP BY platform
+    `);
+    res.json({ stats: r.rows });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/studio/slots — Prochains créneaux de publication [126]
+router.get('/studio/slots', (req, res) => {
+  const scheduler = require('../services/media-scheduler');
+  const slots = scheduler.SLOTS.map(s => ({
+    ...s, next: scheduler.getNextSlotTime(s.id)?.nextUTC,
+  }));
+  res.json({ slots, timezone: scheduler.TZ_SALON });
 }); // DARE — Metacortex Routing Engine
 router.use('/commander', commanderRoutes); // Commander — DAE + Swarm + Shield
 router.use('/v1/integration/ext-app', integrationRoutes); // [082] External App API

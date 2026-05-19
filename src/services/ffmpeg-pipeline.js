@@ -306,10 +306,62 @@ async function processRush(inputPath, script, options = {}) {
   });
 }
 
+// ─── PIPELINE AVEC SOUS-TITRES ASS [120-123] ────────────────────────────────────
+
+/**
+ * Version complète avec sous-titres ASS hardcodés [121]
+ * Enchaîne: resize → grade → watermark → subtitles
+ */
+async function processRushWithSubtitles(inputPath, script, options = {}) {
+  // 1. Render vidéo sans sous-titres
+  const renderResult = await processRush(inputPath, script, options);
+
+  // 2. Générer sous-titres Whisper si audio disponible
+  let srtPath = null;
+  try {
+    const subResult = await generateSubtitles(inputPath);
+    srtPath = subResult.srtPath;
+  } catch (err) {
+    console.warn(`[FFmpeg] Whisper indisponible: ${err.message}`);
+    return renderResult; // Retourne sans sous-titres si Whisper fails
+  }
+
+  // 3. Convertir SRT → ASS [120, 122]
+  const fmt = FORMAT_SPECS[options.format || 'reels'];
+  const subtitleEngine = require('./subtitle-engine');
+  const assPath = await subtitleEngine.srtToAss(srtPath, fmt.width, fmt.height);
+
+  // 4. Burn-in ASS dans la vidéo finale [121]
+  const ts = Date.now();
+  const finalPath = path.join(OUTPUT_DIR, `${options.format || 'reels'}_sub_${ts}.mp4`);
+  const subtitleFilter = subtitleEngine.buildSubtitleFilter(assPath);
+
+  return new Promise((resolve, reject) => {
+    ffmpeg(renderResult.outputPath)
+      .complexFilter(`[0:v]${subtitleFilter}[subbed]`)
+      .outputOptions(['-map [subbed]', '-map 0:a?', '-c:v libx264', '-crf 18',
+        '-preset fast', '-c:a copy', '-movflags +faststart'])
+      .output(finalPath)
+      .on('end', async () => {
+        // Nettoyage fichier intermédiaire
+        await fs.unlink(renderResult.outputPath).catch(() => {});
+        await fs.unlink(srtPath).catch(() => {});
+        // Garder .ass pour archivage
+        resolve({ ...renderResult, outputPath: finalPath, subtitlesPath: assPath });
+      })
+      .on('error', (err) => {
+        // Si burn-in échoue (police manquante etc.) → retourner sans sous-titres
+        console.warn(`[FFmpeg] Subtitle burn-in failed: ${err.message} — retour sans sous-titres`);
+        resolve({ ...renderResult, subtitleError: err.message });
+      })
+      .run();
+  });
+}
+
 // ─── EXPORTS ─────────────────────────────────────────────────────────────────
 
 module.exports = {
-  processRush, generateSubtitles,
+  processRush, processRushWithSubtitles, generateSubtitles,
   buildResizeFilter, buildColorGradeFilter, buildWatermarkFilter,
   FORMAT_SPECS, OUTPUT_DIR,
 };

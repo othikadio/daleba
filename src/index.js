@@ -14,8 +14,12 @@ const maintenance = require('./services/maintenance');
 const shield = require('./services/notification-shield');
 const cmdInterpreter = require('./services/command-interpreter');
 const studioWatcher  = require('./services/studio-watcher');
-const trendScraper   = require('./services/trend-scraper');
-const mediaInspector = require('./services/media-inspector');
+const trendScraper      = require('./services/trend-scraper');
+const mediaInspector    = require('./services/media-inspector');
+const contentQueue      = require('./services/content-queue');
+const mediaScheduler    = require('./services/media-scheduler');
+const analyticsScraper  = require('./services/analytics-scraper');
+const commentHandler    = require('./services/comment-handler');
 
 const path = require('path');
 const app = express();
@@ -148,6 +152,13 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   mediaInspector.ensureStudioTable().catch(e => console.warn('[Boot] studio_assets:', e.message));
   studioWatcher.start();
   trendScraper.startTrendScheduler();
+  // Content queue table [124]
+  contentQueue.ensureQueueTable().catch(e => console.warn('[Boot] content_queue:', e.message));
+  // Media Scheduler [126, 129]
+  mediaScheduler.start();
+  // Analytics 24h [132] + Comment Poller [135]
+  analyticsScraper.startAnalyticsScheduler();
+  commentHandler.startCommentPoller(30 * 60 * 1000); // toutes les 30min
   // Daily Digest — 20h heure salon [075]
   const ULRICH_PHONE = process.env.ULRICH_PHONE_NUMBER;
   const TWILIO_FROM  = process.env.TWILIO_PHONE_NUMBER;
