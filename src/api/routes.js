@@ -1310,3 +1310,33 @@ router.use('/sms', smsPipelineRoutes);          // /api/sms/*
 router.use('/calendar', calendarStaffRoutes);   // /api/calendar/* (Section 16 — drag&drop)
 
 module.exports = router;
+
+// ─── MANIFESTE : PORTAIL CLIENT + COMPTABILITÉ + FIDÉLITÉ + MÉDIA ────────────
+// Chargement défensif — ne crash pas si fichier manquant
+const _safeRequire = (p) => { try { return require(p); } catch(e) { console.warn('[routes] missing:', p, e.message); return null; } };
+
+const clientPortalRoutes  = _safeRequire('./client-portal-routes');
+const accountingRoutes2   = _safeRequire('./accounting-routes');
+const loyaltyHybridRoutes = _safeRequire('./loyalty-hybrid-routes');
+const mediaApiRoutes      = _safeRequire('./media-routes');
+
+if (clientPortalRoutes)  router.use('/client-portal', clientPortalRoutes);
+if (accountingRoutes2)   router.use('/accounting',    accountingRoutes2);
+if (loyaltyHybridRoutes) router.use('/loyalty',       loyaltyHybridRoutes);
+if (mediaApiRoutes)      router.use('/media',         mediaApiRoutes);
+
+// ─── HEALTH CHECK ─────────────────────────────────────────────────────────────
+router.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    commit: '4109b45',
+    timestamp: new Date().toISOString(),
+    routes: [
+      '/api/sms/*', '/api/calendar/*', '/api/salon/*',
+      '/api/client-portal/*', '/api/accounting/*', '/api/loyalty/*', '/api/media/*'
+    ],
+    twilio: !!process.env.TWILIO_ACCOUNT_SID,
+    square: !!process.env.SQUARE_ACCESS_TOKEN,
+    db: !!process.env.DATABASE_URL,
+  });
+});

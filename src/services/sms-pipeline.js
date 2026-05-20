@@ -41,6 +41,7 @@ const LOG = '[SMS-PIPELINE]';
 // ─── INIT TABLES ──────────────────────────────────────────────────────────────
 
 async function ensureTables() {
+  if (!pool) { console.log(`${LOG} Mode démo — tables skip`); return; }
   await pool.query(`
     CREATE TABLE IF NOT EXISTS daleba_sms_ratings (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -113,13 +114,15 @@ async function sendBookingConfirmation(clientPhone, clientName, serviceName, dat
     console.log(`${LOG} Confirmation envoyée à ${clientPhone} — SID: ${result.sid}`);
     bus.system(`${LOG} Confirmation RDV → ${clientName} (${clientPhone})`);
 
-    // Enregistrer dans la file reminders
-    await pool.query(`
-      INSERT INTO daleba_reminders_queue
-        (client_phone, client_name, service_name, staff_name, appointment_datetime, confirmation_sent)
-      VALUES ($1, $2, $3, $4, $5, true)
-      ON CONFLICT DO NOTHING
-    `, [clientPhone, clientName, serviceName, staffName, new Date(datetime)]);
+    // Enregistrer dans la file reminders (skip en mode démo / pool null)
+    if (pool) {
+      await pool.query(`
+        INSERT INTO daleba_reminders_queue
+          (client_phone, client_name, service_name, staff_name, appointment_datetime, confirmation_sent)
+        VALUES ($1, $2, $3, $4, $5, true)
+        ON CONFLICT DO NOTHING
+      `, [clientPhone, clientName, serviceName, staffName, new Date(datetime)]);
+    }
 
     return result;
   } catch (err) {

@@ -320,7 +320,7 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
 const smsKillSwitch = require('./services/sms-kill-switch');
 const { pool: _pool } = require('./memory/db');
 smsKillSwitch.purgeStaleAlerts(_pool).catch(() => {});
-bus.system(`[SMSKillSwitch] Statut: ${JSON.stringify(smsKillSwitch.getStatus())}`);
+try { require('./services/event-bus').system(`[SMSKillSwitch] Statut: ${JSON.stringify(smsKillSwitch.getStatus())}`); } catch(_e) {}
 
 // Démarrage — skip listen() en mode serverless (Vercel)
 if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
