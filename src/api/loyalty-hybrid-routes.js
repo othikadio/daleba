@@ -71,4 +71,39 @@ router.get('/check-subscription', (req, res) => {
   res.json({ source, excluded, reason: excluded ? 'Abonnements exclus du circuit points — circuit isolé' : null });
 });
 
+// GET /api/loyalty/stats — statistiques globales du programme fidélité
+router.get('/stats', async (req, res) => {
+  try {
+    let stats = {
+      totalMembers: 0,
+      activeThisMonth: 0,
+      pointsDistributed: 0,
+      redemptions: 0,
+      status: 'operational',
+      module: 'loyalty-hybrid',
+      version: '1.0'
+    };
+
+    try {
+      const summary = await loyalty.getLoyaltySummary ? loyalty.getLoyaltySummary() : null;
+      if (summary) {
+        stats.totalMembers      = summary.totalClients      || 0;
+        stats.pointsDistributed = summary.totalPointsIssued || 0;
+        stats.redemptions       = summary.totalRedemptions  || 0;
+      }
+    } catch (dbErr) {
+      stats.dbStatus = 'unavailable';
+    }
+
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/loyalty — statut du module fidélité
+router.get('/', (req, res) => {
+  res.json({ status: 'operational', module: 'loyalty', version: '1.0' });
+});
+
 module.exports = router;

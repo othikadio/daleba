@@ -16063,5 +16063,2096 @@
     "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/root/.openclaw/workspace/daleba/src/services/token-vault.js:141:32)",
     "code": "EPIPE",
     "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.000Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.log (node:internal/console/constructor:405:26)\n    at console.log (/tmp/daleba/src/services/token-vault.js:139:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.022Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.log (node:internal/console/constructor:405:26)\n    at console.log (/tmp/daleba/src/services/token-vault.js:139:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.049Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.061Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.075Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.089Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.104Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.121Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.134Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.148Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.162Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.178Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.201Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.219Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.234Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.246Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.259Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.273Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.286Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.298Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.310Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.322Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.336Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.349Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.363Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.377Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.392Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.409Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.422Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.435Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.448Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.466Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.488Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.507Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.525Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.545Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.559Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.575Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.594Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.613Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.632Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.651Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.672Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.691Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.712Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.731Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.751Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.775Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.793Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.813Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.829Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.847Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.870Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.886Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.899Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.911Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.925Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.942Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.956Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.970Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:57.987Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.006Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.040Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.058Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.071Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.084Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.097Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.114Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.130Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.151Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.169Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.184Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.205Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.223Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.240Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.258Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.275Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.298Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.314Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.328Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.342Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.355Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.373Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.390Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.409Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.425Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.443Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.463Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.477Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.497Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.516Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.535Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.554Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.569Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.587Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.601Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.617Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.635Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.649Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.663Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.675Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.689Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.705Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.717Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.730Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.743Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.756Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.771Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.784Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.796Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.809Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.821Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.841Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.856Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.874Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.890Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.906Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.929Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.948Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.967Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:58.987Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.004Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.026Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.045Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.064Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.081Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.093Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.108Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.121Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.133Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.146Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.159Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.175Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.195Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.213Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.231Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.247Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.267Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.281Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.295Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.307Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.320Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.336Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.349Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.362Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.376Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.389Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.404Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.417Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.432Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.448Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.460Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.476Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.490Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.503Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.516Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.531Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.547Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.563Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.576Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.591Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.604Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.620Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.636Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.650Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.664Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.677Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.694Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.709Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.724Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.737Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.753Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.767Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.781Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.795Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.809Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.825Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.840Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.855Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.872Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.892Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.910Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.926Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.941Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:48:59.960Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.007Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.045Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.068Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.087Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.107Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.124Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.146Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.165Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.184Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.201Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.229Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.253Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.277Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.301Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.319Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.339Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.355Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.370Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.386Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.404Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.422Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.440Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.458Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.474Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.493Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.510Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.527Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.545Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.565Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.581Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.597Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.612Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.628Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.650Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.667Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.685Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.704Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.719Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.734Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.749Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.765Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.783Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.799Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.813Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.829Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.846Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.870Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.890Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.908Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.922Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.936Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.952Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.967Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.981Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:00.998Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:01.019Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:01.035Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:01.050Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:01.067Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
+  },
+  {
+    "timestamp": "2026-05-20T20:49:01.086Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": {
+      "type": "uncaughtException",
+      "pid": 105104
+    }
+  },
+  {
+    "timestamp": "2026-05-20T20:49:01.102Z",
+    "message": "write EPIPE",
+    "stack": "Error: write EPIPE\n    at afterWriteDispatched (node:internal/stream_base_commons:159:15)\n    at writeGeneric (node:internal/stream_base_commons:150:3)\n    at Socket._writeGeneric (node:net:966:11)\n    at Socket._write (node:net:978:8)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at Writable.write (node:internal/streams/writable:510:10)\n    at console.value (node:internal/console/constructor:303:16)\n    at console.error (node:internal/console/constructor:433:26)\n    at console.error (/tmp/daleba/src/services/token-vault.js:141:32)",
+    "code": "EPIPE",
+    "context": "UNCAUGHT_EXCEPTION"
   }
 ]

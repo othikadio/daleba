@@ -20,6 +20,7 @@ const adminTenantsRoutes  = require('./admin-tenants-routes');  // V5 — Admin 
 const smsPipelineRoutes   = require('./sms-pipeline-routes');   // Section 16 — SMS Pipeline
 const calendarStaffRoutes = require('./calendar-staff-routes'); // Section 16 — Calendrier Staff
 const { requireAuth } = require('../middleware/auth');
+const requireAdminPin = require('../middleware/adminAuth');
 const { resolveTenant } = require('../middleware/tenant');
 const { v4: uuidv4 } = require('uuid');
 const { selectModel, explainRouting } = require('../router');
@@ -141,6 +142,11 @@ router.use('/businesses', requireAuth, businessRoutes);
 // Middleware tenant sur toutes les routes suivantes
 router.use(resolveTenant);
 
+// GET /api/chat — Statut du module chat
+router.get('/chat', (req, res) => {
+  res.json({ status: 'operational', module: 'chat', methods: ['POST'], version: '2.0' });
+});
+
 // POST /api/chat — Point d'entrée principal DALEBA (avec persona de guerre)
 router.post('/chat', async (req, res) => {
   const { message, sessionId, forceModel, systemPrompt, senderPhone, senderTelegramId } = req.body;
@@ -237,8 +243,8 @@ router.get('/status', (req, res) => {
   });
 });
 
-// POST /api/emergency-stop - Disjoncteur (Point 10)
-router.post('/emergency-stop', (req, res) => {
+// POST /api/emergency-stop - Disjoncteur (Point 10) — protégé par PIN admin
+router.post('/emergency-stop', requireAdminPin, (req, res) => {
   const { masterKey } = req.body;
   if (masterKey !== process.env.DALEBA_MASTER_KEY) {
     return res.status(403).json({ error: 'Clé invalide' });

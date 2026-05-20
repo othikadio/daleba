@@ -76,4 +76,60 @@ router.get('/calc', (req, res) => {
   res.json(accounting.calcTaxes(ht));
 });
 
+// GET /api/accounting/summary — résumé financier du mois en cours
+router.get('/summary', async (req, res) => {
+  try {
+    const { tenantId = 'default' } = req.query;
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+
+    let summary = {
+      tenantId,
+      period: `${year}-${String(month).padStart(2, '0')}`,
+      revenue: { gross: 0, net: 0, currency: 'CAD' },
+      taxes: { tps: 0, tvq: 0, total: 0 },
+      expenses: 0,
+      profit: 0,
+      status: 'operational'
+    };
+
+    try {
+      const report = await accounting.getMonthlyReport(year, month);
+      if (report) {
+        summary.revenue.gross = report.revenue?.ttc || 0;
+        summary.revenue.net   = report.revenue?.ht  || 0;
+        summary.taxes.tps     = report.revenue?.tps || 0;
+        summary.taxes.tvq     = report.revenue?.tvq || 0;
+        summary.taxes.total   = parseFloat(((report.revenue?.tps || 0) + (report.revenue?.tvq || 0)).toFixed(2));
+        const expAmt = typeof report.expenses === 'object' ? (report.expenses?.total || 0) : (report.expenses || 0);
+        summary.expenses      = expAmt;
+        summary.profit        = parseFloat(((report.revenue?.ht || 0) - expAmt).toFixed(2));
+      }
+    } catch (dbErr) {
+      summary.dbStatus = 'unavailable';
+    }
+
+    res.json(summary);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/accounting — statut du module comptabilité
+router.get('/', async (req, res) => {
+  try {
+    const now = new Date();
+    res.json({
+      status: 'operational',
+      module: 'accounting',
+      version: '1.0',
+      currentPeriod: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`,
+      endpoints: ['/summary', '/report/:year/:month', '/commissions/:year/:month', '/expense', '/taxes/:year/:month', '/calc']
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

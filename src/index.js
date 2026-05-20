@@ -34,6 +34,7 @@ const metaAdsSvc           = require('./services/meta-ads');
 const financialSimulator   = require('./services/financial-simulator');
 const budgetGuard          = require('./services/budget-guard');
 const { studioStaticGuard } = require('./middleware/studio-auth');
+const requireAdminPin = require('./middleware/adminAuth');
 
 const path = require('path');
 const app = express();
@@ -114,10 +115,6 @@ app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/dashboard.html'));
 });
 
-// Tableau de bord contenu social (V21)
-app.get('/admin/images', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/admin-images.html'));
-});
 // [139] Studio Media HUD
 app.get('/admin/studio', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-studio.html'));
@@ -152,6 +149,10 @@ app.post('/api/auth/studio-token', (req, res) => {
 });
 
 // [273-274] Interface admin locataires
+app.get('/admin/images', requireAdminPin, (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin-images.html'));
+});
+
 app.get('/admin/tenants', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-tenants.html'));
 });

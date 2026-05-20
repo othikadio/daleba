@@ -9,6 +9,9 @@ const bcrypt = require('bcryptjs');
 const { pool, DEMO_MODE } = require('../memory/db');
 const { generateToken, verifyToken, ROLES } = require('../middleware/auth');
 
+// Stockage temporaire OTP (en prod utiliser Redis/DB)
+const otpStore = new Map();
+
 // POST /api/auth/register — Créer un compte (via invitation ou super_admin)
 router.post('/register', async (req, res) => {
   const { name, email, password, inviteToken } = req.body;
@@ -156,6 +159,64 @@ router.get('/me', async (req, res) => {
   } catch {
     res.status(401).json({ error: 'Token invalide' });
   }
+});
+
+// POST /api/auth/send-otp — Envoi code OTP par SMS
+router.post('/send-otp', async (req, res) => {
+  try {
+    const { phone } = req.body;
+    if (!phone) return res.status(400).json({ error: 'Numéro requis' });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expires = Date.now() + 10 * 60 * 1000; // 10 min
+    otpStore.set(phone, { otp, expires });
+
+    // Envoi SMS via Twilio si configuré
+    if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+      try {
+        const twilio = require('twilio');
+        const client = twilio(
+          process.env.TWILIO_ACCOUNT_SID,
+          process.env.TWILIO_AUTH_TOKEN
+        );
+        await client.messages.create({
+          body: `Votre code DALEBA : ${otp}. Valide 10 minutes.`,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: phone
+        });
+      } catch (twilioErr) {
+        console.warn('[OTP] Twilio error:', twilioErr.message);
+        // Continue even if SMS fails — return OTP in dev mode
+      }
+    }
+
+    const response = { success: true, message: 'OTP envoyé' };
+    // En mode démo, retourner l'OTP pour test
+    if (DEMO_MODE) response._debug_otp = otp;
+    res.json(response);
+  } catch (err) {
+    console.error('OTP error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/auth/verify-otp — Vérification du code OTP
+router.post('/verify-otp', (req, res) => {
+  const { phone, otp } = req.body;
+  if (!phone || !otp) return res.status(400).json({ error: 'phone et otp requis' });
+
+  const stored = otpStore.get(phone);
+
+  if (!stored) return res.status(400).json({ error: 'OTP non trouvé' });
+  if (Date.now() > stored.expires) {
+    otpStore.delete(phone);
+    return res.status(400).json({ error: 'OTP expiré' });
+  }
+  if (stored.otp !== String(otp)) return res.status(400).json({ error: 'Code incorrect' });
+
+  otpStore.delete(phone);
+  const token = `tok_${Date.now()}_${phone.slice(-4)}`;
+  res.json({ success: true, token });
 });
 
 module.exports = router;
