@@ -179,8 +179,9 @@ app.get('/health', async (req, res) => {
   res.status(allOk ? 200 : 503).json({ ...base, checks, healthy: allOk });
 });
 
-// Alias /ping pour Railway healthcheck
+// Alias /ping + /api/status pour Railway healthcheck
 app.get('/ping', (_, res) => res.send('pong'));
+app.get('/api/status', (_, res) => res.json({ status: 'online', ts: new Date().toISOString(), version: process.env.npm_package_version || '2.0' }));
 
 // ─── SELF-HEALING (Point 13) ─────────────────────────────────────────────────
 enableSelfHealing();
