@@ -1,0 +1,187 @@
+// src/services/ai-router.js
+// Routeur neuronal universel DALEBA — sélection automatique du meilleur modèle IA
+// Complète DARE avec exposition API admin + injection dynamique de clés
+
+'use strict';
+
+const Anthropic = require('@anthropic-ai/sdk');
+
+// Config des providers disponibles
+const PROVIDERS = {
+  claude: {
+    name: 'Claude (Anthropic)',
+    envKey: 'ANTHROPIC_API_KEY',
+    models: ['claude-opus-4-5', 'claude-sonnet-4-5', 'claude-haiku-4-5'],
+    strengths: ['chat', 'reasoning', 'code', 'accounting'],
+    costTier: 'medium',
+    priority: 1,
+  },
+  openai: {
+    name: 'GPT-4o (OpenAI)',
+    envKey: 'OPENAI_API_KEY',
+    models: ['gpt-4o', 'gpt-4o-mini'],
+    strengths: ['chat', 'media', 'vision', 'general'],
+    costTier: 'medium',
+    priority: 2,
+  },
+  gemini: {
+    name: 'Gemini (Google)',
+    envKey: 'GEMINI_API_KEY',
+    models: ['gemini-1.5-pro', 'gemini-1.5-flash'],
+    strengths: ['media', 'multimodal', 'long-context'],
+    costTier: 'low',
+    priority: 3,
+  },
+  deepseek: {
+    name: 'DeepSeek',
+    envKey: 'DEEPSEEK_API_KEY',
+    models: ['deepseek-chat', 'deepseek-reasoner'],
+    strengths: ['code', 'reasoning', 'accounting'],
+    costTier: 'very-low',
+    priority: 4,
+  },
+};
+
+// Matrice de routing par tâche
+const TASK_ROUTING = {
+  accounting: ['claude', 'deepseek', 'openai', 'gemini'],
+  code:       ['deepseek', 'claude', 'openai', 'gemini'],
+  media:      ['gemini', 'openai', 'claude', 'deepseek'],
+  chat:       ['claude', 'openai', 'gemini', 'deepseek'],
+  reasoning:  ['claude', 'deepseek', 'openai', 'gemini'],
+  default:    ['claude', 'openai', 'gemini', 'deepseek'],
+};
+
+// Stats en mémoire (reset au redémarrage)
+const stats = {};
+Object.keys(PROVIDERS).forEach(k => {
+  stats[k] = { calls: 0, errors: 0, totalMs: 0, lastError: null, lastUsed: null };
+});
+
+function getAvailableProviders() {
+  return Object.entries(PROVIDERS)
+    .filter(([key]) => !!process.env[PROVIDERS[key].envKey])
+    .map(([key]) => key);
+}
+
+function getProviderStatus() {
+  return Object.entries(PROVIDERS).map(([key, cfg]) => ({
+    id: key,
+    name: cfg.name,
+    connected: !!process.env[cfg.envKey],
+    models: cfg.models,
+    strengths: cfg.strengths,
+    costTier: cfg.costTier,
+    stats: stats[key],
+  }));
+}
+
+function detectTask(message = '') {
+  const m = message.toLowerCase();
+  if (m.match(/comptab|taxe|tps|tvq|facture|revenus?|dépenses?|finances?/)) return 'accounting';
+  if (m.match(/code|bug|fonction|script|api|debug|erreur/)) return 'code';
+  if (m.match(/image|vidéo|photo|visuel|graphique|design/)) return 'media';
+  if (m.match(/calcul|logique|raisonne|analyse|compare/)) return 'reasoning';
+  return 'chat';
+}
+
+async function callClaude(messages, systemPrompt) {
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const res = await client.messages.create({
+    model: 'claude-opus-4-5',
+    max_tokens: 1024,
+    system: systemPrompt || 'Tu es DALEBA, l\'assistant IA du salon Kadio Coiffure.',
+    messages,
+  });
+  return res.content[0].text;
+}
+
+async function callOpenAI(messages, systemPrompt) {
+  const OpenAI = require('openai');
+  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const chatMessages = [
+    { role: 'system', content: systemPrompt || 'Tu es DALEBA, l\'assistant IA du salon Kadio Coiffure.' },
+    ...messages,
+  ];
+  const res = await client.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: chatMessages,
+    max_tokens: 1024,
+  });
+  return res.choices[0].message.content;
+}
+
+async function callGemini(messages, systemPrompt) {
+  const { GoogleGenerativeAI } = require('@google/generative-ai');
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const lastMsg = messages[messages.length - 1]?.content || '';
+  const result = await model.generateContent(lastMsg);
+  return result.response.text();
+}
+
+async function callDeepSeek(messages, systemPrompt) {
+  const axios = require('axios');
+  const res = await axios.post(
+    'https://api.deepseek.com/v1/chat/completions',
+    {
+      model: 'deepseek-chat',
+      messages: [
+        { role: 'system', content: systemPrompt || 'Tu es DALEBA, assistant IA du salon Kadio Coiffure.' },
+        ...messages,
+      ],
+      max_tokens: 1024,
+    },
+    { headers: { Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`, 'Content-Type': 'application/json' } }
+  );
+  return res.data.choices[0].message.content;
+}
+
+const CALLERS = { claude: callClaude, openai: callOpenAI, gemini: callGemini, deepseek: callDeepSeek };
+
+async function route(messages, options = {}) {
+  const { systemPrompt, forceProvider, taskHint } = options;
+  const task = taskHint || detectTask(messages[messages.length - 1]?.content || '');
+  const priority = TASK_ROUTING[task] || TASK_ROUTING.default;
+  const available = getAvailableProviders();
+
+  const ordered = forceProvider
+    ? [forceProvider, ...priority.filter(p => p !== forceProvider)]
+    : priority;
+
+  const candidates = ordered.filter(p => available.includes(p));
+
+  if (candidates.length === 0) {
+    return {
+      text: 'Aucune clé IA configurée. Veuillez ajouter une clé API dans le Cerveau Central DALEBA.',
+      provider: null,
+      task,
+      fallback: true,
+    };
+  }
+
+  for (const provider of candidates) {
+    const start = Date.now();
+    try {
+      const text = await CALLERS[provider](messages, systemPrompt);
+      const ms = Date.now() - start;
+      stats[provider].calls++;
+      stats[provider].totalMs += ms;
+      stats[provider].lastUsed = new Date().toISOString();
+      return { text, provider, task, model: PROVIDERS[provider].models[0], latencyMs: ms };
+    } catch (err) {
+      stats[provider].errors++;
+      stats[provider].lastError = err.message;
+      console.warn(`[AI Router] ${provider} failed (${err.message}), trying next...`);
+    }
+  }
+
+  return {
+    text: 'Je suis temporairement indisponible. Contactez le salon directement.',
+    provider: null,
+    task,
+    fallback: true,
+  };
+}
+
+module.exports = { route, getProviderStatus, getAvailableProviders, detectTask, stats, PROVIDERS };

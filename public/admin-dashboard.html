@@ -1072,5 +1072,94 @@ async function loadSystemStatus() {
   ]);
 })();
 </script>
+
+<!-- CERVEAU CENTRAL DALEBA -->
+<section id="cerveau-central" style="margin:2rem auto;max-width:1200px;padding:2rem;background:rgba(0,0,0,0.4);border:1px solid rgba(255,215,0,0.3);border-radius:16px;backdrop-filter:blur(10px);">
+  <h2 style="color:#FFD700;font-family:'Orbitron',sans-serif;margin-bottom:0.5rem;">🧠 Cerveau Central DALEBA</h2>
+  <p style="color:#aaa;margin-bottom:1.5rem;font-size:0.9rem;">Connectez les moteurs IA. DALEBA choisit automatiquement le meilleur selon la tâche.</p>
+  
+  <div id="ai-providers-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:2rem;">
+    <p style="color:#888;">Chargement...</p>
+  </div>
+  
+  <div id="ai-connect-form" style="display:none;background:rgba(255,255,255,0.05);padding:1.5rem;border-radius:12px;margin-top:1rem;">
+    <h3 id="ai-connect-title" style="color:#fff;margin-bottom:1rem;"></h3>
+    <input id="ai-key-input" type="password" placeholder="Coller la clé API ici..."
+      style="width:100%;padding:0.75rem;background:rgba(0,0,0,0.5);border:1px solid rgba(255,215,0,0.4);border-radius:8px;color:#fff;font-family:monospace;font-size:0.9rem;box-sizing:border-box;margin-bottom:0.75rem;">
+    <div style="display:flex;gap:0.75rem;">
+      <button onclick="submitAIKey()" style="flex:1;padding:0.75rem;background:linear-gradient(135deg,#FFD700,#FFA500);border:none;border-radius:8px;font-weight:700;cursor:pointer;color:#000;">⚡ Activer</button>
+      <button onclick="document.getElementById('ai-connect-form').style.display='none'" style="padding:0.75rem 1rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;cursor:pointer;">Annuler</button>
+    </div>
+  </div>
+</section>
+
+<script>
+(async function loadAIStatus() {
+  const LOGOS = { claude:'🤖', openai:'⚡', gemini:'💎', deepseek:'🧬' };
+  
+  try {
+    const res = await fetch('/api/ai/status');
+    const data = await res.json();
+    const grid = document.getElementById('ai-providers-grid');
+    grid.innerHTML = '';
+    
+    data.providers.forEach(p => {
+      const card = document.createElement('div');
+      card.style.cssText = `background:rgba(255,255,255,0.05);border:1px solid ${p.connected ? 'rgba(0,255,100,0.4)' : 'rgba(255,255,255,0.1)'};border-radius:12px;padding:1.25rem;cursor:pointer;transition:all 0.2s;`;
+      card.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+          <span style="font-size:1.5rem;">${LOGOS[p.id] || '🤖'}</span>
+          <span style="font-size:0.75rem;padding:0.25rem 0.6rem;border-radius:20px;font-weight:600;background:${p.connected ? 'rgba(0,255,100,0.2)' : 'rgba(255,255,255,0.1)'};color:${p.connected ? '#00ff64' : '#aaa'};">
+            ${p.connected ? '🟢 Connectée' : '⚪ En attente'}
+          </span>
+        </div>
+        <div style="color:#fff;font-weight:600;margin-bottom:0.25rem;">${p.name}</div>
+        <div style="color:#888;font-size:0.75rem;margin-bottom:0.75rem;">${p.strengths.join(' · ')}</div>
+        ${p.connected
+          ? `<div style="color:#666;font-size:0.7rem;">Appels: ${p.stats?.calls||0} · Erreurs: ${p.stats?.errors||0}</div>`
+          : `<button onclick="openAIKeyForm('${p.id}','${p.name}')" style="width:100%;padding:0.5rem;background:rgba(255,215,0,0.15);border:1px solid rgba(255,215,0,0.4);border-radius:6px;color:#FFD700;cursor:pointer;font-size:0.8rem;">+ Ajouter clé</button>`
+        }
+      `;
+      grid.appendChild(card);
+    });
+  } catch(e) {
+    document.getElementById('ai-providers-grid').innerHTML = '<p style="color:#f87">Erreur chargement statut IA</p>';
+  }
+})();
+
+let currentProvider = null;
+function openAIKeyForm(id, name) {
+  currentProvider = id;
+  document.getElementById('ai-connect-title').textContent = `Clé API — ${name}`;
+  document.getElementById('ai-key-input').value = '';
+  document.getElementById('ai-connect-form').style.display = 'block';
+  document.getElementById('ai-key-input').focus();
+  document.getElementById('cerveau-central').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function submitAIKey() {
+  const key = document.getElementById('ai-key-input').value.trim();
+  const pin = localStorage.getItem('daleba_admin_pin') || prompt('PIN Admin:') || '2024DALEBA';
+  if (!key) return alert('Clé vide');
+  
+  try {
+    const res = await fetch('/api/ai/set-key', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-pin': pin },
+      body: JSON.stringify({ provider: currentProvider, apiKey: key })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(`✅ ${data.message}`);
+      document.getElementById('ai-connect-form').style.display = 'none';
+      location.reload();
+    } else {
+      alert('Erreur: ' + (data.error || 'inconnue'));
+    }
+  } catch(e) {
+    alert('Erreur réseau: ' + e.message);
+  }
+}
+</script>
 </body>
 </html>

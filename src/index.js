@@ -91,6 +91,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // Routes DALEBA
 app.use('/api', routes);
+app.use('/api/ai', require('./api/ai-admin-routes')); // Hub IA universel — Cerveau Central
 app.use('/api/client-portal', clientPortalRoutes);
 app.use('/api/accounting', accountingRoutes);
 app.use('/api/loyalty', loyaltyHybridRoutes);
