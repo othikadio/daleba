@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menu des Services — Kadio Coiffure & Esthétique</title>
+  <meta name="description" content="Catalogue complet des services de Kadio Coiffure : coupes, tresses, dreadlocks, extensions, barbier. Prix hors taxes — Longueuil, QC." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --terra-dark: #A8461A;
+      --terra: #C4622D;
+      --terra-light: #E8916B;
+      --terra-pale: #F5D5C3;
+      --sage-dark: #5C7A52;
+      --sage: #7A9E6E;
+      --sage-light: #A8C49A;
+      --cream: #FAF6F0;
+      --charcoal: #1C1008;
+      --brown-mid: #6B3F1F;
+      --gold: #C9933A;
+      --glass-bg: rgba(255,255,255,0.07);
+      --glass-border: rgba(255,255,255,0.12);
+      --glass-hover: rgba(255,255,255,0.13);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f0802 0%, #1c1008 40%, #2a1a0a 100%);
+      min-height: 100vh;
+      color: #fff;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(15, 8, 2, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(196, 98, 45, 0.25);
+    }
+    .nav-inner {
+      max-width: 1200px; margin: 0 auto;
+      padding: 0 1.5rem; height: 70px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo .logo-main {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; font-weight: 700; color: #fff; letter-spacing: 0.08em;
+    }
+    .nav-logo .logo-sub {
+      font-size: 0.62rem; color: var(--terra-light);
+      letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .nav-links { display: flex; align-items: center; gap: 1.75rem; list-style: none; }
+    .nav-links a { color: rgba(255,255,255,0.7); font-size: 0.85rem; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--terra-light); }
+    .btn-nav {
+      background: var(--terra); color: #fff !important;
+      padding: 0.5rem 1.2rem; border-radius: 4px; font-weight: 600 !important;
+    }
+    .btn-nav:hover { background: var(--terra-dark) !important; }
+
+    /* ── HERO ── */
+    .page-hero {
+      padding: 9rem 1.5rem 4rem;
+      text-align: center;
+    }
+    .page-hero .label {
+      display: inline-block;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--terra-light);
+      margin-bottom: 1rem;
+    }
+    .page-hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 700; line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .page-hero h1 em { color: var(--terra-light); font-style: italic; }
+    .page-hero p {
+      color: rgba(255,255,255,0.55);
+      font-size: 1rem; max-width: 560px; margin: 0 auto 0.5rem;
+    }
+    .tax-notice {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(196,98,45,0.12);
+      border: 1px solid rgba(196,98,45,0.3);
+      border-radius: 30px;
+      padding: 0.45rem 1rem;
+      font-size: 0.8rem; color: var(--terra-pale);
+      margin-top: 1.5rem;
+    }
+    .tax-notice span { font-weight: 600; color: var(--terra-light); }
+
+    /* ── SALON INFO BAR ── */
+    .salon-bar {
+      max-width: 1200px; margin: 0 auto 0;
+      padding: 0 1.5rem 2rem;
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem;
+    }
+    .salon-chip {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 30px;
+      padding: 0.5rem 1rem;
+      font-size: 0.82rem; color: rgba(255,255,255,0.75);
+      backdrop-filter: blur(8px);
+    }
+    .salon-chip .icon { font-size: 1rem; }
+
+    /* ── CATEGORIES ── */
+    .category-section { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem 5rem; }
+    .category-header {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 1.5rem; padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(196,98,45,0.2);
+    }
+    .category-icon { font-size: 1.6rem; }
+    .category-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem; font-weight: 700; color: #fff;
+    }
+    .category-count {
+      font-size: 0.75rem; color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.06);
+      border-radius: 20px; padding: 0.2rem 0.6rem;
+    }
+
+    /* ── SERVICE CARDS (glassmorphism) ── */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 3rem;
+    }
+    .service-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      display: flex; flex-direction: column; gap: 0.6rem;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .service-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(196,98,45,0.5), transparent);
+    }
+    .service-card:hover {
+      border-color: rgba(196,98,45,0.4);
+      background: var(--glass-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(196,98,45,0.15);
+    }
+    .svc-icon { font-size: 2rem; margin-bottom: 0.25rem; }
+    .svc-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem; font-weight: 600; color: #fff;
+    }
+    .svc-desc { font-size: 0.82rem; color: rgba(255,255,255,0.55); flex: 1; }
+    .svc-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 0.5rem;
+    }
+    .svc-price {
+      font-size: 1.05rem; font-weight: 700; color: var(--terra-light);
+    }
+    .svc-taxes { font-size: 0.72rem; color: rgba(255,255,255,0.35); font-weight: 400; }
+    .svc-duration {
+      font-size: 0.75rem; color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.06);
+      border-radius: 20px; padding: 0.2rem 0.65rem;
+    }
+    .svc-deposit {
+      font-size: 0.7rem; color: var(--terra-light);
+      background: rgba(196,98,45,0.1);
+      border: 1px solid rgba(196,98,45,0.25);
+      border-radius: 20px; padding: 0.18rem 0.6rem;
+    }
+    .svc-badges { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.25rem; }
+    .svc-cta {
+      display: block; text-align: center;
+      background: rgba(196,98,45,0.15);
+      border: 1px solid rgba(196,98,45,0.3);
+      color: var(--terra-light);
+      border-radius: 6px; padding: 0.6rem 1rem;
+      font-size: 0.82rem; font-weight: 600;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      margin-top: 0.75rem;
+      transition: all 0.2s;
+    }
+    .svc-cta:hover { background: var(--terra); border-color: var(--terra); color: #fff; }
+
+    /* ── TAX BREAKDOWN ── */
+    .tax-explainer {
+      max-width: 1200px; margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+    }
+    .tax-box {
+      background: var(--glass-bg);
+      border: 1px solid rgba(196,98,45,0.2);
+      border-radius: 12px;
+      padding: 2rem;
+      backdrop-filter: blur(12px);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1.5rem;
+      text-align: center;
+    }
+    .tax-item .label { font-size: 0.75rem; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.35rem; }
+    .tax-item .value { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: var(--terra-light); }
+    .tax-item .desc { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 0.2rem; }
+    .tax-heading { text-align: center; margin-bottom: 1.5rem; }
+    .tax-heading h2 { font-size: 1.4rem; margin-bottom: 0.4rem; }
+    .tax-heading p { font-size: 0.85rem; color: rgba(255,255,255,0.5); }
+
+    /* ── CTA BAR ── */
+    .cta-bar {
+      text-align: center;
+      padding: 4rem 1.5rem;
+      background: linear-gradient(135deg, rgba(196,98,45,0.08), rgba(196,98,45,0.02));
+      border-top: 1px solid rgba(196,98,45,0.15);
+    }
+    .cta-bar h2 { font-size: 2rem; margin-bottom: 0.75rem; }
+    .cta-bar p { color: rgba(255,255,255,0.5); margin-bottom: 2rem; }
+    .cta-btns { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--terra); color: #fff;
+      padding: 0.85rem 2rem; border-radius: 6px;
+      font-weight: 600; font-size: 0.95rem;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover { background: var(--terra-dark); }
+    .btn-outline {
+      background: transparent;
+      border: 2px solid rgba(196,98,45,0.4);
+      color: var(--terra-light);
+      padding: 0.85rem 2rem; border-radius: 6px;
+      font-weight: 600; font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--terra); color: var(--terra-light); background: rgba(196,98,45,0.08); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #080401;
+      border-top: 1px solid rgba(196,98,45,0.15);
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+    }
+    .footer-salon { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #fff; margin-bottom: 0.5rem; }
+    .footer-addr { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
+    .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin: 1rem 0; flex-wrap: wrap; }
+    .footer-links a { font-size: 0.8rem; color: rgba(255,255,255,0.45); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--terra-light); }
+    .footer-copy { font-size: 0.72rem; color: rgba(255,255,255,0.25); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .services-grid { grid-template-columns: 1fr; }
+      .tax-box { grid-template-columns: 1fr; }
+      .salon-bar { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <div class="logo-main">KADIO</div>
+      <div class="logo-sub">Coiffure & Esthétique</div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/">Accueil</a></li>
+      <li><a href="/menu" class="active">Menu</a></li>
+      <li><a href="/forfaits">Forfaits</a></li>
+      <li><a href="/reservation.html" class="btn-nav">Réserver</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="page-hero">
+  <div class="label">Kadio Coiffure — Longueuil</div>
+  <h1>Nos <em>services</em><br/>& tarifs officiels</h1>
+  <p>Spécialistes cheveux afros — coupes, tresses, dreadlocks, extensions et plus.</p>
+  <div class="tax-notice">
+    ⚠️ Tous les prix sont <span>hors taxes</span> — TPS 5&nbsp;% + TVQ 9,975&nbsp;% applicables au Québec
+  </div>
+</section>
+
+<!-- SALON INFO CHIPS -->
+<div class="salon-bar">
+  <div class="salon-chip"><span class="icon">📍</span>615 Antoinette Robidoux, local 100, Longueuil, QC J4J 2V8</div>
+  <div class="salon-chip"><span class="icon">💬</span><a href="https://wa.me/15149195970" style="color:inherit;">WhatsApp : 514-919-5970</a></div>
+  <div class="salon-chip"><span class="icon">📸</span><a href="https://instagram.com/kadiocoiffure" style="color:inherit;">@kadiocoiffure</a></div>
+  <div class="salon-chip"><span class="icon">🎵</span>TikTok : @kadiocoiffure</div>
+  <div class="salon-chip"><span class="icon">🕐</span>Lun–Ven 9h–20h | Sam 8h–18h</div>
+</div>
+
+<!-- SERVICES -->
+<div class="category-section">
+
+  <!-- COUPES -->
+  <div class="category-header">
+    <span class="category-icon">✂️</span>
+    <span class="category-title">Coupes</span>
+    <span class="category-count">3 services</span>
+  </div>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="svc-icon">✂️</div>
+      <div class="svc-name">Coupe Homme</div>
+      <div class="svc-desc">Dégradé, tondeuse, style afro — propre et soigné</div>
+      <div class="svc-meta">
+        <div>
+          <div class="svc-price">À partir de 25$ <span class="svc-taxes">(+ taxes)</span></div>
+        </div>
+        <div class="svc-duration">~30 min</div>
+      </div>
+      <div class="svc-badges">
+        <span class="svc-duration">Sans dépôt</span>
+      </div>
+      <a href="/reservation.html" class="svc-cta">Réserver →</a>
+    </div>
+    <div class="service-card">
+      <div class="svc-icon">💇‍♀️</div>
+      <div class="svc-name">Coupe Femme</div>
+      <div class="svc-desc">Coupe, mise en forme, définition des boucles</div>
+      <div class="svc-meta">
+        <div>
+          <div class="svc-price">À partir de 45$ <span class="svc-taxes">(+ taxes)</span></div>
+        </div>
+        <div class="svc-duration">~45 min</div>
+      </div>
+      <div class="svc-badges">
+        <span class="svc-deposit">Dépôt 20%</span>
+      </div>
+      <a href="/reservation.html" class="svc-cta">Réserver →</a>
+    </div>
+    <div class="service-card">
+      <div class="svc-icon">👦</div>
+      <div class="svc-name">Coupe Enfant</div>
+      <div class="svc-desc">Coupes pour enfants dans une ambiance douce et accueillante</div>
+      <div class="svc-meta">
+        <div>
+          <div class="svc-price">À partir de 20$ <span class="svc-taxes">(+ taxes)</span></div>
+        </div>
+        <div class="svc-duration">~30 min</div>
+      </div>
+      <div class="svc-badges">
+        <span class="svc-duration">Sans dépôt</span>
+      </div>
+      <a href="/reservation.html" class="svc-cta">Réserver →</a>
+    </div>
+  </div>
+
+  <!-- TRESSES & EXTENSIONS -->
+  <div class="category-header">
+    <span class="category-icon">🪢</span>
+    <span class="category-title">Tresses, Extensions & Tissage</span>
+    <span class="category-count">4 services</span>
+  </div>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="svc-icon">🪢</div>
+      <div class="svc-name">Tresses</div>
+      <div class="svc-desc">Box braids, cornrows, goddess braids — toutes techniques maîtrisées</div>
+      <div class="svc-meta">
+        <div>
+          <div class="svc-price">À partir de 120$ <span class="svc-taxes">(+ taxes)</span></div>
+        </div>
+        <div class="svc-duration">~3h</div>
+      </div>
+      <div class="svc-badges">
+        <span class="svc-deposit">Dépôt 20%</span>
+      </div>
+      <a href="/reservation.html" class="svc-cta">Réserver →</a>
+    </div>
+    <div class="service-card">
+      <div class="svc-icon">✨</div>
+      <div class="svc-name">Extensions</div>
+      <div class="svc-desc">Pose d'extensions naturelles ou synthétiques, résultat naturel</div>
+      <div class="svc-meta">
+        <div>
+          <div class="svc-price">À partir de 180$ <span class="svc-taxes">(+ taxes)</span></div>
+        </div>
+        <div class="svc-duration">~4h</div>
+      </div>
+      <div class="svc-badges">
+        <span class="svc-deposit">Dépôt 20%</span>
+      </div>
+      <a href="/reservation.html" class="svc-cta">Réserver →</a>
+    </div>
+    <div class="service-card">
+      <div class="svc-icon">💫</div>
+      <div class="svc-name">Tissage</div>
+      <div class="svc-desc">Tissage naturel et synthétique, cousu ou collé — finition impeccable</div>
+      <div class="svc-meta">
+        <div>
+          <div class="svc-price">À partir de 150$ <span class="svc-taxes">(+ taxes)</span></div>
+        </div>
+        <div class="svc-duration">~3h</div>
+      </div>
+      <div class="svc-badges">
+        <span class="svc-deposit">Dépôt 20%</span>
+      </div>
+      <a href="/reservation.html" class="svc-cta">Réserver →</a>
+    </div>
+    <div class="service-card">
+      <div class="svc-icon">👑</div>
+      <div class="svc-name">Perruque</div>
+      <div class="svc-desc">Pose et personnalisation de perruques full lace — résultat naturel</div>
+      <div class="svc-meta">
+        <div>
+          <div class="svc-price">À partir de 130$ <span class="svc-taxes">(+ taxes)</span></div>
+        </div>
+        <div class="svc-duration">~1h30</div>
+      </div>
+      <div class="svc-badges">
+        <span class="svc-deposit">Dépôt 20%</span>
+      </div>
+      <a href="/reservation.html" class="svc-cta">Réserver →</a>
+    </div>
+  </div>
+
+  <!-- DREADLOCKS -->
+  <div class="category-header">
+    <span class="category-icon">🌀</span>
+    <span class="category-title">Dreadlocks</span>
+    <span class="category-count">1 service</span>
+  </div>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="svc-icon">🌀</div>
+      <div class="svc-name">Dreadlocks</div>
+      <div class="svc-desc">Création, entretien et retouche de dreadlocks — expertise certifiée</div>
+      <div class="svc-meta">
+        <div>
+          <div class="svc-price">À partir de 200$ <span class="svc-taxes">(+ taxes)</span></div>
+        </div>
+        <div class="svc-duration">~4h</div>
+      </div>
+      <div class="svc-badges">
+        <span class="svc-deposit">Dépôt 20%</span>
+      </div>
+      <a href="/reservation.html" class="svc-cta">Réserver →</a>
+    </div>
+  </div>
+
+  <!-- BARBIER & SOINS -->
+  <div class="category-header">
+    <span class="category-icon">💈</span>
+    <span class="category-title">Barbier & Soins Capillaires</span>
+    <span class="category-count">2 services</span>
+  </div>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="svc-icon">💈</div>
+      <div class="svc-name">Barbier</div>
+      <div class="svc-desc">Dégradé rasé, beard trim, liner — sans dépôt requis</div>
+      <div class="svc-meta">
+        <div>
+          <div class="svc-price">À partir de 25$ <span class="svc-taxes">(+ taxes)</span></div>
+        </div>
+        <div class="svc-duration">~30 min</div>
+      </div>
+      <div class="svc-badges">
+        <span class="svc-duration">Sans dépôt</span>
+      </div>
+      <a href="/reservation.html" class="svc-cta">Réserver →</a>
+    </div>
+    <div class="service-card">
+      <div class="svc-icon">🌿</div>
+      <div class="svc-name">Traitements Capillaires</div>
+      <div class="svc-desc">Soins hydratants, kératine, deep conditioning — cheveux régénérés</div>
+      <div class="svc-meta">
+        <div>
+          <div class="svc-price">À partir de 55$ <span class="svc-taxes">(+ taxes)</span></div>
+        </div>
+        <div class="svc-duration">~1h</div>
+      </div>
+      <div class="svc-badges">
+        <span class="svc-deposit">Dépôt 20%</span>
+      </div>
+      <a href="/reservation.html" class="svc-cta">Réserver →</a>
+    </div>
+  </div>
+
+</div><!-- /category-section -->
+
+<!-- TAX EXPLAINER -->
+<div class="tax-explainer">
+  <div class="tax-heading">
+    <h2>Détail des taxes québécoises</h2>
+    <p>Exemple de calcul sur un service à 100&nbsp;$ HT</p>
+  </div>
+  <div class="tax-box">
+    <div class="tax-item">
+      <div class="label">Sous-total HT</div>
+      <div class="value">100,00&nbsp;$</div>
+      <div class="desc">Prix hors taxes</div>
+    </div>
+    <div class="tax-item">
+      <div class="label">TPS fédérale</div>
+      <div class="value">5,00&nbsp;$</div>
+      <div class="desc">5,0&nbsp;%</div>
+    </div>
+    <div class="tax-item">
+      <div class="label">TVQ provinciale</div>
+      <div class="value">9,98&nbsp;$</div>
+      <div class="desc">9,975&nbsp;%</div>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:1rem;font-size:0.78rem;color:rgba(255,255,255,0.35);">
+    Total avec taxes = 114,98&nbsp;$ &nbsp;|&nbsp; Taux combiné : 14,975&nbsp;%
+  </p>
+</div>
+
+<!-- CTA -->
+<div class="cta-bar">
+  <h2>Prêt(e) pour votre transformation ?</h2>
+  <p>Réservez en 2 minutes. Confirmation SMS immédiate.</p>
+  <div class="cta-btns">
+    <a href="/reservation.html" class="btn-primary">Réserver maintenant →</a>
+    <a href="/forfaits" class="btn-outline">Voir les forfaits</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-salon">Kadio Coiffure & Esthétique</div>
+  <div class="footer-addr">615 Antoinette Robidoux, local 100 · Longueuil, QC J4J 2V8 · 514-919-5970</div>
+  <div class="footer-links">
+    <a href="/">Accueil</a>
+    <a href="/menu">Menu</a>
+    <a href="/forfaits">Forfaits</a>
+    <a href="/reservation.html">Réservation</a>
+    <a href="https://wa.me/15149195970">WhatsApp</a>
+    <a href="https://instagram.com/kadiocoiffure">Instagram</a>
+  </div>
+  <div class="footer-copy">
+    © 2026 Kadio Coiffure et Esthétique. Tous droits réservés. Tous les prix sont affichés hors taxes (TPS + TVQ). |
+    <a href="https://daleba.vercel.app" style="color:inherit;">Propulsé par DALEBA IA</a>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -165,6 +165,14 @@ app.get('/zenith', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/zenith.html'));
 });
 
+// [Section 15] Portail client public — Menu & Forfaits
+app.get('/menu', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/menu.html'));
+});
+app.get('/forfaits', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/forfaits.html'));
+});
+
 // [098] Health endpoint deep — 99.9% uptime target
 app.get('/health', async (req, res) => {
   const deep = req.query.deep === 'true';

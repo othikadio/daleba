@@ -1227,4 +1227,80 @@ router.use('/v1/godaddy', godaddyRoutes);
 // Webhook GoDaddy Payments (chemin public sans /v1 pour facilité config marchande)
 router.use('/v1/webhooks/godaddy', require('./godaddy-routes'));
 
+// ─── SECTION 15 — MENU + ABONNEMENTS + COORDONNÉES SALON ─────────────────────
+const menuCatalogue    = require('../services/menu-catalogue');
+const subscriptionEngine = require('../services/subscription-engine');
+
+// GET /api/salon/info — Coordonnées officielles du salon
+router.get('/salon/info', (req, res) => {
+  res.json({ salon: menuCatalogue.SALON_INFO });
+});
+
+// GET /api/salon/menu — Catalogue complet des services avec taxes
+router.get('/salon/menu', (req, res) => {
+  try {
+    const services = menuCatalogue.getAllServicesWithTaxes();
+    res.json({ services, count: services.length, note: 'Prix hors taxes — TPS 5% + TVQ 9.975%' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/salon/menu/:id — Détail d'un service avec taxes
+router.get('/salon/menu/:id', (req, res) => {
+  const svc = menuCatalogue.getServiceWithTaxes(req.params.id);
+  if (!svc) return res.status(404).json({ error: 'Service non trouvé' });
+  res.json({ service: svc });
+});
+
+// GET /api/salon/forfaits — Tous les forfaits avec taxes calculées
+router.get('/salon/forfaits', (req, res) => {
+  try {
+    const plans = subscriptionEngine.getAllPlansWithTaxes();
+    res.json({ plans, count: plans.length, note: 'Prix hors taxes — TPS 5% + TVQ 9.975%' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/salon/forfaits/:id — Détail forfait avec taxes + coût annuel
+router.get('/salon/forfaits/:id', (req, res) => {
+  try {
+    const plan   = subscriptionEngine.getPlanWithTaxes(req.params.id);
+    const annual = subscriptionEngine.getAnnualCost(req.params.id);
+    res.json({ plan, annual });
+  } catch (err) { res.status(404).json({ error: err.message }); }
+});
+
+// POST /api/salon/abonnements — Créer un abonnement client
+router.post('/salon/abonnements', async (req, res) => {
+  try {
+    const result = await subscriptionEngine.createSubscription(req.body);
+    res.status(201).json({ success: true, subscription: result });
+  } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+// GET /api/salon/abonnements — Lister les abonnements actifs
+router.get('/salon/abonnements', async (req, res) => {
+  try {
+    const tenantId = req.query.tenantId || 'kadio';
+    const result   = await subscriptionEngine.getActiveSubscriptions(tenantId);
+    res.json(result);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/salon/abonnements/stats — Statistiques MRR + répartition
+router.get('/salon/abonnements/stats', async (req, res) => {
+  try {
+    const tenantId = req.query.tenantId || 'kadio';
+    const stats    = await subscriptionEngine.getSubscriptionStats(tenantId);
+    res.json(stats);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// DELETE /api/salon/abonnements/:id — Annuler un abonnement
+router.delete('/salon/abonnements/:id', async (req, res) => {
+  try {
+    const tenantId = req.query.tenantId || 'kadio';
+    const result   = await subscriptionEngine.cancelSubscription(req.params.id, tenantId);
+    res.json(result);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 module.exports = router;

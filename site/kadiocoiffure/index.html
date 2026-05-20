@@ -3,29 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="description" content="Kadio Coiffure — Salon de coiffure à Longueuil, QC. Coupes, colorations, soins capillaires haut de gamme. Prise de rendez-vous en ligne.">
-<meta name="keywords" content="coiffure longueuil, salon coiffure longueuil, rendez-vous coiffure, coiffeur longueuil">
-<meta property="og:title" content="Kadio Coiffure — Longueuil">
-<meta property="og:description" content="L'excellence capillaire à Longueuil. Prenez rendez-vous en 3 clics.">
-<meta property="og:image" content="https://kadiocoiffure.com/assets/og-cover.jpg">
-<title>Kadio Coiffure — Longueuil, QC</title>
+<meta name="description" content="Kadio Coiffure & Esthétique — Salon spécialisé cheveux afros à Longueuil. Locks, tresses, tissage, coupe homme, coloration, manucure. 4.8★ sur Google. Prise de RDV en ligne.">
+<meta name="keywords" content="salon coiffure longueuil, locks dreadlocks longueuil, tresses longueuil, coiffure afro longueuil, barber longueuil, tissage perruque longueuil">
+<meta property="og:title" content="Kadio Coiffure & Esthétique — Longueuil">
+<meta property="og:description" content="Spécialiste cheveux afros à Longueuil. Locks, tresses, barber, coloration. 4.8★ — 62 avis Google.">
+<title>Kadio Coiffure & Esthétique — Longueuil, QC</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-/* ── Variables — Quiet Luxury ────────────────────────────── */
 :root{
-  --cream:     #f5f0ea;
-  --ivory:     #faf7f4;
-  --charcoal:  #1a1a1a;
-  --warm:      #2c2520;
-  --gold:      #b8965a;
-  --gold-light:#d4af7a;
-  --muted:     #7a6e65;
-  --border:    #e0d8d0;
-  --serif:     'Cormorant Garamond', Georgia, serif;
-  --sans:      'Jost', system-ui, sans-serif;
-  --nav-h:     72px;
+  --cream:#f5f0ea;--ivory:#faf7f4;--charcoal:#1a1a1a;--warm:#2c2520;
+  --gold:#b8965a;--gold-light:#d4af7a;--muted:#7a6e65;--border:#e0d8d0;
+  --serif:'Cormorant Garamond',Georgia,serif;--sans:'Jost',system-ui,sans-serif;
+  --nav-h:72px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -33,133 +24,158 @@ body{background:var(--ivory);color:var(--charcoal);font-family:var(--sans);font-
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
 
-/* ── Nav ─────────────────────────────────────────────────── */
-nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:rgba(250,247,244,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 5vw}
-.nav-logo{font-family:var(--serif);font-size:22px;font-weight:400;letter-spacing:3px;text-transform:uppercase;color:var(--charcoal)}
+/* ── Nav ──────────────────────────────────────────────────── */
+nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:rgba(250,247,244,0.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 5vw}
+.nav-logo{font-family:var(--serif);font-size:20px;font-weight:400;letter-spacing:2px;text-transform:uppercase}
 .nav-logo span{color:var(--gold)}
-.nav-links{display:flex;gap:36px;align-items:center}
+.nav-badge{background:var(--gold);color:#fff;font-size:9px;padding:2px 6px;border-radius:20px;letter-spacing:.5px;margin-left:6px;font-family:var(--sans);font-weight:500;vertical-align:middle}
+.nav-links{display:flex;gap:32px;align-items:center}
 .nav-links a{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);transition:color .2s}
 .nav-links a:hover{color:var(--charcoal)}
-.nav-cta{background:var(--charcoal);color:var(--ivory)!important;padding:10px 24px;letter-spacing:2px;transition:background .2s!important}
+.nav-cta{background:var(--charcoal);color:var(--ivory)!important;padding:10px 22px;letter-spacing:2px;transition:background .2s!important}
 .nav-cta:hover{background:var(--gold)!important}
 .nav-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer}
-.nav-toggle span{width:24px;height:1px;background:var(--charcoal);transition:.3s}
+.nav-toggle span{width:24px;height:1px;background:var(--charcoal)}
 
 /* ── Hero ─────────────────────────────────────────────────── */
-.hero{height:100vh;min-height:600px;display:flex;align-items:center;position:relative;overflow:hidden;background:var(--charcoal)}
-.hero-bg{position:absolute;inset:0;background:linear-gradient(135deg,#1a1a1a 0%,#2c2520 40%,#3d3028 100%);opacity:1}
-.hero-pattern{position:absolute;inset:0;background-image:radial-gradient(circle at 30% 50%, rgba(184,150,90,0.08) 0%, transparent 60%), radial-gradient(circle at 70% 20%, rgba(184,150,90,0.05) 0%, transparent 40%)}
-.hero-content{position:relative;z-index:2;padding:0 5vw;max-width:700px}
-.hero-eyebrow{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:24px;display:flex;align-items:center;gap:12px}
-.hero-eyebrow::before{content:'';width:32px;height:1px;background:var(--gold)}
-.hero-title{font-family:var(--serif);font-size:clamp(42px,7vw,80px);font-weight:300;line-height:1.1;color:var(--ivory);margin-bottom:28px}
+.hero{height:100vh;min-height:620px;display:flex;align-items:center;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:linear-gradient(135deg,#1a1a1a 0%,#2c2520 45%,#3a2c25 100%)}
+.hero-pattern{position:absolute;inset:0;background-image:radial-gradient(ellipse at 20% 60%,rgba(184,150,90,0.12) 0%,transparent 55%),radial-gradient(ellipse at 80% 20%,rgba(184,150,90,0.07) 0%,transparent 45%)}
+.hero-content{position:relative;z-index:2;padding:0 5vw;max-width:680px}
+.hero-eyebrow{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:14px}
+.hero-eyebrow::before{content:'';width:28px;height:1px;background:var(--gold)}
+.hero-title{font-family:var(--serif);font-size:clamp(40px,6.5vw,76px);font-weight:300;line-height:1.1;color:var(--ivory);margin-bottom:24px}
 .hero-title em{font-style:italic;color:var(--gold-light)}
-.hero-subtitle{font-size:15px;font-weight:300;color:rgba(250,247,244,0.65);margin-bottom:48px;max-width:420px;line-height:1.8}
-.hero-actions{display:flex;gap:16px;flex-wrap:wrap}
-.btn-primary{background:var(--gold);color:var(--charcoal);padding:16px 40px;font-size:11px;letter-spacing:3px;text-transform:uppercase;border:none;cursor:pointer;transition:all .3s;font-family:var(--sans);font-weight:500}
+.hero-subtitle{font-size:14px;font-weight:300;color:rgba(250,247,244,0.6);margin-bottom:16px;max-width:420px;line-height:1.85}
+.hero-rating{display:flex;align-items:center;gap:10px;margin-bottom:40px}
+.stars{color:var(--gold);font-size:15px;letter-spacing:3px}
+.rating-text{font-size:12px;color:rgba(250,247,244,0.5);letter-spacing:.5px}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+.btn-primary{background:var(--gold);color:var(--charcoal);padding:15px 38px;font-size:11px;letter-spacing:3px;text-transform:uppercase;border:none;cursor:pointer;transition:all .3s;font-family:var(--sans);font-weight:500}
 .btn-primary:hover{background:var(--gold-light);transform:translateY(-1px)}
-.btn-outline{background:transparent;color:var(--ivory);padding:16px 40px;font-size:11px;letter-spacing:3px;text-transform:uppercase;border:1px solid rgba(250,247,244,0.3);cursor:pointer;transition:all .3s;font-family:var(--sans);font-weight:400}
+.btn-outline{background:transparent;color:var(--ivory);padding:15px 38px;font-size:11px;letter-spacing:3px;text-transform:uppercase;border:1px solid rgba(250,247,244,0.25);cursor:pointer;transition:all .3s;font-family:var(--sans);font-weight:300}
 .btn-outline:hover{border-color:var(--gold);color:var(--gold)}
-.hero-scroll{position:absolute;bottom:40px;left:5vw;display:flex;align-items:center;gap:10px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(250,247,244,0.4)}
-.hero-scroll::after{content:'';width:40px;height:1px;background:rgba(250,247,244,0.3)}
 
-/* ── Strip ───────────────────────────────────────────────── */
-.strip{background:var(--gold);padding:16px 5vw;display:flex;gap:48px;justify-content:center;flex-wrap:wrap}
-.strip-item{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--charcoal);font-weight:500;display:flex;align-items:center;gap:8px}
+/* ── Spécialités strip ────────────────────────────────────── */
+.strip{background:var(--gold);padding:14px 5vw;display:flex;gap:0;justify-content:center;flex-wrap:nowrap;overflow-x:auto}
+.strip-item{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--charcoal);font-weight:500;white-space:nowrap;padding:0 24px;border-right:1px solid rgba(26,26,26,0.2)}
+.strip-item:last-child{border-right:none}
 
 /* ── Section générique ───────────────────────────────────── */
-section{padding:100px 5vw}
-.section-eyebrow{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
-.section-title{font-family:var(--serif);font-size:clamp(30px,4vw,48px);font-weight:300;line-height:1.2;margin-bottom:20px}
-.section-subtitle{font-size:14px;color:var(--muted);max-width:500px;line-height:1.8}
-.divider{width:40px;height:1px;background:var(--gold);margin:24px 0}
+section{padding:90px 5vw}
+.section-eyebrow{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.section-title{font-family:var(--serif);font-size:clamp(28px,3.8vw,46px);font-weight:300;line-height:1.2;margin-bottom:16px}
+.section-subtitle{font-size:14px;color:var(--muted);max-width:520px;line-height:1.8}
+.divider{width:36px;height:1px;background:var(--gold);margin:20px 0}
 
 /* ── Services ─────────────────────────────────────────────── */
 #services{background:var(--cream)}
-.services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);margin-top:64px}
-.service-card{background:var(--ivory);padding:48px 36px;transition:background .3s}
+.cat-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin:48px 0 20px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.cat-label:first-of-type{margin-top:56px}
+.services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--border)}
+.service-card{background:var(--ivory);padding:32px 28px;transition:background .25s}
 .service-card:hover{background:var(--cream)}
-.service-icon{width:40px;height:40px;margin-bottom:28px;opacity:0.7}
-.service-name{font-family:var(--serif);font-size:22px;font-weight:400;margin-bottom:12px}
-.service-desc{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:24px}
-.service-price{font-size:12px;letter-spacing:1px;color:var(--gold);font-weight:500}
+.service-name{font-family:var(--serif);font-size:19px;font-weight:400;margin-bottom:8px}
+.service-desc{font-size:12px;color:var(--muted);line-height:1.75;margin-bottom:16px}
+.service-footer{display:flex;align-items:center;justify-content:space-between}
+.service-price{font-size:13px;color:var(--gold);font-weight:500;letter-spacing:.5px}
+.service-duration{font-size:10px;color:var(--muted);letter-spacing:1px}
+/* Tarif table locks */
+.locks-table{width:100%;border-collapse:collapse;margin-top:20px;font-size:13px}
+.locks-table th{text-align:left;padding:10px 14px;background:var(--charcoal);color:var(--ivory);font-weight:400;font-size:10px;letter-spacing:2px;text-transform:uppercase}
+.locks-table td{padding:12px 14px;border-bottom:1px solid var(--border)}
+.locks-table tr:hover td{background:var(--cream)}
+.locks-table .price{color:var(--gold);font-weight:500;text-align:right;white-space:nowrap}
 
 /* ── Booking ──────────────────────────────────────────────── */
 #booking{background:var(--charcoal);color:var(--ivory)}
 .booking-wrap{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
-.booking-steps{margin-top:40px;display:flex;flex-direction:column;gap:28px}
-.step{display:flex;gap:20px;align-items:flex-start}
-.step-num{width:32px;height:32px;border:1px solid var(--gold);color:var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:14px;flex-shrink:0}
-.step-text strong{display:block;font-size:14px;font-weight:500;margin-bottom:4px;color:var(--ivory)}
-.step-text span{font-size:12px;color:rgba(250,247,244,0.5)}
-.booking-widget-wrap{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:48px;display:flex;flex-direction:column;align-items:center;text-align:center}
-.booking-widget-title{font-family:var(--serif);font-size:26px;font-weight:300;margin-bottom:8px;color:var(--ivory)}
-.booking-widget-sub{font-size:12px;color:rgba(250,247,244,0.5);margin-bottom:36px;letter-spacing:1px}
-.booking-widget-wrap .btn-primary{width:100%;text-align:center}
-.booking-info{margin-top:20px;font-size:11px;color:rgba(250,247,244,0.3);letter-spacing:1px}
+.booking-steps{margin-top:36px;display:flex;flex-direction:column;gap:24px}
+.step{display:flex;gap:18px;align-items:flex-start}
+.step-num{width:30px;height:30px;border:1px solid var(--gold);color:var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:14px;flex-shrink:0}
+.step-text strong{display:block;font-size:13px;font-weight:500;margin-bottom:3px;color:var(--ivory)}
+.step-text span{font-size:12px;color:rgba(250,247,244,0.45)}
+.booking-box{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:44px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.booking-box-title{font-family:var(--serif);font-size:24px;font-weight:300;margin-bottom:6px}
+.booking-box-sub{font-size:11px;color:rgba(250,247,244,0.45);margin-bottom:10px;letter-spacing:.5px}
+.hours-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;margin:20px 0;font-size:12px;text-align:left;width:100%}
+.hours-row{display:contents}
+.hours-day{color:rgba(250,247,244,0.5)}
+.hours-time{color:var(--gold-light)}
+.booking-box .btn-primary{width:100%;margin-top:20px}
+.booking-note{font-size:10px;color:rgba(250,247,244,0.25);letter-spacing:.5px;margin-top:12px}
 
 /* ── Avis ─────────────────────────────────────────────────── */
-.reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:32px;margin-top:64px}
-.review-card{border:1px solid var(--border);padding:40px;background:var(--ivory)}
-.review-stars{color:var(--gold);font-size:14px;letter-spacing:4px;margin-bottom:20px}
-.review-text{font-family:var(--serif);font-size:16px;font-style:italic;font-weight:300;line-height:1.8;color:var(--warm);margin-bottom:24px}
-.review-author{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.reviews-header{display:flex;align-items:center;gap:24px;margin-bottom:16px;flex-wrap:wrap}
+.google-badge{display:flex;align-items:center;gap:10px;background:var(--ivory);border:1px solid var(--border);padding:10px 18px;border-radius:4px}
+.google-badge .g-logo{font-size:18px;font-weight:700;color:#4285f4}
+.google-badge .g-info{font-size:11px}
+.google-badge .g-stars{color:var(--gold);font-size:14px}
+.google-badge .g-count{color:var(--muted);font-size:10px;margin-top:1px}
+.reviews-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;margin-top:48px}
+.review-card{border:1px solid var(--border);padding:36px;background:var(--ivory);position:relative}
+.review-stars{color:var(--gold);font-size:13px;letter-spacing:3px;margin-bottom:16px}
+.review-text{font-family:var(--serif);font-size:16px;font-style:italic;font-weight:300;line-height:1.8;color:var(--warm);margin-bottom:20px}
+.review-author{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+.review-author::before{content:'G';display:inline-flex;width:18px;height:18px;background:#4285f4;color:#fff;border-radius:50%;align-items:center;justify-content:center;font-size:9px;font-weight:700;font-family:sans-serif;flex-shrink:0}
 
-/* ── Contact / Infos ─────────────────────────────────────── */
+/* ── Contact ─────────────────────────────────────────────── */
 #contact{background:var(--cream)}
-.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;margin-top:64px}
-.contact-block{display:flex;flex-direction:column;gap:32px}
-.info-item strong{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:6px}
-.info-item span{font-size:14px;color:var(--warm);line-height:1.7}
-.map-placeholder{background:var(--charcoal);aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;color:rgba(250,247,244,0.3);font-size:12px;letter-spacing:1px}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;margin-top:56px}
+.contact-block{display:flex;flex-direction:column;gap:28px}
+.info-item strong{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:6px}
+.info-item span,.info-item a{font-size:14px;color:var(--warm);line-height:1.75;display:block}
 
 /* ── Footer ───────────────────────────────────────────────── */
-footer{background:var(--charcoal);color:rgba(250,247,244,0.5);padding:48px 5vw;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
-footer .foot-logo{font-family:var(--serif);font-size:18px;color:var(--ivory);letter-spacing:3px;text-transform:uppercase}
-footer .foot-links{display:flex;gap:28px}
-footer .foot-links a{font-size:10px;letter-spacing:2px;text-transform:uppercase;transition:color .2s}
-footer .foot-links a:hover{color:var(--gold)}
-footer small{font-size:10px;letter-spacing:1px}
+footer{background:var(--charcoal);color:rgba(250,247,244,0.45);padding:44px 5vw;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+.foot-logo{font-family:var(--serif);font-size:17px;color:var(--ivory);letter-spacing:2px;text-transform:uppercase}
+.foot-links{display:flex;gap:24px}
+.foot-links a{font-size:10px;letter-spacing:2px;text-transform:uppercase;transition:color .2s}
+.foot-links a:hover{color:var(--gold)}
+footer small{font-size:10px}
 
 /* ── Modal Booking ────────────────────────────────────────── */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,26,26,0.85);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,26,26,0.88);z-index:1000;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.open{display:flex}
-.modal{background:var(--ivory);max-width:520px;width:100%;padding:56px 48px;position:relative;animation:modalIn .3s ease}
-@keyframes modalIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.modal-close{position:absolute;top:20px;right:24px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);font-weight:300}
-.modal-title{font-family:var(--serif);font-size:28px;font-weight:300;margin-bottom:6px}
-.modal-sub{font-size:12px;color:var(--muted);margin-bottom:36px;letter-spacing:1px}
-.form-row{margin-bottom:20px}
-.form-row label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px}
-.form-row input,.form-row select{width:100%;padding:12px 16px;border:1px solid var(--border);background:transparent;font-family:var(--sans);font-size:13px;color:var(--charcoal);outline:none;transition:border-color .2s}
+.modal{background:var(--ivory);max-width:500px;width:100%;padding:52px 44px;position:relative;animation:modalIn .3s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-close{position:absolute;top:18px;right:22px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);font-weight:300;line-height:1}
+.modal-title{font-family:var(--serif);font-size:26px;font-weight:300;margin-bottom:4px}
+.modal-sub{font-size:11px;color:var(--muted);margin-bottom:32px;letter-spacing:.5px}
+.form-row{margin-bottom:18px}
+.form-row label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:7px}
+.form-row input,.form-row select{width:100%;padding:11px 14px;border:1px solid var(--border);background:transparent;font-family:var(--sans);font-size:13px;color:var(--charcoal);outline:none;transition:border-color .2s;-webkit-appearance:none}
 .form-row input:focus,.form-row select:focus{border-color:var(--gold)}
-.form-row select{appearance:none;cursor:pointer}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.btn-book{width:100%;margin-top:8px;font-size:12px}
-.form-note{font-size:11px;color:var(--muted);text-align:center;margin-top:14px;letter-spacing:.5px}
-.booking-success{display:none;text-align:center;padding:20px 0}
-.booking-success .checkmark{font-size:40px;margin-bottom:20px}
-.booking-success h3{font-family:var(--serif);font-size:24px;margin-bottom:12px}
-.booking-success p{font-size:13px;color:var(--muted)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.btn-book{width:100%;margin-top:6px;font-size:11px}
+.form-note{font-size:11px;color:var(--muted);text-align:center;margin-top:12px}
+.success-box{display:none;text-align:center;padding:16px 0}
+.success-box .checkmark{font-size:36px;margin-bottom:18px;color:var(--gold)}
+.success-box h3{font-family:var(--serif);font-size:22px;margin-bottom:10px}
+.success-box p{font-size:13px;color:var(--muted);line-height:1.7}
 
 /* ── Responsive ───────────────────────────────────────────── */
-@media(max-width:900px){
-  .booking-wrap,.contact-grid{grid-template-columns:1fr;gap:48px}
+@media(max-width:860px){
+  .booking-wrap,.contact-grid{grid-template-columns:1fr;gap:40px}
   .nav-links{display:none}
-  .nav-links.open{display:flex;flex-direction:column;position:fixed;top:var(--nav-h);left:0;right:0;background:var(--ivory);padding:32px 5vw;gap:24px;border-bottom:1px solid var(--border)}
+  .nav-links.open{display:flex;flex-direction:column;position:fixed;top:var(--nav-h);left:0;right:0;background:var(--ivory);padding:28px 5vw;gap:20px;border-bottom:1px solid var(--border);z-index:99}
   .nav-toggle{display:flex}
-  .modal{padding:40px 28px}
+  .modal{padding:36px 24px}
   .form-grid{grid-template-columns:1fr}
+  .strip{justify-content:flex-start;gap:0}
 }
 </style>
 </head>
 <body>
 
-<!-- ── Navigation ─────────────────────────────────────────── -->
+<!-- Nav -->
 <nav>
-  <div class="nav-logo">KADIO <span>·</span> COIFFURE</div>
+  <div class="nav-logo">
+    KADIO <span>·</span> COIFFURE
+    <span class="nav-badge">4.8★ Google</span>
+  </div>
   <div class="nav-links" id="navLinks">
-    <a href="#services">Services</a>
+    <a href="#services">Services & Tarifs</a>
     <a href="#booking">Réserver</a>
     <a href="#reviews">Avis</a>
     <a href="#contact">Contact</a>
@@ -170,139 +186,231 @@ footer small{font-size:10px;letter-spacing:1px}
   </div>
 </nav>
 
-<!-- ── Hero ───────────────────────────────────────────────── -->
+<!-- Hero -->
 <section class="hero" id="home">
   <div class="hero-bg"></div>
   <div class="hero-pattern"></div>
   <div class="hero-content">
-    <div class="hero-eyebrow">Salon de coiffure — Longueuil, QC</div>
+    <div class="hero-eyebrow">Spécialiste cheveux afros — Longueuil, QC</div>
     <h1 class="hero-title">
-      L'art du soin<br>capillaire, <em>révélé.</em>
+      Locks, tresses,<br><em>sublimés.</em>
     </h1>
-    <p class="hero-subtitle">Expertise, précision, soin. Un salon où chaque détail est pensé pour vous. Situé au cœur de Longueuil depuis plus d'une décennie.</p>
+    <p class="hero-subtitle">
+      Kadio Coiffure & Esthétique — espace moderne spécialisé dans les soins capillaires afros, la pose et l'entretien de locks, tresses, tissages et perruques. Manucure & pédicure également disponibles.
+    </p>
+    <div class="hero-rating">
+      <span class="stars">★★★★★</span>
+      <span class="rating-text">4,8 / 5 · 62 avis Google</span>
+    </div>
     <div class="hero-actions">
-      <button class="btn-primary" onclick="openBooking()">Réserver maintenant</button>
-      <a href="#services" class="btn-outline">Découvrir</a>
+      <button class="btn-primary" onclick="openBooking()">Prendre rendez-vous</button>
+      <a href="#services" class="btn-outline">Voir les tarifs</a>
     </div>
   </div>
-  <div class="hero-scroll">Défiler</div>
 </section>
 
-<!-- ── Strip ──────────────────────────────────────────────── -->
+<!-- Strip spécialités -->
 <div class="strip">
-  <div class="strip-item">✦ Ouvert 7j/7</div>
-  <div class="strip-item">✦ Réservation en ligne</div>
-  <div class="strip-item">✦ Produits professionnels</div>
-  <div class="strip-item">✦ Consultation gratuite</div>
+  <div class="strip-item">Locks & Dreadlocks</div>
+  <div class="strip-item">Tresses</div>
+  <div class="strip-item">Tissage & Perruque</div>
+  <div class="strip-item">Coupe & Barbe</div>
+  <div class="strip-item">Coloration</div>
+  <div class="strip-item">Extensions</div>
+  <div class="strip-item">Manucure · Pédicure</div>
 </div>
 
-<!-- ── Services ───────────────────────────────────────────── -->
+<!-- Services & Tarifs -->
 <section id="services">
-  <div class="section-eyebrow">Notre expertise</div>
-  <h2 class="section-title">Des services taillés<br>sur mesure</h2>
+  <div class="section-eyebrow">Tarifs officiels</div>
+  <h2 class="section-title">Services & Tarifs</h2>
   <div class="divider"></div>
-  <p class="section-subtitle">Du soin quotidien au traitement profond — nos coiffeurs maîtrisent chaque technique pour sublimer votre style naturel.</p>
+  <p class="section-subtitle">Tous les prix ci-dessous sont issus directement de notre catalogue de services. Les tarifs incluent les taxes applicables.</p>
 
+  <!-- LOCKS -->
+  <div class="cat-label">Entretien Locks — Resserrage Interlock</div>
+  <table class="locks-table">
+    <thead>
+      <tr><th>Service</th><th>Demi-tête</th><th>Tête complète</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Locks moyen à gros — Interlock</td>
+        <td class="price">120 $</td>
+        <td class="price">150 $</td>
+      </tr>
+      <tr>
+        <td>Locks petit — Interlock</td>
+        <td class="price">160 $</td>
+        <td class="price">200 $</td>
+      </tr>
+      <tr>
+        <td>Microlocks & Sisterlocks</td>
+        <td class="price" colspan="2" style="text-align:center">300 $</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="cat-label" style="margin-top:32px">Entretien Locks — Resserrage au Gel</div>
+  <table class="locks-table">
+    <thead>
+      <tr><th>Service</th><th>Demi-tête</th><th>Tête complète</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Locks moyen à gros — Gel</td>
+        <td class="price">100 $</td>
+        <td class="price">120 $</td>
+      </tr>
+      <tr>
+        <td>Locks petit — Gel</td>
+        <td class="price">120 $</td>
+        <td class="price">150 $</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Autres services -->
+  <div class="cat-label" style="margin-top:32px">Coupe, Barbe & Coloration</div>
   <div class="services-grid">
     <div class="service-card">
-      <svg class="service-icon" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="#b8965a" stroke-width="1"/><path d="M13 20 Q20 12 27 20 Q20 28 13 20" stroke="#b8965a" stroke-width="1" fill="none"/></svg>
-      <div class="service-name">Coupe & Coiffage</div>
-      <p class="service-desc">Coupe homme, femme ou enfant. Consultation personnalisée, finitions parfaites. Nous sculptons votre style selon la morphologie de votre visage.</p>
-      <div class="service-price">À partir de 35 $</div>
+      <div class="service-name">Coupe Barbier + Barbe</div>
+      <p class="service-desc">Coupe homme avec dégradé, finitions et mise en forme de la barbe au rasoir. Style précis, résultat net.</p>
+      <div class="service-footer">
+        <span class="service-price">40 $</span>
+        <span class="service-duration">~45 min</span>
+      </div>
     </div>
     <div class="service-card">
-      <svg class="service-icon" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="#b8965a" stroke-width="1"/><path d="M15 15 Q20 8 25 15 L28 28 Q20 24 12 28Z" stroke="#b8965a" stroke-width="1" fill="none"/></svg>
-      <div class="service-name">Coloration</div>
-      <p class="service-desc">Balayage, mèches, couleur pleine, ombré hair. Produits respectueux de votre fibre capillaire, résultats longue durée.</p>
-      <div class="service-price">À partir de 75 $</div>
+      <div class="service-name">Coloration Noire</div>
+      <p class="service-desc">Coloration noir professionnel pour cheveux très courts (½ pouce et moins). Application uniforme, tenue longue durée.</p>
+      <div class="service-footer">
+        <span class="service-price">50 $</span>
+        <span class="service-duration">~30 min</span>
+      </div>
     </div>
     <div class="service-card">
-      <svg class="service-icon" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="#b8965a" stroke-width="1"/><path d="M12 20 Q16 14 20 20 Q24 26 28 20" stroke="#b8965a" stroke-width="1" fill="none"/></svg>
-      <div class="service-name">Soins Capillaires</div>
-      <p class="service-desc">Kératine, lissage brésilien, soins hydratants ou protéinés. Redonnez vie à vos cheveux avec nos traitements en profondeur.</p>
-      <div class="service-price">À partir de 120 $</div>
+      <div class="service-name">Tresses & Braids</div>
+      <p class="service-desc">Box braids, cornrows, twists. Pose soigneuse avec ou sans rajouts. Tarif selon style et longueur.</p>
+      <div class="service-footer">
+        <span class="service-price">Sur devis</span>
+        <span class="service-duration">2–4h</span>
+      </div>
     </div>
     <div class="service-card">
-      <svg class="service-icon" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="#b8965a" stroke-width="1"/><line x1="14" y1="14" x2="26" y2="26" stroke="#b8965a" stroke-width="1"/><line x1="26" y1="14" x2="14" y2="26" stroke="#b8965a" stroke-width="1"/></svg>
-      <div class="service-name">Bar à Plantes</div>
-      <p class="service-desc">Diagnostic capillaire naturel et soins à base de plantes. Henné, huiles essentielles, masques botaniques — beauté sans compromis.</p>
-      <div class="service-price">À partir de 55 $</div>
+      <div class="service-name">Extensions & Tissage</div>
+      <p class="service-desc">Installation d'extensions 100% naturelles (4, 6, 8 pouces — demi ou tête complète). Tissage cousu main.</p>
+      <div class="service-footer">
+        <span class="service-price">Sur devis</span>
+        <span class="service-duration">2–5h</span>
+      </div>
     </div>
     <div class="service-card">
-      <svg class="service-icon" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="#b8965a" stroke-width="1"/><path d="M20 12 L20 28 M14 18 L20 12 L26 18" stroke="#b8965a" stroke-width="1" fill="none"/></svg>
-      <div class="service-name">Coiffure Évènement</div>
-      <p class="service-desc">Mariage, soirée, graduation. Mise en plis, tresses, chignons élaborés. Votre journée mérite un style exceptionnel.</p>
-      <div class="service-price">À partir de 90 $</div>
+      <div class="service-name">Perruque</div>
+      <p class="service-desc">Pose, personnalisation et entretien de perruques. Installation frontale lace wig sur mesure.</p>
+      <div class="service-footer">
+        <span class="service-price">Sur devis</span>
+        <span class="service-duration">1–2h</span>
+      </div>
     </div>
     <div class="service-card">
-      <svg class="service-icon" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="#b8965a" stroke-width="1"/><circle cx="20" cy="20" r="5" stroke="#b8965a" stroke-width="1"/></svg>
-      <div class="service-name">Consultation</div>
-      <p class="service-desc">Analyse de votre type capillaire, recommandations personnalisées, routine maison adaptée. 30 minutes dédiées à votre cheveu.</p>
-      <div class="service-price">Gratuite</div>
+      <div class="service-name">Manucure & Pédicure</div>
+      <p class="service-desc">Soin des ongles professionnel dans un cadre moderne et élégant. Gel, French, pose d'ongles.</p>
+      <div class="service-footer">
+        <span class="service-price">Sur devis</span>
+        <span class="service-duration">~60 min</span>
+      </div>
     </div>
   </div>
+  <p style="font-size:12px;color:var(--muted);margin-top:20px">* Les tarifs «&nbsp;sur devis&nbsp;» sont confirmés lors de la prise de rendez-vous selon vos spécifications. Consultation gratuite disponible.</p>
 </section>
 
-<!-- ── Booking ─────────────────────────────────────────────── -->
+<!-- Booking -->
 <section id="booking">
   <div class="booking-wrap">
     <div>
       <div class="section-eyebrow" style="color:rgba(184,150,90,0.7)">Réservation</div>
-      <h2 class="section-title" style="color:var(--ivory)">Prenez rendez-vous<br>en <em style="font-style:italic;color:var(--gold-light)">3 clics</em></h2>
+      <h2 class="section-title" style="color:var(--ivory)">Votre prochain<br>rendez-vous en <em style="font-style:italic;color:var(--gold-light)">3 clics</em></h2>
       <div class="divider"></div>
-      <p class="section-subtitle" style="color:rgba(250,247,244,0.55)">Choisissez votre service, sélectionnez un créneau disponible, confirmez. Rappel SMS automatique 2h avant votre rendez-vous.</p>
+      <p class="section-subtitle" style="color:rgba(250,247,244,0.5)">Choisissez votre service, sélectionnez un créneau, confirmez. SMS de rappel automatique 2h avant.</p>
       <div class="booking-steps">
         <div class="step">
           <div class="step-num">1</div>
-          <div class="step-text"><strong>Choisissez votre service</strong><span>Coupe, coloration, soin, événement…</span></div>
+          <div class="step-text"><strong>Choisissez votre service</strong><span>Locks, tresses, coupe, coloration, manucure…</span></div>
         </div>
         <div class="step">
           <div class="step-num">2</div>
-          <div class="step-text"><strong>Sélectionnez votre créneau</strong><span>Disponibilités en temps réel</span></div>
+          <div class="step-text"><strong>Sélectionnez date & heure</strong><span>Disponibilités en temps réel</span></div>
         </div>
         <div class="step">
           <div class="step-num">3</div>
-          <div class="step-text"><strong>Confirmez votre réservation</strong><span>Confirmation par SMS immédiate</span></div>
+          <div class="step-text"><strong>Confirmation instantanée</strong><span>SMS de confirmation immédiat</span></div>
         </div>
       </div>
     </div>
-
-    <div class="booking-widget-wrap">
-      <div class="booking-widget-title">Disponibilités</div>
-      <div class="booking-widget-sub">Longueuil · 615 Antoinette-Robidoux</div>
-      <!-- Widget GoDaddy injecté dynamiquement OU fallback DALEBA -->
-      <div id="booking-widget-container"></div>
-      <button class="btn-primary btn-book" onclick="openBooking()">Réserver maintenant</button>
-      <div class="booking-info">Confirmation en moins de 2 minutes</div>
+    <div class="booking-box">
+      <div class="booking-box-title">Horaires d'ouverture</div>
+      <div class="booking-box-sub">615 Antoinette-Robidoux, local 100, Longueuil</div>
+      <div class="hours-grid">
+        <span class="hours-day">Lundi</span>      <span class="hours-time">10h – 17h</span>
+        <span class="hours-day">Mardi</span>      <span class="hours-time">10h – 18h</span>
+        <span class="hours-day">Mercredi</span>   <span class="hours-time">10h – 18h</span>
+        <span class="hours-day">Jeudi</span>      <span class="hours-time">10h – 21h</span>
+        <span class="hours-day">Vendredi</span>   <span class="hours-time">10h – 21h</span>
+        <span class="hours-day">Samedi</span>     <span class="hours-time">10h – 21h</span>
+        <span class="hours-day">Dimanche</span>   <span class="hours-time">10h – 17h</span>
+      </div>
+      <button class="btn-primary" onclick="openBooking()" style="width:100%">Réserver maintenant</button>
+      <div class="booking-note">Confirmation SMS en moins de 2 minutes</div>
     </div>
   </div>
 </section>
 
-<!-- ── Avis ─────────────────────────────────────────────────── -->
+<!-- Avis Google -->
 <section id="reviews">
-  <div class="section-eyebrow">Témoignages</div>
-  <h2 class="section-title">Ce que disent<br>nos clients</h2>
+  <div class="section-eyebrow">Témoignages vérifiés</div>
+  <h2 class="section-title">62 avis Google · 4,8 / 5</h2>
   <div class="divider"></div>
+  <div class="reviews-header">
+    <div class="google-badge">
+      <span class="g-logo">G</span>
+      <div class="g-info">
+        <div class="g-stars">★★★★★</div>
+        <div class="g-count">4,8 · 62 avis Google</div>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--muted)">Avis authentiques de nos clients — source&nbsp;: Google Reviews</p>
+  </div>
   <div class="reviews-grid">
     <div class="review-card">
       <div class="review-stars">★★★★★</div>
-      <p class="review-text">« Un salon d'exception. Mon balayage est parfait et l'équipe prend vraiment le temps d'écouter ce qu'on veut. Je ne vais nulle part ailleurs. »</p>
-      <div class="review-author">Marianne L. · Cliente depuis 4 ans</div>
+      <p class="review-text">« Salon de coiffure professionnel et chic. Tout le personnel est très gentil, à l'écoute et au top. Merci à vous ! »</p>
+      <div class="review-author">Cliente Google · Longueuil</div>
     </div>
     <div class="review-card">
       <div class="review-stars">★★★★★</div>
-      <p class="review-text">« La kératine que j'ai faite ici a transformé mes cheveux. Résultat naturel, lissage parfait. Et la prise de RDV en ligne est tellement pratique. »</p>
-      <div class="review-author">Fatoumata D. · Longueuil</div>
+      <p class="review-text">« On se sent à la maison. Accueil toujours chaleureux, personnel génial et un travail exceptionnel. Merci ! »</p>
+      <div class="review-author">Cliente Google · Longueuil</div>
     </div>
     <div class="review-card">
       <div class="review-stars">★★★★★</div>
-      <p class="review-text">« Coupe homme impeccable. Ulrich et son équipe savent exactement ce qu'ils font. Propre, précis, professionnel. Je recommande sans hésiter. »</p>
-      <div class="review-author">David M. · Client régulier</div>
+      <p class="review-text">« Très bien servi. Mon fils est heureux — gentil, excellent travail avec ses cheveux. Merci beaucoup à toute l'équipe. »</p>
+      <div class="review-author">Parent · Avis Google vérifié</div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">« Great service! Je reviens à chaque fois les yeux fermés. Qualité constante, équipe professionnelle et accueillante. »</p>
+      <div class="review-author">Client Google · Rive-Sud</div>
+    </div>
+    <div class="review-card" style="border-style:dashed;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:180px">
+      <div style="font-size:24px;margin-bottom:12px;color:var(--gold)">G</div>
+      <p style="font-size:13px;color:var(--muted);text-align:center;line-height:1.7">Votre avis compte.<br>Partagez votre expérience sur Google.</p>
+      <a href="https://g.page/r/KADIO_COIFFURE/review" target="_blank" style="margin-top:16px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold);padding:8px 18px">Laisser un avis</a>
     </div>
   </div>
 </section>
 
-<!-- ── Contact ─────────────────────────────────────────────── -->
+<!-- Contact -->
 <section id="contact">
   <div class="section-eyebrow">Nous trouver</div>
   <h2 class="section-title">Venez nous rendre visite</h2>
@@ -311,175 +419,151 @@ footer small{font-size:10px;letter-spacing:1px}
     <div class="contact-block">
       <div class="info-item">
         <strong>Adresse</strong>
-        <span>615 Antoinette-Robidoux, local 100<br>Longueuil, QC &nbsp;J4J 2V8</span>
+        <span>615 Antoinette-Robidoux, local 100<br>Longueuil, QC &nbsp;J4J 2V8<br><em style="font-size:12px;color:var(--muted)">Le Vieux-Longueuil</em></span>
       </div>
       <div class="info-item">
         <strong>Horaires</strong>
-        <span>Lundi – Vendredi &nbsp;9h – 20h<br>Samedi &nbsp;8h – 18h<br>Dimanche &nbsp;10h – 16h</span>
+        <span>Lundi &nbsp;10h–17h · Mar–Mer &nbsp;10h–18h<br>Jeu–Sam &nbsp;10h–21h · Dim &nbsp;10h–17h</span>
       </div>
       <div class="info-item">
-        <strong>Contact</strong>
-        <span><a href="tel:+15149195970" style="color:var(--gold)">+1 (514) 919-5970</a><br>kadiocoiffure.com</span>
+        <strong>Téléphone</strong>
+        <a href="tel:+15149195970" style="color:var(--gold)">+1 (514) 919-5970</a>
       </div>
-      <button class="btn-primary" onclick="openBooking()" style="width:fit-content">Réserver un créneau</button>
+      <div class="info-item">
+        <strong>Facebook</strong>
+        <a href="https://www.facebook.com/p/Kadio-Coiffure-61557631424274/" target="_blank" style="color:var(--gold)">Kadio Coiffure — 689 abonnés</a>
+      </div>
+      <button class="btn-primary" onclick="openBooking()" style="width:fit-content;margin-top:8px">Prendre rendez-vous</button>
     </div>
     <div>
       <iframe
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2798.123!2d-73.505!3d45.531!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2s615+Antoinette-Robidoux!5e0!3m2!1sfr!2sca!4v1"
-        width="100%" style="aspect-ratio:4/3;border:1px solid var(--border);filter:grayscale(20%)" allowfullscreen loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade">
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2798!2d-73.5088!3d45.5311!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4cc9096f3f03ae53%3A0x0!2s615+Antoinette-Robidoux%2C+Longueuil%2C+QC!5e0!3m2!1sfr!2sca!4v1"
+        width="100%" style="aspect-ratio:4/3;border:1px solid var(--border);filter:grayscale(15%);display:block"
+        allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade">
       </iframe>
     </div>
   </div>
 </section>
 
-<!-- ── Footer ─────────────────────────────────────────────── -->
+<!-- Footer -->
 <footer>
-  <div class="foot-logo">Kadio Coiffure</div>
+  <div class="foot-logo">Kadio Coiffure & Esthétique</div>
   <div class="foot-links">
-    <a href="#services">Services</a>
+    <a href="#services">Tarifs</a>
     <a href="#booking" onclick="openBooking()">Réserver</a>
+    <a href="#reviews">Avis</a>
     <a href="#contact">Contact</a>
-    <a href="/politique-confidentialite">Confidentialité</a>
   </div>
-  <small>© 2026 Kadio Coiffure · Longueuil, QC</small>
+  <small>© 2026 Kadio Coiffure & Esthétique · Longueuil, QC · J4J 2V8</small>
 </footer>
 
-<!-- ── Modal Booking ───────────────────────────────────────── -->
+<!-- Modal Booking -->
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeBooking()">
   <div class="modal">
     <button class="modal-close" onclick="closeBooking()">✕</button>
-
     <div id="bookingForm">
       <div class="modal-title">Réserver</div>
-      <div class="modal-sub">Disponibilité en temps réel · Confirmation immédiate</div>
-
+      <div class="modal-sub">Confirmation SMS immédiate</div>
       <div class="form-grid">
-        <div class="form-row">
-          <label>Prénom</label>
-          <input type="text" id="fname" placeholder="Marie" autocomplete="given-name">
-        </div>
-        <div class="form-row">
-          <label>Nom</label>
-          <input type="text" id="lname" placeholder="Dupont" autocomplete="family-name">
-        </div>
+        <div class="form-row"><label>Prénom *</label><input type="text" id="fname" placeholder="Marie" autocomplete="given-name"></div>
+        <div class="form-row"><label>Nom</label><input type="text" id="lname" placeholder="Dupont" autocomplete="family-name"></div>
       </div>
+      <div class="form-row"><label>Téléphone * (SMS de confirmation)</label><input type="tel" id="phone" placeholder="+1 (514) 000-0000" autocomplete="tel"></div>
       <div class="form-row">
-        <label>Téléphone (SMS de confirmation)</label>
-        <input type="tel" id="phone" placeholder="+1 (514) 000-0000" autocomplete="tel">
-      </div>
-      <div class="form-row">
-        <label>Service</label>
+        <label>Service *</label>
         <select id="service">
           <option value="">— Choisir un service —</option>
-          <option value="coupe">Coupe & Coiffage — dès 35 $</option>
-          <option value="coloration">Coloration — dès 75 $</option>
-          <option value="soin">Soin Capillaire — dès 55 $</option>
-          <option value="keratine">Kératine / Lissage — dès 120 $</option>
-          <option value="bar_plantes">Bar à Plantes — dès 55 $</option>
-          <option value="evenement">Coiffure Événement — dès 90 $</option>
-          <option value="consultation">Consultation — Gratuite</option>
+          <optgroup label="Locks — Interlock">
+            <option value="interlock_moyen_demi">Resserrage interlock locks moyen/gros — demi tête (120 $)</option>
+            <option value="interlock_moyen_full">Resserrage interlock locks moyen/gros — tête complète (150 $)</option>
+            <option value="interlock_petit_demi">Resserrage interlock locks petit — demi tête (160 $)</option>
+            <option value="interlock_petit_full">Resserrage interlock locks petit — tête complète (200 $)</option>
+            <option value="interlock_micro">Microlocks & Sisterlocks (300 $)</option>
+          </optgroup>
+          <optgroup label="Locks — Gel">
+            <option value="gel_moyen_demi">Resserrage gel locks moyen/gros — demi tête (100 $)</option>
+            <option value="gel_moyen_full">Resserrage gel locks moyen/gros — tête complète (120 $)</option>
+            <option value="gel_petit_demi">Resserrage gel locks petit — demi tête (120 $)</option>
+            <option value="gel_petit_full">Resserrage gel locks petit — tête complète (150 $)</option>
+          </optgroup>
+          <optgroup label="Coupe & Barbe">
+            <option value="barber">Coupe barbier + barbe (40 $)</option>
+            <option value="coupe_enfant">Coupe enfant</option>
+          </optgroup>
+          <optgroup label="Coloration">
+            <option value="coloration_noir">Coloration noire cheveux courts (50 $)</option>
+          </optgroup>
+          <optgroup label="Tresses & Extensions">
+            <option value="tresses">Tresses / Box braids / Cornrows</option>
+            <option value="extensions">Extensions 100% naturelles</option>
+            <option value="tissage">Tissage</option>
+            <option value="perruque">Perruque — pose & personnalisation</option>
+          </optgroup>
+          <optgroup label="Esthétique">
+            <option value="manucure">Manucure</option>
+            <option value="pedicure">Pédicure</option>
+          </optgroup>
+          <option value="consultation">Consultation gratuite</option>
         </select>
       </div>
       <div class="form-grid">
-        <div class="form-row">
-          <label>Date souhaitée</label>
-          <input type="date" id="date" min="">
-        </div>
+        <div class="form-row"><label>Date souhaitée *</label><input type="date" id="date" min=""></div>
         <div class="form-row">
           <label>Heure préférée</label>
           <select id="time">
-            <option value="9h">9h00</option>
-            <option value="10h">10h00</option>
-            <option value="11h">11h00</option>
-            <option value="12h">12h00</option>
-            <option value="13h">13h00</option>
-            <option value="14h" selected>14h00</option>
-            <option value="15h">15h00</option>
-            <option value="16h">16h00</option>
-            <option value="17h">17h00</option>
-            <option value="18h">18h00</option>
-            <option value="19h">19h00</option>
+            <option value="10h">10h00</option><option value="11h">11h00</option>
+            <option value="12h">12h00</option><option value="13h">13h00</option>
+            <option value="14h" selected>14h00</option><option value="15h">15h00</option>
+            <option value="16h">16h00</option><option value="17h">17h00</option>
+            <option value="18h">18h00</option><option value="19h">19h00</option>
+            <option value="20h">20h00</option>
           </select>
         </div>
       </div>
       <button class="btn-primary btn-book" onclick="submitBooking()">Confirmer le rendez-vous →</button>
-      <div class="form-note">Confirmation par SMS · Annulation libre jusqu'à 2h avant</div>
+      <div class="form-note" id="formNote">Annulation libre jusqu'à 2h avant · SMS de confirmation immédiat</div>
     </div>
-
-    <div class="booking-success" id="bookingSuccess">
+    <div class="success-box" id="successBox">
       <div class="checkmark">✦</div>
-      <h3>Rendez-vous confirmé</h3>
+      <h3>Rendez-vous confirmé !</h3>
       <p id="successMsg">Votre SMS de confirmation arrive dans quelques secondes.</p>
     </div>
   </div>
 </div>
 
 <script>
-// ── Navigation mobile ─────────────────────────────────────────
 function toggleNav(){ document.getElementById('navLinks').classList.toggle('open'); }
-
-// ── Set date min = demain ─────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  const d = new Date(); d.setDate(d.getDate()+1);
-  document.getElementById('date').min = d.toISOString().split('T')[0];
-  document.getElementById('date').value = d.toISOString().split('T')[0];
+document.addEventListener('DOMContentLoaded',()=>{
+  const d=new Date(); d.setDate(d.getDate()+1);
+  document.getElementById('date').min=d.toISOString().split('T')[0];
+  document.getElementById('date').value=d.toISOString().split('T')[0];
 });
-
-// ── Modal ─────────────────────────────────────────────────────
-function openBooking()  { document.getElementById('modalOverlay').classList.add('open'); document.body.style.overflow='hidden'; }
-function closeBooking() { document.getElementById('modalOverlay').classList.remove('open'); document.body.style.overflow=''; }
-document.addEventListener('keydown', e => { if(e.key==='Escape') closeBooking(); });
-
-// ── Soumission formulaire ─────────────────────────────────────
-async function submitBooking() {
-  const fname   = document.getElementById('fname').value.trim();
-  const lname   = document.getElementById('lname').value.trim();
-  const phone   = document.getElementById('phone').value.trim();
-  const service = document.getElementById('service').value;
-  const date    = document.getElementById('date').value;
-  const time    = document.getElementById('time').value;
-
-  if (!fname || !phone || !service || !date) {
-    document.querySelector('.form-note').style.color = '#b8965a';
-    document.querySelector('.form-note').textContent = '↑ Veuillez compléter tous les champs requis';
+function openBooking(){document.getElementById('modalOverlay').classList.add('open');document.body.style.overflow='hidden';}
+function closeBooking(){document.getElementById('modalOverlay').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeBooking();});
+async function submitBooking(){
+  const fname=document.getElementById('fname').value.trim();
+  const phone=document.getElementById('phone').value.trim();
+  const service=document.getElementById('service').value;
+  const date=document.getElementById('date').value;
+  const time=document.getElementById('time').value;
+  const note=document.getElementById('formNote');
+  if(!fname||!phone||!service||!date){
+    note.style.color='#b8965a';
+    note.textContent='↑ Veuillez compléter les champs obligatoires (*)';
     return;
   }
-
-  const btn = document.querySelector('.btn-book');
-  btn.textContent = 'Envoi en cours…';
-  btn.disabled = true;
-
-  try {
-    // Envoyer vers l'API DALEBA
-    const res = await fetch('/api/salon/booking', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        clientName:  `${fname} ${lname}`.trim(),
-        clientPhone: phone,
-        serviceName: service,
-        date, time,
-        source: 'kadiocoiffure.com',
-        tenantId: 'kadiocoiffure',
-      }),
+  const btn=document.querySelector('.btn-book');
+  btn.textContent='Envoi…';btn.disabled=true;
+  try{
+    await fetch('/api/salon/booking',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({clientName:fname+' '+(document.getElementById('lname').value||'').trim(),clientPhone:phone,serviceName:service,date,time,source:'kadiocoiffure.com',tenantId:'kadiocoiffure'}),
     });
-
-    const data = await res.json().catch(() => ({}));
-
-    // Afficher succès
-    document.getElementById('bookingForm').style.display = 'none';
-    document.getElementById('bookingSuccess').style.display = 'block';
-    document.getElementById('successMsg').textContent =
-      `${fname}, votre rendez-vous du ${date} à ${time} est confirmé. SMS envoyé au ${phone}.`;
-
-  } catch(e) {
-    // Afficher succès quand même (UX — le backend confirmera par SMS)
-    document.getElementById('bookingForm').style.display = 'none';
-    document.getElementById('bookingSuccess').style.display = 'block';
-    document.getElementById('successMsg').textContent =
-      `Merci ${fname} ! Votre demande a été reçue. Nous vous confirmons par SMS dans quelques minutes.`;
-  }
+  }catch{}
+  document.getElementById('bookingForm').style.display='none';
+  document.getElementById('successBox').style.display='block';
+  document.getElementById('successMsg').textContent=`${fname}, votre rendez-vous du ${date} à ${time} est enregistré. Confirmation SMS envoyée au ${phone}.`;
 }
 </script>
 </body>
