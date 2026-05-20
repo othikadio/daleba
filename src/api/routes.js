@@ -1222,4 +1222,7 @@ router.use('/v1/accounting', accountingRoutes);
 const evolutionRoutes = require('./evolution-routes'); // [601-612] Évolution Autonome
 router.use('/v1/evolution', evolutionRoutes);
 
+const godaddyRoutes = require('./godaddy-routes'); // [Section 14] GoDaddy Connector
+router.use('/v1/godaddy', godaddyRoutes);
+
 module.exports = router;

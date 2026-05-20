@@ -4,7 +4,8 @@
  * Seuils: annulation last-minute, gros paiement, baisse CA hebdo
  */
 
-const bus = require('./event-bus');
+const bus        = require('./event-bus');
+const killSwitch = require('./sms-kill-switch');
 
 // Numéro WhatsApp personnel d'Ulrich (variable Railway)
 // Ex: ULRICH_WHATSAPP=+15141234567
@@ -93,6 +94,12 @@ async function sendCommanderAlert(type, emoji, message) {
   if (!ULRICH_PHONE) {
     bus.system(`[ALERT] ${emoji} ${type}: ${message.slice(0, 80)} (ULRICH_PHONE_NUMBER non configuré)`);
     return { sent: false, reason: 'ULRICH_PHONE_NUMBER manquant' };
+  }
+
+  // [Kill Switch] Vérifie criticité + rate limits AVANT cooldown
+  const guard = killSwitch.canSendSMS(type);
+  if (!guard.allowed) {
+    return { sent: false, reason: guard.reason };
   }
 
   if (!canAlert(type)) {

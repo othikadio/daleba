@@ -264,6 +264,12 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   }, 24 * 60 * 60 * 1000); // 24h
 }
 
+// ─── SMS KILL SWITCH — Purge cooldowns corrompus au démarrage ──────────────
+const smsKillSwitch = require('./services/sms-kill-switch');
+const { pool: _pool } = require('./memory/db');
+smsKillSwitch.purgeStaleAlerts(_pool).catch(() => {});
+bus.system(`[SMSKillSwitch] Statut: ${JSON.stringify(smsKillSwitch.getStatus())}`);
+
 // Démarrage — skip listen() en mode serverless (Vercel)
 if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   app.listen(PORT, () => {
