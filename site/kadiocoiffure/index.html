@@ -39,10 +39,8 @@ nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:rgba(250,
 
 /* ── Hero ─────────────────────────────────────────────────── */
 .hero{height:100vh;min-height:620px;display:flex;align-items:center;position:relative;overflow:hidden}
-.hero-bg{position:absolute;inset:0;background:linear-gradient(135deg,#1a1a1a 0%,#2c2520 45%,#3a2c25 100%)}
-/* HERO PHOTO — décommentez quand la photo est prête */
-/* .hero-bg{position:absolute;inset:0;background:url('/img/hero-salon.jpg') center/cover no-repeat;}
-   .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(26,26,26,0.82) 0%,rgba(44,37,32,0.65) 100%);} */
+.hero-bg{position:absolute;inset:0;background:url('/img/hero-salon.jpg') center top/cover no-repeat;}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,8,6,0.88) 0%,rgba(26,20,14,0.72) 50%,rgba(44,37,32,0.5) 100%);}
 .hero-pattern{position:absolute;inset:0;background-image:radial-gradient(ellipse at 20% 60%,rgba(184,150,90,0.12) 0%,transparent 55%),radial-gradient(ellipse at 80% 20%,rgba(184,150,90,0.07) 0%,transparent 45%)}
 .hero-content{position:relative;z-index:2;padding:0 5vw;max-width:680px}
 .hero-eyebrow{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:14px}
