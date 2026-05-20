@@ -148,6 +148,8 @@ a{color:inherit;text-decoration:none}
       <div class="nav-section-label">Communication</div>
       <div class="nav-item" onclick="showPane('sms',this)"><span class="icon">💬</span>SMS & Avis</div>
       <div class="nav-item" onclick="showPane('notes',this)"><span class="icon">⭐</span>Notes internes</div>
+      <div class="nav-section-label">Équipe</div>
+      <div class="nav-item" onclick="showPane('staff-mgmt',this)"><span class="icon">👥</span>Gérer le staff</div>
       <div class="nav-section-label">Liens rapides</div>
       <div class="nav-item" onclick="window.open('/staff.html','_blank')"><span class="icon">👤</span>Portail Staff</div>
       <div class="nav-item" onclick="window.open('/','_blank')"><span class="icon">🌐</span>Site public</div>
@@ -262,7 +264,35 @@ a{color:inherit;text-decoration:none}
     <div class="pane" id="pane-calendrier">
       <div class="section">
         <div class="section-header"><div class="section-title">Calendrier complet</div></div>
-        <p style="font-size:12px;color:rgba(255,255,255,.4)">Accès lecture seule. Pour modifier les RDV, utilisez le <a href="/staff.html" target="_blank" style="color:var(--gold)">Portail Staff →</a></p>
+        <p style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:12px">En tant qu'admin, vous pouvez modifier et annuler les RDV. Le staff ne peut qu'en créer.</p>
+        <a href="/staff.html" target="_blank" style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);border:1px solid rgba(184,150,90,.3);padding:8px 16px;display:inline-block">Ouvrir Portail Staff →</a>
+      </div>
+    </div>
+
+    <!-- GESTION STAFF -->
+    <div class="pane" id="pane-staff-mgmt">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Gestion de l’équipe</div>
+          <button class="section-action" onclick="openAddStaff()">+ Ajouter un employé</button>
+        </div>
+        <div id="staffCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:20px"></div>
+      </div>
+      <!-- ADD FORM -->
+      <div class="section" id="addStaffForm" style="display:none">
+        <div class="section-title" style="margin-bottom:16px">Nouvel employé</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+          <div><label style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);display:block;margin-bottom:5px">Prénom *</label><input id="newStaffName" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#fff;padding:9px 14px;font-family:var(--sans);font-size:13px;outline:none" type="text" placeholder="Ex: Jasmine" /></div>
+          <div><label style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);display:block;margin-bottom:5px">Code PIN (4 chiffres) *</label><input id="newStaffPin" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#fff;padding:9px 14px;font-family:var(--sans);font-size:13px;outline:none;letter-spacing:3px" type="password" maxlength="4" placeholder="••••" /></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+          <div><label style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);display:block;margin-bottom:5px">Spécialité</label><input id="newStaffSpec" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#fff;padding:9px 14px;font-family:var(--sans);font-size:13px;outline:none" type="text" placeholder="Ex: Locks, Tresses" /></div>
+          <div><label style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);display:block;margin-bottom:5px">Couleur agenda</label><input id="newStaffColor" type="color" value="#b8965a" style="width:100%;height:38px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);cursor:pointer" /></div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button onclick="saveNewStaff()" style="background:var(--gold);color:#1a1308;border:none;padding:9px 22px;font-family:var(--sans);font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:500;cursor:pointer">Enregistrer</button>
+          <button onclick="document.getElementById('addStaffForm').style.display='none'" style="background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);padding:9px 18px;font-family:var(--sans);font-size:11px;cursor:pointer">Annuler</button>
+        </div>
       </div>
     </div>
 
@@ -487,6 +517,95 @@ function unblockSub(id){ const s=subs.find(x=>x.id===id); if(!s)return; s.status
 function sendReview(id){ const s=subs.find(x=>x.id===id); if(!s)return; fetch(`${API}/api/sms/review-request`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clientPhone:s.clientPhone,clientName:s.clientName,staffName:s.createdByStaff})}).catch(()=>{}); showToast(`SMS avis Google → ${s.clientName}`); }
 
 function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500); }
+
+// ══ GESTION STAFF ═════════════════════════════════
+
+const DEFAULT_STAFF=[
+  {id:'maya',name:'Maya',pin:'2847',color:'#b8965a',specialty:'Locks, Tresses',schedule:{0:null,1:{o:'12:00',c:'19:00'},2:null,3:{o:'10:00',c:'19:00'},4:{o:'10:00',c:'21:00'},5:{o:'10:00',c:'21:00'},6:{o:'10:00',c:'21:00'}}},
+  {id:'mariel',name:'Mariel',pin:'3956',color:'#7a9e72',specialty:'Tissage, Perruques',schedule:{0:null,1:{o:'12:00',c:'19:00'},2:null,3:{o:'10:00',c:'19:00'},4:{o:'10:00',c:'21:00'},5:{o:'10:00',c:'21:00'},6:{o:'10:00',c:'21:00'}}},
+];
+
+function loadStaffList(){ try{return JSON.parse(localStorage.getItem('kc_staff')||'null')||DEFAULT_STAFF;}catch(e){return DEFAULT_STAFF;} }
+function saveStaffList(list){ localStorage.setItem('kc_staff',JSON.stringify(list)); }
+
+const DAYS_FR=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+
+function renderStaffCards(){
+  const list=loadStaffList();
+  const el=document.getElementById('staffCards');
+  if(!el)return;
+  el.innerHTML=list.map(s=>{
+    const days=Object.entries(s.schedule||{}).map(([d,v])=>`<span style="font-size:10px;color:${v?'rgba(255,255,255,.6)':'rgba(255,255,255,.2)'}">${DAYS_FR[d]}${v?` ${v.o.split(':')[0]}h–${v.c.split(':')[0]}h`:' ✕'}</span>`).join(' ');
+    return `<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);padding:18px;position:relative">
+      <div style="position:absolute;top:14px;right:14px;width:12px;height:12px;border-radius:50%;background:${s.color}"></div>
+      <div style="font-family:var(--serif);font-size:17px;margin-bottom:2px">${s.name}</div>
+      <div style="font-size:10px;letter-spacing:1px;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:10px">${s.specialty||'Coiffeur·se'}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">${days}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="editStaffSchedule('${s.id}')" style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border:1px solid rgba(255,255,255,.1);background:none;color:rgba(255,255,255,.45);cursor:pointer;font-family:var(--sans);transition:all .2s" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(255,255,255,.1)';this.style.color='rgba(255,255,255,.45)'">Horaires</button>
+        <button onclick="changePin('${s.id}')" style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border:1px solid rgba(255,255,255,.1);background:none;color:rgba(255,255,255,.45);cursor:pointer;font-family:var(--sans)" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(255,255,255,.1)';this.style.color='rgba(255,255,255,.45)'">PIN</button>
+        <button onclick="removeStaff('${s.id}','${s.name}')" style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border:1px solid rgba(255,255,255,.1);background:none;color:rgba(255,255,255,.35);cursor:pointer;font-family:var(--sans)" onmouseover="this.style.borderColor='#e74c3c';this.style.color='#e74c3c'" onmouseout="this.style.borderColor='rgba(255,255,255,.1)';this.style.color='rgba(255,255,255,.35)'">Supprimer</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAddStaff(){
+  document.getElementById('addStaffForm').style.display='block';
+  document.getElementById('newStaffName').focus();
+}
+
+function saveNewStaff(){
+  const name=document.getElementById('newStaffName').value.trim();
+  const pin=document.getElementById('newStaffPin').value.trim();
+  if(!name||!pin||pin.length!==4||!/^\d{4}$/.test(pin)){showToast('Prénom et PIN 4 chiffres requis');return;}
+  const list=loadStaffList();
+  const id=name.toLowerCase().replace(/[^a-z]/g,'')+'_'+Date.now().toString().slice(-4);
+  const color=document.getElementById('newStaffColor').value||'#b8965a';
+  const spec=document.getElementById('newStaffSpec').value.trim();
+  list.push({id,name,pin,color,specialty:spec,schedule:{0:null,1:{o:'10:00',c:'19:00'},2:null,3:{o:'10:00',c:'19:00'},4:{o:'10:00',c:'21:00'},5:{o:'10:00',c:'21:00'},6:{o:'10:00',c:'21:00'}}});
+  saveStaffList(list);
+  renderStaffCards();
+  document.getElementById('addStaffForm').style.display='none';
+  document.getElementById('newStaffName').value='';
+  document.getElementById('newStaffPin').value='';
+  showToast(`${name} ajouté(e) — PIN: ${pin}`);
+}
+
+function removeStaff(id,name){
+  if(!confirm(`Supprimer ${name} de l’équipe ?`))return;
+  const list=loadStaffList().filter(s=>s.id!==id);
+  saveStaffList(list);
+  renderStaffCards();
+  showToast(`${name} supprimé(e)`);
+}
+
+function changePin(id){
+  const newPin=prompt('Nouveau PIN 4 chiffres :');
+  if(!newPin||!/^\d{4}$/.test(newPin)){showToast('PIN invalide');return;}
+  const list=loadStaffList();
+  const s=list.find(x=>x.id===id);
+  if(s){s.pin=newPin;saveStaffList(list);showToast(`PIN de ${s.name} mis à jour`);}
+}
+
+function editStaffSchedule(id){
+  const list=loadStaffList();
+  const s=list.find(x=>x.id===id);
+  if(!s)return;
+  const DAYS=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  const msg=DAYS.map((d,i)=>{
+    const sched=s.schedule?.[i];
+    return `${d}: ${sched?`${sched.o}–${sched.c}`:'Fermé'}`;
+  }).join('\n');
+  alert(`Horaires de ${s.name}:\n${msg}\n\n→ Modification avancée disponible dans la prochaine version.`);
+}
+
+// Charger au changement de pane
+const _origShowPane=showPane;
+function showPane(id,el){
+  _origShowPane(id,el);
+  if(id==='staff-mgmt') renderStaffCards();
+}
 </script>
 </body>
 </html>
