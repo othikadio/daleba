@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Calendrier Staff — Kadio Coiffure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#f5f0ea;--ivory:#faf7f4;--charcoal:#1a1a1a;--warm:#2c2520;
+  --gold:#b8965a;--gold-light:#d4af7a;--muted:#7a6e65;--border:#e0d8d0;
+  --serif:'Cormorant Garamond',Georgia,serif;--sans:'Jost',system-ui,sans-serif;
+  --maya:#b8965a;--mariel:#7a9e72;--ulrich:#c4622d;--staff4:#6b8fb5;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--ivory);color:var(--charcoal);font-family:var(--sans);font-weight:300;line-height:1.5;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;height:64px;background:rgba(250,247,244,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-logo{font-family:var(--serif);font-size:18px;font-weight:400;letter-spacing:2px}
+.nav-logo span{color:var(--gold)}
+.nav-links{display:flex;gap:24px;align-items:center}
+.nav-links a{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--charcoal)}
+.nav-cta{background:var(--charcoal);color:var(--ivory)!important;padding:8px 18px}
+
+/* LAYOUT */
+.page-wrap{padding-top:64px;min-height:100vh;display:flex;flex-direction:column}
+
+/* TOOLBAR */
+.toolbar{background:var(--cream);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;position:sticky;top:64px;z-index:100}
+.week-nav{display:flex;align-items:center;gap:10px}
+.week-btn{background:none;border:1px solid var(--border);padding:6px 14px;font-family:var(--sans);font-size:12px;cursor:pointer;transition:all .2s}
+.week-btn:hover{border-color:var(--gold);color:var(--gold)}
+.week-label{font-family:var(--serif);font-size:16px;font-weight:400;min-width:200px;text-align:center}
+.toolbar-right{margin-left:auto;display:flex;gap:10px;align-items:center}
+.staff-legend{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.staff-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;letter-spacing:.5px}
+.btn-add{background:var(--charcoal);color:var(--ivory);border:none;padding:8px 18px;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:background .2s}
+.btn-add:hover{background:var(--gold)}
+
+/* CALENDAR GRID */
+.cal-wrap{flex:1;overflow-x:auto;padding:0 24px 32px}
+.cal-grid{display:grid;min-width:900px;border:1px solid var(--border)}
+.cal-header{display:grid;grid-template-columns:70px repeat(7,1fr);background:var(--cream);border-bottom:1px solid var(--border)}
+.cal-header-cell{padding:12px 8px;text-align:center;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--border)}
+.cal-header-cell:first-child{border-right:2px solid var(--border)}
+.cal-header-cell.today{color:var(--gold);font-weight:500}
+.cal-header-date{font-family:var(--serif);font-size:20px;font-weight:300;display:block;color:var(--charcoal)}
+.cal-header-cell.today .cal-header-date{color:var(--gold)}
+
+/* TIME ROWS */
+.cal-body{position:relative}
+.time-row{display:grid;grid-template-columns:70px repeat(7,1fr);min-height:56px;border-bottom:1px solid rgba(224,216,208,0.5)}
+.time-row:nth-child(2n){background:rgba(245,240,234,0.3)}
+.time-label{padding:4px 10px;font-size:10px;color:var(--muted);letter-spacing:.5px;border-right:2px solid var(--border);display:flex;align-items:flex-start;justify-content:flex-end}
+.time-cell{border-right:1px solid rgba(224,216,208,0.5);position:relative;transition:background .15s;cursor:pointer}
+.time-cell:hover{background:rgba(184,150,90,0.06)}
+.time-cell:last-child{border-right:none}
+
+/* APPOINTMENTS */
+.appt{position:absolute;left:3px;right:3px;border-radius:3px;padding:5px 8px;font-size:11px;cursor:grab;transition:transform .15s,box-shadow .15s;z-index:10;overflow:hidden;border-left:3px solid rgba(0,0,0,0.15)}
+.appt:hover{transform:scale(1.02);box-shadow:0 4px 16px rgba(0,0,0,0.12);z-index:20}
+.appt.dragging{opacity:.7;cursor:grabbing;transform:scale(1.04);box-shadow:0 8px 24px rgba(0,0,0,0.18)}
+.appt-client{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.appt-service{font-size:10px;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.appt-time{font-size:10px;opacity:.7}
+.appt-maya{background:rgba(184,150,90,0.18);color:#5c3d00;border-color:var(--maya)}
+.appt-mariel{background:rgba(122,158,114,0.18);color:#1e3d1a;border-color:var(--mariel)}
+.appt-ulrich{background:rgba(196,98,45,0.18);color:#5c1a00;border-color:var(--ulrich)}
+.appt-staff4{background:rgba(107,143,181,0.18);color:#1a2f5c;border-color:var(--staff4)}
+
+/* STAFF COLUMNS — multi-staff day view */
+.staff-day-view .cal-header{grid-template-columns:70px repeat(4,1fr)}
+.staff-day-view .time-row{grid-template-columns:70px repeat(4,1fr)}
+
+/* DRAG DROP */
+.time-cell.drag-over{background:rgba(184,150,90,0.15);outline:2px dashed var(--gold)}
+
+/* RESIZE HANDLE */
+.appt-resize{position:absolute;bottom:0;left:0;right:0;height:6px;cursor:ns-resize;background:rgba(0,0,0,0.1);border-radius:0 0 3px 3px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(26,26,26,0.55);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--ivory);max-width:460px;width:100%;padding:36px;position:relative}
+.modal-title{font-family:var(--serif);font-size:22px;font-weight:400;margin-bottom:20px}
+.modal-close{position:absolute;top:16px;right:20px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)}
+.form-group{margin-bottom:16px}
+.form-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px}
+.form-input,.form-select{width:100%;border:1px solid var(--border);background:var(--cream);padding:10px 14px;font-family:var(--sans);font-size:13px;color:var(--charcoal);outline:none;transition:border-color .2s}
+.form-input:focus,.form-select:focus{border-color:var(--gold)}
+.modal-actions{display:flex;gap:10px;margin-top:24px;justify-content:flex-end}
+.btn-cancel{background:none;border:1px solid var(--border);padding:9px 20px;font-family:var(--sans);font-size:12px;cursor:pointer;letter-spacing:1px}
+.btn-save{background:var(--charcoal);color:var(--ivory);border:none;padding:9px 24px;font-family:var(--sans);font-size:12px;cursor:pointer;letter-spacing:1px;transition:background .2s}
+.btn-save:hover{background:var(--gold)}
+
+/* STAFF CONFIG PANEL */
+.staff-panel{background:var(--cream);border-top:1px solid var(--border);padding:24px}
+.staff-panel h3{font-family:var(--serif);font-size:18px;font-weight:400;margin-bottom:16px}
+.staff-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.staff-card{background:var(--ivory);border:1px solid var(--border);padding:18px;position:relative}
+.staff-card-name{font-family:var(--serif);font-size:16px;margin-bottom:4px}
+.staff-card-role{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.staff-color-dot{width:12px;height:12px;border-radius:50%;position:absolute;top:18px;right:18px}
+.staff-card-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn-sm{font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border:1px solid var(--border);background:none;cursor:pointer;transition:all .2s;font-family:var(--sans)}
+.btn-sm:hover{border-color:var(--gold);color:var(--gold)}
+.btn-sm.danger:hover{border-color:#c0392b;color:#c0392b}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--charcoal);color:var(--ivory);padding:12px 20px;font-size:12px;letter-spacing:.5px;z-index:1000;transform:translateY(80px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+
+@media(max-width:768px){
+  .toolbar{padding:10px 16px}
+  .week-label{min-width:140px;font-size:13px}
+  .cal-wrap{padding:0 8px 24px}
+  .staff-legend{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">KADIO <span>·</span> COIFFURE</a>
+  <div class="nav-links">
+    <a href="/menu.html">Services</a>
+    <a href="/forfaits.html">Forfaits</a>
+    <a href="/calendrier.html" class="active">Calendrier</a>
+    <a href="/admin-abonnes.html">Abonnés</a>
+    <a href="/" class="nav-cta">← Accueil</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="week-nav">
+      <button class="week-btn" onclick="prevWeek()">←</button>
+      <div class="week-label" id="weekLabel">Chargement…</div>
+      <button class="week-btn" onclick="nextWeek()">→</button>
+      <button class="week-btn" onclick="goToday()">Aujourd'hui</button>
+    </div>
+    <div class="staff-legend">
+      <div class="legend-item"><span class="staff-dot" style="background:var(--maya)"></span>Maya</div>
+      <div class="legend-item"><span class="staff-dot" style="background:var(--mariel)"></span>Mariel</div>
+      <div class="legend-item"><span class="staff-dot" style="background:var(--ulrich)"></span>Ulrich</div>
+    </div>
+    <div class="toolbar-right">
+      <button class="btn-add" onclick="openNewAppt()">+ Nouveau RDV</button>
+      <button class="week-btn" onclick="toggleStaffPanel()">⚙ Staff</button>
+    </div>
+  </div>
+
+  <!-- CALENDRIER -->
+  <div class="cal-wrap">
+    <div class="cal-grid" id="calGrid">
+      <!-- Généré par JS -->
+    </div>
+  </div>
+
+  <!-- STAFF CONFIG PANEL -->
+  <div class="staff-panel" id="staffPanel" style="display:none">
+    <h3>Configuration du staff</h3>
+    <div class="staff-cards" id="staffCards"></div>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<!-- MODAL NOUVEAU RDV -->
+<div class="modal-overlay" id="apptModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title" id="modalTitle">Nouveau rendez-vous</div>
+    <div class="form-group">
+      <label class="form-label">Client</label>
+      <input class="form-input" id="apptClient" type="text" placeholder="Nom du client" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Téléphone</label>
+      <input class="form-input" id="apptPhone" type="tel" placeholder="+1 514 XXX-XXXX" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Service</label>
+      <select class="form-select" id="apptService">
+        <option>Knotless braids</option>
+        <option>Retwist tête complète</option>
+        <option>Coupe homme + barbe</option>
+        <option>Tissage</option>
+        <option>Pose lace frontale</option>
+        <option>Tresses rapides</option>
+        <option>Lavage + séchage</option>
+        <option>Autre…</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Coiffeur</label>
+      <select class="form-select" id="apptStaff">
+        <option value="maya">Maya</option>
+        <option value="mariel">Mariel</option>
+        <option value="ulrich">Ulrich</option>
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input class="form-input" id="apptDate" type="date" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Heure</label>
+        <input class="form-input" id="apptTime" type="time" value="10:00" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Durée (minutes)</label>
+      <input class="form-input" id="apptDuration" type="number" value="60" min="15" step="15" />
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="display:flex;align-items:center;gap:8px">
+        <input type="checkbox" id="apptSendSMS" checked style="width:auto" /> Envoyer SMS de confirmation
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+      <button class="btn-save" onclick="saveAppt()">Enregistrer →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://daleba-api-production.up.railway.app';
+const DAYS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+const DAYS_FULL = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+const HOURS = Array.from({length:13},(_,i)=>i+8); // 8h-20h
+const STAFF = [
+  {id:'maya',name:'Maya',color:'var(--maya)',cls:'appt-maya'},
+  {id:'mariel',name:'Mariel',color:'var(--mariel)',cls:'appt-mariel'},
+  {id:'ulrich',name:'Ulrich',color:'var(--ulrich)',cls:'appt-ulrich'},
+];
+
+let currentWeekStart = getWeekStart(new Date());
+let appointments = [];
+let dragAppt = null;
+
+function getWeekStart(d){
+  const dt = new Date(d);
+  const day = dt.getDay();
+  dt.setDate(dt.getDate() - day + 1); // Monday
+  dt.setHours(0,0,0,0);
+  return dt;
+}
+
+function formatDate(d){ return d.toLocaleDateString('fr-CA',{weekday:'short',month:'short',day:'numeric'}); }
+function formatDateISO(d){ return d.toISOString().split('T')[0]; }
+function isToday(d){ const t=new Date(); return d.toDateString()===t.toDateString(); }
+
+function buildCalendar(){
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'cal-header';
+  header.innerHTML = '<div class="cal-header-cell"></div>';
+  for(let i=0;i<7;i++){
+    const d = new Date(currentWeekStart); d.setDate(d.getDate()+i);
+    const isT = isToday(d);
+    header.innerHTML += `<div class="cal-header-cell${isT?' today':''}">
+      ${DAYS[d.getDay()]}<span class="cal-header-date">${d.getDate()}</span>
+    </div>`;
+  }
+  grid.appendChild(header);
+
+  // Time rows
+  const body = document.createElement('div');
+  body.className = 'cal-body';
+  HOURS.forEach(h=>{
+    const row = document.createElement('div');
+    row.className = 'time-row';
+    row.innerHTML = `<div class="time-label">${h}h</div>`;
+    for(let i=0;i<7;i++){
+      const d = new Date(currentWeekStart); d.setDate(d.getDate()+i);
+      const cell = document.createElement('div');
+      cell.className = 'time-cell';
+      cell.dataset.date = formatDateISO(d);
+      cell.dataset.hour = h;
+      cell.addEventListener('dragover', onDragOver);
+      cell.addEventListener('drop', onDrop);
+      cell.addEventListener('dragleave', e=>e.currentTarget.classList.remove('drag-over'));
+      cell.addEventListener('click', ()=>openNewAppt(formatDateISO(d), h));
+      row.appendChild(cell);
+    }
+    body.appendChild(row);
+  });
+
+  // Place appointments
+  appointments.forEach(a=>placeAppt(a, body));
+  grid.appendChild(body);
+
+  // Update label
+  const end = new Date(currentWeekStart); end.setDate(end.getDate()+6);
+  document.getElementById('weekLabel').textContent =
+    `${currentWeekStart.toLocaleDateString('fr-CA',{day:'numeric',month:'short'})} — ${end.toLocaleDateString('fr-CA',{day:'numeric',month:'short',year:'numeric'})}`;
+}
+
+function placeAppt(a, body){
+  const staff = STAFF.find(s=>s.id===a.staffId)||STAFF[0];
+  const h = parseInt(a.time.split(':')[0]);
+  const m = parseInt(a.time.split(':')[1]||0);
+  const rows = body.querySelectorAll('.time-row');
+  const row = Array.from(rows).find(r=>{
+    const cells = r.querySelectorAll('.time-cell');
+    return cells.length && cells[0].dataset.hour == h;
+  });
+  if(!row) return;
+  const cells = row.querySelectorAll('.time-cell');
+  const cell = Array.from(cells).find(c=>c.dataset.date===a.date);
+  if(!cell) return;
+  const slotH = row.offsetHeight||56;
+  const top = (m/60)*slotH;
+  const heightSlots = (a.duration||60)/60;
+  const el = document.createElement('div');
+  el.className = `appt ${staff.cls}`;
+  el.draggable = true;
+  el.dataset.id = a.id;
+  el.style.top = top+'px';
+  el.style.height = Math.max(slotH*heightSlots-4, 28)+'px';
+  el.innerHTML = `
+    <div class="appt-client">${a.client}</div>
+    <div class="appt-service">${a.service}</div>
+    <div class="appt-time">${a.time} · ${a.duration||60}min</div>
+    <div class="appt-resize" title="Redimensionner"></div>
+  `;
+  el.addEventListener('dragstart', e=>{dragAppt=a; el.classList.add('dragging'); e.dataTransfer.effectAllowed='move';});
+  el.addEventListener('dragend', ()=>el.classList.remove('dragging'));
+  el.querySelector('.appt-resize').addEventListener('mousedown', startResize.bind(null,a,el));
+  cell.style.position = 'relative';
+  cell.appendChild(el);
+}
+
+function onDragOver(e){
+  e.preventDefault(); e.dataTransfer.dropEffect='move';
+  e.currentTarget.classList.add('drag-over');
+}
+
+function onDrop(e){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if(!dragAppt) return;
+  const newDate = e.currentTarget.dataset.date;
+  const newHour = parseInt(e.currentTarget.dataset.hour);
+  dragAppt.date = newDate;
+  dragAppt.time = `${String(newHour).padStart(2,'0')}:00`;
+  showToast(`RDV déplacé → ${newDate} à ${dragAppt.time}`);
+  saveToAPI(dragAppt);
+  buildCalendar();
+  dragAppt = null;
+}
+
+function startResize(a, el, e){
+  e.stopPropagation(); e.preventDefault();
+  const startY = e.clientY;
+  const startH = a.duration||60;
+  function onMove(ev){
+    const dy = ev.clientY - startY;
+    const newDur = Math.max(15, Math.round((startH + dy/56*60)/15)*15);
+    a.duration = newDur;
+    el.style.height = Math.max(newDur/60*56-4,28)+'px';
+    el.querySelector('.appt-time').textContent = `${a.time} · ${newDur}min`;
+  }
+  function onUp(){
+    document.removeEventListener('mousemove',onMove);
+    document.removeEventListener('mouseup',onUp);
+    showToast(`Durée → ${a.duration}min`);
+    saveToAPI(a);
+  }
+  document.addEventListener('mousemove',onMove);
+  document.addEventListener('mouseup',onUp);
+}
+
+function saveToAPI(a){
+  fetch(`${API}/api/calendar/move`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(a)}).catch(()=>{});
+}
+
+function prevWeek(){ currentWeekStart.setDate(currentWeekStart.getDate()-7); buildCalendar(); }
+function nextWeek(){ currentWeekStart.setDate(currentWeekStart.getDate()+7); buildCalendar(); }
+function goToday(){ currentWeekStart = getWeekStart(new Date()); buildCalendar(); }
+
+function openNewAppt(date, hour){
+  document.getElementById('apptDate').value = date||formatDateISO(new Date());
+  document.getElementById('apptTime').value = hour?`${String(hour).padStart(2,'0')}:00`:'10:00';
+  document.getElementById('apptModal').classList.add('open');
+}
+function closeModal(){ document.getElementById('apptModal').classList.remove('open'); }
+
+function saveAppt(){
+  const appt = {
+    id: 'appt-'+Date.now(),
+    client: document.getElementById('apptClient').value||'Client',
+    phone: document.getElementById('apptPhone').value,
+    service: document.getElementById('apptService').value,
+    staffId: document.getElementById('apptStaff').value,
+    date: document.getElementById('apptDate').value,
+    time: document.getElementById('apptTime').value,
+    duration: parseInt(document.getElementById('apptDuration').value)||60,
+    sendSMS: document.getElementById('apptSendSMS').checked,
+  };
+  appointments.push(appt);
+  if(appt.sendSMS && appt.phone){
+    fetch(`${API}/api/sms/confirmation`,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({clientPhone:appt.phone,clientName:appt.client,serviceName:appt.service,datetime:`${appt.date} ${appt.time}`,staffName:STAFF.find(s=>s.id===appt.staffId)?.name})
+    }).catch(()=>{});
+  }
+  closeModal();
+  buildCalendar();
+  showToast('RDV créé ✓' + (appt.sendSMS?' — SMS envoyé':''));
+}
+
+function toggleStaffPanel(){
+  const p = document.getElementById('staffPanel');
+  p.style.display = p.style.display==='none'?'block':'none';
+  if(p.style.display==='block') renderStaffPanel();
+}
+
+function renderStaffPanel(){
+  const el = document.getElementById('staffCards');
+  el.innerHTML = STAFF.map(s=>`
+    <div class="staff-card">
+      <div class="staff-color-dot" style="background:${s.color}"></div>
+      <div class="staff-card-name">${s.name}</div>
+      <div class="staff-card-role">Coiffeur·se</div>
+      <div class="staff-card-actions">
+        <button class="btn-sm" onclick="showToast('Horaires de ${s.name} — fonctionnalité API')">Horaires</button>
+        <button class="btn-sm" onclick="showToast('Congé ${s.name} enregistré')">Congé</button>
+        <button class="btn-sm danger">Désactiver</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+// Init demo data
+appointments = [
+  {id:'1',client:'Sophie B.',phone:'',service:'Knotless Moyen',staffId:'maya',date:formatDateISO(new Date()),time:'10:00',duration:180},
+  {id:'2',client:'Marc T.',phone:'',service:'Coupe + barbe',staffId:'ulrich',date:formatDateISO(new Date()),time:'11:00',duration:40},
+  {id:'3',client:'Aisha K.',phone:'',service:'Retwist tête',staffId:'mariel',date:formatDateISO(new Date()),time:'14:00',duration:120},
+];
+
+buildCalendar();
+</script>
+</body>
+</html>

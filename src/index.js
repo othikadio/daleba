@@ -282,6 +282,17 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   setInterval(() => {
     callRecorderSvc.purgeExpiredRecordings().catch(()=>{});
   }, 24 * 60 * 60 * 1000); // 24h
+
+  // [Section 16] Reminder Worker SMS — toutes les heures
+  const { runReminderWorker } = require('./workers/reminder-worker');
+  setInterval(runReminderWorker, 60 * 60 * 1000); // toutes les heures
+  runReminderWorker(); // run immédiatement au démarrage
+
+  // [Section 16] Init tables SMS Pipeline + Staff Calendar
+  const smsPipeline = require('./services/sms-pipeline');
+  const staffCalendar = require('./services/staff-calendar');
+  smsPipeline.ensureTables().catch(e => console.warn('[Boot] SMS Pipeline tables:', e.message));
+  staffCalendar.ensureTable().catch(e => console.warn('[Boot] Staff Calendar table:', e.message));
 }
 
 // ─── SMS KILL SWITCH — Purge cooldowns corrompus au démarrage ──────────────

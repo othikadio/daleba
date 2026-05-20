@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="Services & Tarifs — Kadio Coiffure & Esthétique à Longueuil. Locks, tresses, barbier, tissage, perruques, soins. Consultation et prise de RDV en ligne.">
+<meta property="og:title" content="Services & Tarifs — Kadio Coiffure & Esthétique">
+<title>Services & Tarifs — Kadio Coiffure & Esthétique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#f5f0ea;--ivory:#faf7f4;--charcoal:#1a1a1a;--warm:#2c2520;
+  --gold:#b8965a;--gold-light:#d4af7a;--muted:#7a6e65;--border:#e0d8d0;
+  --serif:'Cormorant Garamond',Georgia,serif;--sans:'Jost',system-ui,sans-serif;
+  --nav-h:72px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--ivory);color:var(--charcoal);font-family:var(--sans);font-weight:300;line-height:1.6;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+
+/* ── Nav ──────────────────────────────────────────────────── */
+nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:rgba(250,247,244,0.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 5vw}
+.nav-logo{font-family:var(--serif);font-size:20px;font-weight:400;letter-spacing:2px;text-transform:uppercase}
+.nav-logo span{color:var(--gold)}
+.nav-badge{background:var(--gold);color:#fff;font-size:9px;padding:2px 6px;border-radius:20px;letter-spacing:.5px;margin-left:6px;font-family:var(--sans);font-weight:500;vertical-align:middle}
+.nav-links{display:flex;gap:32px;align-items:center}
+.nav-links a{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--charcoal)}
+.nav-cta{background:var(--charcoal);color:var(--ivory)!important;padding:10px 22px;letter-spacing:2px;transition:background .2s!important}
+.nav-cta:hover{background:var(--gold)!important}
+.nav-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer}
+.nav-toggle span{width:24px;height:1px;background:var(--charcoal)}
+
+/* ── Page header ──────────────────────────────────────────── */
+.page-header{padding-top:calc(var(--nav-h) + 72px);padding-bottom:64px;padding-left:5vw;padding-right:5vw;background:linear-gradient(135deg,#1a1a1a 0%,#2c2520 50%,#3a2c25 100%);position:relative;overflow:hidden}
+.page-header-pattern{position:absolute;inset:0;background-image:radial-gradient(ellipse at 80% 50%,rgba(184,150,90,0.12) 0%,transparent 55%)}
+.page-header-content{position:relative;z-index:1}
+.page-eyebrow{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:18px;display:flex;align-items:center;gap:14px}
+.page-eyebrow::before{content:'';width:28px;height:1px;background:var(--gold)}
+.page-title{font-family:var(--serif);font-size:clamp(32px,5vw,62px);font-weight:300;line-height:1.1;color:var(--ivory);margin-bottom:16px}
+.page-title em{font-style:italic;color:var(--gold-light)}
+.page-subtitle{font-size:14px;font-weight:300;color:rgba(250,247,244,0.6);max-width:500px;line-height:1.85}
+
+/* ── Tax notice ───────────────────────────────────────────── */
+.tax-notice{background:var(--cream);border-left:3px solid var(--gold);padding:14px 22px;font-size:12px;color:var(--muted);line-height:1.7;margin:32px 5vw 0}
+
+/* ── Section ─────────────────────────────────────────────── */
+.content-section{padding:72px 5vw}
+.content-section.bg-cream{background:var(--cream)}
+.section-eyebrow{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.section-title{font-family:var(--serif);font-size:clamp(26px,3.5vw,42px);font-weight:300;line-height:1.2;margin-bottom:16px}
+.divider{width:36px;height:1px;background:var(--gold);margin:20px 0 40px}
+
+/* ── Category label ──────────────────────────────────────── */
+.cat-block{margin-bottom:56px}
+.cat-block:last-child{margin-bottom:0}
+.cat-label{display:flex;align-items:center;gap:16px;margin-bottom:24px}
+.cat-label-text{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);white-space:nowrap}
+.cat-label-line{flex:1;height:1px;background:var(--border)}
+
+/* ── Price table ─────────────────────────────────────────── */
+.price-table{width:100%;border-collapse:collapse;font-size:13px}
+.price-table thead th{text-align:left;padding:11px 16px;background:var(--charcoal);color:var(--ivory);font-weight:400;font-size:10px;letter-spacing:2px;text-transform:uppercase}
+.price-table thead th:last-child{text-align:right}
+.price-table tbody td{padding:13px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+.price-table tbody tr:last-child td{border-bottom:none}
+.price-table tbody tr:hover td{background:var(--cream)}
+.price-table .svc-name{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--warm)}
+.price-table .price-cell{text-align:right;color:var(--gold);font-weight:500;white-space:nowrap;font-size:13px}
+.price-plus{font-size:11px;color:var(--muted);margin-left:1px}
+
+/* ── Portfolio gallery ───────────────────────────────────── */
+.gallery-section{padding:72px 5vw;background:var(--charcoal)}
+.gallery-eyebrow{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:rgba(184,150,90,0.75);margin-bottom:14px}
+.gallery-title{font-family:var(--serif);font-size:clamp(26px,3.5vw,42px);font-weight:300;color:var(--ivory);margin-bottom:16px}
+.gallery-divider{width:36px;height:1px;background:var(--gold);margin-bottom:40px}
+.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.gallery-item{position:relative;overflow:hidden;aspect-ratio:3/4;background:var(--warm)}
+.gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+.gallery-item:hover img{transform:scale(1.04)}
+.gallery-caption{position:absolute;bottom:0;left:0;right:0;padding:18px 16px 14px;background:linear-gradient(transparent,rgba(26,26,26,0.75));color:var(--ivory);font-size:11px;letter-spacing:2px;text-transform:uppercase;transform:translateY(4px);opacity:0;transition:all .3s}
+.gallery-item:hover .gallery-caption{opacity:1;transform:translateY(0)}
+
+/* ── CTA ─────────────────────────────────────────────────── */
+.cta-section{padding:72px 5vw;background:var(--cream);display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap}
+.cta-text{}
+.cta-title{font-family:var(--serif);font-size:clamp(24px,3vw,38px);font-weight:300;margin-bottom:8px}
+.cta-sub{font-size:14px;color:var(--muted)}
+.btn-primary{background:var(--gold);color:var(--charcoal);padding:15px 38px;font-size:11px;letter-spacing:3px;text-transform:uppercase;border:none;cursor:pointer;transition:all .3s;font-family:var(--sans);font-weight:500;display:inline-block}
+.btn-primary:hover{background:var(--gold-light);transform:translateY(-1px)}
+.btn-outline-dark{background:transparent;color:var(--charcoal);padding:15px 38px;font-size:11px;letter-spacing:3px;text-transform:uppercase;border:1px solid var(--charcoal);cursor:pointer;transition:all .3s;font-family:var(--sans);font-weight:300;display:inline-block}
+.btn-outline-dark:hover{background:var(--charcoal);color:var(--ivory)}
+
+/* ── Footer ───────────────────────────────────────────────── */
+footer{background:var(--charcoal);color:rgba(250,247,244,0.45);padding:44px 5vw;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+.foot-logo{font-family:var(--serif);font-size:17px;color:var(--ivory);letter-spacing:2px;text-transform:uppercase}
+.foot-links{display:flex;gap:24px;flex-wrap:wrap;align-items:center}
+.foot-links a{font-size:10px;letter-spacing:2px;text-transform:uppercase;transition:color .2s}
+.foot-links a:hover{color:var(--gold)}
+.foot-social{display:flex;gap:16px}
+.foot-social a{font-size:10px;letter-spacing:1px;text-transform:uppercase;transition:color .2s}
+.foot-social a:hover{color:var(--gold)}
+.foot-bottom{width:100%;display:flex;justify-content:space-between;align-items:center;padding-top:24px;border-top:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;gap:10px}
+footer small{font-size:10px}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media(max-width:860px){
+  .nav-links{display:none}
+  .nav-links.open{display:flex;flex-direction:column;position:fixed;top:var(--nav-h);left:0;right:0;background:var(--ivory);padding:28px 5vw;gap:20px;border-bottom:1px solid var(--border);z-index:99}
+  .nav-toggle{display:flex}
+  .gallery-grid{grid-template-columns:repeat(2,1fr)}
+  .cta-section{flex-direction:column;align-items:flex-start}
+  .price-table .svc-name{font-size:14px}
+}
+@media(max-width:520px){
+  .gallery-grid{grid-template-columns:1fr 1fr}
+  .tax-notice{margin:24px 5vw 0}
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <a href="/index.html" class="nav-logo">
+    KADIO <span>·</span> COIFFURE
+    <span class="nav-badge">4.8★ Google</span>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a href="/menu.html" class="active">Services & Tarifs</a>
+    <a href="/forfaits.html">Forfaits</a>
+    <a href="/index.html#reviews">Avis</a>
+    <a href="/index.html#contact">Contact</a>
+    <a href="/reservation.html" class="nav-cta">Rendez-vous</a>
+  </div>
+  <div class="nav-toggle" id="navToggle" onclick="toggleNav()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-pattern"></div>
+  <div class="page-header-content">
+    <div class="page-eyebrow">Kadio Coiffure & Esthétique</div>
+    <h1 class="page-title">Services &amp; <em>Tarifs</em></h1>
+    <p class="page-subtitle">Tous nos services, tous nos prix — clairs, complets, sans surprises. Consultation gratuite disponible sur demande.</p>
+  </div>
+</div>
+
+<!-- Tax notice -->
+<div class="tax-notice">
+  <strong style="font-weight:500;color:var(--warm)">Note sur les taxes :</strong>
+  Tous les prix ci-dessous sont indiqués <strong style="font-weight:500">hors taxes</strong>.
+  TPS (5&nbsp;%) + TVQ (9,975&nbsp;%) = <strong style="font-weight:500">14,975&nbsp;% en sus</strong>.
+</div>
+
+<!-- ─── LOCKS ──────────────────────────────────────────────── -->
+<section class="content-section">
+  <div class="section-eyebrow">Locks</div>
+  <h2 class="section-title">Locks & Dreadlocks</h2>
+  <div class="divider"></div>
+
+  <div class="cat-block">
+    <div class="cat-label"><span class="cat-label-text">Entretien & Resserrage</span><div class="cat-label-line"></div></div>
+    <table class="price-table">
+      <thead>
+        <tr><th>Service</th><th style="text-align:right">Prix (+ taxes)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="svc-name">Retwist tête complète + style</span></td><td class="price-cell">135 $</td></tr>
+        <tr><td><span class="svc-name">Retwist-interlock demi-tête + style</span></td><td class="price-cell">110 $</td></tr>
+        <tr><td><span class="svc-name">Interlock crochet tête complète</span></td><td class="price-cell">150 $</td></tr>
+        <tr><td><span class="svc-name">Interlock crochet demi-tête</span></td><td class="price-cell">125 $</td></tr>
+        <tr><td><span class="svc-name">Repiquage racines</span></td><td class="price-cell">60 $–100 $</td></tr>
+        <tr><td><span class="svc-name">Lavage locs</span></td><td class="price-cell">30 $</td></tr>
+        <tr><td><span class="svc-name">Coiffure locks long</span></td><td class="price-cell">60 $</td></tr>
+        <tr><td><span class="svc-name">Tresses dreads</span></td><td class="price-cell">45 $</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cat-block">
+    <div class="cat-label"><span class="cat-label-text">Installation</span><div class="cat-label-line"></div></div>
+    <table class="price-table">
+      <thead>
+        <tr><th>Service</th><th style="text-align:right">Prix (+ taxes)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="svc-name">Départ locks crochet complet</span></td><td class="price-cell">350 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Départ locks crochet demi-tête</span></td><td class="price-cell">250 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Installation locks sans extensions</span></td><td class="price-cell">250 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Installation Sisterlocks <em style="font-size:11px;color:var(--muted)">(10h+)</em></span></td><td class="price-cell">850 $<span class="price-plus">+</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cat-block">
+    <div class="cat-label"><span class="cat-label-text">Défaire</span><div class="cat-label-line"></div></div>
+    <table class="price-table">
+      <thead>
+        <tr><th>Service</th><th style="text-align:right">Prix (+ taxes)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="svc-name">Défaire des locks <em style="font-size:11px;color:var(--muted)">(5h+)</em></span></td><td class="price-cell">200 $<span class="price-plus">+</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ─── TRESSES & NATTES ───────────────────────────────────── -->
+<section class="content-section bg-cream">
+  <div class="section-eyebrow">Tresses</div>
+  <h2 class="section-title">Tresses & Nattes</h2>
+  <div class="divider"></div>
+
+  <div class="cat-block">
+    <table class="price-table">
+      <thead>
+        <tr><th>Service</th><th style="text-align:right">Prix (+ taxes)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="svc-name">Nattes américaines</span></td><td class="price-cell">140 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Nattes collées / barrel twist <em style="font-size:11px;color:var(--muted)">(2–6 nattes)</em></span></td><td class="price-cell">20 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Nattes collées / barrel twist <em style="font-size:11px;color:var(--muted)">(7 nattes+)</em></span></td><td class="price-cell">80 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Twist demi-tête</span></td><td class="price-cell">70 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Twist tête complète</span></td><td class="price-cell">120 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Crochet braids</span></td><td class="price-cell">170 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Knotless braids court</span></td><td class="price-cell">120 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Knotless Gros</span></td><td class="price-cell">120 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Knotless Moyen</span></td><td class="price-cell">150 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Knotless Petit</span></td><td class="price-cell">300 $<span class="price-plus">+</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ─── BARBIER & COUPE ────────────────────────────────────── -->
+<section class="content-section">
+  <div class="section-eyebrow">Barbier</div>
+  <h2 class="section-title">Barbier & Coupe</h2>
+  <div class="divider"></div>
+
+  <div class="cat-block">
+    <table class="price-table">
+      <thead>
+        <tr><th>Service</th><th style="text-align:right">Prix (+ taxes)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="svc-name">Coupe homme sans barbe</span></td><td class="price-cell">35 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Coupe homme + barbe</span></td><td class="price-cell">40 $</td></tr>
+        <tr><td><span class="svc-name">Coupe enfant <em style="font-size:11px;color:var(--muted)">(12 ans et moins)</em></span></td><td class="price-cell">30 $</td></tr>
+        <tr><td><span class="svc-name">Contours</span></td><td class="price-cell">20 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Barbe seule</span></td><td class="price-cell">20 $</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ─── SOINS & TECHNIQUE ─────────────────────────────────── -->
+<section class="content-section bg-cream">
+  <div class="section-eyebrow">Soins</div>
+  <h2 class="section-title">Soins & Techniques</h2>
+  <div class="divider"></div>
+
+  <div class="cat-block">
+    <table class="price-table">
+      <thead>
+        <tr><th>Service</th><th style="text-align:right">Prix (+ taxes)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="svc-name">Lissage défrisant</span></td><td class="price-cell">60 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Soin hydratation profonde</span></td><td class="price-cell">40 $</td></tr>
+        <tr><td><span class="svc-name">Coupe des pointes</span></td><td class="price-cell">30 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Chignon</span></td><td class="price-cell">80 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Laver séché</span></td><td class="price-cell">25 $</td></tr>
+        <tr><td><span class="svc-name">Laver / sécher / lisser ou friser</span></td><td class="price-cell">65 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Mise en pli sans lavage</span></td><td class="price-cell">45 $</td></tr>
+        <tr><td><span class="svc-name">Teinture noire</span></td><td class="price-cell">50 $</td></tr>
+        <tr><td><span class="svc-name">Finger coils</span></td><td class="price-cell">60 $</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ─── TISSAGE & PERRUQUES ───────────────────────────────── -->
+<section class="content-section">
+  <div class="section-eyebrow">Tissage & Perruques</div>
+  <h2 class="section-title">Tissage & Perruques</h2>
+  <div class="divider"></div>
+
+  <div class="cat-block">
+    <div class="cat-label"><span class="cat-label-text">Tissage</span><div class="cat-label-line"></div></div>
+    <table class="price-table">
+      <thead>
+        <tr><th>Service</th><th style="text-align:right">Prix (+ taxes)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="svc-name">Tissage</span></td><td class="price-cell">120 $<span class="price-plus">+</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cat-block">
+    <div class="cat-label"><span class="cat-label-text">Pose de perruques & frontales</span><div class="cat-label-line"></div></div>
+    <table class="price-table">
+      <thead>
+        <tr><th>Service</th><th style="text-align:right">Prix (+ taxes)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="svc-name">Pose lace frontale</span></td><td class="price-cell">150 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Pose frontale 180°</span></td><td class="price-cell">150 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Pose frontale 360°</span></td><td class="price-cell">200 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Pose perruque closure</span></td><td class="price-cell">100 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Natte sous perruque si pose</span></td><td class="price-cell">40 $</td></tr>
+        <tr><td><span class="svc-name">Pose perruque closure avec coiffure</span></td><td class="price-cell">150 $<span class="price-plus">+</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cat-block">
+    <div class="cat-label"><span class="cat-label-text">Entretien & Coiffure sur perruques</span><div class="cat-label-line"></div></div>
+    <table class="price-table">
+      <thead>
+        <tr><th>Service</th><th style="text-align:right">Prix (+ taxes)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="svc-name">Coiffure sur lace frontale</span></td><td class="price-cell">30 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Coiffure sur perruque</span></td><td class="price-cell">50 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Mise en plis sur perruque</span></td><td class="price-cell">45 $<span class="price-plus">+</span></td></tr>
+        <tr><td><span class="svc-name">Lavage + mise en plis sur perruque</span></td><td class="price-cell">65 $</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ─── Portfolio ──────────────────────────────────────────── -->
+<div class="gallery-section">
+  <div class="gallery-eyebrow">Notre Travail</div>
+  <h2 class="gallery-title">Portfolio</h2>
+  <div class="gallery-divider"></div>
+  <div class="gallery-grid">
+    <div class="gallery-item">
+      <img src="/img/portfolio-1-knotless.jpg" alt="Knotless Braids — Kadio Coiffure" loading="lazy">
+      <div class="gallery-caption">Knotless Braids</div>
+    </div>
+    <div class="gallery-item">
+      <img src="/img/portfolio-2-cornrows.jpg" alt="Cornrows — Kadio Coiffure" loading="lazy">
+      <div class="gallery-caption">Cornrows</div>
+    </div>
+    <div class="gallery-item">
+      <img src="/img/portfolio-3-waves.jpg" alt="Waves — Kadio Coiffure" loading="lazy">
+      <div class="gallery-caption">Waves</div>
+    </div>
+    <div class="gallery-item">
+      <img src="/img/portfolio-4-coupe.jpg" alt="Coupe Barbier — Kadio Coiffure" loading="lazy">
+      <div class="gallery-caption">Coupe Barbier</div>
+    </div>
+    <div class="gallery-item">
+      <img src="/img/portfolio-5-dreadlocks.jpg" alt="Dreadlocks — Kadio Coiffure" loading="lazy">
+      <div class="gallery-caption">Dreadlocks</div>
+    </div>
+    <div class="gallery-item">
+      <img src="/img/portfolio-6-stitch.jpg" alt="Stitch Braids — Kadio Coiffure" loading="lazy">
+      <div class="gallery-caption">Stitch Braids</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── CTA ────────────────────────────────────────────────── -->
+<div class="cta-section">
+  <div class="cta-text">
+    <h2 class="cta-title">Prêt(e) à prendre<br><em style="font-family:var(--serif);font-style:italic">rendez-vous ?</em></h2>
+    <p class="cta-sub">Confirmation SMS immédiate · Annulation gratuite jusqu'à 2h avant</p>
+  </div>
+  <div style="display:flex;gap:14px;flex-wrap:wrap">
+    <a href="/reservation.html" class="btn-primary">Réserver maintenant →</a>
+    <a href="/forfaits.html" class="btn-outline-dark">Voir les forfaits</a>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="foot-logo">Kadio Coiffure & Esthétique</div>
+  <div class="foot-links">
+    <a href="/menu.html">Tarifs</a>
+    <a href="/forfaits.html">Forfaits</a>
+    <a href="/reservation.html">Réserver</a>
+    <a href="/index.html#contact">Contact</a>
+  </div>
+  <div class="foot-social">
+    <a href="https://www.facebook.com/p/Kadio-Coiffure-61557631424274/" target="_blank" rel="noopener">Facebook</a>
+    <a href="https://instagram.com/kadiocoiffure" target="_blank" rel="noopener">Instagram</a>
+    <a href="https://tiktok.com/@kadiocoiffure" target="_blank" rel="noopener">TikTok</a>
+    <a href="https://wa.me/15149195970" target="_blank" rel="noopener">WhatsApp</a>
+  </div>
+  <div class="foot-bottom">
+    <small>© 2026 Kadio Coiffure & Esthétique · 615 Antoinette-Robidoux, local 100, Longueuil, QC J4J 2V8</small>
+    <small>Tous les prix sont hors taxes · TPS + TVQ = 14,975&nbsp;%</small>
+  </div>
+</footer>
+
+<script>
+function toggleNav(){ document.getElementById('navLinks').classList.toggle('open'); }
+</script>
+</body>
+</html>

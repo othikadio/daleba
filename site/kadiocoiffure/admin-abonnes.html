@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Admin Abonnés — Kadio Coiffure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#f5f0ea;--ivory:#faf7f4;--charcoal:#1a1a1a;--warm:#2c2520;
+  --gold:#b8965a;--gold-light:#d4af7a;--muted:#7a6e65;--border:#e0d8d0;
+  --green:#5a9e6f;--red:#c0392b;--orange:#e67e22;
+  --serif:'Cormorant Garamond',Georgia,serif;--sans:'Jost',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--cream);color:var(--charcoal);font-family:var(--sans);font-weight:300;line-height:1.5}
+a{color:inherit;text-decoration:none}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;height:64px;background:rgba(250,247,244,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-logo{font-family:var(--serif);font-size:18px;font-weight:400;letter-spacing:2px}
+.nav-logo span{color:var(--gold)}
+.nav-links{display:flex;gap:24px;align-items:center}
+.nav-links a{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--charcoal)}
+.nav-cta{background:var(--charcoal);color:var(--ivory)!important;padding:8px 18px}
+
+/* LAYOUT */
+.page{padding-top:64px;min-height:100vh}
+
+/* STATS BAR */
+.stats-bar{background:var(--charcoal);color:var(--ivory);padding:20px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px}
+.stat-item{text-align:center}
+.stat-value{font-family:var(--serif);font-size:28px;font-weight:300;color:var(--gold-light);display:block}
+.stat-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(250,247,244,0.45);margin-top:2px;display:block}
+
+/* TOOLBAR */
+.toolbar{background:var(--ivory);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;position:sticky;top:64px;z-index:100}
+.search-box{flex:1;min-width:200px;max-width:360px;border:1px solid var(--border);background:var(--cream);padding:9px 16px;font-family:var(--sans);font-size:13px;color:var(--charcoal);outline:none;transition:border-color .2s}
+.search-box:focus{border-color:var(--gold)}
+.filter-btn{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:8px 16px;border:1px solid var(--border);background:none;cursor:pointer;transition:all .2s;font-family:var(--sans)}
+.filter-btn:hover,.filter-btn.active{border-color:var(--gold);color:var(--gold)}
+.filter-btn.active{background:var(--gold);color:var(--ivory);border-color:var(--gold)}
+.btn-add{background:var(--charcoal);color:var(--ivory);border:none;padding:9px 20px;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:background .2s;font-family:var(--sans);margin-left:auto}
+.btn-add:hover{background:var(--gold)}
+
+/* TABLE */
+.table-wrap{padding:24px;overflow-x:auto}
+.sub-table{width:100%;border-collapse:collapse;background:var(--ivory);font-size:13px}
+.sub-table th{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:400;text-align:left;padding:12px 16px;border-bottom:2px solid var(--border);background:var(--cream)}
+.sub-table td{padding:14px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+.sub-table tr:hover td{background:rgba(245,240,234,0.6)}
+.client-name{font-family:var(--serif);font-size:15px;font-weight:400}
+.client-phone{font-size:11px;color:var(--muted);letter-spacing:.5px}
+.badge{display:inline-block;font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:500;padding:3px 10px;border-radius:20px}
+.badge-active{background:rgba(90,158,111,0.12);color:var(--green);border:1px solid rgba(90,158,111,0.3)}
+.badge-blocked{background:rgba(192,57,43,0.1);color:var(--red);border:1px solid rgba(192,57,43,0.25)}
+.badge-paused{background:rgba(230,126,34,0.1);color:var(--orange);border:1px solid rgba(230,126,34,0.25)}
+.forfait-name{font-weight:400;font-size:12px}
+.forfait-price{font-size:12px;color:var(--muted)}
+.scan-code{font-family:monospace;font-size:12px;background:var(--cream);padding:3px 8px;letter-spacing:2px;color:var(--charcoal)}
+.wash-ok{color:var(--green);font-size:12px}
+.wash-used{color:var(--red);font-size:12px}
+.action-btn{font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:5px 10px;border:1px solid var(--border);background:none;cursor:pointer;font-family:var(--sans);transition:all .2s;margin-right:4px}
+.action-btn:hover{border-color:var(--gold);color:var(--gold)}
+.action-btn.danger:hover{border-color:var(--red);color:var(--red)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(26,26,26,0.55);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--ivory);max-width:500px;width:100%;padding:36px;position:relative;max-height:90vh;overflow-y:auto}
+.modal-title{font-family:var(--serif);font-size:22px;font-weight:400;margin-bottom:20px}
+.modal-close{position:absolute;top:16px;right:20px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)}
+.form-group{margin-bottom:14px}
+.form-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px}
+.form-input,.form-select{width:100%;border:1px solid var(--border);background:var(--cream);padding:9px 14px;font-family:var(--sans);font-size:13px;color:var(--charcoal);outline:none;transition:border-color .2s}
+.form-input:focus,.form-select:focus{border-color:var(--gold)}
+.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.btn-cancel{background:none;border:1px solid var(--border);padding:9px 20px;font-family:var(--sans);font-size:12px;cursor:pointer;letter-spacing:1px}
+.btn-save{background:var(--charcoal);color:var(--ivory);border:none;padding:9px 24px;font-family:var(--sans);font-size:12px;cursor:pointer;letter-spacing:1px;transition:background .2s}
+.btn-save:hover{background:var(--gold)}
+
+/* DETAIL PANEL */
+.detail-panel{background:var(--ivory);border-top:2px solid var(--gold);padding:24px;margin:0 24px 24px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:16px}
+.detail-block{background:var(--cream);padding:16px}
+.detail-block h4{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.detail-block p{font-size:13px;line-height:1.7}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:60px 24px;color:var(--muted)}
+.empty-state p{font-family:var(--serif);font-size:18px;margin-bottom:8px}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--charcoal);color:var(--ivory);padding:12px 20px;font-size:12px;letter-spacing:.5px;z-index:1000;transform:translateY(80px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+
+@media(max-width:768px){
+  .detail-grid{grid-template-columns:1fr}
+  .toolbar{padding:10px 16px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">KADIO <span>·</span> COIFFURE</a>
+  <div class="nav-links">
+    <a href="/menu.html">Services</a>
+    <a href="/forfaits.html">Forfaits</a>
+    <a href="/calendrier.html">Calendrier</a>
+    <a href="/admin-abonnes.html" class="active">Abonnés</a>
+    <a href="/" class="nav-cta">← Accueil</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- STATS -->
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-item"><span class="stat-value" id="statTotal">—</span><span class="stat-label">Total abonnés</span></div>
+    <div class="stat-item"><span class="stat-value" id="statActive" style="color:#5a9e6f">—</span><span class="stat-label">Actifs</span></div>
+    <div class="stat-item"><span class="stat-value" id="statBlocked" style="color:#c0392b">—</span><span class="stat-label">Bloqués</span></div>
+    <div class="stat-item"><span class="stat-value" id="statRevenue">—</span><span class="stat-label">Revenu mensuel HT</span></div>
+    <div class="stat-item"><span class="stat-value" id="statNew">—</span><span class="stat-label">Nouveaux ce mois</span></div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <input class="search-box" id="searchInput" type="text" placeholder="Rechercher par nom ou téléphone…" oninput="filterTable()" />
+    <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">Tous</button>
+    <button class="filter-btn" data-filter="active" onclick="setFilter('active',this)">Actifs</button>
+    <button class="filter-btn" data-filter="blocked" onclick="setFilter('blocked',this)">Bloqués</button>
+    <button class="filter-btn" data-filter="paused" onclick="setFilter('paused',this)">En pause</button>
+    <button class="btn-add" onclick="openAddModal()">+ Inscrire un abonné</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table class="sub-table" id="subTable">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Forfait</th>
+          <th>Statut</th>
+          <th>Code scan</th>
+          <th>Lavage semaine</th>
+          <th>Prochain prélèvement</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">Chargement…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="detailPanel"></div>
+
+</div>
+
+<!-- MODAL INSCRIPTION -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAdd()">✕</button>
+    <div class="modal-title">Inscrire un abonné</div>
+    <div class="form-group">
+      <label class="form-label">Prénom & Nom</label>
+      <input class="form-input" id="newName" type="text" placeholder="Sophie Beaumont" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Téléphone</label>
+      <input class="form-input" id="newPhone" type="tel" placeholder="+1 514 XXX-XXXX" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Forfait</label>
+      <select class="form-select" id="newForfait">
+        <option value="locs-illimite">Locs Illimité — 129,99 $/mois</option>
+        <option value="microlocks-sisterlocks">Microlocks / Sisterlocks — 149,99 $/mois</option>
+        <option value="knotless-tresses-signature">Knotless & Tresses Signature — 139,99 $/mois</option>
+        <option value="tresses-rapides-adulte">Tresses Rapides Adulte — 79,99 $/mois</option>
+        <option value="barbier-coupe-barbe">Barbier Coupe & Barbe — 64,99 $/mois</option>
+        <option value="barbier-coupe-simple">Barbier Coupe Simple — 59,99 $/mois</option>
+        <option value="barbier-barbe-illimitee">Barbier Barbe Illimitée — 35,99 $/mois</option>
+        <option value="tresses-rapides-enfant">Tresses Rapides Enfant — 59,99 $/mois</option>
+        <option value="knotless-enfant">Knotless Enfant — 95,99 $/mois</option>
+        <option value="locs-enfant">Locs Enfant — 79,99 $/mois</option>
+        <option value="barbier-enfant">Barbier Enfant — 49,99 $/mois</option>
+        <option value="mise-en-pli-lavage">Mise en pli + Lavage — 60,00 $/mois</option>
+        <option value="pose-perruques">Pose Perruques — 120,00 $/mois</option>
+        <option value="twists-tresses-court">Twists et Tresses Court — 119,99 $/mois</option>
+        <option value="combo-tresses-barbier">Combo Tresses + Barbier — 104,99 $/mois</option>
+        <option value="combo-locs-barbier">Combo Locs + Barbier — 154,99 $/mois</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Coiffeur inscripteur</label>
+      <select class="form-select" id="newStaff">
+        <option value="maya">Maya</option>
+        <option value="mariel">Mariel</option>
+        <option value="ulrich">Ulrich</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="display:flex;align-items:center;gap:8px">
+        <input type="checkbox" id="newSendSMS" checked style="width:auto" /> Envoyer SMS de bienvenue
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeAdd()">Annuler</button>
+      <button class="btn-save" onclick="saveNewSub()">Inscrire →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://daleba-api-production.up.railway.app';
+const FORFAITS = {
+  'locs-illimite':{name:'Locs Illimité',price:129.99},
+  'microlocks-sisterlocks':{name:'Microlocks / Sisterlocks',price:149.99},
+  'knotless-tresses-signature':{name:'Knotless & Tresses Signature',price:139.99},
+  'tresses-rapides-adulte':{name:'Tresses Rapides Adulte',price:79.99},
+  'barbier-coupe-barbe':{name:'Barbier Coupe & Barbe',price:64.99},
+  'barbier-coupe-simple':{name:'Barbier Coupe Simple',price:59.99},
+  'barbier-barbe-illimitee':{name:'Barbier Barbe Illimitée',price:35.99},
+  'tresses-rapides-enfant':{name:'Tresses Rapides Enfant',price:59.99},
+  'knotless-enfant':{name:'Knotless Enfant',price:95.99},
+  'locs-enfant':{name:'Locs Enfant',price:79.99},
+  'barbier-enfant':{name:'Barbier Enfant',price:49.99},
+  'mise-en-pli-lavage':{name:'Mise en pli + Lavage',price:60.00},
+  'pose-perruques':{name:'Pose Perruques',price:120.00},
+  'twists-tresses-court':{name:'Twists et Tresses Court',price:119.99},
+  'combo-tresses-barbier':{name:'Combo Tresses + Barbier',price:104.99},
+  'combo-locs-barbier':{name:'Combo Locs + Barbier',price:154.99},
+};
+
+let allSubs = [];
+let currentFilter = 'all';
+
+// Demo data
+allSubs = [
+  {id:'1',clientName:'Sophie Beaumont',clientPhone:'+15142223333',forfaitId:'knotless-tresses-signature',status:'active',scanCode:'KCAT5R',weeklyWashUsed:false,nextBilling:'2026-06-15',createdByStaff:'maya'},
+  {id:'2',clientName:'Marc Théodore',clientPhone:'+15148884444',forfaitId:'barbier-coupe-barbe',status:'active',scanCode:'KCBM2X',weeklyWashUsed:true,nextBilling:'2026-06-12',createdByStaff:'ulrich'},
+  {id:'3',clientName:'Aisha Konaté',clientPhone:'+15145556666',forfaitId:'locs-illimite',status:'blocked',scanCode:'KCAJ9P',weeklyWashUsed:false,nextBilling:'—',createdByStaff:'mariel'},
+  {id:'4',clientName:'Priscille Ndongo',clientPhone:'+15147779999',forfaitId:'microlocks-sisterlocks',status:'active',scanCode:'KCPN4W',weeklyWashUsed:false,nextBilling:'2026-06-20',createdByStaff:'mariel'},
+  {id:'5',clientName:'Kevin Tremblay',clientPhone:'+15141112222',forfaitId:'combo-locs-barbier',status:'paused',scanCode:'KCKV7L',weeklyWashUsed:false,nextBilling:'En pause',createdByStaff:'ulrich'},
+];
+
+loadStats();
+renderTable(allSubs);
+
+async function loadFromAPI(){
+  try{
+    const r = await fetch(`${API}/api/subscribers`);
+    if(r.ok){ allSubs = await r.json(); renderTable(allSubs); loadStats(); }
+  }catch(e){ /* use demo data */ }
+}
+loadFromAPI();
+
+function loadStats(){
+  const active = allSubs.filter(s=>s.status==='active');
+  const blocked = allSubs.filter(s=>s.status==='blocked');
+  const now = new Date();
+  const newThisMonth = allSubs.filter(s=>{
+    if(!s.createdAt) return false;
+    const d = new Date(s.createdAt);
+    return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+  });
+  const revenue = active.reduce((sum,s)=>sum+(FORFAITS[s.forfaitId]?.price||0),0);
+  document.getElementById('statTotal').textContent = allSubs.length;
+  document.getElementById('statActive').textContent = active.length;
+  document.getElementById('statBlocked').textContent = blocked.length;
+  document.getElementById('statRevenue').textContent = revenue.toFixed(2)+' $';
+  document.getElementById('statNew').textContent = newThisMonth.length;
+}
+
+function renderTable(subs){
+  const tbody = document.getElementById('tableBody');
+  if(!subs.length){
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Aucun abonné trouvé</p><small>Utilisez "+ Inscrire un abonné" pour commencer</small></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = subs.map(s=>{
+    const f = FORFAITS[s.forfaitId]||{name:s.forfaitId,price:0};
+    const badgeClass = s.status==='active'?'badge-active':s.status==='blocked'?'badge-blocked':'badge-paused';
+    const statusLabel = s.status==='active'?'Actif':s.status==='blocked'?'Bloqué':'En pause';
+    const washIcon = s.weeklyWashUsed
+      ? '<span class="wash-used">✗ Utilisé</span>'
+      : '<span class="wash-ok">✓ Disponible</span>';
+    return `<tr>
+      <td><div class="client-name">${s.clientName}</div><div class="client-phone">${s.clientPhone}</div></td>
+      <td><div class="forfait-name">${f.name}</div><div class="forfait-price">${f.price.toFixed(2)} $/mois + taxes</div></td>
+      <td><span class="badge ${badgeClass}">${statusLabel}</span></td>
+      <td><span class="scan-code">${s.scanCode||'—'}</span></td>
+      <td>${washIcon}</td>
+      <td style="font-size:12px">${s.nextBilling||'—'}</td>
+      <td>
+        <button class="action-btn" onclick="viewDetail('${s.id}')">Détails</button>
+        ${s.status==='active'?`<button class="action-btn danger" onclick="blockSub('${s.id}')">Bloquer</button>`:''}
+        ${s.status==='blocked'?`<button class="action-btn" onclick="unblockSub('${s.id}')">Débloquer</button>`:''}
+        <button class="action-btn" onclick="sendReview('${s.id}')">📨 Avis</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterTable(){
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  let filtered = allSubs;
+  if(currentFilter!=='all') filtered = filtered.filter(s=>s.status===currentFilter);
+  if(q) filtered = filtered.filter(s=>s.clientName.toLowerCase().includes(q)||s.clientPhone.includes(q));
+  renderTable(filtered);
+}
+
+function setFilter(f, btn){
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  filterTable();
+}
+
+function viewDetail(id){
+  const s = allSubs.find(x=>x.id===id);
+  if(!s) return;
+  const f = FORFAITS[s.forfaitId]||{name:s.forfaitId,price:0};
+  document.getElementById('detailPanel').innerHTML = `
+    <div class="detail-panel">
+      <h3 style="font-family:var(--serif);font-size:20px;font-weight:400;margin-bottom:4px">${s.clientName}</h3>
+      <p style="font-size:12px;color:var(--muted)">${s.clientPhone} · Code scan : <strong>${s.scanCode||'—'}</strong></p>
+      <div class="detail-grid">
+        <div class="detail-block"><h4>Forfait actif</h4><p>${f.name}<br><strong>${f.price.toFixed(2)} $/mois</strong><br>+ TPS (${(f.price*0.05).toFixed(2)}$) + TVQ (${(f.price*0.09975).toFixed(2)}$)<br>= <strong>${(f.price*1.14975).toFixed(2)} $/mois total</strong></p></div>
+        <div class="detail-block"><h4>Statut abonnement</h4><p>Statut : <strong>${s.status}</strong><br>Prochain prélèvement : ${s.nextBilling||'—'}<br>Lavage semaine : ${s.weeklyWashUsed?'Utilisé':'Disponible'}</p></div>
+        <div class="detail-block"><h4>Inscrit par</h4><p>${s.createdByStaff||'—'}<br><small style="color:var(--muted)">Commission : ${f.price<120?'10,00 $':'15,00 $'}</small></p></div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="action-btn" onclick="sendSMSConfirm('${s.id}')">SMS confirmation</button>
+        <button class="action-btn" onclick="sendReview('${s.id}')">SMS demande avis Google</button>
+        <button class="action-btn" onclick="sendRating('${s.id}')">SMS note interne</button>
+        <button class="action-btn danger" onclick="blockSub('${s.id}')">Bloquer</button>
+        <button class="action-btn" onclick="document.getElementById('detailPanel').innerHTML=''">✕ Fermer</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('detailPanel').scrollIntoView({behavior:'smooth'});
+}
+
+function blockSub(id){
+  const s = allSubs.find(x=>x.id===id);
+  if(!s) return;
+  s.status='blocked';
+  renderTable(allSubs); loadStats();
+  fetch(`${API}/api/subscriptions/block`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:s.clientPhone,reason:'Admin manual block'})}).catch(()=>{});
+  showToast(`${s.clientName} — accès bloqué`);
+}
+function unblockSub(id){
+  const s = allSubs.find(x=>x.id===id);
+  if(!s) return;
+  s.status='active';
+  renderTable(allSubs); loadStats();
+  showToast(`${s.clientName} — accès rétabli`);
+}
+function sendReview(id){
+  const s = allSubs.find(x=>x.id===id);
+  if(!s) return;
+  fetch(`${API}/api/sms/review-request`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clientPhone:s.clientPhone,clientName:s.clientName,staffName:s.createdByStaff})}).catch(()=>{});
+  showToast(`SMS demande d'avis Google envoyé à ${s.clientName}`);
+}
+function sendRating(id){
+  const s = allSubs.find(x=>x.id===id);
+  if(!s) return;
+  fetch(`${API}/api/sms/rating-request`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clientPhone:s.clientPhone,clientName:s.clientName,staffId:s.createdByStaff,staffName:s.createdByStaff,bookingId:s.id})}).catch(()=>{});
+  showToast(`SMS note interne envoyé à ${s.clientName}`);
+}
+function sendSMSConfirm(id){
+  const s = allSubs.find(x=>x.id===id);
+  if(!s) return;
+  showToast(`SMS confirmation envoyé à ${s.clientName}`);
+}
+
+function openAddModal(){ document.getElementById('addModal').classList.add('open'); }
+function closeAdd(){ document.getElementById('addModal').classList.remove('open'); }
+
+function saveNewSub(){
+  const name = document.getElementById('newName').value.trim();
+  const phone = document.getElementById('newPhone').value.trim();
+  const forfaitId = document.getElementById('newForfait').value;
+  const staffId = document.getElementById('newStaff').value;
+  if(!name||!phone){ showToast('Nom et téléphone requis'); return; }
+  const code = 'KC'+Math.random().toString(36).slice(2,8).toUpperCase();
+  const sub = {id:'new-'+Date.now(),clientName:name,clientPhone:phone,forfaitId,status:'active',scanCode:code,weeklyWashUsed:false,nextBilling:new Date(Date.now()+30*86400000).toISOString().split('T')[0],createdByStaff:staffId,createdAt:new Date().toISOString()};
+  allSubs.unshift(sub);
+  fetch(`${API}/api/subscription/subscribe`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clientPhone:phone,clientName:name,forfaitId,staffId})}).catch(()=>{});
+  closeAdd();
+  renderTable(allSubs); loadStats();
+  showToast(`${name} inscrit(e) — Code : ${code}`);
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+</script>
+</body>
+</html>

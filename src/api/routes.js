@@ -17,6 +17,8 @@ const commanderRoutes = require('./commander-routes'); // Commander — DAE + Sw
 const integrationRoutes = require('./integration-routes'); // Integration Hub + Docs
 const v1OnboardingRoutes  = require('./v1-onboarding-routes');  // V5 — Onboarding Multi-Tenant [251-289]
 const adminTenantsRoutes  = require('./admin-tenants-routes');  // V5 — Admin Tenants Panel [273-274]
+const smsPipelineRoutes   = require('./sms-pipeline-routes');   // Section 16 — SMS Pipeline
+const calendarStaffRoutes = require('./calendar-staff-routes'); // Section 16 — Calendrier Staff
 const { requireAuth } = require('../middleware/auth');
 const { resolveTenant } = require('../middleware/tenant');
 const { v4: uuidv4 } = require('uuid');
@@ -1302,5 +1304,9 @@ router.delete('/salon/abonnements/:id', async (req, res) => {
     res.json(result);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
+
+// ─── SECTION 16 : SMS PIPELINE + CALENDRIER STAFF ────────────────────────────
+router.use('/sms', smsPipelineRoutes);          // /api/sms/*
+router.use('/calendar', calendarStaffRoutes);   // /api/calendar/* (Section 16 — drag&drop)
 
 module.exports = router;

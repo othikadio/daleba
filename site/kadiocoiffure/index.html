@@ -40,6 +40,9 @@ nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:rgba(250,
 /* ── Hero ─────────────────────────────────────────────────── */
 .hero{height:100vh;min-height:620px;display:flex;align-items:center;position:relative;overflow:hidden}
 .hero-bg{position:absolute;inset:0;background:linear-gradient(135deg,#1a1a1a 0%,#2c2520 45%,#3a2c25 100%)}
+/* HERO PHOTO — décommentez quand la photo est prête */
+/* .hero-bg{position:absolute;inset:0;background:url('/img/hero-salon.jpg') center/cover no-repeat;}
+   .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(26,26,26,0.82) 0%,rgba(44,37,32,0.65) 100%);} */
 .hero-pattern{position:absolute;inset:0;background-image:radial-gradient(ellipse at 20% 60%,rgba(184,150,90,0.12) 0%,transparent 55%),radial-gradient(ellipse at 80% 20%,rgba(184,150,90,0.07) 0%,transparent 45%)}
 .hero-content{position:relative;z-index:2;padding:0 5vw;max-width:680px}
 .hero-eyebrow{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:14px}
@@ -175,8 +178,8 @@ footer small{font-size:10px}
     <span class="nav-badge">4.8★ Google</span>
   </div>
   <div class="nav-links" id="navLinks">
-    <a href="#services">Services & Tarifs</a>
-    <a href="#booking">Réserver</a>
+    <a href="/menu.html">Services & Tarifs</a>
+    <a href="/forfaits.html">Forfaits</a>
     <a href="#reviews">Avis</a>
     <a href="#contact">Contact</a>
     <a href="#booking" class="nav-cta" onclick="openBooking()">Rendez-vous</a>
@@ -188,7 +191,7 @@ footer small{font-size:10px}
 
 <!-- Hero -->
 <section class="hero" id="home">
-  <div class="hero-bg"></div>
+  <div class="hero-bg" id="heroBg"></div>
   <div class="hero-pattern"></div>
   <div class="hero-content">
     <div class="hero-eyebrow">Spécialiste cheveux afros — Longueuil, QC</div>
@@ -423,17 +426,34 @@ footer small{font-size:10px}
       </div>
       <div class="info-item">
         <strong>Horaires</strong>
-        <span>Lundi &nbsp;10h–17h · Mar–Mer &nbsp;10h–18h<br>Jeu–Sam &nbsp;10h–21h · Dim &nbsp;10h–17h</span>
+        <span style="font-size:12px;line-height:1.9">
+          Lundi &nbsp;&nbsp;&nbsp;&nbsp;12h – 21h<br>
+          Mardi &nbsp;&nbsp;&nbsp;&nbsp;16h – 21h<br>
+          Mercredi &nbsp;Sur RDV<br>
+          Jeudi &nbsp;&nbsp;&nbsp;&nbsp;Sur RDV<br>
+          Vendredi &nbsp;10h – 21h<br>
+          Samedi &nbsp;&nbsp;&nbsp;10h – 21h<br>
+          Dimanche &nbsp;Fermé
+        </span>
+        <em style="font-size:10px;color:var(--muted);letter-spacing:.5px;">⚠️ Horaires à confirmer avec le salon</em>
       </div>
       <div class="info-item">
         <strong>Téléphone</strong>
         <a href="tel:+15149195970" style="color:var(--gold)">+1 (514) 919-5970</a>
       </div>
       <div class="info-item">
-        <strong>Facebook</strong>
-        <a href="https://www.facebook.com/p/Kadio-Coiffure-61557631424274/" target="_blank" style="color:var(--gold)">Kadio Coiffure — 689 abonnés</a>
+        <strong>Réseaux & Contact</strong>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px;">
+          <a href="https://wa.me/15149195970" target="_blank" style="display:inline-flex;align-items:center;gap:10px;background:#25D366;color:#fff;padding:11px 20px;font-size:12px;letter-spacing:1px;text-transform:uppercase;font-weight:500;border:none;cursor:pointer;transition:opacity .2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">💬 WhatsApp — Message direct</a>
+          <a href="tel:+15149195970" style="display:inline-flex;align-items:center;gap:10px;background:var(--charcoal);color:var(--ivory);padding:11px 20px;font-size:12px;letter-spacing:1px;text-transform:uppercase;font-weight:500;transition:background .2s;" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--charcoal)'">📞 Appeler : 514-919-5970</a>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
+            <a href="https://www.facebook.com/p/Kadio-Coiffure-61557631424274/" target="_blank" style="display:inline-flex;align-items:center;gap:7px;font-size:11px;letter-spacing:1px;color:var(--gold);border:1px solid var(--gold);padding:8px 14px;text-transform:uppercase;transition:all .2s;" onmouseover="this.style.background='var(--gold)';this.style.color='var(--charcoal)'" onmouseout="this.style.background='transparent';this.style.color='var(--gold)'">f Facebook</a>
+            <a href="https://instagram.com/kadiocoiffure" target="_blank" style="display:inline-flex;align-items:center;gap:7px;font-size:11px;letter-spacing:1px;color:var(--gold);border:1px solid var(--gold);padding:8px 14px;text-transform:uppercase;transition:all .2s;" onmouseover="this.style.background='var(--gold)';this.style.color='var(--charcoal)'" onmouseout="this.style.background='transparent';this.style.color='var(--gold)'">◎ Instagram</a>
+            <a href="https://tiktok.com/@kadiocoiffure" target="_blank" style="display:inline-flex;align-items:center;gap:7px;font-size:11px;letter-spacing:1px;color:var(--gold);border:1px solid var(--gold);padding:8px 14px;text-transform:uppercase;transition:all .2s;" onmouseover="this.style.background='var(--gold)';this.style.color='var(--charcoal)'" onmouseout="this.style.background='transparent';this.style.color='var(--gold)'">♪ TikTok</a>
+          </div>
+        </div>
       </div>
-      <button class="btn-primary" onclick="openBooking()" style="width:fit-content;margin-top:8px">Prendre rendez-vous</button>
+      <button class="btn-primary" onclick="openBooking()" style="width:fit-content;margin-top:8px">Prendre rendez-vous →</button>
     </div>
     <div>
       <iframe
