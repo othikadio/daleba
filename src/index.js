@@ -4,6 +4,9 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const routes = require('./api/routes');
+const clientPortalRoutes = require('./api/client-portal-routes');
+const accountingRoutes = require('./api/accounting-routes');
+const loyaltyHybridRoutes = require('./api/loyalty-hybrid-routes');
 const { errorMiddleware, enableSelfHealing, logError } = require('./services/error-monitor');
 const errorWatcher = require('./services/error-watcher'); // V27 — Filet de Sécurité
 const { startFollowupCron } = require('./services/client-followup');
@@ -86,6 +89,9 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // Routes DALEBA
 app.use('/api', routes);
+app.use('/api/client-portal', clientPortalRoutes);
+app.use('/api/accounting', accountingRoutes);
+app.use('/api/loyalty', loyaltyHybridRoutes);
 
 // Middleware erreurs (Point 12)
 app.use(errorMiddleware);

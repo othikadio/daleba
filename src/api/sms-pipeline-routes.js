@@ -124,6 +124,23 @@ router.get('/ratings/staff/:staffId', async (req, res) => {
   }
 });
 
+// POST /api/sms/process-rating — Bouclier réputation
+router.post('/process-rating', async (req, res) => {
+  const { clientPhone, clientName, staffName, staffRating, salonRating } = req.body;
+  if (!clientPhone || !staffRating || !salonRating) {
+    return res.status(400).json({ error: 'clientPhone, staffRating, salonRating requis' });
+  }
+  try {
+    const result = await smsPipeline.processRatingAndReputation({
+      clientPhone, clientName: clientName||'Client',
+      staffName: staffName||'coiffeur', staffRating, salonRating
+    });
+    res.json({ success: true, ...result });
+  } catch(err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/sms/queue — file des reminders à envoyer
 router.get('/queue', async (req, res) => {
   try {

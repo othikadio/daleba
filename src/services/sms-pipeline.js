@@ -301,6 +301,37 @@ async function processInternalRating(inboundSMS, from) {
 
 // ─── QUERIES ──────────────────────────────────────────────────────────────────
 
+// ─── MODULE : BOUCLIER RÉPUTATION ────────────────────────────────────────────
+async function processRatingAndReputation({ clientPhone, clientName, staffName, staffRating, salonRating }) {
+  const avgNote = Math.round((staffRating + salonRating) / 2);
+  
+  if (avgNote >= 4) {
+    // Note positive → propulser vers Google Maps
+    const msg = `Merci ${clientName} ! Votre avis compte énormément pour nous 🙏 ` +
+      `Partagez votre expérience sur Google (30 sec) : https://g.page/r/CbT0iRpVkQ2REBM/review — Kadio Coiffure`;
+    try {
+      const result = await sendSMS(clientPhone, msg);
+      bus.system(`[REPUTATION] Note ${avgNote}/5 — Avis Google envoyé → ${clientName}`);
+      return { action: 'google_review_sent', note: avgNote };
+    } catch(e) {
+      console.error('[REPUTATION] Erreur envoi Google:', e.message);
+    }
+  } else {
+    // Note faible (1-3) → intercept + alerte Ulrich
+    const alertMsg = `⚠️ ALERTE DALEBA — Note faible reçue\n` +
+      `Client: ${clientName} (${clientPhone})\n` +
+      `Note: ${staffRating}/5 coiffeur (${staffName}) · ${salonRating}/5 salon\n` +
+      `Action requise: gérer le conflit avant publication publique.`;
+    try {
+      await sendSMS(process.env.ULRICH_PHONE_NUMBER || '+15149845970', alertMsg);
+      bus.system(`[REPUTATION] Note ${avgNote}/5 — ALERTE Ulrich envoyée (${clientName})`);
+    } catch(e) {
+      console.error('[REPUTATION] Erreur alerte Ulrich:', e.message);
+    }
+    return { action: 'intercepted', note: avgNote };
+  }
+}
+
 async function getRatings(staffId = null) {
   let query, params;
   if (staffId) {
@@ -328,6 +359,7 @@ module.exports = {
   sendReviewRequestSMS,
   sendInternalRatingRequest,
   processInternalRating,
+  processRatingAndReputation,
   getRatings,
   getReminderQueue,
 };

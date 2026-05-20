@@ -8,7 +8,8 @@
 'use strict';
 
 const { pool, DEMO_MODE } = require('../memory/db');
-const { sendReminderSMS, sendReminder2hSMS, sendReviewRequestSMS, sendInternalRatingRequest } = require('../services/sms-pipeline');
+const smsPipeline = require('../services/sms-pipeline');
+const { sendReminderSMS, sendReminder2hSMS, sendReviewRequestSMS, sendInternalRatingRequest } = smsPipeline;
 
 const LOG = '[REMINDER-WORKER]';
 
@@ -111,6 +112,16 @@ async function runReminderWorker() {
           'UPDATE daleba_reminders_queue SET rating_sent=true WHERE id=$1',
           [row.id]
         );
+        // Appel automatique du bouclier réputation si note présente
+        if (row.staff_rating && row.salon_rating) {
+          await smsPipeline.processRatingAndReputation({
+            clientPhone: row.client_phone,
+            clientName: row.client_name,
+            staffName: row.staff_name,
+            staffRating: row.staff_rating,
+            salonRating: row.salon_rating,
+          });
+        }
         console.log(`${LOG} Note interne demandée → ${row.client_name}`);
       } catch (e) {
         console.error(`${LOG} Erreur note interne ${row.client_name}: ${e.message}`);
