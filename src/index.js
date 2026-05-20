@@ -64,7 +64,19 @@ app.use(helmet({
   }
 }));
 app.use(cors());
+// rawBody middleware pour vérification HMAC webhooks GoDaddy/Stripe
+app.use((req, _res, next) => {
+  if (req.path.includes('/webhook')) {
+    let data = '';
+    req.setEncoding('utf8');
+    req.on('data', chunk => { data += chunk; });
+    req.on('end',  () => { req.rawBody = data; next(); });
+  } else {
+    next();
+  }
+});
 app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(morgan('combined'));
 
 // Fichiers statiques (frontend)

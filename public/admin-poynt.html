@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DALEBA — Import Poynt CSV</title>
+<style>
+:root{--bg:#0a0a0f;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--gold:#f59e0b;--success:#10b981;--danger:#ef4444;--muted:#64748b;--text:#e2e8f0;--cyan:#00f5ff}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace,sans-serif;min-height:100vh;padding:0}
+.header{background:rgba(245,158,11,0.06);border-bottom:1px solid rgba(245,158,11,0.15);padding:14px 24px;display:flex;align-items:center;gap:12px}
+.logo{font-size:16px;font-weight:700;color:var(--gold)}
+.kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:16px 24px}
+.kc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
+.kc::before{content:'';display:block;height:2px;border-radius:2px;margin-bottom:12px}
+.kc.gold::before{background:var(--gold)}
+.kc.green::before{background:var(--success)}
+.kc.red::before{background:var(--danger)}
+.kv{font-size:22px;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums}
+.kv.g{color:var(--success)} .kv.r{color:var(--danger)}
+.kl{font-size:10px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.wrap{padding:16px 24px 40px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px}
+.panel h4{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px}
+/* Drop zone */
+.dropzone{border:2px dashed rgba(245,158,11,0.3);border-radius:10px;padding:48px 24px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.dropzone:hover,.dropzone.drag{border-color:var(--gold);background:rgba(245,158,11,0.04)}
+.dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dz-icon{font-size:36px;margin-bottom:12px}
+.dz-title{font-size:14px;color:var(--text);margin-bottom:6px}
+.dz-sub{font-size:11px;color:var(--muted)}
+.dz-file{font-size:12px;color:var(--gold);margin-top:10px;font-weight:600}
+/* Boutons */
+.btn{border:none;border-radius:8px;padding:10px 18px;font-size:12px;cursor:pointer;margin-right:6px;margin-bottom:6px;font-family:monospace;transition:all .2s}
+.btn-gold{background:rgba(245,158,11,0.12);color:var(--gold);border:1px solid rgba(245,158,11,0.3)}
+.btn-gold:hover{background:rgba(245,158,11,0.22)}
+.btn-green{background:rgba(16,185,129,0.12);color:var(--success);border:1px solid rgba(16,185,129,0.3)}
+.btn-green:hover{background:rgba(16,185,129,0.22)}
+.btn-red{background:rgba(239,68,68,0.12);color:var(--danger);border:1px solid rgba(239,68,68,0.3)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+/* Progress */
+.progress{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;margin:12px 0;display:none}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--success));border-radius:2px;transition:width .4s;width:0}
+/* Table préview */
+.preview-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:12px}
+.preview-table th{padding:8px;text-align:left;color:var(--muted);border-bottom:1px solid var(--border);font-weight:400;text-transform:uppercase;letter-spacing:.5px}
+.preview-table td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.preview-table tr:hover td{background:rgba(255,255,255,0.02)}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.b-green{background:rgba(16,185,129,0.12);color:var(--success)}
+.b-red{background:rgba(239,68,68,0.12);color:var(--danger)}
+.b-gold{background:rgba(245,158,11,0.12);color:var(--gold)}
+/* Log */
+.log{background:rgba(0,0,0,0.4);border:1px solid rgba(0,245,255,0.08);border-radius:8px;padding:12px;font-size:11px;font-family:monospace;height:180px;overflow-y:auto}
+.log-line{padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.log-line.ok{color:var(--success)} .log-line.err{color:var(--danger)} .log-line.info{color:var(--cyan)}
+/* Webhook setup */
+.wh-step{padding:10px 12px;border-left:3px solid var(--gold);margin-bottom:8px;background:rgba(245,158,11,0.04);font-size:12px;border-radius:0 6px 6px 0}
+.wh-url{background:rgba(0,245,255,0.06);border:1px solid rgba(0,245,255,0.2);border-radius:6px;padding:10px 14px;font-size:12px;color:var(--cyan);word-break:break-all;margin:8px 0}
+.copy-btn{background:rgba(0,245,255,0.1);color:var(--cyan);border:1px solid rgba(0,245,255,0.2);border-radius:4px;padding:4px 10px;font-size:10px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="logo">💳 DALEBA — Import Poynt / GoDaddy Payments</span>
+  <span style="margin-left:auto;font-size:10px;color:var(--muted)" id="ts">—</span>
+</div>
+
+<!-- KPIs -->
+<div class="kpi">
+  <div class="kc gold"><div class="kv" id="kGross">—</div><div class="kl">Ventes brutes</div></div>
+  <div class="kc green"><div class="kv g" id="kNet">—</div><div class="kl">Net HT (commissions)</div></div>
+  <div class="kc gold"><div class="kv" id="kTips">—</div><div class="kl">Pourboires</div></div>
+  <div class="kc green"><div class="kv g" id="kCount">—</div><div class="kl">Transactions</div></div>
+  <div class="kc red"><div class="kv r" id="kRefunds">—</div><div class="kl">Remboursements</div></div>
+</div>
+
+<div class="wrap">
+  <!-- Option A: CSV Import -->
+  <div>
+    <div class="panel">
+      <h4>📁 Option A — Import CSV Poynt</h4>
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="csvInput" accept=".csv,text/csv" onchange="onFileSelect(event)">
+        <div class="dz-icon">📊</div>
+        <div class="dz-title">Glisser votre fichier CSV Poynt ici</div>
+        <div class="dz-sub">ou cliquer pour parcourir · max 10 MB</div>
+        <div class="dz-file" id="dzFile"></div>
+      </div>
+
+      <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-gold" id="btnPreview" onclick="runPreview()" disabled>🔍 Prévisualiser</button>
+        <button class="btn btn-green" id="btnImport" onclick="runImport()" disabled>⬆️ Importer dans DALEBA</button>
+        <button class="btn" style="background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--muted)" onclick="reset()">↺ Reset</button>
+      </div>
+
+      <div class="progress" id="progress"><div class="progress-fill" id="progressFill"></div></div>
+      <div id="statusMsg" style="font-size:12px;margin-top:8px;color:var(--muted)"></div>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <h4>📋 Log d'ingestion</h4>
+      <div class="log" id="log"><div class="log-line info">En attente d'un fichier CSV…</div></div>
+    </div>
+  </div>
+
+  <!-- Option B: Webhook + Préview résultats -->
+  <div>
+    <div class="panel">
+      <h4>🔗 Option B — Webhook Natif GoDaddy Payments</h4>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.7">
+        Configurez votre URL webhook une fois dans le dashboard Poynt.<br>
+        Chaque transaction arrivera en temps réel dans DALEBA.
+      </p>
+      <div id="webhookSteps">
+        <div class="wh-step">1. Login → <strong>business.poynt.net</strong> → Settings</div>
+        <div class="wh-step">2. Webhooks → Add Webhook URL</div>
+        <div class="wh-url" id="webhookUrl">Chargement URL…
+          <button class="copy-btn" onclick="copyUrl()">Copier</button>
+        </div>
+        <div class="wh-step">3. Secret = valeur de <code>GODADDY_WEBHOOK_SECRET</code></div>
+        <div class="wh-step">4. Events: TRANSACTION_CAPTURED, TRANSACTION_REFUNDED</div>
+        <div class="wh-step">5. Save → Test → vérifier statut ✅ dans les logs DALEBA</div>
+      </div>
+      <button class="btn btn-gold" onclick="loadWebhookInfo()" style="margin-top:12px">🔄 Actualiser instructions</button>
+    </div>
+
+    <!-- Tableau preview résultats import -->
+    <div class="panel" style="margin-top:16px">
+      <h4>📊 Aperçu transactions importées</h4>
+      <div id="previewTable" style="overflow-x:auto">
+        <div style="color:var(--muted);font-size:12px;padding:12px">Import un CSV pour voir l'aperçu.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const H = {'Authorization':'Bearer '+(localStorage.getItem('daleba_token')||'')};
+let selectedFile = null;
+setInterval(()=>{ document.getElementById('ts').textContent=new Date().toLocaleTimeString('fr-CA'); }, 1000);
+
+function log(msg, type='info'){
+  const d=document.getElementById('log');
+  const line=document.createElement('div');
+  line.className='log-line '+type;
+  line.textContent='['+new Date().toLocaleTimeString('fr-CA')+'] '+msg;
+  d.appendChild(line); d.scrollTop=d.scrollHeight;
+}
+
+function setStatus(msg,color='var(--muted)'){
+  const el=document.getElementById('statusMsg');
+  el.textContent=msg; el.style.color=color;
+}
+
+function setProgress(pct){
+  const wrap=document.getElementById('progress');
+  wrap.style.display='block';
+  document.getElementById('progressFill').style.width=pct+'%';
+}
+
+function onFileSelect(e){
+  selectedFile=e.target.files[0];
+  if(!selectedFile) return;
+  document.getElementById('dzFile').textContent='✓ '+selectedFile.name+' ('+Math.round(selectedFile.size/1024)+' KB)';
+  document.getElementById('btnPreview').disabled=false;
+  document.getElementById('btnImport').disabled=false;
+  log('Fichier sélectionné: '+selectedFile.name);
+}
+
+// Drag & drop
+const dz=document.getElementById('dropzone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{
+  e.preventDefault(); dz.classList.remove('drag');
+  const f=e.dataTransfer.files[0];
+  if(f&&f.name.endsWith('.csv')){
+    selectedFile=f;
+    document.getElementById('dzFile').textContent='✓ '+f.name+' ('+Math.round(f.size/1024)+' KB)';
+    document.getElementById('btnPreview').disabled=false;
+    document.getElementById('btnImport').disabled=false;
+    log('Fichier glissé: '+f.name);
+  } else { log('Format invalide — seuls les .csv sont acceptés','err'); }
+});
+
+async function runPreview(){
+  if(!selectedFile) return;
+  setStatus('Analyse en cours…');
+  setProgress(30);
+  log('Prévisualisation de '+selectedFile.name+' …');
+  const fd=new FormData(); fd.append('csvFile',selectedFile);
+  const r=await fetch('/api/v1/godaddy/preview-csv',{method:'POST',headers:H,body:fd}).then(r=>r.json()).catch(e=>({success:false,error:e.message}));
+  setProgress(100);
+  if(r.success){
+    renderStats(r.data.stats);
+    renderPreview(r.data.transactions||[]);
+    log('Prévisualisation: '+r.data.stats?.total+' transactions — net: '+r.data.stats?.totalNet?.toFixed(2)+' $','ok');
+    setStatus('Prévisualisation terminée — cliquer Importer pour persister','var(--success)');
+  } else { log('Erreur: '+(r.error||'inconnue'),'err'); setStatus(r.error,'var(--danger)'); }
+}
+
+async function runImport(){
+  if(!selectedFile) return;
+  const tenantId=prompt('ID du tenant (laisser vide = godaddy):','godaddy')||'godaddy';
+  setStatus('Import en cours…');
+  setProgress(40);
+  log('Import vers tenant_ledgers: tenantId='+tenantId+' …');
+  const fd=new FormData(); fd.append('csvFile',selectedFile); fd.append('tenantId',tenantId);
+  const r=await fetch('/api/v1/godaddy/upload-csv',{method:'POST',headers:H,body:fd}).then(r=>r.json()).catch(e=>({success:false,error:e.message}));
+  setProgress(100);
+  if(r.success){
+    const d=r.data;
+    renderStats(d.stats);
+    renderPreview(d.preview||[]);
+    log('✅ Import terminé: '+d.db.imported+' nouvelles | '+d.db.duplicates+' doublons | format: '+d.format,'ok');
+    log('Net total: '+d.stats?.totalNet?.toFixed(2)+' $CAD | '+d.stats?.salesCount+' ventes','ok');
+    setStatus('Import réussi: '+d.db.imported+' transactions dans DALEBA','var(--success)');
+  } else { log('Erreur import: '+(r.error||'inconnue'),'err'); setStatus(r.error,'var(--danger)'); }
+}
+
+function renderStats(s){
+  if(!s) return;
+  document.getElementById('kGross').textContent  = s.totalGross?.toFixed(2)+' $' || '—';
+  document.getElementById('kNet').textContent    = s.totalNet?.toFixed(2)+' $'   || '—';
+  document.getElementById('kTips').textContent   = s.totalTips?.toFixed(2)+' $'  || '—';
+  document.getElementById('kCount').textContent  = s.salesCount || '—';
+  document.getElementById('kRefunds').textContent= s.totalRefunds?.toFixed(2)+' $' || '—';
+}
+
+function renderPreview(txs){
+  if(!txs?.length){ document.getElementById('previewTable').innerHTML='<div style="color:var(--muted);font-size:12px;padding:12px">Aucune donnée.</div>'; return; }
+  document.getElementById('previewTable').innerHTML=`
+  <table class="preview-table">
+    <thead><tr><th>Date</th><th>Description</th><th>Brut</th><th>Net</th><th>Statut</th></tr></thead>
+    <tbody>${txs.map(t=>{
+      const s=t.status?.toLowerCase();
+      const b=s==='captured'?'b-green':s==='refunded'?'b-red':'b-gold';
+      const d=new Date(t.txDate||t.date);
+      return `<tr>
+        <td>${isNaN(d)?t.txDate||'—':d.toLocaleDateString('fr-CA')}</td>
+        <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.description||'—'}</td>
+        <td style="color:${(t.amountGross||t.gross||0)<0?'var(--danger)':'var(--text)'}">${(t.amountGross||t.gross||0).toFixed?.(2)} $</td>
+        <td style="color:var(--success)">${(t.amountNet||t.net||0).toFixed?.(2)} $</td>
+        <td><span class="badge ${b}">${s}</span></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+async function loadWebhookInfo(){
+  const r=await fetch('/api/v1/godaddy/webhook/setup',{headers:H}).then(r=>r.json()).catch(()=>({success:false}));
+  if(r.success){
+    document.getElementById('webhookUrl').innerHTML=r.data.webhookUrl+' <button class="copy-btn" onclick="copyUrl(\''+r.data.webhookUrl+'\')">Copier</button>';
+  }
+}
+
+function copyUrl(url){
+  const u=url||document.getElementById('webhookUrl').textContent;
+  navigator.clipboard.writeText(u.trim()).then(()=>{ log('URL copiée dans le presse-papiers ✅','ok'); });
+}
+
+function reset(){
+  selectedFile=null;
+  document.getElementById('dzFile').textContent='';
+  document.getElementById('btnPreview').disabled=true;
+  document.getElementById('btnImport').disabled=true;
+  document.getElementById('progress').style.display='none';
+  setStatus('');
+  document.getElementById('kGross').textContent=document.getElementById('kNet').textContent=
+  document.getElementById('kTips').textContent=document.getElementById('kCount').textContent=
+  document.getElementById('kRefunds').textContent='—';
+  document.getElementById('previewTable').innerHTML='<div style="color:var(--muted);font-size:12px;padding:12px">Import un CSV pour voir l\'aperçu.</div>';
+  log('Réinitialisation');
+}
+
+// Init
+loadWebhookInfo();
+</script>
+</body>
+</html>

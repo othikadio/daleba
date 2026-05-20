@@ -1224,5 +1224,7 @@ router.use('/v1/evolution', evolutionRoutes);
 
 const godaddyRoutes = require('./godaddy-routes'); // [Section 14] GoDaddy Connector
 router.use('/v1/godaddy', godaddyRoutes);
+// Webhook GoDaddy Payments (chemin public sans /v1 pour facilité config marchande)
+router.use('/v1/webhooks/godaddy', require('./godaddy-routes'));
 
 module.exports = router;
