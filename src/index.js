@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const routes = require('./api/routes');
 const clientPortalRoutes = require('./api/client-portal-routes');
+const authRoutes = require('./api/auth-routes');
 const accountingRoutes = require('./api/accounting-routes');
 const loyaltyHybridRoutes = require('./api/loyalty-hybrid-routes');
 const mediaRoutes = require('./api/media-routes');
@@ -92,6 +93,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 // Routes DALEBA
 app.use('/api', routes);
 app.use('/api/ai', require('./api/ai-admin-routes')); // Hub IA universel — Cerveau Central
+app.use('/api/auth', authRoutes); // Authentification OTP + JWT
 app.use('/api/client-portal', clientPortalRoutes);
 app.use('/api/accounting', accountingRoutes);
 app.use('/api/loyalty', loyaltyHybridRoutes);
