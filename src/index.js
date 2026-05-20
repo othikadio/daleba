@@ -96,6 +96,7 @@ app.use('/api/client-portal', clientPortalRoutes);
 app.use('/api/accounting', accountingRoutes);
 app.use('/api/loyalty', loyaltyHybridRoutes);
 app.use('/api/media', mediaRoutes);
+app.use('/api/hunter', require('./api/hunter-routes')); // Agent chasseur IA
 
 // Middleware erreurs (Point 12)
 app.use(errorMiddleware);
@@ -326,6 +327,10 @@ try { require('./services/event-bus').system(`[SMSKillSwitch] Statut: ${JSON.str
 
 // Démarrage — skip listen() en mode serverless (Vercel)
 if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  // Démarrer le chasseur d'agents IA autonome
+  const { startHunter } = require('./services/agent-hunter');
+  startHunter().catch(e => console.warn('[Hunter] Démarrage:', e.message));
+
   app.listen(PORT, () => {
     console.log(`
 ╔══════════════════════════════════════════╗

@@ -169,6 +169,21 @@ router.post('/chat', async (req, res) => {
 
   const sid = sessionId || uuidv4();
 
+  // Détection commandes Hunter dans le message
+  const _msg = message.toLowerCase();
+  const isHunterQuery = _msg.match(/point.*aujourd|ajout.*aujourd|découvert|assimilé|nouvelles.*capa|hunter|veille|chasse/);
+  const isHunterActivate = _msg.match(/active\s+(.+)|intègre\s+(.+)|utilise\s+(.+)/i);
+
+  if (isHunterQuery) {
+    const summary = require('../services/agent-hunter').getDiscoverySummary();
+    const replyText = summary.today === 0
+      ? `Aujourd'hui, je suis en train de scanner. ${summary.total} outils déjà dans ma base. Prochain cycle dans moins de 6h.`
+      : `Aujourd'hui j'ai trouvé ${summary.today} nouvelles architectures. Les plus intéressantes : ${
+          summary.topToday.map(t => `**${t.name}** (${t.source}) — ${t.value || 'à analyser'}`).join(', ')
+        }. J'en ai ${summary.ready} prêtes à activer sur ta demande.`;
+    return res.json({ reply: replyText, provider: 'hunter', task: 'discovery' });
+  }
+
   try {
     // 1. Sélection du modèle optimal via DARE
     const dareResult = dare.selectProvider(message, { forceProvider: forceModel });
