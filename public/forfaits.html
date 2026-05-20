@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Forfaits Mensuels — Kadio Coiffure & Esthétique</title>
-  <meta name="description" content="Forfaits mensuels Kadio Coiffure : Essentiel 49$/mois, Premium 89$/mois, VIP 149$/mois. Prix hors taxes. Profitez et économisez — Longueuil, QC." />
+  <meta name="description" content="Forfaits mensuels Kadio Coiffure : Locs, Knotless, Barbier, Tresses, Combos famille. À partir de 35.99$/mois + taxes. Longueuil, QC." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
@@ -13,326 +13,217 @@
       --terra: #C4622D;
       --terra-light: #E8916B;
       --terra-pale: #F5D5C3;
+      --sage: #7A9E72;
       --sage-light: #A8C49A;
       --cream: #FAF6F0;
       --charcoal: #1C1008;
       --gold: #C9933A;
       --gold-light: #E8B84B;
-      --glass-bg: rgba(255,255,255,0.06);
+      --glass-bg: rgba(255,255,255,0.055);
       --glass-border: rgba(255,255,255,0.1);
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(160deg, #0a0501 0%, #1c1008 50%, #120b03 100%);
+      background: linear-gradient(160deg, #0a0501 0%, #1c1008 55%, #120b03 100%);
       min-height: 100vh;
       color: #fff;
       line-height: 1.6;
       overflow-x: hidden;
     }
-    h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+    h1,h2,h3,h4 { font-family: 'Playfair Display', serif; }
     a { text-decoration: none; color: inherit; }
 
     /* NAV */
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-      background: rgba(10, 5, 1, 0.88);
-      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      background: rgba(10,5,1,0.9);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
       border-bottom: 1px solid rgba(196,98,45,0.2);
     }
     .nav-inner {
       max-width: 1200px; margin: 0 auto;
-      padding: 0 1.5rem; height: 70px;
+      padding: 0 1.5rem; height: 68px;
       display: flex; align-items: center; justify-content: space-between;
     }
-    .nav-logo .logo-main { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; letter-spacing: 0.08em; }
-    .nav-logo .logo-sub { font-size: 0.62rem; color: var(--terra-light); letter-spacing: 0.12em; text-transform: uppercase; }
+    .nav-logo .logo-main { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; letter-spacing: 0.08em; }
+    .nav-logo .logo-sub { font-size: 0.6rem; color: var(--terra-light); letter-spacing: 0.14em; text-transform: uppercase; }
     .nav-links { display: flex; align-items: center; gap: 1.75rem; list-style: none; }
-    .nav-links a { color: rgba(255,255,255,0.65); font-size: 0.85rem; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; transition: color 0.2s; }
+    .nav-links a { color: rgba(255,255,255,0.6); font-size: 0.82rem; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; transition: color .2s; }
     .nav-links a:hover, .nav-links a.active { color: var(--terra-light); }
-    .btn-nav { background: var(--terra); color: #fff !important; padding: 0.5rem 1.2rem; border-radius: 4px; font-weight: 600 !important; }
+    .btn-nav { background: var(--terra) !important; color: #fff !important; padding: .45rem 1.1rem; border-radius: 4px; font-weight: 600 !important; }
     .btn-nav:hover { background: var(--terra-dark) !important; }
+    @media(max-width:768px){ .nav-links { display:none; } }
 
     /* HERO */
-    .page-hero {
-      padding: 9rem 1.5rem 4rem;
+    .hero {
+      padding: 9rem 1.5rem 3.5rem;
       text-align: center;
       position: relative;
     }
-    .page-hero::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse at center top, rgba(196,98,45,0.08) 0%, transparent 65%);
-      pointer-events: none;
+    .hero::before {
+      content:''; position:absolute; inset:0;
+      background: radial-gradient(ellipse at center top, rgba(196,98,45,0.09) 0%, transparent 65%);
+      pointer-events:none;
     }
-    .page-hero .label {
-      display: inline-block; font-size: 0.75rem; font-weight: 600;
-      letter-spacing: 0.18em; text-transform: uppercase; color: var(--terra-light);
-      margin-bottom: 1rem;
+    .label-tag {
+      display:inline-block; font-size:.73rem; font-weight:600;
+      letter-spacing:.18em; text-transform:uppercase; color:var(--terra-light);
+      margin-bottom:1rem;
     }
-    .page-hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700; line-height: 1.15; margin-bottom: 1rem; }
-    .page-hero h1 em { color: var(--terra-light); font-style: italic; }
-    .page-hero p { color: rgba(255,255,255,0.5); font-size: 1rem; max-width: 520px; margin: 0 auto 0.5rem; }
-    .tax-notice {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: rgba(196,98,45,0.1); border: 1px solid rgba(196,98,45,0.28);
-      border-radius: 30px; padding: 0.45rem 1rem;
-      font-size: 0.8rem; color: var(--terra-pale); margin-top: 1.5rem;
+    .hero h1 { font-size:clamp(1.9rem,5vw,3.4rem); font-weight:700; line-height:1.12; margin-bottom:1rem; }
+    .hero h1 em { color:var(--terra-light); font-style:italic; }
+    .hero p { color:rgba(255,255,255,0.48); font-size:.97rem; max-width:540px; margin:0 auto 1.5rem; }
+    .tax-badge {
+      display:inline-flex; align-items:center; gap:.5rem;
+      background:rgba(196,98,45,0.1); border:1px solid rgba(196,98,45,0.3);
+      border-radius:30px; padding:.4rem 1rem;
+      font-size:.78rem; color:var(--terra-pale);
     }
-    .tax-notice span { font-weight: 600; color: var(--terra-light); }
+    .tax-badge strong { color:var(--terra-light); }
 
-    /* FORFAITS GRID */
-    .plans-section {
-      max-width: 1100px; margin: 0 auto;
-      padding: 3rem 1.5rem 5rem;
+    /* CATEGORY TABS */
+    .tabs-wrap { max-width:1200px; margin:2.5rem auto 0; padding:0 1.5rem; display:flex; gap:.6rem; flex-wrap:wrap; }
+    .tab-btn {
+      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+      color:rgba(255,255,255,0.55); font-size:.8rem; font-weight:500;
+      padding:.45rem 1.1rem; border-radius:30px; cursor:pointer;
+      transition:all .2s; letter-spacing:.04em;
     }
+    .tab-btn:hover, .tab-btn.active {
+      background:rgba(196,98,45,0.15); border-color:var(--terra);
+      color:#fff;
+    }
+
+    /* GRILLE FORFAITS */
+    .plans-section { max-width:1200px; margin:0 auto; padding:2.5rem 1.5rem 5rem; }
     .plans-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-      align-items: stretch;
-      margin-bottom: 3rem;
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap:1.2rem;
     }
 
-    /* PLAN CARD */
+    /* CARD */
     .plan-card {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 14px;
-      padding: 2.25rem;
-      display: flex; flex-direction: column; gap: 0.6rem;
-      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-      transition: all 0.25s;
-      position: relative;
-      overflow: hidden;
+      background:var(--glass-bg);
+      border:1px solid var(--glass-border);
+      border-radius:16px;
+      padding:1.6rem;
+      display:flex; flex-direction:column;
+      transition:transform .25s, box-shadow .25s, border-color .25s;
+      position:relative; overflow:hidden;
     }
-    .plan-card::after {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(196,98,45,0.3), transparent);
+    .plan-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+      background: linear-gradient(90deg, transparent, rgba(196,98,45,0.5), transparent);
     }
     .plan-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      transform:translateY(-4px);
+      box-shadow:0 20px 40px rgba(0,0,0,0.4);
+      border-color:rgba(196,98,45,0.3);
     }
-
-    /* Featured (Premium) */
     .plan-card.featured {
-      background: linear-gradient(145deg, rgba(196,98,45,0.22), rgba(168,70,26,0.12));
-      border-color: rgba(196,98,45,0.5);
-      transform: scale(1.03);
+      border-color:rgba(196,98,45,0.45);
+      background:rgba(196,98,45,0.07);
     }
-    .plan-card.featured::after { background: linear-gradient(90deg, transparent, rgba(196,98,45,0.8), transparent); }
-    .plan-card.featured:hover { transform: scale(1.03) translateY(-5px); }
-
-    /* VIP */
-    .plan-card.vip {
-      background: linear-gradient(145deg, rgba(201,147,58,0.12), rgba(28,16,8,0.4));
-      border-color: rgba(201,147,58,0.4);
-    }
-    .plan-card.vip::after { background: linear-gradient(90deg, transparent, rgba(201,147,58,0.7), transparent); }
+    .plan-card.featured::before { background: linear-gradient(90deg, transparent, rgba(196,98,45,0.8), transparent); }
 
     .plan-badge {
-      display: inline-block;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: #fff; font-size: 0.7rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.1em;
-      padding: 0.25rem 0.8rem; border-radius: 20px;
-      margin-bottom: 0.5rem; align-self: flex-start;
+      display:inline-block; font-size:.68rem; font-weight:700;
+      letter-spacing:.1em; text-transform:uppercase;
+      background:rgba(196,98,45,0.2); color:var(--terra-light);
+      border:1px solid rgba(196,98,45,0.35); border-radius:20px;
+      padding:.22rem .75rem; margin-bottom:.85rem;
+      width:fit-content;
     }
-    .plan-card.featured .plan-badge {
-      background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3);
-    }
-    .plan-card.vip .plan-badge {
-      background: rgba(201,147,58,0.2); border-color: rgba(201,147,58,0.4); color: var(--gold-light);
-    }
+    .plan-badge.combo { background:rgba(201,147,58,0.15); color:var(--gold-light); border-color:rgba(201,147,58,0.3); }
+    .plan-badge.enfant { background:rgba(100,160,100,0.15); color:var(--sage-light); border-color:rgba(100,160,100,0.3); }
 
-    .plan-name {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.7rem; font-weight: 700; color: #fff;
-    }
-    .plan-price {
-      font-size: 2.5rem; font-weight: 800;
-      color: var(--terra-light); line-height: 1;
-      margin: 0.5rem 0 0.1rem;
-    }
-    .plan-card.vip .plan-price { color: var(--gold-light); }
-    .plan-period { font-size: 0.82rem; color: rgba(255,255,255,0.45); margin-bottom: 0.25rem; }
-    .plan-taxes {
-      font-size: 0.72rem; color: rgba(255,255,255,0.3);
-      margin-bottom: 0.75rem;
-    }
+    .plan-category { font-size:.68rem; text-transform:uppercase; letter-spacing:.14em; color:rgba(255,255,255,0.35); margin-bottom:.3rem; }
+    .plan-name { font-family:'Playfair Display',serif; font-size:1.22rem; font-weight:700; margin-bottom:.2rem; }
 
-    /* Tax breakdown inline */
-    .plan-tax-line {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-      display: flex; flex-direction: column; gap: 0.3rem;
-      margin-bottom: 1rem;
-    }
-    .plan-tax-row {
-      display: flex; justify-content: space-between;
-      font-size: 0.75rem; color: rgba(255,255,255,0.45);
-    }
-    .plan-tax-row.total {
-      border-top: 1px solid rgba(255,255,255,0.1);
-      padding-top: 0.35rem; margin-top: 0.15rem;
-      font-weight: 700; color: rgba(255,255,255,0.75);
-      font-size: 0.8rem;
-    }
-    .plan-card.vip .plan-tax-row.total { color: var(--gold-light); }
+    .plan-price-block { margin:1rem 0; }
+    .plan-price { font-size:2.1rem; font-weight:700; color:var(--terra-light); line-height:1; }
+    .plan-price sup { font-size:1rem; vertical-align:super; }
+    .plan-price span { font-size:.85rem; color:rgba(255,255,255,0.45); font-weight:400; }
+    .plan-tax-row { display:flex; justify-content:space-between; font-size:.73rem; color:rgba(255,255,255,0.38); margin-top:.2rem; }
+    .plan-tax-row.total { color:rgba(255,255,255,0.6); font-weight:600; margin-top:.35rem; border-top:1px solid rgba(255,255,255,0.08); padding-top:.35rem; }
 
-    .plan-desc {
-      font-size: 0.82rem; color: rgba(255,255,255,0.45);
-      margin-bottom: 0.5rem;
-    }
-
-    .plan-features {
-      list-style: none;
-      display: flex; flex-direction: column; gap: 0.65rem;
-      flex: 1; margin-bottom: 1.5rem;
-    }
-    .plan-features li {
-      display: flex; align-items: flex-start; gap: 0.65rem;
-      font-size: 0.875rem; color: rgba(255,255,255,0.78);
-    }
-    .plan-features li::before {
-      content: "✓"; color: var(--sage-light);
-      font-weight: 700; flex-shrink: 0; margin-top: 1px;
-    }
-    .plan-card.vip .plan-features li::before { color: var(--gold-light); }
+    .plan-includes { list-style:none; margin:1rem 0 1.2rem; flex:1; }
+    .plan-includes li { font-size:.82rem; color:rgba(255,255,255,0.6); padding:.25rem 0; display:flex; align-items:flex-start; gap:.5rem; }
+    .plan-includes li::before { content:'✓'; color:var(--terra-light); flex-shrink:0; font-weight:700; }
+    .plan-includes .wash-note { color:var(--sage-light); font-style:italic; font-size:.76rem; }
 
     .btn-plan {
-      display: block; text-align: center;
-      padding: 0.85rem 1.5rem; border-radius: 8px;
-      font-weight: 700; font-size: 0.9rem; letter-spacing: 0.03em;
-      cursor: pointer; transition: all 0.2s;
-      border: 2px solid;
+      display:block; text-align:center; font-size:.85rem; font-weight:600;
+      padding:.7rem 1.2rem; border-radius:8px; border:1px solid rgba(196,98,45,0.4);
+      color:var(--terra-light); background:rgba(196,98,45,0.08);
+      transition:all .2s; cursor:pointer; width:100%;
     }
-    .plan-card .btn-plan {
-      background: transparent;
-      border-color: rgba(196,98,45,0.4); color: var(--terra-light);
-    }
-    .plan-card .btn-plan:hover { background: var(--terra); border-color: var(--terra); color: #fff; }
-    .plan-card.featured .btn-plan {
-      background: #fff; border-color: #fff; color: var(--terra-dark);
-    }
-    .plan-card.featured .btn-plan:hover { background: var(--terra-pale); border-color: var(--terra-pale); }
-    .plan-card.vip .btn-plan {
-      background: rgba(201,147,58,0.15); border-color: rgba(201,147,58,0.5); color: var(--gold-light);
-    }
-    .plan-card.vip .btn-plan:hover { background: var(--gold); border-color: var(--gold); color: #fff; }
+    .btn-plan:hover { background:var(--terra); border-color:var(--terra); color:#fff; }
+    .plan-card.featured .btn-plan { background:var(--terra); border-color:var(--terra); color:#fff; }
+    .plan-card.featured .btn-plan:hover { background:var(--terra-dark); }
 
-    /* BADGES ROW */
-    .plan-badges {
-      display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;
-      margin-top: 1rem; margin-bottom: 0;
+    /* FAMILY DISCOUNT BANNER */
+    .family-banner {
+      max-width:1200px; margin:0 auto 2.5rem; padding:0 1.5rem;
     }
-    .plan-badge-item {
-      display: flex; align-items: center; gap: 0.4rem;
-      font-size: 0.8rem; color: rgba(255,255,255,0.45);
+    .family-banner-inner {
+      background:linear-gradient(135deg, rgba(201,147,58,0.12), rgba(196,98,45,0.08));
+      border:1px solid rgba(201,147,58,0.3); border-radius:14px;
+      padding:1.2rem 1.8rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
     }
-    .plan-badge-item span { color: var(--sage-light); font-weight: 700; }
+    .family-icon { font-size:1.8rem; flex-shrink:0; }
+    .family-text h3 { font-size:1rem; font-weight:700; color:var(--gold-light); margin-bottom:.2rem; }
+    .family-text p { font-size:.83rem; color:rgba(255,255,255,0.55); }
 
-    /* COMPARISON TABLE */
-    .compare-section {
-      max-width: 1100px; margin: 0 auto;
-      padding: 2rem 1.5rem 5rem;
+    /* SECTION HEADERS */
+    .section-label {
+      font-size:.72rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase;
+      color:var(--terra-light); margin-bottom:.5rem;
     }
-    .compare-heading { text-align: center; margin-bottom: 2rem; }
-    .compare-heading h2 { font-size: 1.6rem; margin-bottom: 0.4rem; }
-    .compare-heading p { font-size: 0.85rem; color: rgba(255,255,255,0.4); }
+    .section-title { font-size:1.7rem; font-weight:700; margin-bottom:2rem; }
+    .section-title em { color:var(--terra-light); font-style:italic; }
 
-    .compare-table {
-      width: 100%;
-      border-collapse: collapse;
-      backdrop-filter: blur(10px);
+    /* WASH INFO */
+    .wash-info {
+      max-width:1200px; margin:0 auto 3rem; padding:0 1.5rem;
     }
-    .compare-table th {
-      padding: 1rem 1.25rem;
-      text-align: center;
-      background: rgba(255,255,255,0.04);
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      font-size: 0.85rem;
+    .wash-info-inner {
+      background:rgba(100,160,100,0.08); border:1px solid rgba(100,160,100,0.25);
+      border-radius:12px; padding:1rem 1.5rem;
+      display:flex; gap:1rem; align-items:flex-start;
     }
-    .compare-table th.plan-col { font-family: 'Playfair Display', serif; font-size: 1rem; }
-    .compare-table th.featured-col {
-      background: rgba(196,98,45,0.15);
-      border-color: rgba(196,98,45,0.3);
-      color: var(--terra-light);
-    }
-    .compare-table th.vip-col {
-      background: rgba(201,147,58,0.1);
-      border-color: rgba(201,147,58,0.3);
-      color: var(--gold-light);
-    }
-    .compare-table td {
-      padding: 0.85rem 1.25rem;
-      text-align: center;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      font-size: 0.85rem; color: rgba(255,255,255,0.65);
-    }
-    .compare-table td:first-child { text-align: left; color: rgba(255,255,255,0.5); }
-    .compare-table td.check { color: var(--sage-light); font-weight: 700; font-size: 1rem; }
-    .compare-table td.cross { color: rgba(255,255,255,0.2); }
-    .compare-table td.featured-col { background: rgba(196,98,45,0.05); }
-    .compare-table td.vip-col { background: rgba(201,147,58,0.04); }
-    .compare-table tr:last-child td { border-bottom: none; }
-    .compare-table .price-row td { font-weight: 700; font-size: 0.9rem; padding-top: 1.25rem; }
-    .compare-table .price-row .featured-col { color: var(--terra-light); }
-    .compare-table .price-row .vip-col { color: var(--gold-light); }
+    .wash-info-inner .icon { font-size:1.4rem; flex-shrink:0; margin-top:.1rem; }
+    .wash-info-inner p { font-size:.83rem; color:rgba(255,255,255,0.6); }
+    .wash-info-inner strong { color:var(--sage-light); }
 
-    /* CTA */
-    .cta-bar {
-      text-align: center; padding: 4.5rem 1.5rem;
-      background: linear-gradient(135deg, rgba(196,98,45,0.07), rgba(196,98,45,0.01));
-      border-top: 1px solid rgba(196,98,45,0.12);
+    /* PHOTOS PORTFOLIO */
+    .portfolio-section { max-width:1200px; margin:0 auto; padding:3rem 1.5rem; }
+    .portfolio-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+      gap:.8rem; margin-top:1.5rem;
     }
-    .cta-bar h2 { font-size: 2rem; margin-bottom: 0.75rem; }
-    .cta-bar p { color: rgba(255,255,255,0.45); margin-bottom: 2rem; max-width: 450px; margin-left: auto; margin-right: auto; }
-    .cta-btns { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
-    .btn-primary {
-      background: var(--terra); color: #fff;
-      padding: 0.85rem 2rem; border-radius: 6px;
-      font-weight: 700; font-size: 0.95rem; transition: background 0.2s;
-    }
-    .btn-primary:hover { background: var(--terra-dark); }
-    .btn-outline {
-      background: transparent; border: 2px solid rgba(196,98,45,0.35); color: var(--terra-light);
-      padding: 0.85rem 2rem; border-radius: 6px;
-      font-weight: 600; font-size: 0.95rem; transition: all 0.2s;
-    }
-    .btn-outline:hover { border-color: var(--terra); background: rgba(196,98,45,0.08); }
+    .portfolio-item { border-radius:10px; overflow:hidden; aspect-ratio:3/4; }
+    .portfolio-item img { width:100%; height:100%; object-fit:cover; transition:transform .4s; }
+    .portfolio-item:hover img { transform:scale(1.05); }
 
     /* FOOTER */
     footer {
-      background: #050301;
-      border-top: 1px solid rgba(196,98,45,0.12);
-      padding: 2.5rem 1.5rem; text-align: center;
+      border-top:1px solid rgba(196,98,45,0.15);
+      padding:2.5rem 1.5rem; text-align:center;
     }
-    .footer-salon { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 0.5rem; }
-    .footer-addr { font-size: 0.8rem; color: rgba(255,255,255,0.35); }
-    .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin: 1rem 0; flex-wrap: wrap; }
-    .footer-links a { font-size: 0.8rem; color: rgba(255,255,255,0.38); transition: color 0.2s; }
-    .footer-links a:hover { color: var(--terra-light); }
-    .footer-copy { font-size: 0.72rem; color: rgba(255,255,255,0.22); }
+    .footer-inner { max-width:1200px; margin:0 auto; }
+    .footer-logo { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; margin-bottom:.4rem; }
+    .footer-addr { font-size:.8rem; color:rgba(255,255,255,0.4); margin-bottom:.8rem; }
+    .footer-socials { display:flex; gap:1.2rem; justify-content:center; flex-wrap:wrap; margin-bottom:.8rem; }
+    .footer-socials a { font-size:.78rem; color:rgba(255,255,255,0.4); transition:color .2s; }
+    .footer-socials a:hover { color:var(--terra-light); }
+    .footer-copy { font-size:.72rem; color:rgba(255,255,255,0.2); }
 
-    /* RESPONSIVE */
-    @media (max-width: 900px) {
-      .plans-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto 3rem; }
-      .plan-card.featured { transform: none; }
-      .plan-card.featured:hover { transform: translateY(-5px); }
-      .compare-table { font-size: 0.78rem; }
-      .compare-table th, .compare-table td { padding: 0.6rem 0.5rem; }
-    }
-    @media (max-width: 600px) {
-      .nav-links { display: none; }
-      .compare-section { overflow-x: auto; }
-    }
+    /* HIDDEN */
+    .plan-card.hidden { display:none; }
   </style>
 </head>
 <body>
@@ -341,221 +232,393 @@
 <nav>
   <div class="nav-inner">
     <a href="/" class="nav-logo">
-      <div class="logo-main">KADIO</div>
-      <div class="logo-sub">Coiffure & Esthétique</div>
+      <div class="logo-main">Kadio Coiffure</div>
+      <div class="logo-sub">& Esthétique · Longueuil</div>
     </a>
     <ul class="nav-links">
       <li><a href="/">Accueil</a></li>
-      <li><a href="/menu">Menu</a></li>
-      <li><a href="/forfaits" class="active">Forfaits</a></li>
+      <li><a href="/menu.html">Services</a></li>
+      <li><a href="/forfaits.html" class="active">Forfaits</a></li>
       <li><a href="/reservation.html" class="btn-nav">Réserver</a></li>
     </ul>
   </div>
 </nav>
 
 <!-- HERO -->
-<section class="page-hero">
-  <div class="label">Kadio Coiffure — Longueuil</div>
-  <h1>Forfaits <em>mensuels</em><br/>sans engagement</h1>
-  <p>Investissez dans votre image. Économisez sur chaque visite. Profitez de la priorité.</p>
-  <div class="tax-notice">
-    ⚠️ Tous les prix sont <span>hors taxes</span> — TPS 5&nbsp;% + TVQ 9,975&nbsp;% applicables au Québec
-  </div>
+<section class="hero">
+  <div class="label-tag">Abonnements Mensuels</div>
+  <h1>Vos <em>forfaits illimités</em><br>Kadio Coiffure</h1>
+  <p>Accès illimité à vos services préférés, chaque mois. Locs, tresses, barbier, perruques — choisissez votre forfait.</p>
+  <div class="tax-badge">💡 Tous les prix sont <strong>hors taxes</strong> · TPS 5% + TVQ 9,975% = <strong>14,975%</strong></div>
 </section>
 
-<!-- PLANS -->
-<section class="plans-section">
-  <div class="plans-grid">
+<!-- TABS CATÉGORIES -->
+<div class="tabs-wrap">
+  <button class="tab-btn active" data-cat="all">Tous les forfaits</button>
+  <button class="tab-btn" data-cat="locs">🪢 Locs</button>
+  <button class="tab-btn" data-cat="tresses">✨ Tresses</button>
+  <button class="tab-btn" data-cat="barbier">✂️ Barbier</button>
+  <button class="tab-btn" data-cat="soins">💆 Soins</button>
+  <button class="tab-btn" data-cat="tissage">👑 Tissage</button>
+  <button class="tab-btn" data-cat="combo">👨‍👩‍👧 Combos</button>
+</div>
 
-    <!-- ESSENTIEL -->
-    <div class="plan-card">
-      <div class="plan-name">Essentiel</div>
-      <div class="plan-price">49<span style="font-size:1.4rem;">$</span></div>
-      <div class="plan-period">/ mois — hors taxes</div>
-      <div class="plan-tax-line">
-        <div class="plan-tax-row"><span>Sous-total HT</span><span>49,00 $</span></div>
-        <div class="plan-tax-row"><span>TPS (5 %)</span><span>2,45 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975 %)</span><span>4,89 $</span></div>
-        <div class="plan-tax-row total"><span>Total mensuel</span><span>56,34 $</span></div>
-      </div>
-      <div class="plan-desc">Idéal pour un entretien régulier sans contrainte.</div>
-      <ul class="plan-features">
-        <li>2 coupes par mois</li>
-        <li>Priorité à la réservation</li>
-        <li>Pas de dépôt requis</li>
-        <li>Confirmation SMS instantanée</li>
-      </ul>
-      <a href="/reservation.html" class="btn-plan">Commencer</a>
-    </div>
-
-    <!-- PREMIUM (featured) -->
-    <div class="plan-card featured">
-      <div class="plan-badge">⭐ Le plus choisi</div>
-      <div class="plan-name">Premium</div>
-      <div class="plan-price">89<span style="font-size:1.4rem;">$</span></div>
-      <div class="plan-period">/ mois — hors taxes</div>
-      <div class="plan-tax-line">
-        <div class="plan-tax-row"><span>Sous-total HT</span><span>89,00 $</span></div>
-        <div class="plan-tax-row"><span>TPS (5 %)</span><span>4,45 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975 %)</span><span>8,88 $</span></div>
-        <div class="plan-tax-row total"><span>Total mensuel</span><span>102,33 $</span></div>
-      </div>
-      <div class="plan-desc">Le meilleur rapport qualité-prix pour une image impeccable.</div>
-      <ul class="plan-features">
-        <li>4 coupes par mois</li>
-        <li>1 traitement capillaire offert</li>
-        <li>Pas de dépôt</li>
-        <li>Priorité absolue à la réservation</li>
-        <li>−10 % sur boutique</li>
-      </ul>
-      <a href="/reservation.html" class="btn-plan">Choisir Premium</a>
-    </div>
-
-    <!-- VIP -->
-    <div class="plan-card vip">
-      <div class="plan-badge">👑 VIP</div>
-      <div class="plan-name">VIP</div>
-      <div class="plan-price">149<span style="font-size:1.4rem;">$</span></div>
-      <div class="plan-period">/ mois — hors taxes</div>
-      <div class="plan-tax-line">
-        <div class="plan-tax-row"><span>Sous-total HT</span><span>149,00 $</span></div>
-        <div class="plan-tax-row"><span>TPS (5 %)</span><span>7,45 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975 %)</span><span>14,86 $</span></div>
-        <div class="plan-tax-row total"><span>Total mensuel</span><span>171,31 $</span></div>
-      </div>
-      <div class="plan-desc">Pour ceux qui ne font aucun compromis sur leur image.</div>
-      <ul class="plan-features">
-        <li>Coupes illimitées</li>
-        <li>Tous services inclus</li>
-        <li>Accès prioritaire garanti</li>
-        <li>−15 % sur boutique</li>
-        <li>Consultation personnalisée mensuelle</li>
-      </ul>
-      <a href="/reservation.html" class="btn-plan">Devenir VIP</a>
-    </div>
-
-  </div>
-
-  <!-- BADGES -->
-  <div class="plan-badges">
-    <div class="plan-badge-item"><span>✓</span> Sans engagement</div>
-    <div class="plan-badge-item"><span>✓</span> Sans dépôt de réservation</div>
-    <div class="plan-badge-item"><span>✓</span> Annulation facile</div>
-    <div class="plan-badge-item"><span>✓</span> SMS inclus</div>
-  </div>
-  <p style="text-align:center;margin-top:1.25rem;font-size:0.78rem;color:rgba(255,255,255,0.3);">
-    Tous les prix sont hors taxes. TPS 5&nbsp;% + TVQ 9,975&nbsp;% applicables au Québec (taux combiné 14,975&nbsp;%).
-  </p>
-</section>
-
-<!-- TABLEAU COMPARATIF -->
-<section class="compare-section">
-  <div class="compare-heading">
-    <h2>Comparatif des forfaits</h2>
-    <p>Choisissez ce qui correspond à vos besoins</p>
-  </div>
-  <table class="compare-table">
-    <thead>
-      <tr>
-        <th style="text-align:left;">Inclus</th>
-        <th class="plan-col">Essentiel</th>
-        <th class="plan-col featured-col">Premium</th>
-        <th class="plan-col vip-col">VIP</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr class="price-row">
-        <td>Prix mensuel HT</td>
-        <td>49 $</td>
-        <td class="featured-col">89 $</td>
-        <td class="vip-col">149 $</td>
-      </tr>
-      <tr>
-        <td>Prix mensuel TTC</td>
-        <td>56,34 $</td>
-        <td class="featured-col">102,33 $</td>
-        <td class="vip-col">171,31 $</td>
-      </tr>
-      <tr>
-        <td>Coupes par mois</td>
-        <td>2</td>
-        <td class="featured-col">4</td>
-        <td class="vip-col">Illimitées</td>
-      </tr>
-      <tr>
-        <td>Traitement capillaire offert</td>
-        <td class="cross">—</td>
-        <td class="check featured-col">✓ 1/mois</td>
-        <td class="check vip-col">✓ Inclus</td>
-      </tr>
-      <tr>
-        <td>Tous services inclus</td>
-        <td class="cross">—</td>
-        <td class="cross featured-col">—</td>
-        <td class="check vip-col">✓</td>
-      </tr>
-      <tr>
-        <td>Priorité réservation</td>
-        <td class="check">✓</td>
-        <td class="check featured-col">✓ Absolue</td>
-        <td class="check vip-col">✓ Garantie</td>
-      </tr>
-      <tr>
-        <td>Pas de dépôt requis</td>
-        <td class="check">✓</td>
-        <td class="check featured-col">✓</td>
-        <td class="check vip-col">✓</td>
-      </tr>
-      <tr>
-        <td>Réduction boutique</td>
-        <td class="cross">—</td>
-        <td class="featured-col">−10 %</td>
-        <td class="vip-col">−15 %</td>
-      </tr>
-      <tr>
-        <td>Consultation mensuelle</td>
-        <td class="cross">—</td>
-        <td class="cross featured-col">—</td>
-        <td class="check vip-col">✓</td>
-      </tr>
-      <tr>
-        <td>SMS de confirmation</td>
-        <td class="check">✓</td>
-        <td class="check featured-col">✓</td>
-        <td class="check vip-col">✓</td>
-      </tr>
-    </tbody>
-  </table>
-</section>
-
-<!-- CTA -->
-<div class="cta-bar">
-  <h2>Commencer votre forfait ?</h2>
-  <p>Parlez-nous de vos besoins en réservant directement ou via WhatsApp.</p>
-  <div class="cta-btns">
-    <a href="/reservation.html" class="btn-primary">Réserver maintenant →</a>
-    <a href="/menu" class="btn-outline">Voir tous les services</a>
-    <a href="https://wa.me/15149195970?text=Bonjour%2C%20je%20voudrais%20m'abonner%20au%20forfait%20Kadio%20Coiffure" class="btn-outline">💬 WhatsApp</a>
+<!-- LAVAGE HEBDO INFO -->
+<div class="wash-info" style="margin-top:2rem;">
+  <div class="wash-info-inner">
+    <span class="icon">🚿</span>
+    <p><strong>Lavage hebdomadaire inclus :</strong> La plupart des forfaits incluent <strong>1 lavage gratuit par semaine</strong>. Le droit se renouvelle automatiquement chaque lundi à minuit. Si le lavage de la semaine a déjà été utilisé, il sera bloqué jusqu'au lundi suivant.</p>
   </div>
 </div>
 
+<!-- REMISE FAMILLE -->
+<div class="family-banner">
+  <div class="family-banner-inner">
+    <div class="family-icon">👨‍👩‍👧</div>
+    <div class="family-text">
+      <h3>Remise Famille — 10% automatique</h3>
+      <p>Sélectionnez 2 forfaits ou plus sur le même compte et bénéficiez automatiquement d'une remise de <strong>−10%</strong> sur le total mensuel.</p>
+    </div>
+  </div>
+</div>
+
+<!-- GRILLE FORFAITS -->
+<section class="plans-section">
+  <div class="plans-grid" id="plansGrid">
+
+    <!-- LOCS ILLIMITÉ -->
+    <div class="plan-card featured" data-cat="locs">
+      <div class="plan-badge">🔥 Populaire</div>
+      <div class="plan-category">Locs</div>
+      <div class="plan-name">Locs Illimité</div>
+      <div class="plan-price-block">
+        <div class="plan-price"><sup>$</sup>129<span>.99/mois</span></div>
+        <div class="plan-tax-row"><span>TPS (5%)</span><span>6,50 $</span></div>
+        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>12,97 $</span></div>
+        <div class="plan-tax-row total"><span>Total avec taxes</span><span>149,46 $</span></div>
+      </div>
+      <ul class="plan-includes">
+        <li>Retwist illimité</li>
+        <li class="wash-note">🚿 1 lavage/semaine inclus</li>
+        <li>Priorité réservation</li>
+      </ul>
+      <a href="/reservation.html" class="btn-plan">S'abonner →</a>
+    </div>
+
+    <!-- MICROLOCKS / SISTERLOCKS -->
+    <div class="plan-card" data-cat="locs">
+      <div class="plan-badge">✨ Premium</div>
+      <div class="plan-category">Locs</div>
+      <div class="plan-name">Microlocks / Sisterlocks</div>
+      <div class="plan-price-block">
+        <div class="plan-price"><sup>$</sup>149<span>.99/mois</span></div>
+        <div class="plan-tax-row"><span>TPS (5%)</span><span>7,50 $</span></div>
+        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>14,96 $</span></div>
+        <div class="plan-tax-row total"><span>Total avec taxes</span><span>172,45 $</span></div>
+      </div>
+      <ul class="plan-includes">
+        <li>Entretien microlocks illimité</li>
+        <li class="wash-note">🚿 1 lavage/semaine inclus</li>
+        <li>Priorité réservation</li>
+      </ul>
+      <a href="/reservation.html" class="btn-plan">S'abonner →</a>
+    </div>
+
+    <!-- LOCS ENFANT -->
+    <div class="plan-card" data-cat="locs">
+      <div class="plan-badge enfant">👧 Enfant</div>
+      <div class="plan-category">Locs Enfant</div>
+      <div class="plan-name">Locs Enfant</div>
+      <div class="plan-price-block">
+        <div class="plan-price"><sup>$</sup>79<span>.99/mois</span></div>
+        <div class="plan-tax-row"><span>TPS (5%)</span><span>4,00 $</span></div>
+        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>7,98 $</span></div>
+        <div class="plan-tax-row total"><span>Total avec taxes</span><span>91,97 $</span></div>
+      </div>
+      <ul class="plan-includes">
+        <li>Entretien locs illimité</li>
+        <li class="wash-note">🚿 1 lavage/semaine inclus</li>
+      </ul>
+      <a href="/reservation.html" class="btn-plan">S'abonner →</a>
+    </div>
+
+    <!-- KNOTLESS & TRESSES SIGNATURE -->
+    <div class="plan-card featured" data-cat="tresses">
+      <div class="plan-badge">⭐ Best value</div>
+      <div class="plan-category">Tresses</div>
+      <div class="plan-name">Knotless & Tresses Signature</div>
+      <div class="plan-price-block">
+        <div class="plan-price"><sup>$</sup>139<span>.99/mois</span></div>
+        <div class="plan-tax-row"><span>TPS (5%)</span><span>7,00 $</span></div>
+        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>13,96 $</span></div>
+        <div class="plan-tax-row total"><span>Total avec taxes</span><span>160,95 $</span></div>
+      </div>
+      <ul class="plan-includes">
+        <li>Knotless braids illimités</li>
+        <li class="wash-note">🚿 1 lavage/semaine inclus</li>
+        <li>Priorité réservation</li>
+      </ul>
+      <a href="/reservation.html" class="btn-plan">S'abonner →</a>
+    </div>
+
+    <!-- TRESSES RAPIDES ADULTE -->
+    <div class="plan-card" data-cat="tresses">
+      <div class="plan-category">Tresses</div>
+      <div class="plan-name">Tresses Rapides Adulte</div>
+      <div class="plan-price-block">
+        <div class="plan-price"><sup>$</sup>79<span>.99/mois</span></div>
+        <div class="plan-tax-row"><span>TPS (5%)</span><span>4,00 $</span></div>
+        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>7,98 $</span></div>
+        <div class="plan-tax-row total"><span>Total avec taxes</span><span>91,97 $</span></div>
+      </div>
+      <ul class="plan-includes">
+        <li>Tresses rapides illimitées</li>
+        <li class="wash-note">🚿 1 lavage/semaine inclus</li>
+      </ul>
+      <a href="/reservation.html" class="btn-plan">S'abonner →</a>
+    </div>
+
+    <!-- TWISTS ET TRESSES COURT -->
+    <div class="plan-card" data-cat="tresses">
+      <div class="plan-category">Tresses</div>
+      <div class="plan-name">Twists et Tresses Court</div>
+      <div class="plan-price-block">
+        <div class="plan-price"><sup>$</sup>119<span>.99/mois</span></div>
+        <div class="plan-tax-row"><span>TPS (5%)</span><span>6,00 $</span></div>
+        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>11,97 $</span></div>
+        <div class="plan-tax-row total"><span>Total avec taxes</span><span>137,96 $</span></div>
+      </div>
+      <ul class="plan-includes">
+        <li>Twists et tresses courtes illimités</li>
+        <li class="wash-note">🚿 1 lavage/semaine inclus</li>
+      </ul>
+      <a href="/reservation.html" class="btn-plan">S'abonner →</a>
+    </div>
+
+    <!-- KNOTLESS ENFANT -->
+    <div class="plan-card" data-cat="tresses">
+      <div class="plan-badge enfant">👧 Enfant</div>
+      <div class="plan-category">Tresses Enfant</div>
+      <div class="plan-name">Knotless Enfant</div>
+      <div class="plan-price-block">
+        <div class="plan-price"><sup>$</sup>95<span>.99/mois</span></div>
+        <div class="plan-tax-row"><span>TPS (5%)</span><span>4,80 $</span></div>
+        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>9,58 $</span></div>
+        <div class="plan-tax-row total"><span>Total avec taxes</span><span>110,37 $</span></div>
+      </div>
+      <ul class="plan-includes">
+        <li>Knotless enfant illimités</li>
+        <li class="wash-note">🚿 1 lavage/semaine inclus</li>
+      </ul>
+      <a href="/reservation.html" class="btn-plan">S'abonner →</a>
+    </div>
+
+    <!-- TRESSES RAPIDES ENFANT -->
+    <div class="plan-card" data-cat="tresses">
+      <div class="plan-badge enfant">👧 Enfant</div>
+      <div class="plan-category">Tresses Enfant</div>
+      <div class="plan-name">Tresses Rapides Enfant</div>
+      <div class="plan-price-block">
+        <div class="plan-price"><sup>$</sup>59<span>.99/mois</span></div>
+        <div class="plan-tax-row"><span>TPS (5%)</span><span>3,00 $</span></div>
+        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>5,98 $</span></div>
+        <div class="plan-tax-row total"><span>Total avec taxes</span><span>68,97 $</span></div>
+      </div>
+      <ul class="plan-includes">
+        <li>Tresses rapides enfant illimitées</li>
+        <li class="wash-note">🚿 1 lavage/semaine inclus</li>
+      </ul>
+      <a href="/reservation.html" class="btn-plan">S'abonner →</a>
+    </div>
+
+    <!-- BARBIER COUPE & BARBE -->
+    <div class="plan-card featured" data-cat="barbier">
+      <div class="plan-badge">⭐ Best value</div>
+      <div class="plan-category">Barbier</div>
+      <div class="plan-name">Barbier Coupe & Barbe</div>
+      <div class="plan-price-block">
+        <div class="plan-price"><sup>$</sup>64<span>.99/mois</span></div>
+        <div class="plan-tax-row"><span>TPS (5%)</span><span>3,25 $</span></div>
+        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>6,48 $</span></div>
+        <div class="plan-tax-row total"><span>Total avec taxes</span><span>74,72 $</span></div>
+      </div>
+      <ul class="plan-includes">
+        <li>Coupes + barbe illimitées</li>
+        <li class="wash-note">🚿 1 lavage/semaine inclus</li>
+      </ul>
+      <a href="/reservation.html" class="btn-plan">S'abonner →</a>
+    </div>
+
+    <!-- BARBIER COUPE SIMPLE -->
+    <div class="plan-card" data-cat="barbier">
+      <div class="plan-category">Barbier</div>
+      <div class="plan-name">Barbier Coupe Simple</div>
+      <div class="plan-price-block">
+        <div class="plan-price"><sup>$</sup>59<span>.99/mois</span></div>
+        <div class="plan-tax-row"><span>TPS (5%)</span><span>3,00 $</span></div>
+        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>5,98 $</span></div>
+        <div class="plan-tax-row total"><span>Total avec taxes</span><span>68,97 $</span></div>
+      </div>
+      <ul class="plan-includes">
+        <li>Coupes illimitées</li>
+        <li class="wash-note">🚿 1 lavage/semaine inclus</li>
+      </ul>
+      <a href="/reservation.html" class="btn-plan">S'abonner →</a>
+    </div>
+
+    <!-- BARBIER BARBE ILLIMITÉE -->
+    <div class="plan-card" data-cat="barbier">
+      <div class="plan-category">Barbier</div>
+      <div class="plan-name">Barbier Barbe Illimitée</div>
+      <div class="plan-price-block">
+        <div class="plan-price"><sup>$</sup>35<span>.99/mois</span></div>
+        <div class="plan-tax-row"><span>TPS (5%)</span><span>1,80 $</span></div>
+        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>3,59 $</span></div>
+        <div class="plan-tax-row total"><span>Total avec taxes</span><span>41,38 $</span></div>
+      </div>
+      <ul class="plan-includes">
+        <li>Barbe illimitée</li>
+      </ul>
+      <a href="/reservation.html" class="btn-plan">S'abonner →</a>
+    </div>
+
+    <!-- BARBIER ENFANT -->
+    <div class="plan-card" data-cat="barbier">
+      <div class="plan-badge enfant">👦 Enfant</div>
+      <div class="plan-category">Barbier Enfant</div>
+      <div class="plan-name">Barbier Enfant</div>
+      <div class="plan-price-block">
+        <div class="plan-price"><sup>$</sup>49<span>.99/mois</span></div>
+        <div class="plan-tax-row"><span>TPS (5%)</span><span>2,50 $</span></div>
+        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>4,99 $</span></div>
+        <div class="plan-tax-row total"><span>Total avec taxes</span><span>57,48 $</span></div>
+      </div>
+      <ul class="plan-includes">
+        <li>Coupes enfant illimitées</li>
+      </ul>
+      <a href="/reservation.html" class="btn-plan">S'abonner →</a>
+    </div>
+
+    <!-- MISE EN PLI + LAVAGE -->
+    <div class="plan-card" data-cat="soins">
+      <div class="plan-category">Soins</div>
+      <div class="plan-name">Mise en pli + Lavage</div>
+      <div class="plan-price-block">
+        <div class="plan-price"><sup>$</sup>60<span>.00/mois</span></div>
+        <div class="plan-tax-row"><span>TPS (5%)</span><span>3,00 $</span></div>
+        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>5,99 $</span></div>
+        <div class="plan-tax-row total"><span>Total avec taxes</span><span>68,99 $</span></div>
+      </div>
+      <ul class="plan-includes">
+        <li>Mise en pli + lavage illimités</li>
+      </ul>
+      <a href="/reservation.html" class="btn-plan">S'abonner →</a>
+    </div>
+
+    <!-- POSE PERRUQUES -->
+    <div class="plan-card" data-cat="tissage">
+      <div class="plan-category">Tissage & Perruques</div>
+      <div class="plan-name">Pose Perruques</div>
+      <div class="plan-price-block">
+        <div class="plan-price"><sup>$</sup>120<span>.00/mois</span></div>
+        <div class="plan-tax-row"><span>TPS (5%)</span><span>6,00 $</span></div>
+        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>11,97 $</span></div>
+        <div class="plan-tax-row total"><span>Total avec taxes</span><span>137,97 $</span></div>
+      </div>
+      <ul class="plan-includes">
+        <li>Poses perruques illimitées</li>
+        <li class="wash-note">🚿 1 lavage/semaine inclus</li>
+      </ul>
+      <a href="/reservation.html" class="btn-plan">S'abonner →</a>
+    </div>
+
+    <!-- COMBO TRESSES + BARBIER -->
+    <div class="plan-card" data-cat="combo">
+      <div class="plan-badge combo">👨‍👩‍👧 Famille</div>
+      <div class="plan-category">Combo</div>
+      <div class="plan-name">Combo Tresses + Barbier</div>
+      <div class="plan-price-block">
+        <div class="plan-price"><sup>$</sup>104<span>.99/mois</span></div>
+        <div class="plan-tax-row"><span>TPS (5%)</span><span>5,25 $</span></div>
+        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>10,47 $</span></div>
+        <div class="plan-tax-row total"><span>Total avec taxes</span><span>120,71 $</span></div>
+      </div>
+      <ul class="plan-includes">
+        <li>Tresses rapides + coupe illimités</li>
+        <li class="wash-note">🚿 1 lavage/semaine inclus</li>
+      </ul>
+      <a href="/reservation.html" class="btn-plan">S'abonner →</a>
+    </div>
+
+    <!-- COMBO LOCS + BARBIER -->
+    <div class="plan-card featured" data-cat="combo">
+      <div class="plan-badge combo">👨‍👩‍👧 Famille</div>
+      <div class="plan-category">Combo</div>
+      <div class="plan-name">Combo Locs + Barbier</div>
+      <div class="plan-price-block">
+        <div class="plan-price"><sup>$</sup>154<span>.99/mois</span></div>
+        <div class="plan-tax-row"><span>TPS (5%)</span><span>7,75 $</span></div>
+        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>15,46 $</span></div>
+        <div class="plan-tax-row total"><span>Total avec taxes</span><span>178,20 $</span></div>
+      </div>
+      <ul class="plan-includes">
+        <li>Locs + coupe barbier illimités</li>
+        <li class="wash-note">🚿 1 lavage/semaine inclus</li>
+      </ul>
+      <a href="/reservation.html" class="btn-plan">S'abonner →</a>
+    </div>
+
+  </div><!-- /plans-grid -->
+</section>
+
+<!-- PORTFOLIO PHOTOS -->
+<section class="portfolio-section">
+  <div class="label-tag">Notre Travail</div>
+  <div class="section-title">Réalisations du salon</div>
+  <div class="portfolio-grid">
+    <div class="portfolio-item"><img src="/img/portfolio-1-knotless.jpg" alt="Knotless Box Braids" loading="lazy" /></div>
+    <div class="portfolio-item"><img src="/img/portfolio-2-cornrows-enfant.jpg" alt="Cornrows enfant avec boucles" loading="lazy" /></div>
+    <div class="portfolio-item"><img src="/img/portfolio-3-waves-homme.jpg" alt="360 Waves homme" loading="lazy" /></div>
+    <div class="portfolio-item"><img src="/img/portfolio-4-coupe-design.jpg" alt="Coupe naturelle avec design" loading="lazy" /></div>
+    <div class="portfolio-item"><img src="/img/portfolio-5-dreadlocks.jpg" alt="Dreadlocks avec fade" loading="lazy" /></div>
+    <div class="portfolio-item"><img src="/img/portfolio-6-stitch-braids.jpg" alt="Stitch Braids géométriques" loading="lazy" /></div>
+  </div>
+</section>
+
 <!-- FOOTER -->
 <footer>
-  <div class="footer-salon">Kadio Coiffure & Esthétique</div>
-  <div class="footer-addr">615 Antoinette Robidoux, local 100 · Longueuil, QC J4J 2V8 · 514-919-5970</div>
-  <div class="footer-links">
-    <a href="/">Accueil</a>
-    <a href="/menu">Menu</a>
-    <a href="/forfaits">Forfaits</a>
-    <a href="/reservation.html">Réservation</a>
-    <a href="https://wa.me/15149195970">WhatsApp</a>
-    <a href="https://instagram.com/kadiocoiffure">Instagram</a>
-  </div>
-  <div class="footer-copy">
-    © 2026 Kadio Coiffure et Esthétique. Tous droits réservés. Tous les prix sont affichés hors taxes (TPS + TVQ applicables au Québec). |
-    <a href="https://daleba.vercel.app" style="color:inherit;">Propulsé par DALEBA IA</a>
+  <div class="footer-inner">
+    <div class="footer-logo">Kadio Coiffure & Esthétique</div>
+    <div class="footer-addr">615 Antoinette Robidoux, local 100 · Longueuil, QC J4J 2V8</div>
+    <div class="footer-socials">
+      <a href="https://www.facebook.com/kadiocoiffure" target="_blank">📘 Facebook : kadio coiffure</a>
+      <a href="https://www.instagram.com/kadiocoiffure" target="_blank">📸 Instagram : @kadiocoiffure</a>
+      <a href="https://www.tiktok.com/@kadiocoiffure" target="_blank">🎵 TikTok : @kadiocoiffure</a>
+      <a href="https://wa.me/15149195970" target="_blank">💬 WhatsApp : 514-919-5970</a>
+    </div>
+    <div class="footer-copy">© 2026 Kadio Coiffure & Esthétique. Tous droits réservés.</div>
   </div>
 </footer>
 
+<script>
+  // Filtrage par catégorie
+  const tabs = document.querySelectorAll('.tab-btn');
+  const cards = document.querySelectorAll('.plan-card');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const cat = tab.dataset.cat;
+      cards.forEach(card => {
+        if (cat === 'all' || card.dataset.cat === cat) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    });
+  });
+</script>
 </body>
 </html>

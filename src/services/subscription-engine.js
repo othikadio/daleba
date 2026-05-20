@@ -1,6 +1,6 @@
 /**
  * DALEBA — Moteur d'Abonnements Souverains
- * Section 15 — Abonnements Mensuels Kadio Coiffure
+ * Section 15 — Forfaits Mensuels RÉELS Kadio Coiffure
  *
  * Tous les prix sont HORS TAXES.
  * Québec : TPS 5% + TVQ 9.975% = 14.975% total
@@ -8,265 +8,362 @@
 
 'use strict';
 
-const { calculateTaxes } = require('./menu-catalogue');
 const { pool, DEMO_MODE } = require('../memory/db');
 const bus = require('./event-bus');
 
-// ─── FORFAITS ────────────────────────────────────────────────────────────────
-// Tous les prix HORS TAXES — "(+ taxes)" affiché partout côté client
+// ─── TAXES QC ────────────────────────────────────────────────────────────────
+function calculateTaxes(price) {
+  const tps    = parseFloat((price * 0.05).toFixed(2));
+  const tvq    = parseFloat((price * 0.09975).toFixed(2));
+  const total  = parseFloat((price + tps + tvq).toFixed(2));
+  return { subtotal: price, tps, tvq, total };
+}
 
-const PLANS = [
-  {
-    id:          'essentiel',
-    name:        'Essentiel',
-    priceMonthly: 49,
-    priceLabel:  '49$/mois (+ taxes)',
-    badge:       null,
-    featured:    false,
-    vip:         false,
-    features: [
-      '2 coupes par mois',
-      'Priorité à la réservation',
-      'Pas de dépôt requis',
-      'Confirmation SMS instantanée',
-    ],
-    ctaText: 'Commencer',
-    description: 'Idéal pour les clients réguliers qui veulent un entretien soigné sans contrainte.',
-  },
-  {
-    id:          'premium',
-    name:        'Premium',
-    priceMonthly: 89,
-    priceLabel:  '89$/mois (+ taxes)',
-    badge:       '⭐ Le plus choisi',
-    featured:    true,
-    vip:         false,
-    features: [
-      '4 coupes par mois',
-      '1 traitement capillaire offert',
-      'Pas de dépôt',
-      'Priorité absolue à la réservation',
-      '−10% sur boutique',
-    ],
-    ctaText: 'Choisir Premium',
-    description: 'Le meilleur rapport qualité-prix pour une image impeccable toute l\'année.',
-  },
-  {
-    id:          'vip',
-    name:        'VIP',
-    priceMonthly: 149,
-    priceLabel:  '149$/mois (+ taxes)',
-    badge:       '👑 VIP',
-    featured:    false,
-    vip:         true,
-    features: [
-      'Coupes illimitées',
-      'Tous services inclus',
-      'Accès prioritaire garanti',
-      '−15% sur boutique',
-      'Consultation personnalisée mensuelle',
-    ],
-    ctaText: 'Devenir VIP',
-    description: 'Pour ceux qui ne font aucun compromis sur leur image. L\'expérience ultime.',
-  },
-];
+// ─── FORFAITS RÉELS KADIO COIFFURE ──────────────────────────────────────────
+// Règle commission : forfait < 120$ → 10$ fixe | forfait >= 120$ → 15$ fixe
 
-// ─── FONCTIONS UTILITAIRES ───────────────────────────────────────────────────
+const FORFAITS = {
+  'locs-illimite': {
+    id: 'locs-illimite', name: 'Locs Illimité',
+    price: 129.99, category: 'locs',
+    commission: 15, badge: '🔥 Populaire',
+    includes: ['Retwist illimité', '1 lavage/semaine inclus', 'Priorité réservation'],
+  },
+  'microlocks-sisterlocks': {
+    id: 'microlocks-sisterlocks', name: 'Microlocks / Sisterlocks',
+    price: 149.99, category: 'locs',
+    commission: 15, badge: '✨ Premium',
+    includes: ['Entretien microlocks illimité', '1 lavage/semaine inclus', 'Priorité réservation'],
+  },
+  'knotless-tresses-signature': {
+    id: 'knotless-tresses-signature', name: 'Knotless & Tresses Signature',
+    price: 139.99, category: 'tresses',
+    commission: 15, badge: null,
+    includes: ['Knotless illimités', '1 lavage/semaine inclus', 'Priorité réservation'],
+  },
+  'tresses-rapides-adulte': {
+    id: 'tresses-rapides-adulte', name: 'Tresses Rapides Adulte',
+    price: 79.99, category: 'tresses',
+    commission: 10, badge: null,
+    includes: ['Tresses rapides illimitées', '1 lavage/semaine inclus'],
+  },
+  'barbier-coupe-barbe': {
+    id: 'barbier-coupe-barbe', name: 'Barbier Coupe & Barbe',
+    price: 64.99, category: 'barbier',
+    commission: 10, badge: '⭐ Best value',
+    includes: ['Coupe + barbe illimitées', '1 lavage/semaine inclus'],
+  },
+  'barbier-coupe-simple': {
+    id: 'barbier-coupe-simple', name: 'Barbier Coupe Simple',
+    price: 59.99, category: 'barbier',
+    commission: 10, badge: null,
+    includes: ['Coupes illimitées', '1 lavage/semaine inclus'],
+  },
+  'barbier-barbe-illimitee': {
+    id: 'barbier-barbe-illimitee', name: 'Barbier Barbe Illimitée',
+    price: 35.99, category: 'barbier',
+    commission: 10, badge: null,
+    includes: ['Barbe illimitée'],
+  },
+  'tresses-rapides-enfant': {
+    id: 'tresses-rapides-enfant', name: 'Tresses Rapides Enfant',
+    price: 59.99, category: 'tresses',
+    commission: 10, badge: '👧 Enfant',
+    includes: ['Tresses rapides illimitées', '1 lavage/semaine inclus'],
+  },
+  'knotless-enfant': {
+    id: 'knotless-enfant', name: 'Knotless Enfant',
+    price: 95.99, category: 'tresses',
+    commission: 10, badge: '👧 Enfant',
+    includes: ['Knotless illimités', '1 lavage/semaine inclus'],
+  },
+  'locs-enfant': {
+    id: 'locs-enfant', name: 'Locs Enfant',
+    price: 79.99, category: 'locs',
+    commission: 10, badge: '👧 Enfant',
+    includes: ['Entretien locs illimité', '1 lavage/semaine inclus'],
+  },
+  'barbier-enfant': {
+    id: 'barbier-enfant', name: 'Barbier Enfant',
+    price: 49.99, category: 'barbier',
+    commission: 10, badge: '👦 Enfant',
+    includes: ['Coupes enfant illimitées'],
+  },
+  'mise-en-pli-lavage': {
+    id: 'mise-en-pli-lavage', name: 'Mise en pli + Lavage',
+    price: 60.00, category: 'soins',
+    commission: 10, badge: null,
+    includes: ['Mise en pli + lavage illimités'],
+  },
+  'pose-perruques': {
+    id: 'pose-perruques', name: 'Pose Perruques',
+    price: 120.00, category: 'tissage',
+    commission: 15, badge: null,
+    includes: ['Poses perruques illimitées', '1 lavage/semaine inclus'],
+  },
+  'twists-tresses-court': {
+    id: 'twists-tresses-court', name: 'Twists et Tresses Court',
+    price: 119.99, category: 'tresses',
+    commission: 10, badge: null,
+    includes: ['Twists et tresses courtes illimités', '1 lavage/semaine inclus'],
+  },
+  'combo-tresses-barbier': {
+    id: 'combo-tresses-barbier', name: 'Combo Tresses + Barbier',
+    price: 104.99, category: 'combo',
+    commission: 10, badge: '👨‍👩‍👧 Famille',
+    includes: ['Tresses rapides + coupe barbier illimités', '1 lavage/semaine inclus'],
+  },
+  'combo-locs-barbier': {
+    id: 'combo-locs-barbier', name: 'Combo Locs + Barbier',
+    price: 154.99, category: 'combo',
+    commission: 15, badge: '👨‍👩‍👧 Famille',
+    includes: ['Locs + coupe barbier illimités', '1 lavage/semaine inclus'],
+  },
+};
 
-/**
- * Retourne tous les forfaits avec calcul des taxes.
- */
-function getAllPlansWithTaxes() {
-  return PLANS.map(plan => ({
-    ...plan,
-    taxes: calculateTaxes(plan.priceMonthly),
+// Remise famille : -10% dès 2 forfaits sur le même compte
+const FAMILY_DISCOUNT = 0.10;
+
+// ─── UTILITAIRES ─────────────────────────────────────────────────────────────
+
+function getAllForfaits() {
+  return Object.values(FORFAITS).map(f => ({
+    ...f,
+    taxes: calculateTaxes(f.price),
+    priceLabel: `${f.price.toFixed(2)} $/mois + taxes`,
   }));
 }
 
-/**
- * Retourne un forfait par ID avec taxes calculées.
- * @param {string} id — 'essentiel' | 'premium' | 'vip'
- */
-function getPlanWithTaxes(id) {
-  const plan = PLANS.find(p => p.id === id);
-  if (!plan) throw new Error(`Forfait inconnu: ${id}. Options: essentiel, premium, vip`);
-  return { ...plan, taxes: calculateTaxes(plan.priceMonthly) };
+function getForfait(id) {
+  const f = FORFAITS[id];
+  if (!f) throw new Error(`Forfait inconnu: ${id}`);
+  return { ...f, taxes: calculateTaxes(f.price) };
 }
 
-/**
- * Calcule le coût annuel d'un forfait (12 mois, taxes incluses).
- * @param {string} id
- */
-function getAnnualCost(id) {
-  const plan = getPlanWithTaxes(id);
-  const annualHT = plan.priceMonthly * 12;
-  const taxes    = calculateTaxes(annualHT);
-  return {
-    plan: plan.name,
-    monthlyHT:  plan.priceMonthly,
-    annualHT,
-    taxes,
-    savings:    `${(plan.priceMonthly * 2).toFixed(2)} $ économisés vs mensuel`,
-  };
+function calculateCommission(forfaitId) {
+  const f = FORFAITS[forfaitId];
+  if (!f) throw new Error(`Forfait inconnu: ${forfaitId}`);
+  return f.price < 120 ? 10 : 15;
 }
 
-// ─── GESTION DES ABONNEMENTS (DB) ────────────────────────────────────────────
-
-/**
- * Initialise la table subscriptions si elle n'existe pas.
- */
-async function initSubscriptionsTable() {
-  if (DEMO_MODE || !pool) return;
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS subscriptions (
-      id             SERIAL PRIMARY KEY,
-      tenant_id      VARCHAR(64)  NOT NULL DEFAULT 'kadio',
-      client_name    VARCHAR(128) NOT NULL,
-      client_phone   VARCHAR(32)  NOT NULL,
-      client_email   VARCHAR(128),
-      plan_id        VARCHAR(32)  NOT NULL,
-      plan_name      VARCHAR(64)  NOT NULL,
-      price_ht       NUMERIC(10,2) NOT NULL,
-      price_tps      NUMERIC(10,2) NOT NULL,
-      price_tvq      NUMERIC(10,2) NOT NULL,
-      price_ttc      NUMERIC(10,2) NOT NULL,
-      status         VARCHAR(32)  NOT NULL DEFAULT 'active',
-      started_at     TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-      renewed_at     TIMESTAMPTZ,
-      cancelled_at   TIMESTAMPTZ,
-      stripe_sub_id  VARCHAR(128),
-      notes          TEXT,
-      created_at     TIMESTAMPTZ  NOT NULL DEFAULT NOW()
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_subs_tenant  ON subscriptions(tenant_id);
-    CREATE INDEX IF NOT EXISTS idx_subs_phone   ON subscriptions(client_phone);
-    CREATE INDEX IF NOT EXISTS idx_subs_status  ON subscriptions(status);
-  `);
-  bus.system('[SUBS] Table subscriptions initialisée ✓');
+function applyFamilyDiscount(totalPrice, nbForfaits) {
+  if (nbForfaits >= 2) {
+    const discount = totalPrice * FAMILY_DISCOUNT;
+    return { original: totalPrice, discount, final: parseFloat((totalPrice - discount).toFixed(2)) };
+  }
+  return { original: totalPrice, discount: 0, final: totalPrice };
 }
 
-/**
- * Crée un nouvel abonnement.
- * @param {object} opts
- */
-async function createSubscription({ tenantId = 'kadio', clientName, clientPhone, clientEmail, planId, notes, stripeSubId }) {
-  const plan = getPlanWithTaxes(planId);
+function getForfaitsByCategory() {
+  const categories = {};
+  Object.values(FORFAITS).forEach(f => {
+    if (!categories[f.category]) categories[f.category] = [];
+    categories[f.category].push({ ...f, taxes: calculateTaxes(f.price) });
+  });
+  return categories;
+}
 
-  const entry = {
-    tenantId,
-    clientName,
-    clientPhone,
-    clientEmail: clientEmail || null,
-    planId:      plan.id,
-    planName:    plan.name,
-    priceHT:     plan.priceMonthly,
-    priceTPS:    plan.taxes.tps,
-    priceTVQ:    plan.taxes.tvq,
-    priceTTC:    plan.taxes.total,
-    stripeSubId: stripeSubId || null,
-    notes:       notes || null,
-  };
+// ─── GÉNÉRATION CODE SCAN ────────────────────────────────────────────────────
+function generateScanCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = 'KC';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+// ─── TABLES SQL ───────────────────────────────────────────────────────────────
+/*
+CREATE TABLE IF NOT EXISTS daleba_subscriptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_phone VARCHAR(20) NOT NULL,
+  client_name VARCHAR(100),
+  forfait_id VARCHAR(60) NOT NULL,
+  status VARCHAR(20) DEFAULT 'active',
+  square_subscription_id VARCHAR(100),
+  weekly_wash_used BOOLEAN DEFAULT false,
+  weekly_wash_reset_at TIMESTAMP,
+  start_date TIMESTAMP DEFAULT NOW(),
+  next_billing_date TIMESTAMP,
+  created_by_staff VARCHAR(50),
+  commission_paid BOOLEAN DEFAULT false,
+  family_group_id VARCHAR(50),
+  scan_code VARCHAR(20) UNIQUE,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS daleba_otp_codes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  phone VARCHAR(20) NOT NULL,
+  code VARCHAR(6) NOT NULL,
+  expires_at TIMESTAMP NOT NULL,
+  used BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS daleba_staff_commissions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  staff_id VARCHAR(50) NOT NULL,
+  staff_name VARCHAR(100),
+  client_phone VARCHAR(20),
+  forfait_id VARCHAR(60) NOT NULL,
+  commission_amount DECIMAL(10,2) NOT NULL,
+  subscription_id UUID,
+  paid BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+*/
+
+async function initTables() {
+  if (DEMO_MODE || !pool) { console.log('[SUBSCRIPTION] Mode démo — DB non initialisée'); return; }
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS daleba_subscriptions (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        client_phone VARCHAR(20) NOT NULL,
+        client_name VARCHAR(100),
+        forfait_id VARCHAR(60) NOT NULL,
+        status VARCHAR(20) DEFAULT 'active',
+        square_subscription_id VARCHAR(100),
+        weekly_wash_used BOOLEAN DEFAULT false,
+        weekly_wash_reset_at TIMESTAMP,
+        start_date TIMESTAMP DEFAULT NOW(),
+        next_billing_date TIMESTAMP,
+        created_by_staff VARCHAR(50),
+        commission_paid BOOLEAN DEFAULT false,
+        family_group_id VARCHAR(50),
+        scan_code VARCHAR(20) UNIQUE,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+      CREATE TABLE IF NOT EXISTS daleba_otp_codes (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        phone VARCHAR(20) NOT NULL,
+        code VARCHAR(6) NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        used BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+      CREATE TABLE IF NOT EXISTS daleba_staff_commissions (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        staff_id VARCHAR(50) NOT NULL,
+        staff_name VARCHAR(100),
+        client_phone VARCHAR(20),
+        forfait_id VARCHAR(60) NOT NULL,
+        commission_amount DECIMAL(10,2) NOT NULL,
+        subscription_id UUID,
+        paid BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    console.log('[SUBSCRIPTION] Tables initialisées ✓');
+  } catch (e) {
+    console.error('[SUBSCRIPTION] Erreur init tables:', e.message);
+  }
+}
+
+// ─── CRUD ABONNEMENTS ─────────────────────────────────────────────────────────
+
+async function createSubscription({ clientPhone, clientName, forfaitId, staffId }) {
+  const forfait = getForfait(forfaitId);
+  const scanCode = generateScanCode();
+  const commission = calculateCommission(forfaitId);
+  const nextBilling = new Date();
+  nextBilling.setMonth(nextBilling.getMonth() + 1);
 
   if (DEMO_MODE || !pool) {
-    bus.system(`[SUBS DEMO] Nouvel abonnement ${plan.name} pour ${clientName} — ${plan.priceLabel}`);
-    return { ...entry, id: Math.floor(Math.random() * 10000), status: 'active', demo: true };
+    console.log(`[SUBSCRIPTION] DEMO — Abonnement créé: ${clientPhone} → ${forfait.name}`);
+    return { id: 'demo-' + Date.now(), scanCode, forfait, commission };
   }
 
-  await initSubscriptionsTable();
-
-  const r = await pool.query(`
-    INSERT INTO subscriptions
-      (tenant_id, client_name, client_phone, client_email, plan_id, plan_name,
-       price_ht, price_tps, price_tvq, price_ttc, stripe_sub_id, notes)
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+  const result = await pool.query(`
+    INSERT INTO daleba_subscriptions
+      (client_phone, client_name, forfait_id, scan_code, created_by_staff, next_billing_date)
+    VALUES ($1,$2,$3,$4,$5,$6)
     RETURNING *
-  `, [
-    tenantId, clientName, clientPhone, clientEmail,
-    plan.id, plan.name,
-    plan.priceMonthly, plan.taxes.tps, plan.taxes.tvq, plan.taxes.total,
-    stripeSubId, notes,
-  ]);
+  `, [clientPhone, clientName, forfaitId, scanCode, staffId || null, nextBilling]);
 
-  bus.system(`[SUBS] Nouvel abonnement ${plan.name} pour ${clientName}`);
-  return r.rows[0];
+  if (staffId) {
+    await pool.query(`
+      INSERT INTO daleba_staff_commissions (staff_id, client_phone, forfait_id, commission_amount, subscription_id)
+      VALUES ($1,$2,$3,$4,$5)
+    `, [staffId, clientPhone, forfaitId, commission, result.rows[0].id]);
+  }
+
+  bus.emit('subscription:created', { phone: clientPhone, forfait: forfait.name, scanCode });
+  return { ...result.rows[0], forfait, commission };
 }
 
-/**
- * Liste les abonnements actifs d'un tenant.
- */
-async function getActiveSubscriptions(tenantId = 'kadio') {
-  if (DEMO_MODE || !pool) {
-    return { subscriptions: [], count: 0, demo: true };
-  }
-  const r = await pool.query(
-    `SELECT * FROM subscriptions WHERE tenant_id=$1 AND status='active' ORDER BY started_at DESC`,
-    [tenantId]
-  );
-  return { subscriptions: r.rows, count: r.rows.length };
+async function getSubscriptionByScanCode(scanCode) {
+  if (DEMO_MODE || !pool) return null;
+  const r = await pool.query('SELECT * FROM daleba_subscriptions WHERE scan_code=$1', [scanCode]);
+  if (!r.rows[0]) return null;
+  const sub = r.rows[0];
+  return { ...sub, forfait: getForfait(sub.forfait_id) };
 }
 
-/**
- * Annule un abonnement.
- */
-async function cancelSubscription(subscriptionId, tenantId = 'kadio') {
-  if (DEMO_MODE || !pool) {
-    return { success: true, demo: true };
-  }
-  await pool.query(
-    `UPDATE subscriptions SET status='cancelled', cancelled_at=NOW()
-     WHERE id=$1 AND tenant_id=$2`,
-    [subscriptionId, tenantId]
-  );
-  bus.system(`[SUBS] Abonnement #${subscriptionId} annulé`);
-  return { success: true, subscriptionId, status: 'cancelled' };
+async function getSubscriptionByPhone(phone) {
+  if (DEMO_MODE || !pool) return null;
+  const r = await pool.query('SELECT * FROM daleba_subscriptions WHERE client_phone=$1 AND status=$2', [phone, 'active']);
+  if (!r.rows[0]) return null;
+  return { ...r.rows[0], forfait: getForfait(r.rows[0].forfait_id) };
 }
 
-/**
- * Statistiques abonnements pour le HUD.
- */
-async function getSubscriptionStats(tenantId = 'kadio') {
-  if (DEMO_MODE || !pool) {
-    return {
-      totalActive:  0,
-      mrr_ht:       0,
-      mrr_ttc:      0,
-      byPlan:       {},
-      demo:         true,
-    };
-  }
+async function blockSubscription(phone, reason) {
+  if (DEMO_MODE || !pool) return;
+  await pool.query(`UPDATE daleba_subscriptions SET status='blocked', updated_at=NOW() WHERE client_phone=$1`, [phone]);
+  bus.emit('subscription:blocked', { phone, reason });
+  console.log(`[SUBSCRIPTION] Bloqué: ${phone} — ${reason}`);
+}
+
+async function checkWeeklyWash(phone) {
+  if (DEMO_MODE || !pool) return { canWash: true, used: false };
+  const r = await pool.query('SELECT weekly_wash_used FROM daleba_subscriptions WHERE client_phone=$1 AND status=$2', [phone, 'active']);
+  if (!r.rows[0]) return { canWash: false, error: 'Abonnement non trouvé' };
+  return { canWash: !r.rows[0].weekly_wash_used, used: r.rows[0].weekly_wash_used };
+}
+
+async function consumeWeeklyWash(phone) {
+  if (DEMO_MODE || !pool) return { success: true };
+  const check = await checkWeeklyWash(phone);
+  if (!check.canWash) return { success: false, message: 'Lavage de la semaine déjà utilisé' };
+  await pool.query(`UPDATE daleba_subscriptions SET weekly_wash_used=true, updated_at=NOW() WHERE client_phone=$1`, [phone]);
+  return { success: true };
+}
+
+async function resetWeeklyWashes() {
+  if (DEMO_MODE || !pool) return;
+  const r = await pool.query(`UPDATE daleba_subscriptions SET weekly_wash_used=false, weekly_wash_reset_at=NOW(), updated_at=NOW() WHERE status='active'`);
+  console.log(`[SUBSCRIPTION] Reset lavages hebdo ✓ — ${r.rowCount} abonnements mis à jour`);
+  bus.emit('subscription:wash_reset', { count: r.rowCount, at: new Date().toISOString() });
+}
+
+async function getStaffCommissions(staffId, month) {
+  if (DEMO_MODE || !pool) return [];
   const r = await pool.query(`
-    SELECT
-      COUNT(*)::int                                       AS total_active,
-      SUM(price_ht)::numeric                             AS mrr_ht,
-      SUM(price_ttc)::numeric                            AS mrr_ttc,
-      json_object_agg(plan_id, cnt) AS by_plan
-    FROM (
-      SELECT plan_id, COUNT(*)::int AS cnt, SUM(price_ht) AS price_ht, SUM(price_ttc) AS price_ttc
-      FROM subscriptions
-      WHERE tenant_id=$1 AND status='active'
-      GROUP BY plan_id
-    ) sub
-  `, [tenantId]);
-
-  const row = r.rows[0] || {};
-  return {
-    totalActive: row.total_active || 0,
-    mrr_ht:      parseFloat(row.mrr_ht  || 0).toFixed(2),
-    mrr_ttc:     parseFloat(row.mrr_ttc || 0).toFixed(2),
-    byPlan:      row.by_plan || {},
-  };
+    SELECT c.*, s.client_name, s.forfait_id FROM daleba_staff_commissions c
+    LEFT JOIN daleba_subscriptions s ON c.subscription_id = s.id
+    WHERE c.staff_id=$1 AND TO_CHAR(c.created_at,'YYYY-MM')=$2
+  `, [staffId, month]);
+  return r.rows;
 }
 
 module.exports = {
-  PLANS,
+  FORFAITS,
   calculateTaxes,
-  getAllPlansWithTaxes,
-  getPlanWithTaxes,
-  getAnnualCost,
-  initSubscriptionsTable,
+  getAllForfaits,
+  getForfait,
+  calculateCommission,
+  applyFamilyDiscount,
+  getForfaitsByCategory,
+  generateScanCode,
+  initTables,
   createSubscription,
-  getActiveSubscriptions,
-  cancelSubscription,
-  getSubscriptionStats,
+  getSubscriptionByScanCode,
+  getSubscriptionByPhone,
+  blockSubscription,
+  checkWeeklyWash,
+  consumeWeeklyWash,
+  resetWeeklyWashes,
+  getStaffCommissions,
 };
