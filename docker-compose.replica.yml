@@ -1,0 +1,82 @@
+# ═══════════════════════════════════════════════════════════════
+# DALEBA — Stack Instance B (Secours — VPS différent)
+# Déployer sur VPS B (zone géographique distincte)
+# Commande: docker compose -f docker-compose.replica.yml up -d
+# ═══════════════════════════════════════════════════════════════
+# Ce fichier s'exécute sur le VPS de SECOURS uniquement.
+# Il se connecte au PostgreSQL du VPS principal en streaming.
+# En cas de panne du VPS A, Cloudflare bascule le DNS ici.
+# ═══════════════════════════════════════════════════════════════
+
+services:
+
+  # ── PostgreSQL Slave (lecture seule + failover prêt) ────────
+  postgres-slave:
+    image: postgres:16-alpine
+    container_name: daleba-postgres-slave
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-railway}
+      POSTGRES_USER: ${POSTGRES_USER:-daleba}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGPASSWORD: ${POSTGRES_REPLICATION_PASSWORD}
+      PRIMARY_HOST: ${PRIMARY_DB_HOST}     # IP du VPS A (master)
+      PRIMARY_PORT: "5432"
+      REPLICATION_USER: replicator
+      REPLICATION_PASSWORD: ${POSTGRES_REPLICATION_PASSWORD}
+    volumes:
+      - postgres-slave-data:/var/lib/postgresql/data
+      - ./infra/postgres/slave-init.sh:/docker-entrypoint-initdb.d/init.sh:ro
+    command: >
+      postgres
+        -c hot_standby=on
+        -c wal_level=replica
+        -c max_wal_senders=3
+        -c listen_addresses='*'
+    ports:
+      - "5432:5432"
+    networks:
+      - daleba-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-daleba}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── App secours (instance B) ─────────────────────────────────
+  app-backup:
+    image: daleba-core:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: daleba-app-backup
+    env_file: .env.production
+    environment:
+      INSTANCE_ID: "B-REPLICA"
+      # Pointe vers le slave local — bascule sur master si slave indisponible
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-daleba}:${POSTGRES_PASSWORD}@postgres-slave:5432/${POSTGRES_DB:-railway}"
+      DATABASE_FALLBACK_URL: "postgresql://${POSTGRES_USER:-daleba}:${POSTGRES_PASSWORD}@${PRIMARY_DB_HOST}:5432/${POSTGRES_DB:-railway}"
+    restart: unless-stopped
+    ports:
+      - "80:3000"
+      - "443:3000"
+    depends_on:
+      postgres-slave:
+        condition: service_healthy
+    networks:
+      - daleba-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/status"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 25s
+
+volumes:
+  postgres-slave-data:
+    driver: local
+
+networks:
+  daleba-net:
+    driver: bridge
