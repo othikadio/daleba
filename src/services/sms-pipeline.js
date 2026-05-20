@@ -61,7 +61,8 @@ async function ensureTables() {
       service_name VARCHAR(100),
       staff_name VARCHAR(50),
       appointment_datetime TIMESTAMP,
-      reminder_sent BOOLEAN DEFAULT false,
+      reminder_24h_sent BOOLEAN DEFAULT false,
+      reminder_2h_sent BOOLEAN DEFAULT false,
       confirmation_sent BOOLEAN DEFAULT false,
       review_sent BOOLEAN DEFAULT false,
       rating_sent BOOLEAN DEFAULT false,
@@ -134,19 +135,65 @@ async function sendBookingConfirmation(clientPhone, clientName, serviceName, dat
  */
 async function sendReminderSMS(clientPhone, clientName, serviceName, datetime, staffName) {
   const timeStr = formatTime(datetime);
+  const dateStr = formatDatetime(datetime);
   const message =
-    `Rappel : votre RDV ${serviceName} est demain ${timeStr} avec ${staffName}. ` +
-    `Kadio Coiffure — 514-919-5970.`;
+    `⏰ Rappel Kadio Coiffure : votre RDV ${serviceName} est demain ${timeStr} ` +
+    `avec ${staffName}. On vous attend au 615 Antoinette-Robidoux, local 100, Longueuil. ` +
+    `Info : 514-919-5970.`;
 
   try {
     const result = await sendSMS(clientPhone, message);
-    console.log(`${LOG} Rappel envoyé à ${clientPhone} — SID: ${result.sid}`);
+    console.log(`${LOG} Rappel 24h envoyé à ${clientPhone} — SID: ${result.sid}`);
     bus.system(`${LOG} Rappel 24h → ${clientName} (${clientPhone})`);
     return result;
   } catch (err) {
-    console.error(`${LOG} Erreur rappel: ${err.message}`);
+    console.error(`${LOG} Erreur rappel 24h: ${err.message}`);
     throw err;
   }
+}
+
+// ─── MODULE 2B : RAPPEL 2H AVANT ──────────────────────────────────────────────
+
+/**
+ * SMS rappel 2h avant le RDV (dernière minute)
+ */
+async function sendReminder2hSMS(clientPhone, clientName, serviceName, datetime, staffName) {
+  const timeStr = formatTime(datetime);
+  const message =
+    `💇 Kadio Coiffure — Dans 2h ! Votre ${serviceName} à ${timeStr} avec ${staffName}. ` +
+    `615 Antoinette-Robidoux, local 100, Longueuil. À tout à l'heure !`;
+
+  try {
+    const result = await sendSMS(clientPhone, message);
+    console.log(`${LOG} Rappel 2h envoyé à ${clientPhone} — SID: ${result.sid}`);
+    bus.system(`${LOG} Rappel 2h → ${clientName} (${clientPhone})`);
+    return result;
+  } catch (err) {
+    console.error(`${LOG} Erreur rappel 2h: ${err.message}`);
+    throw err;
+  }
+}
+
+/**
+ * Planifie les rappels 24h + 2h lors de la création d'un RDV
+ */
+async function scheduleReminders({ clientPhone, clientName, serviceName, datetime, staffName }) {
+  if (DEMO_MODE || !pool) {
+    console.log(`${LOG} DEMO — Rappels planifiés pour ${clientName} @ ${datetime}`);
+    return;
+  }
+  const existing = await pool.query(
+    'SELECT id FROM daleba_reminders_queue WHERE client_phone=$1 AND appointment_datetime=$2',
+    [clientPhone, datetime]
+  );
+  if (!existing.rows[0]) {
+    await pool.query(`
+      INSERT INTO daleba_reminders_queue
+        (client_phone, client_name, service_name, staff_name, appointment_datetime)
+      VALUES ($1,$2,$3,$4,$5)
+    `, [clientPhone, clientName, serviceName, staffName, datetime]);
+  }
+  console.log(`${LOG} Rappels 24h+2h planifiés pour ${clientName} @ ${datetime}`);
 }
 
 // ─── MODULE 3 : DEMANDE D'AVIS GOOGLE ────────────────────────────────────────

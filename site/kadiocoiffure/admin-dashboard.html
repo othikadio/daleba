@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Admin Dashboard — Kadio Coiffure</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#f5f0ea;--ivory:#faf7f4;--charcoal:#1a1a1a;--warm:#2c2520;
+  --gold:#b8965a;--gold-light:#d4af7a;--muted:#7a6e65;--border:#e0d8d0;
+  --green:#2ecc71;--red:#e74c3c;--orange:#e67e22;--blue:#3498db;
+  --serif:'Cormorant Garamond',Georgia,serif;--sans:'Jost',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d0a07;color:var(--ivory);font-family:var(--sans);font-weight:300;min-height:100vh}
+a{color:inherit;text-decoration:none}
+
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:#0d0a07;display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
+.login-box{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);padding:52px 44px;max-width:380px;width:100%;text-align:center}
+.login-logo{font-family:var(--serif);font-size:24px;letter-spacing:4px;text-transform:uppercase;margin-bottom:4px}
+.login-logo span{color:var(--gold)}
+.login-sub{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:40px}
+.login-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);display:block;margin-bottom:8px;text-align:left}
+.login-input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--ivory);padding:13px 18px;font-family:var(--sans);font-size:22px;letter-spacing:8px;text-align:center;margin-bottom:16px;outline:none;transition:border-color .2s}
+.login-input:focus{border-color:var(--gold)}
+.login-btn{width:100%;background:var(--gold);color:var(--charcoal);border:none;padding:14px;font-family:var(--sans);font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:500;cursor:pointer;transition:background .2s}
+.login-btn:hover{background:var(--gold-light)}
+.login-error{font-size:12px;color:#e74c3c;margin-top:12px;display:none}
+.pin-dots{display:flex;gap:12px;justify-content:center;margin-bottom:16px}
+.pin-dot{width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,.1);transition:background .2s}
+.pin-dot.filled{background:var(--gold)}
+
+/* SHELL */
+.app{display:none;min-height:100vh}
+.app.visible{display:flex}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:rgba(255,255,255,.025);border-right:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:50}
+.sidebar-logo{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sidebar-logo-main{font-family:var(--serif);font-size:17px;letter-spacing:2px;text-transform:uppercase}
+.sidebar-logo-main span{color:var(--gold)}
+.sidebar-logo-sub{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.25);margin-top:2px}
+.sidebar-nav{flex:1;padding:16px 0;overflow-y:auto}
+.nav-section-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.2);padding:14px 20px 6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:12px;letter-spacing:.5px;color:rgba(255,255,255,.45);cursor:pointer;transition:all .2s;border-left:2px solid transparent}
+.nav-item:hover{background:rgba(255,255,255,.04);color:rgba(255,255,255,.8)}
+.nav-item.active{background:rgba(184,150,90,.08);color:var(--gold);border-left-color:var(--gold)}
+.nav-item .icon{font-size:14px;width:20px;text-align:center}
+.sidebar-bottom{padding:16px 20px;border-top:1px solid rgba(255,255,255,.07)}
+.logout-btn{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.25);background:none;border:none;cursor:pointer;font-family:var(--sans);transition:color .2s;padding:0}
+.logout-btn:hover{color:#e74c3c}
+
+/* MAIN */
+.main{margin-left:220px;flex:1;min-height:100vh;padding:28px}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.page-title{font-family:var(--serif);font-size:26px;font-weight:300}
+.topbar-right{display:flex;gap:12px;align-items:center}
+.topbar-badge{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;background:rgba(184,150,90,.1);color:var(--gold);border:1px solid rgba(184,150,90,.25);padding:5px 12px}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:28px}
+.stat-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);padding:20px}
+.stat-value{font-family:var(--serif);font-size:32px;font-weight:300;display:block;margin-bottom:4px}
+.stat-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35)}
+.stat-card.gold .stat-value{color:var(--gold-light)}
+.stat-card.green .stat-value{color:var(--green)}
+.stat-card.red .stat-value{color:var(--red)}
+.stat-card.blue .stat-value{color:var(--blue)}
+
+/* SECTIONS */
+.section{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);padding:22px;margin-bottom:20px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-family:var(--serif);font-size:18px;font-weight:400}
+.section-action{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);cursor:pointer;background:none;border:none;font-family:var(--sans);transition:opacity .2s}
+.section-action:hover{opacity:.7}
+
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse;font-size:12px}
+.data-table th{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);font-weight:400;text-align:left;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.07)}
+.data-table td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.04);color:rgba(255,255,255,.7)}
+.data-table tr:hover td{background:rgba(255,255,255,.02)}
+.badge{font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:10px}
+.badge-active{background:rgba(46,204,113,.12);color:var(--green);border:1px solid rgba(46,204,113,.2)}
+.badge-blocked{background:rgba(231,76,60,.1);color:var(--red);border:1px solid rgba(231,76,60,.2)}
+.badge-paused{background:rgba(230,126,34,.1);color:var(--orange);border:1px solid rgba(230,126,34,.2)}
+.act-btn{font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border:1px solid rgba(255,255,255,.1);background:none;cursor:pointer;font-family:var(--sans);color:rgba(255,255,255,.45);transition:all .2s;margin-right:4px}
+.act-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* COMMISSION TABLE */
+.comm-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px}
+.comm-name{color:rgba(255,255,255,.7);font-weight:400}
+.comm-amount{color:var(--gold-light);font-family:var(--serif);font-size:16px}
+.comm-count{font-size:10px;color:rgba(255,255,255,.3)}
+
+/* PANE visibility */
+.pane{display:none}
+.pane.active{display:block}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:rgba(26,20,14,.95);border:1px solid rgba(184,150,90,.3);color:var(--ivory);padding:12px 20px;font-size:12px;letter-spacing:.5px;z-index:1000;transform:translateY(80px);opacity:0;transition:all .3s;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">KADIO <span>·</span> ADMIN</div>
+    <div class="login-sub">Accès Administration</div>
+    <label class="login-label">Code administrateur</label>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div>
+      <div class="pin-dot" id="d4"></div><div class="pin-dot" id="d5"></div>
+    </div>
+    <input class="login-input" id="pinInput" type="password" maxlength="6" placeholder="• • • • • •" autocomplete="off" oninput="onPin()" onkeydown="if(event.key==='Enter')doLogin()" />
+    <button class="login-btn" onclick="doLogin()">Accéder →</button>
+    <div class="login-error" id="loginError">Code incorrect.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-main">KADIO <span>·</span> ADMIN</div>
+      <div class="sidebar-logo-sub">Tableau de bord</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Vue d'ensemble</div>
+      <div class="nav-item active" onclick="showPane('dashboard',this)"><span class="icon">📊</span>Dashboard</div>
+      <div class="nav-section-label">Gestion</div>
+      <div class="nav-item" onclick="showPane('abonnes',this)"><span class="icon">👥</span>Abonnés</div>
+      <div class="nav-item" onclick="showPane('calendrier',this)"><span class="icon">📅</span>Calendrier</div>
+      <div class="nav-item" onclick="showPane('commissions',this)"><span class="icon">💰</span>Commissions</div>
+      <div class="nav-section-label">Finances</div>
+      <div class="nav-item" onclick="showPane('revenus',this)"><span class="icon">📈</span>Revenus</div>
+      <div class="nav-item" onclick="showPane('comptabilite',this)"><span class="icon">🧾</span>Comptabilité</div>
+      <div class="nav-section-label">Communication</div>
+      <div class="nav-item" onclick="showPane('sms',this)"><span class="icon">💬</span>SMS & Avis</div>
+      <div class="nav-item" onclick="showPane('notes',this)"><span class="icon">⭐</span>Notes internes</div>
+      <div class="nav-section-label">Liens rapides</div>
+      <div class="nav-item" onclick="window.open('/staff.html','_blank')"><span class="icon">👤</span>Portail Staff</div>
+      <div class="nav-item" onclick="window.open('/','_blank')"><span class="icon">🌐</span>Site public</div>
+    </nav>
+    <div class="sidebar-bottom">
+      <button class="logout-btn" onclick="doLogout()">✕ Déconnexion</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title" id="pageTitle">Dashboard</div>
+      <div class="topbar-right">
+        <div class="topbar-badge">Admin · Ulrich</div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="pane active" id="pane-dashboard">
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card gold"><span class="stat-value" id="s-revenue">—</span><span class="stat-label">Revenu mensuel HT</span></div>
+        <div class="stat-card green"><span class="stat-value" id="s-active">—</span><span class="stat-label">Abonnés actifs</span></div>
+        <div class="stat-card blue"><span class="stat-value" id="s-total">—</span><span class="stat-label">Total abonnés</span></div>
+        <div class="stat-card red"><span class="stat-value" id="s-blocked">—</span><span class="stat-label">Bloqués</span></div>
+        <div class="stat-card"><span class="stat-value" id="s-commissions">—</span><span class="stat-label">Commissions ce mois</span></div>
+        <div class="stat-card"><span class="stat-value" id="s-new">—</span><span class="stat-label">Nouveaux ce mois</span></div>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="section-title">Abonnés récents</div><button class="section-action" onclick="showPane('abonnes',document.querySelector('[onclick*=abonnes]'))">Voir tout →</button></div>
+        <table class="data-table" id="recentTable"><thead><tr><th>Client</th><th>Forfait</th><th>Prix HT</th><th>TTC</th><th>Statut</th><th>Inscrit par</th></tr></thead><tbody id="recentBody"></tbody></table>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="section-title">Commissions du mois</div></div>
+        <div id="commDashboard"></div>
+      </div>
+    </div>
+
+    <!-- ABONNÉS -->
+    <div class="pane" id="pane-abonnes">
+      <div class="section">
+        <div class="section-header"><div class="section-title">Tous les abonnés</div></div>
+        <div style="margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap">
+          <input style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--ivory);padding:8px 14px;font-family:var(--sans);font-size:12px;outline:none;min-width:220px" placeholder="Rechercher…" oninput="filterSubs(this.value)" />
+        </div>
+        <table class="data-table"><thead><tr><th>Client</th><th>Téléphone</th><th>Forfait</th><th>Prix HT</th><th>TTC</th><th>Commission</th><th>Statut</th><th>Code scan</th><th>Actions</th></tr></thead><tbody id="allSubsBody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- COMMISSIONS -->
+    <div class="pane" id="pane-commissions">
+      <div class="section">
+        <div class="section-header"><div class="section-title">Commissions par employé — <span id="commMonth"></span></div></div>
+        <div id="commDetail"></div>
+      </div>
+    </div>
+
+    <!-- REVENUS -->
+    <div class="pane" id="pane-revenus">
+      <div class="section">
+        <div class="section-header"><div class="section-title">Revenus mensuels</div></div>
+        <div id="revenusContent"></div>
+      </div>
+    </div>
+
+    <!-- COMPTABILITÉ -->
+    <div class="pane" id="pane-comptabilite">
+      <div class="section">
+        <div class="section-header"><div class="section-title">Comptabilité</div></div>
+        <div id="compta"></div>
+      </div>
+    </div>
+
+    <!-- SMS -->
+    <div class="pane" id="pane-sms">
+      <div class="section">
+        <div class="section-header"><div class="section-title">Pipeline SMS</div></div>
+        <div style="font-size:13px;line-height:1.8;color:rgba(255,255,255,.6)">
+          <p style="margin-bottom:12px">Pour chaque rendez-vous, le système envoie automatiquement :</p>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);padding:14px 18px;display:flex;gap:14px;align-items:flex-start">
+              <span style="color:var(--gold);font-size:16px;flex-shrink:0">①</span>
+              <div><strong style="color:var(--ivory)">SMS Confirmation immédiate</strong><br>Envoyé dès la création du RDV — confirme l'heure, le service, le coiffeur, l'adresse.</div>
+            </div>
+            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);padding:14px 18px;display:flex;gap:14px;align-items:flex-start">
+              <span style="color:var(--gold);font-size:16px;flex-shrink:0">②</span>
+              <div><strong style="color:var(--ivory)">SMS Rappel 24h avant</strong><br>Envoyé automatiquement 24 heures avant le rendez-vous.</div>
+            </div>
+            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);padding:14px 18px;display:flex;gap:14px;align-items:flex-start">
+              <span style="color:var(--gold);font-size:16px;flex-shrink:0">③</span>
+              <div><strong style="color:var(--ivory)">SMS Rappel 2h avant</strong><br>Dernier rappel — 2 heures avant le rendez-vous.</div>
+            </div>
+            <div style="background:rgba(46,204,113,.04);border:1px solid rgba(46,204,113,.15);padding:14px 18px;display:flex;gap:14px;align-items:flex-start">
+              <span style="color:var(--green);font-size:16px;flex-shrink:0">✓</span>
+              <div><strong style="color:var(--ivory)">Post-prestation : Avis Google + Note interne</strong><br>Envoyé 30 min après la fin du RDV — lien Google Review + demande note 1-5 (coiffeur / salon).</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTES INTERNES -->
+    <div class="pane" id="pane-notes">
+      <div class="section">
+        <div class="section-header"><div class="section-title">Notes internes (1–5)</div></div>
+        <table class="data-table"><thead><tr><th>Client</th><th>Coiffeur noté</th><th>Note coiffeur</th><th>Note salon</th><th>Date</th></tr></thead>
+        <tbody id="ratingsBody"><tr><td colspan="5" style="text-align:center;padding:24px;color:rgba(255,255,255,.3)">Chargement depuis Railway…</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- CALENDRIER ADMIN -->
+    <div class="pane" id="pane-calendrier">
+      <div class="section">
+        <div class="section-header"><div class="section-title">Calendrier complet</div></div>
+        <p style="font-size:12px;color:rgba(255,255,255,.4)">Accès lecture seule. Pour modifier les RDV, utilisez le <a href="/staff.html" target="_blank" style="color:var(--gold)">Portail Staff →</a></p>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://daleba-api-production.up.railway.app';
+const ADMIN_PIN = '190547'; // PIN Ulrich
+
+const FORFAITS = {
+  'locs-illimite':{name:'Locs Illimité',price:129.99,commission:15},
+  'microlocks-sisterlocks':{name:'Microlocks / Sisterlocks',price:149.99,commission:15},
+  'knotless-tresses-signature':{name:'Knotless & Tresses Signature',price:139.99,commission:15},
+  'tresses-rapides-adulte':{name:'Tresses Rapides Adulte',price:79.99,commission:10},
+  'barbier-coupe-barbe':{name:'Barbier Coupe & Barbe',price:64.99,commission:10},
+  'barbier-coupe-simple':{name:'Barbier Coupe Simple',price:59.99,commission:10},
+  'barbier-barbe-illimitee':{name:'Barbier Barbe Illimitée',price:35.99,commission:10},
+  'tresses-rapides-enfant':{name:'Tresses Rapides Enfant',price:59.99,commission:10},
+  'knotless-enfant':{name:'Knotless Enfant',price:95.99,commission:10},
+  'locs-enfant':{name:'Locs Enfant',price:79.99,commission:10},
+  'barbier-enfant':{name:'Barbier Enfant',price:49.99,commission:10},
+  'mise-en-pli-lavage':{name:'Mise en pli + Lavage',price:60.00,commission:10},
+  'pose-perruques':{name:'Pose Perruques',price:120.00,commission:15},
+  'twists-tresses-court':{name:'Twists et Tresses Court',price:119.99,commission:10},
+  'combo-tresses-barbier':{name:'Combo Tresses + Barbier',price:104.99,commission:10},
+  'combo-locs-barbier':{name:'Combo Locs + Barbier',price:154.99,commission:15},
+};
+
+function taxe(p){ return { tps:(p*0.05).toFixed(2), tvq:(p*0.09975).toFixed(2), ttc:(p*1.14975).toFixed(2) }; }
+
+let subs = [];
+
+// Demo subs
+subs = [
+  {id:'1',clientName:'Sophie Beaumont',clientPhone:'+15142223333',forfaitId:'knotless-tresses-signature',status:'active',scanCode:'KCAT5R',weeklyWashUsed:false,nextBilling:'2026-06-15',createdByStaff:'maya',createdAt:'2026-05-10'},
+  {id:'2',clientName:'Marc Théodore',clientPhone:'+15148884444',forfaitId:'barbier-coupe-barbe',status:'active',scanCode:'KCBM2X',weeklyWashUsed:true,nextBilling:'2026-06-12',createdByStaff:'ulrich',createdAt:'2026-05-08'},
+  {id:'3',clientName:'Aisha Konaté',clientPhone:'+15145556666',forfaitId:'locs-illimite',status:'blocked',scanCode:'KCAJ9P',weeklyWashUsed:false,nextBilling:'—',createdByStaff:'mariel',createdAt:'2026-05-05'},
+  {id:'4',clientName:'Priscille Ndongo',clientPhone:'+15147779999',forfaitId:'microlocks-sisterlocks',status:'active',scanCode:'KCPN4W',weeklyWashUsed:false,nextBilling:'2026-06-20',createdByStaff:'mariel',createdAt:'2026-05-12'},
+  {id:'5',clientName:'Kevin Tremblay',clientPhone:'+15141112222',forfaitId:'combo-locs-barbier',status:'paused',scanCode:'KCKV7L',weeklyWashUsed:false,nextBilling:'En pause',createdByStaff:'ulrich',createdAt:'2026-05-03'},
+];
+
+// LOGIN
+function onPin(){
+  const v=document.getElementById('pinInput').value;
+  for(let i=0;i<6;i++) document.getElementById('d'+i).classList.toggle('filled',i<v.length);
+}
+function doLogin(){
+  const pin=document.getElementById('pinInput').value;
+  if(pin!==ADMIN_PIN){ showLoginError(); return; }
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').classList.add('visible');
+  loadData();
+}
+function showLoginError(){
+  const el=document.getElementById('loginError'); el.style.display='block';
+  document.getElementById('pinInput').value='';
+  for(let i=0;i<6;i++) document.getElementById('d'+i).classList.remove('filled');
+  setTimeout(()=>el.style.display='none',3000);
+}
+function doLogout(){
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('pinInput').value='';
+  for(let i=0;i<6;i++) document.getElementById('d'+i).classList.remove('filled');
+}
+
+// NAV
+let currentPane='dashboard';
+function showPane(id, el){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('pane-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  const titles={dashboard:'Dashboard',abonnes:'Abonnés',calendrier:'Calendrier',commissions:'Commissions',revenus:'Revenus',comptabilite:'Comptabilité',sms:'SMS & Avis',notes:'Notes internes'};
+  document.getElementById('pageTitle').textContent=titles[id]||id;
+  currentPane=id;
+  if(id==='commissions') renderCommissions();
+  if(id==='revenus') renderRevenus();
+  if(id==='comptabilite') renderComptabilite();
+}
+
+// DATA
+async function loadData(){
+  try{
+    const r=await fetch(`${API}/api/subscribers`);
+    if(r.ok) subs=await r.json();
+  }catch(e){}
+  renderStats(); renderRecentTable(); renderAllSubs(); renderCommDashboard();
+  loadRatings();
+}
+
+function renderStats(){
+  const active=subs.filter(s=>s.status==='active');
+  const blocked=subs.filter(s=>s.status==='blocked');
+  const rev=active.reduce((sum,s)=>sum+(FORFAITS[s.forfaitId]?.price||0),0);
+  const comms=subs.filter(s=>s.status==='active').reduce((sum,s)=>sum+(FORFAITS[s.forfaitId]?.commission||0),0);
+  const now=new Date(); const nm=subs.filter(s=>{ if(!s.createdAt) return false; const d=new Date(s.createdAt); return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear(); });
+  document.getElementById('s-revenue').textContent=rev.toFixed(2)+' $';
+  document.getElementById('s-active').textContent=active.length;
+  document.getElementById('s-total').textContent=subs.length;
+  document.getElementById('s-blocked').textContent=blocked.length;
+  document.getElementById('s-commissions').textContent=comms.toFixed(2)+' $';
+  document.getElementById('s-new').textContent=nm.length;
+}
+
+function renderRecentTable(){
+  const tbody=document.getElementById('recentBody');
+  tbody.innerHTML=subs.slice(0,6).map(s=>{
+    const f=FORFAITS[s.forfaitId]||{name:s.forfaitId,price:0,commission:0};
+    const t=taxe(f.price);
+    const bClass=s.status==='active'?'badge-active':s.status==='blocked'?'badge-blocked':'badge-paused';
+    return `<tr><td>${s.clientName}</td><td>${f.name}</td><td>${f.price.toFixed(2)} $</td><td>${t.ttc} $</td><td><span class="badge ${bClass}">${s.status}</span></td><td>${s.createdByStaff||'—'}</td></tr>`;
+  }).join('');
+}
+
+function renderAllSubs(filter=''){
+  const tbody=document.getElementById('allSubsBody');
+  const filtered=filter?subs.filter(s=>s.clientName.toLowerCase().includes(filter.toLowerCase())||s.clientPhone.includes(filter)):subs;
+  tbody.innerHTML=filtered.map(s=>{
+    const f=FORFAITS[s.forfaitId]||{name:s.forfaitId,price:0,commission:0};
+    const t=taxe(f.price);
+    const bClass=s.status==='active'?'badge-active':s.status==='blocked'?'badge-blocked':'badge-paused';
+    return `<tr>
+      <td>${s.clientName}</td><td style="font-size:11px;color:rgba(255,255,255,.4)">${s.clientPhone}</td>
+      <td>${f.name}</td>
+      <td style="color:var(--gold-light)">${f.price.toFixed(2)} $</td>
+      <td style="font-size:11px;color:rgba(255,255,255,.4)">${t.ttc} $</td>
+      <td style="color:var(--gold-light)">${f.commission} $</td>
+      <td><span class="badge ${bClass}">${s.status}</span></td>
+      <td style="font-family:monospace;font-size:11px;letter-spacing:2px">${s.scanCode||'—'}</td>
+      <td>
+        ${s.status==='active'?`<button class="act-btn" onclick="blockSub('${s.id}')">Bloquer</button>`:''}
+        ${s.status==='blocked'?`<button class="act-btn" onclick="unblockSub('${s.id}')">Débloquer</button>`:''}
+        <button class="act-btn" onclick="sendReview('${s.id}')">Avis</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterSubs(v){ renderAllSubs(v); }
+
+function renderCommDashboard(){
+  const staff={maya:{name:'Maya',total:0,count:0},mariel:{name:'Mariel',total:0,count:0},ulrich:{name:'Ulrich',total:0,count:0}};
+  subs.filter(s=>s.status==='active').forEach(s=>{
+    const id=s.createdByStaff; if(!staff[id]) return;
+    const comm=FORFAITS[s.forfaitId]?.commission||0;
+    staff[id].total+=comm; staff[id].count++;
+  });
+  document.getElementById('commDashboard').innerHTML=Object.values(staff).map(s=>`
+    <div class="comm-item">
+      <div><div class="comm-name">${s.name}</div><div class="comm-count">${s.count} abonnement${s.count>1?'s':''}</div></div>
+      <div class="comm-amount">${s.total.toFixed(2)} $</div>
+    </div>`).join('');
+}
+
+function renderCommissions(){
+  const now=new Date();
+  document.getElementById('commMonth').textContent=now.toLocaleDateString('fr-CA',{month:'long',year:'numeric'});
+  const staff={maya:{name:'Maya',items:[]},mariel:{name:'Mariel',items:[]},ulrich:{name:'Ulrich',items:[]}};
+  subs.filter(s=>s.status==='active').forEach(s=>{
+    const id=s.createdByStaff; if(!staff[id]) return;
+    const f=FORFAITS[s.forfaitId]||{name:s.forfaitId,commission:0};
+    staff[id].items.push({client:s.clientName,forfait:f.name,comm:f.commission});
+  });
+  document.getElementById('commDetail').innerHTML=Object.values(staff).map(s=>`
+    <div class="section" style="margin-bottom:14px">
+      <div class="section-header">
+        <div class="section-title">${s.name} — ${s.items.reduce((t,i)=>t+i.comm,0).toFixed(2)} $ total</div>
+      </div>
+      <table class="data-table"><thead><tr><th>Client</th><th>Forfait</th><th>Commission</th></tr></thead>
+      <tbody>${s.items.map(i=>`<tr><td>${i.client}</td><td>${i.forfait}</td><td style="color:var(--gold-light)">${i.comm.toFixed(2)} $</td></tr>`).join('')||'<tr><td colspan="3" style="color:rgba(255,255,255,.3);text-align:center;padding:14px">Aucune commission</td></tr>'}</tbody>
+      </table>
+    </div>`).join('');
+}
+
+function renderRevenus(){
+  const active=subs.filter(s=>s.status==='active');
+  const revHT=active.reduce((sum,s)=>sum+(FORFAITS[s.forfaitId]?.price||0),0);
+  const revTTC=revHT*1.14975;
+  document.getElementById('revenusContent').innerHTML=`
+    <div class="stats-grid" style="margin-bottom:20px">
+      <div class="stat-card gold"><span class="stat-value">${revHT.toFixed(2)} $</span><span class="stat-label">Revenu mensuel HT</span></div>
+      <div class="stat-card"><span class="stat-value">${(revHT*0.05).toFixed(2)} $</span><span class="stat-label">TPS à remettre</span></div>
+      <div class="stat-card"><span class="stat-value">${(revHT*0.09975).toFixed(2)} $</span><span class="stat-label">TVQ à remettre</span></div>
+      <div class="stat-card green"><span class="stat-value">${revTTC.toFixed(2)} $</span><span class="stat-label">Total facturé TTC</span></div>
+    </div>
+    <table class="data-table"><thead><tr><th>Forfait</th><th>Abonnés actifs</th><th>Prix HT/mois</th><th>Sous-total HT</th></tr></thead>
+    <tbody>${Object.values(FORFAITS).map(f=>{ const count=active.filter(s=>s.forfaitId===f.id||FORFAITS[s.forfaitId]===f).length; if(!count) return ''; const st=f.price*count; return `<tr><td>${f.name}</td><td>${count}</td><td>${f.price.toFixed(2)} $</td><td style="color:var(--gold-light)">${st.toFixed(2)} $</td></tr>`; }).join('')}</tbody>
+    </table>`;
+}
+
+function renderComptabilite(){
+  document.getElementById('compta').innerHTML=`
+    <div style="font-size:13px;line-height:2;color:rgba(255,255,255,.6)">
+      <p style="margin-bottom:16px">Synchronisation avec Railway en cours de configuration. Module complet disponible prochainement.</p>
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);padding:18px">
+        <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:12px">Données disponibles</div>
+        <div>✓ Revenus mensuels par forfait</div>
+        <div>✓ Commissions par employé</div>
+        <div>✓ Calcul TPS / TVQ automatique</div>
+        <div>✓ Historique abonnements</div>
+      </div>
+    </div>`;
+}
+
+async function loadRatings(){
+  try{
+    const r=await fetch(`${API}/api/sms/ratings`);
+    if(r.ok){
+      const data=await r.json();
+      const tbody=document.getElementById('ratingsBody');
+      tbody.innerHTML=data.map(r=>`<tr><td>${r.client_phone||'—'}</td><td>${r.staff_id||'—'}</td><td>${'★'.repeat(r.staff_rating||0)}${'☆'.repeat(5-(r.staff_rating||0))}</td><td>${'★'.repeat(r.salon_rating||0)}${'☆'.repeat(5-(r.salon_rating||0))}</td><td style="font-size:11px;color:rgba(255,255,255,.3)">${new Date(r.created_at).toLocaleDateString('fr-CA')}</td></tr>`).join('');
+    }
+  }catch(e){}
+}
+
+function blockSub(id){ const s=subs.find(x=>x.id===id); if(!s)return; s.status='blocked'; renderAllSubs(); renderStats(); renderRecentTable(); showToast(`${s.clientName} — bloqué`); }
+function unblockSub(id){ const s=subs.find(x=>x.id===id); if(!s)return; s.status='active'; renderAllSubs(); renderStats(); renderRecentTable(); showToast(`${s.clientName} — réactivé`); }
+function sendReview(id){ const s=subs.find(x=>x.id===id); if(!s)return; fetch(`${API}/api/sms/review-request`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clientPhone:s.clientPhone,clientName:s.clientName,staffName:s.createdByStaff})}).catch(()=>{}); showToast(`SMS avis Google → ${s.clientName}`); }
+
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500); }
+</script>
+</body>
+</html>

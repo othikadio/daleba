@@ -135,3 +135,20 @@ router.get('/queue', async (req, res) => {
 });
 
 module.exports = router;
+
+
+// POST /api/sms/schedule-reminders — planifier 24h + 2h rappels
+router.post('/schedule-reminders', async (req, res) => {
+  const { clientPhone, clientName, serviceName, datetime, staffName } = req.body;
+  if (!clientPhone || !clientName || !datetime) {
+    return res.status(400).json({ error: 'Champs requis: clientPhone, clientName, datetime' });
+  }
+  try {
+    const { scheduleReminders } = require('../services/sms-pipeline');
+    await scheduleReminders({ clientPhone, clientName, serviceName: serviceName||'Service', datetime, staffName: staffName||'votre coiffeur' });
+    res.json({ success: true, message: 'Rappels 24h et 2h planifiés' });
+  } catch (err) {
+    console.error('[SMS-ROUTES] schedule-reminders error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
