@@ -7,6 +7,7 @@ const routes = require('./api/routes');
 const clientPortalRoutes = require('./api/client-portal-routes');
 const accountingRoutes = require('./api/accounting-routes');
 const loyaltyHybridRoutes = require('./api/loyalty-hybrid-routes');
+const mediaRoutes = require('./api/media-routes');
 const { errorMiddleware, enableSelfHealing, logError } = require('./services/error-monitor');
 const errorWatcher = require('./services/error-watcher'); // V27 — Filet de Sécurité
 const { startFollowupCron } = require('./services/client-followup');
@@ -92,6 +93,7 @@ app.use('/api', routes);
 app.use('/api/client-portal', clientPortalRoutes);
 app.use('/api/accounting', accountingRoutes);
 app.use('/api/loyalty', loyaltyHybridRoutes);
+app.use('/api/media', mediaRoutes);
 
 // Middleware erreurs (Point 12)
 app.use(errorMiddleware);
@@ -293,6 +295,19 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   const { runReminderWorker } = require('./workers/reminder-worker');
   setInterval(runReminderWorker, 60 * 60 * 1000); // toutes les heures
   runReminderWorker(); // run immédiatement au démarrage
+
+  // [Manifeste] Pôle Média — worker publication toutes les 30 min
+  const mediaPipeline = require('./services/media-pipeline');
+  mediaPipeline.init().catch(e => console.warn('[Boot] Media pipeline:', e.message));
+  setInterval(mediaPipeline.runPublishWorker, 30 * 60 * 1000);
+
+  // [Manifeste] Comptabilité — init tables
+  const accounting = require('./services/accounting');
+  accounting.init().catch(e => console.warn('[Boot] Accounting:', e.message));
+
+  // [Manifeste] Fidélité hybride — init tables
+  const loyaltyHybrid = require('./services/loyalty-hybrid');
+  loyaltyHybrid.init().catch(e => console.warn('[Boot] Loyalty hybrid:', e.message));
 
   // [Section 16] Init tables SMS Pipeline + Staff Calendar
   const smsPipeline = require('./services/sms-pipeline');
