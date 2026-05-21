@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>DALEBA — Cockpit Jarvis</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#00FF9F;--green-dim:rgba(0,255,159,0.07);--green-glow:rgba(0,255,159,0.3);
+  --red:#FF4455;--amber:#FFB800;--blue:#4FC3F7;
+  --text:#e8e8e8;--muted:#3a3a3a;--surface:rgba(255,255,255,0.04);
+  --border:rgba(255,255,255,0.07);
+}
+html,body{width:100%;height:100%;background:#000;color:var(--text);
+  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;overflow:hidden;
+  user-select:none;-webkit-tap-highlight-color:transparent}
+
+/* ── LAYOUT ── */
+#cockpit{display:flex;flex-direction:column;height:100vh;padding:0}
+
+/* ── HEADER ── */
+#header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px 10px;border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.brand{font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--green);font-weight:700}
+.brand span{color:#555;font-weight:300}
+#status-bar{display:flex;gap:12px;align-items:center}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
+#tts-badge{font-size:9px;letter-spacing:.15em;color:#444;text-transform:uppercase;transition:color .4s}
+#tts-badge.active{color:var(--green)}
+
+/* ── CONVERSATION ── */
+#conv-wrap{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+#conv-wrap::-webkit-scrollbar{width:2px}
+#conv-wrap::-webkit-scrollbar-thumb{background:var(--muted)}
+
+.msg{display:flex;flex-direction:column;gap:4px;animation:msg-in .25s ease}
+@keyframes msg-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.msg.user{align-items:flex-end}
+.msg.user .bubble{
+  background:rgba(0,255,159,0.08);border:1px solid rgba(0,255,159,0.18);
+  color:var(--green);border-radius:16px 16px 4px 16px;
+  padding:10px 14px;font-size:14px;max-width:80%;line-height:1.5;
+}
+.msg.daleba{align-items:flex-start}
+.msg.daleba .bubble{
+  background:var(--surface);border:1px solid var(--border);
+  color:var(--text);border-radius:16px 16px 16px 4px;
+  padding:12px 16px;font-size:14px;max-width:90%;line-height:1.65;
+  white-space:pre-wrap;word-break:break-word;
+}
+.msg.daleba .bubble.report{
+  background:rgba(0,255,159,0.04);border-color:rgba(0,255,159,0.15);
+  font-size:13px;
+}
+.msg-time{font-size:10px;color:#444;letter-spacing:.05em}
+
+/* Report card rendering */
+.report-section{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.report-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--green);margin-bottom:6px;opacity:.7}
+.report-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.report-row:last-child{border-bottom:none}
+.report-val{color:var(--green);font-weight:600}
+
+/* Thinking bubble */
+.thinking-dots span{
+  display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--green);margin:0 2px;opacity:.3;
+  animation:bounce .9s infinite;
+}
+.thinking-dots span:nth-child(2){animation-delay:.15s}
+.thinking-dots span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{transform:none;opacity:.3}30%{transform:translateY(-5px);opacity:1}}
+
+/* ── MIC ZONE ── */
+#mic-zone{
+  flex-shrink:0;padding:14px 20px 18px;
+  border-top:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  background:#000;
+}
+#mic-wrap{
+  width:72px;height:72px;border-radius:50%;
+  border:2px solid rgba(0,255,159,0.25);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;cursor:pointer;transition:border-color .2s,box-shadow .2s;
+  position:relative;
+}
+#mic-wrap:active,#mic-wrap.listening{
+  border-color:var(--green);
+  box-shadow:0 0 0 8px rgba(0,255,159,.08),0 0 24px rgba(0,255,159,.15);
+}
+#mic-wrap.thinking{border-color:var(--amber);box-shadow:0 0 16px rgba(255,184,0,.12)}
+#mic-wrap.error{border-color:var(--red)}
+.mic-icon{stroke:var(--green);transition:stroke .2s}
+#mic-wrap.error .mic-icon{stroke:var(--red)}
+#mic-wrap.thinking .mic-icon{stroke:var(--amber)}
+#mic-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#555;transition:color .2s}
+#mic-wrap.listening #mic-label{color:var(--green)}
+
+/* ── INPUT ROW ── */
+#input-row{display:flex;gap:8px;width:100%;max-width:460px}
+#text-input{
+  flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border);
+  color:var(--text);border-radius:10px;padding:9px 14px;font-size:13px;
+  outline:none;transition:border-color .2s;
+}
+#text-input:focus{border-color:rgba(0,255,159,0.35)}
+#text-input::placeholder{color:#444}
+#send-btn{
+  background:rgba(0,255,159,0.1);border:1px solid rgba(0,255,159,0.25);
+  color:var(--green);border-radius:10px;padding:9px 16px;
+  font-size:11px;font-weight:700;letter-spacing:.08em;cursor:pointer;
+  transition:background .2s;white-space:nowrap;
+}
+#send-btn:active{background:rgba(0,255,159,0.2)}
+
+/* ── FILE BTN ── */
+#file-label{
+  font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+  color:#444;cursor:pointer;padding:4px 10px;border:1px solid #222;
+  border-radius:6px;transition:all .2s;
+}
+#file-label:hover{color:var(--green);border-color:rgba(0,255,159,.2)}
+#file-label.loading{color:var(--amber);border-color:rgba(255,184,0,.3);animation:pulse-text .8s infinite alternate}
+@keyframes pulse-text{from{opacity:.5}to{opacity:1}}
+#file-input{display:none}
+
+/* ── SCROLL BTN ── */
+#scroll-btn{
+  display:none;position:fixed;bottom:140px;right:18px;
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(0,255,159,0.12);border:1px solid rgba(0,255,159,0.25);
+  color:var(--green);font-size:18px;cursor:pointer;
+  align-items:center;justify-content:center;
+}
+#scroll-btn.show{display:flex}
+</style>
+</head>
+<body>
+<div id="cockpit">
+
+  <div id="header">
+    <div class="brand">DALEBA <span>/ Cockpit Jarvis</span></div>
+    <div id="status-bar">
+      <div class="status-dot"></div>
+      <div id="tts-badge">TTS</div>
+    </div>
+  </div>
+
+  <div id="conv-wrap"></div>
+
+  <div id="mic-zone">
+    <div id="input-row">
+      <input type="text" id="text-input" placeholder="Question ou commande…" autocomplete="off"/>
+      <button id="send-btn">ENVOYER</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div id="mic-wrap">
+        <svg class="mic-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="2" width="6" height="12" rx="3"/>
+          <path d="M19 10a7 7 0 0 1-14 0"/><line x1="12" y1="19" x2="12" y2="22"/>
+          <line x1="9" y1="22" x2="15" y2="22"/>
+        </svg>
+        <span id="mic-label">Parler</span>
+      </div>
+      <label id="file-label" for="file-input">PDF / FICHIER</label>
+      <input type="file" id="file-input" accept=".pdf,.txt,.csv"/>
+    </div>
+  </div>
+</div>
+
+<button id="scroll-btn">↓</button>
+
+<script>
+'use strict';
+
+// ── STATE ──────────────────────────────────────────────────────────────
+const convWrap  = document.getElementById('conv-wrap');
+const micWrap   = document.getElementById('mic-wrap');
+const micLabel  = document.getElementById('mic-label');
+const textInput = document.getElementById('text-input');
+const sendBtn   = document.getElementById('send-btn');
+const fileLabel = document.getElementById('file-label');
+const fileInput = document.getElementById('file-input');
+const ttsBadge  = document.getElementById('tts-badge');
+const scrollBtn = document.getElementById('scroll-btn');
+
+let synth       = window.speechSynthesis;
+let recognition = null;
+let isListening = false;
+let finalText   = '';
+let _cachedVoice = null;
+
+// ── CONVERSATION HELPERS ────────────────────────────────────────────
+function now() {
+  return new Date().toLocaleTimeString('fr-CA', {hour:'2-digit', minute:'2-digit'});
+}
+
+function addMessage(role, content, opts = {}) {
+  const msg = document.createElement('div');
+  msg.className = `msg ${role}`;
+
+  const bubble = document.createElement('div');
+  bubble.className = opts.report ? 'bubble report' : 'bubble';
+
+  if (opts.html) {
+    bubble.innerHTML = content;
+  } else {
+    bubble.textContent = content;
+  }
+
+  const time = document.createElement('div');
+  time.className = 'msg-time';
+  time.textContent = now();
+
+  msg.appendChild(bubble);
+  msg.appendChild(time);
+  convWrap.appendChild(msg);
+  scrollToBottom();
+  return bubble;
+}
+
+function addThinking() {
+  const msg = document.createElement('div');
+  msg.className = 'msg daleba';
+  msg.id = 'thinking-msg';
+  msg.innerHTML = `<div class="bubble"><div class="thinking-dots"><span></span><span></span><span></span></div></div>`;
+  convWrap.appendChild(msg);
+  scrollToBottom();
+  return msg;
+}
+
+function removeThinking() {
+  document.getElementById('thinking-msg')?.remove();
+}
+
+function scrollToBottom(force) {
+  const atBottom = convWrap.scrollHeight - convWrap.scrollTop - convWrap.clientHeight < 80;
+  if (force || atBottom) convWrap.scrollTop = convWrap.scrollHeight;
+  updateScrollBtn();
+}
+
+function updateScrollBtn() {
+  const atBottom = convWrap.scrollHeight - convWrap.scrollTop - convWrap.clientHeight < 80;
+  scrollBtn.classList.toggle('show', !atBottom && convWrap.scrollHeight > convWrap.clientHeight + 100);
+}
+scrollBtn.addEventListener('click', () => scrollToBottom(true));
+convWrap.addEventListener('scroll', updateScrollBtn);
+
+// ── PARSE REPORT ───────────────────────────────────────────────────
+function parseReport(text) {
+  // Si le texte contient des données structurées (: , |, chiffres)
+  const lines = text.split('\n').filter(l => l.trim());
+  const hasData = lines.some(l => /[:|\d$€]/g.test(l) && l.length > 5);
+  if (!hasData || lines.length < 3) return null;
+
+  let html = '';
+  let inSection = false;
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    // Ligne titre (tout caps ou se termine par :)
+    if (/^[A-ZÀÂÉÈÊÎÔÙÛÇ\s]{4,}$/.test(trimmed) || (trimmed.endsWith(':') && trimmed.length < 40)) {
+      if (inSection) html += '</div>';
+      html += `<div class="report-section"><div class="report-label">${trimmed.replace(':','')}</div>`;
+      inSection = true;
+    } else if (trimmed.includes(':') || trimmed.includes('|')) {
+      const [key, ...rest] = trimmed.split(/[:|]/);
+      const val = rest.join(':').trim();
+      html += `<div class="report-row"><span>${key.trim()}</span><span class="report-val">${val}</span></div>`;
+    } else {
+      html += `<div style="font-size:13px;padding:4px 0;color:#aaa">${trimmed}</div>`;
+    }
+  }
+  if (inSection) html += '</div>';
+  return html || null;
+}
+
+// ── SEND COMMAND ────────────────────────────────────────────────────
+async function sendCommand(text) {
+  if (!text || text.trim().length < 2) return;
+  const userText = text.trim();
+
+  addMessage('user', userText);
+  const thinking = addThinking();
+  setMicState('thinking');
+
+  try {
+    const res = await fetch('/api/voice/command', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: userText }),
+    });
+    const data = await res.json();
+    removeThinking();
+
+    const reply = (data.reply || data.response || 'Aucune réponse.').trim();
+
+    // Détecter si c'est un rapport structuré
+    const reportHtml = parseReport(reply);
+    if (reportHtml) {
+      addMessage('daleba', reportHtml, { html: true, report: true });
+    } else {
+      addMessage('daleba', reply);
+    }
+
+    // Lire à voix haute (résumé court si long)
+    const toSpeak = reply.length > 400
+      ? reply.slice(0, 400).replace(/[^\.\?!]*$/, '') + '…'
+      : reply;
+    await speakSmart(toSpeak);
+
+  } catch (err) {
+    removeThinking();
+    addMessage('daleba', 'Connexion interrompue. Réessayez.');
+  }
+  setMicState('idle');
+}
+
+// ── VOICE RECOGNITION ──────────────────────────────────────────────
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+function initRecognition() {
+  if (!SpeechRec) return null;
+  const r = new SpeechRec();
+  r.lang = 'fr-FR';
+  r.continuous = false;
+  r.interimResults = true;
+  r.maxAlternatives = 1;
+
+  r.onresult = (e) => {
+    let interim = '';
+    finalText = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finalText += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    textInput.placeholder = finalText || interim || '…';
+  };
+
+  r.onspeechend = () => r.stop();
+  r.onend = () => {
+    isListening = false;
+    setMicState('idle');
+    textInput.placeholder = 'Question ou commande…';
+    if (finalText.trim()) {
+      sendCommand(finalText.trim());
+      finalText = '';
+    }
+  };
+  r.onerror = (e) => {
+    isListening = false;
+    setMicState(e.error === 'not-allowed' ? 'error' : 'idle');
+  };
+  return r;
+}
+
+// ── MIC EVENTS ─────────────────────────────────────────────────────
+micWrap.addEventListener('mousedown',  startListening);
+micWrap.addEventListener('touchstart', e => { e.preventDefault(); startListening(); }, { passive: false });
+micWrap.addEventListener('mouseup',    stopListening);
+micWrap.addEventListener('mouseleave', stopListening);
+micWrap.addEventListener('touchend',   stopListening);
+
+function startListening() {
+  if (isListening) return;
+  if (synth) synth.cancel();
+  recognition = initRecognition();
+  if (!recognition) return;
+  try {
+    recognition.start();
+    isListening = true;
+    setMicState('listening');
+  } catch(_) {}
+}
+
+function stopListening() {
+  if (!isListening || !recognition) return;
+  try { recognition.stop(); } catch(_) {}
+}
+
+function setMicState(s) {
+  micWrap.className = s === 'idle' ? '' : s;
+  const labels = {idle:'Parler', listening:'Écoute…', thinking:'…', error:'Erreur'};
+  micLabel.textContent = labels[s] || 'Parler';
+}
+
+// ── TEXT INPUT ─────────────────────────────────────────────────────
+sendBtn.addEventListener('click', () => {
+  const t = textInput.value.trim();
+  if (!t) return;
+  textInput.value = '';
+  sendCommand(t);
+});
+textInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    const t = textInput.value.trim();
+    if (!t) return;
+    textInput.value = '';
+    sendCommand(t);
+  }
+});
+
+// ── FILE UPLOAD ─────────────────────────────────────────────────────
+fileInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    addMessage('daleba', 'Fichier trop lourd (5 MB max).');
+    return;
+  }
+  fileLabel.classList.add('loading');
+  fileLabel.textContent = 'Analyse…';
+  addMessage('user', `📎 ${file.name}`);
+  addThinking();
+
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch('/api/voice/analyze-file', { method: 'POST', body: fd });
+    const data = await res.json();
+    removeThinking();
+
+    const reply = (data.reply || data.analysis || 'Analyse terminée.').trim();
+    const reportHtml = parseReport(reply);
+    if (reportHtml) {
+      addMessage('daleba', reportHtml, { html: true, report: true });
+    } else {
+      addMessage('daleba', reply);
+    }
+    await speakSmart(reply.slice(0, 300));
+  } catch (err) {
+    removeThinking();
+    addMessage('daleba', 'Erreur lors de l\'analyse du fichier.');
+  }
+
+  fileLabel.classList.remove('loading');
+  fileLabel.textContent = 'PDF / FICHIER';
+  fileInput.value = '';
+});
+
+// ── TTS ────────────────────────────────────────────────────────────
+function cleanForSpeech(text) {
+  return text
+    .replace(/https?:\/\/\S+/g, '')
+    .replace(/\*+|#+|`+|_{2,}/g, '')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/—/g, ', ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Prétraitement pour voix naturelle : ajouter pauses
+function prepareForSpeech(text) {
+  return text
+    .replace(/\.\s+/g, '. ')          // espaces propres après points
+    .replace(/,([^\s])/g, ', $1')     // virgule + espace
+    .replace(/:\s*/g, ': ')           // deux points aérés
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+function getBestFrenchVoice() {
+  if (_cachedVoice) return _cachedVoice;
+  const all = synth ? synth.getVoices() : [];
+  const priority = [
+    v => /google/i.test(v.name) && v.lang.startsWith('fr'),
+    v => /amélie|thomas|nicolas|aurélie|juliette/i.test(v.name),
+    v => v.lang === 'fr-CA',
+    v => v.lang === 'fr-FR',
+    v => v.lang.startsWith('fr'),
+  ];
+  for (const test of priority) {
+    const match = all.find(test);
+    if (match) { _cachedVoice = match; return match; }
+  }
+  return null;
+}
+
+function speakFallback(text) {
+  if (!synth) return;
+  synth.cancel();
+  const cleaned = prepareForSpeech(cleanForSpeech(text));
+  if (!cleaned) return;
+
+  const u = new SpeechSynthesisUtterance(cleaned);
+  u.lang   = 'fr-FR';
+  u.rate   = 1.0;
+  u.pitch  = 1.0;
+  u.volume = 1;
+  const voice = getBestFrenchVoice();
+  if (voice) u.voice = voice;
+  synth.speak(u);
+}
+
+async function speakSmart(text) {
+  const cleaned = cleanForSpeech(text);
+  if (!cleaned) return;
+
+  ttsBadge.classList.remove('active');
+  try {
+    const res = await fetch('/api/voice/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: prepareForSpeech(cleaned) }),
+    });
+    const ct  = res.headers.get('content-type') || '';
+    const prov = res.headers.get('x-tts-provider') || '';
+
+    if (ct.includes('audio')) {
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const aud  = new Audio(url);
+      aud.playbackRate = 1.0;
+      aud.onplay  = () => { ttsBadge.textContent = prov.toUpperCase(); ttsBadge.classList.add('active'); };
+      aud.onended = () => { URL.revokeObjectURL(url); ttsBadge.classList.remove('active'); };
+      await aud.play().catch(() => speakFallback(cleaned));
+      return;
+    }
+  } catch(_) {}
+  speakFallback(cleaned);
+}
+
+// ── BOOT MESSAGE ───────────────────────────────────────────────────
+if (synth?.onvoiceschanged !== undefined) {
+  synth.onvoiceschanged = () => { _cachedVoice = null; getBestFrenchVoice(); };
+}
+setTimeout(() => getBestFrenchVoice(), 200);
+
+setTimeout(() => {
+  addMessage('daleba', 'DALEBA en ligne. Parlez ou écrivez — je gère le salon, les rendez-vous, les finances, et j\'analyse vos documents.');
+}, 400);
+</script>
+</body>
+</html>

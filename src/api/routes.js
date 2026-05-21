@@ -604,8 +604,10 @@ router.get('/journal/today', async (req, res) => {
   }
 });
 
-// ─── COMMUNICATION HUB (V19) ─────────────────────────────────────────────────────────────────
+// ─── COMMUNICATION HUB (V19) + FLUX PUBLICITAIRE META ────────────────────────────────────────
 const commHub = require('../services/communication-hub');
+const { routeAdMessage } = require('../services/ad-intent-router');
+const metaMsg = require('../services/meta-messenger');
 
 // Webhook WhatsApp (Twilio ou Meta Cloud API)
 router.post('/webhook/whatsapp', async (req, res) => {
@@ -619,38 +621,64 @@ router.post('/webhook/whatsapp', async (req, res) => {
   res.sendStatus(200);
 });
 
-// Webhook Facebook Messenger — vérification GET (Meta challenge)
+// ─── VÉRIFICATION WEBHOOK META (GET) — requis par Meta pour activer l'abonnement ─────────────
+// Facebook Messenger
 router.get('/webhook/facebook', (req, res) => {
-  if (req.query['hub.mode'] === 'subscribe' && req.query['hub.verify_token'] === process.env.META_VERIFY_TOKEN) {
-    return res.send(req.query['hub.challenge']);
+  const mode  = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
+  if (mode === 'subscribe' && token === process.env.META_VERIFY_TOKEN) {
+    console.log('✅ [META] Webhook Facebook vérifié');
+    return res.status(200).send(challenge);
   }
+  console.warn('⚠️ [META] Vérification Facebook refusée — token invalide');
   res.sendStatus(403);
 });
 
-router.post('/webhook/facebook', async (req, res) => {
-  if (req.query['hub.verify_token'] === process.env.META_VERIFY_TOKEN) {
-    return res.send(req.query['hub.challenge']);
-  }
-  const parsed = commHub.parseFacebookWebhook(req.body);
-  if (parsed) await commHub.receiveMessage(parsed).catch(() => {});
-  res.sendStatus(200);
-});
-
-// Webhook Instagram DMs — vérification GET (Meta challenge)
+// Instagram DMs
 router.get('/webhook/instagram', (req, res) => {
-  if (req.query['hub.mode'] === 'subscribe' && req.query['hub.verify_token'] === process.env.META_VERIFY_TOKEN) {
-    return res.send(req.query['hub.challenge']);
+  const mode  = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
+  if (mode === 'subscribe' && token === process.env.META_VERIFY_TOKEN) {
+    console.log('✅ [META] Webhook Instagram vérifié');
+    return res.status(200).send(challenge);
   }
+  console.warn('⚠️ [META] Vérification Instagram refusée — token invalide');
   res.sendStatus(403);
 });
 
-router.post('/webhook/instagram', async (req, res) => {
-  if (req.query['hub.verify_token'] === process.env.META_VERIFY_TOKEN) {
-    return res.send(req.query['hub.challenge']);
+// ─── WEBHOOKS META POST — Réception messages entrants ─────────────────────────────────────────
+// Facebook Messenger — Flux publicitaire
+router.post('/webhook/facebook', async (req, res) => {
+  res.sendStatus(200); // Réponse immédiate à Meta (<5s)
+  try {
+    const parsed = commHub.parseFacebookWebhook(req.body);
+    if (!parsed) return;
+    bus.chat(`[FACEBOOK] Prospect: ${parsed.from} — "${parsed.text.slice(0, 60)}"`);
+    // Routeur publicitaire rapide
+    const reply = await routeAdMessage(parsed.text, 'facebook');
+    await metaMsg.sendMessengerMessage(parsed.from, reply);
+    bus.chat(`[FACEBOOK] Réponse envoyée à ${parsed.from}`);
+  } catch (err) {
+    bus.emit('error', `Facebook webhook: ${err.message}`);
   }
-  const parsed = commHub.parseInstagramWebhook(req.body);
-  if (parsed) await commHub.receiveMessage(parsed).catch(() => {});
-  res.sendStatus(200);
+});
+
+// Instagram DMs — Flux publicitaire
+router.post('/webhook/instagram', async (req, res) => {
+  res.sendStatus(200); // Réponse immédiate à Meta (<5s)
+  try {
+    const parsed = commHub.parseInstagramWebhook(req.body);
+    if (!parsed) return;
+    bus.chat(`[INSTAGRAM] Prospect: ${parsed.from} — "${parsed.text.slice(0, 60)}"`);
+    // Routeur publicitaire rapide
+    const reply = await routeAdMessage(parsed.text, 'instagram');
+    await metaMsg.sendInstagramMessage(parsed.from, reply);
+    bus.chat(`[INSTAGRAM] Réponse envoyée à ${parsed.from}`);
+  } catch (err) {
+    bus.emit('error', `Instagram webhook: ${err.message}`);
+  }
 });
 
 // Webhook SMS Twilio entrant

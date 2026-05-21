@@ -259,8 +259,6 @@ router.get('/audit', requireAuth, async (req, res) => {
   } catch(e) { err(res, e.message, 500); }
 });
 
-module.exports = router;
-
 // ── [347] Webhook Square Team — traité < 2s ───────────────────────────────────
 router.post('/webhook/square', async (req, res) => {
   // Réponse immédiate à Square (< 2s exigé par Square)
@@ -314,3 +312,68 @@ router.get('/payouts/report/pdf', requireAuth, async (req, res) => {
     res.send(html);
   } catch(e) { err(res, e.message, 500); }
 });
+
+// ── [V35] POST /scan-qr — Vérification QR Flash abonnés ─────────────────────
+// Public (pas de requireAuth) — coiffeurs sur mobile
+const crypto_qr = require('crypto');
+const JWT_SECRET_QR = process.env.JWT_SECRET || 'daleba-secret-change-in-prod';
+
+router.post('/scan-qr', async (req, res) => {
+  try {
+    const { qrData } = req.body;
+    if (!qrData) return err(res, 'qrData requis', 400);
+
+    let parsed;
+    try { parsed = typeof qrData === 'string' ? JSON.parse(qrData) : qrData; }
+    catch(e) { return res.status(400).json({ valid: false, reason: 'invalid' }); }
+
+    const { clientId, phone, token: hmacToken, ts } = parsed;
+
+    // 1. Vérifier fraîcheur (< 10 minutes)
+    const now = Date.now();
+    if (!ts || (now - ts) > 10 * 60 * 1000) {
+      return res.json({ valid: false, reason: 'expired' });
+    }
+
+    // 2. Vérifier HMAC
+    const expected = crypto_qr.createHmac('sha256', JWT_SECRET_QR)
+      .update(`${clientId}${phone}`)
+      .digest('hex');
+    if (expected !== hmacToken) {
+      return res.json({ valid: false, reason: 'invalid' });
+    }
+
+    // 3. Chercher le client en DB
+    if (!pool) return res.json({ valid: true, clientName: `Client ${phone}`, subscriptionPlan: 'Demo', expiresAt: null, demo: true });
+
+    let clientName = `Client ${(phone||'').slice(-4)}`;
+    let subscriptionPlan = null;
+    let expiresAt = null;
+    let active = false;
+
+    try {
+      const r = await pool.query(
+        `SELECT * FROM daleba_loyalty WHERE client_phone=$1 ORDER BY created_at DESC LIMIT 1`,
+        [phone]
+      );
+      if (r.rows.length) {
+        const row = r.rows[0];
+        clientName = row.client_name || clientName;
+        subscriptionPlan = row.forfait_name || row.forfait_id || 'Forfait actif';
+        expiresAt = row.next_billing_date || null;
+        active = (row.status || '').toLowerCase() === 'active' || true;
+      } else {
+        return res.json({ valid: false, reason: 'notfound' });
+      }
+    } catch(e) {
+      console.warn('[SCAN-QR] DB error:', e.message);
+    }
+
+    return res.json({ valid: true, clientName, subscriptionPlan, expiresAt });
+  } catch(e) {
+    console.error('[SCAN-QR]', e.message);
+    return res.status(500).json({ valid: false, reason: 'invalid' });
+  }
+});
+
+module.exports = router;

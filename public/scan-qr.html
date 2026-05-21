@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kadio — Scanner QR</title>
+  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #1A1A1A;
+      color: #fff;
+      font-family: 'Georgia', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────────── */
+    header {
+      width: 100%;
+      padding: 16px 20px;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo { font-size: 1.3rem; font-weight: 700; color: #C4622D; letter-spacing: 2px; }
+    .header-sub { font-size: 0.78rem; color: #888; }
+
+    /* ── Scanner container ───────────────────────────────────────────────── */
+    #scanner-wrap {
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    #reader {
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #111;
+    }
+    .status-label {
+      font-size: 0.88rem;
+      color: #aaa;
+      text-align: center;
+      letter-spacing: 0.5px;
+      padding: 0 20px;
+    }
+
+    /* ── Résultat plein écran ────────────────────────────────────────────── */
+    #result-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      padding: 40px;
+      text-align: center;
+      transition: background-color 0.15s;
+    }
+    #result-overlay.valid   { display: flex; background: #00C853; }
+    #result-overlay.invalid { display: flex; background: #D32F2F; }
+    #result-icon { font-size: 5rem; margin-bottom: 16px; }
+    #result-name { font-size: 4rem; font-weight: 700; color: #fff; line-height: 1.1; margin-bottom: 12px; word-break: break-word; }
+    #result-sub  { font-size: 1.1rem; color: rgba(255,255,255,0.85); margin-bottom: 8px; }
+    #result-reason { font-size: 1rem; color: rgba(255,255,255,0.7); margin-bottom: 40px; }
+    #btnNext {
+      padding: 16px 48px;
+      background: rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.6);
+      border-radius: 50px;
+      color: #fff;
+      font-size: 1rem;
+      font-family: inherit;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    #btnNext:hover { background: rgba(255,255,255,0.3); }
+
+    /* Overrides html5-qrcode styles */
+    #reader__scan_region { border-radius: 8px; }
+    #reader__header_message { display: none !important; }
+    #reader__status_span { color: #aaa !important; font-family: 'Georgia', serif !important; }
+    #reader__dashboard_section_swaplink { color: #C4622D !important; }
+    #html5-qrcode-button-camera-permission,
+    #html5-qrcode-button-camera-start,
+    #html5-qrcode-button-camera-stop {
+      background: #C4622D !important;
+      color: white !important;
+      border: none !important;
+      border-radius: 8px !important;
+      padding: 10px 20px !important;
+      font-family: 'Georgia', serif !important;
+      cursor: pointer !important;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">KADIO</div>
+    <div class="header-sub">Scanner abonnés</div>
+  </header>
+
+  <div id="scanner-wrap">
+    <div id="reader"></div>
+    <p class="status-label" id="statusLabel">Pointez la caméra vers le QR code du client</p>
+  </div>
+
+  <!-- Résultat plein écran -->
+  <div id="result-overlay">
+    <div id="result-icon">✓</div>
+    <div id="result-name"></div>
+    <div id="result-sub"></div>
+    <div id="result-reason"></div>
+    <button id="btnNext">Scanner suivant</button>
+  </div>
+
+  <script>
+    let scanning = true;
+    let html5Qr = null;
+
+    function showResult(valid, data) {
+      const overlay = document.getElementById('result-overlay');
+      const icon    = document.getElementById('result-icon');
+      const name    = document.getElementById('result-name');
+      const sub     = document.getElementById('result-sub');
+      const reason  = document.getElementById('result-reason');
+
+      overlay.className = valid ? 'valid' : 'invalid';
+      if (valid) {
+        icon.textContent = '✓';
+        name.textContent = data.clientName || 'Client';
+        sub.textContent  = data.subscriptionPlan ? `Forfait : ${data.subscriptionPlan}` : 'Abonnement actif';
+        reason.textContent = data.expiresAt ? `Valide jusqu'au ${new Date(data.expiresAt).toLocaleDateString('fr-CA')}` : '';
+      } else {
+        icon.textContent = '✗';
+        name.textContent = data.reason === 'expired' ? 'Code expiré' :
+                           data.reason === 'notfound' ? 'Client introuvable' :
+                           'Code invalide';
+        sub.textContent  = '';
+        reason.textContent = 'Vérifiez avec le client.';
+      }
+
+      // Vibration si supportée
+      if ('vibrate' in navigator) navigator.vibrate(valid ? [100, 50, 100] : [300]);
+    }
+
+    async function onScanSuccess(decodedText) {
+      if (!scanning) return;
+      scanning = false;
+
+      document.getElementById('statusLabel').textContent = 'Vérification en cours…';
+
+      try {
+        const r = await fetch('/api/staff/scan-qr', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ qrData: decodedText })
+        });
+        const data = await r.json();
+        showResult(data.valid === true, data);
+      } catch(e) {
+        showResult(false, { reason: 'invalid' });
+      }
+    }
+
+    function startScanner() {
+      scanning = true;
+      document.getElementById('result-overlay').className = '';
+      document.getElementById('statusLabel').textContent = 'Pointez la caméra vers le QR code du client';
+
+      if (html5Qr) {
+        html5Qr.resume();
+        return;
+      }
+
+      html5Qr = new Html5Qrcode('reader');
+      html5Qr.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: { width: 240, height: 240 } },
+        onScanSuccess,
+        () => {}
+      ).catch(err => {
+        document.getElementById('statusLabel').textContent = 'Impossible d\'accéder à la caméra.';
+        console.error('Camera error:', err);
+      });
+    }
+
+    document.getElementById('btnNext').addEventListener('click', () => {
+      scanning = true;
+      document.getElementById('result-overlay').className = '';
+      document.getElementById('statusLabel').textContent = 'Pointez la caméra vers le QR code du client';
+      if (html5Qr) html5Qr.resume();
+    });
+
+    startScanner();
+  </script>
+</body>
+</html>

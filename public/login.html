@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kadio Coiffure — Connexion</title>
+  <style>
+    :root {
+      --primary: #C4622D;
+      --secondary: #7A9E6E;
+      --bg: #FAF6F0;
+      --text: #2C2C2C;
+      --border: #E2D9CF;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Georgia', serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 32px rgba(196,98,45,0.10);
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
+    .tagline {
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 36px;
+      font-style: italic;
+      letter-spacing: 0.5px;
+    }
+    label {
+      display: block;
+      text-align: left;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #888;
+      margin-bottom: 6px;
+    }
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 1.1rem;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s;
+      letter-spacing: 1px;
+    }
+    input:focus { border-color: var(--primary); }
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-family: inherit;
+      letter-spacing: 1px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background .2s, transform .1s;
+    }
+    .btn:hover { background: #a8501f; }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { background: #ccc; cursor: default; }
+    .step { display: none; }
+    .step.active { display: block; }
+    .otp-hint {
+      font-size: 0.82rem;
+      color: #888;
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 16px;
+      font-size: 0.82rem;
+      color: var(--primary);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .error-msg {
+      background: #FFF3F0;
+      border: 1px solid #F5C6BC;
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      color: #C0392B;
+      margin-top: 14px;
+      display: none;
+      text-align: left;
+    }
+    .loading { opacity: 0.6; pointer-events: none; }
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 28px 0;
+    }
+    .role-badge {
+      display: inline-block;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 0.78rem;
+      color: #888;
+      margin-bottom: 24px;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">KADIO</div>
+    <div class="tagline">Coiffure &amp; Esthétique</div>
+
+    <!-- Étape 1 : numéro de téléphone -->
+    <div class="step active" id="step1">
+      <label for="phone">Numéro de téléphone</label>
+      <input type="tel" id="phone" placeholder="+1 514 000 0000" autocomplete="tel" autofocus>
+      <div class="error-msg" id="err1"></div>
+      <button class="btn" id="btnSend">Envoyer le code</button>
+      <p class="otp-hint">Un code à 6 chiffres vous sera envoyé par SMS.</p>
+    </div>
+
+    <!-- Étape 2 : saisie du code OTP -->
+    <div class="step" id="step2">
+      <div class="role-badge" id="phoneBadge"></div>
+      <label for="code">Code SMS reçu</label>
+      <input type="number" id="code" placeholder="123456" maxlength="6" autocomplete="one-time-code">
+      <div class="error-msg" id="err2"></div>
+      <button class="btn" id="btnVerify">Confirmer</button>
+      <span class="back-link" id="backLink">Changer de numéro</span>
+    </div>
+  </div>
+
+  <script>
+    const BASE = '';
+    let currentPhone = '';
+
+    function showError(elId, msg) {
+      const el = document.getElementById(elId);
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+    function hideError(elId) {
+      document.getElementById(elId).style.display = 'none';
+    }
+
+    // ── Étape 1 : envoyer OTP ────────────────────────────────────────────────
+    document.getElementById('btnSend').addEventListener('click', async () => {
+      hideError('err1');
+      const phone = document.getElementById('phone').value.trim().replace(/\s/g,'');
+      if (!phone) return showError('err1', 'Veuillez saisir votre numéro de téléphone.');
+
+      const btn = document.getElementById('btnSend');
+      btn.disabled = true;
+      btn.textContent = 'Envoi en cours...';
+
+      try {
+        const r = await fetch('/api/client-portal/send-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone }),
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || 'Erreur serveur');
+
+        currentPhone = phone;
+        document.getElementById('phoneBadge').textContent = phone;
+        document.getElementById('step1').classList.remove('active');
+        document.getElementById('step2').classList.add('active');
+        document.getElementById('code').focus();
+      } catch(e) {
+        showError('err1', e.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Envoyer le code';
+      }
+    });
+
+    // ── Étape 2 : vérifier OTP ──────────────────────────────────────────────
+    document.getElementById('btnVerify').addEventListener('click', async () => {
+      hideError('err2');
+      const code = document.getElementById('code').value.trim();
+      if (!code || code.length < 4) return showError('err2', 'Veuillez saisir le code reçu.');
+
+      const btn = document.getElementById('btnVerify');
+      btn.disabled = true;
+      btn.textContent = 'Vérification...';
+
+      try {
+        const r = await fetch('/api/client-portal/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: currentPhone, code }),
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || 'Code invalide');
+
+        // Stocker token + données de base
+        localStorage.setItem('kc_token', data.token || '');
+        localStorage.setItem('kc_role',  data.role  || 'client');
+        localStorage.setItem('kc_name',  data.clientName || '');
+        localStorage.setItem('kc_phone', currentPhone);
+
+        // Redirection selon rôle
+        const role = (data.role || 'client').toLowerCase();
+        if (role === 'admin' || role === 'owner' || role === 'business_admin') {
+          window.location.href = '/dashboard';
+        } else if (role === 'staff' || role === 'employee') {
+          window.location.href = '/portail-staff';
+        } else {
+          window.location.href = '/portail-client';
+        }
+      } catch(e) {
+        showError('err2', e.message);
+        btn.disabled = false;
+        btn.textContent = 'Confirmer';
+      }
+    });
+
+    // Retour étape 1
+    document.getElementById('backLink').addEventListener('click', () => {
+      document.getElementById('step2').classList.remove('active');
+      document.getElementById('step1').classList.add('active');
+      document.getElementById('code').value = '';
+      hideError('err2');
+    });
+
+    // Enter key support
+    document.getElementById('phone').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('btnSend').click();
+    });
+    document.getElementById('code').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('btnVerify').click();
+    });
+  </script>
+</body>
+</html>

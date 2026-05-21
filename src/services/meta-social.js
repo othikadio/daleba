@@ -126,4 +126,7 @@ function getSocialStatus() {
   };
 }
 
-module.exports = { postToInstagram, postToFacebook, getSocialStatus };
+// Re-export from meta-messenger for backward compatibility with communication-hub
+const { sendMessengerMessage, sendInstagramMessage } = require('./meta-messenger');
+
+module.exports = { postToInstagram, postToFacebook, getSocialStatus, sendMessengerMessage, sendInstagramMessage };

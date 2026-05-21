@@ -153,4 +153,68 @@ router.post('/verify-otp', async (req, res) => {
   res.json({ success: true, token, ...clientData });
 });
 
+// ─── GET /profile ─────────────────────────────────────────────────────────────
+router.get('/profile', async (req, res) => {
+  const auth = req.headers.authorization || '';
+  const token = auth.replace('Bearer ', '').trim();
+
+  // En mode démo on renvoie un profil fictif
+  let clientPhone = null;
+  if (pool && !DEMO_MODE && token) {
+    try {
+      const r = await pool.query(
+        'SELECT client_phone FROM daleba_client_sessions WHERE token=$1 AND expires_at > NOW()',
+        [token]
+      );
+      if (r.rows[0]) clientPhone = r.rows[0].client_phone;
+    } catch(e) {}
+  }
+
+  if (!clientPhone) {
+    // Demo mode
+    return res.json({
+      clientName: 'Client Démo',
+      status: 'active',
+      forfaitName: 'Locs Illimité',
+      notes: [],
+      appointments: [],
+    });
+  }
+
+  let profile = { clientName: `Client ${clientPhone.slice(-4)}`, status: 'active', forfaitName: null, notes: [], appointments: [] };
+  try {
+    const sub = await pool.query(
+      'SELECT * FROM daleba_loyalty WHERE client_phone=$1 ORDER BY created_at DESC LIMIT 1',
+      [clientPhone]
+    );
+    if (sub.rows[0]) {
+      profile.clientName = sub.rows[0].client_name || profile.clientName;
+      profile.status     = sub.rows[0].status || 'active';
+      profile.forfaitName = sub.rows[0].forfait_name || sub.rows[0].forfait_id;
+    }
+
+    const appts = await pool.query(
+      'SELECT * FROM daleba_reminders_queue WHERE client_phone=$1 ORDER BY appointment_datetime DESC LIMIT 10',
+      [clientPhone]
+    );
+    profile.appointments = appts.rows.map(a => ({
+      service: a.service_name,
+      date: new Date(a.appointment_datetime).toLocaleDateString('fr-CA'),
+      time: new Date(a.appointment_datetime).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'}),
+      staffName: a.staff_name,
+      status: new Date(a.appointment_datetime) > new Date() ? 'upcoming' : 'done',
+    }));
+
+    const notes = await pool.query(
+      `SELECT staff_comment AS comment, TO_CHAR(created_at,'DD/MM/YYYY') AS date
+       FROM kadio_ratings WHERE client_phone=$1 AND staff_comment IS NOT NULL
+       ORDER BY created_at DESC LIMIT 5`,
+      [clientPhone]
+    );
+    profile.notes = notes.rows;
+  } catch(e) { console.warn('[CLIENT-PORTAL] /profile:', e.message); }
+
+  res.json(profile);
+});
+
 module.exports = router;

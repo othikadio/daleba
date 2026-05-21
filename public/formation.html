@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formation Professionnelle Locks & Tresses — Othi Kadio | Kadio Coiffure</title>
+  <meta name="description" content="Formations professionnelles Locks & Tresses avec Othi Kadio, locticien certifié à Longueuil. Initiation, Maîtrise, Tresses Avancées. Réservez votre place." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary:        #C4622D;
+      --primary-dark:   #A8461A;
+      --primary-light:  #E8916B;
+      --primary-pale:   #F5D5C3;
+      --secondary:      #7A9E6E;
+      --secondary-dark: #5C7A52;
+      --secondary-light:#A8C49A;
+      --secondary-pale: #D8EDD0;
+      --cream:          #FAF6F0;
+      --charcoal:       #1C1008;
+      --gold:           #C9933A;
+      --white:          #FFFFFF;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      color: var(--charcoal);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    h1,h2,h3,h4 { font-family: 'Playfair Display', serif; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--primary-pale);
+      box-shadow: 0 2px 12px rgba(196,98,45,0.08);
+    }
+    .nav-inner {
+      max-width: 1200px; margin: 0 auto;
+      padding: 0 1.5rem; height: 68px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; font-weight: 700;
+      color: var(--primary); letter-spacing: 0.05em;
+    }
+    .nav-logo span { color: var(--secondary-dark); font-weight: 400; font-size: 0.85em; }
+    .nav-links { display: flex; gap: 0.25rem; align-items: center; list-style: none; }
+    .nav-links a {
+      padding: 0.45rem 0.9rem; border-radius: 6px;
+      font-size: 0.9rem; font-weight: 500; color: var(--charcoal);
+      transition: background 0.2s, color 0.2s;
+    }
+    .nav-links a:hover { background: var(--primary-pale); color: var(--primary-dark); }
+    .nav-links a.active { color: var(--primary-dark); background: var(--primary-pale); }
+    .nav-links .btn-nav {
+      background: var(--primary); color: var(--white);
+      padding: 0.5rem 1.2rem; border-radius: 8px; font-weight: 600;
+    }
+    .nav-links .btn-nav:hover { background: var(--primary-dark); color: var(--white); }
+
+    /* ─── HERO ─── */
+    .hero {
+      margin-top: 68px;
+      background: linear-gradient(135deg, var(--secondary-pale) 0%, var(--cream) 55%, var(--primary-pale) 100%);
+      padding: 5rem 1.5rem 4rem;
+      text-align: center;
+    }
+    .hero-tag {
+      display: inline-block;
+      background: var(--secondary-pale); color: var(--secondary-dark);
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 0.35rem 0.9rem; border-radius: 20px;
+      border: 1px solid var(--secondary-light); margin-bottom: 1.2rem;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 700; line-height: 1.15;
+      color: var(--charcoal); margin-bottom: 0.8rem;
+    }
+    .hero h1 em { color: var(--secondary-dark); font-style: italic; }
+    .hero-sub { font-size: 1.05rem; color: #3D5C35; max-width: 580px; margin: 0 auto 0.75rem; }
+    .hero-formateur {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      background: var(--white); border: 1px solid var(--secondary-light);
+      border-radius: 30px; padding: 0.45rem 1.2rem;
+      font-size: 0.88rem; font-weight: 600; color: var(--secondary-dark);
+      margin-top: 0.5rem; box-shadow: 0 2px 8px rgba(122,158,110,0.12);
+    }
+    .hero-formateur .dot {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--secondary-pale), var(--secondary-light));
+      display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+    }
+
+    /* ─── SECTIONS ─── */
+    section { padding: 5rem 1.5rem; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-tag {
+      display: inline-block; font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--secondary-dark); margin-bottom: 0.5rem;
+    }
+    .section-title { font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight: 700; color: var(--charcoal); margin-bottom: 0.5rem; }
+    .section-sub { font-size: 0.95rem; color: #3D5C35; margin-bottom: 3rem; max-width: 560px; }
+
+    /* ─── FORMULES ─── */
+    #formules { background: var(--white); }
+    .formules-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1.75rem;
+    }
+    .formule-card {
+      background: var(--cream); border: 2px solid var(--secondary-pale);
+      border-radius: 18px; padding: 2rem;
+      display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+    .formule-card:hover { border-color: var(--secondary); box-shadow: 0 8px 28px rgba(122,158,110,0.15); transform: translateY(-3px); }
+    .formule-card.featured {
+      border-color: var(--secondary);
+      background: linear-gradient(135deg, var(--white) 0%, var(--secondary-pale) 100%);
+    }
+    .formule-badge {
+      position: absolute; top: 1rem; right: 1rem;
+      background: var(--secondary-dark); color: var(--white);
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.25rem 0.65rem; border-radius: 20px;
+    }
+    .formule-icon { font-size: 2.4rem; margin-bottom: 0.8rem; }
+    .formule-level {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--secondary-dark); margin-bottom: 0.3rem;
+    }
+    .formule-name { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--charcoal); margin-bottom: 0.4rem; }
+    .formule-duration { font-size: 0.85rem; color: #3D5C35; margin-bottom: 1rem; }
+    .formule-duration span { font-weight: 600; }
+    .formule-price { font-size: 2.2rem; font-weight: 800; color: var(--secondary-dark); line-height: 1; }
+    .formule-price small { font-size: 0.95rem; font-weight: 500; color: #5A7850; }
+    .formule-deposit { font-size: 0.82rem; color: #6B8860; margin-top: 0.3rem; }
+    .formule-includes { list-style: none; margin: 1.2rem 0 1.5rem; flex: 1; }
+    .formule-includes li { font-size: 0.85rem; color: #3D5C35; padding: 0.3rem 0; display: flex; gap: 0.5rem; align-items: flex-start; }
+    .formule-includes li::before { content: ''; color: var(--secondary-dark); font-weight: 700; flex-shrink: 0; }
+    .btn-formule {
+      display: block; text-align: center;
+      background: var(--secondary-dark); color: var(--white);
+      padding: 0.85rem 1.5rem; border-radius: 10px;
+      font-weight: 700; font-size: 0.95rem;
+      transition: background 0.2s, transform 0.15s;
+      margin-top: auto;
+    }
+    .btn-formule:hover { background: #4A6642; transform: translateY(-1px); color: var(--white); }
+
+    /* ─── PROFIL OTHI ─── */
+    #profil { background: var(--cream); }
+    .profil-grid { display: grid; grid-template-columns: auto 1fr; gap: 3rem; align-items: start; }
+    .profil-photo-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: 1rem;
+    }
+    .profil-photo {
+      width: 180px; height: 180px; border-radius: 20px;
+      background: linear-gradient(135deg, var(--secondary-pale), var(--secondary-light));
+      display: flex; align-items: center; justify-content: center; font-size: 4rem;
+      border: 3px solid var(--secondary-light);
+      box-shadow: 0 6px 24px rgba(122,158,110,0.18);
+    }
+    .profil-badge {
+      background: var(--secondary-pale); color: var(--secondary-dark);
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 0.3rem 0.8rem; border-radius: 20px; border: 1px solid var(--secondary-light);
+      text-align: center;
+    }
+    .profil-content h2 { font-size: 1.9rem; font-weight: 700; color: var(--charcoal); margin-bottom: 0.25rem; }
+    .profil-role { font-size: 0.9rem; color: var(--secondary-dark); font-weight: 600; margin-bottom: 1rem; }
+    .profil-text { font-size: 0.95rem; color: #3D5C35; line-height: 1.7; margin-bottom: 1.5rem; }
+    .profil-note {
+      background: var(--secondary-pale); border: 1px solid var(--secondary-light);
+      border-radius: 10px; padding: 0.9rem 1.2rem;
+      font-size: 0.88rem; color: var(--secondary-dark); font-weight: 500;
+    }
+    .profil-note::before { content: 'ℹ️  '; }
+    .profil-contact { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
+    .btn-contact-tel {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--primary); color: var(--white);
+      padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 600;
+      transition: background 0.2s;
+    }
+    .btn-contact-tel:hover { background: var(--primary-dark); color: var(--white); }
+    .btn-contact-wa {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: #25D366; color: var(--white);
+      padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 600;
+      transition: background 0.2s;
+    }
+    .btn-contact-wa:hover { background: #1ebe57; color: var(--white); }
+
+    /* ─── FAQ ─── */
+    #faq { background: var(--white); }
+    .faq-list { max-width: 720px; }
+    .faq-item { border-bottom: 1px solid var(--primary-pale); padding: 1.2rem 0; }
+    .faq-q { font-weight: 700; font-size: 0.95rem; color: var(--charcoal); margin-bottom: 0.4rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+    .faq-a { font-size: 0.88rem; color: #5A3820; line-height: 1.65; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--charcoal); color: rgba(255,255,255,0.75);
+      padding: 3rem 1.5rem 2rem; text-align: center;
+    }
+    .footer-inner { max-width: 1200px; margin: 0 auto; }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: var(--primary-light); margin-bottom: 0.5rem; }
+    .footer-links { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 0.8rem; }
+    .footer-links a { font-size: 0.88rem; color: rgba(255,255,255,0.6); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--primary-light); }
+    .footer-copy { font-size: 0.78rem; color: rgba(255,255,255,0.4); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      .profil-grid { grid-template-columns: 1fr; }
+      .profil-photo { width: 120px; height: 120px; font-size: 2.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">KADIO <span>Coiffure & Esthétique</span></a>
+      <ul class="nav-links">
+        <li><a href="/">Accueil</a></li>
+        <li><a href="/menu">Services</a></li>
+        <li><a href="/forfaits">Forfaits</a></li>
+        <li><a href="/formation" class="active">Formation</a></li>
+        <li><a href="/reservation" class="btn-nav">Réserver</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag"> Formation Professionnelle</div>
+    <h1>Locks & <em>Tresses</em><br>Formation d'excellence</h1>
+    <p class="hero-sub">Apprenez les techniques professionnelles des Locks et Tresses avec un expert certifié à Longueuil, Québec.</p>
+    <div class="hero-formateur">
+      <div class="dot"></div>
+      Othi Kadio — Locticien certifié · Kadio Coiffure Longueuil
+    </div>
+  </div>
+
+  <!-- FORMULES -->
+  <section id="formules">
+    <div class="section-inner">
+      <div class="section-tag">Nos Formules</div>
+      <h2 class="section-title">Choisissez votre niveau</h2>
+      <p class="section-sub">3 formules adaptées à votre parcours. Dépôt de 30% requis pour confirmer votre place.</p>
+      <div class="formules-grid">
+
+        <div class="formule-card">
+          <div class="formule-level">Formation Dreadlocks / Locks</div>
+          <div class="formule-name">Locks — Technique Complète</div>
+          <div class="formule-duration">Démarrage, entretien, réparation, extensions, crochet, interlock, retwist</div>
+          <div class="formule-price">1&nbsp;138,50&nbsp;$<small> taxes incluses</small></div>
+          <div class="formule-deposit">Ou 284,63 $/mois × 4 versements</div>
+          <ul class="formule-includes">
+            <li>Abonnés Kadio : 910,80 $ taxes incluses</li>
+            <li>Ou 227,70 $/mois × 4 versements (abonnés)</li>
+            <li>Remise abonnés : –20 %</li>
+            <li>Certificat Kadio Coiffure à la réussite</li>
+            <li>Seul formateur : Othi Kadio</li>
+          </ul>
+          <a href="/reservation?staffId=TMbOuVGATiQQ_fKO&service=formation-locks" class="btn-formule">
+            Réserver ma place
+          </a>
+        </div>
+
+        <div class="formule-card featured">
+          <div class="formule-badge">Exclusif</div>
+          <div class="formule-level">Formation Sisterlocks / Microlocs</div>
+          <div class="formule-name">Sisterlocks — Techniques Exclusives</div>
+          <div class="formule-duration">Techniques exclusives et certification</div>
+          <div class="formule-price">563,50&nbsp;$<small> taxes incluses</small></div>
+          <div class="formule-deposit">Ou 140,88 $/mois × 4 versements</div>
+          <ul class="formule-includes">
+            <li>Abonnés Kadio : 450,80 $ taxes incluses</li>
+            <li>Ou 112,70 $/mois × 4 versements (abonnés)</li>
+            <li>Remise abonnés : –20 %</li>
+            <li>Certificat Kadio Coiffure à la réussite</li>
+            <li>Seul formateur : Othi Kadio</li>
+          </ul>
+          <a href="/reservation?staffId=TMbOuVGATiQQ_fKO&service=formation-sisterlocks" class="btn-formule">
+            Réserver ma place
+          </a>
+        </div>
+
+        <div class="formule-card">
+          <div class="formule-badge">Tout Inclus</div>
+          <div class="formule-level">Formation Complète</div>
+          <div class="formule-name">Locks + Sisterlocks — Programme Intégral</div>
+          <div class="formule-duration">Le programme tout-inclus — Locks et Sisterlocks</div>
+          <div class="formule-price">1&nbsp;493,85&nbsp;$<small> taxes incluses</small></div>
+          <div class="formule-deposit">Ou 373,46 $/mois × 4 versements</div>
+          <ul class="formule-includes">
+            <li>Abonnés Kadio : 1 194,85 $ taxes incluses</li>
+            <li>Ou 298,71 $/mois × 4 versements (abonnés)</li>
+            <li>Remise abonnés : –20 %</li>
+            <li>Certificat Kadio Coiffure à la réussite</li>
+            <li>Seul formateur : Othi Kadio</li>
+          </ul>
+          <a href="/reservation?staffId=TMbOuVGATiQQ_fKO&service=formation-complete" class="btn-formule">
+            Réserver ma place
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- PROFIL OTHI -->
+  <section id="profil">
+    <div class="section-inner">
+      <div class="section-tag">Votre Formateur</div>
+      <h2 class="section-title">Othi Kadio</h2>
+      <div class="profil-grid">
+        <div class="profil-photo-wrap">
+          <div class="profil-photo"></div>
+          <div class="profil-badge">Locticien Certifié</div>
+        </div>
+        <div class="profil-content">
+          <h2>Othi Kadio</h2>
+          <div class="profil-role">Locticien · Spécialiste Locks · Kadio Coiffure Longueuil</div>
+          <p class="profil-text">
+            Othi Kadio est le locticien principal et fondateur de Kadio Coiffure à Longueuil, QC. 
+            Passionné par l'art des Locks et des Tresses depuis plus de 10 ans, il partage aujourd'hui 
+            son expertise à travers des formations privées et personnalisées. 
+            Son approche combine technique rigoureuse et créativité — formant la prochaine génération 
+            de professionnels de la coiffure afro au Québec.
+          </p>
+          <div class="profil-note">
+            Seul formateur disponible actuellement. Places très limitées — réservez tôt pour garantir votre créneau.
+          </div>
+          <div class="profil-contact">
+            <a href="tel:5149195970" class="btn-contact-tel">514-919-5970</a>
+            <a href="https://wa.me/15149195970" class="btn-contact-wa" target="_blank" rel="noopener">WhatsApp</a>
+            <a href="mailto:kadiocoiffureetesthetique@yahoo.com" style="font-size:.82rem;color:var(--secondary-dark);text-decoration:underline;margin-top:.25rem;display:block">kadiocoiffureetesthetique@yahoo.com</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="section-inner">
+      <div class="section-tag"> Questions fréquentes</div>
+      <h2 class="section-title">FAQ</h2>
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-q">Où se déroulent les formations ? <span>▾</span></div>
+          <div class="faq-a">Les formations ont lieu directement au salon Kadio Coiffure, 615 Antoinette-Robidoux, local 100, Longueuil, QC J4J 2V8.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Comment payer le dépôt ? <span>▾</span></div>
+          <div class="faq-a">Le dépôt de 30% est demandé lors de la réservation pour confirmer votre place. Paiement par carte ou virement. Le solde est réglé le jour de la formation.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Faut-il apporter du matériel ? <span>▾</span></div>
+          <div class="faq-a">Non — tout le matériel et les produits nécessaires sont fournis par Kadio Coiffure pendant la formation.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Peut-on combiner plusieurs formules ? <span>▾</span></div>
+          <div class="faq-a">Oui. Il est recommandé de suivre les formules dans l'ordre (Initiation → Maîtrise → Tresses) pour une progression optimale. Un rabais peut être négocié pour plusieurs formules réservées en même temps — contactez Othi directement.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Les formations sont-elles reconnues ? <span>▾</span></div>
+          <div class="faq-a">Les formations donnent lieu à une attestation ou un certificat signé par Othi Kadio, Kadio Coiffure Longueuil. Ce certificat est reconnu dans le réseau professionnel de coiffure afro au Québec.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-logo">KADIO Coiffure & Esthétique</div>
+      <div class="footer-links">
+        <a href="/">Accueil</a>
+        <a href="/menu">Services</a>
+        <a href="/forfaits">Forfaits</a>
+        <a href="/formation">Formation</a>
+        <a href="/reservation">Réserver</a>
+      </div>
+      <div class="footer-copy">615 Antoinette-Robidoux, local 100 · Longueuil, QC J4J 2V8 · 514-919-5970 · kadiocoiffureetesthetique@yahoo.com</div>
+      <div class="footer-copy" style="margin-top:0.4rem;">© 2025 Kadio Coiffure & Esthétique. Tous droits réservés.</div>
+    </div>
+  </footer>
+
+</body>
+</html>

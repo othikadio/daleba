@@ -91,6 +91,8 @@ app.use('/studio/exports', studioStaticGuard);
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Routes DALEBA
+// V32: Booking live — montage direct AVANT routes générales (Square slots + SMS)
+app.use('/api/booking', require('./api/booking-routes'));
 app.use('/api', routes);
 app.use('/api/ai', require('./api/ai-admin-routes')); // Hub IA universel — Cerveau Central
 app.use('/api/auth', authRoutes); // Authentification OTP + JWT
@@ -99,6 +101,10 @@ app.use('/api/accounting', accountingRoutes);
 app.use('/api/loyalty', loyaltyHybridRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/hunter', require('./api/hunter-routes')); // Agent chasseur IA
+app.use('/api/voice', require('./api/voice-dashboard-routes'));     // Jarvis — commande vocale + meta
+app.use('/api/dashboard', require('./api/voice-dashboard-routes')); // Jarvis — statut meta + site
+app.use('/api/salon', require('./api/salon-ops-routes'));  // V35 — Arrivée VIP + ratings + bouclier Google
+app.use('/api/staff', require('./api/staff-routes'));       // V35 — /api/staff/scan-qr
 
 // Middleware erreurs (Point 12)
 app.use(errorMiddleware);
@@ -106,12 +112,30 @@ app.use(errorWatcher.middleware); // V27 — surveillance 4xx/5xx + patch SMS Ul
 
 // Accueil (page principale)
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/accueil.html'));
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 // Booking page
 app.get('/reservation', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/reservation.html'));
+});
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/login.html'));
+});
+app.get('/portail-client', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/portail-client.html'));
+});
+app.get('/portail-staff', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/portail-staff.html'));
+});
+app.get('/agenda', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/agenda.html'));
+});
+app.get('/scan-qr', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/scan-qr.html'));
+});
+app.get('/noter-service', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/noter-service.html'));
 });
 
 // Dashboard → redirect
@@ -169,6 +193,11 @@ app.get('/admin/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-dashboard.html'));
 });
 
+// JARVIS — Interface vocale Ulrich (route étanche, priorité absolue)
+app.get('/jarvis', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/jarvis.html'));
+});
+
 app.get('/admin/content', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/content-dashboard.html'));
 });
@@ -184,6 +213,9 @@ app.get('/menu', (req, res) => {
 });
 app.get('/forfaits', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/forfaits.html'));
+});
+app.get('/formation', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/formation.html'));
 });
 
 // [098] Health endpoint deep — 99.9% uptime target
