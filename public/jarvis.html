@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<title>DALEBA — Jarvis</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #00FF9F;
+    --green-dim: rgba(0,255,159,0.08);
+    --green-glow: rgba(0,255,159,0.35);
+    --red: #FF4455;
+    --text: #e8e8e8;
+    --muted: #444;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: #000;
+    color: var(--text);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    overflow: hidden;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ── BRAND ── */
+  .brand {
+    position: fixed;
+    top: 28px; left: 36px;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 300;
+  }
+  .brand span { color: var(--green); }
+
+  /* ── STATUS DOT ── */
+  .status-dot {
+    position: fixed;
+    top: 32px; right: 36px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .status-dot::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: blink 3s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .scene {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    gap: 0;
+  }
+
+  /* ── MIC BUTTON ── */
+  .mic-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-bottom: 56px;
+  }
+
+  /* Outer pulse rings */
+  .ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid var(--green-glow);
+    animation: ring-expand 2.8s ease-out infinite;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .ring:nth-child(1) { width: 200px; height: 200px; animation-delay: 0s; }
+  .ring:nth-child(2) { width: 260px; height: 260px; animation-delay: 0.7s; }
+  .ring:nth-child(3) { width: 320px; height: 320px; animation-delay: 1.4s; }
+
+  @keyframes ring-expand {
+    0%   { transform: scale(0.7); opacity: 0.6; }
+    100% { transform: scale(1.2); opacity: 0; }
+  }
+
+  /* Stop rings when active */
+  .mic-wrap.active .ring { animation: ring-active 0.6s ease-in-out infinite alternate; }
+  .ring-active-1 { width: 200px; height: 200px; }
+  .ring-active-2 { width: 260px; height: 260px; }
+  .ring-active-3 { width: 320px; height: 320px; }
+  @keyframes ring-active {
+    0%   { transform: scale(0.85); opacity: 0.7; border-color: rgba(0,255,159,0.7); }
+    100% { transform: scale(1.05); opacity: 0.3; border-color: rgba(0,255,159,0.2); }
+  }
+
+  /* The button itself */
+  .mic-btn {
+    position: relative;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: #000;
+    border: 1.5px solid rgba(0,255,159,0.3);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    gap: 6px;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    box-shadow: 0 0 40px rgba(0,255,159,0.05), inset 0 0 30px rgba(0,255,159,0.03);
+    -webkit-user-select: none;
+    touch-action: none;
+    z-index: 2;
+  }
+
+  .mic-btn:hover {
+    border-color: rgba(0,255,159,0.6);
+    box-shadow: 0 0 60px rgba(0,255,159,0.15), inset 0 0 30px rgba(0,255,159,0.06);
+  }
+
+  .mic-wrap.active .mic-btn {
+    border-color: var(--green);
+    box-shadow: 0 0 80px var(--green-glow), 0 0 30px rgba(0,255,159,0.2), inset 0 0 40px rgba(0,255,159,0.08);
+    transform: scale(1.04);
+  }
+
+  .mic-icon {
+    width: 36px; height: 36px;
+    fill: none;
+    stroke: rgba(0,255,159,0.6);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke 0.2s;
+  }
+  .mic-wrap.active .mic-icon { stroke: var(--green); }
+
+  .mic-label {
+    font-size: 8px;
+    letter-spacing: 0.3em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 400;
+    transition: color 0.2s;
+  }
+  .mic-wrap.active .mic-label { color: var(--green); }
+
+  /* ── TRANSCRIPT ── */
+  .transcript-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    max-width: 600px;
+    padding: 0 32px;
+    min-height: 120px;
+  }
+
+  .transcript {
+    font-size: 14px;
+    color: var(--muted);
+    text-align: center;
+    letter-spacing: 0.05em;
+    font-weight: 300;
+    min-height: 22px;
+    transition: color 0.3s;
+    line-height: 1.6;
+  }
+  .transcript.live { color: #888; font-style: italic; }
+
+  .divider {
+    width: 1px;
+    height: 24px;
+    background: linear-gradient(to bottom, transparent, rgba(0,255,159,0.2), transparent);
+    display: none;
+  }
+  .divider.visible { display: block; }
+
+  .response {
+    font-size: 15px;
+    color: var(--text);
+    text-align: center;
+    letter-spacing: 0.02em;
+    font-weight: 300;
+    line-height: 1.75;
+    min-height: 26px;
+    max-height: 200px;
+    overflow-y: auto;
+    word-break: break-word;
+  }
+  .response.thinking {
+    color: rgba(0,255,159,0.5);
+    animation: pulse-text 1s ease-in-out infinite alternate;
+  }
+  @keyframes pulse-text {
+    from { opacity: 0.4; }
+    to   { opacity: 0.9; }
+  }
+  .response.done { color: var(--text); }
+
+  /* ── HINT ── */
+  .hint {
+    position: fixed;
+    bottom: 36px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: #333;
+    text-transform: uppercase;
+    text-align: center;
+    width: 100%;
+    pointer-events: none;
+  }
+
+  /* ── ERROR STATE ── */
+  .mic-btn.error { border-color: rgba(255,68,85,0.5); }
+  .mic-wrap.error .mic-icon { stroke: var(--red); }
+  .mic-wrap.error .mic-label { color: var(--red); }
+
+  /* ── PROVIDER BADGE ── */
+  .provider-badge {
+    position: fixed;
+    bottom: 60px;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: #2a2a2a;
+    text-transform: uppercase;
+    width: 100%;
+    text-align: center;
+    transition: color 0.4s;
+  }
+  .provider-badge.visible { color: var(--green); }
+
+  /* Custom scrollbar in response */
+  .response::-webkit-scrollbar { width: 2px; }
+  .response::-webkit-scrollbar-track { background: transparent; }
+  .response::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="brand">DALEBA <span>/</span> JARVIS</div>
+<div class="status-dot">EN LIGNE</div>
+
+<div class="scene">
+
+  <div class="mic-wrap" id="micWrap">
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="ring"></div>
+
+    <div class="mic-btn" id="micBtn">
+      <svg class="mic-icon" viewBox="0 0 24 24">
+        <rect x="9" y="2" width="6" height="11" rx="3"/>
+        <path d="M5 10a7 7 0 0 0 14 0"/>
+        <line x1="12" y1="17" x2="12" y2="21"/>
+        <line x1="9" y1="21" x2="15" y2="21"/>
+      </svg>
+      <span class="mic-label" id="micLabel">Parler</span>
+    </div>
+  </div>
+
+  <div class="transcript-zone">
+    <div class="transcript" id="transcript">Maintenez pour parler.</div>
+    <div class="divider" id="divider"></div>
+    <div class="response" id="response"></div>
+  </div>
+
+</div>
+
+<div class="provider-badge" id="providerBadge"></div>
+<div class="hint">© DALEBA — Kadio Coiffure</div>
+
+<script>
+  const micWrap   = document.getElementById('micWrap');
+  const micBtn    = document.getElementById('micBtn');
+  const micLabel  = document.getElementById('micLabel');
+  const transcript = document.getElementById('transcript');
+  const response  = document.getElementById('response');
+  const divider   = document.getElementById('divider');
+  const badge     = document.getElementById('providerBadge');
+
+  let recognition = null;
+  let isListening = false;
+  let finalText   = '';
+  let synth       = window.speechSynthesis;
+
+  // ── Speech Recognition setup ──────────────────────────────────────────────
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  function initRecognition() {
+    if (!SpeechRecognition) return null;
+    const r = new SpeechRecognition();
+    r.lang = 'fr-FR';
+    r.continuous = true;
+    r.interimResults = true;
+    r.maxAlternatives = 1;
+
+    r.onresult = (e) => {
+      let interim = '';
+      finalText = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) finalText += e.results[i][0].transcript;
+        else interim += e.results[i][0].transcript;
+      }
+      transcript.textContent = finalText || interim || '…';
+      transcript.className = 'transcript live';
+    };
+
+    r.onerror = (e) => {
+      console.error('SR error:', e.error);
+      if (e.error === 'not-allowed') {
+        setError('Micro non autorisé — vérifiez les permissions');
+      }
+    };
+
+    r.onend = () => {
+      if (isListening) r.start(); // keep alive
+    };
+
+    return r;
+  }
+
+  // ── State helpers ─────────────────────────────────────────────────────────
+  function setActive() {
+    isListening = true;
+    micWrap.classList.add('active');
+    micWrap.classList.remove('error');
+    micLabel.textContent = 'Écoute…';
+    transcript.textContent = '…';
+    transcript.className = 'transcript live';
+    response.textContent = '';
+    response.className = 'response';
+    divider.className = 'divider';
+    badge.className = 'provider-badge';
+    badge.textContent = '';
+  }
+
+  function setIdle() {
+    isListening = false;
+    micWrap.classList.remove('active');
+    micLabel.textContent = 'Parler';
+  }
+
+  function setThinking() {
+    response.textContent = 'DALEBA réfléchit…';
+    response.className = 'response thinking';
+    divider.className = 'divider visible';
+  }
+
+  function setResponse(text, provider) {
+    response.textContent = text;
+    response.className = 'response done';
+    divider.className = 'divider visible';
+    if (provider) {
+      badge.textContent = '↳ ' + provider;
+      badge.className = 'provider-badge visible';
+      setTimeout(() => badge.className = 'provider-badge', 6000);
+    }
+  }
+
+  function setError(msg) {
+    micWrap.classList.add('error');
+    micWrap.classList.remove('active');
+    transcript.textContent = msg;
+    transcript.className = 'transcript';
+    micLabel.textContent = 'Erreur';
+    isListening = false;
+  }
+
+  // ── Text cleaner (anti-robot) ─────────────────────────────────────────────
+  function cleanForSpeech(raw) {
+    return raw
+      .slice(0, 400)
+      // Supprimer markdown / symboles parasites
+      .replace(/\*+/g, '')           // astérisques
+      .replace(/#{1,6}\s*/g, '')     // titres markdown
+      .replace(/`[^`]*`/g, '')       // code inline
+      .replace(/_{1,2}([^_]+)_{1,2}/g, '$1') // italique/bold
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // liens markdown
+      // Tirets en début de ligne → légère pause
+      .replace(/^\s*[-–—]\s*/gm, ', ')
+      // Slash et pipes superflus
+      .replace(/[|\\]/g, ' ')
+      // Emojis → retirés (causent des pauses erratiques sur certains moteurs)
+      .replace(/[\u{1F300}-\u{1FFFF}]/gu, '')
+      .replace(/[\u{2600}-\u{27BF}]/gu, '')
+      // Symboles monétaires → mot
+      .replace(/\$/g, ' dollars ')
+      .replace(/€/g, ' euros ')
+      .replace(/%/g, ' pourcent ')
+      // Plusieurs espaces / sauts de ligne → espace simple
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+
+  // ── Voice selector — préfère voix Premium fr ──────────────────────────────
+  let _cachedVoice = null;
+  function getBestFrenchVoice() {
+    if (_cachedVoice) return _cachedVoice;
+    const all = synth.getVoices();
+    // Ordre de préférence : Google HD, Apple Amélie/Thomas, toute voix fr-CA, fr-FR
+    const priority = [
+      v => /google/i.test(v.name) && v.lang.startsWith('fr'),
+      v => /amélie|thomas|nicolas|marie|audrey/i.test(v.name),
+      v => v.lang === 'fr-CA',
+      v => v.lang === 'fr-FR',
+      v => v.lang.startsWith('fr'),
+    ];
+    for (const test of priority) {
+      const match = all.find(test);
+      if (match) { _cachedVoice = match; return match; }
+    }
+    return null;
+  }
+
+  // ── TTS — Jarvis mode ─────────────────────────────────────────────────────
+  function speak(text) {
+    if (!synth) return;
+    synth.cancel();
+    const cleaned = cleanForSpeech(text);
+    if (!cleaned) return;
+    const voice = getBestFrenchVoice();
+
+    // Anti-freeze Safari/iOS + fluidité : chunk par phrase
+    const chunks = cleaned.match(/[^.!?]+[.!?]*/g) || [cleaned];
+    chunks.forEach((chunk) => {
+      const trimmed = chunk.trim();
+      if (!trimmed) return;
+      const u = new SpeechSynthesisUtterance(trimmed);
+      u.lang   = 'fr-FR';
+      u.rate   = 1.18;   // dynamique, style Jarvis
+      u.pitch  = 0.95;   // légèrement grave = plus autoritaire
+      u.volume = 1;
+      if (voice) u.voice = voice;
+      synth.speak(u);
+    });
+  }
+
+  // ── Send command ──────────────────────────────────────────────────────────
+  async function sendCommand(text) {
+    if (!text || text.trim().length < 2) {
+      setIdle();
+      transcript.textContent = 'Rien entendu. Réessayez.';
+      transcript.className = 'transcript';
+      return;
+    }
+    setThinking();
+    try {
+      const res = await fetch('/api/voice/command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text.trim() }),
+      });
+      const data = await res.json();
+      const reply = data.reply || data.response || 'Aucune réponse.';
+      setResponse(reply, data.provider);
+      speakSmart(reply);
+    } catch (err) {
+      setResponse('Erreur réseau — réessayez.');
+    }
+  }
+
+  // ── Pointer events (mouse + touch) ────────────────────────────────────────
+  function onStart(e) {
+    e.preventDefault();
+    if (!recognition) recognition = initRecognition();
+    if (!recognition) {
+      setError('Reconnaissance vocale non supportée sur ce navigateur.');
+      return;
+    }
+    finalText = '';
+    setActive();
+    try { recognition.start(); } catch(_) {}
+  }
+
+  function onEnd(e) {
+    e.preventDefault();
+    if (!isListening) return;
+    setIdle();
+    try { recognition.stop(); } catch(_) {}
+    const captured = finalText.trim() || transcript.textContent.trim();
+    if (captured && captured !== 'Maintenez pour parler.' && captured !== '…') {
+      sendCommand(captured);
+    }
+  }
+
+  micBtn.addEventListener('mousedown', onStart);
+  micBtn.addEventListener('mouseup', onEnd);
+  micBtn.addEventListener('mouseleave', (e) => { if (isListening) onEnd(e); });
+  micBtn.addEventListener('touchstart', onStart, { passive: false });
+  micBtn.addEventListener('touchend', onEnd, { passive: false });
+
+  // ── Keyboard shortcut: Space ──────────────────────────────────────────────
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && !isListening && e.target === document.body) {
+      e.preventDefault();
+      onStart(e);
+    }
+  });
+  document.addEventListener('keyup', (e) => {
+    if (e.code === 'Space' && isListening) {
+      e.preventDefault();
+      onEnd(e);
+    }
+  });
+
+  // ── Load voices async ─────────────────────────────────────────────────────
+  if (synth && synth.onvoiceschanged !== undefined) {
+    synth.onvoiceschanged = () => { _cachedVoice = null; getBestFrenchVoice(); };
+  }
+  // ── Smart TTS : Deepgram/ElevenLabs si dispo, sinon Web Speech ────────────
+  async function speakSmart(text) {
+    try {
+      const res = await fetch('/api/voice/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
+      const ct = res.headers.get('content-type') || '';
+      if (ct.includes('audio')) {
+        // Premium audio — Deepgram ou ElevenLabs
+        const blob = await res.blob();
+        const url  = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audio.playbackRate = 1.05;
+        audio.onended = () => URL.revokeObjectURL(url);
+        audio.play().catch(() => speak(text)); // fallback si autoplay bloqué
+        return;
+      }
+    } catch (_) {}
+    // Fallback : Web Speech API (nettoyé + voix premium)
+    speak(text);
+  }
+
+  // Force preload voices
+  if (synth) setTimeout(() => getBestFrenchVoice(), 200);
+</script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>DALEBA — Poste de Commandement V25</title>
+<title>DALEBA — Poste de Commandement V30</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -479,6 +479,162 @@
   .mb8  { margin-bottom: 8px; }
   .mb12 { margin-bottom: 12px; }
   .mb16 { margin-bottom: 16px; }
+
+  /* ── V5 NEW PANELS ── */
+  .v5-panels {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+  }
+  .v5-panel {
+    background: var(--bg);
+    padding: 20px;
+    position: relative;
+  }
+  .v5-panel-full {
+    grid-column: 1 / -1;
+  }
+  /* Voice button pulse */
+  @keyframes voicePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0,255,159,0.6); }
+    50%       { box-shadow: 0 0 0 12px rgba(0,255,159,0); }
+  }
+  .btn-voice-active {
+    background: var(--green) !important;
+    color: #000 !important;
+    animation: voicePulse 1s infinite;
+  }
+  .voice-transcript {
+    margin-top: 12px;
+    padding: 10px;
+    background: var(--bg1);
+    border: 1px solid var(--border2);
+    min-height: 40px;
+    font-size: 0.75rem;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+  .voice-response {
+    margin-top: 8px;
+    padding: 10px;
+    background: var(--bg2);
+    border-left: 2px solid var(--green);
+    min-height: 40px;
+    font-size: 0.75rem;
+    color: var(--green);
+    line-height: 1.6;
+    display: none;
+  }
+  /* Meta fields */
+  .meta-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .meta-field label {
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    color: var(--muted);
+    width: 160px;
+    flex-shrink: 0;
+  }
+  .meta-field input {
+    flex: 1;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 8px 10px;
+    font-family: inherit;
+    font-size: 0.75rem;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .meta-field input:focus { border-color: var(--green); }
+  .meta-status-badge {
+    font-size: 0.6rem;
+    padding: 2px 7px;
+    border: 1px solid currentColor;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  .meta-ok  { color: var(--green); border-color: var(--green); }
+  .meta-err { color: var(--red);   border-color: var(--red); }
+  /* Comms grid */
+  .comms-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+  }
+  .comms-row:last-child { border-bottom: none; }
+  .comms-label { color: var(--muted); font-size: 0.6rem; letter-spacing: 2px; width: 120px; flex-shrink: 0; }
+  .comms-value { color: var(--text); flex: 1; }
+  .reminder-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 4px;
+  }
+  .rdot-ok      { background: var(--green); }
+  .rdot-pending { background: var(--amber); }
+  .rdot-idle    { background: var(--muted); }
+  /* Accounting */
+  .acct-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .acct-box {
+    border: 1px solid var(--border2);
+    padding: 12px 10px;
+    background: var(--bg1);
+    text-align: center;
+  }
+  .acct-box .acct-num {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--green);
+    line-height: 1.2;
+  }
+  .acct-box .acct-label {
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .acct-summary {
+    font-size: 0.72rem;
+    color: var(--text2);
+    line-height: 1.6;
+    padding: 10px;
+    background: var(--bg1);
+    border: 1px solid var(--border2);
+    min-height: 40px;
+    white-space: pre-wrap;
+  }
+  /* Site status */
+  .site-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+  }
+  .site-row:last-child { border-bottom: none; }
+  .site-status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .site-online  { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .site-offline { background: var(--red); }
 </style>
 </head>
 <body>
@@ -488,7 +644,7 @@
   <div class="logo">
     <div class="logo-dot"></div>
     <h1>DALEBA COMMAND CENTER</h1>
-    <span class="meta">/ V25</span>
+    <span class="meta">/ V30</span>
   </div>
   <div class="nav-links">
     <a href="/zenith">ZENITH</a>
@@ -500,6 +656,81 @@
 
 <!-- ── BODY ── -->
 <div class="cmd-body">
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       V5 NEW PANELS — Interface Vocale, Meta, Comms, Comptabilité, Site
+       ══════════════════════════════════════════════════════════════════════ -->
+  <div class="v5-panels">
+
+    <!-- ── Panel A — Interface Vocale ── -->
+    <div class="v5-panel">
+      <div class="panel-title"><span class="dot"></span> 🎙️ COMMANDE VOCALE</div>
+      <button class="btn btn-lg" id="btnVoiceHold" style="user-select:none;-webkit-user-select:none;">
+        <span id="voiceHoldContent">🎙️ MAINTENIR POUR PARLER</span>
+      </button>
+      <div style="font-size:0.6rem;color:var(--muted);letter-spacing:2px;margin:8px 0 4px;">TRANSCRIPTION</div>
+      <div class="voice-transcript" id="voiceTranscript">En attente...</div>
+      <div style="font-size:0.6rem;color:var(--green);letter-spacing:2px;margin:8px 0 4px;">RÉPONSE DALEBA</div>
+      <div class="voice-response" id="voiceResponse"></div>
+    </div>
+
+    <!-- ── Panel B — Connexion Meta ── -->
+    <div class="v5-panel">
+      <div class="panel-title"><span class="dot"></span> 📡 META / FACEBOOK &amp; INSTAGRAM</div>
+      <div id="metaStatusDisplay" style="margin-bottom:14px;font-size:0.7rem;color:var(--muted);">Chargement statut...</div>
+      <div class="meta-field">
+        <label>META_ACCESS_TOKEN</label>
+        <input type="password" id="metaToken" placeholder="EAA..." autocomplete="off" />
+        <span class="meta-status-badge" id="metaTokenBadge">?</span>
+      </div>
+      <div class="meta-field">
+        <label>META_IG_ACCOUNT_ID</label>
+        <input type="text" id="metaIgId" placeholder="12345678" autocomplete="off" />
+        <span class="meta-status-badge" id="metaIgBadge">?</span>
+      </div>
+      <div class="meta-field">
+        <label>META_FB_PAGE_ID</label>
+        <input type="text" id="metaFbId" placeholder="98765432" autocomplete="off" />
+        <span class="meta-status-badge" id="metaFbBadge">?</span>
+      </div>
+      <button class="btn btn-lg" id="btnMetaUpdate" style="margin-top:4px;">📡 METTRE À JOUR LA CONNEXION META</button>
+      <div id="metaFeedback" style="display:none;margin-top:8px;padding:8px;font-size:0.72rem;"></div>
+    </div>
+
+    <!-- ── Panel C — Hub Communication ── -->
+    <div class="v5-panel">
+      <div class="panel-title"><span class="dot"></span> 💬 HUB COMMUNICATION</div>
+      <div id="commsContent">
+        <div class="empty-state"><span class="spin"></span>Chargement...</div>
+      </div>
+      <div style="margin-top:10px;text-align:right;">
+        <button class="btn" onclick="loadCommsStatus()" style="padding:4px 10px;font-size:0.6rem;">↻ REFRESH</button>
+      </div>
+    </div>
+
+    <!-- ── Panel D — Bilan Comptable ── -->
+    <div class="v5-panel">
+      <div class="panel-title"><span class="dot"></span> 📊 BILAN COMPTABLE (DeepSeek)</div>
+      <div class="acct-grid" id="acctGrid">
+        <div class="acct-box"><div class="acct-num" id="acctToday">—</div><div class="acct-label">AUJOURD'HUI</div></div>
+        <div class="acct-box"><div class="acct-num" id="acctWeek">—</div><div class="acct-label">CETTE SEMAINE</div></div>
+        <div class="acct-box"><div class="acct-num" id="acctMonth">—</div><div class="acct-label">CE MOIS</div></div>
+      </div>
+      <div id="acctTax" style="font-size:0.7rem;color:var(--amber);margin-bottom:8px;">TPS/TVQ: calcul...</div>
+      <div id="acctComm" style="font-size:0.7rem;color:var(--text2);margin-bottom:10px;">Commissions: ...</div>
+      <div class="acct-summary" id="acctSummary">Cliquer «GÉNÉRER» pour un résumé IA.</div>
+      <button class="btn btn-amber btn-lg" id="btnAcctReport" style="margin-top:10px;">📊 GÉNÉRER RAPPORT DEEPSEEK</button>
+    </div>
+
+    <!-- ── Panel E — Statut Site & RDV (full width) ── -->
+    <div class="v5-panel v5-panel-full">
+      <div class="panel-title"><span class="dot"></span> 🌐 VITRINE &amp; RÉSERVATIONS</div>
+      <div id="siteStatusContent">
+        <div class="empty-state"><span class="spin"></span>Chargement...</div>
+      </div>
+    </div>
+
+  </div><!-- /v5-panels -->
 
   <!-- ═══════════════════════════════════════ PANEL A — CHAT + RAPPORT ═══ -->
   <div class="panel panel-left">
@@ -1160,6 +1391,291 @@ async function submitAIKey() {
     alert('Erreur réseau: ' + e.message);
   }
 }
+</script>
+
+<!-- ═══════════════════════════════════════ V5 DASHBOARD SCRIPTS ═══ -->
+<script>
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function escV5(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+async function apiV5(method, path, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch('/api' + path, opts);
+  return r.json();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PANEL A — INTERFACE VOCALE
+// ═══════════════════════════════════════════════════════════════════
+(function initVoicePanel() {
+  const btn        = document.getElementById('btnVoiceHold');
+  const contentEl  = document.getElementById('voiceHoldContent');
+  const transcEl   = document.getElementById('voiceTranscript');
+  const responseEl = document.getElementById('voiceResponse');
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    btn.disabled = true;
+    btn.textContent = '🎙️ Web Speech API non disponible (utilise Chrome)';
+    return;
+  }
+
+  const recog = new SpeechRecognition();
+  recog.lang = 'fr-FR';
+  recog.continuous = false;
+  recog.interimResults = true;
+
+  let isListening = false;
+  let finalText = '';
+
+  function startListening() {
+    if (isListening) return;
+    isListening = true;
+    finalText = '';
+    btn.classList.add('btn-voice-active');
+    contentEl.innerHTML = '<span class="spin"></span>À L\'ÉCOUTE...';
+    transcEl.textContent = '...';
+    responseEl.style.display = 'none';
+    try { recog.start(); } catch(_) {}
+  }
+
+  function stopListening() {
+    if (!isListening) return;
+    try { recog.stop(); } catch(_) {}
+  }
+
+  recog.onresult = (e) => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finalText += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    transcEl.textContent = (finalText || interim) || '...';
+  };
+
+  recog.onend = async () => {
+    isListening = false;
+    btn.classList.remove('btn-voice-active');
+    const text = (finalText || transcEl.textContent || '').trim();
+    if (!text || text === '...' || text === 'En attente...') {
+      contentEl.textContent = '🎙️ MAINTENIR POUR PARLER';
+      return;
+    }
+    contentEl.innerHTML = '<span class="spin"></span>DALEBA RÉFLÉCHIT...';
+    transcEl.textContent = text;
+    responseEl.style.display = 'block';
+    responseEl.textContent = '⟳ traitement...';
+    try {
+      const d = await apiV5('POST', '/voice/command', { text });
+      responseEl.textContent = d.reply || 'Aucune réponse.';
+    } catch (err) {
+      responseEl.textContent = '⚠ Erreur réseau: ' + err.message;
+    } finally {
+      contentEl.textContent = '🎙️ MAINTENIR POUR PARLER';
+    }
+  };
+
+  recog.onerror = (e) => {
+    isListening = false;
+    btn.classList.remove('btn-voice-active');
+    contentEl.textContent = '🎙️ MAINTENIR POUR PARLER';
+    transcEl.textContent = 'Erreur: ' + e.error;
+  };
+
+  btn.addEventListener('mousedown',  startListening);
+  btn.addEventListener('touchstart', startListening, { passive: true });
+  btn.addEventListener('mouseup',   stopListening);
+  btn.addEventListener('touchend',  stopListening);
+  btn.addEventListener('mouseleave', stopListening);
+})();
+
+// ═══════════════════════════════════════════════════════════════════
+// PANEL B — META CONNECTION
+// ═══════════════════════════════════════════════════════════════════
+async function loadMetaStatus() {
+  try {
+    const d = await apiV5('GET', '/dashboard/meta-status');
+    const display = document.getElementById('metaStatusDisplay');
+    display.innerHTML = [
+      d.token.present      ? '<span style="color:var(--green);">✓ Token Meta présent</span>' : '<span style="color:var(--red);">✗ Token Meta absent</span>',
+      d.igAccountId.present? ' &nbsp; <span style="color:var(--green);">✓ IG Account</span>' : ' &nbsp; <span style="color:var(--red);">✗ IG Account</span>',
+      d.fbPageId.present   ? ' &nbsp; <span style="color:var(--green);">✓ FB Page</span>'    : ' &nbsp; <span style="color:var(--red);">✗ FB Page</span>',
+    ].join('');
+
+    function setBadge(id, present) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = present ? 'PRÉSENT ✓' : 'ABSENT ✗';
+      el.className   = 'meta-status-badge ' + (present ? 'meta-ok' : 'meta-err');
+    }
+    setBadge('metaTokenBadge', d.token.present);
+    setBadge('metaIgBadge',    d.igAccountId.present);
+    setBadge('metaFbBadge',    d.fbPageId.present);
+
+    // Pre-fill known IDs (not token for security)
+    if (d.igAccountId.value) document.getElementById('metaIgId').value = d.igAccountId.value;
+    if (d.fbPageId.value)    document.getElementById('metaFbId').value  = d.fbPageId.value;
+  } catch (e) {
+    document.getElementById('metaStatusDisplay').textContent = '⚠ Erreur chargement statut Meta';
+  }
+}
+
+document.getElementById('btnMetaUpdate').addEventListener('click', async () => {
+  const btn      = document.getElementById('btnMetaUpdate');
+  const feedback = document.getElementById('metaFeedback');
+  const token    = document.getElementById('metaToken').value.trim();
+  const igId     = document.getElementById('metaIgId').value.trim();
+  const fbId     = document.getElementById('metaFbId').value.trim();
+
+  if (!token && !igId && !fbId) {
+    feedback.style.display = 'block';
+    feedback.style.color = 'var(--amber)';
+    feedback.textContent = '⚠ Aucun champ rempli.';
+    return;
+  }
+
+  btn.disabled = true;
+  try {
+    const d = await apiV5('POST', '/dashboard/meta-update', { token: token||undefined, igAccountId: igId||undefined, fbPageId: fbId||undefined });
+    feedback.style.display = 'block';
+    feedback.style.color   = d.success ? 'var(--green)' : 'var(--red)';
+    feedback.textContent   = d.success ? '✓ ' + d.message : '✗ Erreur mise à jour.';
+    if (d.success) { loadMetaStatus(); document.getElementById('metaToken').value = ''; }
+  } catch (err) {
+    feedback.style.display = 'block';
+    feedback.style.color = 'var(--red)';
+    feedback.textContent = '⚠ Erreur réseau: ' + err.message;
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// PANEL C — HUB COMMUNICATION
+// ═══════════════════════════════════════════════════════════════════
+async function loadCommsStatus() {
+  const el = document.getElementById('commsContent');
+  el.innerHTML = '<div class="empty-state"><span class="spin"></span>Chargement...</div>';
+  try {
+    const d = await apiV5('GET', '/dashboard/comms-status');
+    const r = d.reminders || {};
+    const r1ok = (r.r1?.sent || 0) > 0;
+    const r2ok = (r.r2?.sent || 0) > 0;
+    const r3ok = (r.r3?.sent || 0) > 0;
+    el.innerHTML = `
+      <div class="comms-row">
+        <span class="comms-label">SMS OTP AUJOURD'HUI</span>
+        <span class="comms-value" style="color:${d.smsOtpToday>0?'var(--green)':'var(--muted)'}">${escV5(d.smsOtpToday)} envoyé${d.smsOtpToday!==1?'s':''}</span>
+      </div>
+      <div class="comms-row">
+        <span class="comms-label">RAPPELS RDV</span>
+        <span class="comms-value">
+          <span class="reminder-dot ${r1ok?'rdot-ok':'rdot-idle'}"></span>R1 (${r.r1?.label||'J-2'}): ${r.r1?.sent||0}
+          &nbsp;
+          <span class="reminder-dot ${r2ok?'rdot-ok':'rdot-idle'}"></span>R2 (${r.r2?.label||'J-1'}): ${r.r2?.sent||0}
+          &nbsp;
+          <span class="reminder-dot ${r3ok?'rdot-ok':'rdot-pending'}"></span>R3 (${r.r3?.label||'2h'}): ${r.r3?.sent||0}
+        </span>
+      </div>
+      <div class="comms-row">
+        <span class="comms-label">RÉPUTATION</span>
+        <span class="comms-value" style="color:${d.reputationAlerts>0?'var(--red)':'var(--green)'}">
+          ${d.reputationAlerts > 0 ? '⚠ '+d.reputationAlerts+' alerte(s) (notes ≤ 3/5)' : '✓ Aucune alerte'}
+        </span>
+      </div>
+      <div style="font-size:0.6rem;color:var(--muted);margin-top:6px;text-align:right;">Mis à jour: ${new Date(d.lastRefresh||Date.now()).toLocaleTimeString('fr-CA')}</div>
+    `;
+  } catch (e) {
+    el.innerHTML = `<div class="empty-state">⚠ ${escV5(e.message)}</div>`;
+  }
+}
+
+// Auto-refresh comms every 30s
+setInterval(loadCommsStatus, 30000);
+
+// ═══════════════════════════════════════════════════════════════════
+// PANEL D — BILAN COMPTABLE
+// ═══════════════════════════════════════════════════════════════════
+async function loadAccounting() {
+  try {
+    const d = await apiV5('GET', '/dashboard/accounting-summary');
+    document.getElementById('acctToday').textContent = d.today?.revenue != null ? d.today.revenue + '$' : '—';
+    document.getElementById('acctWeek').textContent  = d.week?.revenue  != null ? d.week.revenue  + '$' : '—';
+    document.getElementById('acctMonth').textContent = d.month?.revenue != null ? d.month.revenue + '$' : '—';
+    document.getElementById('acctTax').textContent   = `TPS/TVQ (14.975%) ce mois: ${d.month?.tax||0}$`;
+    document.getElementById('acctComm').textContent  = `Maya: ${d.commissions?.maya||0}$ comm.  |  Mariel: ${d.commissions?.mariel||0}$ comm.`;
+    if (d.aiSummary) {
+      document.getElementById('acctSummary').textContent = d.aiSummary;
+    } else {
+      document.getElementById('acctSummary').textContent = 'Cliquer «GÉNÉRER» pour un résumé IA DeepSeek.';
+    }
+    return d;
+  } catch (e) {
+    document.getElementById('acctSummary').textContent = '⚠ ' + e.message;
+    return null;
+  }
+}
+
+document.getElementById('btnAcctReport').addEventListener('click', async () => {
+  const btn = document.getElementById('btnAcctReport');
+  const summary = document.getElementById('acctSummary');
+  btn.disabled = true;
+  btn.textContent = '⟳ GÉNÉRATION EN COURS...';
+  summary.textContent = 'DeepSeek analyse les données...';
+  const d = await loadAccounting();
+  btn.disabled = false;
+  btn.textContent = '📊 GÉNÉRER RAPPORT DEEPSEEK';
+  if (d && !d.aiSummary) summary.textContent = 'Résumé IA non disponible (vérifier clé DeepSeek).';
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// PANEL E — STATUT SITE & RDV
+// ═══════════════════════════════════════════════════════════════════
+async function loadSiteStatus() {
+  const el = document.getElementById('siteStatusContent');
+  try {
+    const d = await apiV5('GET', '/dashboard/site-status');
+    const vercelClass = d.vercel?.online ? 'site-online' : 'site-offline';
+    const vercelLabel = d.vercel?.online ? '● EN LIGNE' : '✗ HORS LIGNE';
+    const vercelColor = d.vercel?.online ? 'var(--green)' : 'var(--red)';
+    el.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);">
+        <div style="background:var(--bg1);padding:14px;">
+          <div class="site-row">
+            <span class="site-status-dot ${vercelClass}"></span>
+            <span style="color:${vercelColor};font-size:0.8rem;">${escV5(vercelLabel)}</span>
+          </div>
+          <div style="font-size:0.6rem;color:var(--muted);margin-top:4px;">kadiocoiffure.vercel.app</div>
+        </div>
+        <div style="background:var(--bg1);padding:14px;">
+          <div style="font-size:1.4rem;font-weight:bold;color:var(--green);">${escV5(d.rdvAujourdhui)}</div>
+          <div style="font-size:0.6rem;letter-spacing:2px;color:var(--muted);margin-top:3px;">RDV AUJOURD'HUI</div>
+        </div>
+        <div style="background:var(--bg1);padding:14px;">
+          ${d.prochain
+            ? `<div style="font-size:0.8rem;color:var(--text);">⏰ ${escV5(d.prochain.time)}</div><div style="font-size:0.7rem;color:var(--text2);margin-top:3px;">${escV5(d.prochain.customer)}</div>`
+            : `<div style="font-size:0.75rem;color:var(--muted);">Pas de prochain RDV</div>`
+          }
+          <div style="font-size:0.55rem;letter-spacing:2px;color:var(--muted);margin-top:3px;">PROCHAIN RDV</div>
+        </div>
+      </div>
+    `;
+  } catch (e) {
+    el.innerHTML = `<div class="empty-state">⚠ ${escV5(e.message)}</div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// V5 INIT
+// ═══════════════════════════════════════════════════════════════════
+(async function v5Init() {
+  await Promise.all([
+    loadMetaStatus(),
+    loadCommsStatus(),
+    loadAccounting(),
+    loadSiteStatus(),
+  ]);
+})();
 </script>
 </body>
 </html>

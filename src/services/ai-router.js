@@ -130,7 +130,7 @@ async function callDeepSeek(messages, systemPrompt) {
         { role: 'system', content: systemPrompt || 'Tu es DALEBA, assistant IA du salon Kadio Coiffure.' },
         ...messages,
       ],
-      max_tokens: 1024,
+      max_tokens: 200,
     },
     { headers: { Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`, 'Content-Type': 'application/json' } }
   );
@@ -184,4 +184,99 @@ async function route(messages, options = {}) {
   };
 }
 
-module.exports = { route, getProviderStatus, getAvailableProviders, detectTask, stats, PROVIDERS };
+// ───────────────────────────────────────────────────────────────────────────
+// ARCHITECTURE TTS PREMIUM — prêt pour Deepgram Aura & ElevenLabs
+// Pour activer : injecter DEEPGRAM_API_KEY ou ELEVENLABS_API_KEY dans Railway
+// ───────────────────────────────────────────────────────────────────────────
+
+const https = require('https');
+
+/**
+ * Synthèse vocale Deepgram Aura (ultra-réaliste, <300ms latence)
+ * @param {string} text   Texte à synthétiser
+ * @param {string} voice  Modèle Deepgram : 'aura-luna-fr', 'aura-stella-en', etc.
+ * @returns {Promise<Buffer|null>} Audio MP3 ou null si clé absente
+ */
+async function ttsDeepgram(text, voice = 'aura-luna-fr') {
+  const key = process.env.DEEPGRAM_API_KEY;
+  if (!key) return null; // clé pas encore injectée — silent fallback
+
+  const body = JSON.stringify({ text });
+  return new Promise((resolve) => {
+    const req = https.request({
+      hostname: 'api.deepgram.com',
+      path: `/v1/speak?model=${voice}&encoding=mp3`,
+      method: 'POST',
+      headers: {
+        'Authorization': `Token ${key}`,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
+      },
+    }, (res) => {
+      if (res.statusCode !== 200) return resolve(null);
+      const chunks = [];
+      res.on('data', c => chunks.push(c));
+      res.on('end', () => resolve(Buffer.concat(chunks)));
+    });
+    req.on('error', () => resolve(null));
+    req.setTimeout(8000, () => { req.destroy(); resolve(null); });
+    req.end(body);
+  });
+}
+
+/**
+ * Synthèse vocale ElevenLabs (clone de voix humaine)
+ * @param {string} text     Texte à synthétiser
+ * @param {string} voiceId  ID de la voix ElevenLabs (ex: 'pMsXgVXv3BLzUgSXRplE' = Maya fr)
+ * @returns {Promise<Buffer|null>} Audio MP3 ou null si clé absente
+ */
+async function ttsElevenLabs(text, voiceId = 'pMsXgVXv3BLzUgSXRplE') {
+  const key = process.env.ELEVENLABS_API_KEY;
+  if (!key) return null;
+
+  const body = JSON.stringify({
+    text,
+    model_id: 'eleven_turbo_v2',  // ultra-rapide
+    voice_settings: { stability: 0.45, similarity_boost: 0.8, style: 0.1, use_speaker_boost: true },
+  });
+  return new Promise((resolve) => {
+    const req = https.request({
+      hostname: 'api.elevenlabs.io',
+      path: `/v1/text-to-speech/${voiceId}/stream`,
+      method: 'POST',
+      headers: {
+        'xi-api-key': key,
+        'Content-Type': 'application/json',
+        'Accept': 'audio/mpeg',
+        'Content-Length': Buffer.byteLength(body),
+      },
+    }, (res) => {
+      if (res.statusCode !== 200) return resolve(null);
+      const chunks = [];
+      res.on('data', c => chunks.push(c));
+      res.on('end', () => resolve(Buffer.concat(chunks)));
+    });
+    req.on('error', () => resolve(null));
+    req.setTimeout(10000, () => { req.destroy(); resolve(null); });
+    req.end(body);
+  });
+}
+
+/**
+ * Router TTS universel : Deepgram > ElevenLabs > fallback Web Speech (client-side)
+ * Retourne { audio: Buffer, provider: string } ou { audio: null, provider: 'browser' }
+ */
+async function ttsRoute(text) {
+  if (process.env.DEEPGRAM_API_KEY) {
+    const audio = await ttsDeepgram(text);
+    if (audio) return { audio, provider: 'deepgram', mimeType: 'audio/mpeg' };
+  }
+  if (process.env.ELEVENLABS_API_KEY) {
+    const audio = await ttsElevenLabs(text);
+    if (audio) return { audio, provider: 'elevenlabs', mimeType: 'audio/mpeg' };
+  }
+  // Pas de clé injectée : signal au client d'utiliser Web Speech API
+  return { audio: null, provider: 'browser' };
+}
+
+module.exports = { route, getProviderStatus, getAvailableProviders, detectTask, stats, PROVIDERS, ttsRoute, ttsDeepgram, ttsElevenLabs };

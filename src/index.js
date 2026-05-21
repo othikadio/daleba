@@ -91,6 +91,8 @@ app.use('/studio/exports', studioStaticGuard);
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Routes DALEBA
+// V32: Booking live — montage direct AVANT routes générales (Square slots + SMS)
+app.use('/api/booking', require('./api/booking-routes'));
 app.use('/api', routes);
 app.use('/api/ai', require('./api/ai-admin-routes')); // Hub IA universel — Cerveau Central
 app.use('/api/auth', authRoutes); // Authentification OTP + JWT
@@ -99,6 +101,8 @@ app.use('/api/accounting', accountingRoutes);
 app.use('/api/loyalty', loyaltyHybridRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/hunter', require('./api/hunter-routes')); // Agent chasseur IA
+app.use('/api/voice', require('./api/voice-dashboard-routes'));     // Jarvis — commande vocale + meta
+app.use('/api/dashboard', require('./api/voice-dashboard-routes')); // Jarvis — statut meta + site
 
 // Middleware erreurs (Point 12)
 app.use(errorMiddleware);
@@ -167,6 +171,11 @@ app.get('/admin/onboarding', (req, res) => {
 
 app.get('/admin/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-dashboard.html'));
+});
+
+// JARVIS — Interface vocale Ulrich (route étanche, priorité absolue)
+app.get('/jarvis', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/jarvis.html'));
 });
 
 app.get('/admin/content', (req, res) => {
