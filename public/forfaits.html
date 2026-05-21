@@ -9,6 +9,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
+      --primary:        #C4622D;
+      --primary-dark:   #A8461A;
+      --primary-light:  #E8916B;
+      --primary-pale:   #F5D5C3;
       --terra-dark: #A8461A;
       --terra: #C4622D;
       --terra-light: #E8916B;
@@ -19,16 +23,18 @@
       --charcoal: #1C1008;
       --gold: #C9933A;
       --gold-light: #E8B84B;
-      --glass-bg: rgba(255,255,255,0.055);
-      --glass-border: rgba(255,255,255,0.1);
+      --glass-bg: rgba(255,255,255,0.8);
+      --glass-border: rgba(196,98,45,0.15);
+      --cream: #FAF6F0;
+      --charcoal: #1C1008;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(160deg, #0a0501 0%, #1c1008 55%, #120b03 100%);
+      background: var(--cream);
       min-height: 100vh;
-      color: #fff;
+      color: var(--charcoal);
       line-height: 1.6;
       overflow-x: hidden;
     }
@@ -38,9 +44,10 @@
     /* NAV */
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-      background: rgba(10,5,1,0.9);
-      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-      border-bottom: 1px solid rgba(196,98,45,0.2);
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--terra-pale);
+      box-shadow: 0 2px 12px rgba(196,98,45,0.08);
     }
     .nav-inner {
       max-width: 1200px; margin: 0 auto;
@@ -50,8 +57,8 @@
     .nav-logo .logo-main { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; letter-spacing: 0.08em; }
     .nav-logo .logo-sub { font-size: 0.6rem; color: var(--terra-light); letter-spacing: 0.14em; text-transform: uppercase; }
     .nav-links { display: flex; align-items: center; gap: 1.75rem; list-style: none; }
-    .nav-links a { color: rgba(255,255,255,0.6); font-size: 0.82rem; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; transition: color .2s; }
-    .nav-links a:hover, .nav-links a.active { color: var(--terra-light); }
+    .nav-links a { color: var(--charcoal); font-size: 0.82rem; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; transition: color .2s, background .2s; padding: 0.4rem 0.75rem; border-radius: 6px; }
+    .nav-links a:hover, .nav-links a.active { color: var(--terra-dark); background: var(--terra-pale); }
     .btn-nav { background: var(--terra) !important; color: #fff !important; padding: .45rem 1.1rem; border-radius: 4px; font-weight: 600 !important; }
     .btn-nav:hover { background: var(--terra-dark) !important; }
     @media(max-width:768px){ .nav-links { display:none; } }
@@ -61,6 +68,7 @@
       padding: 9rem 1.5rem 3.5rem;
       text-align: center;
       position: relative;
+      background: linear-gradient(135deg, var(--terra-pale) 0%, var(--cream) 60%, #D8EDD0 100%);
     }
     .hero::before {
       content:''; position:absolute; inset:0;
@@ -69,31 +77,31 @@
     }
     .label-tag {
       display:inline-block; font-size:.73rem; font-weight:600;
-      letter-spacing:.18em; text-transform:uppercase; color:var(--terra-light);
+      letter-spacing:.18em; text-transform:uppercase; color:var(--terra-dark);
       margin-bottom:1rem;
     }
     .hero h1 { font-size:clamp(1.9rem,5vw,3.4rem); font-weight:700; line-height:1.12; margin-bottom:1rem; }
     .hero h1 em { color:var(--terra-light); font-style:italic; }
-    .hero p { color:rgba(255,255,255,0.48); font-size:.97rem; max-width:540px; margin:0 auto 1.5rem; }
+    .hero p { color:#6B4226; font-size:.97rem; max-width:540px; margin:0 auto 1.5rem; }
     .tax-badge {
       display:inline-flex; align-items:center; gap:.5rem;
       background:rgba(196,98,45,0.1); border:1px solid rgba(196,98,45,0.3);
       border-radius:30px; padding:.4rem 1rem;
-      font-size:.78rem; color:var(--terra-pale);
+      font-size:.78rem; color:var(--terra-dark);
     }
     .tax-badge strong { color:var(--terra-light); }
 
     /* CATEGORY TABS */
     .tabs-wrap { max-width:1200px; margin:2.5rem auto 0; padding:0 1.5rem; display:flex; gap:.6rem; flex-wrap:wrap; }
     .tab-btn {
-      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
-      color:rgba(255,255,255,0.55); font-size:.8rem; font-weight:500;
+      background:var(--cream); border:1px solid var(--terra-pale);
+      color:#6B4226; font-size:.8rem; font-weight:500;
       padding:.45rem 1.1rem; border-radius:30px; cursor:pointer;
       transition:all .2s; letter-spacing:.04em;
     }
     .tab-btn:hover, .tab-btn.active {
-      background:rgba(196,98,45,0.15); border-color:var(--terra);
-      color:#fff;
+      background:var(--terra-pale); border-color:var(--terra);
+      color:var(--terra-dark);
     }
 
     /* GRILLE FORFAITS */
@@ -106,8 +114,8 @@
 
     /* CARD */
     .plan-card {
-      background:var(--glass-bg);
-      border:1px solid var(--glass-border);
+      background:#ffffff;
+      border:1px solid var(--terra-pale);
       border-radius:16px;
       padding:1.6rem;
       display:flex; flex-direction:column;
@@ -120,12 +128,12 @@
     }
     .plan-card:hover {
       transform:translateY(-4px);
-      box-shadow:0 20px 40px rgba(0,0,0,0.4);
-      border-color:rgba(196,98,45,0.3);
+      box-shadow:0 8px 28px rgba(196,98,45,0.15);
+      border-color:var(--terra);
     }
     .plan-card.featured {
-      border-color:rgba(196,98,45,0.45);
-      background:rgba(196,98,45,0.07);
+      border-color:var(--terra);
+      background:linear-gradient(135deg,#fff 0%,var(--terra-pale) 100%);
     }
     .plan-card.featured::before { background: linear-gradient(90deg, transparent, rgba(196,98,45,0.8), transparent); }
 
@@ -140,25 +148,25 @@
     .plan-badge.combo { background:rgba(201,147,58,0.15); color:var(--gold-light); border-color:rgba(201,147,58,0.3); }
     .plan-badge.enfant { background:rgba(100,160,100,0.15); color:var(--sage-light); border-color:rgba(100,160,100,0.3); }
 
-    .plan-category { font-size:.68rem; text-transform:uppercase; letter-spacing:.14em; color:rgba(255,255,255,0.35); margin-bottom:.3rem; }
+    .plan-category { font-size:.68rem; text-transform:uppercase; letter-spacing:.14em; color:var(--sage-dark,#5C7A52); margin-bottom:.3rem; }
     .plan-name { font-family:'Playfair Display',serif; font-size:1.22rem; font-weight:700; margin-bottom:.2rem; }
 
     .plan-price-block { margin:1rem 0; }
     .plan-price { font-size:2.1rem; font-weight:700; color:var(--terra-light); line-height:1; }
     .plan-price sup { font-size:1rem; vertical-align:super; }
-    .plan-price span { font-size:.85rem; color:rgba(255,255,255,0.45); font-weight:400; }
-    .plan-tax-row { display:flex; justify-content:space-between; font-size:.73rem; color:rgba(255,255,255,0.38); margin-top:.2rem; }
-    .plan-tax-row.total { color:rgba(255,255,255,0.6); font-weight:600; margin-top:.35rem; border-top:1px solid rgba(255,255,255,0.08); padding-top:.35rem; }
+    .plan-price span { font-size:.85rem; color:#7A5038; font-weight:400; }
+    .plan-tax-row { display:flex; justify-content:space-between; font-size:.73rem; color:#8A6040; margin-top:.2rem; }
+    .plan-tax-row.total { color:#5A3820; font-weight:600; margin-top:.35rem; border-top:1px solid var(--terra-pale); padding-top:.35rem; }
 
     .plan-includes { list-style:none; margin:1rem 0 1.2rem; flex:1; }
-    .plan-includes li { font-size:.82rem; color:rgba(255,255,255,0.6); padding:.25rem 0; display:flex; align-items:flex-start; gap:.5rem; }
+    .plan-includes li { font-size:.82rem; color:#5A3820; padding:.25rem 0; display:flex; align-items:flex-start; gap:.5rem; }
     .plan-includes li::before { content:'✓'; color:var(--terra-light); flex-shrink:0; font-weight:700; }
     .plan-includes .wash-note { color:var(--sage-light); font-style:italic; font-size:.76rem; }
 
     .btn-plan {
       display:block; text-align:center; font-size:.85rem; font-weight:600;
       padding:.7rem 1.2rem; border-radius:8px; border:1px solid rgba(196,98,45,0.4);
-      color:var(--terra-light); background:rgba(196,98,45,0.08);
+      color:var(--terra-dark); background:var(--terra-pale);
       transition:all .2s; cursor:pointer; width:100%;
     }
     .btn-plan:hover { background:var(--terra); border-color:var(--terra); color:#fff; }
@@ -175,8 +183,8 @@
       padding:1.2rem 1.8rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
     }
     .family-icon { font-size:1.8rem; flex-shrink:0; }
-    .family-text h3 { font-size:1rem; font-weight:700; color:var(--gold-light); margin-bottom:.2rem; }
-    .family-text p { font-size:.83rem; color:rgba(255,255,255,0.55); }
+    .family-text h3 { font-size:1rem; font-weight:700; color:var(--gold); margin-bottom:.2rem; }
+    .family-text p { font-size:.83rem; color:#6B4226; }
 
     /* SECTION HEADERS */
     .section-label {
@@ -184,7 +192,7 @@
       color:var(--terra-light); margin-bottom:.5rem;
     }
     .section-title { font-size:1.7rem; font-weight:700; margin-bottom:2rem; }
-    .section-title em { color:var(--terra-light); font-style:italic; }
+    .section-title em { color:var(--terra); font-style:italic; }
 
     /* WASH INFO */
     .wash-info {
@@ -196,7 +204,7 @@
       display:flex; gap:1rem; align-items:flex-start;
     }
     .wash-info-inner .icon { font-size:1.4rem; flex-shrink:0; margin-top:.1rem; }
-    .wash-info-inner p { font-size:.83rem; color:rgba(255,255,255,0.6); }
+    .wash-info-inner p { font-size:.83rem; color:#3D5C35; }
     .wash-info-inner strong { color:var(--sage-light); }
 
     /* PHOTOS PORTFOLIO */
@@ -211,16 +219,17 @@
 
     /* FOOTER */
     footer {
+      background: #1C1008;
       border-top:1px solid rgba(196,98,45,0.15);
       padding:2.5rem 1.5rem; text-align:center;
     }
     .footer-inner { max-width:1200px; margin:0 auto; }
     .footer-logo { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; margin-bottom:.4rem; }
-    .footer-addr { font-size:.8rem; color:rgba(255,255,255,0.4); margin-bottom:.8rem; }
+    .footer-addr { font-size:.8rem; color:rgba(255,255,255,0.6); margin-bottom:.8rem; }
     .footer-socials { display:flex; gap:1.2rem; justify-content:center; flex-wrap:wrap; margin-bottom:.8rem; }
-    .footer-socials a { font-size:.78rem; color:rgba(255,255,255,0.4); transition:color .2s; }
+    .footer-socials a { font-size:.78rem; color:rgba(255,255,255,0.6); transition:color .2s; }
     .footer-socials a:hover { color:var(--terra-light); }
-    .footer-copy { font-size:.72rem; color:rgba(255,255,255,0.2); }
+    .footer-copy { font-size:.72rem; color:rgba(255,255,255,0.45); }
 
     /* HIDDEN */
     .plan-card.hidden { display:none; }
@@ -237,9 +246,10 @@
     </a>
     <ul class="nav-links">
       <li><a href="/">Accueil</a></li>
-      <li><a href="/menu.html">Services</a></li>
-      <li><a href="/forfaits.html" class="active">Forfaits</a></li>
-      <li><a href="/reservation.html" class="btn-nav">Réserver</a></li>
+      <li><a href="/menu">Services</a></li>
+      <li><a href="/forfaits" class="active">Forfaits</a></li>
+      <li><a href="/formation">Formation</a></li>
+      <li><a href="/reservation" class="btn-nav">Réserver</a></li>
     </ul>
   </div>
 </nav>

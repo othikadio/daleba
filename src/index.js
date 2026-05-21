@@ -110,7 +110,7 @@ app.use(errorWatcher.middleware); // V27 — surveillance 4xx/5xx + patch SMS Ul
 
 // Accueil (page principale)
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/accueil.html'));
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 // Booking page
@@ -193,6 +193,9 @@ app.get('/menu', (req, res) => {
 });
 app.get('/forfaits', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/forfaits.html'));
+});
+app.get('/formation', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/formation.html'));
 });
 
 // [098] Health endpoint deep — 99.9% uptime target

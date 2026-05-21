@@ -3,31 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kadio Coiffure & Esthétique — Longueuil, Québec</title>
-  <meta name="description" content="Salon professionnel spécialisé cheveux afros à Longueuil. Coupes, tresses, dreadlocks, tissages, perruques, barbier. Réservation en ligne." />
+  <title>Kadio Coiffure & Esthétique — Longueuil, QC</title>
+  <meta name="description" content="Salon de coiffure afro à Longueuil. Tresses, Locs, Barbier, Extensions. Forfaits mensuels dès 35.99$/mois. Prise de RDV en ligne 24/7." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --terra-dark: #A8461A;
-      --terra: #C4622D;
-      --terra-light: #E8916B;
-      --terra-pale: #F5D5C3;
-      --sage-dark: #5C7A52;
-      --sage: #7A9E6E;
-      --sage-light: #A8C49A;
-      --sage-pale: #D8EDD0;
-      --cream: #FAF6F0;
-      --charcoal: #1C1008;
-      --brown-mid: #6B3F1F;
-      --gold: #C9933A;
-      --white: #FFFFFF;
+      --primary:        #C4622D;
+      --primary-dark:   #A8461A;
+      --primary-light:  #E8916B;
+      --primary-pale:   #F5D5C3;
+      --secondary:      #7A9E6E;
+      --secondary-dark: #5C7A52;
+      --secondary-light:#A8C49A;
+      --secondary-pale: #D8EDD0;
+      --cream:          #FAF6F0;
+      --charcoal:       #1C1008;
+      --gold:           #C9933A;
+      --white:          #FFFFFF;
     }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     html { scroll-behavior: smooth; }
-
     body {
       font-family: 'Inter', sans-serif;
       background: var(--cream);
@@ -35,1531 +31,641 @@
       line-height: 1.6;
       overflow-x: hidden;
     }
-
-    h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
-
+    h1,h2,h3,h4 { font-family: 'Playfair Display', serif; }
     a { text-decoration: none; color: inherit; }
 
-    img { max-width: 100%; display: block; }
-
-    /* ── NAV ── */
+    /* ─── NAV ─── */
     nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 1000;
-      background: rgba(28, 16, 8, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(196, 98, 45, 0.2);
-      transition: background 0.3s;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--primary-pale);
+      box-shadow: 0 2px 12px rgba(196,98,45,0.08);
     }
-
     .nav-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-      height: 70px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      max-width: 1200px; margin: 0 auto;
+      padding: 0 1.5rem; height: 68px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-
     .nav-logo {
-      display: flex;
-      flex-direction: column;
-      line-height: 1.1;
-    }
-
-    .nav-logo .logo-main {
       font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--white);
-      letter-spacing: 0.08em;
+      font-size: 1.4rem; font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 0.05em;
     }
-
-    .nav-logo .logo-sub {
-      font-size: 0.65rem;
-      color: var(--terra-light);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 2rem;
-      list-style: none;
-    }
-
+    .nav-logo span { color: var(--secondary-dark); font-weight: 400; font-size: 0.85em; }
+    .nav-links { display: flex; gap: 0.25rem; align-items: center; }
     .nav-links a {
-      color: rgba(255,255,255,0.8);
-      font-size: 0.875rem;
-      font-weight: 500;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      transition: color 0.2s;
-    }
-
-    .nav-links a:hover { color: var(--terra-light); }
-
-    .btn-nav {
-      background: var(--terra);
-      color: var(--white) !important;
-      padding: 0.55rem 1.25rem;
-      border-radius: 4px;
-      font-weight: 600 !important;
-      transition: background 0.2s !important;
-    }
-
-    .btn-nav:hover { background: var(--terra-dark) !important; color: var(--white) !important; }
-
-    .hamburger {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-      background: none;
-      border: none;
-      padding: 4px;
-    }
-
-    .hamburger span {
-      display: block;
-      width: 24px;
-      height: 2px;
-      background: var(--white);
-      border-radius: 2px;
-      transition: all 0.3s;
-    }
-
-    .mobile-menu {
-      display: none;
-      position: fixed;
-      top: 70px; left: 0; right: 0;
-      background: rgba(28, 16, 8, 0.97);
-      backdrop-filter: blur(12px);
-      padding: 1.5rem;
-      z-index: 999;
-      border-bottom: 1px solid rgba(196,98,45,0.3);
-    }
-
-    .mobile-menu.open { display: block; }
-
-    .mobile-menu a {
-      display: block;
-      color: rgba(255,255,255,0.85);
-      font-size: 1rem;
-      font-weight: 500;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      letter-spacing: 0.05em;
-    }
-
-    .mobile-menu a:last-child { border-bottom: none; }
-
-    /* ── HERO ── */
-    #hero {
-      height: 100vh;
-      min-height: 600px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      background: url('/img/hero.jpg') center center / cover no-repeat;
-    }
-
-    .hero-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(28, 16, 8, 0.62);
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-      max-width: 860px;
-      padding: 0 1.5rem;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: rgba(196, 98, 45, 0.25);
-      border: 1px solid rgba(196,98,45,0.5);
-      color: var(--terra-pale);
-      font-size: 0.8rem;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      padding: 0.4rem 1rem;
-      border-radius: 20px;
-      margin-bottom: 1.5rem;
-    }
-
-    .hero-content h1 {
-      font-size: clamp(2.5rem, 7vw, 4.5rem);
-      color: var(--white);
-      font-weight: 700;
-      line-height: 1.1;
-      margin-bottom: 1rem;
-      text-shadow: 0 2px 20px rgba(0,0,0,0.4);
-    }
-
-    .hero-content h1 em {
-      color: var(--terra-light);
-      font-style: italic;
-    }
-
-    .hero-subtitle {
-      color: rgba(255,255,255,0.82);
-      font-size: clamp(1rem, 2.5vw, 1.2rem);
-      font-weight: 300;
-      margin-bottom: 2.5rem;
-      max-width: 560px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .hero-ctas {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .btn-primary {
-      background: var(--terra);
-      color: var(--white);
-      padding: 0.875rem 2rem;
-      border-radius: 4px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      letter-spacing: 0.02em;
-      border: 2px solid var(--terra);
-      cursor: pointer;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .btn-primary:hover { background: var(--terra-dark); border-color: var(--terra-dark); }
-
-    .btn-outline {
-      background: transparent;
-      color: var(--white);
-      padding: 0.875rem 2rem;
-      border-radius: 4px;
-      font-weight: 500;
-      font-size: 0.95rem;
-      border: 2px solid rgba(255,255,255,0.6);
-      cursor: pointer;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .btn-outline:hover {
-      border-color: var(--white);
-      background: rgba(255,255,255,0.1);
-    }
-
-    .scroll-arrow {
-      position: absolute;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 2;
-      animation: bounce 2s infinite;
-      color: rgba(255,255,255,0.6);
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(10px); }
-    }
-
-    /* ── STATS BAND ── */
-    #stats {
-      background: var(--charcoal);
-      padding: 3rem 1.5rem;
-    }
-
-    .stats-inner {
-      max-width: 900px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-around;
-      flex-wrap: wrap;
-      gap: 2rem;
-    }
-
-    .stat-item {
-      text-align: center;
-    }
-
-    .stat-number {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--terra-light);
-      display: block;
-      line-height: 1;
-      margin-bottom: 0.4rem;
-    }
-
-    .stat-label {
-      color: rgba(255,255,255,0.65);
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-
-    /* ── ABOUT ── */
-    #about {
-      background: var(--cream);
-      padding: 6rem 1.5rem;
-    }
-
-    .about-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
-      align-items: center;
-    }
-
-    .about-img {
-      border-radius: 4px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .about-img img {
-      width: 100%;
-      height: 500px;
-      object-fit: cover;
-      border-radius: 4px;
-    }
-
-    .about-img-badge {
-      position: absolute;
-      bottom: 1.5rem;
-      left: 1.5rem;
-      background: var(--terra);
-      color: var(--white);
-      padding: 0.6rem 1rem;
-      border-radius: 4px;
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-
-    .section-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      color: var(--terra);
-      margin-bottom: 0.75rem;
-    }
-
-    .section-title {
-      font-size: clamp(1.8rem, 4vw, 2.5rem);
-      line-height: 1.2;
-      color: var(--charcoal);
-      margin-bottom: 1.5rem;
-    }
-
-    .about-text {
-      color: var(--brown-mid);
-      font-size: 1rem;
-      line-height: 1.8;
-      margin-bottom: 1.5rem;
-    }
-
-    .about-features {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-      margin-top: 1.5rem;
-    }
-
-    .feature-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.875rem;
-      color: var(--charcoal);
-      font-weight: 500;
-    }
-
-    .feature-item::before {
-      content: "✓";
-      color: var(--sage);
-      font-weight: 700;
-    }
-
-    /* ── SERVICES ── */
-    #services {
-      background: var(--white);
-      padding: 6rem 1.5rem;
-    }
-
-    .section-header {
-      text-align: center;
-      max-width: 600px;
-      margin: 0 auto 3.5rem;
-    }
-
-    .services-grid {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1.25rem;
-    }
-
-    .service-card {
-      background: var(--cream);
-      border: 1px solid rgba(196,98,45,0.1);
+      padding: 0.45rem 0.9rem;
       border-radius: 6px;
-      padding: 1.5rem;
-      transition: all 0.25s;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .service-card:hover {
-      border-color: var(--terra-light);
-      box-shadow: 0 8px 30px rgba(196,98,45,0.12);
-      transform: translateY(-3px);
-    }
-
-    .service-icon {
-      font-size: 2rem;
-      margin-bottom: 0.25rem;
-    }
-
-    .service-name {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.1rem;
-      font-weight: 600;
+      font-size: 0.9rem; font-weight: 500;
       color: var(--charcoal);
+      transition: background 0.2s, color 0.2s;
     }
-
-    .service-desc {
-      font-size: 0.82rem;
-      color: var(--brown-mid);
-      line-height: 1.5;
-      flex: 1;
+    .nav-links a:hover { background: var(--primary-pale); color: var(--primary-dark); }
+    .nav-links .btn-nav {
+      background: var(--primary); color: var(--white);
+      padding: 0.5rem 1.2rem; border-radius: 8px; font-weight: 600;
     }
+    .nav-links .btn-nav:hover { background: var(--primary-dark); color: var(--white); }
+    .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+    .nav-hamburger span { display: block; width: 24px; height: 2px; background: var(--charcoal); margin: 5px 0; border-radius: 2px; }
 
-    .service-price {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--terra);
-      margin-top: 0.25rem;
-    }
-
-    .service-link {
-      font-size: 0.8rem;
-      color: var(--sage-dark);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-top: 0.5rem;
-      display: inline-flex;
+    /* ─── HERO ─── */
+    .hero {
+      margin-top: 68px;
+      background: linear-gradient(135deg, var(--primary-pale) 0%, var(--cream) 60%, var(--secondary-pale) 100%);
+      min-height: 90vh;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;
       align-items: center;
-      gap: 0.25rem;
-      transition: color 0.2s;
+      padding: 4rem 2rem;
+      max-width: 1200px; margin-left: auto; margin-right: auto;
+      margin-top: 68px;
     }
-
-    .service-link:hover { color: var(--terra); }
-
-    /* ── GALLERY ── */
-    #gallery {
-      background: var(--charcoal);
-      padding: 6rem 1.5rem;
-    }
-
-    #gallery .section-title { color: var(--white); }
-    #gallery .section-label { color: var(--terra-light); }
-    #gallery .section-header { margin-bottom: 2.5rem; }
-
-    .gallery-grid {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.75rem;
-    }
-
-    .gallery-item {
-      position: relative;
-      overflow: hidden;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .gallery-item:first-child { grid-column: span 2; grid-row: span 2; }
-
-    .gallery-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      min-height: 200px;
-      transition: transform 0.4s;
-    }
-
-    .gallery-item:hover img { transform: scale(1.05); }
-
-    .gallery-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.3s;
-    }
-
-    .gallery-item:hover .gallery-overlay {
-      background: rgba(0,0,0,0.4);
-    }
-
-    .gallery-overlay span {
-      color: var(--sage-light);
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .gallery-item:hover .gallery-overlay span { opacity: 1; }
-
-    /* ── SUBSCRIPTIONS ── */
-    #abonnements {
-      background: #0F0802;
-      padding: 6rem 1.5rem;
-    }
-
-    #abonnements .section-title { color: var(--white); }
-    #abonnements .section-label { color: var(--terra-light); }
-
-    .subs-subtitle {
-      color: rgba(255,255,255,0.6);
-      font-size: 1rem;
-      margin-top: 0.5rem;
-    }
-
-    .subs-grid {
-      max-width: 1050px;
-      margin: 3rem auto 2rem;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-      align-items: stretch;
-    }
-
-    .sub-card {
-      background: rgba(245, 213, 195, 0.06);
-      border: 1px solid rgba(196,98,45,0.2);
-      border-radius: 8px;
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      transition: transform 0.2s;
-    }
-
-    .sub-card:hover { transform: translateY(-4px); }
-
-    .sub-card.featured {
-      background: var(--terra);
-      border-color: var(--terra-light);
-      transform: scale(1.03);
-      position: relative;
-    }
-
-    .sub-card.featured:hover { transform: scale(1.03) translateY(-4px); }
-
-    .sub-card.vip {
-      background: linear-gradient(135deg, rgba(201,147,58,0.15), rgba(28,16,8,0.5));
-      border-color: var(--gold);
-    }
-
-    .sub-badge {
+    .hero-text { padding: 2rem 0; }
+    .hero-badge {
       display: inline-block;
-      background: var(--white);
-      color: var(--terra-dark);
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      padding: 0.25rem 0.75rem;
+      background: var(--primary-pale); color: var(--primary-dark);
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 0.35rem 0.9rem; border-radius: 20px;
+      border: 1px solid var(--primary-light);
+      margin-bottom: 1.2rem;
+    }
+    .hero-title {
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      font-weight: 700; line-height: 1.15;
+      color: var(--charcoal);
+      margin-bottom: 1rem;
+    }
+    .hero-title em { font-style: italic; color: var(--primary); }
+    .hero-sub {
+      font-size: 1.1rem; color: #6B4226;
+      margin-bottom: 2rem; max-width: 480px;
+    }
+    .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--primary); color: var(--white);
+      padding: 0.85rem 2rem; border-radius: 10px;
+      font-weight: 700; font-size: 1rem;
+      box-shadow: 0 4px 18px rgba(196,98,45,0.35);
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(196,98,45,0.45); color: var(--white); }
+    .btn-secondary {
+      background: var(--white); color: var(--primary);
+      padding: 0.85rem 2rem; border-radius: 10px;
+      font-weight: 600; font-size: 1rem;
+      border: 2px solid var(--primary-pale);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--primary); background: var(--primary-pale); }
+    .hero-img-placeholder {
+      background: var(--primary-pale);
       border-radius: 20px;
-      margin-bottom: 0.5rem;
-      align-self: flex-start;
+      min-height: 420px;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 0.75rem;
+      font-size: 3rem;
+      color: var(--primary);
+      border: 2px dashed var(--primary-light);
+      box-shadow: 0 8px 32px rgba(196,98,45,0.12);
+      position: relative; overflow: hidden;
     }
-
-    .sub-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--white);
-      margin-bottom: 0.25rem;
-    }
-
-    .sub-price {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--terra-pale);
-      margin-bottom: 1rem;
-    }
-
-    .sub-card.featured .sub-price { color: rgba(255,255,255,0.9); }
-    .sub-card.vip .sub-price { color: var(--gold); }
-
-    .sub-features {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-      flex: 1;
-      margin-bottom: 1.5rem;
-    }
-
-    .sub-features li {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      font-size: 0.875rem;
-      color: rgba(255,255,255,0.8);
-    }
-
-    .sub-features li::before {
-      content: "✓";
-      color: var(--sage-light);
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .sub-card.featured .sub-features li { color: rgba(255,255,255,0.92); }
-
-    .btn-sub {
-      display: block;
-      text-align: center;
-      padding: 0.75rem 1.5rem;
-      border-radius: 4px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: 2px solid;
-    }
-
-    .sub-card .btn-sub {
-      background: transparent;
-      border-color: rgba(196,98,45,0.5);
-      color: var(--terra-light);
-    }
-
-    .sub-card .btn-sub:hover {
-      background: var(--terra);
-      border-color: var(--terra);
-      color: var(--white);
-    }
-
-    .sub-card.featured .btn-sub {
-      background: var(--white);
-      border-color: var(--white);
-      color: var(--terra-dark);
-    }
-
-    .sub-card.featured .btn-sub:hover {
-      background: var(--cream);
-    }
-
-    .sub-card.vip .btn-sub {
-      background: transparent;
-      border-color: var(--gold);
-      color: var(--gold);
-    }
-
-    .sub-card.vip .btn-sub:hover {
-      background: var(--gold);
-      color: var(--charcoal);
-    }
-
-    .subs-disclaimer {
-      text-align: center;
-      color: rgba(255,255,255,0.5);
-      font-size: 0.85rem;
-      margin-top: 1.5rem;
-      display: flex;
-      justify-content: center;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .subs-disclaimer span {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-
-    /* ── TEAM ── */
-    #equipe {
-      background: var(--cream);
-      padding: 6rem 1.5rem;
-    }
-
-    .team-grid {
-      max-width: 900px;
-      margin: 3rem auto 0;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2rem;
-    }
-
-    .team-card {
-      text-align: center;
-    }
-
-    .team-avatar {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--sage), var(--sage-dark));
-      margin: 0 auto 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--white);
-      font-family: 'Playfair Display', serif;
-      border: 3px solid var(--sage-light);
-    }
-
-    .team-name {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: var(--charcoal);
-      margin-bottom: 0.25rem;
-    }
-
-    .team-role {
-      font-size: 0.85rem;
-      color: var(--terra);
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-    }
-
-    .team-spec {
-      font-size: 0.82rem;
-      color: var(--brown-mid);
-      line-height: 1.5;
-    }
-
-    /* ── REVIEWS ── */
-    #avis {
-      background: var(--sage-pale);
-      padding: 6rem 1.5rem;
-    }
-
-    .reviews-grid {
-      max-width: 1050px;
-      margin: 3rem auto 0;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-    }
-
-    .review-card {
-      background: var(--white);
-      border-radius: 8px;
-      padding: 1.75rem;
-      box-shadow: 0 4px 20px rgba(92,122,82,0.1);
-    }
-
-    .review-stars {
-      color: var(--gold);
-      font-size: 1rem;
-      margin-bottom: 1rem;
-      letter-spacing: 0.1em;
-    }
-
-    .review-text {
-      color: var(--charcoal);
-      font-size: 0.95rem;
-      line-height: 1.7;
-      margin-bottom: 1rem;
-      font-style: italic;
-    }
-
-    .review-author {
-      font-weight: 600;
-      font-size: 0.85rem;
-      color: var(--brown-mid);
-    }
-
-    /* ── CTA RESERVATION ── */
-    #cta {
-      background: var(--terra);
-      padding: 5rem 1.5rem;
-      text-align: center;
-    }
-
-    #cta h2 {
-      color: var(--white);
-      font-size: clamp(1.8rem, 4vw, 2.5rem);
-      margin-bottom: 1rem;
-    }
-
-    #cta p {
-      color: rgba(255,255,255,0.85);
-      font-size: 1.05rem;
-      margin-bottom: 2.5rem;
-      max-width: 520px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .btn-white {
-      background: var(--white);
-      color: var(--terra-dark);
-      padding: 0.9rem 2.25rem;
-      border-radius: 4px;
-      font-weight: 700;
-      font-size: 1rem;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .btn-white:hover {
-      background: var(--cream);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-    }
-
-    /* ── CONTACT ── */
-    #contact {
-      background: var(--cream);
-      padding: 6rem 1.5rem;
-    }
-
-    .contact-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
-    }
-
-    .contact-info h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
-      color: var(--charcoal);
-      margin-bottom: 1.5rem;
-    }
-
-    .info-item {
-      display: flex;
-      gap: 0.75rem;
-      margin-bottom: 1.25rem;
-      align-items: flex-start;
-    }
-
-    .info-icon {
-      font-size: 1.25rem;
-      flex-shrink: 0;
-      margin-top: 0.1rem;
-    }
-
-    .info-content strong {
-      display: block;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--terra);
-      font-weight: 600;
-      margin-bottom: 0.2rem;
-    }
-
-    .info-content span {
-      color: var(--charcoal);
-      font-size: 0.95rem;
-    }
-
-    .social-links {
-      display: flex;
-      gap: 1rem;
-      margin-top: 2rem;
-      flex-wrap: wrap;
-    }
-
-    .social-btn {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.5rem 1rem;
-      border: 1px solid rgba(196,98,45,0.3);
-      border-radius: 4px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--brown-mid);
-      transition: all 0.2s;
-    }
-
-    .social-btn:hover {
-      border-color: var(--terra);
-      color: var(--terra);
-      background: rgba(196,98,45,0.05);
-    }
-
-    .contact-form {
-      background: var(--white);
-      border-radius: 8px;
-      padding: 2rem;
-      box-shadow: 0 4px 25px rgba(0,0,0,0.06);
-    }
-
-    .contact-form h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.4rem;
-      color: var(--charcoal);
-      margin-bottom: 1.5rem;
-    }
-
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--brown-mid);
-      margin-bottom: 0.4rem;
-    }
-
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border: 1px solid rgba(0,0,0,0.12);
-      border-radius: 4px;
+    .hero-img-placeholder .placeholder-label {
       font-family: 'Inter', sans-serif;
-      font-size: 0.95rem;
-      color: var(--charcoal);
-      background: var(--cream);
-      transition: border-color 0.2s;
-      outline: none;
+      font-size: 0.95rem; font-weight: 500;
+      color: var(--primary-dark);
     }
-
-    .form-group input:focus,
-    .form-group textarea:focus {
-      border-color: var(--terra);
+    .hero-stats {
+      display: flex; gap: 2rem; margin-top: 2.5rem; flex-wrap: wrap;
     }
+    .hero-stat { text-align: center; }
+    .hero-stat .num { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--primary); }
+    .hero-stat .lbl { font-size: 0.78rem; color: #7A5038; text-transform: uppercase; letter-spacing: 0.06em; }
 
-    .form-group textarea {
-      min-height: 120px;
-      resize: vertical;
+    /* ─── SECTIONS COMMUNES ─── */
+    section { padding: 5rem 1.5rem; }
+    .section-inner { max-width: 1200px; margin: 0 auto; }
+    .section-tag {
+      display: inline-block;
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--primary); margin-bottom: 0.5rem;
     }
-
-    .btn-form {
-      background: var(--terra);
-      color: var(--white);
-      padding: 0.85rem 2rem;
-      border: none;
-      border-radius: 4px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-      width: 100%;
-      font-family: 'Inter', sans-serif;
-    }
-
-    .btn-form:hover { background: var(--terra-dark); }
-
-    /* ── FOOTER ── */
-    footer {
-      background: var(--charcoal);
-      color: rgba(255,255,255,0.7);
-      padding: 4rem 1.5rem 2rem;
-    }
-
-    .footer-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .footer-top {
-      display: grid;
-      grid-template-columns: 1.5fr 1fr 1fr 1fr;
-      gap: 3rem;
-      margin-bottom: 3rem;
-      padding-bottom: 3rem;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .footer-logo .logo-main {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: var(--white);
-    }
-
-    .footer-logo .logo-sub {
-      font-size: 0.65rem;
-      color: var(--terra-light);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 1rem;
-    }
-
-    .footer-tagline {
-      font-size: 0.85rem;
-      line-height: 1.6;
-      margin-top: 0.75rem;
-      color: rgba(255,255,255,0.5);
-    }
-
-    .footer-col h4 {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--terra-light);
-      margin-bottom: 1rem;
-    }
-
-    .footer-col a {
-      display: block;
-      color: rgba(255,255,255,0.6);
-      font-size: 0.875rem;
+    .section-title {
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 700; color: var(--charcoal);
       margin-bottom: 0.6rem;
-      transition: color 0.2s;
+    }
+    .section-sub { font-size: 1rem; color: #6B4226; margin-bottom: 3rem; max-width: 600px; }
+
+    /* ─── FORFAITS VEDETTES ─── */
+    #forfaits-vedettes { background: var(--white); }
+    .forfaits-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;
+    }
+    .forfait-card {
+      background: var(--cream);
+      border: 2px solid var(--primary-pale);
+      border-radius: 16px; padding: 1.75rem;
+      position: relative; overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+    .forfait-card:hover { border-color: var(--primary); box-shadow: 0 8px 28px rgba(196,98,45,0.14); transform: translateY(-3px); }
+    .forfait-card.featured {
+      border-color: var(--primary);
+      background: linear-gradient(135deg, #fff 0%, var(--primary-pale) 100%);
+    }
+    .forfait-badge {
+      position: absolute; top: 1rem; right: 1rem;
+      background: var(--primary); color: var(--white);
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.25rem 0.65rem; border-radius: 20px;
+    }
+    .forfait-cat {
+      font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--secondary-dark); margin-bottom: 0.4rem;
+    }
+    .forfait-name { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; color: var(--charcoal); margin-bottom: 0.5rem; }
+    .forfait-price { font-size: 2rem; font-weight: 800; color: var(--primary); line-height: 1; }
+    .forfait-price span { font-size: 1rem; font-weight: 500; color: #7A5038; }
+    .forfait-desc { font-size: 0.88rem; color: #5A3820; margin-top: 0.75rem; line-height: 1.5; }
+    .forfait-cta {
+      display: block; margin-top: 1.4rem;
+      background: var(--primary); color: var(--white);
+      text-align: center; padding: 0.7rem; border-radius: 8px;
+      font-weight: 600; font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+    .forfait-cta:hover { background: var(--primary-dark); color: var(--white); }
+    .forfaits-voir-tous {
+      text-align: center; margin-top: 2.5rem;
+    }
+    .forfaits-voir-tous a {
+      display: inline-block;
+      border: 2px solid var(--primary); color: var(--primary);
+      padding: 0.8rem 2.4rem; border-radius: 10px;
+      font-weight: 600; font-size: 0.95rem;
+      transition: background 0.2s, color 0.2s;
+    }
+    .forfaits-voir-tous a:hover { background: var(--primary); color: var(--white); }
+
+    /* ─── SERVICES ─── */
+    #services { background: var(--cream); }
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.25rem; }
+    .service-card {
+      background: var(--white);
+      border: 1px solid var(--primary-pale);
+      border-radius: 14px; padding: 1.5rem 1.25rem;
+      text-align: center;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+    .service-card:hover { border-color: var(--primary-light); box-shadow: 0 4px 18px rgba(196,98,45,0.1); transform: translateY(-2px); }
+    .service-icon { font-size: 2.2rem; margin-bottom: 0.6rem; }
+    .service-name { font-weight: 600; font-size: 0.95rem; color: var(--charcoal); margin-bottom: 0.3rem; }
+    .service-price { font-size: 0.85rem; color: var(--primary); font-weight: 600; }
+    .service-duration { font-size: 0.78rem; color: #8A6040; margin-top: 0.2rem; }
+
+    /* ─── ÉQUIPE ─── */
+    #equipe { background: var(--white); }
+    .equipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.5rem; }
+    .equipe-card {
+      background: var(--cream);
+      border: 2px solid var(--primary-pale);
+      border-radius: 16px; padding: 1.75rem 1.25rem;
+      text-align: center;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+    .equipe-card:hover { border-color: var(--primary); box-shadow: 0 6px 22px rgba(196,98,45,0.12); transform: translateY(-3px); }
+    .equipe-avatar {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-pale), var(--secondary-pale));
+      margin: 0 auto 0.9rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem;
+      border: 3px solid var(--white);
+      box-shadow: 0 3px 12px rgba(196,98,45,0.15);
+    }
+    .equipe-name { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: var(--charcoal); }
+    .equipe-role {
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--secondary-dark); margin-top: 0.3rem;
+    }
+    .equipe-card.highlight .equipe-avatar { background: linear-gradient(135deg, var(--primary-pale), var(--gold)); }
+    .equipe-card.highlight { border-color: var(--gold); }
+
+    /* ─── FORMATION TEASER ─── */
+    #formation-teaser {
+      background: linear-gradient(135deg, var(--secondary-pale) 0%, var(--cream) 100%);
+    }
+    .formation-card {
+      background: var(--white);
+      border: 2px solid var(--secondary-light);
+      border-radius: 20px; padding: 3rem 2.5rem;
+      display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center;
+      box-shadow: 0 4px 24px rgba(122,158,110,0.1);
+    }
+    .formation-tag {
+      display: inline-block;
+      background: var(--secondary-pale); color: var(--secondary-dark);
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.3rem 0.8rem; border-radius: 20px;
+      border: 1px solid var(--secondary-light); margin-bottom: 0.8rem;
+    }
+    .formation-title { font-size: 1.8rem; font-weight: 700; color: var(--charcoal); margin-bottom: 0.5rem; }
+    .formation-desc { font-size: 0.95rem; color: #3D5C35; line-height: 1.6; margin-bottom: 1.5rem; }
+    .btn-formation {
+      display: inline-block;
+      background: var(--secondary-dark); color: var(--white);
+      padding: 0.85rem 2rem; border-radius: 10px;
+      font-weight: 700; font-size: 0.95rem;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-formation:hover { background: #4A6642; transform: translateY(-2px); color: var(--white); }
+    .formation-badge-img {
+      background: linear-gradient(135deg, var(--secondary-pale), var(--secondary-light));
+      border-radius: 16px; width: 140px; height: 140px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3.5rem;
+      border: 2px solid var(--secondary-light);
     }
 
-    .footer-col a:hover { color: var(--white); }
+    /* ─── TÉMOIGNAGES ─── */
+    #temoignages { background: var(--cream); }
+    .temoignages-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+    .temoignage-card {
+      background: var(--white);
+      border: 1px solid var(--primary-pale);
+      border-radius: 14px; padding: 1.75rem;
+      transition: box-shadow 0.2s;
+    }
+    .temoignage-card:hover { box-shadow: 0 4px 16px rgba(196,98,45,0.1); }
+    .stars { color: var(--gold); font-size: 1.1rem; margin-bottom: 0.6rem; }
+    .temoignage-text { font-size: 0.95rem; color: var(--charcoal); line-height: 1.65; font-style: italic; margin-bottom: 1rem; }
+    .temoignage-author { font-weight: 700; font-size: 0.88rem; color: var(--primary-dark); }
+    .temoignage-service { font-size: 0.8rem; color: #7A5038; }
 
+    /* ─── CONTACT ─── */
+    #contact { background: var(--white); }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+    .contact-block h3 { font-size: 1.25rem; font-weight: 700; color: var(--charcoal); margin-bottom: 1.2rem; }
+    .contact-item { display: flex; gap: 0.8rem; align-items: flex-start; margin-bottom: 1rem; }
+    .contact-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .contact-info strong { display: block; font-weight: 600; color: var(--charcoal); font-size: 0.95rem; }
+    .contact-info span { font-size: 0.88rem; color: #6B4226; }
+    .horaires-table { width: 100%; border-collapse: collapse; }
+    .horaires-table tr td { padding: 0.45rem 0; font-size: 0.88rem; }
+    .horaires-table tr td:first-child { font-weight: 600; color: var(--charcoal); width: 120px; }
+    .horaires-table tr td:last-child { color: #6B4226; }
+    .horaires-table tr.fermé td { color: #C4A899; }
+    .btn-whatsapp {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      background: #25D366; color: var(--white);
+      padding: 0.8rem 1.8rem; border-radius: 10px;
+      font-weight: 700; font-size: 0.95rem; margin-top: 1.2rem;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-whatsapp:hover { background: #1ebe57; transform: translateY(-2px); color: var(--white); }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--charcoal); color: rgba(255,255,255,0.75);
+      padding: 3rem 1.5rem 2rem;
+    }
+    .footer-inner { max-width: 1200px; margin: 0 auto; }
+    .footer-top {
+      display: grid; grid-template-columns: 2fr 1fr 1fr;
+      gap: 3rem; margin-bottom: 2rem;
+    }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: var(--primary-light); margin-bottom: 0.6rem; }
+    .footer-about { font-size: 0.88rem; line-height: 1.6; }
+    .footer-col h4 { color: var(--white); font-size: 0.9rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.9rem; }
+    .footer-col a { display: block; font-size: 0.88rem; color: rgba(255,255,255,0.65); margin-bottom: 0.4rem; transition: color 0.2s; }
+    .footer-col a:hover { color: var(--primary-light); }
     .footer-bottom {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.82rem; flex-wrap: wrap; gap: 0.5rem;
     }
 
-    .footer-copy {
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.4);
-    }
-
-    .footer-powered {
-      font-size: 0.75rem;
-      color: rgba(255,255,255,0.25);
-      transition: color 0.2s;
-    }
-
-    .footer-powered:hover { color: rgba(255,255,255,0.5); }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 1024px) {
-      .services-grid { grid-template-columns: repeat(3, 1fr); }
-      .footer-top { grid-template-columns: 1fr 1fr; }
-    }
-
+    /* ─── RESPONSIVE ─── */
     @media (max-width: 768px) {
-      .nav-links { display: none; }
-      .hamburger { display: flex; }
-
-      .about-inner { grid-template-columns: 1fr; gap: 2rem; }
-      .about-img img { height: 300px; }
-
-      .services-grid { grid-template-columns: repeat(2, 1fr); }
-
-      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
-      .gallery-item:first-child { grid-column: span 2; grid-row: span 1; }
-
-      .subs-grid { grid-template-columns: 1fr; }
-      .sub-card.featured { transform: none; }
-      .sub-card.featured:hover { transform: translateY(-4px); }
-
-      .team-grid { grid-template-columns: 1fr; max-width: 320px; }
-      .reviews-grid { grid-template-columns: 1fr; }
-
-      .contact-inner { grid-template-columns: 1fr; gap: 2rem; }
-
-      .footer-top { grid-template-columns: 1fr 1fr; gap: 2rem; }
-
-      .stats-inner { justify-content: center; gap: 2.5rem; }
-      .stat-item { min-width: 120px; }
-
-      .subs-disclaimer { gap: 0.75rem; }
-
-      .about-features { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 480px) {
-      .services-grid { grid-template-columns: 1fr; }
-      .gallery-grid { grid-template-columns: 1fr; }
-      .gallery-item:first-child { grid-column: span 1; }
-      .footer-top { grid-template-columns: 1fr; }
-      .hero-ctas { flex-direction: column; align-items: center; }
+      .hero { grid-template-columns: 1fr; gap: 2rem; padding: 2rem 1.2rem; min-height: auto; }
+      .hero-img-placeholder { min-height: 260px; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; gap: 2rem; }
+      .formation-card { grid-template-columns: 1fr; }
+      .formation-badge-img { display: none; }
+      .nav-links { display: none; position: absolute; top: 68px; left: 0; right: 0; background: var(--white); flex-direction: column; padding: 1rem; border-bottom: 1px solid var(--primary-pale); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+      .nav-links.open { display: flex; }
+      .nav-hamburger { display: block; }
     }
   </style>
 </head>
 <body>
 
   <!-- NAV -->
-  <nav id="navbar">
+  <nav>
     <div class="nav-inner">
-      <a href="#hero" class="nav-logo">
-        <span class="logo-main">KADIO</span>
-        <span class="logo-sub">Coiffure & Esthétique</span>
-      </a>
-      <ul class="nav-links">
-        <li><a href="#services">Services</a></li>
-        <li><a href="/menu">Menu</a></li>
-        <li><a href="/forfaits">Forfaits</a></li>
-        <li><a href="#abonnements">Abonnements</a></li>
-        <li><a href="/reservation">Réservation</a></li>
-        <li><a href="#contact">Contact</a></li>
-        <li><a href="/zenith">ZENITH OS</a></li>
-        <li><a href="/reservation" class="btn-nav">Réserver</a></li>
-      </ul>
-      <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <a href="/" class="nav-logo">KADIO <span>Coiffure & Esthétique</span></a>
+      <div class="nav-links" id="navLinks">
+        <a href="/">Accueil</a>
+        <a href="/menu">Services</a>
+        <a href="/forfaits">Forfaits</a>
+        <a href="/formation">Formation</a>
+        <a href="/reservation" class="btn-nav">Réserver</a>
+      </div>
+      <button class="nav-hamburger" id="navToggle" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
     </div>
   </nav>
 
-  <!-- MOBILE MENU -->
-  <div class="mobile-menu" id="mobileMenu">
-    <a href="#services" onclick="closeMenu()">Services</a>
-    <a href="/menu">Menu complet</a>
-    <a href="/forfaits">Forfaits</a>
-    <a href="#abonnements" onclick="closeMenu()">Abonnements</a>
-    <a href="/reservation">Réservation</a>
-    <a href="#contact" onclick="closeMenu()">Contact</a>
-    <a href="/reservation" style="color:var(--terra-light);font-weight:700;">→ Réserver maintenant</a>
-  </div>
-
   <!-- HERO -->
-  <section id="hero">
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <div class="hero-badge">✨ Salon spécialisé cheveux afros — Longueuil</div>
-      <h1>L'art de sublimer<br/><em>vos cheveux</em></h1>
-      <p class="hero-subtitle">Salon professionnel spécialisé cheveux afros — Longueuil, Québec</p>
+  <section class="hero" style="padding-top:5rem; padding-bottom:4rem;">
+    <div class="hero-text">
+      <div class="hero-badge">✦ Longueuil, Québec</div>
+      <h1 class="hero-title">L'expertise <em>afro</em><br>au cœur de<br>Longueuil</h1>
+      <p class="hero-sub">Tresses, Locs, Barbier, Extensions — par une équipe passionnée. Forfaits mensuels flexibles. Prise de RDV en ligne 24/7.</p>
       <div class="hero-ctas">
-        <a href="/reservation" class="btn-primary">Prendre un RDV →</a>
-        <a href="#services" class="btn-outline">Découvrir nos services</a>
+        <a href="/reservation" class="btn-primary">📅 Prendre un RDV</a>
+        <a href="/forfaits" class="btn-secondary">Voir les forfaits</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="num">6</div><div class="lbl">Spécialistes</div></div>
+        <div class="hero-stat"><div class="num">10+</div><div class="lbl">Services</div></div>
+        <div class="hero-stat"><div class="num">RDV</div><div class="lbl">En ligne 24/7</div></div>
       </div>
     </div>
-    <div class="scroll-arrow" onclick="document.getElementById('stats').scrollIntoView({behavior:'smooth'})">↓</div>
-  </section>
-
-  <!-- STATS BAND -->
-  <section id="stats">
-    <div class="stats-inner">
-      <div class="stat-item">
-        <span class="stat-number">500+</span>
-        <span class="stat-label">Clients fidèles</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number">10+</span>
-        <span class="stat-label">Coiffeurs experts</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number">5 ans</span>
-        <span class="stat-label">D'excellence</span>
+    <div>
+      <div class="hero-img-placeholder">
+        <span>📸</span>
+        <span class="placeholder-label">Photo du salon — à venir</span>
       </div>
     </div>
   </section>
 
-  <!-- ABOUT -->
-  <section id="about">
-    <div class="about-inner">
-      <div class="about-img">
-        <img src="/img/salon-1.jpg" alt="Intérieur du salon Kadio Coiffure" />
-        <div class="about-img-badge">⭐ Spécialistes cheveux afros</div>
-      </div>
-      <div class="about-text-col">
-        <div class="section-label">À propos</div>
-        <h2 class="section-title">Un salon pas comme les autres</h2>
-        <p class="about-text">
-          Kadio Coiffure est un salon moderne et élégant dédié à la beauté et à la santé des cheveux afros. Notre équipe de coiffeurs experts maîtrise une large gamme de techniques, des coupes hommes et enfants soignées aux coiffures complexes telles que les dreadlocks, tresses, tissages et perruques.
-        </p>
-        <p class="about-text">
-          Basé à Longueuil, au cœur du Québec, nous accueillons chaque client dans un espace chaleureux où l'excellence capillaire rencontre le savoir-faire africain.
-        </p>
-        <div class="about-features">
-          <div class="feature-item">Coupes Afro</div>
-          <div class="feature-item">Tresses & Extensions</div>
-          <div class="feature-item">Dreadlocks</div>
-          <div class="feature-item">Tissages & Perruques</div>
-          <div class="feature-item">Barbier</div>
-          <div class="feature-item">Traitements capillaires</div>
+  <!-- FORFAITS VEDETTES -->
+  <section id="forfaits-vedettes">
+    <div class="section-inner">
+      <div class="section-tag">✦ Forfaits Mensuels</div>
+      <h2 class="section-title">Nos formules les plus populaires</h2>
+      <p class="section-sub">Abonnements mensuels tout inclus. Pas de surprises — un prix fixe par mois, taxes en sus.</p>
+      <div class="forfaits-grid">
+
+        <div class="forfait-card featured">
+          <div class="forfait-badge">⭐ Populaire</div>
+          <div class="forfait-cat">Barbier</div>
+          <div class="forfait-name">Coupe & Barbe</div>
+          <div class="forfait-price">64<sup>.99</sup>$<span>/mois</span></div>
+          <div class="forfait-desc">Coupe + entretien barbe illimité chaque mois. Le forfait préféré des hommes.</div>
+          <a href="/reservation" class="forfait-cta">Réserver</a>
         </div>
+
+        <div class="forfait-card">
+          <div class="forfait-cat">Locs</div>
+          <div class="forfait-name">Locs Illimité</div>
+          <div class="forfait-price">129<sup>.99</sup>$<span>/mois</span></div>
+          <div class="forfait-desc">Entretien locs illimité. Twists, retouches, soins — tout compris.</div>
+          <a href="/reservation" class="forfait-cta">Réserver</a>
+        </div>
+
+        <div class="forfait-card">
+          <div class="forfait-cat">Tresses</div>
+          <div class="forfait-name">Knotless Signature</div>
+          <div class="forfait-price">139<sup>.99</sup>$<span>/mois</span></div>
+          <div class="forfait-desc">Knotless braids signature, retouches incluses. Le summum du style.</div>
+          <a href="/reservation" class="forfait-cta">Réserver</a>
+        </div>
+
+        <div class="forfait-card">
+          <div class="forfait-badge" style="background: var(--gold);">Combo</div>
+          <div class="forfait-cat">Combo Famille</div>
+          <div class="forfait-name">Locs + Barbier</div>
+          <div class="forfait-price">154<sup>.99</sup>$<span>/mois</span></div>
+          <div class="forfait-desc">Entretien locs + coupe barbier — parfait pour les couples ou duos.</div>
+          <a href="/reservation" class="forfait-cta">Réserver</a>
+        </div>
+
+      </div>
+      <div class="forfaits-voir-tous">
+        <a href="/forfaits">Voir tous les forfaits →</a>
       </div>
     </div>
   </section>
 
   <!-- SERVICES -->
   <section id="services">
-    <div class="section-header">
-      <div class="section-label">Ce que nous faisons</div>
-      <h2 class="section-title">Nos services</h2>
-    </div>
-    <div class="services-grid">
-
-      <div class="service-card">
-        <div class="service-icon">✂️</div>
-        <div class="service-name">Coupe Homme</div>
-        <div class="service-desc">Dégradé, tondeuse, style afro — propre et soigné</div>
-        <div class="service-price">À partir de 25$ <span style="font-weight:400;font-size:0.78rem;opacity:0.75;">(+ taxes)</span></div>
-        <a href="/reservation" class="service-link">Réserver →</a>
-      </div>
-
-      <div class="service-card">
-        <div class="service-icon">💇‍♀️</div>
-        <div class="service-name">Coupe Femme</div>
-        <div class="service-desc">Coupe, mise en forme, définition des boucles</div>
-        <div class="service-price">À partir de 45$ <span style="font-weight:400;font-size:0.78rem;opacity:0.75;">(+ taxes)</span></div>
-        <a href="/reservation" class="service-link">Réserver →</a>
-      </div>
-
-      <div class="service-card">
-        <div class="service-icon">👦</div>
-        <div class="service-name">Coupe Enfant</div>
-        <div class="service-desc">Coupes pour enfants dans une ambiance douce</div>
-        <div class="service-price">À partir de 20$ <span style="font-weight:400;font-size:0.78rem;opacity:0.75;">(+ taxes)</span></div>
-        <a href="/reservation" class="service-link">Réserver →</a>
-      </div>
-
-      <div class="service-card">
-        <div class="service-icon">🪢</div>
-        <div class="service-name">Tresses</div>
-        <div class="service-desc">Box braids, cornrows, goddess braids — toutes techniques</div>
-        <div class="service-price">À partir de 120$ <span style="font-weight:400;font-size:0.78rem;opacity:0.75;">(+ taxes)</span></div>
-        <a href="/reservation" class="service-link">Réserver →</a>
-      </div>
-
-      <div class="service-card">
-        <div class="service-icon">✨</div>
-        <div class="service-name">Extensions</div>
-        <div class="service-desc">Pose d'extensions naturelles ou synthétiques</div>
-        <div class="service-price">À partir de 180$ <span style="font-weight:400;font-size:0.78rem;opacity:0.75;">(+ taxes)</span></div>
-        <a href="/reservation" class="service-link">Réserver →</a>
-      </div>
-
-      <div class="service-card">
-        <div class="service-icon">🌀</div>
-        <div class="service-name">Dreadlocks</div>
-        <div class="service-desc">Création, entretien et retouche de dreadlocks</div>
-        <div class="service-price">À partir de 200$ <span style="font-weight:400;font-size:0.78rem;opacity:0.75;">(+ taxes)</span></div>
-        <a href="/reservation" class="service-link">Réserver →</a>
-      </div>
-
-      <div class="service-card">
-        <div class="service-icon">💫</div>
-        <div class="service-name">Tissage</div>
-        <div class="service-desc">Tissage naturel et synthétique, cousu ou collé</div>
-        <div class="service-price">À partir de 150$ <span style="font-weight:400;font-size:0.78rem;opacity:0.75;">(+ taxes)</span></div>
-        <a href="/reservation" class="service-link">Réserver →</a>
-      </div>
-
-      <div class="service-card">
-        <div class="service-icon">👑</div>
-        <div class="service-name">Perruque</div>
-        <div class="service-desc">Pose et personnalisation de perruques full lace</div>
-        <div class="service-price">À partir de 130$ <span style="font-weight:400;font-size:0.78rem;opacity:0.75;">(+ taxes)</span></div>
-        <a href="/reservation" class="service-link">Réserver →</a>
-      </div>
-
-      <div class="service-card">
-        <div class="service-icon">💈</div>
-        <div class="service-name">Barbier</div>
-        <div class="service-desc">Dégradé rasé, beard trim, liner — sans dépôt</div>
-        <div class="service-price">À partir de 25$ <span style="font-weight:400;font-size:0.78rem;opacity:0.75;">(+ taxes)</span></div>
-        <a href="/reservation" class="service-link">Réserver →</a>
-      </div>
-
-      <div class="service-card">
-        <div class="service-icon">🌿</div>
-        <div class="service-name">Traitements</div>
-        <div class="service-desc">Soins hydratants, kératine, deep conditioning</div>
-        <div class="service-price">À partir de 55$ <span style="font-weight:400;font-size:0.78rem;opacity:0.75;">(+ taxes)</span></div>
-        <a href="/reservation" class="service-link">Réserver →</a>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- GALLERY -->
-  <section id="galerie">
-    <div id="gallery">
-      <div class="section-header">
-        <div class="section-label">Nos réalisations</div>
-        <h2 class="section-title">Notre travail</h2>
-      </div>
-      <div class="gallery-grid">
-        <div class="gallery-item">
-          <img src="/img/salon-2.jpg" alt="Réalisation salon" />
-          <div class="gallery-overlay"><span>Voir plus</span></div>
+    <div class="section-inner">
+      <div class="section-tag">✦ Services</div>
+      <h2 class="section-title">Ce que nous faisons</h2>
+      <p class="section-sub">Du barbier classique aux extensions premium — chaque service est réalisé avec soin.</p>
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-icon">✂️</div>
+          <div class="service-name">Coupe Homme</div>
+          <div class="service-price">25$+</div>
+          <div class="service-duration">⏱ 30 min</div>
         </div>
-        <div class="gallery-item">
-          <img src="/img/salon-3.jpg" alt="Réalisation salon" />
-          <div class="gallery-overlay"><span>Voir plus</span></div>
+        <div class="service-card">
+          <div class="service-icon">💇‍♀️</div>
+          <div class="service-name">Coupe Femme</div>
+          <div class="service-price">45$+</div>
+          <div class="service-duration">⏱ 45 min</div>
         </div>
-        <div class="gallery-item">
-          <img src="/img/salon-4.jpg" alt="Réalisation salon" />
-          <div class="gallery-overlay"><span>Voir plus</span></div>
+        <div class="service-card">
+          <div class="service-icon">👦</div>
+          <div class="service-name">Coupe Enfant</div>
+          <div class="service-price">20$+</div>
+          <div class="service-duration">⏱ 30 min</div>
         </div>
-        <div class="gallery-item">
-          <img src="/img/salon-5.jpg" alt="Réalisation salon" />
-          <div class="gallery-overlay"><span>Voir plus</span></div>
+        <div class="service-card">
+          <div class="service-icon">🪢</div>
+          <div class="service-name">Tresses</div>
+          <div class="service-price">120$+</div>
+          <div class="service-duration">⏱ 3h</div>
         </div>
-        <div class="gallery-item">
-          <img src="/img/salon-6.jpg" alt="Réalisation salon" />
-          <div class="gallery-overlay"><span>Voir plus</span></div>
+        <div class="service-card">
+          <div class="service-icon">🌿</div>
+          <div class="service-name">Extensions</div>
+          <div class="service-price">180$+</div>
+          <div class="service-duration">⏱ 4h</div>
         </div>
-        <div class="gallery-item">
-          <img src="/img/salon-7.jpg" alt="Réalisation salon" />
-          <div class="gallery-overlay"><span>Voir plus</span></div>
+        <div class="service-card">
+          <div class="service-icon">🔗</div>
+          <div class="service-name">Dreadlocks</div>
+          <div class="service-price">200$+</div>
+          <div class="service-duration">⏱ 4h</div>
         </div>
-        <div class="gallery-item">
-          <img src="/img/salon-8.jpg" alt="Réalisation salon" />
-          <div class="gallery-overlay"><span>Voir plus</span></div>
+        <div class="service-card">
+          <div class="service-icon">🎭</div>
+          <div class="service-name">Tissage</div>
+          <div class="service-price">150$+</div>
+          <div class="service-duration">⏱ 3h</div>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">👑</div>
+          <div class="service-name">Perruque</div>
+          <div class="service-price">130$+</div>
+          <div class="service-duration">⏱ 1h30</div>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">🪒</div>
+          <div class="service-name">Barbier</div>
+          <div class="service-price">25$+</div>
+          <div class="service-duration">⏱ 30 min</div>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">💆</div>
+          <div class="service-name">Traitements Capillaires</div>
+          <div class="service-price">55$+</div>
+          <div class="service-duration">⏱ 1h</div>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">💅</div>
+          <div class="service-name">Mise en pli + Lavage</div>
+          <div class="service-price">60$</div>
+          <div class="service-duration">Esthétique</div>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">🪄</div>
+          <div class="service-name">Pose Perruques</div>
+          <div class="service-price">120$</div>
+          <div class="service-duration">Esthétique</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ABONNEMENTS -->
-  <section id="abonnements">
-    <div class="section-header">
-      <div class="section-label">Nos formules</div>
-      <h2 class="section-title">Formules d'abonnement</h2>
-      <p class="subs-subtitle">Investissez dans votre image. Économisez. Profitez.</p>
-    </div>
-
-    <div class="subs-grid">
-
-      <!-- Essentiel -->
-      <div class="sub-card">
-        <div class="sub-title">Essentiel</div>
-        <div class="sub-price">49$/mois <span style="font-weight:400;font-size:0.78rem;opacity:0.8;">(+ taxes)</span></div>
-        <ul class="sub-features">
-          <li>2 coupes par mois</li>
-          <li>Priorité à la réservation</li>
-          <li>Pas de dépôt requis</li>
-          <li>Confirmation SMS instantanée</li>
-        </ul>
-        <a href="/reservation" class="btn-sub">Commencer</a>
-      </div>
-
-      <!-- Premium -->
-      <div class="sub-card featured">
-        <div class="sub-badge">⭐ Le plus choisi</div>
-        <div class="sub-title">Premium</div>
-        <div class="sub-price">89$/mois <span style="font-weight:400;font-size:0.78rem;opacity:0.9;">(+ taxes)</span></div>
-        <ul class="sub-features">
-          <li>4 coupes par mois</li>
-          <li>1 traitement capillaire offert</li>
-          <li>Pas de dépôt</li>
-          <li>Priorité absolue à la réservation</li>
-          <li>−10% sur boutique</li>
-        </ul>
-        <a href="/reservation" class="btn-sub">Choisir Premium</a>
-      </div>
-
-      <!-- VIP -->
-      <div class="sub-card vip">
-        <div class="sub-title">VIP</div>
-        <div class="sub-price">149$/mois <span style="font-weight:400;font-size:0.78rem;opacity:0.8;">(+ taxes)</span></div>
-        <ul class="sub-features">
-          <li>Coupes illimitées</li>
-          <li>Tous services inclus</li>
-          <li>Accès prioritaire garanti</li>
-          <li>−15% sur boutique</li>
-          <li>Consultation personnalisée mensuelle</li>
-        </ul>
-        <a href="/reservation" class="btn-sub">Devenir VIP</a>
-      </div>
-
-    </div>
-
-    <div class="subs-disclaimer">
-      <span>✓ Sans engagement</span>
-      <span>✓ Sans dépôt de réservation</span>
-      <span>✓ Annulation facile</span>
-    </div>
-    <p style="text-align:center;margin-top:1.25rem;font-size:0.78rem;color:rgba(255,255,255,0.4);">Tous les prix sont hors taxes. TPS 5 % + TVQ 9,975 % applicables au Québec. <a href="/forfaits" style="color:rgba(255,255,255,0.5);text-decoration:underline;">Voir le détail →</a></p>
-  </section>
-
-  <!-- EQUIPE -->
+  <!-- ÉQUIPE -->
   <section id="equipe">
-    <div class="section-header">
-      <div class="section-label">L'équipe</div>
-      <h2 class="section-title">Rencontrez nos experts</h2>
-    </div>
-    <div class="team-grid">
-
-      <div class="team-card">
-        <div class="team-avatar">U</div>
-        <div class="team-name">Ulrich</div>
-        <div class="team-role">Fondateur & Directeur artistique</div>
-        <div class="team-spec">Spécialiste dreadlocks & fades — 10+ ans d'expérience</div>
+    <div class="section-inner">
+      <div class="section-tag">✦ Notre Équipe</div>
+      <h2 class="section-title">Des artisans passionnés</h2>
+      <p class="section-sub">Six spécialistes dédiés à sublimer vos cheveux.</p>
+      <div class="equipe-grid">
+        <div class="equipe-card">
+          <div class="equipe-avatar">✂️</div>
+          <div class="equipe-name">Mariel</div>
+          <div class="equipe-role">Barbier</div>
+        </div>
+        <div class="equipe-card">
+          <div class="equipe-avatar">💇‍♀️</div>
+          <div class="equipe-name">Ange</div>
+          <div class="equipe-role">Coiffeuse</div>
+        </div>
+        <div class="equipe-card">
+          <div class="equipe-avatar">🌺</div>
+          <div class="equipe-name">Aïcha</div>
+          <div class="equipe-role">Coiffeuse</div>
+        </div>
+        <div class="equipe-card highlight">
+          <div class="equipe-avatar">🔗</div>
+          <div class="equipe-name">Othi Kadio</div>
+          <div class="equipe-role">Locticien · Formateur</div>
+        </div>
+        <div class="equipe-card">
+          <div class="equipe-avatar">🪒</div>
+          <div class="equipe-name">Chabriol Wilfreed</div>
+          <div class="equipe-role">Barbier</div>
+        </div>
+        <div class="equipe-card">
+          <div class="equipe-avatar">🌿</div>
+          <div class="equipe-name">Raquel</div>
+          <div class="equipe-role">Locticienne</div>
+        </div>
       </div>
-
-      <div class="team-card">
-        <div class="team-avatar">M</div>
-        <div class="team-name">Marie-Claire</div>
-        <div class="team-role">Experte tresses & tissages</div>
-        <div class="team-spec">Box braids, cornrows, goddess braids — maîtrise totale</div>
-      </div>
-
-      <div class="team-card">
-        <div class="team-avatar">A</div>
-        <div class="team-name">Aminata</div>
-        <div class="team-role">Spécialiste extensions & perruques</div>
-        <div class="team-spec">Pose naturelle, personnalisation, full lace expert</div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- AVIS -->
-  <section id="avis">
-    <div class="section-header">
-      <div class="section-label">Témoignages</div>
-      <h2 class="section-title">Ce que disent nos clients</h2>
-    </div>
-    <div class="reviews-grid">
-
-      <div class="review-card">
-        <div class="review-stars">★★★★★</div>
-        <p class="review-text">"Trop gentille et trop professionnel 🫡 Je recommande vraiment, l'équipe prend soin de vous du début à la fin."</p>
-        <div class="review-author">Jonathan L. — Client fidèle</div>
-      </div>
-
-      <div class="review-card">
-        <div class="review-stars">★★★★★</div>
-        <p class="review-text">"Le meilleur salon pour cheveux afros à Longueuil ! Résultat impeccable à chaque fois, je repars toujours avec le sourire."</p>
-        <div class="review-author">Marianne D. — Cliente depuis 2022</div>
-      </div>
-
-      <div class="review-card">
-        <div class="review-stars">★★★★★</div>
-        <p class="review-text">"J'ai adoré recevoir un rappel SMS automatique avant mon RDV — on sent que c'est un salon qui se modernise. Excellent service !"</p>
-        <div class="review-author">Kevin T. — Client depuis 2024</div>
-      </div>
-
     </div>
   </section>
 
-  <!-- CTA RESERVATION -->
-  <section id="cta">
-    <h2>Prêt(e) pour votre transformation ?</h2>
-    <p>Réservez en ligne en 2 minutes. Confirmation immédiate par SMS.</p>
-    <a href="/reservation" class="btn-white">Réserver maintenant →</a>
+  <!-- FORMATION TEASER -->
+  <section id="formation-teaser">
+    <div class="section-inner">
+      <div class="formation-card">
+        <div>
+          <div class="formation-tag">✦ Formation Professionnelle</div>
+          <h2 class="formation-title">Apprenez l'art des Locks<br>avec Othi Kadio</h2>
+          <p class="formation-desc">Othi Kadio, locticien certifié chez Kadio Coiffure Longueuil, partage son expertise en formation privée. Initiation, maîtrise, tresses avancées — 3 formules pour tous les niveaux.</p>
+          <a href="/formation" class="btn-formation">Découvrir les formations →</a>
+        </div>
+        <div class="formation-badge-img">🎓</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TÉMOIGNAGES -->
+  <section id="temoignages">
+    <div class="section-inner">
+      <div class="section-tag">✦ Témoignages</div>
+      <h2 class="section-title">Ils nous font confiance</h2>
+      <p class="section-sub">La satisfaction de nos clients, c'est notre meilleure récompense.</p>
+      <div class="temoignages-grid">
+        <div class="temoignage-card">
+          <div class="stars">★★★★★</div>
+          <p class="temoignage-text">"J'ai essayé plusieurs salons à Longueuil — Kadio Coiffure est de loin le meilleur pour les locs. Othi est un vrai artiste et l'équipe est super accueillante."</p>
+          <div class="temoignage-author">Madeleine T.</div>
+          <div class="temoignage-service">Entretien Locs</div>
+        </div>
+        <div class="temoignage-card">
+          <div class="stars">★★★★★</div>
+          <p class="temoignage-text">"Le forfait Coupe & Barbe à 64.99$/mois, c'est imbattable. Mariel fait du travail impeccable à chaque fois. Réservation en ligne super facile."</p>
+          <div class="temoignage-author">Kevin A.</div>
+          <div class="temoignage-service">Forfait Barbier</div>
+        </div>
+        <div class="temoignage-card">
+          <div class="stars">★★★★★</div>
+          <p class="temoignage-text">"Les knotless de Ange sont parfaites. Le salon est propre, ambiance agréable. Je recommande vraiment le forfait mensuel, ça revient tellement moins cher !"</p>
+          <div class="temoignage-author">Vanessa M.</div>
+          <div class="temoignage-service">Knotless Braids</div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- CONTACT -->
   <section id="contact">
-    <div class="section-header">
-      <div class="section-label">Nous trouver</div>
-      <h2 class="section-title">Contact & Accès</h2>
-    </div>
-    <div class="contact-inner">
-
-      <div class="contact-info">
-        <h3>Informations pratiques</h3>
-
-        <div class="info-item">
-          <div class="info-icon">📍</div>
-          <div class="info-content">
-            <strong>Adresse</strong>
-            <span>615 Antoinette Robidoux, local 100<br/>Longueuil, QC J4J 2V8</span>
+    <div class="section-inner">
+      <div class="section-tag">✦ Contact & Horaires</div>
+      <h2 class="section-title">Venez nous voir</h2>
+      <div class="contact-grid">
+        <div class="contact-block">
+          <h3>Nous trouver</h3>
+          <div class="contact-item">
+            <div class="contact-icon">📍</div>
+            <div class="contact-info">
+              <strong>615 Antoinette-Robidoux, local 100</strong>
+              <span>Longueuil, QC J4J 2V8</span>
+            </div>
           </div>
-        </div>
-
-        <div class="info-item">
-          <div class="info-icon">📞</div>
-          <div class="info-content">
-            <strong>Téléphone & WhatsApp</strong>
-            <span><a href="tel:5149195970" style="color:inherit;">514-919-5970</a></span>
+          <div class="contact-item">
+            <div class="contact-icon">📞</div>
+            <div class="contact-info">
+              <strong>514-919-5970</strong>
+              <span>Appel & WhatsApp</span>
+            </div>
           </div>
-        </div>
-
-        <div class="info-item">
-          <div class="info-icon">🕐</div>
-          <div class="info-content">
-            <strong>Horaires</strong>
-            <span>Lun – Ven : 9h à 20h<br/>Samedi : 8h à 18h<br/>Dimanche : Fermé</span>
+          <div class="contact-item">
+            <div class="contact-icon">📧</div>
+            <div class="contact-info">
+              <strong>kadiocoiffure@gmail.com</strong>
+            </div>
           </div>
+          <a href="https://wa.me/15149195970" class="btn-whatsapp" target="_blank" rel="noopener">
+            💬 Écrire sur WhatsApp
+          </a>
         </div>
-
-        <div class="info-item">
-          <div class="info-icon">💳</div>
-          <div class="info-content">
-            <strong>Dépôt de réservation</strong>
-            <span>20% requis (sauf barbier et abonnés)</span>
-          </div>
-        </div>
-
-        <div class="social-links">
-          <a href="#" class="social-btn">📸 Instagram</a>
-          <a href="#" class="social-btn">👥 Facebook</a>
-          <a href="#" class="social-btn">🎵 TikTok</a>
-          <a href="https://wa.me/5149195970" class="social-btn">💬 WhatsApp</a>
+        <div class="contact-block">
+          <h3>Horaires d'ouverture</h3>
+          <table class="horaires-table">
+            <tr><td>Lundi</td><td>12h – 19h</td></tr>
+            <tr class="fermé"><td>Mardi</td><td>Fermé</td></tr>
+            <tr><td>Mercredi</td><td>10h – 19h</td></tr>
+            <tr><td>Jeudi</td><td>10h – 21h</td></tr>
+            <tr><td>Vendredi</td><td>10h – 21h</td></tr>
+            <tr><td>Samedi</td><td>10h – 21h</td></tr>
+            <tr><td>Dimanche</td><td>10h – 19h</td></tr>
+          </table>
         </div>
       </div>
-
-      <div class="contact-form">
-        <h3>Envoyez-nous un message</h3>
-        <form onsubmit="handleForm(event)">
-          <div class="form-group">
-            <label>Votre nom</label>
-            <input type="text" placeholder="Jean-Marc Dupont" required />
-          </div>
-          <div class="form-group">
-            <label>Téléphone</label>
-            <input type="tel" placeholder="514-XXX-XXXX" />
-          </div>
-          <div class="form-group">
-            <label>Message</label>
-            <textarea placeholder="Votre message ou question..."></textarea>
-          </div>
-          <button type="submit" class="btn-form">Envoyer le message</button>
-        </form>
-      </div>
-
     </div>
   </section>
 
@@ -1567,82 +673,37 @@
   <footer>
     <div class="footer-inner">
       <div class="footer-top">
-        <div class="footer-logo">
-          <div class="logo-main">KADIO</div>
-          <div class="logo-sub">Coiffure & Esthétique</div>
-          <p class="footer-tagline">L'excellence capillaire depuis 2019.<br/>615 Antoinette Robidoux, local 100<br/>Longueuil, Québec</p>
+        <div>
+          <div class="footer-logo">KADIO Coiffure</div>
+          <p class="footer-about">Salon de coiffure afro à Longueuil, QC. Tresses, Locs, Barbier, Extensions — forfaits mensuels et services à la carte. Prise de RDV en ligne 24/7.</p>
         </div>
-
         <div class="footer-col">
           <h4>Navigation</h4>
-          <a href="#about">À propos</a>
-          <a href="#services">Services</a>
-          <a href="/menu">Menu complet</a>
+          <a href="/">Accueil</a>
+          <a href="/menu">Services</a>
           <a href="/forfaits">Forfaits</a>
-          <a href="#abonnements">Abonnements</a>
-          <a href="#avis">Avis clients</a>
-          <a href="#contact">Contact</a>
+          <a href="/formation">Formation</a>
+          <a href="/reservation">Réserver</a>
         </div>
-
-        <div class="footer-col">
-          <h4>Services</h4>
-          <a href="/reservation">Coupe Homme</a>
-          <a href="/reservation">Coupe Femme</a>
-          <a href="/reservation">Tresses</a>
-          <a href="/reservation">Dreadlocks</a>
-          <a href="/reservation">Barbier</a>
-          <a href="/menu" style="color:rgba(201,147,58,0.8);">→ Menu complet (+ taxes)</a>
-        </div>
-
         <div class="footer-col">
           <h4>Contact</h4>
           <a href="tel:5149195970">514-919-5970</a>
-          <a href="https://wa.me/5149195970">WhatsApp</a>
-          <a href="https://www.instagram.com/kadiocoiffure">@kadiocoiffure</a>
-          <a href="/reservation">Réserver en ligne</a>
-          <a href="#contact">Nous écrire</a>
+          <a href="https://wa.me/15149195970" target="_blank" rel="noopener">WhatsApp</a>
+          <a>615 Antoinette-Robidoux</a>
+          <a>Longueuil, QC J4J 2V8</a>
         </div>
       </div>
-
       <div class="footer-bottom">
-        <span class="footer-copy">© 2026 Kadio Coiffure et Esthétique. Tous droits réservés. | 615 Antoinette Robidoux, local 100, Longueuil, QC | <a href="tel:5149195970" style="color:inherit;">514-919-5970</a></span>
-        <a href="https://daleba.vercel.app" class="footer-powered">Propulsé par DALEBA IA</a>
+        <span>© 2025 Kadio Coiffure & Esthétique. Tous droits réservés.</span>
+        <span>TPS 5% · TVQ 9.975% — Taxes applicables sur tous les forfaits</span>
       </div>
     </div>
   </footer>
 
   <script>
-    // Mobile menu
-    function toggleMenu() {
-      document.getElementById('mobileMenu').classList.toggle('open');
-    }
-    function closeMenu() {
-      document.getElementById('mobileMenu').classList.remove('open');
-    }
-
-    // Form handler
-    function handleForm(e) {
-      e.preventDefault();
-      const btn = e.target.querySelector('.btn-form');
-      btn.textContent = '✓ Message envoyé !';
-      btn.style.background = 'var(--sage-dark)';
-      setTimeout(() => {
-        btn.textContent = 'Envoyer le message';
-        btn.style.background = '';
-        e.target.reset();
-      }, 3000);
-    }
-
-    // Smooth scroll for anchors
-    document.querySelectorAll('a[href^="#"]').forEach(a => {
-      a.addEventListener('click', e => {
-        const target = document.querySelector(a.getAttribute('href'));
-        if (target) {
-          e.preventDefault();
-          target.scrollIntoView({ behavior: 'smooth' });
-          closeMenu();
-        }
-      });
+    // Mobile nav toggle
+    document.getElementById('navToggle').addEventListener('click', () => {
+      document.getElementById('navLinks').classList.toggle('open');
     });
   </script>
 </body>
