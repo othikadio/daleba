@@ -619,7 +619,14 @@ router.post('/webhook/whatsapp', async (req, res) => {
   res.sendStatus(200);
 });
 
-// Webhook Facebook Messenger
+// Webhook Facebook Messenger — vérification GET (Meta challenge)
+router.get('/webhook/facebook', (req, res) => {
+  if (req.query['hub.mode'] === 'subscribe' && req.query['hub.verify_token'] === process.env.META_VERIFY_TOKEN) {
+    return res.send(req.query['hub.challenge']);
+  }
+  res.sendStatus(403);
+});
+
 router.post('/webhook/facebook', async (req, res) => {
   if (req.query['hub.verify_token'] === process.env.META_VERIFY_TOKEN) {
     return res.send(req.query['hub.challenge']);
@@ -629,7 +636,14 @@ router.post('/webhook/facebook', async (req, res) => {
   res.sendStatus(200);
 });
 
-// Webhook Instagram DMs
+// Webhook Instagram DMs — vérification GET (Meta challenge)
+router.get('/webhook/instagram', (req, res) => {
+  if (req.query['hub.mode'] === 'subscribe' && req.query['hub.verify_token'] === process.env.META_VERIFY_TOKEN) {
+    return res.send(req.query['hub.challenge']);
+  }
+  res.sendStatus(403);
+});
+
 router.post('/webhook/instagram', async (req, res) => {
   if (req.query['hub.verify_token'] === process.env.META_VERIFY_TOKEN) {
     return res.send(req.query['hub.challenge']);
