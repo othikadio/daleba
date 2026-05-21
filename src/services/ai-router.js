@@ -263,20 +263,67 @@ async function ttsElevenLabs(text, voiceId = 'pMsXgVXv3BLzUgSXRplE') {
 }
 
 /**
- * Router TTS universel : Deepgram > ElevenLabs > fallback Web Speech (client-side)
+ * Synthèse vocale OpenAI TTS — voix naturelle, latence ~500ms
+ * Voix recommandées FR : 'nova' (féminine, chaleureuse), 'onyx' (masculine, grave)
+ * Modèles : 'tts-1' (rapide) ou 'tts-1-hd' (haute définition)
+ */
+async function ttsOpenAI(text, voice = 'nova', model = 'tts-1') {
+  const key = process.env.OPENAI_API_KEY;
+  if (!key) return null;
+
+  const body = JSON.stringify({ model, input: text, voice, speed: 1.0 });
+  return new Promise((resolve) => {
+    const req = https.request({
+      hostname: 'api.openai.com',
+      path: '/v1/audio/speech',
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${key}`,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
+      },
+    }, (res) => {
+      if (res.statusCode !== 200) {
+        // Lire et ignorer le corps d'erreur
+        res.resume();
+        return resolve(null);
+      }
+      const chunks = [];
+      res.on('data', c => chunks.push(c));
+      res.on('end', () => resolve(Buffer.concat(chunks)));
+    });
+    req.on('error', () => resolve(null));
+    req.setTimeout(12000, () => { req.destroy(); resolve(null); });
+    req.end(body);
+  });
+}
+
+/**
+ * Router TTS universel : Deepgram > ElevenLabs > OpenAI > fallback Web Speech
+ * Priorité : qualité + latence. OpenAI TTS est le fallback premium si pas de Deepgram/ElevenLabs.
  * Retourne { audio: Buffer, provider: string } ou { audio: null, provider: 'browser' }
  */
-async function ttsRoute(text) {
+async function ttsRoute(text, opts = {}) {
+  // 1. Deepgram Aura — ultra-rapide (<300ms), excellent FR
   if (process.env.DEEPGRAM_API_KEY) {
-    const audio = await ttsDeepgram(text);
+    const audio = await ttsDeepgram(text, opts.deepgramVoice);
     if (audio) return { audio, provider: 'deepgram', mimeType: 'audio/mpeg' };
   }
+  // 2. ElevenLabs — clone voix humaine, meilleure naturalité
   if (process.env.ELEVENLABS_API_KEY) {
-    const audio = await ttsElevenLabs(text);
+    const audio = await ttsElevenLabs(text, opts.voiceId);
     if (audio) return { audio, provider: 'elevenlabs', mimeType: 'audio/mpeg' };
   }
-  // Pas de clé injectée : signal au client d'utiliser Web Speech API
+  // 3. OpenAI TTS — voix 'nova' (chaleureuse) par défaut, très naturelle
+  if (process.env.OPENAI_API_KEY) {
+    // Jarvis = voix masculine grave → 'onyx'; assistant féminin → 'nova'
+    const voice = opts.voice || (process.env.TTS_OPENAI_VOICE || 'nova');
+    const model = opts.model || (process.env.TTS_OPENAI_MODEL || 'tts-1');
+    const audio = await ttsOpenAI(text, voice, model);
+    if (audio) return { audio, provider: 'openai', mimeType: 'audio/mpeg' };
+  }
+  // 4. Fallback navigateur — Web Speech API (robotique)
   return { audio: null, provider: 'browser' };
 }
 
-module.exports = { route, getProviderStatus, getAvailableProviders, detectTask, stats, PROVIDERS, ttsRoute, ttsDeepgram, ttsElevenLabs };
+module.exports = { route, getProviderStatus, getAvailableProviders, detectTask, stats, PROVIDERS, ttsRoute, ttsDeepgram, ttsElevenLabs, ttsOpenAI };

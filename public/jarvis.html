@@ -525,25 +525,37 @@
   }
   // ── Smart TTS : Deepgram/ElevenLabs si dispo, sinon Web Speech ────────────
   async function speakSmart(text) {
+    // Afficher indicateur de chargement audio
+    if (badge) badge.textContent = '...';
     try {
       const res = await fetch('/api/voice/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
       });
-      const ct = res.headers.get('content-type') || '';
+      const ct       = res.headers.get('content-type') || '';
+      const provider = res.headers.get('x-tts-provider') || '';
       if (ct.includes('audio')) {
-        // Premium audio — Deepgram ou ElevenLabs
+        // Voix premium (OpenAI / Deepgram / ElevenLabs)
         const blob = await res.blob();
         const url  = URL.createObjectURL(blob);
-        const audio = new Audio(url);
-        audio.playbackRate = 1.05;
-        audio.onended = () => URL.revokeObjectURL(url);
-        audio.play().catch(() => speak(text)); // fallback si autoplay bloqué
+        const aud  = new Audio(url);
+        aud.playbackRate = provider === 'openai' ? 1.0 : 1.05;
+        aud.onended = () => { URL.revokeObjectURL(url); if (badge) badge.textContent = provider.toUpperCase(); };
+        if (badge) badge.textContent = provider.toUpperCase() + ' TTS';
+        await aud.play().catch(() => {
+          // Autoplay bloqué — fallback Web Speech
+          speak(text);
+          if (badge) badge.textContent = 'WEB SPEECH';
+        });
         return;
       }
-    } catch (_) {}
-    // Fallback : Web Speech API (nettoyé + voix premium)
+      // Réponse JSON = pas de clé premium disponible
+      if (badge) badge.textContent = 'WEB SPEECH';
+    } catch (e) {
+      if (badge) badge.textContent = 'WEB SPEECH';
+    }
+    // Fallback navigateur
     speak(text);
   }
 
