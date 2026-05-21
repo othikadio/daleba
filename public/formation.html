@@ -147,7 +147,7 @@
     .formule-deposit { font-size: 0.82rem; color: #6B8860; margin-top: 0.3rem; }
     .formule-includes { list-style: none; margin: 1.2rem 0 1.5rem; flex: 1; }
     .formule-includes li { font-size: 0.85rem; color: #3D5C35; padding: 0.3rem 0; display: flex; gap: 0.5rem; align-items: flex-start; }
-    .formule-includes li::before { content: '✓'; color: var(--secondary-dark); font-weight: 700; flex-shrink: 0; }
+    .formule-includes li::before { content: ''; color: var(--secondary-dark); font-weight: 700; flex-shrink: 0; }
     .btn-formule {
       display: block; text-align: center;
       background: var(--secondary-dark); color: var(--white);
@@ -246,11 +246,11 @@
 
   <!-- HERO -->
   <div class="hero">
-    <div class="hero-tag">✦ Formation Professionnelle</div>
+    <div class="hero-tag"> Formation Professionnelle</div>
     <h1>Locks & <em>Tresses</em><br>Formation d'excellence</h1>
     <p class="hero-sub">Apprenez les techniques professionnelles des Locks et Tresses avec un expert certifié à Longueuil, Québec.</p>
     <div class="hero-formateur">
-      <div class="dot">🔗</div>
+      <div class="dot"></div>
       Othi Kadio — Locticien certifié · Kadio Coiffure Longueuil
     </div>
   </div>
@@ -258,66 +258,63 @@
   <!-- FORMULES -->
   <section id="formules">
     <div class="section-inner">
-      <div class="section-tag">✦ Nos Formules</div>
+      <div class="section-tag">Nos Formules</div>
       <h2 class="section-title">Choisissez votre niveau</h2>
       <p class="section-sub">3 formules adaptées à votre parcours. Dépôt de 30% requis pour confirmer votre place.</p>
       <div class="formules-grid">
 
         <div class="formule-card">
-          <div class="formule-icon">🌱</div>
-          <div class="formule-level">Niveau 1</div>
-          <div class="formule-name">Initiation Locks</div>
-          <div class="formule-duration">Durée: <span>1 jour (8h)</span></div>
-          <div class="formule-price">350$<small>/personne</small></div>
-          <div class="formule-deposit">Dépôt requis: 105$ (30%)</div>
+          <div class="formule-level">Formation Dreadlocks / Locks</div>
+          <div class="formule-name">Locks — Technique Complète</div>
+          <div class="formule-duration">Démarrage, entretien, réparation, extensions, crochet, interlock, retwist</div>
+          <div class="formule-price">1&nbsp;138,50&nbsp;$<small> taxes incluses</small></div>
+          <div class="formule-deposit">Ou 284,63 $/mois × 4 versements</div>
           <ul class="formule-includes">
-            <li>Bases techniques des Locks naturels</li>
-            <li>Entretien et soins fondamentaux</li>
-            <li>Matériel et outils fournis</li>
-            <li>Attestation de participation</li>
-            <li>Suivi post-formation (30 jours)</li>
+            <li>Abonnés Kadio : 910,80 $ taxes incluses</li>
+            <li>Ou 227,70 $/mois × 4 versements (abonnés)</li>
+            <li>Remise abonnés : –20 %</li>
+            <li>Certificat Kadio Coiffure à la réussite</li>
+            <li>Seul formateur : Othi Kadio</li>
           </ul>
-          <a href="/reservation?staffId=TMbOuVGATiQQ_fKO&service=formation-initiation" class="btn-formule">
+          <a href="/reservation?staffId=TMbOuVGATiQQ_fKO&service=formation-locks" class="btn-formule">
             Réserver ma place
           </a>
         </div>
 
         <div class="formule-card featured">
-          <div class="formule-badge">⭐ Recommandé</div>
-          <div class="formule-icon">🔗</div>
-          <div class="formule-level">Niveau 2</div>
-          <div class="formule-name">Maîtrise Locks</div>
-          <div class="formule-duration">Durée: <span>3 jours (24h)</span></div>
-          <div class="formule-price">900$<small>/personne</small></div>
-          <div class="formule-deposit">Dépôt requis: 270$ (30%)</div>
+          <div class="formule-badge">Exclusif</div>
+          <div class="formule-level">Formation Sisterlocks / Microlocs</div>
+          <div class="formule-name">Sisterlocks — Techniques Exclusives</div>
+          <div class="formule-duration">Techniques exclusives et certification</div>
+          <div class="formule-price">563,50&nbsp;$<small> taxes incluses</small></div>
+          <div class="formule-deposit">Ou 140,88 $/mois × 4 versements</div>
           <ul class="formule-includes">
-            <li>Techniques avancées : Microlocks, Sisterlocks</li>
-            <li>Réparations et extensions de Locks</li>
-            <li>Colorations et traitements spéciaux</li>
-            <li>Pratique intensive sur modèles réels</li>
-            <li>Certificat professionnel Kadio Coiffure</li>
-            <li>Accès au réseau de professionnels</li>
+            <li>Abonnés Kadio : 450,80 $ taxes incluses</li>
+            <li>Ou 112,70 $/mois × 4 versements (abonnés)</li>
+            <li>Remise abonnés : –20 %</li>
+            <li>Certificat Kadio Coiffure à la réussite</li>
+            <li>Seul formateur : Othi Kadio</li>
           </ul>
-          <a href="/reservation?staffId=TMbOuVGATiQQ_fKO&service=formation-maitrise" class="btn-formule">
+          <a href="/reservation?staffId=TMbOuVGATiQQ_fKO&service=formation-sisterlocks" class="btn-formule">
             Réserver ma place
           </a>
         </div>
 
         <div class="formule-card">
-          <div class="formule-icon">🪢</div>
-          <div class="formule-level">Spécialisation</div>
-          <div class="formule-name">Tresses Avancées</div>
-          <div class="formule-duration">Durée: <span>2 jours (16h)</span></div>
-          <div class="formule-price">550$<small>/personne</small></div>
-          <div class="formule-deposit">Dépôt requis: 165$ (30%)</div>
+          <div class="formule-badge">Tout Inclus</div>
+          <div class="formule-level">Formation Complète</div>
+          <div class="formule-name">Locks + Sisterlocks — Programme Intégral</div>
+          <div class="formule-duration">Le programme tout-inclus — Locks et Sisterlocks</div>
+          <div class="formule-price">1&nbsp;493,85&nbsp;$<small> taxes incluses</small></div>
+          <div class="formule-deposit">Ou 373,46 $/mois × 4 versements</div>
           <ul class="formule-includes">
-            <li>Knotless Braids & Twists professionnels</li>
-            <li>Box Braids, Cornrows et Stitch Braids</li>
-            <li>Techniques enfants et adultes</li>
-            <li>Gestion des clients et tarification</li>
-            <li>Attestation de spécialisation</li>
+            <li>Abonnés Kadio : 1 194,85 $ taxes incluses</li>
+            <li>Ou 298,71 $/mois × 4 versements (abonnés)</li>
+            <li>Remise abonnés : –20 %</li>
+            <li>Certificat Kadio Coiffure à la réussite</li>
+            <li>Seul formateur : Othi Kadio</li>
           </ul>
-          <a href="/reservation?staffId=TMbOuVGATiQQ_fKO&service=formation-tresses" class="btn-formule">
+          <a href="/reservation?staffId=TMbOuVGATiQQ_fKO&service=formation-complete" class="btn-formule">
             Réserver ma place
           </a>
         </div>
@@ -329,11 +326,11 @@
   <!-- PROFIL OTHI -->
   <section id="profil">
     <div class="section-inner">
-      <div class="section-tag">✦ Votre Formateur</div>
+      <div class="section-tag">Votre Formateur</div>
       <h2 class="section-title">Othi Kadio</h2>
       <div class="profil-grid">
         <div class="profil-photo-wrap">
-          <div class="profil-photo">🔗</div>
+          <div class="profil-photo"></div>
           <div class="profil-badge">Locticien Certifié</div>
         </div>
         <div class="profil-content">
@@ -350,8 +347,8 @@
             Seul formateur disponible actuellement. Places très limitées — réservez tôt pour garantir votre créneau.
           </div>
           <div class="profil-contact">
-            <a href="tel:5149195970" class="btn-contact-tel">📞 514-919-5970</a>
-            <a href="https://wa.me/15149195970" class="btn-contact-wa" target="_blank" rel="noopener">💬 WhatsApp</a>
+            <a href="tel:5149195970" class="btn-contact-tel">514-919-5970</a>
+            <a href="https://wa.me/15149195970" class="btn-contact-wa" target="_blank" rel="noopener">WhatsApp</a>
           </div>
         </div>
       </div>
@@ -361,7 +358,7 @@
   <!-- FAQ -->
   <section id="faq">
     <div class="section-inner">
-      <div class="section-tag">✦ Questions fréquentes</div>
+      <div class="section-tag"> Questions fréquentes</div>
       <h2 class="section-title">FAQ</h2>
       <div class="faq-list">
         <div class="faq-item">
