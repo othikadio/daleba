@@ -303,6 +303,51 @@ async function ttsOpenAI(text, voice = 'nova', model = 'tts-1') {
  * Priorité : qualité + latence. OpenAI TTS est le fallback premium si pas de Deepgram/ElevenLabs.
  * Retourne { audio: Buffer, provider: string } ou { audio: null, provider: 'browser' }
  */
+/**
+ * Google Translate TTS proxy (gratuit, voix naturelle FR, aucune clé requise)
+ * Limite : ~200 chars par requête. Pour les textes longs, découper en chunks.
+ */
+async function ttsGoogleFree(text, lang = 'fr') {
+  // Découper en chunks de 180 chars max sur les espaces
+  const maxLen = 180;
+  const chunks = [];
+  let remaining = text.trim();
+  while (remaining.length > 0) {
+    if (remaining.length <= maxLen) { chunks.push(remaining); break; }
+    let cut = remaining.lastIndexOf(' ', maxLen);
+    if (cut < 50) cut = maxLen;
+    chunks.push(remaining.slice(0, cut));
+    remaining = remaining.slice(cut).trim();
+  }
+
+  const buffers = [];
+  for (const chunk of chunks) {
+    const encoded = encodeURIComponent(chunk);
+    const buf = await new Promise((resolve) => {
+      const req = https.request({
+        hostname: 'translate.google.com',
+        path: `/translate_tts?ie=UTF-8&q=${encoded}&tl=${lang}&client=tw-ob`,
+        method: 'GET',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; KadioBot/1.0)',
+          'Referer': 'https://translate.google.com/',
+        },
+      }, (res) => {
+        if (res.statusCode !== 200) { res.resume(); return resolve(null); }
+        const parts = [];
+        res.on('data', c => parts.push(c));
+        res.on('end', () => resolve(Buffer.concat(parts)));
+      });
+      req.on('error', () => resolve(null));
+      req.setTimeout(8000, () => { req.destroy(); resolve(null); });
+      req.end();
+    });
+    if (buf) buffers.push(buf);
+  }
+  if (buffers.length === 0) return null;
+  return Buffer.concat(buffers);
+}
+
 async function ttsRoute(text, opts = {}) {
   // 1. Deepgram Aura — ultra-rapide (<300ms), excellent FR
   if (process.env.DEEPGRAM_API_KEY) {
@@ -314,15 +359,20 @@ async function ttsRoute(text, opts = {}) {
     const audio = await ttsElevenLabs(text, opts.voiceId);
     if (audio) return { audio, provider: 'elevenlabs', mimeType: 'audio/mpeg' };
   }
-  // 3. OpenAI TTS — voix 'nova' (chaleureuse) par défaut, très naturelle
-  if (process.env.OPENAI_API_KEY) {
-    // Jarvis = voix masculine grave → 'onyx'; assistant féminin → 'nova'
+  // 3. OpenAI TTS — voix 'nova' (chaleureuse), quota consumé si clé hors-quota
+  if (process.env.OPENAI_API_KEY && process.env.OPENAI_TTS_ENABLED !== 'false') {
     const voice = opts.voice || (process.env.TTS_OPENAI_VOICE || 'nova');
     const model = opts.model || (process.env.TTS_OPENAI_MODEL || 'tts-1');
     const audio = await ttsOpenAI(text, voice, model);
     if (audio) return { audio, provider: 'openai', mimeType: 'audio/mpeg' };
   }
-  // 4. Fallback navigateur — Web Speech API (robotique)
+  // 4. Google Translate TTS — gratuit, voix naturelle FR, aucune clé
+  if (process.env.TTS_GOOGLE_FREE !== 'false') {
+    const lang = opts.lang || 'fr';
+    const audio = await ttsGoogleFree(text, lang);
+    if (audio && audio.length > 1000) return { audio, provider: 'google-free', mimeType: 'audio/mpeg' };
+  }
+  // 5. Fallback navigateur — Web Speech API
   return { audio: null, provider: 'browser' };
 }
 

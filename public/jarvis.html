@@ -436,15 +436,33 @@
     if (!cleaned) return;
     const voice = getBestFrenchVoice();
 
-    // Anti-freeze Safari/iOS + fluidité : chunk par phrase
-    const chunks = cleaned.match(/[^.!?]+[.!?]*/g) || [cleaned];
+    // Réponse courte → 1 seule utterance, zéro micro-pause
+    if (cleaned.length < 120) {
+      const u = new SpeechSynthesisUtterance(cleaned);
+      u.lang = 'fr-FR'; u.rate = 1.0; u.pitch = 1.0; u.volume = 1;
+      if (voice) u.voice = voice;
+      synth.speak(u);
+      return;
+    }
+
+    // Réponse longue → découper sur phrases complètes seulement (pas les virgules)
+    // pour éviter les saccades entre chunks trop courts
+    const sentences = cleaned.match(/[^.!?]+[.!?]+[\s]*/g) || [cleaned];
+    // Fusionner les phrases courtes avec la suivante (>= 60 chars = 1 utterance)
+    const chunks = [];
+    let acc = '';
+    sentences.forEach((s, i) => {
+      acc += s;
+      if (acc.length >= 60 || i === sentences.length - 1) { chunks.push(acc.trim()); acc = ''; }
+    });
+    if (acc.trim()) chunks.push(acc.trim());
+
     chunks.forEach((chunk) => {
-      const trimmed = chunk.trim();
-      if (!trimmed) return;
-      const u = new SpeechSynthesisUtterance(trimmed);
+      if (!chunk) return;
+      const u = new SpeechSynthesisUtterance(chunk);
       u.lang   = 'fr-FR';
-      u.rate   = 1.18;   // dynamique, style Jarvis
-      u.pitch  = 0.95;   // légèrement grave = plus autoritaire
+      u.rate   = 1.0;   // vitesse naturelle humaine
+      u.pitch  = 1.0;   // neutre = plus humain que 0.95
       u.volume = 1;
       if (voice) u.voice = voice;
       synth.speak(u);
