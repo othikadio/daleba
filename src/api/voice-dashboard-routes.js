@@ -227,7 +227,26 @@ async function handleGeneral(text) {
         {
           taskHint: 'chat',
           forceProvider: 'claude',   // Claude Haiku: plus rapide pour vocal (DeepSeek solde vide)
-          systemPrompt: 'Tu es DALEBA, assistant vocal de Kadio Coiffure Longueuil QC. Réponds en 1 phrase courte, texte brut, zéro markdown. Propriétaire: Ulrich. RÈGLE ABSOLUE ET NON NÉGOCIABLE : si une donnée Square (rendez-vous, montant, nom, date) est absente ou vide, dis-le clairement. Interdiction totale d\'inventer, de fabriquer ou d\'halluciner des noms, des montants, des dates ou des transactions. Vide = vide. Jamais de données fictives.',
+          systemPrompt: `Tu es DALEBA — l'intelligence centrale du salon Kadio Coiffure, à Longueuil, Québec. Tu parles à Ulrich, le directeur.
+
+TON REGISTRE VOCAL :
+- Tu parles comme un humain compétent et chaleureux, pas comme un assistant générique. Tu n'es pas un chatbot.
+- Tes réponses sont courtes, directes, vivantes. Jamais de "Bien sûr !", jamais de "D'accord !", jamais de formules robotiques.
+- Tu utilises des pauses naturelles dans tes réponses : une virgule = micro-pause. Un point = vraie pause. Ça sonne humain à l'oreille.
+- Tu peux dire "hmm", "alors", "voilà" pour fluidifier. Une touche d'humour discret quand la situation s'y prête.
+- Format TEXTE BRUT uniquement — zéro markdown, zéro astérisque, zéro liste à puces. Ce sera dit à voix haute.
+
+CAPACITÉS :
+- Finances du salon (Square : rendez-vous, paiements, clients)
+- Statut de l'équipe et des coiffeurs
+- Gestion des forfaits et abonnements
+- Envoi de SMS de suivi ou rappel
+- Navigation sur le site et les pages
+
+RÈGLE DE VÉRITÉ ABSOLUE :
+Si une donnée Square (RDV, montant, nom, date) est absente ou non disponible, dis-le clairement et simplement. Jamais de données inventées. Vide = vide, on le dit avec élégance.
+
+Réponds en 1 à 2 phrases maximum pour les requêtes vocales simples. Plus long si c'est un rapport demandé explicitement.`,
         }
       ),
       5000
@@ -323,6 +342,63 @@ router.post('/tts', async (req, res) => {
   }
   // Pas de clé dispo — le client utilise Web Speech
   res.json({ provider: 'browser' });
+});
+
+// ─── POST /api/voice/analyze-file — Analyse PDF/CSV/TXT via Claude ─────────────────
+const multer = require('multer');
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB max
+  fileFilter: (req, file, cb) => {
+    const ok = /pdf|txt|csv|text/.test(file.mimetype);
+    cb(null, ok);
+  },
+});
+
+router.post('/analyze-file', upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Aucun fichier reçu.' });
+
+  let content = '';
+  try {
+    if (req.file.mimetype === 'application/pdf') {
+      // Extraire texte brut du PDF (lecture bytes, fallback texte)
+      const buf = req.file.buffer;
+      // Simple extraction: chercher les streams texte dans le PDF
+      const text = buf.toString('latin1');
+      const matches = text.match(/BT[\s\S]*?ET/g) || [];
+      const extracted = matches
+        .map(b => b.replace(/BT|ET|Tf|Tj|TJ|Td|TD|Tm|T\*|[0-9. ]+/g, ' '))
+        .join(' ')
+        .replace(/[\x00-\x1F]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .slice(0, 4000);
+      content = extracted.trim() || '(PDF sans texte extractible)';
+    } else {
+      // TXT / CSV
+      content = req.file.buffer.toString('utf-8').slice(0, 4000);
+    }
+  } catch (e) {
+    content = req.file.buffer.toString('utf-8', 0, 2000);
+  }
+
+  const fileName = req.file.originalname;
+  const aiRouter = safeRequire('../services/ai-router');
+  if (!aiRouter) return res.json({ reply: 'Routeur IA indisponible.' });
+
+  try {
+    const result = await aiRouter.route(
+      [{ role: 'user', content: `Analyse ce document : "${fileName}"\n\nContenu :\n${content}\n\nFais un résumé concis et actionnable pour le directeur du salon Kadio Coiffure.` }],
+      {
+        taskHint: 'analysis',
+        forceProvider: 'claude',
+        systemPrompt: `Tu es DALEBA, assistant du salon Kadio Coiffure Longueuil. Tu analyses des documents (comptabilité, listes, fiches) pour Ulrich, le directeur. Réponse en français, claire, structurée, actionnable. Format texte brut sans markdown.`,
+      }
+    );
+    const reply = (result.text || result.response || '').trim();
+    res.json({ reply: reply || 'Analyse terminée sans résultat.', filename: fileName });
+  } catch (err) {
+    res.json({ reply: `Erreur d'analyse : ${err.message}` });
+  }
 });
 
 module.exports = router;

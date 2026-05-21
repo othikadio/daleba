@@ -280,6 +280,37 @@
     <div class="response" id="response"></div>
   </div>
 
+<div id="tools-bar" style="
+  position:fixed; bottom:16px; left:50%; transform:translateX(-50%);
+  display:flex; gap:10px; align-items:center; z-index:100;
+">
+  <label for="pdfInput" title="Analyser un fichier" style="
+    cursor:pointer; background:rgba(0,255,159,0.08); border:1px solid rgba(0,255,159,0.25);
+    color:#00FF9F; border-radius:8px; padding:8px 14px; font-size:12px; font-weight:600;
+    letter-spacing:.06em; transition:background .2s;
+  " onmouseover="this.style.background='rgba(0,255,159,0.15)'" 
+     onmouseout="this.style.background='rgba(0,255,159,0.08)'">
+    PDF / FICHIER
+  </label>
+  <input type="file" id="pdfInput" accept=".pdf,.txt,.csv" style="display:none" />
+  
+  <input type="text" id="textInput" placeholder="Tapez une question…" style="
+    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
+    color:#e8e8e8; border-radius:8px; padding:8px 14px; font-size:13px;
+    outline:none; width:220px; transition:border-color .2s;
+  " onfocus="this.style.borderColor='rgba(0,255,159,0.4)'"
+     onblur="this.style.borderColor='rgba(255,255,255,0.12)'"
+  />
+  <button id="textSendBtn" style="
+    background:rgba(0,255,159,0.12); border:1px solid rgba(0,255,159,0.3);
+    color:#00FF9F; border-radius:8px; padding:8px 14px; font-size:12px;
+    font-weight:700; cursor:pointer; transition:background .2s;
+  " onmouseover="this.style.background='rgba(0,255,159,0.22)'"
+     onmouseout="this.style.background='rgba(0,255,159,0.12)'">
+    ENVOYER
+  </button>
+</div>
+
 </div>
 
 <div class="provider-badge" id="providerBadge"></div>
@@ -576,6 +607,55 @@
     // Fallback navigateur
     speak(text);
   }
+
+
+  // ── PDF / Fichier upload ──────────────────────────────────────────────────
+  const pdfInput   = document.getElementById('pdfInput');
+  const textInput  = document.getElementById('textInput');
+  const textSendBtn = document.getElementById('textSendBtn');
+
+  if (pdfInput) {
+    pdfInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const maxMB = 5;
+      if (file.size > maxMB * 1024 * 1024) {
+        response.textContent = `Fichier trop lourd (max ${maxMB} MB).`;
+        return;
+      }
+      response.textContent = 'Analyse du fichier en cours…';
+      response.className = 'response thinking';
+      try {
+        const fd = new FormData();
+        fd.append('file', file);
+        const res = await fetch('/api/voice/analyze-file', { method: 'POST', body: fd });
+        const data = await res.json();
+        const reply = data.reply || data.analysis || 'Analyse terminée.';
+        response.textContent = reply;
+        response.className = 'response done';
+        speakSmart(reply.slice(0, 300)); // Lire les 300 premiers chars
+      } catch (err) {
+        response.textContent = 'Erreur analyse fichier.';
+        response.className = 'response done';
+      }
+      pdfInput.value = '';
+    });
+  }
+
+  // ── Input texte (questions écrites) ──────────────────────────────────────
+  async function sendTextCommand() {
+    const txt = textInput?.value?.trim();
+    if (!txt) return;
+    textInput.value = '';
+    transcript.textContent = txt;
+    transcript.className = 'transcript';
+    await sendCommand(txt);
+  }
+
+  if (textSendBtn) textSendBtn.addEventListener('click', sendTextCommand);
+  if (textInput) textInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendTextCommand();
+  });
 
   // Force preload voices
   if (synth) setTimeout(() => getBestFrenchVoice(), 200);

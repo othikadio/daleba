@@ -35,7 +35,24 @@ async function init() {
     document.getElementById('businessAvatar').textContent = biz.name.charAt(0).toUpperCase();
     document.title = `Réservation — ${biz.name}`;
 
-    loadServices();
+    loadServices().then(() => {
+      // Pré-sélection depuis ?forfait=...&service=...
+      const p = new URLSearchParams(window.location.search);
+      const preService = p.get('service');
+      const preLabel   = p.get('forfait');
+      if (preService) {
+        // Attendre que les cards soient rendues puis cliquer sur le bon service
+        setTimeout(() => {
+          const card = document.querySelector(`.service-card[data-id="${preService}"]`);
+          if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            card.classList.add('highlighted');
+            // Auto-sélect après 600ms pour laisser le client voir la sélection
+            setTimeout(() => card.click(), 600);
+          }
+        }, 300);
+      }
+    });
   } catch (err) {
     showError('Impossible de charger le salon. Vérifiez le lien.');
   }
