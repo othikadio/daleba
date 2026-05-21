@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kadio Coiffure — Votre avis</title>
+  <style>
+    :root {
+      --primary: #C4622D;
+      --secondary: #7A9E6E;
+      --bg: #FAF6F0;
+      --card: #fff;
+      --text: #2C2C2C;
+      --muted: #888;
+      --border: #E2D9CF;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Georgia', serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 20px;
+      box-shadow: 0 4px 32px rgba(196,98,45,0.10);
+      padding: 44px 36px;
+      width: 100%;
+      max-width: 460px;
+      text-align: center;
+    }
+    .logo { font-size: 1.6rem; font-weight: 700; color: var(--primary); letter-spacing: 2px; margin-bottom: 4px; }
+    .subtitle { font-size: 0.85rem; color: var(--muted); margin-bottom: 32px; font-style: italic; }
+    h2 { font-size: 1.3rem; color: var(--text); margin-bottom: 8px; }
+    .intro { font-size: 0.9rem; color: var(--muted); margin-bottom: 28px; line-height: 1.6; }
+    .stars-wrap { display: flex; justify-content: center; gap: 12px; margin-bottom: 24px; }
+    .star {
+      font-size: 3rem;
+      cursor: pointer;
+      color: #ddd;
+      transition: color .15s, transform .1s;
+      user-select: none;
+      line-height: 1;
+    }
+    .star.lit { color: #FFC107; }
+    .star:active { transform: scale(1.2); }
+    .rating-label {
+      font-size: 0.88rem;
+      color: var(--primary);
+      font-weight: 600;
+      min-height: 20px;
+      margin-bottom: 16px;
+    }
+    textarea {
+      width: 100%;
+      padding: 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      resize: none;
+      outline: none;
+      background: var(--bg);
+      color: var(--text);
+      transition: border-color .2s;
+    }
+    textarea:focus { border-color: var(--primary); }
+    .btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-family: inherit;
+      letter-spacing: 1px;
+      cursor: pointer;
+      margin-top: 16px;
+      transition: background .2s, transform .1s;
+    }
+    .btn:hover { background: #a8501f; }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { background: #ccc; cursor: default; }
+
+    /* ── Étapes ─────────────────────────────────────────────────────────── */
+    .step { display: none; }
+    .step.active { display: block; }
+
+    /* ── Succès bonne note → Google ─────────────────────────────────────── */
+    .google-box {
+      background: #E8F5E9;
+      border: 1px solid #C8E6C9;
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 8px;
+    }
+    .google-logo { font-size: 2.5rem; margin-bottom: 8px; }
+    .google-box p { font-size: 0.92rem; color: #2E7D32; margin-bottom: 16px; line-height: 1.5; }
+    .btn-google {
+      display: inline-block;
+      background: #4285F4;
+      color: #fff;
+      padding: 13px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-family: inherit;
+      letter-spacing: 0.5px;
+      transition: background .2s;
+    }
+    .btn-google:hover { background: #3267C8; }
+
+    /* ── Succès mauvaise note → merci ────────────────────────────────────── */
+    .thankyou-box {
+      padding: 24px;
+    }
+    .thankyou-box .emoji { font-size: 3rem; margin-bottom: 12px; }
+    .thankyou-box p { font-size: 0.95rem; color: var(--muted); line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">KADIO</div>
+    <div class="subtitle">Coiffure &amp; Esthétique</div>
+
+    <!-- ── Étape 1 : notation ─────────────────────────────────────────── -->
+    <div class="step active" id="step1">
+      <h2>Comment s'est passée votre visite ?</h2>
+      <p class="intro">Votre avis nous aide à vous offrir le meilleur service.</p>
+
+      <div class="stars-wrap" id="starsWrap">
+        <span class="star" data-v="1">★</span>
+        <span class="star" data-v="2">★</span>
+        <span class="star" data-v="3">★</span>
+        <span class="star" data-v="4">★</span>
+        <span class="star" data-v="5">★</span>
+      </div>
+      <div class="rating-label" id="ratingLabel">Sélectionnez votre note</div>
+
+      <textarea id="comment" rows="3" placeholder="Un commentaire ? (optionnel)"></textarea>
+      <button class="btn" id="btnSubmit" disabled>Envoyer mon avis</button>
+    </div>
+
+    <!-- ── Étape 2a : bonne note ─────────────────────────────────────── -->
+    <div class="step" id="step2good">
+      <h2 style="margin-bottom:16px">Merci pour votre confiance ! 🌟</h2>
+      <div class="google-box">
+        <div class="google-logo">⭐</div>
+        <p>
+          Vous avez adoré votre expérience chez Kadio Coiffure.<br>
+          Partagez votre avis sur Google pour aider d'autres clients à nous trouver !
+        </p>
+        <a id="googleLink" href="#" target="_blank" rel="noopener" class="btn-google">
+          Laisser un avis Google
+        </a>
+      </div>
+    </div>
+
+    <!-- ── Étape 2b : mauvaise note ─────────────────────────────────── -->
+    <div class="step" id="step2bad">
+      <div class="thankyou-box">
+        <div class="emoji">🙏</div>
+        <h2 style="margin-bottom:12px">Merci pour votre retour</h2>
+        <p>
+          Nous sommes désolés que votre visite n'ait pas été à la hauteur de vos attentes.<br><br>
+          Notre responsable a été informé et vous contactera sous peu pour améliorer votre prochaine expérience.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Récupérer appointmentId et phone depuis l'URL
+    const params = new URLSearchParams(window.location.search);
+    const appointmentId = params.get('appt') || params.get('id') || 'demo';
+    const clientPhone   = params.get('phone') || localStorage.getItem('kc_phone') || '';
+    const clientName    = params.get('name') || localStorage.getItem('kc_name') || '';
+    const googlePlaceId = 'CwVGb0-S7xEAAAQvFbH8bg';
+    const googleLink    = `https://g.page/r/${googlePlaceId}/review`;
+
+    document.getElementById('googleLink').href = googleLink;
+
+    const labels = ['', 'Pas satisfait(e)', 'Peut mieux faire', 'Correct', 'Bien', 'Excellent !'];
+    let currentRating = 0;
+
+    document.querySelectorAll('.star').forEach(star => {
+      star.addEventListener('mouseover', () => {
+        const v = parseInt(star.dataset.v);
+        document.querySelectorAll('.star').forEach(s =>
+          s.classList.toggle('lit', parseInt(s.dataset.v) <= v)
+        );
+        document.getElementById('ratingLabel').textContent = labels[v];
+      });
+      star.addEventListener('click', () => {
+        currentRating = parseInt(star.dataset.v);
+        document.getElementById('btnSubmit').disabled = false;
+      });
+    });
+
+    document.getElementById('starsWrap').addEventListener('mouseleave', () => {
+      document.querySelectorAll('.star').forEach(s =>
+        s.classList.toggle('lit', parseInt(s.dataset.v) <= currentRating)
+      );
+      document.getElementById('ratingLabel').textContent = currentRating ? labels[currentRating] : 'Sélectionnez votre note';
+    });
+
+    document.getElementById('btnSubmit').addEventListener('click', async () => {
+      if (!currentRating) return;
+      const btn = document.getElementById('btnSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Envoi en cours…';
+
+      try {
+        const r = await fetch('/api/salon/rate-service', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            appointmentId,
+            clientPhone,
+            clientName,
+            rating: currentRating,
+            comment: document.getElementById('comment').value || null,
+          })
+        });
+
+        document.getElementById('step1').classList.remove('active');
+        if (currentRating >= 4) {
+          document.getElementById('step2good').classList.add('active');
+        } else {
+          document.getElementById('step2bad').classList.add('active');
+        }
+      } catch(e) {
+        // Même en cas d'erreur réseau, montrer la page de remerciement
+        document.getElementById('step1').classList.remove('active');
+        if (currentRating >= 4) {
+          document.getElementById('step2good').classList.add('active');
+        } else {
+          document.getElementById('step2bad').classList.add('active');
+        }
+      }
+    });
+  </script>
+</body>
+</html>

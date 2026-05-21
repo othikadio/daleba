@@ -103,6 +103,8 @@ app.use('/api/media', mediaRoutes);
 app.use('/api/hunter', require('./api/hunter-routes')); // Agent chasseur IA
 app.use('/api/voice', require('./api/voice-dashboard-routes'));     // Jarvis — commande vocale + meta
 app.use('/api/dashboard', require('./api/voice-dashboard-routes')); // Jarvis — statut meta + site
+app.use('/api/salon', require('./api/salon-ops-routes'));  // V35 — Arrivée VIP + ratings + bouclier Google
+app.use('/api/staff', require('./api/staff-routes'));       // V35 — /api/staff/scan-qr
 
 // Middleware erreurs (Point 12)
 app.use(errorMiddleware);
@@ -116,6 +118,24 @@ app.get('/', (req, res) => {
 // Booking page
 app.get('/reservation', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/reservation.html'));
+});
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/login.html'));
+});
+app.get('/portail-client', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/portail-client.html'));
+});
+app.get('/portail-staff', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/portail-staff.html'));
+});
+app.get('/agenda', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/agenda.html'));
+});
+app.get('/scan-qr', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/scan-qr.html'));
+});
+app.get('/noter-service', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/noter-service.html'));
 });
 
 // Dashboard → redirect
