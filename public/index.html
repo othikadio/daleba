@@ -119,6 +119,19 @@
       transition: border-color 0.2s, background 0.2s;
     }
     .btn-secondary:hover { border-color: var(--primary); background: var(--primary-pale); }
+    .hero-img {
+      width: 100%;
+      max-width: 520px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(196,98,45,0.18);
+    }
+    .hero-img img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+    }
     .hero-img-placeholder {
       background: var(--primary-pale);
       border-radius: 20px;
@@ -350,7 +363,7 @@
     /* ─── RESPONSIVE ─── */
     @media (max-width: 768px) {
       .hero { grid-template-columns: 1fr; gap: 2rem; padding: 2rem 1.2rem; min-height: auto; }
-      .hero-img-placeholder { min-height: 260px; }
+      .hero-img { max-width: 100%; }
       .contact-grid { grid-template-columns: 1fr; }
       .footer-top { grid-template-columns: 1fr; gap: 2rem; }
       .formation-card { grid-template-columns: 1fr; }
@@ -397,9 +410,8 @@
       </div>
     </div>
     <div>
-      <div class="hero-img-placeholder">
-        <span>📸</span>
-        <span class="placeholder-label">Photo du salon — à venir</span>
+      <div class="hero-img">
+        <img src="/img/hero-principal.jpg" alt="Stitch Braids — Kadio Coiffure Longueuil" loading="eager" />
       </div>
     </div>
   </section>
