@@ -188,8 +188,26 @@ router.post('/voice/status', twilioAuthMiddleware, safeVoiceRoute(async (req, re
   const fromMasked = callRecorder.maskPhone(From);
   bus.system(`📊 Call ${CallStatus} [${CallSid}] from=${fromMasked} duration=${CallDuration}s`);
 
+  // ─── SMS AUTOMATIQUE APPEL MANQUÉ (V30) ─────────────────────────────────────────────
+  const missedStatuses = ['no-answer', 'busy', 'failed', 'canceled'];
+  if (From && missedStatuses.includes(CallStatus)) {
+    try {
+      const twilio = require('../services/twilio');
+      const { BOOKING_LINK, SALON_INFO } = require('../services/ad-intent-router');
+      const smsText =
+        `Bonjour ! Nous avons raté votre appel chez ${SALON_INFO.name} 💇\n` +
+        `Pour réserver votre créneau en ligne :\n` +
+        `👉 ${BOOKING_LINK}\n` +
+        `Questions ? Appelez-nous au ${SALON_INFO.phone} ✨`;
+      await twilio.sendSMS(From, smsText);
+      bus.system(`📲 SMS appel manqué envoyé à ${fromMasked}`);
+    } catch (smsErr) {
+      bus.emit('error', `SMS appel manqué: ${smsErr.message}`);
+    }
+  }
+
   if (CallStatus === 'completed') {
-    // [242] Destruction d'état diaogue à la fin de l'appel
+    // [242] Destruction d'état dialogue à la fin de l'appel
     callRecorder.onCallCompleted(CallSid);
     VoiceAgentV4.cleanupSession(CallSid);
 
