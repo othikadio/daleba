@@ -93,6 +93,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 // Routes DALEBA
 // V32: Booking live — montage direct AVANT routes générales (Square slots + SMS)
 app.use('/api/booking', require('./api/booking-routes'));
+app.use('/api/oauth/meta', require('./api/meta-oauth-routes')); // Meta OAuth — 1 clic PME
 app.use('/api', routes);
 app.use('/api/ai', require('./api/ai-admin-routes')); // Hub IA universel — Cerveau Central
 app.use('/api/auth', authRoutes); // Authentification OTP + JWT
