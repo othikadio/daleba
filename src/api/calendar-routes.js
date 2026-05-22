@@ -195,4 +195,132 @@ router.get('/stats', requireBusinessAdmin, async (req, res) => {
   }
 });
 
+
+// GET /api/calendar/appointments?start=ISO&end=ISO — RDVs sur une période (Square + DB)
+router.get('/appointments', requireEmployee, async (req, res) => {
+  const { start, end } = req.query;
+  if (!start || !end) return res.status(400).json({ error: 'start et end requis (ISO)' });
+
+  const SQUARE_TOKEN = process.env.SQUARE_ACCESS_TOKEN;
+  const LOCATION_ID  = process.env.SQUARE_LOCATION_ID || 'LTDE9RP9PSHX7';
+  const results = [];
+
+  // 1. Square bookings
+  if (SQUARE_TOKEN) {
+    try {
+      const r = await fetch(
+        `https://connect.squareup.com/v2/bookings?location_id=${LOCATION_ID}&start_at_min=${encodeURIComponent(start)}&start_at_max=${encodeURIComponent(end)}&limit=100`,
+        { headers: { Authorization: `Bearer ${SQUARE_TOKEN}`, 'Square-Version': '2024-02-22' } }
+      );
+      if (r.ok) {
+        const d = await r.json();
+        for (const b of (d.bookings || [])) {
+          const seg = b.appointment_segments?.[0] || {};
+          results.push({
+            id: b.id,
+            start_at: b.start_at,
+            duration_min: seg.duration_minutes || 60,
+            staff_id: seg.team_member_id,
+            service_id: seg.service_variation_id,
+            status: b.status,
+            source: 'square',
+          });
+        }
+      }
+    } catch (e) { console.warn('[calendar/appointments] Square:', e.message); }
+  }
+
+  // 2. DB bookings
+  try {
+    const r = await pool.query(
+      `SELECT id, service_name, staff_id, staff_name, client_name, client_phone,
+              start_at, duration_min, status
+       FROM daleba_bookings
+       WHERE start_at BETWEEN $1 AND $2 AND status != 'cancelled'
+       ORDER BY start_at ASC`,
+      [start, end]
+    );
+    for (const row of r.rows) {
+      results.push({ ...row, source: 'db' });
+    }
+  } catch (e) { /* DB optionnelle */ }
+
+  res.json({ appointments: results, count: results.length });
+});
+
+// PATCH /api/calendar/appointments/:id/reschedule — Reprogrammer un RDV
+router.patch('/appointments/:id/reschedule', requireEmployee, async (req, res) => {
+  const { newStartTime } = req.body;
+  const apptId = req.params.id;
+  if (!newStartTime) return res.status(400).json({ error: 'newStartTime requis (ISO)' });
+
+  const SQUARE_TOKEN = process.env.SQUARE_ACCESS_TOKEN;
+  let squareUpdated = false;
+
+  // 1. Essai Square
+  if (SQUARE_TOKEN && !apptId.startsWith('db_')) {
+    try {
+      const r = await fetch(`https://connect.squareup.com/v2/bookings/${apptId}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${SQUARE_TOKEN}`,
+          'Content-Type': 'application/json',
+          'Square-Version': '2024-02-22',
+        },
+        body: JSON.stringify({
+          idempotency_key: `reschedule-${apptId}-${Date.now()}`,
+          booking: { start_at: new Date(newStartTime).toISOString() },
+        }),
+      });
+      if (r.ok) squareUpdated = true;
+    } catch (e) { console.warn('[calendar/reschedule] Square:', e.message); }
+  }
+
+  // 2. DB update
+  let dbUpdated = false;
+  try {
+    const numId = parseInt(apptId.replace('db_', ''));
+    if (!isNaN(numId)) {
+      await pool.query(
+        `UPDATE daleba_bookings SET start_at = $1 WHERE id = $2`,
+        [new Date(newStartTime).toISOString(), numId]
+      );
+      dbUpdated = true;
+    }
+  } catch (e) { /* DB optionnelle */ }
+
+  // 3. SMS au client
+  try {
+    const numId = parseInt(apptId.replace('db_', ''));
+    if (!isNaN(numId)) {
+      const r = await pool.query(
+        `SELECT client_phone, client_name, service_name FROM daleba_bookings WHERE id = $1`,
+        [numId]
+      );
+      if (r.rows.length && r.rows[0].client_phone) {
+        const b = r.rows[0];
+        const d = new Date(newStartTime);
+        const dateStr = d.toLocaleDateString('fr-CA', { weekday:'long', year:'numeric', month:'long', day:'numeric', timeZone:'America/Toronto' });
+        const timeStr = d.toLocaleTimeString('fr-CA', { hour:'2-digit', minute:'2-digit', timeZone:'America/Toronto' });
+        const TWILIO_SID   = process.env.TWILIO_ACCOUNT_SID;
+        const TWILIO_AUTH  = process.env.TWILIO_AUTH_TOKEN;
+        const TWILIO_FROM  = process.env.TWILIO_PHONE_NUMBER || '+13022328291';
+        if (TWILIO_SID && TWILIO_AUTH) {
+          const params = new URLSearchParams({ From: TWILIO_FROM, To: b.client_phone, Body: `Votre RDV chez Kadio Coiffure a été déplacé au ${dateStr} à ${timeStr}. Service: ${b.service_name}. Questions: (514) 919-5970.` });
+          await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`, {
+            method: 'POST',
+            headers: { Authorization: 'Basic ' + Buffer.from(`${TWILIO_SID}:${TWILIO_AUTH}`).toString('base64'), 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString(),
+          }).catch(() => {});
+        }
+      }
+    }
+  } catch (_) {}
+
+  if (squareUpdated || dbUpdated) {
+    return res.json({ success: true, bookingId: apptId, newStartTime, squareUpdated, dbUpdated });
+  }
+  res.status(404).json({ error: 'RDV introuvable ou non modifiable' });
+});
+
 module.exports = router;
