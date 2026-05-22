@@ -3,6 +3,9 @@
 # Stage 1: deps → Stage 2: production minimal
 # ─────────────────────────────────────────────────────────────
 
+# Cache buster — V32 (2026-05-22)
+ARG CACHE_BUST=1
+
 # ── Stage 1: install deps ────────────────────────────────────
 FROM node:20-alpine AS deps
 WORKDIR /app
