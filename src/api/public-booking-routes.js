@@ -220,8 +220,8 @@ router.get('/services', async (req, res) => {
 router.get('/staff', async (req, res) => {
   try {
     // POST /v2/team-members/search — la seule API qui fonctionne pour lister les membres
+    // Note: location_ids n'est PAS supporté par ce filtre — filtrer post-requete
     const body = { query: { filter: { status: 'ACTIVE' } } };
-    if (LOCATION_ID) body.query.filter.location_ids = [LOCATION_ID];
     const data    = await sqPost('/v2/team-members/search', body);
     const members = (data.team_members || []).map(m => ({
       id:         m.id,
