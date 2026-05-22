@@ -70,18 +70,16 @@ app.use(helmet({
   }
 }));
 app.use(cors());
-// rawBody middleware pour vérification HMAC webhooks GoDaddy/Stripe
-app.use((req, _res, next) => {
-  if (req.path.includes('/webhook')) {
-    let data = '';
-    req.setEncoding('utf8');
-    req.on('data', chunk => { data += chunk; });
-    req.on('end',  () => { req.rawBody = data; next(); });
-  } else {
-    next();
+// rawBody middleware — utilise le verify callback pour capturer le raw body
+// SANS consommer le stream avant express.json (fix bug 500 webhooks)
+app.use(express.json({
+  limit: '10mb',
+  verify: (req, _res, buf) => {
+    if (req.path && req.path.includes('/webhook')) {
+      req.rawBody = buf.toString('utf8');
+    }
   }
-});
-app.use(express.json({ limit: '10mb' }));
+}));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(morgan('combined'));
 
