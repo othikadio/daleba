@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendrier — DALEBA Admin</title>
+<style>
+  :root {
+    --bg:        #0a0a0f;
+    --surface:   rgba(255,255,255,0.05);
+    --border:    rgba(255,255,255,0.1);
+    --accent:    #7c3aed;
+    --accent2:   #06b6d4;
+    --text:      #e2e8f0;
+    --muted:     #94a3b8;
+    --danger:    #ef4444;
+    --success:   #22c55e;
+    --warning:   #f59e0b;
+    --glass:     rgba(255,255,255,0.06);
+    --glass-hover: rgba(255,255,255,0.1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: -1;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(124,58,237,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 90%, rgba(6,182,212,0.12) 0%, transparent 60%),
+      var(--bg);
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px 24px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .topbar .logo { font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
+  .topbar .logo span { color: var(--accent); }
+  .topbar h1 { font-size: 16px; font-weight: 600; color: var(--muted); }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .btn-refresh {
+    background: var(--glass); border: 1px solid var(--border);
+    color: var(--text); padding: 7px 14px; border-radius: 8px;
+    cursor: pointer; font-size: 13px; transition: all .2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-refresh:hover { background: var(--glass-hover); }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+  /* ── MAIN LAYOUT ── */
+  .main { padding: 20px 24px; }
+
+  /* ── CONTROLS BAR ── */
+  .controls {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .week-nav { display: flex; align-items: center; gap: 8px; }
+  .btn-nav {
+    background: var(--glass); border: 1px solid var(--border);
+    color: var(--text); width: 34px; height: 34px; border-radius: 8px;
+    cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+    transition: all .2s;
+  }
+  .btn-nav:hover { background: var(--glass-hover); }
+  .week-label {
+    font-size: 14px; font-weight: 600; color: var(--text);
+    min-width: 200px; text-align: center;
+  }
+  .staff-filter { display: flex; gap: 6px; flex-wrap: wrap; }
+  .staff-pill {
+    padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--glass); color: var(--muted); cursor: pointer;
+    font-size: 12px; font-weight: 500; transition: all .2s;
+  }
+  .staff-pill.active {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+  }
+  .staff-pill:hover:not(.active) { background: var(--glass-hover); color: var(--text); }
+
+  /* ── CALENDAR GRID ── */
+  .cal-wrapper {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+  }
+  .cal-header {
+    display: grid;
+    grid-template-columns: 60px repeat(7, 1fr);
+    border-bottom: 1px solid var(--border);
+  }
+  .cal-header-cell {
+    padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600;
+    color: var(--muted); border-left: 1px solid var(--border);
+  }
+  .cal-header-cell:first-child { border-left: none; }
+  .cal-header-cell .day-num { font-size: 20px; font-weight: 700; color: var(--text); display: block; }
+  .cal-header-cell.today { color: var(--accent2); }
+  .cal-header-cell.today .day-num { color: var(--accent2); }
+
+  .cal-body {
+    display: grid;
+    grid-template-columns: 60px repeat(7, 1fr);
+    max-height: calc(100vh - 260px);
+    overflow-y: auto;
+  }
+  .time-col { border-right: 1px solid var(--border); }
+  .time-slot {
+    height: 64px; display: flex; align-items: flex-start;
+    justify-content: flex-end; padding: 4px 8px 0 0;
+    font-size: 11px; color: var(--muted); font-weight: 500;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .day-col { border-left: 1px solid var(--border); position: relative; }
+  .hour-cell {
+    height: 64px; border-bottom: 1px solid rgba(255,255,255,0.04);
+    cursor: pointer; transition: background .15s; position: relative;
+  }
+  .hour-cell:hover { background: rgba(124,58,237,0.08); }
+  .hour-cell .add-btn {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    font-size: 20px; color: var(--accent); opacity: 0; transition: opacity .15s;
+    pointer-events: none;
+  }
+  .hour-cell:hover .add-btn { opacity: 1; }
+  .hour-cell.half { border-bottom: 1px dashed rgba(255,255,255,0.04); }
+
+  /* ── APPOINTMENT CARDS ── */
+  .appt-card {
+    position: absolute; left: 3px; right: 3px; z-index: 10;
+    border-radius: 8px; padding: 5px 8px;
+    font-size: 11px; cursor: pointer; overflow: hidden;
+    border-left: 3px solid rgba(255,255,255,0.4);
+    backdrop-filter: blur(8px);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .appt-card:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+  .appt-card .appt-client { font-weight: 700; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .appt-card .appt-service { font-size: 10px; opacity: .8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .appt-card .appt-time { font-size: 10px; opacity: .7; margin-top: 2px; }
+  .appt-card .btn-cancel {
+    position: absolute; top: 4px; right: 4px;
+    background: rgba(239,68,68,0.2); border: none; color: #fca5a5;
+    border-radius: 4px; width: 18px; height: 18px; cursor: pointer;
+    font-size: 10px; display: none; align-items: center; justify-content: center;
+  }
+  .appt-card:hover .btn-cancel { display: flex; }
+
+  /* Staff colors */
+  .staff-color-0 { background: rgba(124,58,237,0.25); border-left-color: #7c3aed; color: #c4b5fd; }
+  .staff-color-1 { background: rgba(6,182,212,0.25);  border-left-color: #06b6d4; color: #67e8f9; }
+  .staff-color-2 { background: rgba(249,115,22,0.25); border-left-color: #f97316; color: #fed7aa; }
+  .staff-color-3 { background: rgba(236,72,153,0.25); border-left-color: #ec4899; color: #fbcfe8; }
+  .staff-color-4 { background: rgba(34,197,94,0.25);  border-left-color: #22c55e; color: #bbf7d0; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  .modal-overlay.active { opacity: 1; pointer-events: all; }
+  .modal {
+    background: #12121e; border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px; width: 480px; max-width: 95vw;
+    transform: scale(0.95); transition: transform .2s;
+    position: relative; max-height: 90vh; overflow-y: auto;
+  }
+  .modal-overlay.active .modal { transform: scale(1); }
+  .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+  .modal .close-btn {
+    position: absolute; top: 16px; right: 16px;
+    background: var(--glass); border: 1px solid var(--border);
+    color: var(--muted); width: 30px; height: 30px; border-radius: 8px;
+    cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+  }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+  .form-group input, .form-group select {
+    width: 100%; background: var(--glass); border: 1px solid var(--border);
+    color: var(--text); padding: 10px 12px; border-radius: 8px; font-size: 14px;
+    outline: none; transition: border-color .2s;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+  .form-group select option { background: #12121e; }
+  .btn-primary {
+    width: 100%; background: var(--accent); border: none; color: #fff;
+    padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background .2s;
+  }
+  .btn-primary:hover { background: #6d28d9; }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+  .autocomplete-list {
+    background: #1a1a2e; border: 1px solid var(--border); border-radius: 8px;
+    max-height: 150px; overflow-y: auto; margin-top: 4px;
+  }
+  .autocomplete-list .ac-item {
+    padding: 8px 12px; cursor: pointer; font-size: 13px; transition: background .15s;
+  }
+  .autocomplete-list .ac-item:hover { background: var(--glass-hover); }
+
+  /* ── TOAST ── */
+  .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 300; display: flex; flex-direction: column; gap: 8px; }
+  .toast {
+    background: #1e1e32; border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; font-size: 13px; max-width: 320px;
+    animation: slideIn .3s ease; display: flex; align-items: center; gap: 8px;
+  }
+  .toast.success { border-color: var(--success); color: #bbf7d0; }
+  .toast.error   { border-color: var(--danger);  color: #fca5a5; }
+  @keyframes slideIn { from{transform:translateX(50px);opacity:0} to{transform:translateX(0);opacity:1} }
+
+  /* ── LOADING ── */
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin .6s linear infinite; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+
+  /* ── STATS BAR ── */
+  .stats-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .stat-card {
+    flex: 1; min-width: 140px; background: var(--glass);
+    border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;
+    backdrop-filter: blur(12px);
+  }
+  .stat-card .val { font-size: 28px; font-weight: 800; color: var(--text); }
+  .stat-card .lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  @media (max-width: 768px) {
+    .cal-header, .cal-body { grid-template-columns: 50px repeat(7, 1fr); }
+    .cal-header-cell { padding: 8px 4px; font-size: 10px; }
+    .cal-header-cell .day-num { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">DAL<span>EBA</span></div>
+  <h1>Calendrier Square</h1>
+  <div class="topbar-right">
+    <div id="autoRefreshStatus" style="font-size:11px;color:var(--muted)">Auto-refresh: 60s</div>
+    <div class="status-dot"></div>
+    <button class="btn-refresh" onclick="loadAppointments()">
+      <span id="refreshIcon">↻</span> Rafraîchir
+    </button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="val" id="statTotal">—</div>
+      <div class="lbl">RDV cette semaine</div>
+    </div>
+    <div class="stat-card">
+      <div class="val" id="statToday">—</div>
+      <div class="lbl">RDV aujourd'hui</div>
+    </div>
+    <div class="stat-card">
+      <div class="val" id="statStaff">—</div>
+      <div class="lbl">Staff actif</div>
+    </div>
+    <div class="stat-card">
+      <div class="val" id="statServices">—</div>
+      <div class="lbl">Services</div>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="week-nav">
+      <button class="btn-nav" onclick="prevWeek()">‹</button>
+      <div class="week-label" id="weekLabel">Chargement...</div>
+      <button class="btn-nav" onclick="nextWeek()">›</button>
+    </div>
+    <div class="staff-filter" id="staffFilter">
+      <div class="staff-pill active" data-id="all" onclick="filterStaff('all', this)">Tous</div>
+    </div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="cal-wrapper">
+    <div class="cal-header" id="calHeader">
+      <div class="cal-header-cell"></div>
+    </div>
+    <div class="cal-body" id="calBody">
+      <div style="padding:40px;text-align:center;color:var(--muted);grid-column:1/-1">
+        <div class="spinner"></div> Chargement...
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL CRÉATION RDV -->
+<div class="modal-overlay" id="createModal">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <h2>➕ Nouveau rendez-vous</h2>
+    <div class="form-group">
+      <label>Client</label>
+      <input type="text" id="clientSearch" placeholder="Chercher par nom, tél ou email..." autocomplete="off" oninput="searchCustomers()">
+      <div class="autocomplete-list" id="acList" style="display:none"></div>
+      <input type="hidden" id="selectedCustomerId">
+    </div>
+    <div class="form-group">
+      <label>Service</label>
+      <select id="serviceSelect" onchange="updateDuration()">
+        <option value="">Sélectionner un service...</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Staff</label>
+      <select id="staffSelect">
+        <option value="">Sélectionner un(e) coiffeur(se)...</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Date & heure</label>
+      <input type="datetime-local" id="startAt">
+    </div>
+    <div class="form-group">
+      <label>Durée (minutes)</label>
+      <input type="number" id="durationMin" value="60" min="15" step="15">
+    </div>
+    <div class="form-group">
+      <label>Note client</label>
+      <input type="text" id="customerNote" placeholder="Optionnel...">
+    </div>
+    <button class="btn-primary" id="createBtn" onclick="createAppointment()">Créer le rendez-vous</button>
+  </div>
+</div>
+
+<!-- MODAL DÉTAIL RDV -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <button class="close-btn" onclick="closeDetailModal()">✕</button>
+    <h2 id="detailTitle">Rendez-vous</h2>
+    <div id="detailContent"></div>
+    <div style="margin-top:20px;display:flex;gap:10px;">
+      <button class="btn-primary" style="background:var(--danger)" id="cancelBtn" onclick="cancelCurrentAppt()">
+        Annuler le RDV
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────────────────────
+const API = '';  // relative — même domaine
+let currentWeekStart = getWeekStart(new Date());
+let staffList = [];
+let serviceList = [];
+let appointments = [];
+let activeStaffFilter = 'all';
+let currentApptId = null;
+let currentApptVersion = 1;
+let autoRefreshTimer = null;
+let acTimer = null;
+
+const HOURS = Array.from({length: 11}, (_, i) => i + 9); // 9h → 19h
+const DAYS  = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+
+// Staff couleurs (par index dans la liste)
+const STAFF_COLORS = ['staff-color-0', 'staff-color-1', 'staff-color-2', 'staff-color-3', 'staff-color-4'];
+const staffColorMap = {};
+
+// ─── DATE UTILS ───────────────────────────────────────────────────────────────
+function getWeekStart(date) {
+  const d = new Date(date);
+  const day = d.getDay(); // 0=Sun, 1=Mon...
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function addDays(date, n) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+function fmtDate(d) {
+  return d.toISOString().slice(0, 10);
+}
+
+function fmtDateFR(d) {
+  return d.toLocaleDateString('fr-CA', { day: 'numeric', month: 'short' });
+}
+
+function fmtTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Toronto' });
+}
+
+function isToday(date) {
+  const t = new Date();
+  return date.getDate() === t.getDate() && date.getMonth() === t.getMonth() && date.getFullYear() === t.getFullYear();
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+function prevWeek() { currentWeekStart = addDays(currentWeekStart, -7); loadAppointments(); }
+function nextWeek() { currentWeekStart = addDays(currentWeekStart, 7);  loadAppointments(); }
+
+function updateWeekLabel() {
+  const end = addDays(currentWeekStart, 6);
+  document.getElementById('weekLabel').textContent = `${fmtDateFR(currentWeekStart)} — ${fmtDateFR(end)}`;
+}
+
+// ─── STAFF FILTER ─────────────────────────────────────────────────────────────
+function filterStaff(id, el) {
+  activeStaffFilter = id;
+  document.querySelectorAll('.staff-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderCalendar();
+}
+
+function buildStaffFilter() {
+  const container = document.getElementById('staffFilter');
+  container.innerHTML = '<div class="staff-pill active" data-id="all" onclick="filterStaff(\'all\', this)">Tous</div>';
+  staffList.forEach((s, i) => {
+    staffColorMap[s.id] = STAFF_COLORS[i % STAFF_COLORS.length];
+    const pill = document.createElement('div');
+    pill.className = 'staff-pill';
+    pill.dataset.id = s.id;
+    pill.textContent = s.name || s.givenName;
+    pill.onclick = function() { filterStaff(s.id, this); };
+    container.appendChild(pill);
+  });
+}
+
+// ─── LOAD DATA ────────────────────────────────────────────────────────────────
+async function loadStaff() {
+  try {
+    const r = await fetch(`${API}/api/sq-calendar/staff`);
+    const data = await r.json();
+    staffList = data.staff || [];
+    document.getElementById('statStaff').textContent = staffList.length;
+    buildStaffFilter();
+    // Populate staff select in modal
+    const sel = document.getElementById('staffSelect');
+    sel.innerHTML = '<option value="">Sélectionner...</option>';
+    staffList.forEach(s => {
+      const o = document.createElement('option');
+      o.value = s.id;
+      o.textContent = s.name || s.givenName;
+      sel.appendChild(o);
+    });
+  } catch (e) {
+    console.error('Staff load error:', e);
+  }
+}
+
+async function loadServices() {
+  try {
+    const r = await fetch(`${API}/api/sq-calendar/services`);
+    const data = await r.json();
+    serviceList = data.services || [];
+    document.getElementById('statServices').textContent = serviceList.length;
+    const sel = document.getElementById('serviceSelect');
+    sel.innerHTML = '<option value="">Sélectionner un service...</option>';
+    serviceList.forEach(s => {
+      const o = document.createElement('option');
+      o.value = s.id;
+      o.dataset.duration = s.durationMin || 60;
+      o.textContent = `${s.name}${s.price ? ' — ' + s.price + ' $' : ''}`;
+      sel.appendChild(o);
+    });
+  } catch (e) {
+    console.error('Services load error:', e);
+  }
+}
+
+async function loadAppointments() {
+  const icon = document.getElementById('refreshIcon');
+  icon.innerHTML = '<span class="spinner" style="width:14px;height:14px;display:inline-block"></span>';
+
+  const start = fmtDate(currentWeekStart);
+  const end   = fmtDate(addDays(currentWeekStart, 6));
+  updateWeekLabel();
+
+  try {
+    const r = await fetch(`${API}/api/sq-calendar/appointments?start=${start}&end=${end}`);
+    const data = await r.json();
+    appointments = data.appointments || [];
+    document.getElementById('statTotal').textContent = appointments.length;
+
+    const todayStr = fmtDate(new Date());
+    const todayCount = appointments.filter(a => a.startAt && a.startAt.startsWith(todayStr)).length;
+    document.getElementById('statToday').textContent = todayCount;
+
+    renderCalendar();
+  } catch (e) {
+    console.error('Appointments load error:', e);
+    showToast('Erreur chargement RDV: ' + e.message, 'error');
+  }
+  icon.textContent = '↻';
+}
+
+// ─── RENDER CALENDAR ──────────────────────────────────────────────────────────
+function renderCalendar() {
+  renderHeader();
+  renderBody();
+}
+
+function renderHeader() {
+  const header = document.getElementById('calHeader');
+  header.innerHTML = '<div class="cal-header-cell"></div>';
+  for (let d = 0; d < 7; d++) {
+    const day = addDays(currentWeekStart, d);
+    const cell = document.createElement('div');
+    cell.className = 'cal-header-cell' + (isToday(day) ? ' today' : '');
+    cell.innerHTML = `<span class="day-num">${day.getDate()}</span>${DAYS[d]}`;
+    header.appendChild(cell);
+  }
+}
+
+function renderBody() {
+  const body = document.getElementById('calBody');
+  body.innerHTML = '';
+
+  // Time column
+  const timeCol = document.createElement('div');
+  timeCol.className = 'time-col';
+  HOURS.forEach(h => {
+    const slot = document.createElement('div');
+    slot.className = 'time-slot';
+    slot.textContent = `${h}:00`;
+    timeCol.appendChild(slot);
+  });
+  body.appendChild(timeCol);
+
+  // Filter appointments
+  const filtered = activeStaffFilter === 'all'
+    ? appointments
+    : appointments.filter(a => a.staffId === activeStaffFilter);
+
+  // Day columns
+  for (let d = 0; d < 7; d++) {
+    const day = addDays(currentWeekStart, d);
+    const dayStr = fmtDate(day);
+    const col = document.createElement('div');
+    col.className = 'day-col';
+    col.style.position = 'relative';
+
+    // Hour cells
+    HOURS.forEach(h => {
+      const cell = document.createElement('div');
+      cell.className = 'hour-cell';
+      cell.innerHTML = '<span class="add-btn">+</span>';
+      cell.onclick = () => openCreateModal(day, h);
+      col.appendChild(cell);
+    });
+
+    // Place appointments
+    const dayAppts = filtered.filter(a => a.startAt && a.startAt.slice(0, 10) === dayStr && a.status !== 'CANCELLED');
+    dayAppts.forEach(appt => placeApptCard(col, appt));
+
+    body.appendChild(col);
+  }
+}
+
+function placeApptCard(col, appt) {
+  const startDate = new Date(appt.startAt);
+  const startH = startDate.getUTCHours() - (startDate.getTimezoneOffset() / -60 || 0);
+  // Adapter à la timezone Eastern (UTC-4 en été, UTC-5 en hiver)
+  const localDate = new Date(appt.startAt);
+  const h = localDate.toLocaleString('fr-CA', { hour: 'numeric', hour12: false, timeZone: 'America/Toronto' });
+  const m = localDate.toLocaleString('fr-CA', { minute: 'numeric', timeZone: 'America/Toronto' });
+  const hNum = parseInt(h, 10);
+  const mNum = parseInt(m, 10) || 0;
+
+  if (hNum < 9 || hNum >= 20) return; // hors plage
+
+  const topOffset  = (hNum - 9) * 64 + (mNum / 60) * 64;
+  const duration   = appt.duration || 60;
+  const heightPx   = Math.max(32, (duration / 60) * 64);
+
+  const card = document.createElement('div');
+  // Trouver index du staff pour la couleur
+  const staffIdx = staffList.findIndex(s => s.id === appt.staffId);
+  const colorClass = STAFF_COLORS[staffIdx >= 0 ? staffIdx % STAFF_COLORS.length : 0];
+  card.className = `appt-card ${colorClass}`;
+  card.style.top    = `${topOffset}px`;
+  card.style.height = `${heightPx}px`;
+
+  const staffName = staffList.find(s => s.id === appt.staffId)?.name || '';
+  const svcName   = serviceList.find(s => s.id === appt.serviceId)?.name || '';
+
+  card.innerHTML = `
+    <div class="appt-client">${appt.customerNote || 'Client'}</div>
+    <div class="appt-service">${svcName || staffName || '—'}</div>
+    <div class="appt-time">${fmtTime(appt.startAt)} · ${duration}min</div>
+    <button class="btn-cancel" onclick="event.stopPropagation(); confirmCancel('${appt.id}', ${appt.version || 1})">✕</button>
+  `;
+  card.onclick = () => openDetailModal(appt);
+  col.appendChild(card);
+}
+
+// ─── DETAIL MODAL ─────────────────────────────────────────────────────────────
+function openDetailModal(appt) {
+  currentApptId = appt.id;
+  currentApptVersion = appt.version || 1;
+  const svcName   = serviceList.find(s => s.id === appt.serviceId)?.name || '—';
+  const staffName = staffList.find(s => s.id === appt.staffId)?.name || '—';
+
+  document.getElementById('detailTitle').textContent = '📅 Rendez-vous';
+  document.getElementById('detailContent').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:12px;font-size:14px;">
+      <div><span style="color:var(--muted)">Client :</span> <strong>${appt.customerNote || appt.customerId || '—'}</strong></div>
+      <div><span style="color:var(--muted)">Service :</span> ${svcName}</div>
+      <div><span style="color:var(--muted)">Staff :</span> ${staffName}</div>
+      <div><span style="color:var(--muted)">Heure :</span> ${fmtTime(appt.startAt)}</div>
+      <div><span style="color:var(--muted)">Durée :</span> ${appt.duration || 60} min</div>
+      <div><span style="color:var(--muted)">Statut :</span> <span style="color:${appt.status==='CANCELLED'?'var(--danger)':'var(--success)'}">${appt.status}</span></div>
+      <div><span style="color:var(--muted)">ID :</span> <code style="font-size:10px;color:var(--muted)">${appt.id}</code></div>
+    </div>
+  `;
+
+  document.getElementById('cancelBtn').style.display = appt.status === 'CANCELLED' ? 'none' : 'block';
+  document.getElementById('detailModal').classList.add('active');
+}
+
+function closeDetailModal() {
+  document.getElementById('detailModal').classList.remove('active');
+  currentApptId = null;
+}
+
+async function cancelCurrentAppt() {
+  if (!currentApptId) return;
+  if (!confirm('Annuler ce rendez-vous ?')) return;
+  await doCancel(currentApptId, currentApptVersion);
+  closeDetailModal();
+}
+
+async function confirmCancel(id, version) {
+  if (!confirm('Annuler ce rendez-vous ?')) return;
+  await doCancel(id, version);
+}
+
+async function doCancel(id, version) {
+  try {
+    const r = await fetch(`${API}/api/sq-calendar/appointments/${id}/cancel`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ version }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Erreur annulation');
+    showToast('RDV annulé ✓', 'success');
+    loadAppointments();
+  } catch (e) {
+    showToast('Erreur: ' + e.message, 'error');
+  }
+}
+
+// ─── CREATE MODAL ─────────────────────────────────────────────────────────────
+function openCreateModal(day, hour) {
+  const dt = new Date(day);
+  dt.setHours(hour, 0, 0, 0);
+  // Format for datetime-local input
+  const localISO = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  document.getElementById('startAt').value = localISO;
+  document.getElementById('clientSearch').value = '';
+  document.getElementById('selectedCustomerId').value = '';
+  document.getElementById('acList').style.display = 'none';
+  document.getElementById('customerNote').value = '';
+  document.getElementById('createModal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('createModal').classList.remove('active');
+}
+
+function updateDuration() {
+  const sel = document.getElementById('serviceSelect');
+  const opt = sel.options[sel.selectedIndex];
+  if (opt && opt.dataset.duration) {
+    document.getElementById('durationMin').value = opt.dataset.duration;
+  }
+}
+
+async function searchCustomers() {
+  clearTimeout(acTimer);
+  const q = document.getElementById('clientSearch').value.trim();
+  if (q.length < 2) { document.getElementById('acList').style.display = 'none'; return; }
+
+  acTimer = setTimeout(async () => {
+    try {
+      const r = await fetch(`${API}/api/sq-calendar/customers/search?q=${encodeURIComponent(q)}`);
+      const data = await r.json();
+      const list = document.getElementById('acList');
+      if (!data.customers?.length) { list.style.display = 'none'; return; }
+      list.innerHTML = '';
+      data.customers.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'ac-item';
+        item.textContent = `${c.name} ${c.phone ? '· ' + c.phone : ''}`;
+        item.onclick = () => {
+          document.getElementById('clientSearch').value = c.name;
+          document.getElementById('selectedCustomerId').value = c.id;
+          document.getElementById('customerNote').value = c.name;
+          list.style.display = 'none';
+        };
+        list.appendChild(item);
+      });
+      list.style.display = 'block';
+    } catch (e) { console.warn('Autocomplete:', e.message); }
+  }, 300);
+}
+
+async function createAppointment() {
+  const serviceId   = document.getElementById('serviceSelect').value;
+  const staffId     = document.getElementById('staffSelect').value;
+  const startAt     = document.getElementById('startAt').value;
+  const duration    = parseInt(document.getElementById('durationMin').value, 10);
+  const customerId  = document.getElementById('selectedCustomerId').value;
+  const customerNote = document.getElementById('customerNote').value;
+
+  if (!serviceId || !staffId || !startAt) {
+    showToast('Service, staff et heure sont requis', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('createBtn');
+  btn.disabled = true;
+  btn.textContent = 'Création en cours...';
+
+  try {
+    // Convert local datetime to ISO
+    const startISO = new Date(startAt).toISOString();
+    const r = await fetch(`${API}/api/sq-calendar/appointments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ serviceId, staffId, customerId: customerId || undefined, startAt: startISO, durationMinutes: duration, customerNote }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Erreur création');
+    showToast('RDV créé avec succès ✓', 'success');
+    closeModal();
+    loadAppointments();
+  } catch (e) {
+    showToast('Erreur: ' + e.message, 'error');
+  }
+  btn.disabled = false;
+  btn.textContent = 'Créer le rendez-vous';
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = (type === 'success' ? '✓ ' : '✕ ') + msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+// ─── AUTO-REFRESH ─────────────────────────────────────────────────────────────
+function startAutoRefresh() {
+  if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+  let countdown = 60;
+  const statusEl = document.getElementById('autoRefreshStatus');
+  autoRefreshTimer = setInterval(() => {
+    countdown--;
+    statusEl.textContent = `Auto-refresh: ${countdown}s`;
+    if (countdown <= 0) {
+      countdown = 60;
+      loadAppointments();
+    }
+  }, 1000);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+async function init() {
+  await Promise.all([loadStaff(), loadServices()]);
+  await loadAppointments();
+  startAutoRefresh();
+}
+
+// Close modals on overlay click
+document.getElementById('createModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('createModal')) closeModal();
+});
+document.getElementById('detailModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('detailModal')) closeDetailModal();
+});
+
+init();
+</script>
+</body>
+</html>

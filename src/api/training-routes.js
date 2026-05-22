@@ -124,4 +124,55 @@ router.get('/few-shot/:intent?', async (req, res) => {
   }
 });
 
+// ─── PULL META MESSENGER ─────────────────────────────────────────────────────
+const metaHistoryPuller = require('../services/meta-history-puller');
+
+/**
+ * POST /api/training/pull/messenger
+ * Déclenche le pull Meta Graph API des conversations Messenger
+ */
+router.post('/pull/messenger', async (req, res) => {
+  try {
+    console.log('[TRAINING] Déclenchement pull Messenger...');
+    // Lancement asynchrone pour ne pas bloquer la réponse HTTP
+    const pullPromise = metaHistoryPuller.pullAll();
+    // Répondre immédiatement puis laisser le pull tourner
+    res.json({ ok: true, message: 'Pull Messenger démarré en arrière-plan', status: 'running' });
+    // Attendre la fin du pull et loguer
+    pullPromise.then(result => {
+      console.log('[TRAINING] Pull Messenger terminé:', JSON.stringify(result));
+    }).catch(err => {
+      console.error('[TRAINING] Pull Messenger erreur:', err.message);
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * POST /api/training/pull/messenger/sync
+ * Version synchrone — attend la fin du pull pour retourner les stats
+ */
+router.post('/pull/messenger/sync', async (req, res) => {
+  try {
+    const result = await metaHistoryPuller.pullAll();
+    res.json({ ok: true, source: 'messenger', ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * GET /api/training/sync-status
+ * Retourne le dernier curseur + stats de sync
+ */
+router.get('/sync-status', async (_req, res) => {
+  try {
+    const status = await metaHistoryPuller.getSyncStatus();
+    res.json(status);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

@@ -105,6 +105,7 @@ app.use('/api/dashboard', require('./api/voice-dashboard-routes')); // Jarvis �
 app.use('/api/salon', require('./api/salon-ops-routes'));  // V35 — Arrivée VIP + ratings + bouclier Google
 app.use('/api/staff', require('./api/staff-routes'));       // V35 — /api/staff/scan-qr
 app.use('/api/training', require('./api/training-routes')); // V31 — Ingestion conversations historiques + Style DNA
+app.use('/api/sq-calendar', require('./api/square-calendar-routes')); // Chantier 2 — Calendrier Square multi-staff
 
 // Middleware erreurs (Point 12)
 app.use(errorMiddleware);
@@ -174,6 +175,11 @@ app.post('/api/auth/studio-token', (req, res) => {
   if (!expected || secret !== expected) return res.status(401).json({ error: 'Secret invalide' });
   const { generateStudioToken } = require('./middleware/studio-auth');
   res.json({ token: generateStudioToken({ email: 'ulrich@kadio' }) });
+});
+
+// Chantier 2 — Calendrier Square multi-staff
+app.get('/admin/calendar', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin/calendar.html'));
 });
 
 // [273-274] Interface admin locataires
@@ -337,6 +343,22 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   const mediaPipeline = require('./services/media-pipeline');
   mediaPipeline.init().catch(e => console.warn('[Boot] Media pipeline:', e.message));
   setInterval(mediaPipeline.runPublishWorker, 30 * 60 * 1000);
+
+  // Chantier 1 — Meta History Puller : pull au démarrage si vide, puis toutes les 6h
+  const metaHistoryPuller = require('./services/meta-history-puller');
+  metaHistoryPuller.ensureSyncTable().catch(e => console.warn('[Boot] sync_state:', e.message));
+  setImmediate(async () => {
+    try {
+      const isEmpty = await metaHistoryPuller.isTrainingTableEmpty();
+      if (isEmpty) {
+        console.log('[META-PULLER] Table vide — pull initial au démarrage...');
+        await metaHistoryPuller.pullAll();
+      }
+    } catch (e) { console.warn('[META-PULLER] Pull initial:', e.message); }
+  });
+  setInterval(() => {
+    metaHistoryPuller.pullAll().catch(e => console.warn('[META-PULLER] Pull 6h:', e.message));
+  }, 6 * 60 * 60 * 1000); // toutes les 6h
 
   // [Manifeste] Comptabilité — init tables
   const accounting = require('./services/accounting');
