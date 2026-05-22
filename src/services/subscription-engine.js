@@ -348,6 +348,82 @@ async function getStaffCommissions(staffId, month) {
   return r.rows;
 }
 
+
+// ─── PASSES PRÉPAYÉES — TABLE + DÉDUCTION ────────────────────────────────────
+
+async function ensurePassesTable() {
+  if (DEMO_MODE || !pool) return;
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS subscription_passes (
+        id SERIAL PRIMARY KEY,
+        subscriber_id VARCHAR(255),
+        plan_name VARCHAR(255),
+        total_sessions INT,
+        sessions_remaining INT,
+        paid_amount DECIMAL(10,2),
+        valid_until DATE,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+  } catch (e) {
+    console.warn('[subscription-engine] ensurePassesTable:', e.message);
+  }
+}
+ensurePassesTable();
+
+/**
+ * deductPass(subscriberId, serviceUsed)
+ * Décrémente le compteur sessions_remaining sur la passe active du subscriber.
+ * Returns: { success, sessionsRemaining, message }
+ */
+async function deductPass(subscriberId, serviceUsed = '') {
+  if (DEMO_MODE || !pool) {
+    return { success: false, error: 'Mode démo — DB non disponible' };
+  }
+  try {
+    // Chercher passe active
+    const r = await pool.query(
+      `SELECT * FROM subscription_passes
+       WHERE subscriber_id = $1
+         AND sessions_remaining > 0
+         AND (valid_until IS NULL OR valid_until >= CURRENT_DATE)
+       ORDER BY created_at ASC
+       LIMIT 1`,
+      [subscriberId]
+    );
+    if (r.rowCount === 0) {
+      return { success: false, message: 'Aucune passe active trouvée pour ce client.' };
+    }
+    const pass = r.rows[0];
+    const newRemaining = pass.sessions_remaining - 1;
+    const exhausted = newRemaining === 0;
+
+    await pool.query(
+      `UPDATE subscription_passes
+       SET sessions_remaining = $1
+       WHERE id = $2`,
+      [newRemaining, pass.id]
+    );
+
+    console.log(`[subscription-engine] deductPass: subscriber=${subscriberId} service="${serviceUsed}" remaining=${newRemaining}`);
+    return {
+      success: true,
+      passId: pass.id,
+      planName: pass.plan_name,
+      sessionsRemaining: newRemaining,
+      totalSessions: pass.total_sessions,
+      exhausted,
+      message: exhausted
+        ? `Passe épuisée. Toutes les ${pass.total_sessions} séances ont été utilisées.`
+        : `Séance déduite. Il vous reste ${newRemaining} séance${newRemaining > 1 ? 's' : ''}.`,
+    };
+  } catch (e) {
+    console.error('[subscription-engine] deductPass:', e.message);
+    return { success: false, error: e.message };
+  }
+}
+
 module.exports = {
   FORFAITS,
   calculateTaxes,
@@ -366,4 +442,6 @@ module.exports = {
   consumeWeeklyWash,
   resetWeeklyWashes,
   getStaffCommissions,
+  deductPass,
+  ensurePassesTable,
 };
