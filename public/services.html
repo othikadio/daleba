@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Services — Kadio Coiffure</title>
-  <meta name="description" content="Catalogue complet des services de Kadio Coiffure : tresses, locks, barbier, extensions, soins. Prix réels depuis Square." />
+  <meta name="description" content="Catalogue complet de Kadio Coiffure : tresses, locks, barbier, extensions, soins. Prix réels Square." />
   <link rel="stylesheet" href="/assets/css/salon.css" />
 </head>
 <body>
@@ -18,22 +18,22 @@
       <li><a href="/team.html">Équipe</a></li>
       <li><a href="/booking.html" class="btn btn-primary btn-sm">Réserver</a></li>
     </ul>
-    <button class="nav-toggle" id="navToggle" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
   </div>
 </nav>
 
 <div class="page-header">
-  <div class="subtitle">Notre catalogue</div>
+  <div class="subtitle">Catalogue live Square</div>
   <h1>Nos Services</h1>
   <div class="divider"></div>
-  <p style="color:var(--text-muted);max-width:500px;margin:0.75rem auto 0">Prix réels, mises à jour depuis notre système Square. Tous les prix en CAD.</p>
+  <p style="color:var(--text-muted);max-width:500px;margin:0.75rem auto 0">
+    Prix réels mis à jour depuis Square. Dépôt de 20% requis à la réservation — <strong>sauf Barbier (sans acompte)</strong>.
+  </p>
 </div>
 
+<!-- ═══ CATALOGUE SERVICES ═══ -->
 <section class="section">
   <div class="container">
-    <!-- Filter Tabs -->
     <div class="filter-tabs" id="filterTabs">
       <button class="filter-tab active" data-cat="all">Tous</button>
       <button class="filter-tab" data-cat="Locks">🔒 Locks & Dreads</button>
@@ -43,22 +43,103 @@
       <button class="filter-tab" data-cat="Soins">✨ Soins & Couleur</button>
     </div>
 
-    <!-- Services Grid -->
-    <div id="servicesGrid" class="grid grid-3">
-      <div class="loading"><div class="spinner"></div> Chargement des services…</div>
+    <!-- Légende dépôt -->
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:2rem">
+      <span class="badge">💳 Acompte 20% à la réservation</span>
+      <span class="badge" style="background:rgba(34,197,94,0.12);color:#4ade80;border-color:rgba(34,197,94,0.3)">✅ Sans acompte</span>
     </div>
 
-    <!-- CTA -->
+    <div id="servicesGrid" class="grid grid-3">
+      <div class="loading" style="grid-column:1/-1"><div class="spinner"></div> Chargement depuis Square…</div>
+    </div>
+
     <div style="text-align:center;margin-top:3rem">
-      <p style="margin-bottom:1.25rem;font-size:1.05rem">Prêt à prendre soin de vous ?</p>
-      <a href="/booking.html" class="btn btn-primary btn-lg">📅 Réserver maintenant</a>
+      <a href="/booking.html" class="btn btn-primary btn-lg">📅 Prendre rendez-vous →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FORFAITS & ABONNEMENTS ═══ -->
+<section class="section section-alt" id="forfaits">
+  <div class="container">
+    <div class="section-header">
+      <div class="subtitle">Économisez plus</div>
+      <h2>Forfaits & Abonnements</h2>
+      <div class="divider"></div>
+      <p>Des formules avantageuses pour vos services réguliers. Payez moins, profitez plus.</p>
+    </div>
+
+    <div class="grid grid-2" style="max-width:800px;margin:0 auto">
+      <!-- Abonnement Barbier -->
+      <div class="card" style="border-color:rgba(201,168,76,0.5);position:relative;overflow:visible">
+        <div style="position:absolute;top:-12px;right:1.5rem">
+          <span class="badge" style="background:var(--gold);color:var(--primary)">Populaire</span>
+        </div>
+        <div class="card-body" style="text-align:center">
+          <div style="font-size:2.8rem;margin-bottom:0.75rem">💈</div>
+          <h3 style="margin-bottom:0.5rem">Abonnement Barbier</h3>
+          <div class="badge badge-accent" style="margin-bottom:0.75rem">Mensuel · Sans acompte</div>
+          <p style="font-size:0.9rem;margin-bottom:1.25rem">4 coupes/mois avec Mariel Yonkeu. Économisez 25% par rapport au tarif à la séance.</p>
+          <div style="margin-bottom:0.25rem">
+            <span style="font-size:2.2rem;font-family:'Playfair Display',serif;color:var(--gold)">120$</span>
+            <span style="color:var(--text-muted)"> CAD/mois</span>
+          </div>
+          <div style="text-decoration:line-through;color:var(--text-muted);font-size:0.85rem;margin-bottom:1.25rem">4 séances = 160$</div>
+          <ul style="text-align:left;margin-bottom:1.5rem;font-size:0.88rem">
+            <li style="padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.05)">✅ 4 coupes par mois</li>
+            <li style="padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.05)">✅ Sans acompte à la réservation</li>
+            <li style="padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.05)">✅ Priorité de créneaux</li>
+            <li style="padding:0.3rem 0">✅ Valable 30 jours</li>
+          </ul>
+          <a href="/booking.html#forfaitsSection" class="btn btn-primary" style="width:100%">Souscrire →</a>
+        </div>
+      </div>
+
+      <!-- Passe 5 Services -->
+      <div class="card" style="border-color:rgba(139,26,74,0.5)">
+        <div class="card-body" style="text-align:center">
+          <div style="font-size:2.8rem;margin-bottom:0.75rem">🎟️</div>
+          <h3 style="margin-bottom:0.5rem">Passe 5 Services</h3>
+          <div class="badge badge-accent" style="margin-bottom:0.75rem">Multi-services · 6 mois</div>
+          <p style="font-size:0.9rem;margin-bottom:1.25rem">5 séances au choix (tresses, locks, soins…). Prépayez pour obtenir 10% de réduction automatique.</p>
+          <div style="margin-bottom:1.25rem">
+            <span style="font-size:2.2rem;font-family:'Playfair Display',serif;color:var(--gold)">–10%</span>
+            <span style="color:var(--text-muted)"> sur 5 séances</span>
+          </div>
+          <ul style="text-align:left;margin-bottom:1.5rem;font-size:0.88rem">
+            <li style="padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.05)">🎟️ 5 séances au choix</li>
+            <li style="padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.05)">🎟️ 10% de réduction automatique</li>
+            <li style="padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.05)">🎟️ Valable 6 mois</li>
+            <li style="padding:0.3rem 0">🎟️ Utilisable par 1 ou plusieurs personnes</li>
+          </ul>
+          <a href="/booking.html#forfaitsSection" class="btn btn-accent" style="width:100%">Acheter →</a>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:2rem">
+      <p style="color:var(--text-muted);font-size:0.9rem">Questions sur les forfaits ? Appelez-nous au <a href="tel:+15149195970">514-919-5970</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section class="section">
+  <div class="container">
+    <div class="cta-banner">
+      <h2>Prêt à vous faire beau ?</h2>
+      <p>Réservation en ligne, dépôt de 20% pour sécuriser votre créneau — zéro frais pour le barbier.</p>
+      <div class="cta-actions">
+        <a href="/booking.html" class="btn btn-primary btn-lg">📅 Réserver maintenant</a>
+        <a href="tel:+15149195970" class="btn btn-outline">📞 514-919-5970</a>
+      </div>
     </div>
   </div>
 </section>
 
 <footer>
   <div class="container">
-    <div class="footer-bottom" style="padding-top:0;border-top:none;justify-content:space-between;padding:1.5rem 0">
+    <div class="footer-bottom" style="padding:1.5rem 0;border-top:none">
       <p>© 2025 Kadio Coiffure · <a href="tel:+15149195970">514-919-5970</a> · 615 Antoinette-Robidoux, local 100, Longueuil</p>
       <a href="/" class="btn btn-sm btn-outline">← Accueil</a>
     </div>
@@ -66,82 +147,62 @@
 </footer>
 
 <script>
-window.addEventListener('scroll', () => {
-  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
-});
-document.getElementById('navToggle').addEventListener('click', () => {
-  document.getElementById('navLinks').classList.toggle('open');
-});
+window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', scrollY > 50));
+document.getElementById('navToggle').addEventListener('click', () => document.getElementById('navLinks').classList.toggle('open'));
 
-const CATEGORIES = {
-  lock: 'Locks', dread: 'Locks', interlock: 'Locks', microloc: 'Locks',
-  'tresse': 'Tresses', braid: 'Tresses', knotless: 'Tresses', twist: 'Tresses',
-  extension: 'Extensions', tissage: 'Extensions',
-  barb: 'Barbier', 'coupe barb': 'Barbier',
-  color: 'Soins', soin: 'Soins', coloration: 'Soins',
-};
-
-function categorize(name) {
-  const n = name.toLowerCase();
-  for (const [kw, cat] of Object.entries(CATEGORIES)) {
-    if (n.includes(kw)) return cat;
-  }
-  return 'Autre';
-}
-
-function icon(cat) {
-  return { Locks:'🔒', Tresses:'🪢', Extensions:'🌿', Barbier:'💈', Soins:'✨', Autre:'💇' }[cat] || '💇';
-}
-
-function cleanName(name) {
-  // Remove English part after /
-  const parts = name.split('/');
-  return parts[0].trim();
-}
-
-function renderServices(services, activeFilter) {
-  const grid = document.getElementById('servicesGrid');
-  const filtered = activeFilter === 'all' ? services : services.filter(s => s.category === activeFilter);
-
-  if (!filtered.length) {
-    grid.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem">Aucun service dans cette catégorie.</p>';
-    return;
-  }
-
-  grid.innerHTML = filtered.map(s => `
-    <div class="card service-card fade-in" data-cat="${s.category}">
-      <div class="icon">${icon(s.category)}</div>
-      <div class="badge badge-accent" style="margin-bottom:0.75rem">${s.category}</div>
-      <h3 style="font-size:1rem;margin-bottom:0.5rem">${cleanName(s.name)}</h3>
-      ${s.description ? `<p style="font-size:0.82rem;margin-bottom:0.75rem">${s.description.slice(0,100)}${s.description.length>100?'…':''}</p>` : ''}
-      <div style="display:flex;gap:0.75rem;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:auto;padding-top:0.75rem">
-        ${s.price > 0 ? `<span class="price-tag">${s.price}$ CAD</span>` : `<span class="price-tag" style="color:var(--text-muted)">Prix sur devis</span>`}
-        ${s.durationMin ? `<span style="color:var(--text-muted);font-size:0.8rem">⏱ ${s.durationMin} min</span>` : ''}
-      </div>
-      <a href="/booking.html?serviceId=${s.id}" class="btn btn-sm btn-outline" style="margin-top:1rem">Réserver →</a>
-    </div>
-  `).join('');
+function catIcon(c) {
+  return { Locks:'🔒', Tresses:'🪢', Extensions:'🌿', Barbier:'💈', Soins:'✨', Autre:'💇' }[c] || '💇';
 }
 
 let allServices = [];
 let activeFilter = 'all';
 
+function renderServices() {
+  const grid = document.getElementById('servicesGrid');
+  const list = activeFilter === 'all' ? allServices : allServices.filter(s => s.category === activeFilter);
+
+  if (!list.length) {
+    grid.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem;grid-column:1/-1">Aucun service dans cette catégorie.</p>';
+    return;
+  }
+
+  grid.innerHTML = list.map(s => {
+    const price = parseFloat(s.price);
+    const depositBadge = s.depositWaived
+      ? `<span class="badge" style="background:rgba(34,197,94,0.12);color:#4ade80;border-color:rgba(34,197,94,0.3);font-size:0.7rem">✅ Sans acompte</span>`
+      : `<span class="badge" style="font-size:0.7rem">💳 Acompte ${s.depositAmount > 0 ? s.depositAmount+'$ ' : ''}20%</span>`;
+    return `
+      <div class="card fade-in" style="display:flex;flex-direction:column">
+        <div class="card-body" style="flex:1;text-align:center;padding:1.5rem">
+          <div style="font-size:2rem;margin-bottom:0.5rem">${catIcon(s.category)}</div>
+          <div class="badge badge-accent" style="margin-bottom:0.75rem;font-size:0.72rem">${s.category}</div>
+          <h3 style="font-size:0.95rem;margin-bottom:0.5rem;min-height:2.5rem">${s.displayName.slice(0,60)}${s.displayName.length>60?'…':''}</h3>
+          ${s.description ? `<p style="font-size:0.8rem;margin-bottom:0.75rem;min-height:1.5rem">${s.description.slice(0,80)}${s.description.length>80?'…':''}</p>` : '<div style="min-height:1.5rem"></div>'}
+          <div style="display:flex;align-items:center;justify-content:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.75rem">
+            <span style="color:var(--gold);font-weight:600;font-size:0.95rem">${price > 0 ? price.toFixed(0)+'$ CAD' : 'Prix sur devis'}</span>
+            ${s.durationMin ? `<span style="color:var(--text-muted);font-size:0.8rem">⏱ ${s.durationMin}min</span>` : ''}
+          </div>
+          <div style="margin-bottom:1rem">${depositBadge}</div>
+        </div>
+        <div style="padding:0 1.5rem 1.5rem">
+          <a href="/booking.html?serviceId=${s.id}" class="btn btn-outline" style="width:100%;font-size:0.85rem">Réserver →</a>
+        </div>
+      </div>`;
+  }).join('');
+}
+
 async function loadServices() {
   try {
-    const res = await fetch('/api/public/services');
-    const data = await res.json();
-    allServices = (data.services || []).map(s => ({ ...s, category: categorize(s.name) }));
-    renderServices(allServices, activeFilter);
-  } catch (e) {
-    // Fallback static data
-    allServices = [
-      { id:'1', name:'Resserage de locks interlock', price: 120, durationMin: 120, category:'Locks' },
-      { id:'2', name:'Resserages interlock microlocks', price: 300, durationMin: 360, category:'Locks' },
-      { id:'3', name:'Tresses knotless petites avec extensions', price: 0, durationMin: 480, category:'Tresses' },
-      { id:'4', name:'Coupe barbier avec beard', price: 40, durationMin: 60, category:'Barbier' },
-      { id:'5', name:'Coloration cheveux courts', price: 50, durationMin: 150, category:'Soins' },
-    ];
-    renderServices(allServices, activeFilter);
+    const r = await fetch('/api/public/services');
+    const d = await r.json();
+    allServices = d.services || [];
+    renderServices();
+  } catch(e) {
+    document.getElementById('servicesGrid').innerHTML = `
+      <div style="grid-column:1/-1;text-align:center">
+        <p style="color:var(--text-muted)">Erreur de chargement. Veuillez recharger la page.</p>
+        <button class="btn btn-outline" style="margin-top:1rem" onclick="loadServices()">↻ Réessayer</button>
+      </div>`;
   }
 }
 
@@ -151,7 +212,7 @@ document.getElementById('filterTabs').addEventListener('click', e => {
   document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   activeFilter = btn.dataset.cat;
-  renderServices(allServices, activeFilter);
+  renderServices();
 });
 
 loadServices();

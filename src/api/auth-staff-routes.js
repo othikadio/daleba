@@ -212,6 +212,34 @@ router.post('/change-pin', requireAuth, async (req, res) => {
   }
 });
 
+/* ── POST /seed-test-pass (one-time seeder, admin only) ── */
+router.post('/seed-test-pass', requireAdmin, async (req, res) => {
+  try {
+    await pool.query(`CREATE TABLE IF NOT EXISTS daleba_prepaid_passes (
+      id              SERIAL PRIMARY KEY,
+      client_name     VARCHAR(100),
+      client_phone    VARCHAR(20),
+      pass_type       VARCHAR(50),
+      services_total  INTEGER,
+      services_used   INTEGER DEFAULT 0,
+      amount_paid     DECIMAL(10,2),
+      square_payment_id VARCHAR(100),
+      stripe_session_id VARCHAR(200),
+      is_active       BOOLEAN DEFAULT true,
+      expires_at      TIMESTAMPTZ,
+      created_at      TIMESTAMPTZ DEFAULT NOW()
+    )`);
+    // Reset sequence to handle id=1 conflict
+    await pool.query(`DELETE FROM daleba_prepaid_passes WHERE client_phone='+15141234567'`);
+    await pool.query(`SELECT setval('daleba_prepaid_passes_id_seq', COALESCE((SELECT MAX(id) FROM daleba_prepaid_passes), 0))`);
+    const r = await pool.query(`INSERT INTO daleba_prepaid_passes (client_name,client_phone,pass_type,services_total,services_used,amount_paid,is_active)
+      VALUES ('Client Test','+15141234567','barbier_monthly',4,0,120.00,true) RETURNING id`);
+    res.json({ ok: true, passId: r.rows[0].id, message: 'Passe test ins\u00e9r\u00e9e avec succ\u00e8s' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;
 module.exports.requireAuth = requireAuth;
 module.exports.requireAdmin = requireAdmin;
