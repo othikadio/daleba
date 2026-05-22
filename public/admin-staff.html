@@ -6,16 +6,16 @@
   <title>DALEBA — Équipe</title>
   <style>
     :root {
-      --bg: #0a0a0f;
-      --accent: #7c3aed;
-      --accent-dim: rgba(124,58,237,0.18);
-      --success: #10b981;
-      --warn: #f59e0b;
-      --danger: #ef4444;
-      --text: #e2e8f0;
-      --muted: #64748b;
-      --card: rgba(255,255,255,0.04);
-      --border: rgba(255,255,255,0.08);
+      --bg: #FAF6F0;
+      --accent: #C4622D;
+      --accent-dim: rgba(196,98,45,0.12);
+      --success: #7A9E6E;
+      --warn: #C4622D;
+      --danger: #C0392B;
+      --text: #2D1B0E;
+      --muted: #8C7B6B;
+      --card: #FFFFFF;
+      --border: #E2D8CE;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,16 +23,16 @@
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       min-height: 100vh;
       padding: 0 0 60px;
     }
 
     /* ── Header ── */
     .header {
-      background: rgba(255,255,255,0.03);
-      border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(12px);
+      background: #FFFFFF;
+      border-bottom: 2px solid var(--accent);
+      box-shadow: 0 2px 8px rgba(196,98,45,0.08);
       padding: 14px 28px;
       display: flex;
       align-items: center;
@@ -44,17 +44,16 @@
     .logo {
       font-size: 20px;
       font-weight: 800;
-      background: linear-gradient(135deg, #7c3aed, #a78bfa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--accent);
+      font-family: Georgia, serif;
       letter-spacing: 2px;
     }
     .header-sep { color: var(--border); font-size: 18px; }
     .header-title { font-size: 14px; font-weight: 600; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; }
     .badge-count {
       background: var(--accent-dim);
-      border: 1px solid rgba(124,58,237,0.4);
-      color: #a78bfa;
+      border: 1px solid rgba(196,98,45,0.35);
+      color: var(--accent);
       font-size: 11px;
       font-weight: 700;
       padding: 2px 10px;
@@ -93,17 +92,18 @@
     .btn:active { transform: scale(0.97); }
     .btn:hover { opacity: .85; }
     .btn-accent {
-      background: linear-gradient(135deg, #7c3aed, #6d28d9);
+      background: var(--accent);
       color: #fff;
     }
+    .btn-accent:hover { background: #A8511F; }
     .btn-warn  { background: rgba(245,158,11,0.18); color: var(--warn); border: 1px solid rgba(245,158,11,0.35); }
     .btn-danger{ background: rgba(239,68,68,0.18);  color: var(--danger); border: 1px solid rgba(239,68,68,0.35); }
     .btn-muted { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--border); }
 
     /* ── Alert Banner ── */
     .alert-banner {
-      background: rgba(239,68,68,0.12);
-      border-bottom: 1px solid rgba(239,68,68,0.35);
+      background: rgba(192,57,43,0.08);
+      border-bottom: 1px solid rgba(192,57,43,0.3);
       padding: 10px 28px;
       font-size: 13px;
       color: var(--danger);
@@ -125,12 +125,12 @@
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 18px 20px;
-      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 8px rgba(44,27,14,0.06);
     }
     .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
     .stat-value { font-size: 28px; font-weight: 800; }
     .stat-sub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
-    .stat-accent { color: #a78bfa; }
+    .stat-accent { color: var(--accent); }
     .stat-success{ color: var(--success); }
     .stat-warn   { color: var(--warn); }
     .stat-text   { color: var(--text); }
@@ -156,20 +156,20 @@
       padding: 20px;
       cursor: pointer;
       transition: border-color .2s, box-shadow .2s;
-      backdrop-filter: blur(8px);
+      box-shadow: 0 1px 4px rgba(44,27,14,0.05);
     }
     .staff-card:hover {
-      border-color: rgba(124,58,237,0.45);
-      box-shadow: 0 0 22px rgba(124,58,237,0.15);
+      border-color: rgba(196,98,45,0.45);
+      box-shadow: 0 4px 16px rgba(196,98,45,0.12);
     }
     .avatar {
       width: 44px; height: 44px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      background: linear-gradient(135deg, #C4622D, #7A9E6E);
       display: flex; align-items: center; justify-content: center;
       font-size: 16px; font-weight: 800; color: #fff;
       flex-shrink: 0;
-      box-shadow: 0 0 12px rgba(124,58,237,0.4);
+      box-shadow: 0 2px 8px rgba(196,98,45,0.3);
     }
     .status-badge {
       font-size: 10px; font-weight: 700;
@@ -178,7 +178,7 @@
       letter-spacing: 0.5px;
       text-transform: uppercase;
     }
-    .s-active     { background: rgba(16,185,129,0.15); color: var(--success); border: 1px solid rgba(16,185,129,0.35); }
+    .s-active     { background: rgba(122,158,110,0.15); color: #4A7A3A; border: 1px solid rgba(122,158,110,0.35); }
     .s-on_leave   { background: rgba(245,158,11,0.15); color: var(--warn);    border: 1px solid rgba(245,158,11,0.35); }
     .s-terminated { background: rgba(239,68,68,0.15);  color: var(--danger);  border: 1px solid rgba(239,68,68,0.35); }
 
@@ -196,9 +196,9 @@
     .skills-row { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
     .skill-tag {
       font-size: 10px; padding: 2px 8px;
-      background: rgba(124,58,237,0.12);
-      border: 1px solid rgba(124,58,237,0.25);
-      color: #a78bfa;
+      background: rgba(196,98,45,0.08);
+      border: 1px solid rgba(196,98,45,0.2);
+      color: var(--accent);
       border-radius: 999px;
     }
 
@@ -208,7 +208,7 @@
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 22px 24px;
-      backdrop-filter: blur(8px);
+      box-shadow: 0 1px 4px rgba(44,27,14,0.05);
       overflow-x: auto;
     }
     table { width: 100%; border-collapse: collapse; }
@@ -223,11 +223,11 @@
       white-space: nowrap;
     }
     tbody tr { transition: background .15s; }
-    tbody tr:hover { background: rgba(255,255,255,0.03); }
+    tbody tr:hover { background: rgba(196,98,45,0.04); }
     tbody td {
       padding: 10px 12px;
       font-size: 13px;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
+      border-bottom: 1px solid var(--border);
       white-space: nowrap;
     }
 
@@ -235,7 +235,7 @@
     .modal {
       display: none;
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.65);
+      background: rgba(44,27,14,0.4);
       backdrop-filter: blur(6px);
       z-index: 500;
       align-items: center;
@@ -243,13 +243,13 @@
     }
     .modal.show { display: flex; }
     .modal-box {
-      background: #16161f;
+      background: #FFFFFF;
       border: 1px solid var(--border);
       border-radius: 18px;
       padding: 28px;
       width: 400px;
       max-width: 95vw;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+      box-shadow: 0 16px 48px rgba(44,27,14,0.2);
     }
     .modal-box h4 { font-size: 16px; font-weight: 700; margin-bottom: 20px; }
     .modal-box label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 6px; margin-top: 14px; }
@@ -257,11 +257,11 @@
       width: 100%; accent-color: var(--accent);
       height: 4px; cursor: pointer;
     }
-    .range-val { font-size: 13px; font-weight: 700; color: #a78bfa; margin-top: 4px; text-align: right; }
+    .range-val { font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 4px; text-align: right; }
     .modal-box input[type=datetime-local],
     .modal-box input[type=text] {
       width: 100%;
-      background: rgba(255,255,255,0.06);
+      background: var(--bg);
       border: 1px solid var(--border);
       border-radius: 8px;
       color: var(--text);
@@ -272,7 +272,7 @@
       transition: border-color .15s;
     }
     .modal-box input[type=datetime-local]:focus,
-    .modal-box input[type=text]:focus { border-color: rgba(124,58,237,0.5); }
+    .modal-box input[type=text]:focus { border-color: rgba(196,98,45,0.5); }
     .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
 
     /* ── Responsive ── */
@@ -291,8 +291,8 @@
     .spinner {
       display: inline-block;
       width: 14px; height: 14px;
-      border: 2px solid rgba(255,255,255,0.2);
-      border-top-color: #fff;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
       border-radius: 50%;
       animation: spin .7s linear infinite;
       vertical-align: middle;
