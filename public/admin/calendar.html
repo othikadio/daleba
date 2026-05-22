@@ -448,8 +448,11 @@ let appointments = [];
 let activeStaffFilter = 'all';
 let currentApptId = null;
 let currentApptVersion = 1;
+let currentApptDbId = null;
 let autoRefreshTimer = null;
 let acTimer = null;
+let currentView = 'week';
+let notifStatus = {};
 
 const HOURS = Array.from({length: 11}, (_, i) => i + 9); // 9h → 19h
 const DAYS  = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
@@ -491,6 +494,18 @@ function fmtTime(iso) {
 function isToday(date) {
   const t = new Date();
   return date.getDate() === t.getDate() && date.getMonth() === t.getMonth() && date.getFullYear() === t.getFullYear();
+}
+
+// ─── VIEW SWITCH ─────────────────────────────────────────────────────────────
+function switchView(view) {
+  currentView = view;
+  document.getElementById('tabWeek').classList.toggle('active', view === 'week');
+  document.getElementById('tabToday').classList.toggle('active', view === 'today');
+  document.getElementById('weekView').style.display  = view === 'week'  ? '' : 'none';
+  document.getElementById('todayView').style.display = view === 'today' ? '' : 'none';
+  document.getElementById('weekNav').style.display   = view === 'week'  ? '' : 'none';
+  document.getElementById('staffFilter').style.display = view === 'week' ? 'flex' : 'none';
+  if (view === 'today') renderTodayList();
 }
 
 // ─── NAVIGATION ───────────────────────────────────────────────────────────────
@@ -566,6 +581,24 @@ async function loadServices() {
   }
 }
 
+async function loadNotifStatus() {
+  try {
+    const r = await fetch(`${API}/api/notifications/pending`);
+    if (!r.ok) return;
+    const data = await r.json();
+    notifStatus = {};
+    (data.bookings || []).forEach(b => {
+      notifStatus[`db_${b.id}`] = b;
+    });
+    const confirmed = Object.values(notifStatus).filter(b => b.confirm_sent).length;
+    const noSms     = Object.values(notifStatus).filter(b => !b.confirm_sent).length;
+    document.getElementById('statConfirmed').textContent = confirmed;
+    document.getElementById('statNoSms').textContent = noSms;
+  } catch (e) {
+    console.warn('Notif status load:', e.message);
+  }
+}
+
 async function loadAppointments() {
   const icon = document.getElementById('refreshIcon');
   icon.innerHTML = '<span class="spinner" style="width:14px;height:14px;display:inline-block"></span>';
@@ -575,8 +608,11 @@ async function loadAppointments() {
   updateWeekLabel();
 
   try {
-    const r = await fetch(`${API}/api/sq-calendar/appointments?start=${start}&end=${end}`);
-    const data = await r.json();
+    const [apptRes] = await Promise.all([
+      fetch(`${API}/api/sq-calendar/appointments?start=${start}&end=${end}`),
+      loadNotifStatus(),
+    ]);
+    const data = await apptRes.json();
     appointments = data.appointments || [];
     document.getElementById('statTotal').textContent = appointments.length;
 
@@ -585,6 +621,7 @@ async function loadAppointments() {
     document.getElementById('statToday').textContent = todayCount;
 
     renderCalendar();
+    if (currentView === 'today') renderTodayList();
   } catch (e) {
     console.error('Appointments load error:', e);
     showToast('Erreur chargement RDV: ' + e.message, 'error');
@@ -682,7 +719,14 @@ function placeApptCard(col, appt) {
   const staffName = staffList.find(s => s.id === appt.staffId)?.name || '';
   const svcName   = serviceList.find(s => s.id === appt.serviceId)?.name || '';
 
+  const dbKey   = `db_${appt.dbId}`;
+  const nStatus = notifStatus[dbKey];
+  const smsBadge = appt.dbId
+    ? `<div class="sms-badge ${nStatus?.confirm_sent ? 'sent' : ''}">${nStatus?.confirm_sent ? '✓' : '!'}</div>`
+    : '';
+
   card.innerHTML = `
+    ${smsBadge}
     <div class="appt-client">${appt.customerNote || 'Client'}</div>
     <div class="appt-service">${svcName || staffName || '—'}</div>
     <div class="appt-time">${fmtTime(appt.startAt)} · ${duration}min</div>
@@ -692,12 +736,84 @@ function placeApptCard(col, appt) {
   col.appendChild(card);
 }
 
+// ─── TODAY LIST VIEW
+function renderTodayList() {
+  const todayStr = fmtDate(new Date());
+  const todayAppts = appointments
+    .filter(a => a.startAt && a.startAt.slice(0,10) === todayStr && a.status !== 'CANCELLED')
+    .sort((a, b) => new Date(a.startAt) - new Date(b.startAt));
+
+  const container = document.getElementById('todayList');
+
+  if (!todayAppts.length) {
+    container.innerHTML = '<div class="no-appts">🎉 Aucun rendez-vous aujourd\'hui</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  todayAppts.forEach(appt => {
+    const staffName2 = staffList.find(s => s.id === appt.staffId)?.name || 'Coiffeur';
+    const svcName2   = serviceList.find(s => s.id === appt.serviceId)?.name || 'Service';
+    const timeStr    = fmtTime(appt.startAt);
+    const dbKey2     = `db_${appt.dbId}`;
+    const ns2        = notifStatus[dbKey2];
+    const smsSent    = ns2?.confirm_sent;
+
+    const card2 = document.createElement('div');
+    card2.className = 'today-appt-card';
+    card2.innerHTML = `
+      <div class="today-time">${timeStr}</div>
+      <div class="today-info">
+        <div class="today-client">${appt.customerNote || 'Client'}</div>
+        <div class="today-service">${svcName2}</div>
+        <div class="today-staff">✂️ ${staffName2} · ${appt.duration || 60}min</div>
+      </div>
+      <div class="today-actions">
+        ${appt.dbId ? `<button class="btn-sms ${smsSent ? 'sent' : ''}" onclick="event.stopPropagation(); quickSms(${appt.dbId}, 'confirm', this)">
+          ${smsSent ? '✅ SMS' : '📱 SMS'}
+        </button>` : ''}
+        ${appt.dbId ? `<button class="btn-sms" style="border-color:var(--accent2);color:var(--accent2)" onclick="event.stopPropagation(); quickSms(${appt.dbId}, 'remind_24h', this)">
+          ⏰ Rappel
+        </button>` : ''}
+      </div>
+    `;
+    card2.onclick = () => openDetailModal(appt);
+    container.appendChild(card2);
+  });
+}
+
+async function quickSms(dbId, type, btn) {
+  const orig = btn.textContent.trim();
+  btn.textContent = '...';
+  btn.disabled = true;
+  try {
+    const r = await fetch(`${API}/api/notifications/send-now/${dbId}/${type}`, { method: 'POST' });
+    const data = await r.json();
+    if (data.success || data.demo) {
+      btn.textContent = '✅ Envoyé';
+      btn.classList.add('sent');
+      showToast('SMS envoyé ✓', 'success');
+      await loadNotifStatus();
+    } else {
+      btn.textContent = orig;
+      showToast('Erreur: ' + (data.error || 'Inconnue'), 'error');
+    }
+  } catch (e) {
+    btn.textContent = orig;
+    showToast('Erreur SMS: ' + e.message, 'error');
+  }
+  btn.disabled = false;
+}
+
 // ─── DETAIL MODAL ─────────────────────────────────────────────────────────────
 function openDetailModal(appt) {
   currentApptId = appt.id;
   currentApptVersion = appt.version || 1;
+  currentApptDbId = appt.dbId || null;
   const svcName   = serviceList.find(s => s.id === appt.serviceId)?.name || '—';
   const staffName = staffList.find(s => s.id === appt.staffId)?.name || '—';
+  const dbKey     = `db_${appt.dbId}`;
+  const nStatus   = notifStatus[dbKey] || {};
 
   document.getElementById('detailTitle').textContent = '📅 Rendez-vous';
   document.getElementById('detailContent').innerHTML = `
@@ -708,12 +824,39 @@ function openDetailModal(appt) {
       <div><span style="color:var(--muted)">Heure :</span> ${fmtTime(appt.startAt)}</div>
       <div><span style="color:var(--muted)">Durée :</span> ${appt.duration || 60} min</div>
       <div><span style="color:var(--muted)">Statut :</span> <span style="color:${appt.status==='CANCELLED'?'var(--danger)':'var(--success)'}">${appt.status}</span></div>
+      <div><span style="color:var(--muted)">SMS confirm :</span> <span style="color:${nStatus.confirm_sent ? 'var(--success)' : 'var(--warning)'}">${nStatus.confirm_sent ? '✅ Envoyé' : '⚠️ Non envoyé'}</span></div>
+      <div><span style="color:var(--muted)">Rappel 24h :</span> <span style="color:${nStatus.remind_24h_sent ? 'var(--success)' : 'var(--muted)'}">${nStatus.remind_24h_sent ? '✅' : '—'}</span></div>
       <div><span style="color:var(--muted)">ID :</span> <code style="font-size:10px;color:var(--muted)">${appt.id}</code></div>
     </div>
   `;
 
+  const smsVisible = appt.dbId ? 'inline-flex' : 'none';
   document.getElementById('cancelBtn').style.display = appt.status === 'CANCELLED' ? 'none' : 'block';
+  document.getElementById('smsConfirmBtn').style.display = smsVisible;
+  document.getElementById('smsRemindBtn').style.display  = smsVisible;
   document.getElementById('detailModal').classList.add('active');
+}
+
+async function sendSmsFromModal(type) {
+  if (!currentApptDbId) return showToast('SMS non disponible pour les RDV Square directs', 'error');
+  const btn = type === 'confirm' ? document.getElementById('smsConfirmBtn') : document.getElementById('smsRemindBtn');
+  const orig = btn.textContent.trim();
+  btn.textContent = '...';
+  btn.disabled = true;
+  try {
+    const r = await fetch(`${API}/api/notifications/send-now/${currentApptDbId}/${type}`, { method: 'POST' });
+    const data = await r.json();
+    if (data.success || data.demo) {
+      showToast('SMS envoyé ✓', 'success');
+      await loadNotifStatus();
+    } else {
+      showToast('Erreur: ' + (data.error || 'Inconnue'), 'error');
+    }
+  } catch (e) {
+    showToast('Erreur SMS: ' + e.message, 'error');
+  }
+  btn.textContent = orig;
+  btn.disabled = false;
 }
 
 function closeDetailModal() {
@@ -871,6 +1014,7 @@ async function init() {
   await Promise.all([loadStaff(), loadServices()]);
   await loadAppointments();
   startAutoRefresh();
+  loadNotifStatus();
 }
 
 // Close modals on overlay click

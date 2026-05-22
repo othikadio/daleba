@@ -106,6 +106,7 @@ app.use('/api/salon', require('./api/salon-ops-routes'));  // V35 — Arrivée V
 app.use('/api/staff', require('./api/staff-routes'));       // V35 — /api/staff/scan-qr
 app.use('/api/training', require('./api/training-routes')); // V31 — Ingestion conversations historiques + Style DNA
 app.use('/api/sq-calendar', require('./api/square-calendar-routes')); // Chantier 2 — Calendrier Square multi-staff
+app.use('/api/public', require('./api/public-booking-routes')); // Site public — booking Kadio Coiffure
 app.use('/api/staff-auth', require('./api/auth-staff-routes')); // Authentification staff JWT + PIN
 app.use('/api/staff-portal', require('./api/staff-portal-routes')); // Portail staff — dashboard, notes, agenda
 app.use('/api/notifications', require('./api/notification-routes')); // Chantier A — SMS auto RDV

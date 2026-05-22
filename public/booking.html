@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Réservation — Kadio Coiffure</title>
+  <meta name="description" content="Prenez rendez-vous en ligne chez Kadio Coiffure. Choisissez votre service, votre coiffeur, et votre créneau." />
+  <link rel="stylesheet" href="/assets/css/salon.css" />
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Kadio <span>Coiffure</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/">Accueil</a></li>
+      <li><a href="/services.html">Services</a></li>
+      <li><a href="/team.html">Équipe</a></li>
+      <li><a href="/booking.html" class="btn btn-primary btn-sm active">Réserver</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="page-header" style="padding-bottom:3rem">
+  <div class="subtitle">En ligne, 24h/24</div>
+  <h1>Réservation</h1>
+  <div class="divider"></div>
+  <p style="color:var(--text-muted);margin:0.75rem auto 0;max-width:480px">Prenez rendez-vous en 4 étapes simples. Confirmation par SMS immédiate.</p>
+</div>
+
+<section class="section" style="padding-top:2rem">
+  <div class="container">
+    <div class="booking-wrapper">
+      <!-- Steps Header -->
+      <div class="booking-steps">
+        <div class="step-item active" id="step-nav-1">
+          <div><div class="step-num" id="snum1">1</div></div>
+          <div>Service</div>
+        </div>
+        <div class="step-item" id="step-nav-2">
+          <div><div class="step-num" id="snum2">2</div></div>
+          <div>Coiffeur</div>
+        </div>
+        <div class="step-item" id="step-nav-3">
+          <div><div class="step-num" id="snum3">3</div></div>
+          <div>Date & Heure</div>
+        </div>
+        <div class="step-item" id="step-nav-4">
+          <div><div class="step-num" id="snum4">4</div></div>
+          <div>Confirmation</div>
+        </div>
+      </div>
+
+      <div class="step-body">
+
+        <!-- ── STEP 1: Service ── -->
+        <div class="step-panel active" id="panel-1">
+          <h3 class="step-title">Choisissez un service</h3>
+          <div id="alertStep1"></div>
+          <div class="filter-tabs" id="serviceFilterTabs" style="justify-content:flex-start;margin-bottom:1.25rem">
+            <button class="filter-tab active" data-cat="all">Tous</button>
+            <button class="filter-tab" data-cat="Locks">🔒 Locks</button>
+            <button class="filter-tab" data-cat="Tresses">🪢 Tresses</button>
+            <button class="filter-tab" data-cat="Extensions">🌿 Extensions</button>
+            <button class="filter-tab" data-cat="Barbier">💈 Barbier</button>
+            <button class="filter-tab" data-cat="Soins">✨ Soins</button>
+          </div>
+          <div id="servicesList" style="max-height:400px;overflow-y:auto">
+            <div class="loading"><div class="spinner"></div> Chargement…</div>
+          </div>
+          <div style="margin-top:1.5rem;text-align:right">
+            <button class="btn btn-primary" onclick="goToStep(2)" id="btnStep1Next" disabled>Suivant →</button>
+          </div>
+        </div>
+
+        <!-- ── STEP 2: Staff ── -->
+        <div class="step-panel" id="panel-2">
+          <h3 class="step-title">Choisissez votre coiffeur</h3>
+          <div id="staffList" class="staff-select-grid">
+            <div class="loading"><div class="spinner"></div> Chargement…</div>
+          </div>
+          <div style="margin-top:1.5rem;display:flex;gap:1rem;justify-content:space-between">
+            <button class="btn btn-outline" onclick="goToStep(1)">← Retour</button>
+            <button class="btn btn-primary" onclick="goToStep(3)" id="btnStep2Next" disabled>Suivant →</button>
+          </div>
+        </div>
+
+        <!-- ── STEP 3: Date + Slots ── -->
+        <div class="step-panel" id="panel-3">
+          <h3 class="step-title">Choisissez une date et un créneau</h3>
+          <div class="form-group">
+            <label for="bookDate">Date souhaitée</label>
+            <input type="date" id="bookDate" min="" />
+          </div>
+          <div class="form-group">
+            <label>Créneaux disponibles</label>
+            <div id="slotsList">
+              <p style="color:var(--text-muted);font-size:0.9rem">Sélectionnez une date pour voir les disponibilités.</p>
+            </div>
+          </div>
+          <div style="margin-top:1.5rem;display:flex;gap:1rem;justify-content:space-between">
+            <button class="btn btn-outline" onclick="goToStep(2)">← Retour</button>
+            <button class="btn btn-primary" onclick="goToStep(4)" id="btnStep3Next" disabled>Suivant →</button>
+          </div>
+        </div>
+
+        <!-- ── STEP 4: Contact + Confirm ── -->
+        <div class="step-panel" id="panel-4">
+          <h3 class="step-title">Vos coordonnées</h3>
+          <div id="bookingSummary" class="confirm-box" style="margin-bottom:1.5rem"></div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="clientFirst">Prénom *</label>
+              <input type="text" id="clientFirst" placeholder="Votre prénom" required />
+            </div>
+            <div class="form-group">
+              <label for="clientLast">Nom *</label>
+              <input type="text" id="clientLast" placeholder="Votre nom" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="clientPhone">Téléphone * (SMS)</label>
+              <input type="tel" id="clientPhone" placeholder="+1 514 555 0000" required />
+            </div>
+            <div class="form-group">
+              <label for="clientEmail">Email</label>
+              <input type="email" id="clientEmail" placeholder="votre@email.com" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="clientNote">Note pour le coiffeur (optionnel)</label>
+            <textarea id="clientNote" rows="3" placeholder="Ex: cheveux longs, allergie latex…"></textarea>
+          </div>
+          <div id="alertStep4"></div>
+          <div style="margin-top:1.5rem;display:flex;gap:1rem;justify-content:space-between">
+            <button class="btn btn-outline" onclick="goToStep(3)">← Retour</button>
+            <button class="btn btn-primary btn-lg" id="btnConfirm" onclick="confirmBooking()">✅ Confirmer le RDV</button>
+          </div>
+        </div>
+
+        <!-- ── SUCCESS ── -->
+        <div class="step-panel" id="panel-success">
+          <div class="success-box">
+            <div class="success-icon">🎉</div>
+            <h2 style="margin-bottom:0.75rem">Réservation confirmée !</h2>
+            <p id="successMsg" style="margin-bottom:1.5rem;font-size:1rem">Un SMS de confirmation a été envoyé à votre numéro.</p>
+            <div id="successDetail" class="confirm-box" style="text-align:left;max-width:400px;margin:0 auto 1.5rem"></div>
+            <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+              <a href="/" class="btn btn-outline">← Accueil</a>
+              <button class="btn btn-primary" onclick="resetBooking()">📅 Nouveau RDV</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Info Bar -->
+    <div style="text-align:center;margin-top:2rem">
+      <div class="alert alert-info" style="display:inline-flex;max-width:600px">
+        📍 615 Antoinette-Robidoux, local 100, Longueuil &nbsp;|&nbsp; 📞 514-919-5970 &nbsp;|&nbsp; Mar–Sam 9h–19h, Dim 10h–17h
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-bottom" style="padding:1.5rem 0;border-top:none">
+      <p>© 2025 Kadio Coiffure · <a href="tel:+15149195970">514-919-5970</a></p>
+      <a href="/" class="btn btn-sm btn-outline">← Accueil</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── State ──
+const state = {
+  step: 1,
+  serviceId: null, serviceName: null, servicePrice: null, serviceDuration: null,
+  staffId: null, staffName: null,
+  date: null, startAt: null, slotLabel: null,
+  allServices: [], allStaff: [],
+  serviceFilter: 'all',
+};
+
+// Read URL params
+const params = new URLSearchParams(location.search);
+if (params.get('serviceId')) state.serviceId = params.get('serviceId');
+if (params.get('staff')) state.staffId = params.get('staff');
+
+// ── Navbar ──
+window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', scrollY > 50));
+document.getElementById('navToggle').addEventListener('click', () => document.getElementById('navLinks').classList.toggle('open'));
+
+// ── Date min (today) ──
+(function() {
+  const d = new Date(); d.setDate(d.getDate() + 1);
+  document.getElementById('bookDate').min = d.toISOString().split('T')[0];
+  document.getElementById('bookDate').value = d.toISOString().split('T')[0];
+})();
+
+// ── Steps navigation ──
+function goToStep(n) {
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById(`panel-${i}`).classList.toggle('active', i === n);
+    const nav = document.getElementById(`step-nav-${i}`);
+    nav.classList.remove('active', 'done');
+    if (i === n) nav.classList.add('active');
+    else if (i < n) nav.classList.add('done');
+    const snum = document.getElementById(`snum${i}`);
+    snum.textContent = i < n ? '✓' : i;
+  }
+  document.getElementById('panel-success').classList.remove('active');
+  state.step = n;
+  if (n === 2) loadStaff();
+  if (n === 3) updateSummaryStep3();
+  if (n === 4) buildSummary();
+}
+
+// ── Categories ──
+const CATS = {
+  lock:'Locks', dread:'Locks', interlock:'Locks', microloc:'Locks',
+  tresse:'Tresses', braid:'Tresses', knotless:'Tresses', twist:'Tresses',
+  extension:'Extensions', tissage:'Extensions',
+  barb:'Barbier',
+  color:'Soins', coloration:'Soins',
+};
+function categorize(name) {
+  const n = name.toLowerCase();
+  for (const [k, v] of Object.entries(CATS)) if (n.includes(k)) return v;
+  return 'Autre';
+}
+function cleanName(name) { return name.split('/')[0].trim(); }
+function catIcon(cat) {
+  return { Locks:'🔒', Tresses:'🪢', Extensions:'🌿', Barbier:'💈', Soins:'✨', Autre:'💇' }[cat] || '💇';
+}
+
+// ── Load Services ──
+async function loadServices() {
+  try {
+    const r = await fetch('/api/public/services');
+    const d = await r.json();
+    state.allServices = (d.services || []).map(s => ({ ...s, category: categorize(s.name) }));
+  } catch(e) {
+    state.allServices = [
+      { id:'var1', name:'Resserage de locks interlock demi tête', price:120, durationMin:120 },
+      { id:'var2', name:'Tresses knotless moyennes avec extensions', price:0, durationMin:360 },
+      { id:'var3', name:'Coupe barbier avec beard', price:40, durationMin:60 },
+    ].map(s => ({ ...s, category: categorize(s.name) }));
+  }
+  renderServices();
+  // If preloaded serviceId from URL
+  if (state.serviceId) {
+    const s = state.allServices.find(x => x.id === state.serviceId);
+    if (s) { selectService(s); }
+  }
+}
+
+function renderServices() {
+  const list = document.getElementById('servicesList');
+  const filtered = state.serviceFilter === 'all'
+    ? state.allServices
+    : state.allServices.filter(s => s.category === state.serviceFilter);
+
+  if (!filtered.length) {
+    list.innerHTML = '<p style="color:var(--text-muted);padding:1rem">Aucun service dans cette catégorie.</p>';
+    return;
+  }
+
+  list.innerHTML = `<div class="service-select-grid">` + filtered.map(s => `
+    <div class="service-select-item ${state.serviceId === s.id ? 'selected' : ''}" onclick="selectService(${JSON.stringify(s).replace(/"/g,'&quot;')})">
+      <div style="font-size:1.4rem;margin-bottom:0.4rem">${catIcon(s.category)}</div>
+      <div class="sname">${cleanName(s.name).slice(0,50)}${cleanName(s.name).length>50?'…':''}</div>
+      <div class="sprice">${s.price > 0 ? s.price + '$ CAD' : 'Prix sur devis'}</div>
+      ${s.durationMin ? `<div style="color:var(--text-muted);font-size:0.75rem;margin-top:0.2rem">⏱ ${s.durationMin}min</div>` : ''}
+    </div>
+  `).join('') + `</div>`;
+}
+
+function selectService(s) {
+  state.serviceId = s.id;
+  state.serviceName = cleanName(s.name);
+  state.servicePrice = s.price;
+  state.serviceDuration = s.durationMin;
+  renderServices();
+  document.getElementById('btnStep1Next').disabled = false;
+}
+
+document.getElementById('serviceFilterTabs').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-tab');
+  if (!btn) return;
+  document.querySelectorAll('#serviceFilterTabs .filter-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.serviceFilter = btn.dataset.cat;
+  renderServices();
+});
+
+// ── Load Staff ──
+const STAFF_DATA = [
+  { id:'TMEhGkHirhYmHO2h', name:'Maya Dieynaba', shortName:'Maya', role:'Coiffeuse Afro', initials:'MD' },
+  { id:'TMoA3Pvr21QUskS1', name:'Raquel Lafortune', shortName:'Raquel', role:'Spécialiste Locks', initials:'RL' },
+  { id:'TMQ9dzPRRMFbmlW9', name:'Mariel Yonkeu', shortName:'Mariel', role:'Barbier Expert', initials:'MY' },
+  { id:'TMV-l2aFfTFgg3yM', name:'Mariane Bérubé', shortName:'Mariane', role:'Manucuriste', initials:'MB' },
+  { id:'TMMe7adVJWQa7Yjd', name:'Hervira Brenda', shortName:'Hervira', role:'Coiffeuse', initials:'HB' },
+  { id:'TMdS_nh6o1iy916q', name:'Ange Zan', shortName:'Ange', role:'Coiffeur', initials:'AZ' },
+  { id:'TMbOuVGATiQQ_fKO', name:'Ulrich Kadio', shortName:'Ulrich', role:'Gérant / Coiffeur', initials:'UK' },
+];
+
+async function loadStaff() {
+  state.allStaff = STAFF_DATA;
+  renderStaff();
+  // If preloaded staffId from URL
+  if (state.staffId && !state.staffName) {
+    const m = state.allStaff.find(x => x.id === state.staffId);
+    if (m) selectStaff(m);
+  }
+}
+
+function renderStaff() {
+  const list = document.getElementById('staffList');
+  list.innerHTML = state.allStaff.map(m => `
+    <div class="staff-select-item ${state.staffId === m.id ? 'selected' : ''}" onclick='selectStaff(${JSON.stringify(m)})'>
+      <div class="staff-avatar-sm">${m.initials}</div>
+      <div class="sname">${m.shortName}</div>
+      <div class="srole">${m.role}</div>
+    </div>
+  `).join('');
+}
+
+function selectStaff(m) {
+  state.staffId = m.id;
+  state.staffName = m.name;
+  renderStaff();
+  document.getElementById('btnStep2Next').disabled = false;
+}
+
+// ── Date / Slots ──
+document.getElementById('bookDate').addEventListener('change', async function() {
+  state.date = this.value;
+  state.startAt = null;
+  state.slotLabel = null;
+  document.getElementById('btnStep3Next').disabled = true;
+  loadSlots(state.date);
+});
+
+async function loadSlots(date) {
+  const list = document.getElementById('slotsList');
+  list.innerHTML = `<div class="loading"><div class="spinner"></div> Chargement des créneaux…</div>`;
+  try {
+    const body = {
+      date,
+      staffId: state.staffId,
+      serviceId: state.serviceId,
+      durationMinutes: state.serviceDuration || 60,
+    };
+    const r = await fetch('/api/public/availability', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const d = await r.json();
+    const slots = d.slots || [];
+    if (!slots.length) {
+      list.innerHTML = '<p style="color:var(--text-muted)">Aucun créneau disponible ce jour. Essayez une autre date.</p>';
+      return;
+    }
+    list.innerHTML = `<div class="slots-grid">${slots.map(s => `
+      <button class="slot-btn" data-start="${s.startAt}" data-label="${s.label}" onclick="selectSlot(this)">${s.label}</button>
+    `).join('')}</div>`;
+  } catch(e) {
+    // Fallback: generate synthetic slots
+    const slots = generateSlots(date);
+    list.innerHTML = `<div class="slots-grid">${slots.map(s => `
+      <button class="slot-btn" data-start="${s.startAt}" data-label="${s.label}" onclick="selectSlot(this)">${s.label}</button>
+    `).join('')}</div>`;
+  }
+}
+
+function generateSlots(date) {
+  const slots = [];
+  const hours = [9,10,11,12,13,14,15,16,17,18];
+  const day = new Date(date).getDay(); // 0=Sun
+  const maxHour = day === 0 ? 17 : 19; // Sun closes 17h, others 19h
+  const minHour = day === 0 ? 10 : 9;
+  for (const h of hours) {
+    if (h < minHour || h >= maxHour) continue;
+    for (const m of [0, 30]) {
+      const label = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+      const startAt = `${date}T${label}:00`;
+      slots.push({ startAt, label });
+    }
+  }
+  return slots;
+}
+
+function selectSlot(btn) {
+  document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.startAt = btn.dataset.start;
+  state.slotLabel = btn.dataset.label;
+  document.getElementById('btnStep3Next').disabled = false;
+}
+
+function updateSummaryStep3() {
+  // Auto load slots for current date
+  const dateInput = document.getElementById('bookDate');
+  if (dateInput.value) {
+    state.date = dateInput.value;
+    loadSlots(state.date);
+  }
+}
+
+// ── Summary ──
+function buildSummary() {
+  const dateStr = state.date ? new Date(state.date + 'T12:00:00').toLocaleDateString('fr-CA', { weekday:'long', year:'numeric', month:'long', day:'numeric' }) : '—';
+  document.getElementById('bookingSummary').innerHTML = `
+    <div class="confirm-row"><span class="ck">Service</span><span class="cv">${state.serviceName || '—'}</span></div>
+    <div class="confirm-row"><span class="ck">Coiffeur</span><span class="cv">${state.staffName || '—'}</span></div>
+    <div class="confirm-row"><span class="ck">Date</span><span class="cv">${dateStr}</span></div>
+    <div class="confirm-row"><span class="ck">Heure</span><span class="cv">${state.slotLabel || '—'}</span></div>
+    ${state.servicePrice > 0 ? `<div class="confirm-row"><span class="ck">Prix</span><span class="cv" style="color:var(--gold)">${state.servicePrice}$ CAD</span></div>` : ''}
+  `;
+}
+
+// ── Confirm Booking ──
+async function confirmBooking() {
+  const first = document.getElementById('clientFirst').value.trim();
+  const last  = document.getElementById('clientLast').value.trim();
+  const phone = document.getElementById('clientPhone').value.trim();
+  const email = document.getElementById('clientEmail').value.trim();
+  const note  = document.getElementById('clientNote').value.trim();
+  const alertEl = document.getElementById('alertStep4');
+
+  if (!first || !phone) {
+    alertEl.innerHTML = `<div class="alert alert-error">⚠️ Prénom et téléphone sont obligatoires.</div>`;
+    return;
+  }
+
+  const btn = document.getElementById('btnConfirm');
+  btn.disabled = true;
+  btn.textContent = '⌛ Confirmation en cours…';
+  alertEl.innerHTML = '';
+
+  try {
+    const r = await fetch('/api/public/book', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        serviceId: state.serviceId,
+        staffId: state.staffId,
+        startAt: state.startAt,
+        durationMinutes: state.serviceDuration || 60,
+        customer: { firstName: first, lastName: last, phone, email },
+        customerNote: note,
+      }),
+    });
+    const d = await r.json();
+
+    if (!r.ok) throw new Error(d.error || 'Erreur lors de la réservation');
+
+    // Show success
+    for (let i = 1; i <= 4; i++) document.getElementById(`panel-${i}`).classList.remove('active');
+    document.getElementById('panel-success').classList.add('active');
+
+    const dateStr = state.date ? new Date(state.date + 'T12:00:00').toLocaleDateString('fr-CA', { weekday:'long', year:'numeric', month:'long', day:'numeric' }) : '';
+    document.getElementById('successMsg').textContent = `Bonjour ${first}! Un SMS de confirmation a été envoyé au ${phone}.`;
+    document.getElementById('successDetail').innerHTML = `
+      <div class="confirm-row"><span class="ck">Service</span><span class="cv">${state.serviceName}</span></div>
+      <div class="confirm-row"><span class="ck">Avec</span><span class="cv">${state.staffName}</span></div>
+      <div class="confirm-row"><span class="ck">Date</span><span class="cv">${dateStr}</span></div>
+      <div class="confirm-row"><span class="ck">Heure</span><span class="cv">${state.slotLabel}</span></div>
+      <div class="confirm-row"><span class="ck">Référence</span><span class="cv">${(d.bookingId || d.id || 'KAD-' + Date.now()).slice(-8).toUpperCase()}</span></div>
+    `;
+
+    // Update step nav to all done
+    for (let i = 1; i <= 4; i++) {
+      const nav = document.getElementById(`step-nav-${i}`);
+      nav.classList.add('done'); nav.classList.remove('active');
+      document.getElementById(`snum${i}`).textContent = '✓';
+    }
+  } catch(err) {
+    alertEl.innerHTML = `<div class="alert alert-error">⚠️ ${err.message}</div>`;
+    btn.disabled = false;
+    btn.textContent = '✅ Confirmer le RDV';
+  }
+}
+
+function resetBooking() {
+  Object.assign(state, {
+    step:1, serviceId:null, serviceName:null, servicePrice:null, serviceDuration:null,
+    staffId:null, staffName:null, date:null, startAt:null, slotLabel:null,
+  });
+  document.getElementById('clientFirst').value = '';
+  document.getElementById('clientLast').value = '';
+  document.getElementById('clientPhone').value = '';
+  document.getElementById('clientEmail').value = '';
+  document.getElementById('clientNote').value = '';
+  document.getElementById('alertStep4').innerHTML = '';
+  document.getElementById('btnConfirm').disabled = false;
+  document.getElementById('btnConfirm').textContent = '✅ Confirmer le RDV';
+  document.getElementById('btnStep1Next').disabled = true;
+  document.getElementById('btnStep2Next').disabled = true;
+  document.getElementById('btnStep3Next').disabled = true;
+  document.getElementById('panel-success').classList.remove('active');
+  goToStep(1);
+  renderServices();
+}
+
+// ── Init ──
+loadServices();
+
+// If staff preloaded, skip to step 2 after services load
+if (params.get('staff') && !params.get('serviceId')) {
+  state.staffId = params.get('staff');
+  // Don't auto-advance, let user pick service first
+}
+</script>
+</body>
+</html>

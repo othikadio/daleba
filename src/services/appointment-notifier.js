@@ -21,15 +21,25 @@ const SQUARE_TOKEN = process.env.SQUARE_ACCESS_TOKEN;
 const LOCATION_ID  = process.env.SQUARE_LOCATION_ID || 'LTDE9RP9PSHX7';
 const SQUARE_BASE  = 'https://connect.squareup.com/v2';
 
-// Numeros coiffeurs (depuis booking-routes STAFF table)
+// Numéros coiffeurs réels (source: USER.md / vérifiés 22 mai 2026)
+// Priorité : daleba_staff DB > table statique ci-dessous
 const STAFF_PHONES = {
-  'TMQ9dzPRRMFbmlW9': '',            // Mariel
-  'TMdS_nh6o1iy916q': '',            // Ange
+  'TMQ9dzPRRMFbmlW9': '+15149539733', // Mariel Yonkeu (Barbier)
+  'TMdS_nh6o1iy916q': '+15147553039', // Ange Zan
   'STAFF-AICHA':       '+14383504840', // Aïcha
-  'TMbOuVGATiQQ_fKO': '',            // Othi
-  'STAFF-CHABRIOL':    '+16136840208', // Chabriol
-  'TMoA3Pvr21QUskS1': '',            // Raquel
+  'TMbOuVGATiQQ_fKO': '',            // Othi (pas de numéro fourni)
+  'STAFF-CHABRIOL':    '+16136840208', // Chabriol Wilfreed
+  'TMoA3Pvr21QUskS1': '+14389299781', // Raquel Lafortune
+  // Autres membres (non dans la liste Square active)
+  'STAFF-MAYA':        '+15142074649', // Maya
+  'STAFF-MARIANE':     '+14504059626', // Mariane Bérubé
+  'STAFF-HERVIRA':     '+14384544414', // Hervira Brenda
 };
+
+// ID Square du barbier Mariel (pour exception confirmation SMS)
+const BARBER_STAFF_ID = 'TMQ9dzPRRMFbmlW9';
+// Alerte admin
+const ADMIN_PHONE = '+15149845970'; // Ulrich
 
 // ─── TWILIO CLIENT ────────────────────────────────────────────────────────────
 
@@ -123,6 +133,26 @@ async function markSent(bookingId, notifType) {
   }
 }
 
+// ─── LOOKUP NUMÉRO STAFF DEPUIS daleba_staff ────────────────────────────────
+
+async function getStaffPhone(staffId) {
+  // D'abord la table statique
+  if (STAFF_PHONES[staffId]) return STAFF_PHONES[staffId];
+  // Puis daleba_staff / staff_profiles
+  if (!pool || DEMO_MODE) return '';
+  try {
+    const r = await pool.query(
+      `SELECT phone FROM daleba_staff WHERE square_id=$1 LIMIT 1
+       UNION
+       SELECT phone FROM staff_profiles WHERE square_id=$1 LIMIT 1`,
+      [staffId]
+    );
+    return r.rows[0]?.phone || '';
+  } catch (_) {
+    return '';
+  }
+}
+
 // ─── FETCH SQUARE BOOKINGS ────────────────────────────────────────────────────
 
 async function fetchSquareBookings(startAt, endAt) {
@@ -159,7 +189,10 @@ async function fetchDbBookings(startAt, endAt) {
          AND status != 'cancelled'`,
       [startAt, endAt]
     );
-    return r.rows.map(b => ({ ...b, _source: 'db', booking_id: `db_${b.id}` }));
+    return await Promise.all(r.rows.map(async b => {
+      const staffPhone = await getStaffPhone(b.staff_id || '');
+      return { ...b, _source: 'db', booking_id: `db_${b.id}`, staff_phone: staffPhone };
+    }));
   } catch (e) {
     console.warn(`${LOG} fetchDbBookings:`, e.message);
     return [];
@@ -208,7 +241,7 @@ async function normalizeSquareBooking(sq) {
 
   // Fetch team member name
   let staffName = 'Coiffeur';
-  let staffPhone = STAFF_PHONES[seg.team_member_id] || '';
+  let staffPhone = await getStaffPhone(seg.team_member_id || '');
   if (seg.team_member_id && SQUARE_TOKEN) {
     try {
       const sqH = {
@@ -242,15 +275,23 @@ async function normalizeSquareBooking(sq) {
 
 /**
  * 1. Confirmation immédiate après booking
+ * Exception barbier : "Aucun dépôt requis" vs "Dépôt de 20% requis"
  */
 async function sendConfirmation(booking) {
-  const { booking_id, client_name, client_phone, service_name, staff_name, start_at } = booking;
+  const { booking_id, client_name, client_phone, service_name, staff_name, start_at, staff_id } = booking;
   const firstName = client_name.split(' ')[0];
   const dateStr   = formatDateFR(start_at);
+
+  // Exception barbier [Mariel Yonkeu]
+  const isBarber = staff_id === BARBER_STAFF_ID;
+  const depositLine = isBarber
+    ? '✅ Aucun dépôt requis pour les services barbier'
+    : '💳 Un dépôt de 20% a été requis à la réservation';
 
   const body = `Bonjour ${firstName} ! ✅ Votre RDV chez Kadio Coiffure est confirmé :
 📅 ${dateStr}
 ✂️ ${service_name} avec ${staff_name}
+${depositLine}
 📍 615 Antoinette-Robidoux, local 100, Longueuil
 Questions ? 📞 514-919-5970`;
 
@@ -325,26 +366,26 @@ async function scanAndNotify() {
   ]);
 
   // Normaliser Square (sans fetches customer/service pour éviter trop de requêtes)
-  // On utilise une version légère sans lookup Square pour les rappels
-  const squareBookings = squareRaw.map(sq => {
+  const squareBookings = await Promise.all(squareRaw.map(async sq => {
     const seg = sq.appointment_segments?.[0] || {};
+    const staffPhone = await getStaffPhone(seg.team_member_id || '');
     return {
       booking_id:   sq.id,
       client_name:  sq.customer_note || 'Client',
-      client_phone: '',   // sans numéro Square sans lookup — on skip
+      client_phone: '',   // numéro client non disponible sans lookup Square
       service_name: seg.service_variation_id || 'Service',
       staff_name:   seg.team_member_id || 'Coiffeur',
       staff_id:     seg.team_member_id || '',
-      staff_phone:  STAFF_PHONES[seg.team_member_id] || '',
+      staff_phone:  staffPhone,
       start_at:     sq.start_at,
       duration_min: seg.duration_minutes || 60,
       status:       sq.status,
       _source:      'square',
     };
-  // Only process ACCEPTED square bookings with a phone (les DB bookings ont le téléphone)
-  }).filter(b => b.status === 'ACCEPTED' && b.client_phone);
+  }));
+  const squareFiltered = squareBookings.filter(b => b.status === 'ACCEPTED' && b.client_phone);
 
-  const allBookings = [...squareBookings, ...dbBookings];
+  const allBookings = [...squareFiltered, ...dbBookings];
   let sent = 0;
 
   for (const booking of allBookings) {
