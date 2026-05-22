@@ -1,32 +1,88 @@
 /**
  * DALEBA — Meta Messenger & Instagram DM Sender
  * Envoi de messages via Meta Graph API (Messenger + Instagram)
- * Requis pour le flux publicitaire — réponses aux prospects
+ * 
+ * Hiérarchie token:
+ *  1. DB (tenant_integrations) — token renouvelé via OAuth
+ *  2. ENV var META_ACCESS_TOKEN — fallback si DB vide
  */
+
+const { Pool } = require('pg');
 
 const GRAPH_BASE = 'https://graph.facebook.com/v19.0';
 
-function getToken() {
-  const token = process.env.META_ACCESS_TOKEN;
-  if (!token) {
-    console.warn('⚠️ META_ACCESS_TOKEN manquant — impossible d\'envoyer via Messenger/Instagram');
-    return null;
+// ─── Cache token en mémoire (TTL 5 min) ──────────────────────────────────────
+let _tokenCache = { value: null, at: 0 };
+const TOKEN_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+let _pool = null;
+function _getPool() {
+  if (!_pool && process.env.DATABASE_URL) {
+    _pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+    });
   }
-  return token;
+  return _pool;
 }
 
 /**
- * Envoie un message via Facebook Messenger ou Instagram DMs
- * @param {string} recipientId — PSID Facebook ou IGSID Instagram
- * @param {string} text — message texte
- * @param {string} platform — 'facebook' | 'instagram'
+ * Récupère le token Meta actif.
+ * 1. Cache mémoire (5 min)
+ * 2. DB tenant_integrations (provider='meta', business_id='kadio-coiffure')
+ * 3. Env var META_ACCESS_TOKEN
+ */
+async function getActiveToken() {
+  // Cache
+  if (_tokenCache.value && Date.now() - _tokenCache.at < TOKEN_CACHE_TTL) {
+    return _tokenCache.value;
+  }
+
+  // DB
+  try {
+    const pool = _getPool();
+    if (pool) {
+      const { rows } = await pool.query(
+        `SELECT access_token FROM tenant_integrations
+         WHERE provider = 'meta'
+         ORDER BY updated_at DESC LIMIT 1`
+      );
+      if (rows.length && rows[0].access_token) {
+        _tokenCache = { value: rows[0].access_token, at: Date.now() };
+        return _tokenCache.value;
+      }
+    }
+  } catch (_) { /* fallback */ }
+
+  // Env var
+  const envToken = process.env.META_ACCESS_TOKEN;
+  if (envToken) {
+    _tokenCache = { value: envToken, at: Date.now() };
+    return envToken;
+  }
+
+  console.warn('⚠️ [META] Aucun token disponible (DB vide + env var manquante)');
+  return null;
+}
+
+/**
+ * Invalide le cache token (ex: après renouvellement OAuth)
+ */
+function invalidateTokenCache() {
+  _tokenCache = { value: null, at: 0 };
+}
+
+/**
+ * Envoie un message via Meta Graph API
  */
 async function sendMetaMessage(recipientId, text, platform = 'facebook') {
-  const token = getToken();
-  if (!token) return { success: false, error: 'token_missing' };
+  const token = await getActiveToken();
+  if (!token) {
+    console.error('[META] Token manquant — impossible d\'envoyer.');
+    return { success: false, error: 'token_missing' };
+  }
 
   const endpoint = `${GRAPH_BASE}/me/messages?access_token=${token}`;
-
   const body = {
     recipient: { id: recipientId },
     message: { text },
@@ -39,46 +95,39 @@ async function sendMetaMessage(recipientId, text, platform = 'facebook') {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
-
     const data = await res.json();
+
     if (!res.ok || data.error) {
       const errMsg = data.error?.message || `HTTP ${res.status}`;
-      console.error(`❌ [META/${platform.toUpperCase()}] Envoi échoué à ${recipientId}: ${errMsg}`);
-      return { success: false, error: errMsg };
+      const code   = data.error?.code;
+      console.error(`[META/${platform.toUpperCase()}] Échec envoi à ${recipientId}: ${errMsg}`);
+      // Si token expiré (code 190), vider le cache pour le prochain appel
+      if (code === 190) {
+        invalidateTokenCache();
+        console.warn('[META] Token expiré détecté — cache vidé. Renouvellement requis via /api/oauth/meta/start.');
+      }
+      return { success: false, error: errMsg, code };
     }
 
-    console.log(`✅ [META/${platform.toUpperCase()}] Message envoyé à ${recipientId}`);
+    console.log(`[META/${platform.toUpperCase()}] Message envoyé à ${recipientId}`);
     return { success: true, messageId: data.message_id };
 
   } catch (err) {
-    console.error(`❌ [META/${platform.toUpperCase()}] Fetch error: ${err.message}`);
+    console.error(`[META/${platform.toUpperCase()}] Erreur réseau: ${err.message}`);
     return { success: false, error: err.message };
   }
 }
 
-/**
- * Envoie un message Facebook Messenger
- */
 async function sendMessengerMessage(psid, text) {
   return sendMetaMessage(psid, text, 'facebook');
 }
 
-/**
- * Envoie un message Instagram DM
- */
 async function sendInstagramMessage(igsid, text) {
   return sendMetaMessage(igsid, text, 'instagram');
 }
 
-/**
- * Envoie un message avec un bouton URL (Messenger uniquement)
- * @param {string} psid
- * @param {string} text
- * @param {string} buttonTitle
- * @param {string} buttonUrl
- */
 async function sendMessengerButtonMessage(psid, text, buttonTitle, buttonUrl) {
-  const token = getToken();
+  const token = await getActiveToken();
   if (!token) return { success: false, error: 'token_missing' };
 
   const body = {
@@ -89,14 +138,7 @@ async function sendMessengerButtonMessage(psid, text, buttonTitle, buttonUrl) {
         payload: {
           template_type: 'button',
           text,
-          buttons: [
-            {
-              type: 'web_url',
-              url: buttonUrl,
-              title: buttonTitle,
-              webview_height_ratio: 'full',
-            },
-          ],
+          buttons: [{ type: 'web_url', url: buttonUrl, title: buttonTitle, webview_height_ratio: 'full' }],
         },
       },
     },
@@ -111,12 +153,11 @@ async function sendMessengerButtonMessage(psid, text, buttonTitle, buttonUrl) {
     });
     const data = await res.json();
     if (!res.ok || data.error) {
-      // Fallback : message texte simple avec le lien
-      return sendMessengerMessage(psid, `${text}\n\n👉 ${buttonUrl}`);
+      return sendMessengerMessage(psid, `${text}\n\n${buttonUrl}`);
     }
     return { success: true, messageId: data.message_id };
-  } catch (err) {
-    return sendMessengerMessage(psid, `${text}\n\n👉 ${buttonUrl}`);
+  } catch {
+    return sendMessengerMessage(psid, `${text}\n\n${buttonUrl}`);
   }
 }
 
@@ -125,4 +166,6 @@ module.exports = {
   sendMessengerMessage,
   sendInstagramMessage,
   sendMessengerButtonMessage,
+  invalidateTokenCache,
+  getActiveToken,
 };

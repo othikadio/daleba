@@ -224,6 +224,9 @@ async function handleCallback(code, state, baseUrl) {
   // 6. Stocker en DB (table tenant_integrations)
   await _saveIntegration(tenantId, pageData, longToken);
 
+  // 7. Invalider le cache token meta-messenger
+  try { require('./meta-messenger').invalidateTokenCache(); } catch (_) {}
+
   bus.emit('meta:connected', {
     tenantId,
     pageName: pageData.pageName,
