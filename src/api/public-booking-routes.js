@@ -219,20 +219,50 @@ router.get('/services', async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 router.get('/staff', async (req, res) => {
   try {
-    // POST /v2/team-members/search — la seule API qui fonctionne pour lister les membres
-    // Note: location_ids n'est PAS supporté par ce filtre — filtrer post-requete
-    const body = { query: { filter: { status: 'ACTIVE' } } };
-    const data    = await sqPost('/v2/team-members/search', body);
-    const members = (data.team_members || []).map(m => ({
-      id:         m.id,
-      name:       [m.given_name, m.family_name].filter(Boolean).join(' '),
-      firstName:  m.given_name  || 'Coiffeur',
-      lastName:   m.family_name || '',
-      phone:      m.phone_number    || '',
-      email:      m.email_address   || '',
-      isBarbier:  BARBIER_STAFF_IDS.includes(m.id),
-    }));
-    res.json({ staff: members, count: members.length });
+    // Utiliser la même logique que square-calendar-routes.js (POST search)
+    // Le token Railway est identique — même env var SQUARE_ACCESS_TOKEN
+    const sqCalToken = process.env.SQUARE_ACCESS_TOKEN;
+    const sqCalBase  = 'https://connect.squareup.com';
+    const searchRes  = await fetch(`${sqCalBase}/v2/team-members/search`, {
+      method:  'POST',
+      headers: {
+        'Authorization':  `Bearer ${sqCalToken}`,
+        'Content-Type':   'application/json',
+        'Square-Version': '2024-02-22',
+      },
+      body: JSON.stringify({ query: { filter: { status: 'ACTIVE' } } }),
+    });
+    const data    = await searchRes.json();
+    const members = (data.team_members || [])
+      .filter(m => m.status === 'ACTIVE')
+      .map(m => ({
+        id:         m.id,
+        name:       [m.given_name, m.family_name].filter(Boolean).join(' '),
+        firstName:  m.given_name  || 'Coiffeur',
+        lastName:   m.family_name || '',
+        phone:      m.phone_number    || '',
+        email:      m.email_address   || '',
+        isBarbier:  BARBIER_STAFF_IDS.includes(m.id),
+      }));
+
+    // Si Square échoue ou retourne vide — proxy vers /api/sq-calendar/staff
+    if (!members.length && data.errors) {
+      console.warn('[public/staff] team-members/search error:', data.errors[0]?.detail, '— fallback sq-calendar');
+      const fallbackRes  = await fetch(`${req.protocol}://${req.get('host')}/api/sq-calendar/staff`);
+      const fallbackData = await fallbackRes.json();
+      const fbMembers    = (fallbackData.staff || []).map(m => ({
+        id:        m.id,
+        name:      m.name || m.givenName,
+        firstName: m.givenName || m.name.split(' ')[0],
+        lastName:  m.familyName || '',
+        phone:     m.phone || '',
+        email:     m.email || '',
+        isBarbier: BARBIER_STAFF_IDS.includes(m.id),
+      }));
+      return res.json({ staff: fbMembers, count: fbMembers.length, source: 'sq-calendar-fallback' });
+    }
+
+    res.json({ staff: members, count: members.length, source: 'square-live' });
   } catch (err) {
     console.error('[public/staff]', err.message);
     res.status(500).json({ error: err.message });
