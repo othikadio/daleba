@@ -733,17 +733,22 @@ router.post('/passes/use', async (req, res) => {
 // ── POST /api/public/deposit-info ─────────────────────────────────────────────
 router.post('/deposit-info', (req, res) => {
   try {
-    const { servicePrice, staffId } = req.body;
-    if (servicePrice === undefined || !staffId) {
-      return res.status(400).json({ error: 'servicePrice et staffId requis' });
+    const { servicePrice, staffId, serviceName = '', serviceCategory = '' } = req.body;
+    if (servicePrice === undefined) {
+      return res.status(400).json({ error: 'servicePrice requis' });
     }
     const price = Number(servicePrice);
-    const isBarbier = BARBIER_STAFF_IDS.includes(staffId);
+    // Exception barbier : 0ⓡ (par nom, catégorie OU staff ID)
+    const BARBER_KEYWORDS = ['barbier', 'barbe', 'contour', 'lineup', 'fade', 'coupe homme', 'coupe 12 ans'];
+    const isBarberByName = BARBER_KEYWORDS.some(k => serviceName.toLowerCase().includes(k));
+    const isBarberByCategory = serviceCategory.toLowerCase() === 'barbier';
+    const isBarberByStaff = staffId ? BARBIER_STAFF_IDS.includes(staffId) : false;
+    const isBarbier = isBarberByName || isBarberByCategory || isBarberByStaff;
     if (isBarbier || price <= 0) {
-      return res.json({ depositAmount: 0, depositWaived: true, reason: 'Service barbier \u2014 d\u00e9p\u00f4t non requis' });
+      return res.json({ depositAmount: 0, depositWaived: true, reason: 'Service barbier — dépôt non requis' });
     }
     const depositAmount = Math.round(price * 0.20 * 100) / 100;
-    res.json({ depositAmount, depositWaived: false, reason: 'D\u00e9p\u00f4t de s\u00e9curit\u00e9 20% requis' });
+    res.json({ depositAmount, depositWaived: false, reason: 'Dépôt de sécurité 20% requis' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
