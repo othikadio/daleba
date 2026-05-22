@@ -3,270 +3,353 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kadio Coiffure — Salon Afro à Longueuil</title>
-  <meta name="description" content="Salon de coiffure afro à Longueuil. Tresses, locks, barbier, tissage, manucure. Réservation en ligne 24/7." />
+  <title>Kadio Coiffure & Esthétique — Salon Afro, Barbier, Longueuil</title>
+  <meta name="description" content="Expert en tresses, locks, barbier, tissage et techniques afro à Longueuil, QC. Kadio Coiffure & Esthétique — un accueil chaleureux et un savoir-faire authentique." />
   <link rel="stylesheet" href="/assets/css/salon.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✂️</text></svg>" />
 </head>
 <body>
 
-<!-- ── Navigation ── -->
-<nav class="navbar" id="navbar">
-  <div class="nav-inner">
-    <a href="/" class="nav-logo">Kadio <span>Coiffure</span></a>
-    <ul class="nav-links" id="navLinks">
+<!-- ── NAVBAR ──────────────────────────────────── -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-brand">Kadio Coiffure &amp; Esthétique</a>
+    <ul class="navbar-nav" id="navMenu">
       <li><a href="/" class="active">Accueil</a></li>
-      <li><a href="/services.html">Services</a></li>
-      <li><a href="/team.html">Équipe</a></li>
-      <li><a href="/booking.html" class="btn btn-primary btn-sm">Réserver</a></li>
+      <li><a href="/menu.html">Services</a></li>
+      <li><a href="/booking.html">Réservation</a></li>
+      <li><a href="/forfaits.html">Forfaits</a></li>
+      <li><a href="/formation.html">Formation</a></li>
+      <li><a href="#contact">Contact</a></li>
     </ul>
-    <button class="nav-toggle" id="navToggle" aria-label="Menu">
-      <span></span><span></span><span></span>
+    <div class="navbar-cta">
+      <a href="/booking.html" class="btn btn-primary btn-sm">Prendre rendez-vous</a>
+    </div>
+    <button class="navbar-toggle" id="navToggle" aria-label="Menu">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="2" y1="5.5" x2="20" y2="5.5"/>
+        <line x1="2" y1="11" x2="20" y2="11"/>
+        <line x1="2" y1="16.5" x2="20" y2="16.5"/>
+      </svg>
     </button>
   </div>
 </nav>
 
-<!-- ── Hero ── -->
+<!-- ── HERO ────────────────────────────────────── -->
 <section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-particles"></div>
-  <div class="hero-content">
-    <div class="hero-text fade-in">
-      <div class="overline">Salon Afro · Longueuil</div>
-      <h1>Votre beauté,<br>notre passion</h1>
-      <p>Expert en coiffure afro, tresses, locks et barbier. Un accueil chaleureux, un savoir-faire authentique — à deux pas de Montréal.</p>
+  <div class="container">
+    <div class="hero-content">
+      <span class="hero-overline">Salon Afro · Barbier · Longueuil</span>
+      <h1>L'excellence coiffure afro à votre service</h1>
+      <p>Expert en tresses, locks, barbier, tissage et techniques afro. Un accueil chaleureux et un savoir-faire authentique — à deux pas de Montréal.</p>
       <div class="hero-actions">
-        <a href="/booking.html" class="btn btn-primary btn-lg">📅 Réserver maintenant</a>
-        <a href="/services.html" class="btn btn-outline">Voir nos services</a>
+        <a href="/booking.html" class="btn btn-primary btn-lg">Prendre rendez-vous</a>
+        <a href="/menu.html" class="btn btn-secondary btn-lg">Voir nos services</a>
       </div>
       <div class="hero-stats">
         <div class="stat-item">
-          <div class="num">7</div>
-          <div class="lbl">Experts</div>
+          <span class="stat-number">50+</span>
+          <span class="stat-label">Services disponibles</span>
         </div>
         <div class="stat-item">
-          <div class="num">50+</div>
-          <div class="lbl">Services</div>
+          <span class="stat-number">5/5</span>
+          <span class="stat-label">Satisfaction client</span>
         </div>
         <div class="stat-item">
-          <div class="num">5★</div>
-          <div class="lbl">Qualité</div>
+          <span class="stat-number">Longueuil</span>
+          <span class="stat-label">QC, Canada</span>
         </div>
-      </div>
-    </div>
-    <div class="hero-visual">
-      <div class="hero-circle">
-        <div class="hero-circle-inner">✂️</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── Services Aperçu ── -->
+<!-- ── EXPERTISES ───────────────────────────────── -->
+<section class="section" style="background: var(--white);">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-overline">Ce que nous faisons</span>
+      <h2>Nos expertises</h2>
+      <p>Un éventail complet de services coiffure afro, dispensés par des professionnels passionnés.</p>
+      <div class="divider-accent"></div>
+    </div>
+    <div class="grid-3">
+
+      <div class="service-card">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+            <path d="M8 12c0 2.21 1.79 4 4 4s4-1.79 4-4"/>
+          </svg>
+        </div>
+        <h3>Locks &amp; Dreadlocks</h3>
+        <p>Démarrage, entretien, retwist, interlock au crochet, réparation et Sisterlocks. Toutes longueurs, toutes textures.</p>
+        <a href="/menu.html#locks" class="btn btn-secondary btn-sm mt-2">Voir les tarifs</a>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 6c0 0 3-2 8-2s8 2 8 2"/>
+            <path d="M4 12c0 0 3-2 8-2s8 2 8 2"/>
+            <path d="M4 18c0 0 3-2 8-2s8 2 8 2"/>
+          </svg>
+        </div>
+        <h3>Tresses &amp; Nattes</h3>
+        <p>Knotless braids, nattes américaines, nattes collées, twist, crochet braids — de toutes tailles et longueurs.</p>
+        <a href="/menu.html#tresses" class="btn btn-secondary btn-sm mt-2">Voir les tarifs</a>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 4l2 2-2 2"/>
+            <path d="M8 6h10a2 2 0 0 1 0 4H8"/>
+            <path d="M12 14h5a2 2 0 0 1 0 4H6l-2-2"/>
+          </svg>
+        </div>
+        <h3>Barbier &amp; Coupe</h3>
+        <p>Coupes hommes, contours, barbe, dégradés. Service enfants disponible. Résultats nets et précis.</p>
+        <a href="/menu.html#barbier" class="btn btn-secondary btn-sm mt-2">Voir les tarifs</a>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M6 20v-1a6 6 0 0 1 12 0v1"/>
+          </svg>
+        </div>
+        <h3>Tissage &amp; Perruques</h3>
+        <p>Pose de lace frontale, closure, perruques, tissage — coiffure sur mesure pour chaque occasion.</p>
+        <a href="/menu.html#tissage" class="btn btn-secondary btn-sm mt-2">Voir les tarifs</a>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 12l2 2 4-4"/>
+            <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.86 0 3.58.57 5 1.53"/>
+          </svg>
+        </div>
+        <h3>Technique &amp; Soins</h3>
+        <p>Lissage, soins hydratants, mise en plis, teinture, finger coils, lavage-séchage — pour une chevelure saine.</p>
+        <a href="/menu.html#soins" class="btn btn-secondary btn-sm mt-2">Voir les tarifs</a>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </div>
+        <h3>Formations</h3>
+        <p>Certifications professionnelles en Locks et Sisterlocks. Devenez expert reconnu avec un certificat à la clé.</p>
+        <a href="/formation.html" class="btn btn-secondary btn-sm mt-2">En savoir plus</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── RÉALISATIONS ─────────────────────────────── -->
 <section class="section">
   <div class="container">
     <div class="section-header">
-      <div class="subtitle">Ce que nous faisons</div>
-      <h2>Nos Spécialités</h2>
-      <div class="divider"></div>
-      <p>De la coiffure afro traditionnelle aux soins modernes — nous maîtrisons toutes les techniques.</p>
+      <span class="section-overline">Portfolio</span>
+      <h2>Nos réalisations</h2>
+      <p>Un aperçu du travail de notre équipe — authenticité, précision et passion à chaque coiffure.</p>
+      <div class="divider-accent"></div>
     </div>
-    <div class="grid grid-3">
-      <div class="card service-card">
-        <div class="icon">🪢</div>
-        <h3>Tresses & Braids</h3>
-        <p>Box braids, knotless, tresses classiques. Styles protecteurs qui durent.</p>
-        <span class="price-tag">À partir de 80$ CAD</span>
+    <div class="gallery-grid">
+
+      <div class="gallery-item">
+        <img src="/img/realisation-1.jpg" alt="Locks retwist soignés tête complète" />
+        <span class="gallery-caption">Locks retwist — tête complète</span>
       </div>
-      <div class="card service-card">
-        <div class="icon">🔒</div>
-        <h3>Locks & Dreads</h3>
-        <p>Départ de locks, resserrage interlock, microlocks. Expertise Raquel Lafortune.</p>
-        <span class="price-tag">À partir de 100$ CAD</span>
+
+      <div class="gallery-item">
+        <img src="/img/realisation-2.jpg" alt="Knotless braids longues et précises" />
+        <span class="gallery-caption">Knotless Braids</span>
       </div>
-      <div class="card service-card">
-        <div class="icon">💈</div>
-        <h3>Barbier</h3>
-        <p>Coupe nette, fades précis, contours parfaits. Mariel Yonkeu, expert fades.</p>
-        <span class="price-tag">À partir de 40$ CAD</span>
+
+      <div class="gallery-item">
+        <img src="/img/realisation-3.jpg" alt="Coupe barbier dégradé contours nets" />
+        <span class="gallery-caption">Barbier — Dégradé contours</span>
       </div>
-      <div class="card service-card">
-        <div class="icon">💅</div>
-        <h3>Manucure</h3>
-        <p>Soins des ongles professionnels par Mariane Bérubé, manucuriste certifiée.</p>
-        <span class="price-tag">Sur devis</span>
+
+      <div class="gallery-item">
+        <img src="/img/realisation-4.jpg" alt="Tresses nattes américaines longues" />
+        <span class="gallery-caption">Nattes Américaines</span>
       </div>
-      <div class="card service-card">
-        <div class="icon">🌿</div>
-        <h3>Tissage & Extensions</h3>
-        <p>Extensions 100% naturelles, tissage complet ou demi-tête, toutes longueurs.</p>
-        <span class="price-tag">Sur devis</span>
+
+      <div class="gallery-item">
+        <img src="/img/realisation-5.jpg" alt="Pose lace frontale naturelle" />
+        <span class="gallery-caption">Pose Lace Frontale</span>
       </div>
-      <div class="card service-card">
-        <div class="icon">✨</div>
-        <h3>Soins Capillaires</h3>
-        <p>Coloration, hydratation, traitements nourrissants pour cheveux afro.</p>
-        <span class="price-tag">À partir de 50$ CAD</span>
+
+      <div class="gallery-item">
+        <img src="/img/realisation-6.jpg" alt="Sisterlocks installation complète" />
+        <span class="gallery-caption">Sisterlocks</span>
       </div>
-    </div>
-    <div style="text-align:center; margin-top:2.5rem;">
-      <a href="/services.html" class="btn btn-outline">Voir tous les services avec prix →</a>
+
     </div>
   </div>
 </section>
 
-<!-- ── Équipe Aperçu ── -->
-<section class="section section-alt">
+<!-- ── AVIS ─────────────────────────────────────── -->
+<section class="section reviews-section">
   <div class="container">
     <div class="section-header">
-      <div class="subtitle">Notre équipe</div>
-      <h2>Des Experts Passionnés</h2>
-      <div class="divider"></div>
-      <p>7 professionnels dédiés à sublimer votre beauté, chacun avec sa spécialité.</p>
+      <span class="section-overline">Témoignages</span>
+      <h2>Ce que disent nos clients</h2>
+      <p>La satisfaction de nos clients est notre plus grande fierté.</p>
+      <div class="divider-accent"></div>
     </div>
-    <div class="grid grid-4">
-      <div class="card team-card card-body">
-        <div class="team-avatar">M</div>
-        <h3>Maya</h3>
-        <div class="role">Coiffeuse Afro</div>
-        <p>Spécialiste cheveux afro, savoir-faire sénégalais</p>
-        <a href="/booking.html?staff=TMEhGkHirhYmHO2h" class="btn btn-sm btn-outline">Réserver</a>
+    <div class="grid-2" style="gap: 1.5rem;">
+
+      <div class="review-card">
+        <div class="review-header">
+          <div class="review-avatar">A</div>
+          <div class="review-meta">
+            <h4>Aminata Diallo</h4>
+            <div class="review-rating">5/5 — Google Review</div>
+          </div>
+        </div>
+        <p class="review-text">"Je viens ici depuis deux ans pour mes locks et je ne changerais pour rien au monde. Le travail est minutieux, les résultats sont toujours impeccables. On se sent vraiment prise en charge."</p>
       </div>
-      <div class="card team-card card-body">
-        <div class="team-avatar">R</div>
-        <h3>Raquel</h3>
-        <div class="role">Spécialiste Locks</div>
-        <p>Experte locks & dreads, toutes techniques</p>
-        <a href="/booking.html?staff=TMoA3Pvr21QUskS1" class="btn btn-sm btn-outline">Réserver</a>
+
+      <div class="review-card">
+        <div class="review-header">
+          <div class="review-avatar" style="background: var(--sage);">K</div>
+          <div class="review-meta">
+            <h4>Koffi Mensah</h4>
+            <div class="review-rating">5/5 — Google Review</div>
+          </div>
+        </div>
+        <p class="review-text">"Meilleur barbier de Longueuil, sans hésitation. Contours parfaits, barbe bien soignée et une ambiance top. Je recommande à tous mes amis."</p>
       </div>
-      <div class="card team-card card-body">
-        <div class="team-avatar">Y</div>
-        <h3>Mariel Yonkeu</h3>
-        <div class="role">Barbier Expert</div>
-        <p>Expert fades, contours et coupes nettes</p>
-        <a href="/booking.html?staff=TMQ9dzPRRMFbmlW9" class="btn btn-sm btn-outline">Réserver</a>
+
+      <div class="review-card">
+        <div class="review-header">
+          <div class="review-avatar" style="background: var(--terracotta-dark);">F</div>
+          <div class="review-meta">
+            <h4>Fatou Camara</h4>
+            <div class="review-rating">5/5 — Google Review</div>
+          </div>
+        </div>
+        <p class="review-text">"J'ai fait mes knotless braids ici et le résultat était au-delà de mes attentes. L'équipe est professionnelle, patiente et attentive à chaque détail. Je reviendrai certainement."</p>
       </div>
-      <div class="card team-card card-body">
-        <div class="team-avatar">Ma</div>
-        <h3>Mariane</h3>
-        <div class="role">Manucuriste</div>
-        <p>Soins ongles professionnels et nail art</p>
-        <a href="/booking.html?staff=TMV-l2aFfTFgg3yM" class="btn btn-sm btn-outline">Réserver</a>
+
+      <div class="review-card">
+        <div class="review-header">
+          <div class="review-avatar" style="background: #8B6E4E;">M</div>
+          <div class="review-meta">
+            <h4>Moussa Konaté</h4>
+            <div class="review-rating">5/5 — Google Review</div>
+          </div>
+        </div>
+        <p class="review-text">"Excellente première expérience pour la pose de lace frontale. Propre, rapide et très naturel. Le salon est bien situé et l'accueil est chaleureux. Un vrai salon de qualité."</p>
       </div>
+
     </div>
-    <div style="text-align:center; margin-top:2rem;">
-      <a href="/team.html" class="btn btn-outline">Toute l'équipe →</a>
+    <div class="review-link">
+      <a href="https://g.page/r/kadiocoiffure" target="_blank" rel="noopener" class="btn btn-secondary">Voir tous nos avis Google</a>
     </div>
   </div>
 </section>
 
-<!-- ── Pourquoi Nous ── -->
-<section class="section">
+<!-- ── CONTACT ──────────────────────────────────── -->
+<section class="section contact-section" id="contact">
   <div class="container">
-    <div class="section-header">
-      <div class="subtitle">Pourquoi nous choisir</div>
-      <h2>L'Excellence, Toujours</h2>
-      <div class="divider"></div>
-    </div>
-    <div class="grid grid-3">
-      <div class="card why-card">
-        <div class="number">01</div>
-        <h3>Expertise Authentique</h3>
-        <p>Nos coiffeurs viennent d'horizons riches — Sénégal, Afrique, Québec — avec des techniques transmises de génération en génération.</p>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <span class="section-overline">Nous trouver</span>
+        <h2>Venez nous rendre visite</h2>
+        <p>Notre salon est situé au coeur de Longueuil, facilement accessible depuis Montréal.</p>
+
+        <div class="contact-item">
+          <div class="contact-item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+          <div class="contact-item-text">
+            <strong>Adresse</strong>
+            <span>615 Antoinette Robidoux, local 100<br>Longueuil, QC J4J 2V8</span>
+          </div>
+        </div>
+
+        <div class="contact-item">
+          <div class="contact-item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.5 2 2 0 0 1 3.6 1.32h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.68 2.81a2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6 6l1.04-.96a2 2 0 0 1 2.11-.45c.91.32 1.85.55 2.81.68A2 2 0 0 1 21.88 16z"/>
+            </svg>
+          </div>
+          <div class="contact-item-text">
+            <strong>Téléphone</strong>
+            <a href="tel:+15149195970">(514) 919-5970</a>
+          </div>
+        </div>
+
+        <div class="contact-item">
+          <div class="contact-item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </div>
+          <div class="contact-item-text">
+            <strong>Courriel</strong>
+            <a href="mailto:kadiocoiffureetesthetique@yahoo.com">kadiocoiffureetesthetique@yahoo.com</a>
+          </div>
+        </div>
+
+        <div class="contact-item">
+          <div class="contact-item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="contact-item-text">
+            <strong>Horaires</strong>
+            <span>Sur rendez-vous — contactez le salon pour les horaires</span>
+          </div>
+        </div>
       </div>
-      <div class="card why-card">
-        <div class="number">02</div>
-        <h3>Qualité Premium</h3>
-        <p>Produits professionnels sélectionnés, soins adaptés à chaque type de cheveu. Le résultat qui dépasse vos attentes, à chaque visite.</p>
-      </div>
-      <div class="card why-card">
-        <div class="number">03</div>
-        <h3>Accueil Chaleureux</h3>
-        <p>Un salon comme une famille. Ambiance accueillante, écoute personnalisée, et votre confort avant tout — dès la première visite.</p>
+
+      <div>
+        <div class="card" style="padding: 0;">
+          <div style="background: var(--cream-dark); border-radius: var(--radius-md); padding: 2.5rem; display: flex; flex-direction: column; gap: 1.25rem;">
+            <h3 style="font-size: 1.2rem;">Prendre rendez-vous</h3>
+            <p style="margin: 0;">Réservez en ligne 24h/24, 7j/7. Rapide, simple et confirmé instantanément.</p>
+            <a href="/booking.html" class="btn btn-primary">Réserver maintenant</a>
+            <a href="/forfaits.html" class="btn btn-secondary">Voir les forfaits mensuels</a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── CTA Final ── -->
-<section class="section">
-  <div class="container">
-    <div class="cta-banner">
-      <h2>Prêt·e à vous faire beau?</h2>
-      <p>Prenez rendez-vous en ligne en moins de 2 minutes. Disponible Mar–Sam 9h–19h, Dim 10h–17h.</p>
-      <div class="cta-actions">
-        <a href="/booking.html" class="btn btn-primary btn-lg">📅 Réserver maintenant</a>
-        <a href="https://wa.me/15149195970" class="btn btn-outline">💬 WhatsApp</a>
-        <a href="tel:+15149195970" class="btn btn-outline">📞 514-919-5970</a>
-      </div>
+<!-- ── FOOTER ───────────────────────────────────── -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Kadio Coiffure &amp; Esthétique</div>
+    <div class="footer-copy">
+      615 Antoinette Robidoux, local 100, Longueuil, QC &nbsp;|&nbsp; <a href="mailto:kadiocoiffureetesthetique@yahoo.com" style="color: rgba(255,255,255,0.6);">kadiocoiffureetesthetique@yahoo.com</a>
     </div>
-  </div>
-</section>
-
-<!-- ── Footer ── -->
-<footer>
-  <div class="container">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <div class="nav-logo" style="margin-bottom:0.5rem">Kadio <span>Coiffure</span></div>
-        <p>Salon de coiffure afro à Longueuil. Experts en tresses, locks, barbier et soins capillaires depuis des années.</p>
-        <div class="social-links" style="margin-top:1.25rem">
-          <a href="#" aria-label="Instagram">📸</a>
-          <a href="#" aria-label="Facebook">👤</a>
-          <a href="https://wa.me/15149195970" aria-label="WhatsApp">💬</a>
-        </div>
-      </div>
-      <div class="footer-col">
-        <h4>Services</h4>
-        <ul>
-          <li><a href="/services.html#tresses">Tresses & Braids</a></li>
-          <li><a href="/services.html#locks">Locks & Dreads</a></li>
-          <li><a href="/services.html#barbier">Barbier</a></li>
-          <li><a href="/services.html#extensions">Extensions</a></li>
-          <li><a href="/services.html#soins">Soins</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Navigation</h4>
-        <ul>
-          <li><a href="/">Accueil</a></li>
-          <li><a href="/services.html">Services</a></li>
-          <li><a href="/team.html">Équipe</a></li>
-          <li><a href="/booking.html">Réservation</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Contact</h4>
-        <div class="contact-item">
-          <span class="ico">📍</span>
-          <span>615 Antoinette-Robidoux, local 100<br>Longueuil, QC J4J 2V8</span>
-        </div>
-        <div class="contact-item">
-          <span class="ico">📞</span>
-          <span><a href="tel:+15149195970">514-919-5970</a></span>
-        </div>
-        <div class="contact-item">
-          <span class="ico">🕐</span>
-          <span>Mar–Sam 9h–19h<br>Dim 10h–17h | Lun Fermé</span>
-        </div>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>© 2025 Kadio Coiffure. Tous droits réservés.</p>
-      <p>Powered by DALEBA</p>
-    </div>
+    <div class="footer-copy">&copy; 2025 Kadio Coiffure &amp; Esthétique. Tous droits réservés.</div>
   </div>
 </footer>
 
 <script>
-// Navbar scroll effect
-window.addEventListener('scroll', () => {
-  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
-});
-// Mobile menu
-document.getElementById('navToggle').addEventListener('click', () => {
-  document.getElementById('navLinks').classList.toggle('open');
-});
+  const toggle = document.getElementById('navToggle');
+  const menu = document.getElementById('navMenu');
+  toggle.addEventListener('click', () => {
+    menu.classList.toggle('open');
+  });
 </script>
 </body>
 </html>

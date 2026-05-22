@@ -408,7 +408,7 @@
       }).sort((a, b) => new Date(a.appointment_datetime||a.startTime) - new Date(b.appointment_datetime||b.startTime));
 
       if (!dayAppts.length) {
-        return '<div class="empty-state"><div class="empty-icon">📅</div>Aucun rendez-vous ce jour.</div>';
+        return '<div class="empty-state"><div class="empty-icon"></div>Aucun rendez-vous ce jour.</div>';
       }
 
       const hours = Array.from({length: 14}, (_, i) => i + 7); // 7h→20h
@@ -483,7 +483,7 @@
         .sort((a,b) => new Date(a.appointment_datetime||a.startTime) - new Date(b.appointment_datetime||b.startTime));
 
       if (!appts.length) {
-        return '<div class="empty-state"><div class="empty-icon">📋</div>Aucun rendez-vous cette semaine.</div>';
+        return '<div class="empty-state"><div class="empty-icon"></div>Aucun rendez-vous cette semaine.</div>';
       }
 
       const grouped = {};

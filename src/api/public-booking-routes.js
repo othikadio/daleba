@@ -37,6 +37,14 @@ const BASE_URL      = process.env.BASE_URL || 'https://daleba-api-production.up.
 // ── ID du barbier (Mariel Yonkeu Satching) ────────────────────────────────────
 const BARBIER_STAFF_IDS = ['TMQ9dzPRRMFbmlW9'];
 
+// ── Taxes Québec (TPS 5% + TVQ 9.975%) ──────────────────────────────────────────
+function calculateTaxes(priceBeforeTax) {
+  const tps = Math.round(priceBeforeTax * 0.05 * 100) / 100;
+  const tvq = Math.round(priceBeforeTax * 0.09975 * 100) / 100;
+  const total = Math.round((priceBeforeTax + tps + tvq) * 100) / 100;
+  return { priceBeforeTax, tps, tvq, total, taxRate: 0.14975 };
+}
+
 // ── Init DB tables ────────────────────────────────────────────────────────────
 async function initTables() {
   if (DEMO_MODE || !pool) return;
@@ -328,9 +336,11 @@ router.post('/book', async (req, res) => {
     return res.status(400).json({ error: 'customer.firstName et customer.phone requis' });
   }
 
-  // ── Calcul acompte ──
+  // ── Calcul acompte + taxes QC ──
   const { depositAmount, depositWaived } = calcDeposit(servicePrice, staffId, serviceCategory);
   const clientFullName = [customer.firstName, customer.lastName].filter(Boolean).join(' ');
+  const priceNum = parseFloat(servicePrice) || 0;
+  const taxes = calculateTaxes(priceNum);
 
   // ── 1. Find/create Square customer ──
   let customerId = null;
@@ -435,6 +445,7 @@ router.post('/book', async (req, res) => {
       internalId,
       depositWaived:  true,
       depositAmount:  0,
+      taxes: { priceBeforeTax: taxes.priceBeforeTax, tps: taxes.tps, tvq: taxes.tvq, total: taxes.total },
       message:        'Réservation confirmée. SMS envoyé.',
     });
   }
@@ -475,6 +486,7 @@ router.post('/book', async (req, res) => {
       bookingId:       squareBookingId,
       internalId,
       depositAmount,
+      taxes: { priceBeforeTax: taxes.priceBeforeTax, tps: taxes.tps, tvq: taxes.tvq, total: taxes.total },
       message:         `Réservation créée. L'acompte de ${depositAmount}$ CAD sera collecté en salon.`,
     });
   }
@@ -488,6 +500,7 @@ router.post('/book', async (req, res) => {
     internalId,
     depositAmount,
     depositPercent:  20,
+    taxes: { priceBeforeTax: taxes.priceBeforeTax, tps: taxes.tps, tvq: taxes.tvq, total: taxes.total },
     message:         `Un acompte de ${depositAmount}$ CAD (20%) est requis pour confirmer votre RDV.`,
   });
 });

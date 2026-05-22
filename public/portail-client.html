@@ -4,304 +4,317 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kadio Coiffure — Mon Espace</title>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --primary: #C4622D;
-      --secondary: #7A9E6E;
-      --bg: #FAF6F0;
-      --card: #fff;
-      --text: #2C2C2C;
-      --muted: #888;
-      --border: #E2D9CF;
-      --radius: 12px;
+      --terracotta: #C4622D;
+      --sage:       #7A9E6E;
+      --cream:      #FAF6F0;
+      --dark:       #2D1B0E;
+      --muted:      #8C7B6B;
+      --border:     #E2D8CE;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: 'Georgia', serif; min-height: 100vh; }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      background: var(--cream);
+      min-height: 100vh;
+      color: var(--dark);
+    }
+
     header {
-      background: var(--card);
+      padding: 1.5rem 1.5rem 1rem;
       border-bottom: 1px solid var(--border);
-      padding: 16px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-    .logo { font-size: 1.3rem; font-weight: 700; color: var(--primary); letter-spacing: 2px; }
-    .user-info { font-size: 0.85rem; color: var(--muted); text-align: right; }
-    .user-name { font-weight: 600; color: var(--text); }
-    main { max-width: 600px; margin: 0 auto; padding: 24px 16px 60px; }
-    .section { margin-bottom: 28px; }
-    .section-title {
-      font-size: 0.72rem;
+
+    .header-title {
+      font-size: 1.1rem;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      letter-spacing: 2px;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
-    .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: 0 2px 12px rgba(196,98,45,0.07);
-      padding: 20px;
+      color: var(--terracotta);
     }
 
-    /* ── QR Card ────────────────────────────────────────────────────────── */
-    .qr-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: 0 2px 20px rgba(196,98,45,0.12);
-      padding: 28px 20px;
-      text-align: center;
-    }
-    #qrCanvas {
-      display: block;
-      margin: 0 auto 12px;
-      border-radius: 8px;
-    }
-    .qr-label {
-      font-size: 0.82rem;
-      color: var(--muted);
-      letter-spacing: 0.5px;
-      line-height: 1.5;
-    }
-    .qr-timer {
+    .btn-logout {
+      background: none;
+      border: none;
+      font-family: inherit;
       font-size: 0.75rem;
-      color: var(--primary);
-      margin-top: 6px;
-      font-style: italic;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
     }
 
-    .forfait-name { font-size: 1.25rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
-    .badge { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px; }
-    .badge-active { background: #EAF4E8; color: var(--secondary); }
-    .badge-done   { background: #F0F0F0; color: #999; }
-    .badge-upcoming { background: #FFF0EA; color: var(--primary); }
-    .appt-list { display: flex; flex-direction: column; gap: 10px; }
-    .appt-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 16px;
-      background: var(--bg);
-      border-radius: 8px;
-      border-left: 3px solid var(--border);
+    .btn-logout:hover { color: var(--dark); }
+
+    .main {
+      padding: 1.5rem;
+      max-width: 480px;
+      margin: 0 auto;
     }
-    .appt-item.upcoming { border-left-color: var(--primary); }
-    .appt-info { font-size: 0.9rem; }
-    .appt-service { font-weight: 600; margin-bottom: 2px; }
-    .appt-meta { font-size: 0.78rem; color: var(--muted); }
-    .btn-rdv {
+
+    .welcome {
+      margin-bottom: 1.5rem;
+    }
+
+    .welcome-greeting {
+      font-size: 1.5rem;
+      color: var(--dark);
+      margin-bottom: 0.25rem;
+    }
+
+    .welcome-sub {
+      font-size: 0.85rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .subscription-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .sub-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .sub-type {
+      font-size: 1.1rem;
+      color: var(--terracotta);
+      margin-bottom: 0.5rem;
+    }
+
+    .sub-expiry {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .sub-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 0.75rem;
+    }
+
+    .sub-badge.active { background: #DCFCE7; color: #166534; }
+    .sub-badge.none   { background: #FEF2F2; color: #991B1B; }
+
+    /* QR code section */
+    .qr-section {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .qr-section-title {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    #qrImg {
+      width: 200px;
+      height: 200px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      display: block;
+      margin: 0 auto 0.75rem;
+    }
+
+    .qr-countdown {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .qr-no-sub {
+      color: var(--muted);
+      font-size: 0.85rem;
+      padding: 1rem 0;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .btn-action {
       display: block;
       width: 100%;
-      padding: 15px;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius);
-      font-size: 1rem;
+      padding: 0.9rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: #fff;
+      color: var(--dark);
       font-family: inherit;
-      letter-spacing: 1px;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
       cursor: pointer;
       text-align: center;
       text-decoration: none;
-      transition: background .2s;
+      transition: background 0.2s, border-color 0.2s;
     }
-    .btn-rdv:hover { background: #a8501f; }
-    .note-item {
-      padding: 12px 16px;
-      background: var(--bg);
-      border-radius: 8px;
-      border-left: 3px solid var(--secondary);
-      font-size: 0.88rem;
-      font-style: italic;
-      color: #555;
-      margin-bottom: 8px;
+
+    .btn-action:hover {
+      background: var(--cream);
+      border-color: var(--terracotta);
     }
-    .note-meta { font-size: 0.75rem; color: var(--muted); margin-top: 4px; font-style: normal; }
-    .logout-link {
-      display: block;
-      text-align: center;
+
+    .btn-action.primary {
+      background: var(--terracotta);
+      color: #fff;
+      border-color: var(--terracotta);
+    }
+
+    .btn-action.primary:hover { background: #a84f24; }
+
+    #noSubMsg {
+      display: none;
+      background: #FEF9F6;
+      border: 1px solid #F4C9B3;
+      border-radius: 4px;
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
       color: var(--muted);
-      font-size: 0.8rem;
-      margin-top: 32px;
-      cursor: pointer;
-      text-decoration: underline;
+      line-height: 1.6;
     }
-    .skeleton {
-      background: linear-gradient(90deg, #f0ebe5 25%, #e8e1d9 50%, #f0ebe5 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.4s infinite;
-      border-radius: 8px;
-      height: 18px;
-      margin-bottom: 8px;
-    }
-    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
   </style>
 </head>
 <body>
-  <header>
-    <div class="logo">KADIO</div>
-    <div class="user-info">
-      <div class="user-name" id="hdrName">Mon espace</div>
-      <div id="hdrPhone"></div>
-    </div>
-  </header>
+<header>
+  <div class="header-title">Kadio Coiffure</div>
+  <button class="btn-logout" onclick="logout()">Déconnexion</button>
+</header>
 
-  <main>
-    <!-- QR Flash -->
-    <div class="section">
-      <div class="section-title">Mon code d'accès</div>
-      <div class="qr-card">
-        <canvas id="qrCanvas" width="250" height="250"></canvas>
-        <div class="qr-label">Présentez ce code au coiffeur</div>
-        <div class="qr-timer" id="qrTimer">Valide — actualisation dans <span id="qrCountdown">5:00</span></div>
-      </div>
-    </div>
+<div class="main">
 
-    <!-- Forfait actif -->
-    <div class="section">
-      <div class="section-title">Forfait actif</div>
-      <div class="card" id="cardForfait">
-        <div class="skeleton" style="width:60%;height:24px;margin-bottom:10px"></div>
-        <div class="skeleton" style="width:80%"></div>
-      </div>
-    </div>
+  <div class="welcome">
+    <div class="welcome-greeting" id="greetingName">Bonjour</div>
+    <div class="welcome-sub" id="greetingPhone"></div>
+  </div>
 
-    <!-- Prendre RDV -->
-    <div class="section">
-      <a href="/reservation" class="btn-rdv">Prendre un rendez-vous</a>
-    </div>
+  <div class="subscription-card" id="subCard" style="display:none;">
+    <div class="sub-label">Votre abonnement</div>
+    <div class="sub-type" id="subType"></div>
+    <div class="sub-expiry" id="subExpiry"></div>
+    <div class="sub-badge active">Actif</div>
+  </div>
 
-    <!-- Historique RDV -->
-    <div class="section">
-      <div class="section-title">Mes rendez-vous</div>
-      <div class="appt-list" id="apptList">
-        <div class="skeleton" style="height:60px"></div>
-        <div class="skeleton" style="height:60px"></div>
-      </div>
-    </div>
+  <div id="noSubMsg">
+    Vous n'avez pas d'abonnement actif. Contactez le salon pour souscrire.
+  </div>
 
-    <!-- Notes reçues -->
-    <div class="section" id="notesSection" style="display:none">
-      <div class="section-title">Notes de votre coiffeur</div>
-      <div id="notesList"></div>
-    </div>
+  <div class="qr-section" id="qrSection" style="display:none;">
+    <div class="qr-section-title">Mon code d'acces</div>
+    <img id="qrImg" src="" alt="QR Code">
+    <div class="qr-countdown" id="qrCountdown">Actualisation automatique...</div>
+  </div>
 
-    <span class="logout-link" id="logoutBtn">Se déconnecter</span>
-  </main>
+  <div class="actions">
+    <a href="/reservation" class="btn-action primary">Prendre rendez-vous</a>
+    <a href="/noter-service" class="btn-action">Mon historique</a>
+  </div>
 
-  <script>
-    const JWT_SECRET_LOCAL = 'daleba-secret-change-in-prod'; // miroir client — HMAC uniquement
-    let token     = localStorage.getItem('kc_token') || '';
-    let phone     = localStorage.getItem('kc_phone') || '';
-    let clientId  = localStorage.getItem('kc_id') || '0';
+</div>
 
-    if (!token && !phone) window.location.href = '/login';
+<script>
+  const API   = '';
+  const token = localStorage.getItem('daleba_token');
+  const phone = localStorage.getItem('daleba_phone') || '';
+  const name  = localStorage.getItem('daleba_name')  || '';
 
-    document.getElementById('hdrPhone').textContent = phone;
-    const authHeaders = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+  // Auth guard
+  if (!token) window.location.href = '/login.html';
 
-    // ── QR Code ─────────────────────────────────────────────────────────────
-    let qrExpiry = 0;
-    let qrInterval = null;
+  // Greeting
+  document.getElementById('greetingName').textContent =
+    name ? 'Bonjour, ' + name : 'Bonjour';
+  document.getElementById('greetingPhone').textContent = phone;
 
-    async function buildQRPayload() {
-      const ts = Date.now();
-      // HMAC SHA-256 via SubtleCrypto
-      let hmac = 'demo';
-      try {
-        const key = await crypto.subtle.importKey(
-          'raw',
-          new TextEncoder().encode(JWT_SECRET_LOCAL),
-          { name: 'HMAC', hash: 'SHA-256' },
-          false, ['sign']
-        );
-        const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${clientId}${phone}`));
-        hmac = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2,'0')).join('');
-      } catch(e) {}
+  // QR refresh
+  let qrInterval = null;
+  let countdown  = 30;
 
-      return JSON.stringify({ clientId: parseInt(clientId), phone, token: hmac, ts });
-    }
-
-    async function refreshQR() {
-      const payload = await buildQRPayload();
-      qrExpiry = Date.now() + 5 * 60 * 1000;
-
-      // Utiliser QRCode.js pour dessiner sur canvas
-      const canvas = document.getElementById('qrCanvas');
-      QRCode.toCanvas(canvas, payload, {
-        width: 250,
-        margin: 2,
-        color: { dark: '#C4622D', light: '#FFFFFF' }
-      }, err => {
-        if (err) console.warn('QR error:', err);
+  async function loadQR() {
+    try {
+      const r = await fetch(API + '/api/qr/generate', {
+        headers: { 'Authorization': 'Bearer ' + token }
       });
-    }
+      if (!r.ok) {
+        if (r.status === 403) showNoSub();
+        return;
+      }
+      const data = await r.json();
 
-    function updateCountdown() {
-      const remaining = Math.max(0, qrExpiry - Date.now());
-      const m = Math.floor(remaining / 60000);
-      const s = Math.floor((remaining % 60000) / 1000);
-      document.getElementById('qrCountdown').textContent = `${m}:${s.toString().padStart(2,'0')}`;
-      if (remaining <= 0) { refreshQR(); }
-    }
+      // Afficher la carte abonnement
+      document.getElementById('subCard').style.display = 'block';
+      document.getElementById('noSubMsg').style.display = 'none';
+      document.getElementById('subType').textContent   = data.subscriptionType || 'Abonnement';
+      document.getElementById('subExpiry').textContent = data.validUntil
+        ? 'Valide jusqu\'au ' + new Date(data.validUntil).toLocaleDateString('fr-CA')
+        : '';
 
-    refreshQR();
-    qrInterval = setInterval(updateCountdown, 1000);
-    // Renouvellement auto toutes les 5 min
-    setInterval(refreshQR, 5 * 60 * 1000);
+      // Afficher le QR
+      document.getElementById('qrSection').style.display = 'block';
+      document.getElementById('qrImg').src = data.qrDataUrl;
 
-    // ── Profil ───────────────────────────────────────────────────────────────
-    async function loadProfile() {
-      try {
-        const r = await fetch('/api/client-portal/profile', { headers: authHeaders });
-        if (r.status === 401) { window.location.href = '/login'; return; }
-        const data = await r.json();
+      countdown = data.ttlSeconds || 30;
+      startCountdown();
+    } catch (_) {}
+  }
 
-        document.getElementById('hdrName').textContent = data.clientName || 'Client';
-        localStorage.setItem('kc_name', data.clientName || '');
+  function showNoSub() {
+    document.getElementById('noSubMsg').style.display = 'block';
+    document.getElementById('qrSection').style.display  = 'none';
+    document.getElementById('subCard').style.display    = 'none';
+  }
 
-        const nextAppt = (data.appointments || []).find(a => a.status === 'upcoming');
-        document.getElementById('cardForfait').innerHTML = `
-          <div class="forfait-name">${data.forfaitName || 'Aucun forfait actif'}</div>
-          <div style="margin:6px 0">
-            <span class="badge badge-active">${data.status === 'active' ? 'Actif' : (data.status || 'N/A')}</span>
-          </div>
-          ${nextAppt
-            ? `<div style="font-size:.9rem;margin-top:4px">Prochain RDV : <strong>${nextAppt.date} à ${nextAppt.time}</strong> — ${nextAppt.staffName || 'votre coiffeur'}</div>`
-            : `<div style="font-size:.9rem;color:var(--muted);margin-top:4px">Aucun RDV à venir</div>`}
-        `;
+  function startCountdown() {
+    clearInterval(qrInterval);
+    const el = document.getElementById('qrCountdown');
+    el.textContent = 'Actualisation dans ' + countdown + 's';
+    qrInterval = setInterval(() => {
+      countdown--;
+      if (countdown <= 0) {
+        clearInterval(qrInterval);
+        loadQR();
+      } else {
+        el.textContent = 'Actualisation dans ' + countdown + 's';
+      }
+    }, 1000);
+  }
 
-        const appts = (data.appointments || []).slice(0, 5);
-        const listEl = document.getElementById('apptList');
-        listEl.innerHTML = appts.length
-          ? appts.map(a => `
-              <div class="appt-item ${a.status==='upcoming'?'upcoming':''}">
-                <div class="appt-info">
-                  <div class="appt-service">${a.service || 'Service'}</div>
-                  <div class="appt-meta">${a.date} à ${a.time} · ${a.staffName || 'N/A'}</div>
-                </div>
-                <span class="badge ${a.status==='upcoming'?'badge-upcoming':'badge-done'}">
-                  ${a.status==='upcoming'?'À venir':'Terminé'}
-                </span>
-              </div>`).join('')
-          : '<div style="color:var(--muted);font-size:.88rem;text-align:center;padding:16px">Aucun rendez-vous trouvé.</div>';
+  function logout() {
+    localStorage.removeItem('daleba_token');
+    localStorage.removeItem('daleba_role');
+    localStorage.removeItem('daleba_phone');
+    localStorage.removeItem('daleba_name');
+    window.location.href = '/login.html';
+  }
 
-        if (data.notes && data.notes.length) {
-          document.getElementById('notesSection').style.display = '';
-          document.getElementById('notesList').innerHTML = data.notes.map(n =>
-            `<div class="note-item">"${n.comment}"<div class="note-meta">${n.date||''}</div></div>`
-          ).join('');
-        }
-      } catch(e) { console.error('loadProfile:', e); }
-    }
-
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      localStorage.clear();
-      window.location.href = '/login';
-    });
-
-    loadProfile();
-  </script>
+  // Init
+  loadQR();
+</script>
 </body>
 </html>

@@ -137,6 +137,33 @@ const STAFF = [
 
 const DAY_NAMES = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
+// ── Taxes Québec ──────────────────────────────────────────────────────────────
+function calculateTaxes(priceBeforeTax) {
+  const tps = Math.round(priceBeforeTax * 0.05 * 100) / 100;      // TPS 5%
+  const tvq = Math.round(priceBeforeTax * 0.09975 * 100) / 100;   // TVQ 9.975%
+  const total = Math.round((priceBeforeTax + tps + tvq) * 100) / 100;
+  return { priceBeforeTax, tps, tvq, total, taxRate: 0.14975 };
+}
+
+// ── Dépôt 20% (exception Barbier/Coupe & Barbier → 0$) ───────────────────────
+const BARBER_SERVICES = [
+  'coupe barbier sans barbe', 'coupe barbier avec barbe', 'coupe barbier enfant',
+  'contours', 'barbe', 'coupe homme', 'coupe homme + barbe', 'coupe 12 ans et moins',
+  'barbier', 'barber', 'coupe hommes', 'beard', 'haircut',
+];
+
+function isBarberService(serviceName) {
+  const name = (serviceName || '').toLowerCase();
+  return BARBER_SERVICES.some(s => name.includes(s));
+}
+
+function calculateDeposit(service) {
+  if (!service.deposit || service.price <= 0 || isBarberService(service.name) || service.category === 'Coupe & Barbier') {
+    return 0;
+  }
+  return Math.round(service.price * 0.20 * 100) / 100;
+}
+
 function parseDateLocal(dateStr) {
   // dateStr = "YYYY-MM-DD"
   const [year, month, day] = dateStr.split('-').map(Number);
@@ -254,9 +281,21 @@ async function ensureBookingsTable() {
         duration_min INTEGER,
         notes TEXT,
         status VARCHAR(20) DEFAULT 'confirmed',
+        deposit_amount DECIMAL(10,2) DEFAULT 0,
+        price_before_tax DECIMAL(10,2),
+        tps DECIMAL(10,2),
+        tvq DECIMAL(10,2),
+        total_with_taxes DECIMAL(10,2),
         created_at TIMESTAMPTZ DEFAULT NOW()
       )
     `);
+    // Ajouter colonnes si table existante (migration douce)
+    const cols = ['deposit_amount DECIMAL(10,2) DEFAULT 0', 'price_before_tax DECIMAL(10,2)',
+                  'tps DECIMAL(10,2)', 'tvq DECIMAL(10,2)', 'total_with_taxes DECIMAL(10,2)'];
+    for (const col of cols) {
+      const colName = col.split(' ')[0];
+      await db.query(`ALTER TABLE daleba_bookings ADD COLUMN IF NOT EXISTS ${col}`).catch(() => {});
+    }
     return true;
   } catch (e) {
     console.error('[booking] ensureBookingsTable error:', e.message);
@@ -417,6 +456,11 @@ router.post('/book', async (req, res) => {
     return res.status(409).json({ error: 'Ce créneau n\'est plus disponible. Veuillez en choisir un autre.' });
   }
 
+  // Calculer taxes et dépôt
+  const taxes = calculateTaxes(service.price);
+  const depositAmount = calculateDeposit(service);
+  const depositWaived = depositAmount === 0;
+
   // Créer dans PostgreSQL
   await ensureBookingsTable();
   const db = getPool();
@@ -429,8 +473,9 @@ router.post('/book', async (req, res) => {
       const result = await db.query(
         `INSERT INTO daleba_bookings
            (service_id, service_name, staff_id, staff_name, client_name,
-            client_phone, client_email, start_at, duration_min, notes, status)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'confirmed')
+            client_phone, client_email, start_at, duration_min, notes, status,
+            deposit_amount, price_before_tax, tps, tvq, total_with_taxes)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'confirmed',$11,$12,$13,$14,$15)
          RETURNING id`,
         [
           service.id, service.name,
@@ -438,6 +483,7 @@ router.post('/book', async (req, res) => {
           clientName, clientPhone || null, clientEmail || null,
           startISO, service.duration,
           notes || null,
+          depositAmount, taxes.priceBeforeTax, taxes.tps, taxes.tvq, taxes.total,
         ]
       );
       bookingId = result.rows[0].id;
@@ -450,10 +496,16 @@ router.post('/book', async (req, res) => {
   // Envoyer SMS de confirmation si numéro fourni
   let smsResult = null;
   if (clientPhone) {
+    const firstName = clientName.split(' ')[0];
     const dateFR = formatDateFR(startISO);
-    const smsBody = `✅ RDV confirmé chez Kadio Coiffure — ${service.name} avec ${staff.name} le ${dateFR}. Adresse: 615 Antoinette Robidoux, local 100, Longueuil. Questions: 514-919-5970`;
+    const depositLine = depositWaived
+      ? 'Aucun dépôt requis.'
+      : `Dépôt de 20% : ${depositAmount}$ CAD requis.`;
+    const smsBody = `Bonjour ${firstName}, votre rendez-vous chez Kadio Coiffure est confirmé pour le ${dateFR}. Service: ${service.name}. ${depositLine} Adresse: 615 Antoinette-Robidoux, local 100, Longueuil. Besoin de modifier? Appelez le (514) 919-5970.`;
     smsResult = await sendSMS(clientPhone, smsBody);
   }
+
+  const taxSummary = { priceBeforeTax: taxes.priceBeforeTax, tps: taxes.tps, tvq: taxes.tvq, total: taxes.total };
 
   // Réponse
   if (dbSuccess || smsResult?.success) {
@@ -467,10 +519,16 @@ router.post('/book', async (req, res) => {
         duration: service.duration,
         clientName,
         status: 'confirmed',
+        depositAmount,
+        depositWaived,
+        taxes: taxSummary,
       },
+      taxes: taxSummary,
+      depositAmount,
+      depositWaived,
       message: clientPhone
-        ? '✅ RDV confirmé ! Vous allez recevoir un SMS de confirmation.'
-        : '✅ RDV confirmé ! À bientôt chez Kadio Coiffure.',
+        ? 'RDV confirmé. Vous allez recevoir un SMS de confirmation.'
+        : 'RDV confirmé. À bientôt chez Kadio Coiffure.',
       sms: smsResult,
     });
   }
@@ -485,8 +543,14 @@ router.post('/book', async (req, res) => {
       duration: service.duration,
       clientName,
       status: 'confirmed',
+      depositAmount,
+      depositWaived,
+      taxes: taxSummary,
     },
-    message: '✅ RDV enregistré ! Merci de contacter le salon pour confirmation: 514-919-5970',
+    taxes: taxSummary,
+    depositAmount,
+    depositWaived,
+    message: 'RDV enregistré. Merci de contacter le salon pour confirmation: 514-919-5970',
   });
 });
 

@@ -95,6 +95,11 @@ app.use('/api/oauth/meta', require('./api/meta-oauth-routes')); // Meta OAuth �
 app.use('/api', routes);
 app.use('/api/ai', require('./api/ai-admin-routes')); // Hub IA universel — Cerveau Central
 app.use('/api/auth', authRoutes); // Authentification OTP + JWT
+app.use('/api/auth', require('./api/otp-auth-routes')); // V31-AUTH: OTP phone
+app.use('/api/qr',   require('./api/qr-routes'));         // V31-AUTH: QR abonnés
+app.use('/api/staff', require('./api/staff-scan-routes')); // V31-AUTH: scan QR
+app.use('/api/vip',  require('./api/vip-welcome-routes')); // V31-AUTH: VIP accueil
+app.use('/api/rating', require('./api/rating-routes'));    // V31-AUTH: notation + bouclier Google
 app.use('/api/client-portal', clientPortalRoutes);
 app.use('/api/accounting', accountingRoutes);
 app.use('/api/loyalty', loyaltyHybridRoutes);

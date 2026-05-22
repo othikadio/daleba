@@ -3,705 +3,287 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Forfaits Mensuels — Kadio Coiffure & Esthétique</title>
-  <meta name="description" content="Forfaits mensuels Kadio Coiffure : Locs, Knotless, Barbier, Tresses, Combos famille. À partir de 35.99$/mois + taxes. Longueuil, QC." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <title>Forfaits &amp; Abonnements — Kadio Coiffure &amp; Esthétique</title>
+  <meta name="description" content="Forfaits mensuels et passes prépayées pour locks, tresses, barbier, tissage à Longueuil. Économisez avec les abonnements Kadio Coiffure." />
+  <link rel="stylesheet" href="/assets/css/salon.css" />
   <style>
-    :root {
-      --primary:        #C4622D;
-      --primary-dark:   #A8461A;
-      --primary-light:  #E8916B;
-      --primary-pale:   #F5D5C3;
-      --terra-dark: #A8461A;
-      --terra: #C4622D;
-      --terra-light: #E8916B;
-      --terra-pale: #F5D5C3;
-      --sage: #7A9E72;
-      --sage-light: #A8C49A;
-      --cream: #FAF6F0;
-      --charcoal: #1C1008;
-      --gold: #C9933A;
-      --gold-light: #E8B84B;
-      --glass-bg: rgba(255,255,255,0.8);
-      --glass-border: rgba(196,98,45,0.15);
-      --cream: #FAF6F0;
-      --charcoal: #1C1008;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--cream);
-      min-height: 100vh;
-      color: var(--charcoal);
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-    h1,h2,h3,h4 { font-family: 'Playfair Display', serif; }
-    a { text-decoration: none; color: inherit; }
-
-    /* NAV */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--terra-pale);
-      box-shadow: 0 2px 12px rgba(196,98,45,0.08);
-    }
-    .nav-inner {
-      max-width: 1200px; margin: 0 auto;
-      padding: 0 1.5rem; height: 68px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .nav-logo .logo-main { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; letter-spacing: 0.08em; }
-    .nav-logo .logo-sub { font-size: 0.6rem; color: var(--terra-light); letter-spacing: 0.14em; text-transform: uppercase; }
-    .nav-links { display: flex; align-items: center; gap: 1.75rem; list-style: none; }
-    .nav-links a { color: var(--charcoal); font-size: 0.82rem; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; transition: color .2s, background .2s; padding: 0.4rem 0.75rem; border-radius: 6px; }
-    .nav-links a:hover, .nav-links a.active { color: var(--terra-dark); background: var(--terra-pale); }
-    .btn-nav { background: var(--terra) !important; color: #fff !important; padding: .45rem 1.1rem; border-radius: 4px; font-weight: 600 !important; }
-    .btn-nav:hover { background: var(--terra-dark) !important; }
-    @media(max-width:768px){ .nav-links { display:none; } }
-
-    /* HERO */
-    .hero {
-      padding: 9rem 1.5rem 3.5rem;
-      text-align: center;
-      position: relative;
-      background: linear-gradient(135deg, var(--terra-pale) 0%, var(--cream) 60%, #D8EDD0 100%);
-    }
-    .hero::before {
-      content:''; position:absolute; inset:0;
-      background: radial-gradient(ellipse at center top, rgba(196,98,45,0.09) 0%, transparent 65%);
-      pointer-events:none;
-    }
-    .label-tag {
-      display:inline-block; font-size:.73rem; font-weight:600;
-      letter-spacing:.18em; text-transform:uppercase; color:var(--terra-dark);
-      margin-bottom:1rem;
-    }
-    .hero h1 { font-size:clamp(1.9rem,5vw,3.4rem); font-weight:700; line-height:1.12; margin-bottom:1rem; }
-    .hero h1 em { color:var(--terra-light); font-style:italic; }
-    .hero p { color:#6B4226; font-size:.97rem; max-width:540px; margin:0 auto 1.5rem; }
-    .tax-badge {
-      display:inline-flex; align-items:center; gap:.5rem;
-      background:rgba(196,98,45,0.1); border:1px solid rgba(196,98,45,0.3);
-      border-radius:30px; padding:.4rem 1rem;
-      font-size:.78rem; color:var(--terra-dark);
-    }
-    .tax-badge strong { color:var(--terra-light); }
-
-    /* CATEGORY TABS */
-    .tabs-wrap { max-width:1200px; margin:2.5rem auto 0; padding:0 1.5rem; display:flex; gap:.6rem; flex-wrap:wrap; }
-    .tab-btn {
-      background:var(--cream); border:1px solid var(--terra-pale);
-      color:#6B4226; font-size:.8rem; font-weight:500;
-      padding:.45rem 1.1rem; border-radius:30px; cursor:pointer;
-      transition:all .2s; letter-spacing:.04em;
-    }
-    .tab-btn:hover, .tab-btn.active {
-      background:var(--terra-pale); border-color:var(--terra);
-      color:var(--terra-dark);
-    }
-
-    /* GRILLE FORFAITS */
-    .plans-section { max-width:1200px; margin:0 auto; padding:2.5rem 1.5rem 5rem; }
-    .plans-grid {
-      display:grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap:1.2rem;
-    }
-
-    /* CARD */
-    .plan-card {
-      background:#ffffff;
-      border:1px solid var(--terra-pale);
-      border-radius:16px;
-      padding:1.6rem;
-      display:flex; flex-direction:column;
-      transition:transform .25s, box-shadow .25s, border-color .25s;
-      position:relative; overflow:hidden;
-    }
-    .plan-card::before {
-      content:''; position:absolute; top:0; left:0; right:0; height:2px;
-      background: linear-gradient(90deg, transparent, rgba(196,98,45,0.5), transparent);
-    }
-    .plan-card:hover {
-      transform:translateY(-4px);
-      box-shadow:0 8px 28px rgba(196,98,45,0.15);
-      border-color:var(--terra);
-    }
-    .plan-card.featured {
-      border-color:var(--terra);
-      background:linear-gradient(135deg,#fff 0%,var(--terra-pale) 100%);
-    }
-    .plan-card.featured::before { background: linear-gradient(90deg, transparent, rgba(196,98,45,0.8), transparent); }
-
-    .plan-badge {
-      display:inline-block; font-size:.68rem; font-weight:700;
-      letter-spacing:.1em; text-transform:uppercase;
-      background:rgba(196,98,45,0.2); color:var(--terra-light);
-      border:1px solid rgba(196,98,45,0.35); border-radius:20px;
-      padding:.22rem .75rem; margin-bottom:.85rem;
-      width:fit-content;
-    }
-    .plan-badge.combo { background:rgba(201,147,58,0.15); color:var(--gold-light); border-color:rgba(201,147,58,0.3); }
-    .plan-badge.enfant { background:rgba(100,160,100,0.15); color:var(--sage-light); border-color:rgba(100,160,100,0.3); }
-
-    .plan-category { font-size:.68rem; text-transform:uppercase; letter-spacing:.14em; color:var(--sage-dark,#5C7A52); margin-bottom:.3rem; }
-    .plan-name { font-family:'Playfair Display',serif; font-size:1.22rem; font-weight:700; margin-bottom:.2rem; }
-
-    .plan-price-block { margin:1rem 0; }
-    .plan-price { font-size:2.1rem; font-weight:700; color:var(--terra-light); line-height:1; }
-    .plan-price sup { font-size:1rem; vertical-align:super; }
-    .plan-price span { font-size:.85rem; color:#7A5038; font-weight:400; }
-    .plan-tax-row { display:flex; justify-content:space-between; font-size:.73rem; color:#8A6040; margin-top:.2rem; }
-    .plan-tax-row.total { color:#5A3820; font-weight:600; margin-top:.35rem; border-top:1px solid var(--terra-pale); padding-top:.35rem; }
-
-    .plan-includes { list-style:none; margin:1rem 0 1.2rem; flex:1; }
-    .plan-includes li { font-size:.82rem; color:#5A3820; padding:.25rem 0; display:flex; align-items:flex-start; gap:.5rem; }
-    .plan-includes li::before { content:''; color:var(--terra-light); flex-shrink:0; font-weight:700; }
-    .plan-includes .wash-note { color:var(--sage-light); font-style:italic; font-size:.76rem; }
-
-    .btn-plan {
-      display:block; text-align:center; font-size:.85rem; font-weight:600;
-      padding:.7rem 1.2rem; border-radius:8px; border:1px solid rgba(196,98,45,0.4);
-      color:var(--terra-dark); background:var(--terra-pale);
-      transition:all .2s; cursor:pointer; width:100%;
-    }
-    .btn-plan:hover { background:var(--terra); border-color:var(--terra); color:#fff; }
-    .plan-card.featured .btn-plan { background:var(--terra); border-color:var(--terra); color:#fff; }
-    .plan-card.featured .btn-plan:hover { background:var(--terra-dark); }
-
-    /* FAMILY DISCOUNT BANNER */
-    .family-banner {
-      max-width:1200px; margin:0 auto 2.5rem; padding:0 1.5rem;
-    }
-    .family-banner-inner {
-      background:linear-gradient(135deg, rgba(201,147,58,0.12), rgba(196,98,45,0.08));
-      border:1px solid rgba(201,147,58,0.3); border-radius:14px;
-      padding:1.2rem 1.8rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
-    }
-    .family-icon { font-size:1.8rem; flex-shrink:0; }
-    .family-text h3 { font-size:1rem; font-weight:700; color:var(--gold); margin-bottom:.2rem; }
-    .family-text p { font-size:.83rem; color:#6B4226; }
-
-    /* SECTION HEADERS */
-    .section-label {
-      font-size:.72rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase;
-      color:var(--terra-light); margin-bottom:.5rem;
-    }
-    .section-title { font-size:1.7rem; font-weight:700; margin-bottom:2rem; }
-    .section-title em { color:var(--terra); font-style:italic; }
-
-    /* WASH INFO */
-    .wash-info {
-      max-width:1200px; margin:0 auto 3rem; padding:0 1.5rem;
-    }
-    .wash-info-inner {
-      background:rgba(100,160,100,0.08); border:1px solid rgba(100,160,100,0.25);
-      border-radius:12px; padding:1rem 1.5rem;
-      display:flex; gap:1rem; align-items:flex-start;
-    }
-    .wash-info-inner .icon { font-size:1.4rem; flex-shrink:0; margin-top:.1rem; }
-    .wash-info-inner p { font-size:.83rem; color:#3D5C35; }
-    .wash-info-inner strong { color:var(--sage-light); }
-
-    /* PHOTOS PORTFOLIO */
-    .portfolio-section { max-width:1200px; margin:0 auto; padding:3rem 1.5rem; }
-    .portfolio-grid {
-      display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-      gap:.8rem; margin-top:1.5rem;
-    }
-    .portfolio-item { border-radius:10px; overflow:hidden; aspect-ratio:3/4; }
-    .portfolio-item img { width:100%; height:100%; object-fit:cover; transition:transform .4s; }
-    .portfolio-item:hover img { transform:scale(1.05); }
-
-    /* FOOTER */
-    footer {
-      background: #1C1008;
-      border-top:1px solid rgba(196,98,45,0.15);
-      padding:2.5rem 1.5rem; text-align:center;
-    }
-    .footer-inner { max-width:1200px; margin:0 auto; }
-    .footer-logo { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; margin-bottom:.4rem; }
-    .footer-addr { font-size:.8rem; color:rgba(255,255,255,0.6); margin-bottom:.8rem; }
-    .footer-socials { display:flex; gap:1.2rem; justify-content:center; flex-wrap:wrap; margin-bottom:.8rem; }
-    .footer-socials a { font-size:.78rem; color:rgba(255,255,255,0.6); transition:color .2s; }
-    .footer-socials a:hover { color:var(--terra-light); }
-    .footer-copy { font-size:.72rem; color:rgba(255,255,255,0.45); }
-
-    /* HIDDEN */
-    .plan-card.hidden { display:none; }
+    .passes-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); }
+    .passes-table th, .passes-table td { padding: 1rem 1.25rem; text-align: left; border-top: 1px solid var(--border); font-size: 0.9rem; }
+    .passes-table thead tr { background: var(--cream-dark); }
+    .passes-table th { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); border-top: none; }
+    .passes-table tr:hover td { background: rgba(196, 98, 45, 0.02); }
+    .rules-list { list-style: none; padding: 0; }
+    .rules-list li { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; color: var(--text-muted); }
+    .rules-list li:last-child { border-bottom: none; }
+    .rules-list li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--terracotta); margin-top: 0.45rem; flex-shrink: 0; }
   </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-inner">
-    <a href="/" class="nav-logo">
-      <div class="logo-main">Kadio Coiffure</div>
-      <div class="logo-sub">& Esthétique · Longueuil</div>
-    </a>
-    <ul class="nav-links">
+<!-- ── NAVBAR ──────────────────────────────────── -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-brand">Kadio Coiffure &amp; Esthétique</a>
+    <ul class="navbar-nav" id="navMenu">
       <li><a href="/">Accueil</a></li>
-      <li><a href="/menu">Services</a></li>
-      <li><a href="/forfaits" class="active">Forfaits</a></li>
-      <li><a href="/formation">Formation</a></li>
-      <li><a href="/reservation" class="btn-nav">Réserver</a></li>
+      <li><a href="/menu.html">Services</a></li>
+      <li><a href="/booking.html">Réservation</a></li>
+      <li><a href="/forfaits.html" class="active">Forfaits</a></li>
+      <li><a href="/formation.html">Formation</a></li>
+      <li><a href="/#contact">Contact</a></li>
     </ul>
+    <div class="navbar-cta">
+      <a href="/booking.html" class="btn btn-primary btn-sm">Prendre rendez-vous</a>
+    </div>
+    <button class="navbar-toggle" id="navToggle" aria-label="Menu">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="2" y1="5.5" x2="20" y2="5.5"/>
+        <line x1="2" y1="11" x2="20" y2="11"/>
+        <line x1="2" y1="16.5" x2="20" y2="16.5"/>
+      </svg>
+    </button>
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="label-tag">Abonnements Mensuels</div>
-  <h1>Vos <em>forfaits illimités</em><br>Kadio Coiffure</h1>
-  <p>Accès illimité à vos services préférés, chaque mois. Locs, tresses, barbier, perruques — choisissez votre forfait.</p>
-  <div class="tax-badge"> Tous les prix sont <strong>hors taxes</strong> · TPS 5% + TVQ 9,975% = <strong>14,975%</strong></div>
-</section>
-
-<!-- TABS CATÉGORIES -->
-<div class="tabs-wrap">
-  <button class="tab-btn active" data-cat="all">Tous les forfaits</button>
-  <button class="tab-btn" data-cat="locs"> Locs</button>
-  <button class="tab-btn" data-cat="tresses"> Tresses</button>
-  <button class="tab-btn" data-cat="barbier">️ Barbier</button>
-  <button class="tab-btn" data-cat="soins"> Soins</button>
-  <button class="tab-btn" data-cat="tissage"> Tissage</button>
-  <button class="tab-btn" data-cat="combo">‍‍ Combos</button>
-</div>
-
-<!-- LAVAGE HEBDO INFO -->
-<div class="wash-info" style="margin-top:2rem;">
-  <div class="wash-info-inner">
-    <span class="icon"></span>
-    <p><strong>Lavage hebdomadaire inclus :</strong> La plupart des forfaits incluent <strong>1 lavage gratuit par semaine</strong>. Le droit se renouvelle automatiquement chaque lundi à minuit. Si le lavage de la semaine a déjà été utilisé, il sera bloqué jusqu'au lundi suivant.</p>
+<!-- ── PAGE HEADER ─────────────────────────────── -->
+<div class="page-header">
+  <div class="container">
+    <span class="section-overline">Abonnements</span>
+    <h1>Forfaits &amp; Abonnements</h1>
+    <p>Tous les prix sont avant taxes (TPS 5% + TVQ 9,975%)</p>
   </div>
 </div>
 
-<!-- REMISE FAMILLE -->
-<div class="family-banner">
-  <div class="family-banner-inner">
-    <div class="family-icon">‍‍</div>
-    <div class="family-text">
-      <h3>Remise Famille — 10% automatique</h3>
-      <p>Sélectionnez 2 forfaits ou plus sur le même compte et bénéficiez automatiquement d'une remise de <strong>−10%</strong> sur le total mensuel.</p>
-    </div>
+<!-- ── DEPOSIT NOTICE ──────────────────────────── -->
+<div style="background: rgba(196, 98, 45, 0.07); border-bottom: 1px solid rgba(196, 98, 45, 0.2); padding: 1rem 0;">
+  <div class="container">
+    <p style="margin: 0; font-size: 0.875rem; color: var(--terracotta-dark); font-weight: 500; text-align: center;">
+      Un dépôt de sécurité de 20% est requis lors de toute réservation en ligne — sauf pour les services Barbier (dépôt: 0$).
+    </p>
   </div>
 </div>
 
-<!-- GRILLE FORFAITS -->
-<section class="plans-section">
-  <div class="plans-grid" id="plansGrid">
-
-    <!-- LOCS ILLIMITÉ -->
-    <div class="plan-card featured" data-cat="locs">
-      <div class="plan-badge"> Populaire</div>
-      <div class="plan-category">Locs</div>
-      <div class="plan-name">Locs Illimité</div>
-      <div class="plan-price-block">
-        <div class="plan-price"><sup>$</sup>129<span>.99/mois</span></div>
-        <div class="plan-tax-row"><span>TPS (5%)</span><span>6,50 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>12,97 $</span></div>
-        <div class="plan-tax-row total"><span>Total avec taxes</span><span>149,46 $</span></div>
-      </div>
-      <ul class="plan-includes">
-        <li>Retwist illimité</li>
-        <li class="wash-note"> 1 lavage/semaine inclus</li>
-        <li>Priorité réservation</li>
-      </ul>
-      <a href="/reservation?forfait=locs-illimite&service=locks-retwist-complet" class="btn-plan">S'abonner →</a>
+<!-- ── FORFAITS MENSUELS ───────────────────────── -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-overline">Mensuel</span>
+      <h2>Forfaits Mensuels</h2>
+      <p>Profitez d'un service régulier à tarif préférentiel. Renouvellement automatique mensuel.</p>
+      <div class="divider-accent"></div>
     </div>
 
-    <!-- MICROLOCKS / SISTERLOCKS -->
-    <div class="plan-card" data-cat="locs">
-      <div class="plan-badge"> Premium</div>
-      <div class="plan-category">Locs</div>
-      <div class="plan-name">Microlocks / Sisterlocks</div>
-      <div class="plan-price-block">
-        <div class="plan-price"><sup>$</sup>149<span>.99/mois</span></div>
-        <div class="plan-tax-row"><span>TPS (5%)</span><span>7,50 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>14,96 $</span></div>
-        <div class="plan-tax-row total"><span>Total avec taxes</span><span>172,45 $</span></div>
-      </div>
-      <ul class="plan-includes">
-        <li>Entretien microlocks illimité</li>
-        <li class="wash-note"> 1 lavage/semaine inclus</li>
-        <li>Priorité réservation</li>
-      </ul>
-      <a href="/reservation?forfait=microlocks-sisterlocks&service=sisterlocks-installation" class="btn-plan">S'abonner →</a>
+    <div class="alert alert-info" style="text-align: center; font-size: 0.9rem;">
+      Forfait Famille: <strong>-10% automatique dès 2 forfaits sélectionnés</strong> — applicable à toute combinaison de forfaits pour votre famille.
     </div>
 
-    <!-- LOCS ENFANT -->
-    <div class="plan-card" data-cat="locs">
-      <div class="plan-badge enfant"> Enfant</div>
-      <div class="plan-category">Locs Enfant</div>
-      <div class="plan-name">Locs Enfant</div>
-      <div class="plan-price-block">
-        <div class="plan-price"><sup>$</sup>79<span>.99/mois</span></div>
-        <div class="plan-tax-row"><span>TPS (5%)</span><span>4,00 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>7,98 $</span></div>
-        <div class="plan-tax-row total"><span>Total avec taxes</span><span>91,97 $</span></div>
+    <div class="grid-3" style="gap: 1.25rem;">
+
+      <div class="forfait-card">
+        <div class="forfait-name">Locs Illimité</div>
+        <div class="forfait-price">129,99$</div>
+        <div class="forfait-price-note">par mois + taxes</div>
       </div>
-      <ul class="plan-includes">
-        <li>Entretien locs illimité</li>
-        <li class="wash-note"> 1 lavage/semaine inclus</li>
-      </ul>
-      <a href="/reservation?forfait=locs-enfant&service=locks-retwist-complet" class="btn-plan">S'abonner →</a>
+
+      <div class="forfait-card">
+        <div class="forfait-name">Microlocs / Sisterlocks</div>
+        <div class="forfait-price">149,99$</div>
+        <div class="forfait-price-note">par mois + taxes</div>
+      </div>
+
+      <div class="forfait-card">
+        <div class="forfait-name">Knotless &amp; Tresses Signature</div>
+        <div class="forfait-price">139,99$</div>
+        <div class="forfait-price-note">par mois + taxes &nbsp;|&nbsp; 12 ans et plus</div>
+      </div>
+
+      <div class="forfait-card">
+        <div class="forfait-name">Tresses Rapides</div>
+        <div class="forfait-price">79,99$</div>
+        <div class="forfait-price-note">par mois + taxes &nbsp;|&nbsp; 12 ans et plus</div>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem; margin-bottom:0;">Surplus 7$ au-delà des hanches. Extra mini-tresses: 50$–100$.</p>
+      </div>
+
+      <div class="forfait-card">
+        <div class="forfait-name">Barbier Coupe &amp; Barbe</div>
+        <div class="forfait-price">64,99$</div>
+        <div class="forfait-price-note">par mois + taxes</div>
+      </div>
+
+      <div class="forfait-card">
+        <div class="forfait-name">Barbier Coupe Simple (Sans barbe)</div>
+        <div class="forfait-price">59,99$</div>
+        <div class="forfait-price-note">par mois + taxes</div>
+      </div>
+
+      <div class="forfait-card">
+        <div class="forfait-name">Barbier Barbe Illimitée</div>
+        <div class="forfait-price">35,99$</div>
+        <div class="forfait-price-note">par mois + taxes</div>
+      </div>
+
+      <div class="forfait-card">
+        <div class="forfait-name">Tresses Rapides Enfant</div>
+        <div class="forfait-price">59,99$</div>
+        <div class="forfait-price-note">par mois + taxes</div>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem; margin-bottom:0;">Surplus 5$ au-delà de l'épaule.</p>
+      </div>
+
+      <div class="forfait-card">
+        <div class="forfait-name">Knotless Enfant</div>
+        <div class="forfait-price">95,99$</div>
+        <div class="forfait-price-note">par mois + taxes</div>
+      </div>
+
+      <div class="forfait-card">
+        <div class="forfait-name">Locs Enfant</div>
+        <div class="forfait-price">79,99$</div>
+        <div class="forfait-price-note">par mois + taxes</div>
+      </div>
+
+      <div class="forfait-card">
+        <div class="forfait-name">Barbier Enfant</div>
+        <div class="forfait-price">49,99$</div>
+        <div class="forfait-price-note">par mois + taxes</div>
+      </div>
+
+      <div class="forfait-card">
+        <div class="forfait-name">Abonnement Mise en plis + Lavage</div>
+        <div class="forfait-price">60,00$</div>
+        <div class="forfait-price-note">par mois + taxes &nbsp;|&nbsp; 1 mise en plis/semaine</div>
+      </div>
+
+      <div class="forfait-card">
+        <div class="forfait-name">Abonnement Pose perruques</div>
+        <div class="forfait-price">120,00$</div>
+        <div class="forfait-price-note">par mois + taxes &nbsp;|&nbsp; 1 pose/semaine</div>
+      </div>
+
+      <div class="forfait-card">
+        <div class="forfait-name">Abonnement Twists et tresses court</div>
+        <div class="forfait-price">119,99$</div>
+        <div class="forfait-price-note">par mois + taxes &nbsp;|&nbsp; 1 coiffure/mois</div>
+      </div>
+
+      <div class="forfait-card">
+        <div class="forfait-name">Combo Tresses Rapides + Barbier</div>
+        <div class="forfait-price">104,99$</div>
+        <div class="forfait-price-note">par mois + taxes</div>
+      </div>
+
+      <div class="forfait-card forfait-card-featured">
+        <span class="badge badge-terracotta mb-2">Populaire</span>
+        <div class="forfait-name">Combo Locs + Barbier</div>
+        <div class="forfait-price">154,99$</div>
+        <div class="forfait-price-note">par mois + taxes</div>
+      </div>
+
     </div>
 
-    <!-- KNOTLESS & TRESSES SIGNATURE -->
-    <div class="plan-card featured" data-cat="tresses">
-      <div class="plan-badge">Best value</div>
-      <div class="plan-category">Tresses</div>
-      <div class="plan-name">Knotless & Tresses Signature</div>
-      <div class="plan-price-block">
-        <div class="plan-price"><sup>$</sup>139<span>.99/mois</span></div>
-        <div class="plan-tax-row"><span>TPS (5%)</span><span>7,00 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>13,96 $</span></div>
-        <div class="plan-tax-row total"><span>Total avec taxes</span><span>160,95 $</span></div>
-      </div>
-      <ul class="plan-includes">
-        <li>Knotless braids illimités</li>
-        <li class="wash-note"> 1 lavage/semaine inclus</li>
-        <li>Priorité réservation</li>
-      </ul>
-      <a href="/reservation?forfait=knotless-signature&service=knotless-moyen" class="btn-plan">S'abonner →</a>
+    <div class="alert alert-info mt-4" style="max-width: 600px; margin-left: auto; margin-right: auto;">
+      <strong>Forfait Famille:</strong> Bénéficiez automatiquement de <strong>-10%</strong> lorsque vous sélectionnez 2 forfaits ou plus pour les membres de votre famille.
     </div>
-
-    <!-- TRESSES RAPIDES ADULTE -->
-    <div class="plan-card" data-cat="tresses">
-      <div class="plan-category">Tresses</div>
-      <div class="plan-name">Tresses Rapides Adulte</div>
-      <div class="plan-price-block">
-        <div class="plan-price"><sup>$</sup>79<span>.99/mois</span></div>
-        <div class="plan-tax-row"><span>TPS (5%)</span><span>4,00 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>7,98 $</span></div>
-        <div class="plan-tax-row total"><span>Total avec taxes</span><span>91,97 $</span></div>
-      </div>
-      <ul class="plan-includes">
-        <li>Tresses rapides illimitées</li>
-        <li class="wash-note"> 1 lavage/semaine inclus</li>
-      </ul>
-      <a href="/reservation?forfait=tresses-rapides-adulte&service=nattes-americaines" class="btn-plan">S'abonner →</a>
-    </div>
-
-    <!-- TWISTS ET TRESSES COURT -->
-    <div class="plan-card" data-cat="tresses">
-      <div class="plan-category">Tresses</div>
-      <div class="plan-name">Twists et Tresses Court</div>
-      <div class="plan-price-block">
-        <div class="plan-price"><sup>$</sup>119<span>.99/mois</span></div>
-        <div class="plan-tax-row"><span>TPS (5%)</span><span>6,00 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>11,97 $</span></div>
-        <div class="plan-tax-row total"><span>Total avec taxes</span><span>137,96 $</span></div>
-      </div>
-      <ul class="plan-includes">
-        <li>Twists et tresses courtes illimités</li>
-        <li class="wash-note"> 1 lavage/semaine inclus</li>
-      </ul>
-      <a href="/reservation?forfait=twists-court&service=twist-complet" class="btn-plan">S'abonner →</a>
-    </div>
-
-    <!-- KNOTLESS ENFANT -->
-    <div class="plan-card" data-cat="tresses">
-      <div class="plan-badge enfant"> Enfant</div>
-      <div class="plan-category">Tresses Enfant</div>
-      <div class="plan-name">Knotless Enfant</div>
-      <div class="plan-price-block">
-        <div class="plan-price"><sup>$</sup>95<span>.99/mois</span></div>
-        <div class="plan-tax-row"><span>TPS (5%)</span><span>4,80 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>9,58 $</span></div>
-        <div class="plan-tax-row total"><span>Total avec taxes</span><span>110,37 $</span></div>
-      </div>
-      <ul class="plan-includes">
-        <li>Knotless enfant illimités</li>
-        <li class="wash-note"> 1 lavage/semaine inclus</li>
-      </ul>
-      <a href="/reservation?forfait=knotless-enfant&service=knotless-gros" class="btn-plan">S'abonner →</a>
-    </div>
-
-    <!-- TRESSES RAPIDES ENFANT -->
-    <div class="plan-card" data-cat="tresses">
-      <div class="plan-badge enfant"> Enfant</div>
-      <div class="plan-category">Tresses Enfant</div>
-      <div class="plan-name">Tresses Rapides Enfant</div>
-      <div class="plan-price-block">
-        <div class="plan-price"><sup>$</sup>59<span>.99/mois</span></div>
-        <div class="plan-tax-row"><span>TPS (5%)</span><span>3,00 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>5,98 $</span></div>
-        <div class="plan-tax-row total"><span>Total avec taxes</span><span>68,97 $</span></div>
-      </div>
-      <ul class="plan-includes">
-        <li>Tresses rapides enfant illimitées</li>
-        <li class="wash-note"> 1 lavage/semaine inclus</li>
-      </ul>
-      <a href="/reservation?forfait=tresses-rapides-enfant&service=nattes-americaines" class="btn-plan">S'abonner →</a>
-    </div>
-
-    <!-- BARBIER COUPE & BARBE -->
-    <div class="plan-card featured" data-cat="barbier">
-      <div class="plan-badge">Best value</div>
-      <div class="plan-category">Barbier</div>
-      <div class="plan-name">Barbier Coupe & Barbe</div>
-      <div class="plan-price-block">
-        <div class="plan-price"><sup>$</sup>64<span>.99/mois</span></div>
-        <div class="plan-tax-row"><span>TPS (5%)</span><span>3,25 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>6,48 $</span></div>
-        <div class="plan-tax-row total"><span>Total avec taxes</span><span>74,72 $</span></div>
-      </div>
-      <ul class="plan-includes">
-        <li>Coupes + barbe illimitées</li>
-        <li class="wash-note"> 1 lavage/semaine inclus</li>
-      </ul>
-      <a href="/reservation?forfait=barbier-coupe-barbe&service=barbier-avec-barbe" class="btn-plan">S'abonner →</a>
-    </div>
-
-    <!-- BARBIER COUPE SIMPLE -->
-    <div class="plan-card" data-cat="barbier">
-      <div class="plan-category">Barbier</div>
-      <div class="plan-name">Barbier Coupe Simple</div>
-      <div class="plan-price-block">
-        <div class="plan-price"><sup>$</sup>59<span>.99/mois</span></div>
-        <div class="plan-tax-row"><span>TPS (5%)</span><span>3,00 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>5,98 $</span></div>
-        <div class="plan-tax-row total"><span>Total avec taxes</span><span>68,97 $</span></div>
-      </div>
-      <ul class="plan-includes">
-        <li>Coupes illimitées</li>
-        <li class="wash-note"> 1 lavage/semaine inclus</li>
-      </ul>
-      <a href="/reservation?forfait=barbier-coupe-simple&service=barbier-sans-barbe" class="btn-plan">S'abonner →</a>
-    </div>
-
-    <!-- BARBIER BARBE ILLIMITÉE -->
-    <div class="plan-card" data-cat="barbier">
-      <div class="plan-category">Barbier</div>
-      <div class="plan-name">Barbier Barbe Illimitée</div>
-      <div class="plan-price-block">
-        <div class="plan-price"><sup>$</sup>35<span>.99/mois</span></div>
-        <div class="plan-tax-row"><span>TPS (5%)</span><span>1,80 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>3,59 $</span></div>
-        <div class="plan-tax-row total"><span>Total avec taxes</span><span>41,38 $</span></div>
-      </div>
-      <ul class="plan-includes">
-        <li>Barbe illimitée</li>
-      </ul>
-      <a href="/reservation?forfait=barbier-barbe-illimitee&service=barbe-seule" class="btn-plan">S'abonner →</a>
-    </div>
-
-    <!-- BARBIER ENFANT -->
-    <div class="plan-card" data-cat="barbier">
-      <div class="plan-badge enfant"> Enfant</div>
-      <div class="plan-category">Barbier Enfant</div>
-      <div class="plan-name">Barbier Enfant</div>
-      <div class="plan-price-block">
-        <div class="plan-price"><sup>$</sup>49<span>.99/mois</span></div>
-        <div class="plan-tax-row"><span>TPS (5%)</span><span>2,50 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>4,99 $</span></div>
-        <div class="plan-tax-row total"><span>Total avec taxes</span><span>57,48 $</span></div>
-      </div>
-      <ul class="plan-includes">
-        <li>Coupes enfant illimitées</li>
-      </ul>
-      <a href="/reservation?forfait=barbier-enfant&service=barbier-enfant" class="btn-plan">S'abonner →</a>
-    </div>
-
-    <!-- MISE EN PLI + LAVAGE -->
-    <div class="plan-card" data-cat="soins">
-      <div class="plan-category">Soins</div>
-      <div class="plan-name">Mise en pli + Lavage</div>
-      <div class="plan-price-block">
-        <div class="plan-price"><sup>$</sup>60<span>.00/mois</span></div>
-        <div class="plan-tax-row"><span>TPS (5%)</span><span>3,00 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>5,99 $</span></div>
-        <div class="plan-tax-row total"><span>Total avec taxes</span><span>68,99 $</span></div>
-      </div>
-      <ul class="plan-includes">
-        <li>Mise en pli + lavage illimités</li>
-      </ul>
-      <a href="/reservation?forfait=mise-en-plis-lavage&service=mise-en-plis" class="btn-plan">S'abonner →</a>
-    </div>
-
-    <!-- POSE PERRUQUES -->
-    <div class="plan-card" data-cat="tissage">
-      <div class="plan-category">Tissage & Perruques</div>
-      <div class="plan-name">Pose Perruques</div>
-      <div class="plan-price-block">
-        <div class="plan-price"><sup>$</sup>120<span>.00/mois</span></div>
-        <div class="plan-tax-row"><span>TPS (5%)</span><span>6,00 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>11,97 $</span></div>
-        <div class="plan-tax-row total"><span>Total avec taxes</span><span>137,97 $</span></div>
-      </div>
-      <ul class="plan-includes">
-        <li>Poses perruques illimitées</li>
-        <li class="wash-note"> 1 lavage/semaine inclus</li>
-      </ul>
-      <a href="/reservation?forfait=pose-perruques&service=pose-perruque-closure" class="btn-plan">S'abonner →</a>
-    </div>
-
-    <!-- COMBO TRESSES + BARBIER -->
-    <div class="plan-card" data-cat="combo">
-      <div class="plan-badge combo">‍‍ Famille</div>
-      <div class="plan-category">Combo</div>
-      <div class="plan-name">Combo Tresses + Barbier</div>
-      <div class="plan-price-block">
-        <div class="plan-price"><sup>$</sup>104<span>.99/mois</span></div>
-        <div class="plan-tax-row"><span>TPS (5%)</span><span>5,25 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>10,47 $</span></div>
-        <div class="plan-tax-row total"><span>Total avec taxes</span><span>120,71 $</span></div>
-      </div>
-      <ul class="plan-includes">
-        <li>Tresses rapides + coupe illimités</li>
-        <li class="wash-note"> 1 lavage/semaine inclus</li>
-      </ul>
-      <a href="/reservation?forfait=combo-tresses-barbier&service=nattes-americaines" class="btn-plan">S'abonner →</a>
-    </div>
-
-    <!-- COMBO LOCS + BARBIER -->
-    <div class="plan-card featured" data-cat="combo">
-      <div class="plan-badge combo">‍‍ Famille</div>
-      <div class="plan-category">Combo</div>
-      <div class="plan-name">Combo Locs + Barbier</div>
-      <div class="plan-price-block">
-        <div class="plan-price"><sup>$</sup>154<span>.99/mois</span></div>
-        <div class="plan-tax-row"><span>TPS (5%)</span><span>7,75 $</span></div>
-        <div class="plan-tax-row"><span>TVQ (9,975%)</span><span>15,46 $</span></div>
-        <div class="plan-tax-row total"><span>Total avec taxes</span><span>178,20 $</span></div>
-      </div>
-      <ul class="plan-includes">
-        <li>Locs + coupe barbier illimités</li>
-        <li class="wash-note"> 1 lavage/semaine inclus</li>
-      </ul>
-      <a href="/reservation?forfait=combo-locs-barbier&service=locks-retwist-complet" class="btn-plan">S'abonner →</a>
-    </div>
-
-  </div><!-- /plans-grid -->
-</section>
-
-<!-- PASSES PRÉPAYÉES -->
-<section class="passes-section" style="max-width:1100px;margin:0 auto 4rem;padding:0 1.5rem">
-  <div style="text-align:center;margin-bottom:2rem">
-    <div style="font-size:.75rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--terra);margin-bottom:.6rem">Économisez davantage</div>
-    <h2 style="font-family:'Playfair Display',serif;font-size:2rem;margin-bottom:.5rem">Passes Prépayées</h2>
-    <p style="color:#5A3820;max-width:560px;margin:0 auto">Payez d'avance et économisez sur vos forfaits préférés. Paiement unique — aucun renouvellement automatique.</p>
-  </div>
-  <div style="overflow-x:auto">
-    <table style="width:100%;border-collapse:collapse;font-size:.88rem">
-      <thead>
-        <tr style="background:rgba(196,98,45,0.08);">
-          <th style="padding:.75rem 1rem;text-align:left;font-weight:700;border-bottom:2px solid var(--terra-pale)">Durée</th>
-          <th style="padding:.75rem 1rem;text-align:center;font-weight:700;border-bottom:2px solid var(--terra-pale)">Rabais</th>
-          <th style="padding:.75rem 1rem;text-align:right;font-weight:700;border-bottom:2px solid var(--terra-pale)">Ex. Barbier Coupe &amp; Barbe (64,99$/mois)</th>
-          <th style="padding:.75rem 1rem;text-align:right;font-weight:700;border-bottom:2px solid var(--terra-pale)">Ex. Locs Illimité (129,99$/mois)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr style="border-bottom:1px solid rgba(196,98,45,0.1)">
-          <td style="padding:.7rem 1rem;font-weight:600">1 mois</td>
-          <td style="padding:.7rem 1rem;text-align:center">Prix régulier</td>
-          <td style="padding:.7rem 1rem;text-align:right">64,99 $ + taxes</td>
-          <td style="padding:.7rem 1rem;text-align:right">129,99 $ + taxes</td>
-        </tr>
-        <tr style="border-bottom:1px solid rgba(196,98,45,0.1);background:rgba(245,213,195,0.2)">
-          <td style="padding:.7rem 1rem;font-weight:600">2 mois</td>
-          <td style="padding:.7rem 1rem;text-align:center;color:var(--terra);font-weight:700">−5 %</td>
-          <td style="padding:.7rem 1rem;text-align:right">123,48 $ + taxes</td>
-          <td style="padding:.7rem 1rem;text-align:right">246,98 $ + taxes</td>
-        </tr>
-        <tr style="border-bottom:1px solid rgba(196,98,45,0.1)">
-          <td style="padding:.7rem 1rem;font-weight:600">3 mois</td>
-          <td style="padding:.7rem 1rem;text-align:center;color:var(--terra);font-weight:700">−10 %</td>
-          <td style="padding:.7rem 1rem;text-align:right">175,47 $ + taxes</td>
-          <td style="padding:.7rem 1rem;text-align:right">350,97 $ + taxes</td>
-        </tr>
-        <tr style="border-bottom:1px solid rgba(196,98,45,0.1);background:rgba(245,213,195,0.2)">
-          <td style="padding:.7rem 1rem;font-weight:600">6 mois</td>
-          <td style="padding:.7rem 1rem;text-align:center;color:var(--terra);font-weight:700">−15 %</td>
-          <td style="padding:.7rem 1rem;text-align:right">331,44 $ + taxes</td>
-          <td style="padding:.7rem 1rem;text-align:right">662,94 $ + taxes</td>
-        </tr>
-        <tr style="border-bottom:1px solid rgba(196,98,45,0.1)">
-          <td style="padding:.7rem 1rem;font-weight:600">12 mois</td>
-          <td style="padding:.7rem 1rem;text-align:center;color:var(--terra);font-weight:700">−20 %</td>
-          <td style="padding:.7rem 1rem;text-align:right">623,88 $ + taxes</td>
-          <td style="padding:.7rem 1rem;text-align:right">1&nbsp;247,90 $ + taxes</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <p style="font-size:.78rem;color:#9A6040;margin-top:.75rem;text-align:center">Le calcul s'applique à tous les forfaits. Contactez-nous pour obtenir votre devis personnalisé : <a href="tel:5149195970" style="color:var(--terra)">514-919-5970</a></p>
-</section>
-
-<!-- RÈGLEMENT GÉNÉRAL -->
-<section style="max-width:1100px;margin:0 auto 5rem;padding:0 1.5rem">
-  <div style="background:rgba(196,98,45,0.05);border:1px solid var(--terra-pale);border-radius:12px;padding:2rem 2.5rem">
-    <h2 style="font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:1.25rem;color:var(--charcoal)">Règlement Général des Abonnements</h2>
-    <ol style="padding-left:1.25rem;color:#4A2810;font-size:.88rem;line-height:1.9">
-      <li><strong>Engagement mensuel</strong> : Chaque abonnement est mensuel et se renouvelle automatiquement.</li>
-      <li><strong>Annulation</strong> : Toute annulation doit être faite 7 jours avant la date de renouvellement.</li>
-      <li><strong>Rendez-vous</strong> : Les créneaux sont réservés selon les disponibilités de l'équipe.</li>
-      <li><strong>Report</strong> : Un rendez-vous peut être reporté jusqu'à 48h avant sans frais.</li>
-      <li><strong>No-show</strong> : Tout rendez-vous manqué sans préavis est comptabilisé comme utilisé.</li>
-      <li><strong>Transfert</strong> : Les forfaits ne sont pas transférables d'une personne à une autre.</li>
-      <li><strong>Cumul</strong> : Un seul forfait par service par client. Les forfaits combos incluent les services mentionnés.</li>
-      <li><strong>Taxes</strong> : Tous les prix sont hors taxes. TPS (5 %) + TVQ (9,975 %) applicables au Québec.</li>
-      <li><strong>Passes prépayées</strong> : Le paiement est unique et non remboursable après le début du premier service.</li>
-      <li><strong>Contact</strong> : <a href="mailto:kadiocoiffureetesthetique@yahoo.com" style="color:var(--terra)">kadiocoiffureetesthetique@yahoo.com</a> | 514-919-5970</li>
-    </ol>
   </div>
 </section>
 
-<!-- PORTFOLIO PHOTOS -->
-<section class="portfolio-section">
-  <div class="label-tag">Notre Travail</div>
-  <div class="section-title">Réalisations du salon</div>
-  <div class="portfolio-grid">
-    <div class="portfolio-item"><img src="/img/portfolio-1-knotless.jpg" alt="Knotless Box Braids" loading="lazy" /></div>
-    <div class="portfolio-item"><img src="/img/portfolio-2-cornrows-enfant.jpg" alt="Cornrows enfant avec boucles" loading="lazy" /></div>
-    <div class="portfolio-item"><img src="/img/portfolio-3-waves-homme.jpg" alt="360 Waves homme" loading="lazy" /></div>
-    <div class="portfolio-item"><img src="/img/portfolio-4-coupe-design.jpg" alt="Coupe naturelle avec design" loading="lazy" /></div>
-    <div class="portfolio-item"><img src="/img/portfolio-5-dreadlocks.jpg" alt="Dreadlocks avec fade" loading="lazy" /></div>
-    <div class="portfolio-item"><img src="/img/portfolio-6-stitch-braids.jpg" alt="Stitch Braids géométriques" loading="lazy" /></div>
+<!-- ── PASSES PRÉPAYÉES ────────────────────────── -->
+<section class="section" style="background: var(--white); padding-top: 0;">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-overline">Économisez</span>
+      <h2>Passes Prépayées</h2>
+      <p>Payez d'avance pour plusieurs mois et réalisez des économies. Disponible pour tous les forfaits.</p>
+      <div class="divider-accent"></div>
+    </div>
+
+    <div class="table-wrap" style="max-width: 700px; margin: 0 auto;">
+      <table class="passes-table">
+        <thead>
+          <tr>
+            <th>Option de paiement</th>
+            <th>Modalité</th>
+            <th>Avantage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Paiement 2 mois</strong></td>
+            <td>Paiement unique</td>
+            <td style="color: var(--sage-dark); font-weight: 600;">Économie incluse</td>
+          </tr>
+          <tr>
+            <td><strong>Paiement 3 mois</strong></td>
+            <td>Paiement unique</td>
+            <td style="color: var(--sage-dark); font-weight: 600;">Économie accrue</td>
+          </tr>
+          <tr>
+            <td><strong>Paiement 6 mois</strong></td>
+            <td>Paiement unique</td>
+            <td style="color: var(--sage-dark); font-weight: 600;">Meilleur rapport qualité/prix</td>
+          </tr>
+          <tr>
+            <td><strong>Paiement 12 mois</strong></td>
+            <td>Paiement unique</td>
+            <td style="color: var(--terracotta); font-weight: 700;">Maximum d'économies</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="text-align: center; font-size: 0.875rem; margin-top: 1.5rem;">
+      Pour obtenir le montant exact de votre passe prépayée, contactez le salon ou demandez lors de votre prochain rendez-vous.
+    </p>
+
   </div>
 </section>
 
-<!-- FOOTER -->
-<footer>
+<!-- ── RÈGLEMENT ───────────────────────────────── -->
+<section class="section" style="padding-top: 0;">
+  <div class="container">
+    <div style="max-width: 700px; margin: 0 auto;">
+      <div class="section-header" style="text-align: left;">
+        <span class="section-overline">À savoir</span>
+        <h2>Règlement général des abonnements</h2>
+        <div class="divider-accent" style="margin-left: 0;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <ul class="rules-list">
+            <li>Tous les prix affichés sont avant taxes (TPS 5% + TVQ 9,975%).</li>
+            <li>Un dépôt de sécurité de 20% est requis à la réservation en ligne pour tous les forfaits.</li>
+            <li>Les Barbiers sont exonérés du dépôt de sécurité (dépôt: 0$).</li>
+            <li>Politique d'annulation selon les règles du salon — contactez-nous pour toute modification.</li>
+            <li>Les forfaits sont personnels et non transférables à une autre personne.</li>
+            <li>Renouvellement automatique mensuel sauf avis contraire communiqué avant la date de renouvellement.</li>
+            <li>Le forfait Famille (-10%) s'applique automatiquement dès la sélection de 2 forfaits ou plus.</li>
+            <li>Les passes prépayées sont valables pour la durée correspondante à compter de la date d'activation.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 2.5rem;">
+        <a href="/booking.html" class="btn btn-primary btn-lg">Souscrire un forfait</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ───────────────────────────────────── -->
+<footer class="footer">
   <div class="footer-inner">
-    <div class="footer-logo">Kadio Coiffure & Esthétique</div>
-    <div class="footer-addr">615 Antoinette Robidoux, local 100 · Longueuil, QC J4J 2V8</div>
-    <div class="footer-socials">
-      <a href="https://www.facebook.com/kadiocoiffure" target="_blank"> Facebook : kadio coiffure</a>
-      <a href="https://www.instagram.com/kadiocoiffure" target="_blank"> Instagram : @kadiocoiffure</a>
-      <a href="https://www.tiktok.com/@kadiocoiffure" target="_blank"> TikTok : @kadiocoiffure</a>
-      <a href="https://wa.me/15149195970" target="_blank"> WhatsApp : 514-919-5970</a>
+    <div class="footer-brand">Kadio Coiffure &amp; Esthétique</div>
+    <div class="footer-copy">
+      615 Antoinette Robidoux, local 100, Longueuil, QC &nbsp;|&nbsp; <a href="mailto:kadiocoiffureetesthetique@yahoo.com" style="color: rgba(255,255,255,0.6);">kadiocoiffureetesthetique@yahoo.com</a>
     </div>
-    <div class="footer-copy">© 2026 Kadio Coiffure & Esthétique. Tous droits réservés.</div>
+    <div class="footer-copy">&copy; 2025 Kadio Coiffure &amp; Esthétique. Tous droits réservés.</div>
   </div>
 </footer>
 
 <script>
-  // Filtrage par catégorie
-  const tabs = document.querySelectorAll('.tab-btn');
-  const cards = document.querySelectorAll('.plan-card');
-
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      const cat = tab.dataset.cat;
-      cards.forEach(card => {
-        if (cat === 'all' || card.dataset.cat === cat) {
-          card.classList.remove('hidden');
-        } else {
-          card.classList.add('hidden');
-        }
-      });
-    });
-  });
+  const toggle = document.getElementById('navToggle');
+  const menu = document.getElementById('navMenu');
+  toggle.addEventListener('click', () => menu.classList.toggle('open'));
 </script>
 </body>
 </html>

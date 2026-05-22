@@ -281,19 +281,9 @@ async function sendConfirmation(booking) {
   const { booking_id, client_name, client_phone, service_name, staff_name, start_at, staff_id } = booking;
   const firstName = client_name.split(' ')[0];
   const dateStr   = formatDateFR(start_at);
+  const timeStr   = formatTimeFR(start_at);
 
-  // Exception barbier [Mariel Yonkeu]
-  const isBarber = staff_id === BARBER_STAFF_ID;
-  const depositLine = isBarber
-    ? '✅ Aucun dépôt requis pour les services barbier'
-    : '💳 Un dépôt de 20% a été requis à la réservation';
-
-  const body = `Bonjour ${firstName} ! ✅ Votre RDV chez Kadio Coiffure est confirmé :
-📅 ${dateStr}
-✂️ ${service_name} avec ${staff_name}
-${depositLine}
-📍 615 Antoinette-Robidoux, local 100, Longueuil
-Questions ? 📞 514-919-5970`;
+  const body = `Bonjour ${firstName}, votre rendez-vous chez Kadio Coiffure est confirmé pour le ${dateStr} à ${timeStr}. Service: ${service_name}. Adresse: 615 Antoinette-Robidoux, local 100, Longueuil. Besoin de modifier? Appelez le (514) 919-5970.`;
 
   const result = await sendSMS(client_phone, body);
   if (result.success) await markSent(booking_id, 'confirm');
@@ -306,11 +296,9 @@ Questions ? 📞 514-919-5970`;
 async function sendReminder24h(booking) {
   const { booking_id, client_name, client_phone, service_name, staff_name, start_at } = booking;
   const dateStr = formatDateFR(start_at);
+  const timeStr = formatTimeFR(start_at);
 
-  const body = `Rappel 📅 Votre RDV chez Kadio Coiffure est demain :
-${dateStr} avec ${staff_name} — ${service_name}
-📍 615 Antoinette-Robidoux, local 100, Longueuil
-Pour annuler : 514-919-5970`;
+  const body = `Rappel: votre rendez-vous chez Kadio Coiffure est demain ${dateStr} à ${timeStr}. Service: ${service_name}. Bonne journée!`;
 
   const result = await sendSMS(client_phone, body);
   if (result.success) await markSent(booking_id, 'remind_24h');
@@ -324,9 +312,7 @@ async function sendReminder2h(booking) {
   const { booking_id, client_name, client_phone, service_name, staff_name, start_at } = booking;
   const heureStr = formatTimeFR(start_at);
 
-  const body = `⏰ Votre RDV chez Kadio Coiffure commence dans 2h !
-${heureStr} avec ${staff_name} — ${service_name}
-On vous attend ! 💇`;
+  const body = `Rappel: votre rendez-vous chez Kadio Coiffure est dans 2 heures, à ${heureStr}. On vous attend au 615 Antoinette-Robidoux, local 100, Longueuil.`;
 
   const result = await sendSMS(client_phone, body);
   if (result.success) await markSent(booking_id, 'remind_2h');
@@ -340,10 +326,7 @@ async function sendStaffReminder(booking) {
   const { booking_id, client_name, service_name, staff_phone, start_at } = booking;
   const heureStr = formatTimeFR(start_at);
 
-  const body = `📋 Rappel : RDV dans 1h
-Client : ${client_name}
-Service : ${service_name}
-Heure : ${heureStr}`;
+  const body = `Rappel: RDV dans 1h. Client: ${client_name}. Service: ${service_name}. Heure: ${heureStr}.`;
 
   const result = await sendSMS(staff_phone, body);
   if (result.success) await markSent(booking_id, 'staff_1h');
