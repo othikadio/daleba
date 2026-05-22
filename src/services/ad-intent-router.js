@@ -175,14 +175,23 @@ function responseFormation() {
 /**
  * Réponse générale avec LLM (Claude) enrichi contexte salon
  */
-async function responseGeneralLLM(text) {
+async function responseGeneralLLM(text, intent = 'general') {
   try {
     const claude = require('../agents/claude');
-    const systemPrompt = `Tu es Daleba, l'assistante IA de Kadio Coiffure (${SALON_INFO.name}).
-Salon : ${SALON_INFO.address} | Tel: ${SALON_INFO.phone} | Horaires: ${SALON_INFO.hours}
-Services : Dreads/Locks, Tresses/Nattes, Barbier, Coiffure, Tissage, Soins capillaires.
-Lien réservation en ligne : ${BOOKING_LINK}
-Réponds en français, chaleureusement, en moins de 3 phrases. Si pertinent, glisse toujours le lien de réservation.`;
+    // Injection dynamique du style appris des vraies conversations
+    let styleBlock = '';
+    try {
+      const styleExtractor = require('./style-extractor');
+      styleBlock = await styleExtractor.buildStylePromptBlock(intent);
+    } catch { /* fail silencieux si pas encore de données */ }
+
+    const systemPrompt =
+      `Tu es Daleba, l'assistante IA de Kadio Coiffure (${SALON_INFO.name}).\n` +
+      `Salon : ${SALON_INFO.address} | Tel: ${SALON_INFO.phone} | Horaires: ${SALON_INFO.hours}\n` +
+      `Services : Dreads/Locks, Tresses/Nattes, Barbier, Coiffure, Tissage, Soins capillaires.\n` +
+      `Lien réservation en ligne : ${BOOKING_LINK}\n` +
+      `Réponds en français, chaleureusement, en 2-3 phrases max. Si pertinent, glisse le lien de réservation.` +
+      styleBlock;
 
     const result = await claude.query(text, systemPrompt, []);
     return result.content || responseBooking();

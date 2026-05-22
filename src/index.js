@@ -104,6 +104,7 @@ app.use('/api/voice', require('./api/voice-dashboard-routes'));     // Jarvis �
 app.use('/api/dashboard', require('./api/voice-dashboard-routes')); // Jarvis — statut meta + site
 app.use('/api/salon', require('./api/salon-ops-routes'));  // V35 — Arrivée VIP + ratings + bouclier Google
 app.use('/api/staff', require('./api/staff-routes'));       // V35 — /api/staff/scan-qr
+app.use('/api/training', require('./api/training-routes')); // V31 — Ingestion conversations historiques + Style DNA
 
 // Middleware erreurs (Point 12)
 app.use(errorMiddleware);
