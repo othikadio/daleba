@@ -1392,7 +1392,7 @@ if (mediaApiRoutes)      router.use('/media',         mediaApiRoutes);
 router.get('/health', (req, res) => {
   res.json({
     status: 'ok',
-    commit: 'f75e58d',
+    commit: process.env.GIT_COMMIT_SHA || 'd8ad7ca',
     timestamp: new Date().toISOString(),
     routes: [
       '/api/sms/*', '/api/calendar/*', '/api/salon/*',
