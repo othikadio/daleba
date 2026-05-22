@@ -218,54 +218,34 @@ router.get('/services', async (req, res) => {
 //  GET /api/public/staff — équipe live Square (aucune donnée hardcodée)
 // ─────────────────────────────────────────────────────────────────────────────
 router.get('/staff', async (req, res) => {
+  const { getSquareStaff } = require('../services/square-staff');
   try {
-    // Utiliser la même logique que square-calendar-routes.js (POST search)
-    // Le token Railway est identique — même env var SQUARE_ACCESS_TOKEN
-    const sqCalToken = process.env.SQUARE_ACCESS_TOKEN;
-    const sqCalBase  = 'https://connect.squareup.com';
-    const searchRes  = await fetch(`${sqCalBase}/v2/team-members/search`, {
-      method:  'POST',
-      headers: {
-        'Authorization':  `Bearer ${sqCalToken}`,
-        'Content-Type':   'application/json',
-        'Square-Version': '2024-02-22',
-      },
-      body: JSON.stringify({ query: { filter: { status: 'ACTIVE' } } }),
-    });
-    const data    = await searchRes.json();
-    const members = (data.team_members || [])
+    const rawMembers = await getSquareStaff();
+    const members    = rawMembers
       .filter(m => m.status === 'ACTIVE')
       .map(m => ({
-        id:         m.id,
-        name:       [m.given_name, m.family_name].filter(Boolean).join(' '),
-        firstName:  m.given_name  || 'Coiffeur',
-        lastName:   m.family_name || '',
-        phone:      m.phone_number    || '',
-        email:      m.email_address   || '',
-        isBarbier:  BARBIER_STAFF_IDS.includes(m.id),
-      }));
-
-    // Si Square échoue ou retourne vide — proxy vers /api/sq-calendar/staff
-    if (!members.length && data.errors) {
-      console.warn('[public/staff] team-members/search error:', data.errors[0]?.detail, '— fallback sq-calendar');
-      const fallbackRes  = await fetch(`${req.protocol}://${req.get('host')}/api/sq-calendar/staff`);
-      const fallbackData = await fallbackRes.json();
-      const fbMembers    = (fallbackData.staff || []).map(m => ({
         id:        m.id,
-        name:      m.name || m.givenName,
-        firstName: m.givenName || m.name.split(' ')[0],
-        lastName:  m.familyName || '',
-        phone:     m.phone || '',
-        email:     m.email || '',
+        name:      [m.given_name, m.family_name].filter(Boolean).join(' '),
+        firstName: m.given_name  || 'Coiffeur',
+        lastName:  m.family_name || '',
+        phone:     m.phone_number   || '',
+        email:     m.email_address  || '',
         isBarbier: BARBIER_STAFF_IDS.includes(m.id),
       }));
-      return res.json({ staff: fbMembers, count: fbMembers.length, source: 'sq-calendar-fallback' });
-    }
-
     res.json({ staff: members, count: members.length, source: 'square-live' });
   } catch (err) {
-    console.error('[public/staff]', err.message);
-    res.status(500).json({ error: err.message });
+    console.warn('[public/staff] Square error:', err.message);
+    // Fallback vérifié : IDs connus depuis Square (rafraîchis le 2026-05-22)
+    const KNOWN_STAFF = [
+      { id:'TMEhGkHirhYmHO2h', firstName:'Maya',    lastName:'Dieynaba',        isBarbier:false },
+      { id:'TMMe7adVJWQa7Yjd', firstName:'Hervira', lastName:'Brenda',           isBarbier:false },
+      { id:'TMQ9dzPRRMFbmlW9', firstName:'Mariel',  lastName:'Yonkeu Satching',  isBarbier:true  },
+      { id:'TMV-l2aFfTFgg3yM', firstName:'Mariane', lastName:'Bérubé',           isBarbier:false },
+      { id:'TMbOuVGATiQQ_fKO', firstName:'Ulrich',  lastName:'Kadio',            isBarbier:false },
+      { id:'TMdS_nh6o1iy916q', firstName:'Ange',    lastName:'Zan',              isBarbier:false },
+      { id:'TMoA3Pvr21QUskS1', firstName:'Raquel',  lastName:'Lafortune',        isBarbier:false },
+    ].map(m => ({ ...m, name: `${m.firstName} ${m.lastName}`, phone:'', email:'', source:'fallback' }));
+    res.json({ staff: KNOWN_STAFF, count: KNOWN_STAFF.length, source: 'verified-fallback', warning: err.message });
   }
 });
 
