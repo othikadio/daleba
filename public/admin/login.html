@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kadio Coiffure — Connexion Staff</title>
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #F0D080;
+    --dark: #0a0a0f;
+    --surface: rgba(255,255,255,0.06);
+    --border: rgba(201,168,76,0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--dark);
+    background-image: radial-gradient(ellipse at 30% 20%, rgba(201,168,76,0.12) 0%, transparent 60%),
+                      radial-gradient(ellipse at 70% 80%, rgba(100,60,180,0.08) 0%, transparent 60%);
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: #e8e0d0;
+  }
+  .card {
+    background: rgba(20,18,30,0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px 40px;
+    width: 100%; max-width: 420px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(201,168,76,0.15);
+  }
+  .logo {
+    text-align: center; margin-bottom: 32px;
+  }
+  .logo h1 {
+    font-size: 1.6rem; font-weight: 700;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: 0.5px;
+  }
+  .logo p { color: rgba(232,224,208,0.5); font-size: 0.85rem; margin-top: 4px; }
+  .tab-row {
+    display: flex; gap: 8px; margin-bottom: 24px;
+  }
+  .tab-btn {
+    flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border);
+    background: transparent; color: rgba(232,224,208,0.5); cursor: pointer;
+    font-size: 0.85rem; transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: var(--gold); color: #0a0a0f; font-weight: 600; border-color: var(--gold);
+  }
+  label { display: block; font-size: 0.8rem; color: var(--gold); margin-bottom: 6px; font-weight: 500; }
+  input, select {
+    width: 100%; padding: 12px 14px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: #e8e0d0; font-size: 0.95rem; outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus { border-color: var(--gold); }
+  select option { background: #1a1825; }
+  .form-group { margin-bottom: 18px; }
+  .pin-row {
+    display: flex; gap: 8px; justify-content: center;
+  }
+  .pin-digit {
+    width: 48px; height: 56px; text-align: center; font-size: 1.4rem;
+    border-radius: 10px; border: 1px solid var(--border); background: var(--surface);
+    color: #e8e0d0; outline: none; transition: border-color 0.2s;
+  }
+  .pin-digit:focus { border-color: var(--gold); }
+  .btn-login {
+    width: 100%; padding: 14px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--gold), #a07830);
+    border: none; color: #0a0a0f; font-size: 1rem; font-weight: 700;
+    cursor: pointer; margin-top: 8px; transition: opacity 0.2s, transform 0.1s;
+  }
+  .btn-login:hover { opacity: 0.9; }
+  .btn-login:active { transform: scale(0.98); }
+  .error {
+    background: rgba(220,50,50,0.15); border: 1px solid rgba(220,50,50,0.4);
+    border-radius: 8px; padding: 10px 14px; font-size: 0.85rem; color: #ff7070;
+    margin-bottom: 16px; display: none;
+  }
+  .spinner {
+    display: inline-block; width: 18px; height: 18px;
+    border: 2px solid rgba(10,10,15,0.3); border-top-color: #0a0a0f;
+    border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <h1>✂️ Kadio Coiffure</h1>
+    <p>Portail Staff — Connexion</p>
+  </div>
+
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="setMode('staff')">Coiffeur</button>
+    <button class="tab-btn" onclick="setMode('email')">Email</button>
+  </div>
+
+  <div id="errorBox" class="error"></div>
+
+  <form id="loginForm" onsubmit="doLogin(event)">
+    <div id="staffField" class="form-group">
+      <label>Sélectionner votre profil</label>
+      <select id="staffSelect">
+        <option value="">— Choisir —</option>
+        <option value="TMbOuVGATiQQ_fKO">Ulrich Kadio (Admin)</option>
+        <option value="TMEhGkHirhYmHO2h">Maya</option>
+        <option value="TMQ9dzPRRMFbmlW9">Mariel Yonkeu</option>
+        <option value="TMV-l2aFfTFgg3yM">Mariane Bérubé</option>
+        <option value="TMoA3Pvr21QUskS1">Raquel Lafortune</option>
+        <option value="TMMe7adVJWQa7Yjd">Hervira Brenda</option>
+        <option value="TMdS_nh6o1iy916q">Ange Zan</option>
+      </select>
+    </div>
+
+    <div id="emailField" class="form-group" style="display:none">
+      <label>Email</label>
+      <input type="email" id="emailInput" placeholder="votre@email.com" autocomplete="email">
+    </div>
+
+    <div class="form-group">
+      <label>PIN (4-6 chiffres)</label>
+      <div class="pin-row" id="pinRow">
+        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p0">
+        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p1">
+        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p2">
+        <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p3">
+      </div>
+    </div>
+
+    <button type="submit" class="btn-login" id="loginBtn">Se connecter</button>
+  </form>
+</div>
+
+<script>
+let loginMode = 'staff';
+
+function setMode(mode) {
+  loginMode = mode;
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', (i===0 && mode==='staff') || (i===1 && mode==='email'));
+  });
+  document.getElementById('staffField').style.display = mode==='staff' ? '' : 'none';
+  document.getElementById('emailField').style.display  = mode==='email' ? '' : 'none';
+}
+
+// PIN digit auto-advance
+document.querySelectorAll('.pin-digit').forEach((el, i) => {
+  el.addEventListener('input', () => {
+    if (el.value && i < 3) document.getElementById('p'+(i+1)).focus();
+  });
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Backspace' && !el.value && i > 0) document.getElementById('p'+(i-1)).focus();
+  });
+});
+
+async function doLogin(e) {
+  e.preventDefault();
+  const errBox = document.getElementById('errorBox');
+  errBox.style.display = 'none';
+  const pin = ['p0','p1','p2','p3'].map(id => document.getElementById(id).value).join('');
+  if (pin.length < 4) { showError('Entrez votre PIN (4+ chiffres)'); return; }
+
+  const body = { pin };
+  if (loginMode === 'staff') {
+    const sq = document.getElementById('staffSelect').value;
+    if (!sq) { showError('Sélectionnez votre profil'); return; }
+    body.squareId = sq;
+  } else {
+    body.email = document.getElementById('emailInput').value.trim();
+    if (!body.email) { showError('Email requis'); return; }
+  }
+
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Connexion...';
+
+  try {
+    const r = await fetch('/api/staff-auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await r.json();
+    if (!r.ok) { showError(data.error || 'Identifiants incorrects'); return; }
+
+    localStorage.setItem('staffToken', data.token);
+    localStorage.setItem('staffInfo', JSON.stringify(data.staff));
+
+    if (data.staff.role === 'admin') {
+      window.location.href = '/admin/team-manager.html';
+    } else {
+      window.location.href = '/admin/staff-portal.html';
+    }
+  } catch {
+    showError('Erreur réseau — réessayez');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Se connecter';
+  }
+}
+
+function showError(msg) {
+  const b = document.getElementById('errorBox');
+  b.textContent = msg; b.style.display = 'block';
+}
+</script>
+</body>
+</html>

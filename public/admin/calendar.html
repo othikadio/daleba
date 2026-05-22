@@ -232,6 +232,52 @@
   .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin .6s linear infinite; }
   @keyframes spin { to{transform:rotate(360deg)} }
 
+  /* ── SMS BADGE ── */
+  .sms-badge {
+    position: absolute; top: 3px; right: 24px;
+    background: var(--warning); color: #000;
+    border-radius: 50%; width: 14px; height: 14px;
+    font-size: 9px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 20;
+  }
+  .sms-badge.sent { background: var(--success); }
+
+  /* ── VIEW TABS ── */
+  .view-tabs { display: flex; gap: 4px; background: var(--glass); border: 1px solid var(--border); border-radius: 10px; padding: 3px; }
+  .view-tab {
+    padding: 6px 14px; border-radius: 7px; border: none;
+    background: transparent; color: var(--muted); cursor: pointer;
+    font-size: 12px; font-weight: 600; transition: all .2s;
+  }
+  .view-tab.active { background: var(--accent); color: #fff; }
+  .view-tab:hover:not(.active) { background: var(--glass-hover); color: var(--text); }
+
+  /* ── TODAY LIST VIEW ── */
+  .today-list { display: flex; flex-direction: column; gap: 10px; }
+  .today-appt-card {
+    background: var(--glass); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 16px;
+    backdrop-filter: blur(12px); cursor: pointer;
+    transition: all .2s;
+  }
+  .today-appt-card:hover { background: var(--glass-hover); transform: translateX(3px); }
+  .today-time { font-size: 20px; font-weight: 800; color: var(--accent2); min-width: 55px; }
+  .today-info { flex: 1; }
+  .today-client { font-size: 14px; font-weight: 700; color: var(--text); }
+  .today-service { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .today-staff { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .today-actions { display: flex; gap: 6px; align-items: center; }
+  .btn-sms {
+    background: rgba(245,158,11,0.15); border: 1px solid var(--warning);
+    color: var(--warning); padding: 5px 10px; border-radius: 7px;
+    cursor: pointer; font-size: 12px; transition: all .2s;
+  }
+  .btn-sms:hover { background: rgba(245,158,11,0.3); }
+  .btn-sms.sent { border-color: var(--success); color: var(--success); background: rgba(34,197,94,0.1); }
+  .no-appts { text-align: center; padding: 40px; color: var(--muted); font-size: 14px; }
+
   /* ── STATS BAR ── */
   .stats-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
   .stat-card {
@@ -278,6 +324,14 @@
       <div class="lbl">RDV aujourd'hui</div>
     </div>
     <div class="stat-card">
+      <div class="val" id="statConfirmed" style="color:var(--success)">—</div>
+      <div class="lbl">SMS confirmés</div>
+    </div>
+    <div class="stat-card">
+      <div class="val" id="statNoSms" style="color:var(--warning)">—</div>
+      <div class="lbl">Sans SMS</div>
+    </div>
+    <div class="stat-card">
       <div class="val" id="statStaff">—</div>
       <div class="lbl">Staff actif</div>
     </div>
@@ -289,18 +343,22 @@
 
   <!-- CONTROLS -->
   <div class="controls">
-    <div class="week-nav">
+    <div class="view-tabs">
+      <button class="view-tab active" id="tabWeek" onclick="switchView('week')">📅 Semaine</button>
+      <button class="view-tab" id="tabToday" onclick="switchView('today')">📋 Aujourd'hui</button>
+    </div>
+    <div class="week-nav" id="weekNav">
       <button class="btn-nav" onclick="prevWeek()">‹</button>
       <div class="week-label" id="weekLabel">Chargement...</div>
       <button class="btn-nav" onclick="nextWeek()">›</button>
     </div>
-    <div class="staff-filter" id="staffFilter">
+    <div class="staff-filter" id="staffFilter" style="display:flex">
       <div class="staff-pill active" data-id="all" onclick="filterStaff('all', this)">Tous</div>
     </div>
   </div>
 
-  <!-- CALENDAR -->
-  <div class="cal-wrapper">
+  <!-- CALENDAR WEEK VIEW -->
+  <div class="cal-wrapper" id="weekView">
     <div class="cal-header" id="calHeader">
       <div class="cal-header-cell"></div>
     </div>
@@ -309,6 +367,11 @@
         <div class="spinner"></div> Chargement...
       </div>
     </div>
+  </div>
+
+  <!-- TODAY LIST VIEW -->
+  <div id="todayView" style="display:none">
+    <div id="todayList" class="today-list"></div>
   </div>
 
 </div>
@@ -358,9 +421,15 @@
     <button class="close-btn" onclick="closeDetailModal()">✕</button>
     <h2 id="detailTitle">Rendez-vous</h2>
     <div id="detailContent"></div>
-    <div style="margin-top:20px;display:flex;gap:10px;">
+    <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
       <button class="btn-primary" style="background:var(--danger)" id="cancelBtn" onclick="cancelCurrentAppt()">
         Annuler le RDV
+      </button>
+      <button class="btn-primary" style="background:rgba(245,158,11,0.2);border:1px solid var(--warning);color:var(--warning);flex:0" id="smsConfirmBtn" onclick="sendSmsFromModal('confirm')">
+        📱 Confirmation SMS
+      </button>
+      <button class="btn-primary" style="background:rgba(6,182,212,0.15);border:1px solid var(--accent2);color:var(--accent2);flex:0" id="smsRemindBtn" onclick="sendSmsFromModal('remind_24h')">
+        ⏰ Rappel SMS
       </button>
     </div>
   </div>

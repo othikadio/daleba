@@ -106,6 +106,9 @@ app.use('/api/salon', require('./api/salon-ops-routes'));  // V35 — Arrivée V
 app.use('/api/staff', require('./api/staff-routes'));       // V35 — /api/staff/scan-qr
 app.use('/api/training', require('./api/training-routes')); // V31 — Ingestion conversations historiques + Style DNA
 app.use('/api/sq-calendar', require('./api/square-calendar-routes')); // Chantier 2 — Calendrier Square multi-staff
+app.use('/api/staff-auth', require('./api/auth-staff-routes')); // Authentification staff JWT + PIN
+app.use('/api/staff-portal', require('./api/staff-portal-routes')); // Portail staff — dashboard, notes, agenda
+app.use('/api/notifications', require('./api/notification-routes')); // Chantier A — SMS auto RDV
 
 // Middleware erreurs (Point 12)
 app.use(errorMiddleware);
@@ -175,6 +178,17 @@ app.post('/api/auth/studio-token', (req, res) => {
   if (!expected || secret !== expected) return res.status(401).json({ error: 'Secret invalide' });
   const { generateStudioToken } = require('./middleware/studio-auth');
   res.json({ token: generateStudioToken({ email: 'ulrich@kadio' }) });
+});
+
+// Portail Staff
+app.get('/admin/login', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin/login.html'));
+});
+app.get('/admin/staff-portal', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin/staff-portal.html'));
+});
+app.get('/admin/team-manager', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin/team-manager.html'));
 });
 
 // Chantier 2 — Calendrier Square multi-staff
@@ -338,6 +352,10 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   const { runReminderWorker } = require('./workers/reminder-worker');
   setInterval(runReminderWorker, 60 * 60 * 1000); // toutes les heures
   runReminderWorker(); // run immédiatement au démarrage
+
+  // [Chantier A] Notifications SMS auto (confirmation + rappels 24h/2h + staff 1h)
+  const apptNotifier = require('./services/appointment-notifier');
+  apptNotifier.scheduleReminders();
 
   // [Manifeste] Pôle Média — worker publication toutes les 30 min
   const mediaPipeline = require('./services/media-pipeline');

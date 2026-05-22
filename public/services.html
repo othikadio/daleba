@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Services — Kadio Coiffure</title>
+  <meta name="description" content="Catalogue complet des services de Kadio Coiffure : tresses, locks, barbier, extensions, soins. Prix réels depuis Square." />
+  <link rel="stylesheet" href="/assets/css/salon.css" />
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Kadio <span>Coiffure</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/">Accueil</a></li>
+      <li><a href="/services.html" class="active">Services</a></li>
+      <li><a href="/team.html">Équipe</a></li>
+      <li><a href="/booking.html" class="btn btn-primary btn-sm">Réserver</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="subtitle">Notre catalogue</div>
+  <h1>Nos Services</h1>
+  <div class="divider"></div>
+  <p style="color:var(--text-muted);max-width:500px;margin:0.75rem auto 0">Prix réels, mises à jour depuis notre système Square. Tous les prix en CAD.</p>
+</div>
+
+<section class="section">
+  <div class="container">
+    <!-- Filter Tabs -->
+    <div class="filter-tabs" id="filterTabs">
+      <button class="filter-tab active" data-cat="all">Tous</button>
+      <button class="filter-tab" data-cat="Locks">🔒 Locks & Dreads</button>
+      <button class="filter-tab" data-cat="Tresses">🪢 Tresses & Braids</button>
+      <button class="filter-tab" data-cat="Extensions">🌿 Extensions</button>
+      <button class="filter-tab" data-cat="Barbier">💈 Barbier</button>
+      <button class="filter-tab" data-cat="Soins">✨ Soins & Couleur</button>
+    </div>
+
+    <!-- Services Grid -->
+    <div id="servicesGrid" class="grid grid-3">
+      <div class="loading"><div class="spinner"></div> Chargement des services…</div>
+    </div>
+
+    <!-- CTA -->
+    <div style="text-align:center;margin-top:3rem">
+      <p style="margin-bottom:1.25rem;font-size:1.05rem">Prêt à prendre soin de vous ?</p>
+      <a href="/booking.html" class="btn btn-primary btn-lg">📅 Réserver maintenant</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-bottom" style="padding-top:0;border-top:none;justify-content:space-between;padding:1.5rem 0">
+      <p>© 2025 Kadio Coiffure · <a href="tel:+15149195970">514-919-5970</a> · 615 Antoinette-Robidoux, local 100, Longueuil</p>
+      <a href="/" class="btn btn-sm btn-outline">← Accueil</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+});
+document.getElementById('navToggle').addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('open');
+});
+
+const CATEGORIES = {
+  lock: 'Locks', dread: 'Locks', interlock: 'Locks', microloc: 'Locks',
+  'tresse': 'Tresses', braid: 'Tresses', knotless: 'Tresses', twist: 'Tresses',
+  extension: 'Extensions', tissage: 'Extensions',
+  barb: 'Barbier', 'coupe barb': 'Barbier',
+  color: 'Soins', soin: 'Soins', coloration: 'Soins',
+};
+
+function categorize(name) {
+  const n = name.toLowerCase();
+  for (const [kw, cat] of Object.entries(CATEGORIES)) {
+    if (n.includes(kw)) return cat;
+  }
+  return 'Autre';
+}
+
+function icon(cat) {
+  return { Locks:'🔒', Tresses:'🪢', Extensions:'🌿', Barbier:'💈', Soins:'✨', Autre:'💇' }[cat] || '💇';
+}
+
+function cleanName(name) {
+  // Remove English part after /
+  const parts = name.split('/');
+  return parts[0].trim();
+}
+
+function renderServices(services, activeFilter) {
+  const grid = document.getElementById('servicesGrid');
+  const filtered = activeFilter === 'all' ? services : services.filter(s => s.category === activeFilter);
+
+  if (!filtered.length) {
+    grid.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem">Aucun service dans cette catégorie.</p>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(s => `
+    <div class="card service-card fade-in" data-cat="${s.category}">
+      <div class="icon">${icon(s.category)}</div>
+      <div class="badge badge-accent" style="margin-bottom:0.75rem">${s.category}</div>
+      <h3 style="font-size:1rem;margin-bottom:0.5rem">${cleanName(s.name)}</h3>
+      ${s.description ? `<p style="font-size:0.82rem;margin-bottom:0.75rem">${s.description.slice(0,100)}${s.description.length>100?'…':''}</p>` : ''}
+      <div style="display:flex;gap:0.75rem;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:auto;padding-top:0.75rem">
+        ${s.price > 0 ? `<span class="price-tag">${s.price}$ CAD</span>` : `<span class="price-tag" style="color:var(--text-muted)">Prix sur devis</span>`}
+        ${s.durationMin ? `<span style="color:var(--text-muted);font-size:0.8rem">⏱ ${s.durationMin} min</span>` : ''}
+      </div>
+      <a href="/booking.html?serviceId=${s.id}" class="btn btn-sm btn-outline" style="margin-top:1rem">Réserver →</a>
+    </div>
+  `).join('');
+}
+
+let allServices = [];
+let activeFilter = 'all';
+
+async function loadServices() {
+  try {
+    const res = await fetch('/api/public/services');
+    const data = await res.json();
+    allServices = (data.services || []).map(s => ({ ...s, category: categorize(s.name) }));
+    renderServices(allServices, activeFilter);
+  } catch (e) {
+    // Fallback static data
+    allServices = [
+      { id:'1', name:'Resserage de locks interlock', price: 120, durationMin: 120, category:'Locks' },
+      { id:'2', name:'Resserages interlock microlocks', price: 300, durationMin: 360, category:'Locks' },
+      { id:'3', name:'Tresses knotless petites avec extensions', price: 0, durationMin: 480, category:'Tresses' },
+      { id:'4', name:'Coupe barbier avec beard', price: 40, durationMin: 60, category:'Barbier' },
+      { id:'5', name:'Coloration cheveux courts', price: 50, durationMin: 150, category:'Soins' },
+    ];
+    renderServices(allServices, activeFilter);
+  }
+}
+
+document.getElementById('filterTabs').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-tab');
+  if (!btn) return;
+  document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter = btn.dataset.cat;
+  renderServices(allServices, activeFilter);
+});
+
+loadServices();
+</script>
+</body>
+</html>

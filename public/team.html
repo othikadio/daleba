@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notre Équipe — Kadio Coiffure</title>
+  <meta name="description" content="Rencontrez l'équipe de Kadio Coiffure : coiffeurs afro, barbier, manucuriste, spécialiste locks." />
+  <link rel="stylesheet" href="/assets/css/salon.css" />
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Kadio <span>Coiffure</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/">Accueil</a></li>
+      <li><a href="/services.html">Services</a></li>
+      <li><a href="/team.html" class="active">Équipe</a></li>
+      <li><a href="/booking.html" class="btn btn-primary btn-sm">Réserver</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="subtitle">Des professionnels passionnés</div>
+  <h1>Notre Équipe</h1>
+  <div class="divider"></div>
+  <p style="color:var(--text-muted);max-width:500px;margin:0.75rem auto 0">7 experts, une passion commune : sublimer votre beauté avec authenticité et savoir-faire.</p>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="grid grid-3" id="teamGrid">
+      <div class="loading"><div class="spinner"></div> Chargement…</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Équipe -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="cta-banner">
+      <h2>Choisissez votre expert</h2>
+      <p>Chaque membre de l'équipe a sa spécialité. Réservez directement avec le coiffeur de votre choix.</p>
+      <div class="cta-actions">
+        <a href="/booking.html" class="btn btn-primary btn-lg">📅 Prendre rendez-vous</a>
+        <a href="tel:+15149195970" class="btn btn-outline">📞 Nous appeler</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-bottom" style="padding:1.5rem 0;border-top:none">
+      <p>© 2025 Kadio Coiffure · <a href="tel:+15149195970">514-919-5970</a> · 615 Antoinette-Robidoux, local 100, Longueuil</p>
+      <a href="/" class="btn btn-sm btn-outline">← Accueil</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+});
+document.getElementById('navToggle').addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('open');
+});
+
+// Static team data (enriched with Square descriptions)
+const TEAM = [
+  {
+    id: 'TMEhGkHirhYmHO2h',
+    name: 'Maya Dieynaba',
+    shortName: 'Maya',
+    role: 'Coiffeuse Afro',
+    initials: 'MD',
+    bio: 'Spécialiste cheveux afro avec un savoir-faire sénégalais authentique. Maya maîtrise toutes les techniques de coiffure afro, des tresses aux soins capillaires.',
+    specialties: ['Tresses', 'Coiffure afro', 'Soins'],
+    emoji: '👸',
+    color: 'linear-gradient(135deg, #8b1a4a, #c9a84c)',
+  },
+  {
+    id: 'TMoA3Pvr21QUskS1',
+    name: 'Raquel Lafortune',
+    shortName: 'Raquel',
+    role: 'Spécialiste Locks & Dreads',
+    initials: 'RL',
+    bio: 'Experte reconnue en locks et dreadlocks. Raquel maîtrise toutes les techniques : interlock, microlocks, sisterlocks, départ de locks. Résultats impeccables garantis.',
+    specialties: ['Locks', 'Dreads', 'Interlock', 'Sisterlocks'],
+    emoji: '🔒',
+    color: 'linear-gradient(135deg, #1a4a8b, #c9a84c)',
+  },
+  {
+    id: 'TMQ9dzPRRMFbmlW9',
+    name: 'Mariel Yonkeu Satching',
+    shortName: 'Mariel',
+    role: 'Barbier Expert',
+    initials: 'MY',
+    bio: 'Barbier expert spécialisé dans les fades et contours de précision. Mariel transforme chaque coupe en œuvre d\'art. Résultats nets et propres à chaque visite.',
+    specialties: ['Fades', 'Contours', 'Barbe', 'Coupes'],
+    emoji: '💈',
+    color: 'linear-gradient(135deg, #1a6b2e, #c9a84c)',
+  },
+  {
+    id: 'TMV-l2aFfTFgg3yM',
+    name: 'Mariane Bérubé',
+    shortName: 'Mariane',
+    role: 'Manucuriste',
+    initials: 'MB',
+    bio: 'Manucuriste professionnelle certifiée. Mariane prend soin de vos mains et de vos ongles avec délicatesse et précision. Nail art, soins classiques et techniques modernes.',
+    specialties: ['Manucure', 'Nail Art', 'Soins ongles'],
+    emoji: '💅',
+    color: 'linear-gradient(135deg, #6b1a6b, #c9a84c)',
+  },
+  {
+    id: 'TMMe7adVJWQa7Yjd',
+    name: 'Hervira Brenda',
+    shortName: 'Hervira',
+    role: 'Coiffeuse',
+    initials: 'HB',
+    bio: 'Coiffeuse polyvalente avec un talent naturel pour la mise en beauté. Hervira excelle dans les styles naturels et les coiffures de protection.',
+    specialties: ['Coiffure', 'Styles naturels', 'Tresses'],
+    emoji: '💇',
+    color: 'linear-gradient(135deg, #8b4a1a, #c9a84c)',
+  },
+  {
+    id: 'TMdS_nh6o1iy916q',
+    name: 'Ange Zan',
+    shortName: 'Ange',
+    role: 'Coiffeur',
+    initials: 'AZ',
+    bio: 'Coiffeur créatif passionné par son métier. Ange apporte une touche artistique à chaque coiffure et s\'adapte à tous les styles et types de cheveux.',
+    specialties: ['Coiffure créative', 'Tresses', 'Styles afro'],
+    emoji: '✂️',
+    color: 'linear-gradient(135deg, #1a2e8b, #c9a84c)',
+  },
+  {
+    id: 'TMbOuVGATiQQ_fKO',
+    name: 'Ulrich Kadio',
+    shortName: 'Ulrich',
+    role: 'Gérant & Propriétaire',
+    initials: 'UK',
+    bio: 'Fondateur et gérant de Kadio Coiffure. Ulrich a créé ce salon pour offrir une expérience de coiffure afro authentique et de qualité à Longueuil et ses environs.',
+    specialties: ['Direction', 'Coiffure', 'Conseil'],
+    emoji: '👑',
+    color: 'linear-gradient(135deg, #c9a84c, #8b1a4a)',
+  },
+];
+
+const grid = document.getElementById('teamGrid');
+grid.innerHTML = TEAM.map(m => `
+  <div class="card fade-in" style="overflow:visible">
+    <div class="card-body" style="text-align:center;padding:2rem">
+      <div class="team-avatar" style="background:${m.color};width:90px;height:90px;font-size:1.8rem;margin-bottom:1.25rem">
+        ${m.initials}
+      </div>
+      <div class="badge" style="margin-bottom:0.75rem">${m.emoji} ${m.role}</div>
+      <h3 style="font-size:1.15rem;margin-bottom:0.5rem">${m.name}</h3>
+      <p style="font-size:0.88rem;line-height:1.55;margin-bottom:1.25rem">${m.bio}</p>
+      <div style="display:flex;flex-wrap:wrap;gap:0.4rem;justify-content:center;margin-bottom:1.5rem">
+        ${m.specialties.map(s => `<span class="badge badge-accent" style="font-size:0.72rem">${s}</span>`).join('')}
+      </div>
+      <a href="/booking.html?staff=${m.id}" class="btn btn-primary" style="width:100%">
+        Réserver avec ${m.shortName}
+      </a>
+    </div>
+  </div>
+`).join('');
+</script>
+</body>
+</html>

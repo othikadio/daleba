@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestion Équipe — Admin Kadio</title>
+<style>
+  :root {
+    --gold: #C9A84C; --gold-light: #F0D080;
+    --dark: #0a0a0f; --surface: rgba(255,255,255,0.05);
+    --surface2: rgba(255,255,255,0.08); --border: rgba(201,168,76,0.25);
+    --text: #e8e0d0; --muted: rgba(232,224,208,0.5);
+    --red: rgba(220,60,60,0.2); --green: rgba(50,200,100,0.2);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--dark);
+    background-image: radial-gradient(ellipse at 80% 0%, rgba(201,168,76,0.1) 0%, transparent 50%);
+    min-height: 100vh; font-family: 'Segoe UI', system-ui, sans-serif;
+    color: var(--text);
+  }
+  header {
+    background: rgba(15,13,22,0.9); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .brand { font-size: 1rem; font-weight: 700; color: var(--gold); }
+  .admin-badge {
+    background: rgba(201,168,76,0.15); border: 1px solid var(--gold);
+    color: var(--gold); padding: 3px 10px; border-radius: 20px; font-size: 0.75rem;
+  }
+  .btn-logout {
+    background: rgba(200,60,60,0.15); border: 1px solid rgba(200,60,60,0.3);
+    color: #ff8080; padding: 6px 14px; border-radius: 8px; cursor: pointer;
+    font-size: 0.8rem;
+  }
+  nav {
+    display: flex; gap: 4px; padding: 16px 24px 0;
+    border-bottom: 1px solid var(--border); overflow-x: auto;
+  }
+  .nav-tab {
+    padding: 10px 20px; border-radius: 10px 10px 0 0;
+    border: 1px solid transparent; border-bottom: none;
+    background: transparent; color: var(--muted); cursor: pointer;
+    font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;
+  }
+  .nav-tab.active {
+    background: var(--surface2); border-color: var(--border);
+    color: var(--gold); font-weight: 600;
+  }
+  main { padding: 24px; max-width: 1000px; margin: 0 auto; }
+  .section { display: none; }
+  .section.visible { display: block; }
+  h2 { font-size: 1.2rem; color: var(--gold); margin-bottom: 16px; }
+
+  /* Staff grid */
+  .staff-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 16px; }
+  .staff-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px; cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .staff-card:hover { border-color: var(--gold); box-shadow: 0 4px 20px rgba(201,168,76,0.1); }
+  .staff-card .s-name { font-size: 1rem; font-weight: 700; }
+  .staff-card .s-role {
+    display: inline-block; margin-top: 4px; padding: 2px 8px; border-radius: 10px;
+    font-size: 0.72rem;
+  }
+  .role-admin { background: rgba(201,168,76,0.2); color: var(--gold); }
+  .role-staff { background: rgba(100,150,255,0.15); color: #80a0ff; }
+  .staff-card .s-spec { font-size: 0.8rem; color: var(--muted); margin-top: 6px; }
+  .staff-card .s-phone { font-size: 0.8rem; color: var(--muted); }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px;
+  }
+  .dot-active { background: #60e890; }
+  .dot-inactive { background: #ff7070; }
+  .pin-info {
+    margin-top: 10px; padding: 6px 10px; border-radius: 6px;
+    background: rgba(201,168,76,0.08); font-size: 0.78rem; color: var(--muted);
+  }
+
+  /* Modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #12101e; border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px; max-width: 480px; width: 90%;
+    max-height: 90vh; overflow-y: auto;
+  }
+  .modal h3 { color: var(--gold); margin-bottom: 20px; font-size: 1.05rem; }
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 0.78rem; color: var(--gold); margin-bottom: 5px; }
+  input, textarea, select {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px; color: var(--text);
+    font-size: 0.9rem; outline: none; width: 100%; transition: border-color 0.2s;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--gold); }
+  textarea { resize: vertical; min-height: 70px; }
+  select option { background: #1a1825; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn { padding: 9px 18px; border-radius: 8px; border: none; font-size: 0.88rem; cursor: pointer; }
+  .btn-primary { background: var(--gold); color: #0a0a0f; font-weight: 700; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-danger { background: rgba(220,60,60,0.2); color: #ff8080; border: 1px solid rgba(220,60,60,0.3); }
+
+  /* Notes équipe */
+  .note-form {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; margin-bottom: 20px;
+  }
+  .note-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px; margin-bottom: 10px;
+  }
+  .note-card .note-meta { font-size: 0.75rem; color: var(--muted); margin-top: 6px; }
+  .empty { color: var(--muted); font-size: 0.9rem; text-align: center; padding: 32px 0; }
+  .header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+
+  /* Calendar */
+  .schedule-header { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .schedule-header select, .schedule-header input { flex: 1; min-width: 140px; max-width: 240px; }
+  .booking-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    border-radius: 8px; transition: background 0.15s;
+  }
+  .booking-row:hover { background: var(--surface); }
+  .bk-time { font-weight: 700; color: var(--gold); min-width: 50px; }
+  .bk-status { margin-left: auto; font-size: 0.75rem; padding: 3px 8px; border-radius: 12px; }
+  .bk-ok  { background: rgba(50,200,100,0.15); color: #60e890; }
+  .bk-pend { background: rgba(200,160,50,0.15); color: var(--gold); }
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="brand">✂️ Kadio Coiffure</div>
+    <span class="admin-badge">👑 Admin</span>
+  </div>
+  <button class="btn-logout" onclick="logout()">Déconnexion</button>
+</header>
+
+<nav>
+  <button class="nav-tab active" onclick="showTab('team')">👥 Équipe</button>
+  <button class="nav-tab" onclick="showTab('schedule')">📅 Agendas</button>
+  <button class="nav-tab" onclick="showTab('notes')">📝 Notes équipe</button>
+</nav>
+
+<main>
+
+<!-- ÉQUIPE -->
+<div id="tab-team" class="section visible">
+  <div class="header-row">
+    <h2>👥 Gestion de l'équipe</h2>
+    <button class="btn btn-primary" onclick="openAddModal()">+ Ajouter</button>
+  </div>
+  <div id="staffGrid" class="staff-grid"><div class="empty">Chargement...</div></div>
+</div>
+
+<!-- AGENDAS -->
+<div id="tab-schedule" class="section">
+  <h2>📅 Agenda de l'équipe</h2>
+  <div class="schedule-header">
+    <select id="schedStaff" onchange="loadSchedule()">
+      <option value="">— Sélectionner un coiffeur —</option>
+    </select>
+    <input type="date" id="schedDate" onchange="loadSchedule()">
+  </div>
+  <div id="scheduleList"><div class="empty">Sélectionnez un coiffeur</div></div>
+</div>
+
+<!-- NOTES ÉQUIPE -->
+<div id="tab-notes" class="section">
+  <div class="note-form">
+    <h3 style="color:var(--gold);margin-bottom:14px;font-size:0.95rem">📝 Nouvelle note sur un coiffeur</h3>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+      <div style="flex:1;min-width:140px">
+        <label style="font-size:0.78rem;color:var(--gold);display:block;margin-bottom:5px">Coiffeur cible</label>
+        <select id="noteTarget"></select>
+      </div>
+      <div style="flex:1;min-width:140px">
+        <label style="font-size:0.78rem;color:var(--gold);display:block;margin-bottom:5px">Visibilité</label>
+        <select id="notePrivacy">
+          <option value="true">Privée (admin only)</option>
+          <option value="false">Partagée</option>
+        </select>
+      </div>
+    </div>
+    <textarea id="noteTeamText" placeholder="Note sur ce coiffeur..."></textarea>
+    <button class="btn btn-primary" style="margin-top:12px" onclick="submitTeamNote()">Enregistrer</button>
+  </div>
+
+  <h2>📋 Notes existantes</h2>
+  <div id="teamNotesList"><div class="empty">Chargement...</div></div>
+</div>
+
+</main>
+
+<!-- MODAL EDIT STAFF -->
+<div class="modal-overlay" id="staffModal">
+  <div class="modal">
+    <h3 id="modalTitle">Modifier coiffeur</h3>
+    <input type="hidden" id="editId">
+    <div class="form-group"><label>Nom</label><input type="text" id="editName"></div>
+    <div class="form-group"><label>Email</label><input type="email" id="editEmail"></div>
+    <div class="form-group"><label>Téléphone</label><input type="tel" id="editPhone"></div>
+    <div class="form-group">
+      <label>Rôle</label>
+      <select id="editRole">
+        <option value="staff">Staff</option>
+        <option value="admin">Admin</option>
+        <option value="receptionist">Réceptionniste</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Spécialité</label><input type="text" id="editSpeciality"></div>
+    <div class="form-group"><label>Bio</label><textarea id="editBio"></textarea></div>
+    <div class="form-group">
+      <label>Statut</label>
+      <select id="editActive">
+        <option value="true">Actif</option>
+        <option value="false">Inactif</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveStaff()">Sauvegarder</button>
+      <button class="btn btn-outline" onclick="closeModal()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const token = localStorage.getItem('staffToken');
+const staffInfo = JSON.parse(localStorage.getItem('staffInfo') || '{}');
+if (!token || staffInfo.role !== 'admin') {
+  window.location.href = '/admin/login.html';
+}
+
+function authHeaders() {
+  return { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token };
+}
+function logout() {
+  localStorage.removeItem('staffToken'); localStorage.removeItem('staffInfo');
+  window.location.href = '/admin/login.html';
+}
+function showTab(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('visible');
+  event.target.classList.add('active');
+  if (name === 'team') loadTeam();
+  if (name === 'notes') { loadTeamNotes(); loadTeamForSelect(); }
+  if (name === 'schedule') { loadTeamForSchedule(); document.getElementById('schedDate').value = new Date().toISOString().split('T')[0]; }
+}
+
+// ── TEAM ──
+let teamData = [];
+async function loadTeam() {
+  const grid = document.getElementById('staffGrid');
+  grid.innerHTML = '<div class="empty">Chargement...</div>';
+  try {
+    const r = await fetch('/api/staff-portal/team', { headers: authHeaders() });
+    const d = await r.json();
+    teamData = d.staff || [];
+    if (!teamData.length) { grid.innerHTML = '<div class="empty">Aucun coiffeur enregistré</div>'; return; }
+    grid.innerHTML = teamData.map(s => {
+      const defaultPin = s.phone ? s.phone.slice(-4) : '????';
+      return `<div class="staff-card" onclick="openEdit(${s.id})">
+        <div class="s-name">
+          <span class="status-dot ${s.is_active ? 'dot-active' : 'dot-inactive'}"></span>
+          ${escHtml(s.name)}
+        </div>
+        <span class="s-role role-${s.role}">${s.role === 'admin' ? '👑 Admin' : s.role}</span>
+        <div class="s-spec">${escHtml(s.speciality || '—')}</div>
+        <div class="s-phone">${s.phone || ''}</div>
+        <div class="pin-info">PIN par défaut : ${defaultPin}</div>
+      </div>`;
+    }).join('');
+  } catch {
+    grid.innerHTML = '<div class="empty">Erreur de chargement</div>';
+  }
+}
+
+function openEdit(id) {
+  const s = teamData.find(x => x.id === id);
+  if (!s) return;
+  document.getElementById('modalTitle').textContent = 'Modifier — ' + s.name;
+  document.getElementById('editId').value = id;
+  document.getElementById('editName').value = s.name || '';
+  document.getElementById('editEmail').value = s.email || '';
+  document.getElementById('editPhone').value = s.phone || '';
+  document.getElementById('editRole').value = s.role || 'staff';
+  document.getElementById('editSpeciality').value = s.speciality || '';
+  document.getElementById('editBio').value = s.bio || '';
+  document.getElementById('editActive').value = s.is_active ? 'true' : 'false';
+  document.getElementById('staffModal').classList.add('open');
+}
+
+function openAddModal() {
+  document.getElementById('modalTitle').textContent = 'Ajouter coiffeur';
+  document.getElementById('editId').value = '';
+  ['editName','editEmail','editPhone','editSpeciality','editBio'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('editRole').value = 'staff';
+  document.getElementById('editActive').value = 'true';
+  document.getElementById('staffModal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('staffModal').classList.remove('open'); }
+
+async function saveStaff() {
+  const id = document.getElementById('editId').value;
+  const body = {
+    name: document.getElementById('editName').value,
+    email: document.getElementById('editEmail').value,
+    phone: document.getElementById('editPhone').value,
+    role: document.getElementById('editRole').value,
+    speciality: document.getElementById('editSpeciality').value,
+    bio: document.getElementById('editBio').value,
+    isActive: document.getElementById('editActive').value === 'true',
+  };
+  if (!id) { alert('Création via API non implémentée — utilisez un seed'); return; }
+  try {
+    await fetch('/api/staff-portal/team/' + id, {
+      method: 'PUT', headers: authHeaders(), body: JSON.stringify(body)
+    });
+    closeModal();
+    loadTeam();
+  } catch { alert('Erreur sauvegarde'); }
+}
+
+// ── SCHEDULE ──
+function loadTeamForSchedule() {
+  const sel = document.getElementById('schedStaff');
+  if (sel.options.length > 1) return;
+  teamData.forEach(s => {
+    const o = document.createElement('option');
+    o.value = s.square_id; o.textContent = s.name;
+    sel.appendChild(o);
+  });
+  if (!teamData.length) {
+    fetch('/api/staff-portal/team', { headers: authHeaders() })
+      .then(r => r.json()).then(d => {
+        teamData = d.staff || [];
+        teamData.forEach(s => {
+          const o = document.createElement('option');
+          o.value = s.square_id; o.textContent = s.name;
+          sel.appendChild(o);
+        });
+      });
+  }
+}
+
+async function loadSchedule() {
+  const sqId = document.getElementById('schedStaff').value;
+  const date = document.getElementById('schedDate').value;
+  if (!sqId || !date) return;
+  const list = document.getElementById('scheduleList');
+  list.innerHTML = '<div class="empty">Chargement...</div>';
+  try {
+    // Use staff-portal schedule but we need the token for that staff — admin can see their own
+    // For now show the admin's schedule or fetch via admin token
+    const r = await fetch('/api/staff-portal/schedule?date=' + date, { headers: authHeaders() });
+    const d = await r.json();
+    const bk = d.bookings || [];
+    if (!bk.length) { list.innerHTML = '<div class="empty">Aucun RDV ce jour-là</div>'; return; }
+    list.innerHTML = bk.map(b => {
+      const t = new Date(b.start_at || b.startAt);
+      const hm = t.toLocaleTimeString('fr-CA', { hour:'2-digit', minute:'2-digit' });
+      return `<div class="booking-row">
+        <span class="bk-time">${hm}</span>
+        <span>Client #${(b.customer_id||b.customerId||'—').slice(-6)}</span>
+        <span class="bk-status ${b.status==='ACCEPTED'?'bk-ok':'bk-pend'}">${b.status||'En attente'}</span>
+      </div>`;
+    }).join('');
+  } catch {
+    list.innerHTML = '<div class="empty">Erreur chargement agenda</div>';
+  }
+}
+
+// ── NOTES ÉQUIPE ──
+async function loadTeamForSelect() {
+  const sel = document.getElementById('noteTarget');
+  if (sel.options.length) return;
+  if (!teamData.length) {
+    const r = await fetch('/api/staff-portal/team', { headers: authHeaders() });
+    const d = await r.json();
+    teamData = d.staff || [];
+  }
+  teamData.forEach(s => {
+    const o = document.createElement('option');
+    o.value = s.id; o.textContent = s.name;
+    sel.appendChild(o);
+  });
+}
+
+async function loadTeamNotes() {
+  const list = document.getElementById('teamNotesList');
+  list.innerHTML = '<div class="empty">Chargement...</div>';
+  try {
+    const r = await fetch('/api/staff-portal/team-notes', { headers: authHeaders() });
+    const d = await r.json();
+    if (!d.notes?.length) { list.innerHTML = '<div class="empty">Aucune note</div>'; return; }
+    list.innerHTML = d.notes.map(n => `
+      <div class="note-card">
+        <strong>${escHtml(n.target_name)}</strong>
+        <span style="color:var(--muted);font-size:0.8rem"> · ${n.is_private ? '🔒 Privée' : '🌐 Partagée'}</span>
+        <p style="margin-top:8px;font-size:0.9rem">${escHtml(n.note)}</p>
+        <div class="note-meta">Par ${n.author_name} · ${new Date(n.created_at).toLocaleDateString('fr-CA')}</div>
+      </div>
+    `).join('');
+  } catch {
+    list.innerHTML = '<div class="empty">Erreur</div>';
+  }
+}
+
+async function submitTeamNote() {
+  const targetId = document.getElementById('noteTarget').value;
+  const note     = document.getElementById('noteTeamText').value.trim();
+  const isPrivate = document.getElementById('notePrivacy').value === 'true';
+  if (!targetId || !note) { alert('Cible et note requis'); return; }
+  try {
+    await fetch('/api/staff-portal/team-notes', {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ targetId: parseInt(targetId), note, isPrivate })
+    });
+    document.getElementById('noteTeamText').value = '';
+    loadTeamNotes();
+  } catch { alert('Erreur enregistrement note'); }
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+loadTeam();
+</script>
+</body>
+</html>

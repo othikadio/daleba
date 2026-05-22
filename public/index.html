@@ -3,557 +3,270 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kadio Coiffure & Esthétique — Longueuil, QC</title>
-  <meta name="description" content="Salon de coiffure afro à Longueuil. Tresses, Locs, Barbier, Extensions. Forfaits mensuels dès 35.99$/mois. Prise de RDV en ligne 24/7." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --primary:        #C4622D;
-      --primary-dark:   #A8461A;
-      --primary-light:  #E8916B;
-      --primary-pale:   #F5D5C3;
-      --secondary:      #7A9E6E;
-      --secondary-dark: #5C7A52;
-      --secondary-light:#A8C49A;
-      --secondary-pale: #D8EDD0;
-      --cream:          #FAF6F0;
-      --charcoal:       #1C1008;
-      --gold:           #C9933A;
-      --white:          #FFFFFF;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--cream);
-      color: var(--charcoal);
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-    h1,h2,h3,h4 { font-family: 'Playfair Display', serif; }
-    a { text-decoration: none; color: inherit; }
-
-    /* ─── NAV ─── */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--primary-pale);
-      box-shadow: 0 2px 12px rgba(196,98,45,0.08);
-    }
-    .nav-inner {
-      max-width: 1200px; margin: 0 auto;
-      padding: 0 1.5rem; height: 68px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .nav-logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.4rem; font-weight: 700;
-      color: var(--primary);
-      letter-spacing: 0.05em;
-    }
-    .nav-logo span { color: var(--secondary-dark); font-weight: 400; font-size: 0.85em; }
-    .nav-links { display: flex; gap: 0.25rem; align-items: center; }
-    .nav-links a {
-      padding: 0.45rem 0.9rem;
-      border-radius: 6px;
-      font-size: 0.9rem; font-weight: 500;
-      color: var(--charcoal);
-      transition: background 0.2s, color 0.2s;
-    }
-    .nav-links a:hover { background: var(--primary-pale); color: var(--primary-dark); }
-    .nav-links .btn-nav {
-      background: var(--primary); color: var(--white);
-      padding: 0.5rem 1.2rem; border-radius: 8px; font-weight: 600;
-    }
-    .nav-links .btn-nav:hover { background: var(--primary-dark); color: var(--white); }
-    .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
-    .nav-hamburger span { display: block; width: 24px; height: 2px; background: var(--charcoal); margin: 5px 0; border-radius: 2px; }
-
-    /* ─── HERO ─── */
-    .hero {
-      margin-top: 68px;
-      background: linear-gradient(135deg, var(--primary-pale) 0%, var(--cream) 60%, var(--secondary-pale) 100%);
-      min-height: 90vh;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;
-      align-items: center;
-      padding: 4rem 2rem;
-      max-width: 1200px; margin-left: auto; margin-right: auto;
-      margin-top: 68px;
-    }
-    .hero-text { padding: 2rem 0; }
-    .hero-badge {
-      display: inline-block;
-      background: var(--primary-pale); color: var(--primary-dark);
-      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-      padding: 0.35rem 0.9rem; border-radius: 20px;
-      border: 1px solid var(--primary-light);
-      margin-bottom: 1.2rem;
-    }
-    .hero-title {
-      font-size: clamp(2.2rem, 4vw, 3.4rem);
-      font-weight: 700; line-height: 1.15;
-      color: var(--charcoal);
-      margin-bottom: 1rem;
-    }
-    .hero-title em { font-style: italic; color: var(--primary); }
-    .hero-sub {
-      font-size: 1.1rem; color: #6B4226;
-      margin-bottom: 2rem; max-width: 480px;
-    }
-    .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; }
-    .btn-primary {
-      background: var(--primary); color: var(--white);
-      padding: 0.85rem 2rem; border-radius: 10px;
-      font-weight: 700; font-size: 1rem;
-      box-shadow: 0 4px 18px rgba(196,98,45,0.35);
-      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-    }
-    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(196,98,45,0.45); color: var(--white); }
-    .btn-secondary {
-      background: var(--white); color: var(--primary);
-      padding: 0.85rem 2rem; border-radius: 10px;
-      font-weight: 600; font-size: 1rem;
-      border: 2px solid var(--primary-pale);
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .btn-secondary:hover { border-color: var(--primary); background: var(--primary-pale); }
-    .hero-img {
-      width: 100%;
-      max-width: 520px;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 20px 60px rgba(196,98,45,0.18);
-    }
-    .hero-img img {
-      width: 100%;
-      height: auto;
-      display: block;
-      object-fit: cover;
-    }
-    .hero-img-placeholder {
-      background: var(--primary-pale);
-      border-radius: 20px;
-      min-height: 420px;
-      display: flex; align-items: center; justify-content: center;
-      flex-direction: column; gap: 0.75rem;
-      font-size: 3rem;
-      color: var(--primary);
-      border: 2px dashed var(--primary-light);
-      box-shadow: 0 8px 32px rgba(196,98,45,0.12);
-      position: relative; overflow: hidden;
-    }
-    .hero-img-placeholder .placeholder-label {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.95rem; font-weight: 500;
-      color: var(--primary-dark);
-    }
-    .hero-stats {
-      display: flex; gap: 2rem; margin-top: 2.5rem; flex-wrap: wrap;
-    }
-    .hero-stat { text-align: center; }
-    .hero-stat .num { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--primary); }
-    .hero-stat .lbl { font-size: 0.78rem; color: #7A5038; text-transform: uppercase; letter-spacing: 0.06em; }
-
-    /* ─── SECTIONS COMMUNES ─── */
-    section { padding: 5rem 1.5rem; }
-    .section-inner { max-width: 1200px; margin: 0 auto; }
-    .section-tag {
-      display: inline-block;
-      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--primary); margin-bottom: 0.5rem;
-    }
-    .section-title {
-      font-size: clamp(1.8rem, 3vw, 2.6rem);
-      font-weight: 700; color: var(--charcoal);
-      margin-bottom: 0.6rem;
-    }
-    .section-sub { font-size: 1rem; color: #6B4226; margin-bottom: 3rem; max-width: 600px; }
-
-    /* ─── FORFAITS VEDETTES ─── */
-    #forfaits-vedettes { background: var(--white); }
-    .forfaits-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;
-    }
-    .forfait-card {
-      background: var(--cream);
-      border: 2px solid var(--primary-pale);
-      border-radius: 16px; padding: 1.75rem;
-      position: relative; overflow: hidden;
-      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
-    }
-    .forfait-card:hover { border-color: var(--primary); box-shadow: 0 8px 28px rgba(196,98,45,0.14); transform: translateY(-3px); }
-    .forfait-card.featured {
-      border-color: var(--primary);
-      background: linear-gradient(135deg, #fff 0%, var(--primary-pale) 100%);
-    }
-    .forfait-badge {
-      position: absolute; top: 1rem; right: 1rem;
-      background: var(--primary); color: var(--white);
-      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-      padding: 0.25rem 0.65rem; border-radius: 20px;
-    }
-    .forfait-cat {
-      font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--secondary-dark); margin-bottom: 0.4rem;
-    }
-    .forfait-name { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; color: var(--charcoal); margin-bottom: 0.5rem; }
-    .forfait-price { font-size: 2rem; font-weight: 800; color: var(--primary); line-height: 1; }
-    .forfait-price span { font-size: 1rem; font-weight: 500; color: #7A5038; }
-    .forfait-desc { font-size: 0.88rem; color: #5A3820; margin-top: 0.75rem; line-height: 1.5; }
-    .forfait-cta {
-      display: block; margin-top: 1.4rem;
-      background: var(--primary); color: var(--white);
-      text-align: center; padding: 0.7rem; border-radius: 8px;
-      font-weight: 600; font-size: 0.9rem;
-      transition: background 0.2s;
-    }
-    .forfait-cta:hover { background: var(--primary-dark); color: var(--white); }
-    .forfaits-voir-tous {
-      text-align: center; margin-top: 2.5rem;
-    }
-    .forfaits-voir-tous a {
-      display: inline-block;
-      border: 2px solid var(--primary); color: var(--primary);
-      padding: 0.8rem 2.4rem; border-radius: 10px;
-      font-weight: 600; font-size: 0.95rem;
-      transition: background 0.2s, color 0.2s;
-    }
-    .forfaits-voir-tous a:hover { background: var(--primary); color: var(--white); }
-
-    /* ─── SERVICES ─── */
-    #services { background: var(--cream); }
-    .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.25rem; }
-    .service-card {
-      background: var(--white);
-      border: 1px solid var(--primary-pale);
-      border-radius: 14px; padding: 1.5rem 1.25rem;
-      text-align: center;
-      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
-    }
-    .service-card:hover { border-color: var(--primary-light); box-shadow: 0 4px 18px rgba(196,98,45,0.1); transform: translateY(-2px); }
-    .service-icon { font-size: 2.2rem; margin-bottom: 0.6rem; }
-    .service-name { font-weight: 600; font-size: 0.95rem; color: var(--charcoal); margin-bottom: 0.3rem; }
-    .service-price { font-size: 0.85rem; color: var(--primary); font-weight: 600; }
-    .service-duration { font-size: 0.78rem; color: #8A6040; margin-top: 0.2rem; }
-
-    /* CSS équipe retiré — coiffeurs visibles uniquement au tunnel de réservation */
-
-    /* ─── FORMATION TEASER ─── */
-    #formation-teaser {
-      background: linear-gradient(135deg, var(--secondary-pale) 0%, var(--cream) 100%);
-    }
-    .formation-card {
-      background: var(--white);
-      border: 2px solid var(--secondary-light);
-      border-radius: 20px; padding: 3rem 2.5rem;
-      display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center;
-      box-shadow: 0 4px 24px rgba(122,158,110,0.1);
-    }
-    .formation-tag {
-      display: inline-block;
-      background: var(--secondary-pale); color: var(--secondary-dark);
-      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-      padding: 0.3rem 0.8rem; border-radius: 20px;
-      border: 1px solid var(--secondary-light); margin-bottom: 0.8rem;
-    }
-    .formation-title { font-size: 1.8rem; font-weight: 700; color: var(--charcoal); margin-bottom: 0.5rem; }
-    .formation-desc { font-size: 0.95rem; color: #3D5C35; line-height: 1.6; margin-bottom: 1.5rem; }
-    .btn-formation {
-      display: inline-block;
-      background: var(--secondary-dark); color: var(--white);
-      padding: 0.85rem 2rem; border-radius: 10px;
-      font-weight: 700; font-size: 0.95rem;
-      transition: background 0.2s, transform 0.15s;
-    }
-    .btn-formation:hover { background: #4A6642; transform: translateY(-2px); color: var(--white); }
-    .formation-badge-img {
-      background: linear-gradient(135deg, var(--secondary-pale), var(--secondary-light));
-      border-radius: 16px; width: 140px; height: 140px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 3.5rem;
-      border: 2px solid var(--secondary-light);
-    }
-
-    /* ─── TÉMOIGNAGES ─── */
-    #temoignages { background: var(--cream); }
-    .temoignages-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
-    .temoignage-card {
-      background: var(--white);
-      border: 1px solid var(--primary-pale);
-      border-radius: 14px; padding: 1.75rem;
-      transition: box-shadow 0.2s;
-    }
-    .temoignage-card:hover { box-shadow: 0 4px 16px rgba(196,98,45,0.1); }
-    .stars { color: var(--gold); font-size: 1.1rem; margin-bottom: 0.6rem; }
-    .temoignage-text { font-size: 0.95rem; color: var(--charcoal); line-height: 1.65; font-style: italic; margin-bottom: 1rem; }
-    .temoignage-author { font-weight: 700; font-size: 0.88rem; color: var(--primary-dark); }
-    .temoignage-service { font-size: 0.8rem; color: #7A5038; }
-
-    /* ─── CONTACT ─── */
-    #contact { background: var(--white); }
-    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
-    .contact-block h3 { font-size: 1.25rem; font-weight: 700; color: var(--charcoal); margin-bottom: 1.2rem; }
-    .contact-item { display: flex; gap: 0.8rem; align-items: flex-start; margin-bottom: 1rem; }
-    .contact-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 0.1rem; }
-    .contact-info strong { display: block; font-weight: 600; color: var(--charcoal); font-size: 0.95rem; }
-    .contact-info span { font-size: 0.88rem; color: #6B4226; }
-    .horaires-table { width: 100%; border-collapse: collapse; }
-    .horaires-table tr td { padding: 0.45rem 0; font-size: 0.88rem; }
-    .horaires-table tr td:first-child { font-weight: 600; color: var(--charcoal); width: 120px; }
-    .horaires-table tr td:last-child { color: #6B4226; }
-    .horaires-table tr.fermé td { color: #C4A899; }
-    .btn-whatsapp {
-      display: inline-flex; align-items: center; gap: 0.6rem;
-      background: #25D366; color: var(--white);
-      padding: 0.8rem 1.8rem; border-radius: 10px;
-      font-weight: 700; font-size: 0.95rem; margin-top: 1.2rem;
-      transition: background 0.2s, transform 0.15s;
-    }
-    .btn-whatsapp:hover { background: #1ebe57; transform: translateY(-2px); color: var(--white); }
-
-    /* ─── FOOTER ─── */
-    footer {
-      background: var(--charcoal); color: rgba(255,255,255,0.75);
-      padding: 3rem 1.5rem 2rem;
-    }
-    .footer-inner { max-width: 1200px; margin: 0 auto; }
-    .footer-top {
-      display: grid; grid-template-columns: 2fr 1fr 1fr;
-      gap: 3rem; margin-bottom: 2rem;
-    }
-    .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: var(--primary-light); margin-bottom: 0.6rem; }
-    .footer-about { font-size: 0.88rem; line-height: 1.6; }
-    .footer-col h4 { color: var(--white); font-size: 0.9rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.9rem; }
-    .footer-col a { display: block; font-size: 0.88rem; color: rgba(255,255,255,0.65); margin-bottom: 0.4rem; transition: color 0.2s; }
-    .footer-col a:hover { color: var(--primary-light); }
-    .footer-bottom {
-      border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: 0.82rem; flex-wrap: wrap; gap: 0.5rem;
-    }
-
-    /* ─── RESPONSIVE ─── */
-    @media (max-width: 768px) {
-      .hero { grid-template-columns: 1fr; gap: 2rem; padding: 2rem 1.2rem; min-height: auto; }
-      .hero-img { max-width: 100%; }
-      .contact-grid { grid-template-columns: 1fr; }
-      .footer-top { grid-template-columns: 1fr; gap: 2rem; }
-      .formation-card { grid-template-columns: 1fr; }
-      .formation-badge-img { display: none; }
-      .nav-links { display: none; position: absolute; top: 68px; left: 0; right: 0; background: var(--white); flex-direction: column; padding: 1rem; border-bottom: 1px solid var(--primary-pale); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-      .nav-links.open { display: flex; }
-      .nav-hamburger { display: block; }
-    }
-  </style>
+  <title>Kadio Coiffure — Salon Afro à Longueuil</title>
+  <meta name="description" content="Salon de coiffure afro à Longueuil. Tresses, locks, barbier, tissage, manucure. Réservation en ligne 24/7." />
+  <link rel="stylesheet" href="/assets/css/salon.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✂️</text></svg>" />
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav>
-    <div class="nav-inner">
-      <a href="/" class="nav-logo">KADIO <span>Coiffure & Esthétique</span></a>
-      <div class="nav-links" id="navLinks">
-        <a href="/">Accueil</a>
-        <a href="/menu">Services</a>
-        <a href="/forfaits">Forfaits</a>
-        <a href="/formation">Formation</a>
-        <a href="/reservation" class="btn-nav">Réserver</a>
-      </div>
-      <button class="nav-hamburger" id="navToggle" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </nav>
+<!-- ── Navigation ── -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Kadio <span>Coiffure</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/" class="active">Accueil</a></li>
+      <li><a href="/services.html">Services</a></li>
+      <li><a href="/team.html">Équipe</a></li>
+      <li><a href="/booking.html" class="btn btn-primary btn-sm">Réserver</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
 
-  <!-- HERO -->
-  <section class="hero" style="padding-top:5rem; padding-bottom:4rem;">
-    <div class="hero-text">
-      <div class="hero-badge"> Longueuil, Québec</div>
-      <h1 class="hero-title">L'expertise <em>afro</em><br>au cœur de<br>Longueuil</h1>
-      <p class="hero-sub">Tresses, Locs, Barbier, Extensions — par une équipe passionnée. Forfaits mensuels flexibles. Prise de RDV en ligne 24/7.</p>
-      <div class="hero-ctas">
-        <a href="/reservation" class="btn-primary"> Prendre un RDV</a>
-        <a href="/forfaits" class="btn-secondary">Voir les forfaits</a>
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-particles"></div>
+  <div class="hero-content">
+    <div class="hero-text fade-in">
+      <div class="overline">Salon Afro · Longueuil</div>
+      <h1>Votre beauté,<br>notre passion</h1>
+      <p>Expert en coiffure afro, tresses, locks et barbier. Un accueil chaleureux, un savoir-faire authentique — à deux pas de Montréal.</p>
+      <div class="hero-actions">
+        <a href="/booking.html" class="btn btn-primary btn-lg">📅 Réserver maintenant</a>
+        <a href="/services.html" class="btn btn-outline">Voir nos services</a>
       </div>
       <div class="hero-stats">
-        <div class="hero-stat"><div class="num">6</div><div class="lbl">Spécialistes</div></div>
-        <div class="hero-stat"><div class="num">10+</div><div class="lbl">Services</div></div>
-        <div class="hero-stat"><div class="num">RDV</div><div class="lbl">En ligne 24/7</div></div>
-      </div>
-    </div>
-    <div>
-      <div class="hero-img">
-        <img src="/img/hero-principal.jpg" alt="Stitch Braids — Kadio Coiffure Longueuil" loading="eager" />
-      </div>
-    </div>
-  </section>
-
-  <!-- FORFAITS VEDETTES -->
-  <section id="forfaits-vedettes">
-    <div class="section-inner">
-      <div class="section-tag">Abonnements Exclusifs</div>
-      <h2 class="section-title">Nos Forfaits Mensuels</h2>
-      <p class="section-sub">Un prix fixe par mois, tout inclus. Services à la carte disponibles sur <a href="/menu" style="color:var(--primary);font-weight:600">notre menu complet</a>.</p>
-      <div class="forfaits-grid">
-
-        <div class="forfait-card featured">
-          <div class="forfait-badge">Populaire</div>
-          <div class="forfait-cat">Barbier</div>
-          <div class="forfait-name">Coupe & Barbe</div>
-          <div class="forfait-price">64<sup>.99</sup>$<span>/mois</span></div>
-          <div class="forfait-desc">Coupe + entretien barbe illimité chaque mois. Le forfait préféré des hommes.</div>
-          <a href="/reservation" class="forfait-cta">Réserver</a>
+        <div class="stat-item">
+          <div class="num">7</div>
+          <div class="lbl">Experts</div>
         </div>
-
-        <div class="forfait-card">
-          <div class="forfait-cat">Locs</div>
-          <div class="forfait-name">Locs Illimité</div>
-          <div class="forfait-price">129<sup>.99</sup>$<span>/mois</span></div>
-          <div class="forfait-desc">Entretien locs illimité. Twists, retouches, soins — tout compris.</div>
-          <a href="/reservation" class="forfait-cta">Réserver</a>
+        <div class="stat-item">
+          <div class="num">50+</div>
+          <div class="lbl">Services</div>
         </div>
-
-        <div class="forfait-card">
-          <div class="forfait-cat">Tresses</div>
-          <div class="forfait-name">Knotless Signature</div>
-          <div class="forfait-price">139<sup>.99</sup>$<span>/mois</span></div>
-          <div class="forfait-desc">Knotless braids signature, retouches incluses. Le summum du style.</div>
-          <a href="/reservation" class="forfait-cta">Réserver</a>
-        </div>
-
-        <div class="forfait-card">
-          <div class="forfait-badge" style="background: var(--gold);">Combo</div>
-          <div class="forfait-cat">Combo Famille</div>
-          <div class="forfait-name">Locs + Barbier</div>
-          <div class="forfait-price">154<sup>.99</sup>$<span>/mois</span></div>
-          <div class="forfait-desc">Entretien locs + coupe barbier — parfait pour les couples ou duos.</div>
-          <a href="/reservation" class="forfait-cta">Réserver</a>
-        </div>
-
-      </div>
-      <div class="forfaits-voir-tous">
-        <a href="/forfaits">Voir tous les forfaits →</a>
-      </div>
-    </div>
-  </section>
-
-  
-
-  <!-- TÉMOIGNAGES -->
-  <section id="temoignages">
-    <div class="section-inner">
-      <div class="section-tag"> Témoignages</div>
-      <h2 class="section-title">Ils nous font confiance</h2>
-      <p class="section-sub">La satisfaction de nos clients, c'est notre meilleure récompense.</p>
-      <div class="temoignages-grid">
-        <div class="temoignage-card">
-          <div class="stars"></div>
-          <p class="temoignage-text">"J'ai essayé plusieurs salons à Longueuil — Kadio Coiffure est de loin le meilleur pour les locs. Othi est un vrai artiste et l'équipe est super accueillante."</p>
-          <div class="temoignage-author">Madeleine T.</div>
-          <div class="temoignage-service">Entretien Locs</div>
-        </div>
-        <div class="temoignage-card">
-          <div class="stars"></div>
-          <p class="temoignage-text">"Le forfait Coupe & Barbe à 64.99$/mois, c'est imbattable. Mariel fait du travail impeccable à chaque fois. Réservation en ligne super facile."</p>
-          <div class="temoignage-author">Kevin A.</div>
-          <div class="temoignage-service">Forfait Barbier</div>
-        </div>
-        <div class="temoignage-card">
-          <div class="stars"></div>
-          <p class="temoignage-text">"Les knotless de Ange sont parfaites. Le salon est propre, ambiance agréable. Je recommande vraiment le forfait mensuel, ça revient tellement moins cher !"</p>
-          <div class="temoignage-author">Vanessa M.</div>
-          <div class="temoignage-service">Knotless Braids</div>
+        <div class="stat-item">
+          <div class="num">5★</div>
+          <div class="lbl">Qualité</div>
         </div>
       </div>
     </div>
-  </section>
+    <div class="hero-visual">
+      <div class="hero-circle">
+        <div class="hero-circle-inner">✂️</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-  <!-- CONTACT -->
-  <section id="contact">
-    <div class="section-inner">
-      <div class="section-tag"> Contact & Horaires</div>
-      <h2 class="section-title">Venez nous voir</h2>
-      <div class="contact-grid">
-        <div class="contact-block">
-          <h3>Nous trouver</h3>
-          <div class="contact-item">
-            <div class="contact-icon"></div>
-            <div class="contact-info">
-              <strong>615 Antoinette-Robidoux, local 100</strong>
-              <span>Longueuil, QC J4J 2V8</span>
-            </div>
-          </div>
-          <div class="contact-item">
-            <div class="contact-icon"></div>
-            <div class="contact-info">
-              <strong>514-919-5970 | kadiocoiffureetesthetique@yahoo.com</strong>
-              <span>Appel & WhatsApp</span>
-            </div>
-          </div>
-          <div class="contact-item">
-            <div class="contact-icon"></div>
-            <div class="contact-info">
-              <strong>kadiocoiffure@gmail.com</strong>
-            </div>
-          </div>
-          <a href="https://wa.me/15149195970" class="btn-whatsapp" target="_blank" rel="noopener">
-             Écrire sur WhatsApp
-          </a>
+<!-- ── Services Aperçu ── -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="subtitle">Ce que nous faisons</div>
+      <h2>Nos Spécialités</h2>
+      <div class="divider"></div>
+      <p>De la coiffure afro traditionnelle aux soins modernes — nous maîtrisons toutes les techniques.</p>
+    </div>
+    <div class="grid grid-3">
+      <div class="card service-card">
+        <div class="icon">🪢</div>
+        <h3>Tresses & Braids</h3>
+        <p>Box braids, knotless, tresses classiques. Styles protecteurs qui durent.</p>
+        <span class="price-tag">À partir de 80$ CAD</span>
+      </div>
+      <div class="card service-card">
+        <div class="icon">🔒</div>
+        <h3>Locks & Dreads</h3>
+        <p>Départ de locks, resserrage interlock, microlocks. Expertise Raquel Lafortune.</p>
+        <span class="price-tag">À partir de 100$ CAD</span>
+      </div>
+      <div class="card service-card">
+        <div class="icon">💈</div>
+        <h3>Barbier</h3>
+        <p>Coupe nette, fades précis, contours parfaits. Mariel Yonkeu, expert fades.</p>
+        <span class="price-tag">À partir de 40$ CAD</span>
+      </div>
+      <div class="card service-card">
+        <div class="icon">💅</div>
+        <h3>Manucure</h3>
+        <p>Soins des ongles professionnels par Mariane Bérubé, manucuriste certifiée.</p>
+        <span class="price-tag">Sur devis</span>
+      </div>
+      <div class="card service-card">
+        <div class="icon">🌿</div>
+        <h3>Tissage & Extensions</h3>
+        <p>Extensions 100% naturelles, tissage complet ou demi-tête, toutes longueurs.</p>
+        <span class="price-tag">Sur devis</span>
+      </div>
+      <div class="card service-card">
+        <div class="icon">✨</div>
+        <h3>Soins Capillaires</h3>
+        <p>Coloration, hydratation, traitements nourrissants pour cheveux afro.</p>
+        <span class="price-tag">À partir de 50$ CAD</span>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:2.5rem;">
+      <a href="/services.html" class="btn btn-outline">Voir tous les services avec prix →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Équipe Aperçu ── -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-header">
+      <div class="subtitle">Notre équipe</div>
+      <h2>Des Experts Passionnés</h2>
+      <div class="divider"></div>
+      <p>7 professionnels dédiés à sublimer votre beauté, chacun avec sa spécialité.</p>
+    </div>
+    <div class="grid grid-4">
+      <div class="card team-card card-body">
+        <div class="team-avatar">M</div>
+        <h3>Maya</h3>
+        <div class="role">Coiffeuse Afro</div>
+        <p>Spécialiste cheveux afro, savoir-faire sénégalais</p>
+        <a href="/booking.html?staff=TMEhGkHirhYmHO2h" class="btn btn-sm btn-outline">Réserver</a>
+      </div>
+      <div class="card team-card card-body">
+        <div class="team-avatar">R</div>
+        <h3>Raquel</h3>
+        <div class="role">Spécialiste Locks</div>
+        <p>Experte locks & dreads, toutes techniques</p>
+        <a href="/booking.html?staff=TMoA3Pvr21QUskS1" class="btn btn-sm btn-outline">Réserver</a>
+      </div>
+      <div class="card team-card card-body">
+        <div class="team-avatar">Y</div>
+        <h3>Mariel Yonkeu</h3>
+        <div class="role">Barbier Expert</div>
+        <p>Expert fades, contours et coupes nettes</p>
+        <a href="/booking.html?staff=TMQ9dzPRRMFbmlW9" class="btn btn-sm btn-outline">Réserver</a>
+      </div>
+      <div class="card team-card card-body">
+        <div class="team-avatar">Ma</div>
+        <h3>Mariane</h3>
+        <div class="role">Manucuriste</div>
+        <p>Soins ongles professionnels et nail art</p>
+        <a href="/booking.html?staff=TMV-l2aFfTFgg3yM" class="btn btn-sm btn-outline">Réserver</a>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:2rem;">
+      <a href="/team.html" class="btn btn-outline">Toute l'équipe →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Pourquoi Nous ── -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="subtitle">Pourquoi nous choisir</div>
+      <h2>L'Excellence, Toujours</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="grid grid-3">
+      <div class="card why-card">
+        <div class="number">01</div>
+        <h3>Expertise Authentique</h3>
+        <p>Nos coiffeurs viennent d'horizons riches — Sénégal, Afrique, Québec — avec des techniques transmises de génération en génération.</p>
+      </div>
+      <div class="card why-card">
+        <div class="number">02</div>
+        <h3>Qualité Premium</h3>
+        <p>Produits professionnels sélectionnés, soins adaptés à chaque type de cheveu. Le résultat qui dépasse vos attentes, à chaque visite.</p>
+      </div>
+      <div class="card why-card">
+        <div class="number">03</div>
+        <h3>Accueil Chaleureux</h3>
+        <p>Un salon comme une famille. Ambiance accueillante, écoute personnalisée, et votre confort avant tout — dès la première visite.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA Final ── -->
+<section class="section">
+  <div class="container">
+    <div class="cta-banner">
+      <h2>Prêt·e à vous faire beau?</h2>
+      <p>Prenez rendez-vous en ligne en moins de 2 minutes. Disponible Mar–Sam 9h–19h, Dim 10h–17h.</p>
+      <div class="cta-actions">
+        <a href="/booking.html" class="btn btn-primary btn-lg">📅 Réserver maintenant</a>
+        <a href="https://wa.me/15149195970" class="btn btn-outline">💬 WhatsApp</a>
+        <a href="tel:+15149195970" class="btn btn-outline">📞 514-919-5970</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo" style="margin-bottom:0.5rem">Kadio <span>Coiffure</span></div>
+        <p>Salon de coiffure afro à Longueuil. Experts en tresses, locks, barbier et soins capillaires depuis des années.</p>
+        <div class="social-links" style="margin-top:1.25rem">
+          <a href="#" aria-label="Instagram">📸</a>
+          <a href="#" aria-label="Facebook">👤</a>
+          <a href="https://wa.me/15149195970" aria-label="WhatsApp">💬</a>
         </div>
-        <div class="contact-block">
-          <h3>Horaires d'ouverture</h3>
-          <table class="horaires-table">
-            <tr><td>Lundi</td><td>12h – 19h</td></tr>
-            <tr class="fermé"><td>Mardi</td><td>Fermé</td></tr>
-            <tr><td>Mercredi</td><td>10h – 19h</td></tr>
-            <tr><td>Jeudi</td><td>10h – 21h</td></tr>
-            <tr><td>Vendredi</td><td>10h – 21h</td></tr>
-            <tr><td>Samedi</td><td>10h – 21h</td></tr>
-            <tr><td>Dimanche</td><td>10h – 19h</td></tr>
-          </table>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="/services.html#tresses">Tresses & Braids</a></li>
+          <li><a href="/services.html#locks">Locks & Dreads</a></li>
+          <li><a href="/services.html#barbier">Barbier</a></li>
+          <li><a href="/services.html#extensions">Extensions</a></li>
+          <li><a href="/services.html#soins">Soins</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="/">Accueil</a></li>
+          <li><a href="/services.html">Services</a></li>
+          <li><a href="/team.html">Équipe</a></li>
+          <li><a href="/booking.html">Réservation</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <div class="contact-item">
+          <span class="ico">📍</span>
+          <span>615 Antoinette-Robidoux, local 100<br>Longueuil, QC J4J 2V8</span>
+        </div>
+        <div class="contact-item">
+          <span class="ico">📞</span>
+          <span><a href="tel:+15149195970">514-919-5970</a></span>
+        </div>
+        <div class="contact-item">
+          <span class="ico">🕐</span>
+          <span>Mar–Sam 9h–19h<br>Dim 10h–17h | Lun Fermé</span>
         </div>
       </div>
     </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-inner">
-      <div class="footer-top">
-        <div>
-          <div class="footer-logo">KADIO Coiffure</div>
-          <p class="footer-about">Salon de coiffure afro à Longueuil, QC. Tresses, Locs, Barbier, Extensions — forfaits mensuels et services à la carte. Prise de RDV en ligne 24/7.</p>
-        </div>
-        <div class="footer-col">
-          <h4>Navigation</h4>
-          <a href="/">Accueil</a>
-          <a href="/menu">Services</a>
-          <a href="/forfaits">Forfaits</a>
-          <a href="/formation">Formation</a>
-          <a href="/reservation">Réserver</a>
-        </div>
-        <div class="footer-col">
-          <h4>Contact</h4>
-          <a href="tel:5149195970">514-919-5970</a>
-          <a href="https://wa.me/15149195970" target="_blank" rel="noopener">WhatsApp</a>
-          <a>615 Antoinette-Robidoux</a>
-          <a>Longueuil, QC J4J 2V8</a>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <span>© 2025 Kadio Coiffure & Esthétique. Tous droits réservés.</span>
-        <span>TPS 5% · TVQ 9.975% — Taxes applicables sur tous les forfaits</span>
-      </div>
+    <div class="footer-bottom">
+      <p>© 2025 Kadio Coiffure. Tous droits réservés.</p>
+      <p>Powered by DALEBA</p>
     </div>
-  </footer>
+  </div>
+</footer>
 
-  <script>
-    // Mobile nav toggle
-    document.getElementById('navToggle').addEventListener('click', () => {
-      document.getElementById('navLinks').classList.toggle('open');
-    });
-  </script>
+<script>
+// Navbar scroll effect
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+});
+// Mobile menu
+document.getElementById('navToggle').addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('open');
+});
+</script>
 </body>
 </html>

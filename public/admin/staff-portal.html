@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portail Staff — Kadio Coiffure</title>
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #F0D080;
+    --dark: #0a0a0f;
+    --surface: rgba(255,255,255,0.05);
+    --surface2: rgba(255,255,255,0.08);
+    --border: rgba(201,168,76,0.25);
+    --text: #e8e0d0;
+    --muted: rgba(232,224,208,0.5);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--dark);
+    background-image: radial-gradient(ellipse at 20% 0%, rgba(201,168,76,0.1) 0%, transparent 50%);
+    min-height: 100vh; font-family: 'Segoe UI', system-ui, sans-serif;
+    color: var(--text);
+  }
+  header {
+    background: rgba(15,13,22,0.9); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .brand { font-size: 1rem; font-weight: 700; color: var(--gold); }
+  .greeting { font-size: 1.1rem; font-weight: 600; }
+  .greeting span { color: var(--gold); }
+  .header-right { display: flex; gap: 12px; align-items: center; }
+  .date-badge {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; color: var(--muted);
+  }
+  .btn-logout {
+    background: rgba(200,60,60,0.15); border: 1px solid rgba(200,60,60,0.3);
+    color: #ff8080; padding: 6px 14px; border-radius: 8px; cursor: pointer;
+    font-size: 0.8rem; transition: background 0.2s;
+  }
+  .btn-logout:hover { background: rgba(200,60,60,0.25); }
+  nav {
+    display: flex; gap: 4px; padding: 16px 24px 0;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .nav-tab {
+    padding: 10px 20px; border-radius: 10px 10px 0 0;
+    border: 1px solid transparent; border-bottom: none;
+    background: transparent; color: var(--muted); cursor: pointer;
+    font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;
+  }
+  .nav-tab.active {
+    background: var(--surface2); border-color: var(--border);
+    color: var(--gold); font-weight: 600;
+  }
+  main { padding: 24px; max-width: 900px; margin: 0 auto; }
+  .section { display: none; }
+  .section.visible { display: block; }
+  h2 { font-size: 1.2rem; color: var(--gold); margin-bottom: 16px; }
+
+  /* RDV Timeline */
+  .rdv-list { display: flex; flex-direction: column; gap: 12px; }
+  .rdv-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 20px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .rdv-time {
+    font-size: 1.3rem; font-weight: 700; color: var(--gold);
+    min-width: 56px; text-align: center;
+  }
+  .rdv-info h3 { font-size: 0.95rem; }
+  .rdv-info p { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+  .rdv-status {
+    margin-left: auto; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem;
+  }
+  .rdv-status.accepted { background: rgba(50,200,100,0.15); color: #60e890; border: 1px solid rgba(50,200,100,0.3); }
+  .rdv-status.pending  { background: rgba(200,160,50,0.15); color: var(--gold); border: 1px solid rgba(200,160,50,0.3); }
+  .stats-row { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+  .stat-box {
+    flex: 1; min-width: 120px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; text-align: center;
+  }
+  .stat-box .val { font-size: 2rem; font-weight: 700; color: var(--gold); }
+  .stat-box .lbl { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+
+  /* Notes clients */
+  .search-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .search-row input { flex: 1; }
+  input, textarea, select {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px; color: var(--text);
+    font-size: 0.9rem; outline: none; width: 100%; transition: border-color 0.2s;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--gold); }
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: #1a1825; }
+  .btn {
+    padding: 9px 18px; border-radius: 8px; border: none;
+    font-size: 0.88rem; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--gold); color: #0a0a0f; font-weight: 700; }
+  .btn-primary:hover { background: var(--gold-light); }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  .client-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer;
+    transition: background 0.15s; border-radius: 8px;
+  }
+  .client-row:hover { background: var(--surface); }
+  .client-row .cname { font-weight: 600; }
+  .client-row .cphone { font-size: 0.8rem; color: var(--muted); }
+  .note-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px; margin-bottom: 10px;
+  }
+  .note-card .note-cat {
+    font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; margin-right: 8px;
+    display: inline-block;
+  }
+  .cat-allergy  { background: rgba(220,60,60,0.2); color: #ff8080; }
+  .cat-preference { background: rgba(60,120,220,0.2); color: #80b0ff; }
+  .cat-history  { background: rgba(60,200,100,0.2); color: #80ff90; }
+  .cat-general  { background: rgba(200,160,50,0.2); color: var(--gold); }
+  .note-meta { font-size: 0.75rem; color: var(--muted); margin-top: 6px; }
+  .add-note-form {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; margin-bottom: 20px;
+  }
+  .add-note-form h3 { margin-bottom: 14px; font-size: 0.95rem; color: var(--gold); }
+  .form-row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .form-row > * { flex: 1; min-width: 140px; }
+
+  /* Profil */
+  .profile-form { max-width: 500px; }
+  .profile-form .form-group { margin-bottom: 16px; }
+  .profile-form label { display: block; font-size: 0.8rem; color: var(--gold); margin-bottom: 6px; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; margin-right: 4px; }
+  .empty { color: var(--muted); font-size: 0.9rem; text-align: center; padding: 32px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">✂️ Kadio Coiffure</div>
+  <div id="greetingEl" class="greeting">Bonjour <span id="staffName">—</span> ☀️</div>
+  <div class="header-right">
+    <div class="date-badge" id="dateBadge"></div>
+    <button class="btn-logout" onclick="logout()">Déconnexion</button>
+  </div>
+</header>
+
+<nav>
+  <button class="nav-tab active" onclick="showTab('rdv')">📅 Mes RDV</button>
+  <button class="nav-tab" onclick="showTab('clients')">👥 Clients & Notes</button>
+  <button class="nav-tab" onclick="showTab('profil')">👤 Mon Profil</button>
+</nav>
+
+<main>
+
+<!-- RDV TAB -->
+<div id="tab-rdv" class="section visible">
+  <div class="stats-row">
+    <div class="stat-box"><div class="val" id="statToday">—</div><div class="lbl">RDV aujourd'hui</div></div>
+    <div class="stat-box"><div class="val" id="statWeek">—</div><div class="lbl">RDV cette semaine</div></div>
+  </div>
+  <h2>📅 Rendez-vous d'aujourd'hui</h2>
+  <div id="rdvList" class="rdv-list"><div class="empty">Chargement...</div></div>
+</div>
+
+<!-- CLIENTS TAB -->
+<div id="tab-clients" class="section">
+  <div class="add-note-form" id="addNoteForm" style="display:none">
+    <h3>📝 Nouvelle note — <span id="noteClientName"></span></h3>
+    <div class="form-row">
+      <div>
+        <label style="font-size:0.8rem;color:var(--gold);display:block;margin-bottom:6px">Catégorie</label>
+        <select id="noteCategory">
+          <option value="general">Général</option>
+          <option value="allergy">Allergie ⚠️</option>
+          <option value="preference">Préférence</option>
+          <option value="history">Historique</option>
+        </select>
+      </div>
+    </div>
+    <textarea id="noteText" placeholder="Saisissez votre note..."></textarea>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button class="btn btn-primary" onclick="submitNote()">Enregistrer</button>
+      <button class="btn btn-outline" onclick="closeNoteForm()">Annuler</button>
+    </div>
+  </div>
+
+  <div id="clientNotesView" style="display:none">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <button class="btn btn-outline" onclick="backToClients()">← Retour</button>
+      <h2 style="margin:0" id="notesClientTitle">Notes client</h2>
+      <button class="btn btn-primary" style="margin-left:auto" onclick="openNoteForm()">+ Ajouter note</button>
+    </div>
+    <div id="notesList"></div>
+  </div>
+
+  <div id="clientsView">
+    <h2>👥 Clients</h2>
+    <div class="search-row">
+      <input type="text" id="clientSearch" placeholder="Rechercher un client..." oninput="filterClients()">
+    </div>
+    <div id="clientsList"><div class="empty">Chargement...</div></div>
+  </div>
+</div>
+
+<!-- PROFIL TAB -->
+<div id="tab-profil" class="section">
+  <h2>👤 Mon Profil</h2>
+  <div class="profile-form">
+    <div class="form-group">
+      <label>Spécialité</label>
+      <input type="text" id="profSpeciality" placeholder="ex: Coiffure afro, Locks...">
+    </div>
+    <div class="form-group">
+      <label>Bio</label>
+      <textarea id="profBio" placeholder="Parlez de votre expérience..."></textarea>
+    </div>
+    <button class="btn btn-primary" onclick="saveProfile()">Sauvegarder</button>
+
+    <hr class="divider">
+    <h2>🔒 Changer mon PIN</h2>
+    <div class="form-group">
+      <label>PIN actuel</label>
+      <input type="password" id="pinCurrent" inputmode="numeric" maxlength="6" placeholder="••••">
+    </div>
+    <div class="form-group">
+      <label>Nouveau PIN (4-6 chiffres)</label>
+      <input type="password" id="pinNew" inputmode="numeric" maxlength="6" placeholder="••••">
+    </div>
+    <div class="form-group">
+      <label>Confirmer nouveau PIN</label>
+      <input type="password" id="pinConfirm" inputmode="numeric" maxlength="6" placeholder="••••">
+    </div>
+    <button class="btn btn-primary" onclick="changePin()">Changer PIN</button>
+    <div id="pinMsg" style="margin-top:10px;font-size:0.85rem"></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+const token = localStorage.getItem('staffToken');
+const staffInfo = JSON.parse(localStorage.getItem('staffInfo') || '{}');
+if (!token) { window.location.href = '/admin/login.html'; }
+
+// Init
+document.getElementById('staffName').textContent = (staffInfo.name || '').split(' ')[0];
+document.getElementById('dateBadge').textContent = new Date().toLocaleDateString('fr-CA', { weekday:'long', day:'numeric', month:'long' });
+
+function authHeaders() {
+  return { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token };
+}
+
+function showTab(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('visible');
+  event.target.classList.add('active');
+  if (name === 'rdv') loadRdv();
+  if (name === 'clients') loadClients();
+  if (name === 'profil') loadProfile();
+}
+
+function logout() {
+  localStorage.removeItem('staffToken');
+  localStorage.removeItem('staffInfo');
+  window.location.href = '/admin/login.html';
+}
+
+// ── RDV ──
+async function loadRdv() {
+  try {
+    const r = await fetch('/api/staff-portal/dashboard', { headers: authHeaders() });
+    const data = await r.json();
+    document.getElementById('statToday').textContent = data.stats?.todayCount ?? 0;
+    document.getElementById('statWeek').textContent  = data.stats?.weekCount ?? 0;
+    const list = document.getElementById('rdvList');
+    if (!data.today?.length) { list.innerHTML = '<div class="empty">Aucun rendez-vous aujourd\'hui 🎉</div>'; return; }
+    list.innerHTML = data.today.map(b => {
+      const t = new Date(b.startAt);
+      const hm = t.toLocaleTimeString('fr-CA', { hour:'2-digit', minute:'2-digit' });
+      const status = b.status === 'ACCEPTED' ? 'accepted' : 'pending';
+      const label  = b.status === 'ACCEPTED' ? 'Confirmé' : b.status || 'En attente';
+      return `<div class="rdv-card">
+        <div class="rdv-time">${hm}</div>
+        <div class="rdv-info">
+          <h3>Client #${b.customerId?.slice(-6) || '—'}</h3>
+          <p>${b.duration ? b.duration + ' min' : ''}</p>
+        </div>
+        <div class="rdv-status ${status}">${label}</div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    document.getElementById('rdvList').innerHTML = '<div class="empty">Erreur de chargement</div>';
+  }
+}
+
+// ── CLIENTS ──
+let allClients = [];
+let currentClient = null;
+
+async function loadClients() {
+  const list = document.getElementById('clientsList');
+  list.innerHTML = '<div class="empty">Chargement...</div>';
+  try {
+    const r = await fetch('/api/staff-portal/clients', { headers: authHeaders() });
+    const data = await r.json();
+    allClients = data.customers || [];
+    renderClients(allClients);
+  } catch {
+    list.innerHTML = '<div class="empty">Erreur de chargement</div>';
+  }
+}
+
+function renderClients(clients) {
+  const list = document.getElementById('clientsList');
+  if (!clients.length) { list.innerHTML = '<div class="empty">Aucun client trouvé</div>'; return; }
+  list.innerHTML = clients.map(c => `
+    <div class="client-row" onclick="openClient('${c.id}','${(c.name||'').replace(/'/g,"\\'")}','${c.phone||''}')">
+      <div>
+        <div class="cname">${c.name || '(Sans nom)'}</div>
+        <div class="cphone">${c.phone || c.email || ''}</div>
+      </div>
+      <span style="color:var(--muted)">→</span>
+    </div>
+  `).join('');
+}
+
+function filterClients() {
+  const q = document.getElementById('clientSearch').value.toLowerCase();
+  renderClients(allClients.filter(c =>
+    (c.name||'').toLowerCase().includes(q) || (c.phone||'').includes(q)
+  ));
+}
+
+async function openClient(id, name, phone) {
+  currentClient = { id, name, phone };
+  document.getElementById('notesClientTitle').textContent = '📋 ' + (name || 'Client');
+  document.getElementById('noteClientName').textContent = name;
+  document.getElementById('clientsView').style.display = 'none';
+  document.getElementById('clientNotesView').style.display = '';
+  await loadNotes(id);
+}
+
+async function loadNotes(id) {
+  const list = document.getElementById('notesList');
+  list.innerHTML = '<div class="empty">Chargement...</div>';
+  try {
+    const r = await fetch('/api/staff-portal/clients/' + id + '/notes', { headers: authHeaders() });
+    const data = await r.json();
+    if (!data.notes?.length) { list.innerHTML = '<div class="empty">Aucune note pour ce client</div>'; return; }
+    list.innerHTML = data.notes.map(n => `
+      <div class="note-card">
+        <span class="note-cat cat-${n.category||'general'}">${catLabel(n.category)}</span>
+        <span style="font-size:0.9rem">${escHtml(n.note)}</span>
+        <div class="note-meta">Par ${n.staff_name||'—'} · ${new Date(n.created_at).toLocaleDateString('fr-CA')}</div>
+      </div>
+    `).join('');
+  } catch {
+    list.innerHTML = '<div class="empty">Erreur</div>';
+  }
+}
+
+function catLabel(c) {
+  return { allergy:'Allergie ⚠️', preference:'Préférence', history:'Historique', general:'Général' }[c] || c;
+}
+
+function backToClients() {
+  currentClient = null;
+  document.getElementById('clientNotesView').style.display = 'none';
+  document.getElementById('addNoteForm').style.display = 'none';
+  document.getElementById('clientsView').style.display = '';
+}
+
+function openNoteForm() { document.getElementById('addNoteForm').style.display = ''; }
+function closeNoteForm() { document.getElementById('addNoteForm').style.display = 'none'; }
+
+async function submitNote() {
+  const note = document.getElementById('noteText').value.trim();
+  const category = document.getElementById('noteCategory').value;
+  if (!note || !currentClient) return;
+  try {
+    await fetch('/api/staff-portal/clients/' + currentClient.id + '/notes', {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ note, category, clientName: currentClient.name, clientPhone: currentClient.phone })
+    });
+    document.getElementById('noteText').value = '';
+    closeNoteForm();
+    await loadNotes(currentClient.id);
+  } catch { alert('Erreur lors de l\'enregistrement'); }
+}
+
+// ── PROFIL ──
+async function loadProfile() {
+  try {
+    const r = await fetch('/api/staff-auth/me', { headers: authHeaders() });
+    const data = await r.json();
+    document.getElementById('profSpeciality').value = data.speciality || '';
+    document.getElementById('profBio').value = data.bio || '';
+  } catch {}
+}
+
+async function saveProfile() {
+  const bio = document.getElementById('profBio').value;
+  const speciality = document.getElementById('profSpeciality').value;
+  try {
+    await fetch('/api/staff-auth/profile', {
+      method: 'PUT', headers: authHeaders(),
+      body: JSON.stringify({ bio, speciality })
+    });
+    showPinMsg('Profil mis à jour ✅', 'success');
+  } catch { showPinMsg('Erreur sauvegarde', 'error'); }
+}
+
+async function changePin() {
+  const currentPin = document.getElementById('pinCurrent').value;
+  const newPin     = document.getElementById('pinNew').value;
+  const confirm    = document.getElementById('pinConfirm').value;
+  if (newPin !== confirm) { showPinMsg('Les PINs ne correspondent pas', 'error'); return; }
+  if (!/^\d{4,6}$/.test(newPin)) { showPinMsg('PIN : 4-6 chiffres', 'error'); return; }
+  try {
+    const r = await fetch('/api/staff-auth/change-pin', {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ currentPin, newPin })
+    });
+    const d = await r.json();
+    if (!r.ok) { showPinMsg(d.error || 'Erreur', 'error'); return; }
+    showPinMsg('PIN changé avec succès ✅', 'success');
+    ['pinCurrent','pinNew','pinConfirm'].forEach(id => document.getElementById(id).value = '');
+  } catch { showPinMsg('Erreur réseau', 'error'); }
+}
+
+function showPinMsg(msg, type) {
+  const el = document.getElementById('pinMsg');
+  el.textContent = msg;
+  el.style.color = type === 'success' ? '#60e890' : '#ff7070';
+  setTimeout(() => { el.textContent = ''; }, 4000);
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+loadRdv();
+</script>
+</body>
+</html>
