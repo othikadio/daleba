@@ -230,10 +230,12 @@ router.post('/seed-test-pass', requireAdmin, async (req, res) => {
       created_at      TIMESTAMPTZ DEFAULT NOW()
     )`);
     // Reset sequence to handle id=1 conflict
-    await pool.query(`DELETE FROM daleba_prepaid_passes WHERE client_phone='+15141234567'`);
-    await pool.query(`SELECT setval('daleba_prepaid_passes_id_seq', GREATEST(COALESCE((SELECT MAX(id) FROM daleba_prepaid_passes), 0), 1))`);
-    const r = await pool.query(`INSERT INTO daleba_prepaid_passes (client_name,client_phone,pass_type,services_total,services_used,amount_paid,is_active)
-      VALUES ('Client Test','+15141234567','barbier_monthly',4,0,120.00,true) RETURNING id`);
+    await pool.query(`DELETE FROM daleba_prepaid_passes WHERE id=1 OR client_phone='+15141234567'`);
+    const r = await pool.query(`INSERT INTO daleba_prepaid_passes (id,client_name,client_phone,pass_type,services_total,services_used,amount_paid,is_active)
+      VALUES (1,'Client Test','+15141234567','barbier_monthly',4,0,120.00,true)
+      ON CONFLICT (id) DO UPDATE SET client_name=EXCLUDED.client_name,client_phone=EXCLUDED.client_phone,
+        pass_type=EXCLUDED.pass_type,services_total=EXCLUDED.services_total,services_used=0,is_active=true
+      RETURNING id`);
     res.json({ ok: true, passId: r.rows[0].id, message: 'Passe test ins\u00e9r\u00e9e avec succ\u00e8s' });
   } catch (e) {
     res.status(500).json({ error: e.message });
