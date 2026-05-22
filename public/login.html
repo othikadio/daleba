@@ -309,9 +309,20 @@
     });
   });
 
+  function normalizePhone(raw) {
+    // Normalise en E.164 pour le Canada/États-Unis
+    let p = raw.replace(/[\s\-().]/g, '');
+    if (/^[2-9]\d{9}$/.test(p))  p = '+1' + p;        // 10 chiffres sans indicatif
+    if (/^1[2-9]\d{9}$/.test(p)) p = '+' + p;         // 11 chiffres avec 1 préfixe
+    if (!/^\+/.test(p))           p = '+1' + p.replace(/^0+/, ''); // fallback
+    return p;
+  }
+
   async function requestOTP() {
-    const phone = document.getElementById('phone').value.trim();
-    if (!phone) { setError('error1', 'Entrez votre numéro de téléphone.'); return; }
+    const raw = document.getElementById('phone').value.trim();
+    if (!raw) { setError('error1', 'Entrez votre numéro de téléphone.'); return; }
+    const phone = normalizePhone(raw);
+    document.getElementById('phone').value = phone; // Affiche format normalisé
     setError('error1', '');
     setLoading('btnSend', true);
 

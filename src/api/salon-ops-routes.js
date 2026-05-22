@@ -136,8 +136,8 @@ router.post('/rate-client', async (req, res) => {
 router.post('/rate-service', async (req, res) => {
   const { appointmentId, clientPhone, clientName, rating, comment } = req.body;
 
-  if (!appointmentId || !clientPhone || !rating) {
-    return res.status(400).json({ error: 'appointmentId, clientPhone, rating requis' });
+  if (!appointmentId || !rating) {
+    return res.status(400).json({ error: 'appointmentId et rating requis' });
   }
   if (rating < 1 || rating > 5) {
     return res.status(400).json({ error: 'rating doit être entre 1 et 5' });

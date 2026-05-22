@@ -419,18 +419,38 @@ function selectSlot(btn) {
   document.getElementById('btnStep3Next').disabled = false;
 }
 
+// ─── Taxes Québec (TPS 5% + TVQ 9.975% = 14.975%) ──────────────────────────
+function calcTaxesQC(price) {
+  const tps  = Math.round(price * 0.05 * 100) / 100;
+  const tvq  = Math.round(price * 0.09975 * 100) / 100;
+  const total = Math.round((price + tps + tvq) * 100) / 100;
+  return { tps, tvq, total };
+}
+
 // ─── Résumé + Dépôt ───────────────────────────────────────────────────────
 function buildSummary() {
   const dateStr = S.date
     ? new Date(S.date + 'T12:00:00').toLocaleDateString('fr-CA', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
     : '—';
   const price = S.service ? parseFloat(S.service.price) : 0;
+  const isBarbier = S.staff?.isBarbier || S.service?.category === 'Coupe & Barbier';
+  let taxRows = '';
+  if (price > 0) {
+    const t = calcTaxesQC(price);
+    taxRows = `
+      <div class="confirm-row"><span class="ck"> Prix avant taxes</span><span class="cv">${price.toFixed(2)} $ CAD</span></div>
+      <div class="confirm-row" style="color:var(--muted);font-size:0.8rem"><span class="ck"> TPS (5 %)</span><span class="cv">${t.tps.toFixed(2)} $</span></div>
+      <div class="confirm-row" style="color:var(--muted);font-size:0.8rem"><span class="ck"> TVQ (9,975 %)</span><span class="cv">${t.tvq.toFixed(2)} $</span></div>
+      <div class="confirm-row" style="font-weight:600;border-top:1px solid #eee;padding-top:0.5rem"><span class="ck"> Total avec taxes</span><span class="cv" style="color:var(--terracotta)">${t.total.toFixed(2)} $ CAD</span></div>
+      ${!isBarbier ? `<div class="confirm-row" style="color:#166534;font-size:0.82rem"><span class="ck"> Dépôt 20 % (aujourd'hui)</span><span class="cv">${(price * 0.20).toFixed(2)} $ CAD</span></div>` : '<div class="confirm-row" style="color:#166534;font-size:0.82rem"><span class="ck"> Dépôt</span><span class="cv">Aucun (Barbier)</span></div>'}
+    `;
+  }
   document.getElementById('bookingSummary').innerHTML = `
     <div class="confirm-row"><span class="ck"> Service</span><span class="cv">${S.service?.displayName || '—'}</span></div>
     <div class="confirm-row"><span class="ck"> Coiffeur</span><span class="cv">${S.staff?.name || '—'}</span></div>
     <div class="confirm-row"><span class="ck"> Date</span><span class="cv">${dateStr}</span></div>
     <div class="confirm-row"><span class="ck">⏰ Heure</span><span class="cv">${S.slotLabel || '—'}</span></div>
-    ${price > 0 ? `<div class="confirm-row"><span class="ck"> Prix total</span><span class="cv">${price.toFixed(0)}$ CAD</span></div>` : ''}
+    ${taxRows}
   `;
 }
 

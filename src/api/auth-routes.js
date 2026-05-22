@@ -200,23 +200,9 @@ router.post('/send-otp', async (req, res) => {
   }
 });
 
-// POST /api/auth/verify-otp — Vérification du code OTP
-router.post('/verify-otp', (req, res) => {
-  const { phone, otp } = req.body;
-  if (!phone || !otp) return res.status(400).json({ error: 'phone et otp requis' });
-
-  const stored = otpStore.get(phone);
-
-  if (!stored) return res.status(400).json({ error: 'OTP non trouvé' });
-  if (Date.now() > stored.expires) {
-    otpStore.delete(phone);
-    return res.status(400).json({ error: 'OTP expiré' });
-  }
-  if (stored.otp !== String(otp)) return res.status(400).json({ error: 'Code incorrect' });
-
-  otpStore.delete(phone);
-  const token = `tok_${Date.now()}_${phone.slice(-4)}`;
-  res.json({ success: true, token });
-});
+// POST /api/auth/verify-otp — DÉSACTIVÉ (remplacé par otp-auth-routes.js V31)
+// Ce handler est intentionnellement supprimé pour éviter le conflit de route.
+// La vérification OTP est gérée par src/api/otp-auth-routes.js qui attend {phone, code}
+// et retourne un JWT signé avec rôle + profil complet.
 
 module.exports = router;

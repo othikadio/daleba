@@ -94,8 +94,8 @@ app.use('/api/booking', require('./api/booking-routes'));
 app.use('/api/oauth/meta', require('./api/meta-oauth-routes')); // Meta OAuth — 1 clic PME
 app.use('/api', routes);
 app.use('/api/ai', require('./api/ai-admin-routes')); // Hub IA universel — Cerveau Central
-app.use('/api/auth', authRoutes); // Authentification OTP + JWT
-app.use('/api/auth', require('./api/otp-auth-routes')); // V31-AUTH: OTP phone
+app.use('/api/auth', require('./api/otp-auth-routes')); // V31-AUTH: OTP phone (monté PREMIER — request-otp + verify-otp avec {phone,code})
+app.use('/api/auth', authRoutes); // Auth legacy: login email, register, /me, /super
 app.use('/api/qr',   require('./api/qr-routes'));         // V31-AUTH: QR abonnés
 app.use('/api/staff', require('./api/staff-scan-routes')); // V31-AUTH: scan QR
 app.use('/api/vip',  require('./api/vip-welcome-routes')); // V31-AUTH: VIP accueil
