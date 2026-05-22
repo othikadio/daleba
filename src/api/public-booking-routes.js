@@ -219,19 +219,19 @@ router.get('/services', async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 router.get('/staff', async (req, res) => {
   try {
-    // Utiliser le endpoint existant sq-calendar/staff pour cohérence
-    const data    = await sqGet(`/v2/team-members?location_id=${LOCATION_ID}`);
-    const members = (data.team_members || [])
-      .filter(m => m.status === 'ACTIVE')
-      .map(m => ({
-        id:         m.id,
-        name:       [m.given_name, m.family_name].filter(Boolean).join(' '),
-        firstName:  m.given_name  || 'Coiffeur',
-        lastName:   m.family_name || '',
-        phone:      m.phone_number    || '',
-        email:      m.email_address   || '',
-        isBarbier:  BARBIER_STAFF_IDS.includes(m.id),
-      }));
+    // POST /v2/team-members/search — la seule API qui fonctionne pour lister les membres
+    const body = { query: { filter: { status: 'ACTIVE' } } };
+    if (LOCATION_ID) body.query.filter.location_ids = [LOCATION_ID];
+    const data    = await sqPost('/v2/team-members/search', body);
+    const members = (data.team_members || []).map(m => ({
+      id:         m.id,
+      name:       [m.given_name, m.family_name].filter(Boolean).join(' '),
+      firstName:  m.given_name  || 'Coiffeur',
+      lastName:   m.family_name || '',
+      phone:      m.phone_number    || '',
+      email:      m.email_address   || '',
+      isBarbier:  BARBIER_STAFF_IDS.includes(m.id),
+    }));
     res.json({ staff: members, count: members.length });
   } catch (err) {
     console.error('[public/staff]', err.message);
