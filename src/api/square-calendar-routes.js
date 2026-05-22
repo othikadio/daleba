@@ -13,6 +13,10 @@
 
 const express = require('express');
 const router = express.Router();
+const { requireAuth } = require('./auth-staff-routes');
+
+// Protéger toutes les routes /api/sq-calendar/*
+router.use(requireAuth);
 
 const SQUARE_BASE  = 'https://connect.squareup.com';
 const SQUARE_TOKEN = process.env.SQUARE_ACCESS_TOKEN;

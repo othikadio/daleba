@@ -240,7 +240,10 @@
 const token = localStorage.getItem('staffToken');
 const staffInfo = JSON.parse(localStorage.getItem('staffInfo') || '{}');
 if (!token || staffInfo.role !== 'admin') {
-  window.location.href = '/admin/login.html';
+  window.location.href = '/admin/login';
+} else {
+  fetch('/api/staff-auth/verify', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }})
+    .then(r => { if (!r.ok) { localStorage.clear(); window.location.href = '/admin/login'; }});
 }
 
 function authHeaders() {

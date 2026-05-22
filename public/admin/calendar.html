@@ -439,6 +439,14 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
+// ─── AUTH GUARD ──────────────────────────────────────────────────────────────
+(function() {
+  const token = localStorage.getItem('staffToken');
+  if (!token) { window.location.href = '/admin/login'; return; }
+  fetch('/api/staff-auth/verify', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }})
+    .then(r => { if (!r.ok) { localStorage.clear(); window.location.href = '/admin/login'; }});
+})();
+
 // ─── STATE ────────────────────────────────────────────────────────────────────
 const API = '';  // relative — même domaine
 let currentWeekStart = getWeekStart(new Date());

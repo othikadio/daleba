@@ -8,6 +8,9 @@ const router  = express.Router();
 const { pool } = require('../memory/db');
 const { requireAuth, requireAdmin } = require('./auth-staff-routes');
 
+// Protéger toutes les routes /api/staff-portal/*
+router.use(requireAuth);
+
 // Square API helper
 async function squareGet(path) {
   const token = process.env.SQUARE_ACCESS_TOKEN;

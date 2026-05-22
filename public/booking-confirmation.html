@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirmation RDV — Kadio Coiffure</title>
+  <link rel="stylesheet" href="/assets/css/salon.css" />
+</head>
+<body>
+<nav class="navbar scrolled">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Kadio <span>Coiffure</span></a>
+    <ul class="nav-links">
+      <li><a href="/">Accueil</a></li>
+      <li><a href="/services.html">Services</a></li>
+      <li><a href="/booking.html" class="btn btn-primary btn-sm">Nouveau RDV</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="section" style="padding-top:120px;min-height:80vh;display:flex;align-items:center">
+  <div class="container" style="text-align:center">
+    <div id="content">
+      <div class="loading"><div class="spinner"></div> Chargement…</div>
+    </div>
+  </div>
+</section>
+
+<script>
+const params = new URLSearchParams(location.search);
+const bookingId  = params.get('booking_id');
+const internalId = params.get('internal_id');
+const stripeSessionId = params.get('session_id');
+const passType   = params.get('pass_type');
+const cancelled  = params.get('cancelled');
+
+async function loadStatus() {
+  const el = document.getElementById('content');
+
+  if (cancelled) {
+    el.innerHTML = `
+      <div class="card" style="max-width:480px;margin:0 auto;padding:2.5rem;text-align:center">
+        <div style="font-size:3rem;margin-bottom:1rem">😕</div>
+        <h2 style="margin-bottom:0.75rem">Paiement annulé</h2>
+        <p style="margin-bottom:1.5rem">Votre réservation n'a pas été confirmée. Vous pouvez réessayer.</p>
+        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+          <a href="/booking.html" class="btn btn-primary">📅 Réessayer</a>
+          <a href="/" class="btn btn-outline">← Accueil</a>
+        </div>
+      </div>`;
+    return;
+  }
+
+  if (passType) {
+    el.innerHTML = `
+      <div class="card" style="max-width:520px;margin:0 auto;padding:2.5rem;text-align:center">
+        <div style="font-size:3.5rem;margin-bottom:1rem;animation:bounce 0.6s ease">🎟️</div>
+        <h2 style="margin-bottom:0.75rem">Forfait activé !</h2>
+        <p style="margin-bottom:1.5rem;font-size:1rem">Votre passe a été achetée avec succès. Vous pouvez l'utiliser dès maintenant.</p>
+        <div class="alert alert-success" style="margin-bottom:1.5rem">✅ Paiement confirmé — votre passe est active</div>
+        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+          <a href="/booking.html" class="btn btn-primary">📅 Prendre un RDV</a>
+          <a href="/" class="btn btn-outline">← Accueil</a>
+        </div>
+      </div>`;
+    return;
+  }
+
+  if (!bookingId) {
+    el.innerHTML = `<div class="success-box">
+      <div class="success-icon">✅</div>
+      <h2>Paiement reçu !</h2>
+      <p style="margin-bottom:1.5rem">Votre acompte a été traité. Un SMS de confirmation vous sera envoyé.</p>
+      <div style="display:flex;gap:1rem;justify-content:center">
+        <a href="/booking.html" class="btn btn-primary">📅 Nouveau RDV</a>
+        <a href="/" class="btn btn-outline">← Accueil</a>
+      </div>
+    </div>`;
+    return;
+  }
+
+  // Charger le statut du booking
+  try {
+    const r = await fetch(`/api/public/booking-status/${bookingId}`);
+    const d = await r.json();
+    const startAt = d.startAt ? new Date(d.startAt) : null;
+    const dateFr  = startAt ? startAt.toLocaleDateString('fr-CA', { weekday:'long', year:'numeric', month:'long', day:'numeric', timeZone:'America/Toronto' }) : '';
+    const timeFr  = startAt ? startAt.toLocaleTimeString('fr-CA', { hour:'2-digit', minute:'2-digit', timeZone:'America/Toronto' }) : '';
+
+    el.innerHTML = `
+      <div class="card" style="max-width:520px;margin:0 auto;overflow:hidden">
+        <div style="background:linear-gradient(135deg,var(--accent),#3d0618);padding:2rem;text-align:center">
+          <div style="font-size:3.5rem;margin-bottom:0.5rem;animation:bounce 0.6s ease">🎉</div>
+          <h2 style="color:white;margin-bottom:0.25rem">RDV Confirmé !</h2>
+          <p style="color:rgba(255,255,255,0.7);margin:0;font-size:0.9rem">Acompte reçu — à très bientôt !</p>
+        </div>
+        <div class="card-body">
+          <div class="confirm-box">
+            ${dateFr ? `<div class="confirm-row"><span class="ck">📅 Date</span><span class="cv">${dateFr}</span></div>` : ''}
+            ${timeFr ? `<div class="confirm-row"><span class="ck">⏰ Heure</span><span class="cv">${timeFr}</span></div>` : ''}
+            ${d.serviceName ? `<div class="confirm-row"><span class="ck">✂️ Service</span><span class="cv">${d.serviceName}</span></div>` : ''}
+            ${d.staffName   ? `<div class="confirm-row"><span class="ck">👤 Coiffeur</span><span class="cv">${d.staffName}</span></div>` : ''}
+            ${d.depositAmount > 0 ? `<div class="confirm-row"><span class="ck">💳 Acompte</span><span class="cv" style="color:var(--gold)">${d.depositAmount}$ CAD ✅</span></div>` : ''}
+            <div class="confirm-row"><span class="ck">🏷️ Réf.</span><span class="cv">${(d.bookingId || bookingId || '').slice(-8).toUpperCase()}</span></div>
+          </div>
+          <div class="alert alert-info" style="margin-top:1rem">
+            📍 615 Antoinette-Robidoux, local 100, Longueuil · 514-919-5970
+          </div>
+          <div style="display:flex;gap:1rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap">
+            <a href="/booking.html" class="btn btn-primary">📅 Nouveau RDV</a>
+            <a href="/" class="btn btn-outline">← Accueil</a>
+          </div>
+        </div>
+      </div>`;
+  } catch (e) {
+    el.innerHTML = `<div class="success-box">
+      <div class="success-icon">✅</div>
+      <h2>Acompte reçu !</h2>
+      <p style="margin-bottom:1.5rem">Votre réservation est confirmée. Un SMS vous a été envoyé.</p>
+      <a href="/" class="btn btn-primary">← Retour à l'accueil</a>
+    </div>`;
+  }
+}
+
+loadStatus();
+</script>
+</body>
+</html>

@@ -253,7 +253,9 @@
 <script>
 const token = localStorage.getItem('staffToken');
 const staffInfo = JSON.parse(localStorage.getItem('staffInfo') || '{}');
-if (!token) { window.location.href = '/admin/login.html'; }
+if (!token) { window.location.href = '/admin/login'; }
+else { fetch('/api/staff-auth/verify', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }})
+  .then(r => { if (!r.ok) { localStorage.clear(); window.location.href = '/admin/login'; }}); }
 
 // Init
 document.getElementById('staffName').textContent = (staffInfo.name || '').split(' ')[0];
