@@ -153,16 +153,21 @@ strong { color: var(--text-dark); }
 }
 
 .navbar-brand {
-  font-family: var(--font-serif);
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--terracotta);
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
   text-decoration: none;
+  flex-shrink: 0;
 }
-
-.navbar-brand:hover {
-  color: var(--terracotta-dark);
+.nav-brand-logo {
+  height: 48px;
+  width: auto;
+  display: block;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  filter: drop-shadow(0 2px 8px rgba(164,68,20,0.18));
+}
+.navbar-brand:hover .nav-brand-logo {
+  transform: scale(1.05);
 }
 
 .navbar-nav {
