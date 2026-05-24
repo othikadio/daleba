@@ -9,6 +9,72 @@
 </head>
 <body>
 
+<!-- ── SPLASH SCREEN ───────────────────────────── -->
+<div id="kc-splash">
+  <div class="kcs-bg"></div>
+  <div class="kcs-inner">
+    <div class="kcs-emblem">
+      <svg viewBox="0 0 160 160" width="140" height="140" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="80" cy="80" r="76" fill="none" stroke="#C4622D" stroke-width="1.5" opacity="0.4"/>
+        <circle cx="80" cy="80" r="68" fill="#2C1810"/>
+        <g stroke="#C4622D" stroke-width="1.2" fill="none" opacity="0.9">
+          <polygon points="80,18 112,50 80,82 48,50"/>
+          <polygon points="80,28 104,52 80,76 56,52"/>
+          <line x1="80" y1="12" x2="80" y2="40"/>
+          <line x1="80" y1="60" x2="80" y2="88"/>
+          <line x1="36" y1="50" x2="58" y2="50"/>
+          <line x1="102" y1="50" x2="124" y2="50"/>
+        </g>
+        <g fill="#FAF6F0">
+          <ellipse cx="80" cy="118" rx="20" ry="26"/>
+          <path d="M60,100 Q80,88 100,100 L97,105 Q80,95 63,105 Z"/>
+          <rect x="74" y="88" width="12" height="9" rx="2" fill="#FAF6F0"/>
+          <line x1="59" y1="115" x2="53" y2="115" stroke="#2C1810" stroke-width="2"/>
+          <line x1="107" y1="115" x2="101" y2="115" stroke="#2C1810" stroke-width="2"/>
+          <line x1="59" y1="121" x2="53" y2="121" stroke="#2C1810" stroke-width="2"/>
+          <line x1="107" y1="121" x2="101" y2="121" stroke="#2C1810" stroke-width="2"/>
+          <ellipse cx="73" cy="114" rx="4" ry="3" fill="#2C1810"/>
+          <ellipse cx="87" cy="114" rx="4" ry="3" fill="#2C1810"/>
+        </g>
+        <circle cx="80" cy="80" r="52" fill="none" stroke="#C4622D" stroke-width="0.8" stroke-dasharray="4,4" opacity="0.6"/>
+      </svg>
+    </div>
+    <h1 class="kcs-title">KADIO COIFFURE</h1>
+    <p class="kcs-sub">Ma&icirc;tre Coiffeur &amp; Barbier</p>
+    <div class="kcs-line"></div>
+  </div>
+</div>
+
+<style>
+#kc-splash{position:fixed;inset:0;z-index:9999;background:#FAF6F0;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:opacity 0.7s ease,visibility 0.7s ease;}
+#kc-splash.kcs-hide{opacity:0;visibility:hidden;pointer-events:none;}
+.kcs-bg{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23C4622D' stroke-width='0.6'%3E%3Crect x='15' y='15' width='30' height='30' transform='rotate(45 30 30)'/%3E%3Crect x='22' y='22' width='16' height='16' transform='rotate(45 30 30)'/%3E%3Cline x1='0' y1='30' x2='60' y2='30'/%3E%3Cline x1='30' y1='0' x2='30' y2='60'/%3E%3C/g%3E%3C/svg%3E");opacity:0.05;pointer-events:none;}
+.kcs-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:2rem;}
+.kcs-emblem{opacity:0;transform:scale(0.78);animation:kcsEmblem 0.9s cubic-bezier(0.34,1.56,0.64,1) 0.2s forwards;filter:drop-shadow(0 6px 24px rgba(196,98,45,0.35));margin-bottom:1.5rem;}
+@keyframes kcsEmblem{to{opacity:1;transform:scale(1);}}
+.kcs-title{font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:clamp(1.6rem,6vw,2.4rem);font-weight:700;letter-spacing:.22em;color:#2C1810;text-transform:uppercase;margin:0 0 .35rem;opacity:0;transform:translateY(14px);animation:kcsText .6s ease .9s forwards;}
+.kcs-sub{font-family:'Playfair Display',Georgia,serif;font-size:clamp(.8rem,2.5vw,1rem);color:#C4622D;letter-spacing:.25em;text-transform:uppercase;margin:0 0 1.25rem;opacity:0;transform:translateY(10px);animation:kcsText .5s ease 1.15s forwards;}
+.kcs-line{width:0;height:1px;background:linear-gradient(90deg,transparent,#C4622D,transparent);animation:kcsLine .6s ease 1.5s forwards;opacity:0;}
+@keyframes kcsText{to{opacity:1;transform:translateY(0);}}
+@keyframes kcsLine{to{width:120px;opacity:1;}}
+</style>
+
+<script>
+(function(){
+  if(sessionStorage.getItem('kc_splashed')){
+    document.getElementById('kc-splash').style.display='none';
+    return;
+  }
+  sessionStorage.setItem('kc_splashed','1');
+  setTimeout(function(){
+    var s=document.getElementById('kc-splash');
+    s.classList.add('kcs-hide');
+    setTimeout(function(){s.style.display='none';},750);
+  },2800);
+})();
+</script>
+
+
 <!-- ── NAVBAR ──────────────────────────────────── -->
 <nav class="navbar">
   <div class="navbar-inner">
