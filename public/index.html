@@ -78,152 +78,112 @@
   </div>
 </nav>
 
-<!-- ── ARCH HEADER ────────────────────────────── -->
-<header class="arch-header">
+<!-- ── HERO HEADER ─────────────────────────────── -->
+<section class="hero-header">
+  <div class="hero-inner">
 
-  <!-- Filigrane motif africain fond clair -->
-  <div class="arch-watermark"></div>
-
-  <!-- Arc terracotta sculpté en SVG pur -->
-  <svg class="arch-curve" viewBox="0 0 1440 420" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <defs>
-      <linearGradient id="archGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#D4713A"/>
-        <stop offset="100%" stop-color="#9E3D10"/>
-      </linearGradient>
-    </defs>
-    <!-- Arc principal : courbe douce depuis les bords jusqu'au sommet centré -->
-    <path d="M-10,420 L-10,280 Q360,30 720,20 Q1080,30 1450,280 L1450,420 Z" fill="url(#archGrad)"/>
-    <!-- Ligne décorative fine légèrement au-dessus -->
-    <path d="M0,290 Q360,55 720,45 Q1080,55 1440,290" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
-    <!-- Deuxième ligne encore plus fine pour la profondeur -->
-    <path d="M0,305 Q360,72 720,62 Q1080,72 1440,305" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-  </svg>
-
-  <!-- Contenu centré sur l'arc -->
-  <div class="arch-content">
-
-    <!-- Blason : logo rond sur fond transparent, au sommet de l'arc -->
-    <div class="arch-blazon" id="archBlazOn">
-      <img src="/assets/logo-blason.png" alt="Kadio Coiffure — Blason officiel" class="arch-blazon-img" id="archLogoImg">
+    <!-- Blason officiel — PNG transparent -->
+    <div class="hero-blazon" id="heroBlazon">
+      <img src="/assets/logo-blason.png" alt="Kadio Coiffure" class="hero-blazon-img" id="archLogoImg">
     </div>
 
-    <!-- Typographie prestige -->
-    <h1 class="arch-title">KADIO COIFFURE</h1>
-    <p class="arch-subtitle">Maître Coiffeur &amp; Barbier</p>
-    <div class="arch-rule"></div>
-    <p class="arch-tagline">Soins 100 % naturels aux plantes &mdash; Zéro produit chimique</p>
+    <h1 class="hero-title">KADIO COIFFURE</h1>
+    <p class="hero-subtitle">Maître Coiffeur &amp; Barbier</p>
+    <div class="hero-rule"></div>
+    <p class="hero-tagline">Soins 100&nbsp;% naturels aux plantes &mdash; Zéro produit chimique</p>
 
-    <div class="arch-actions">
-      <a href="/booking.html" class="btn-arch-primary">Prendre rendez-vous</a>
-      <a href="/menu.html" class="btn-arch-secondary">Voir nos services</a>
+    <div class="hero-actions">
+      <a href="/booking.html" class="btn-hero-primary">Prendre rendez-vous</a>
+      <a href="/menu.html" class="btn-hero-secondary">Voir nos services</a>
     </div>
 
-    <div class="arch-stats">
-      <div class="arch-stat"><span class="arch-stat-n">50+</span><span class="arch-stat-l">Services</span></div>
-      <div class="arch-stat-sep"></div>
-      <div class="arch-stat"><span class="arch-stat-n">5/5</span><span class="arch-stat-l">Satisfaction</span></div>
-      <div class="arch-stat-sep"></div>
-      <div class="arch-stat"><span class="arch-stat-n">Longueuil</span><span class="arch-stat-l">QC, Canada</span></div>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="hero-stat-n">50+</span><span class="hero-stat-l">Services</span></div>
+      <div class="hero-stat-sep"></div>
+      <div class="hero-stat"><span class="hero-stat-n">5/5</span><span class="hero-stat-l">Satisfaction</span></div>
+      <div class="hero-stat-sep"></div>
+      <div class="hero-stat"><span class="hero-stat-n">Longueuil</span><span class="hero-stat-l">QC, Canada</span></div>
     </div>
 
   </div>
-</header>
+</section>
+
 <style>
-/* ── ARCH HEADER : design architectural pur ── */
-.arch-header{
-  position:relative;
+/* ── HERO HEADER — fond crème pur, blason centré ── */
+.hero-header{
   background:#FAF6F0;
-  overflow:hidden;
-  min-height:580px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  padding:4rem 1.5rem 3.5rem;
+  display:flex;align-items:center;justify-content:center;
+  min-height:520px;
 }
-.arch-watermark{
-  position:absolute;inset:0;
-  background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23C4622D' stroke-width='0.6'%3E%3Crect x='15' y='15' width='30' height='30' transform='rotate(45 30 30)'/%3E%3Crect x='22' y='22' width='16' height='16' transform='rotate(45 30 30)'/%3E%3Cline x1='0' y1='30' x2='60' y2='30'/%3E%3Cline x1='30' y1='0' x2='30' y2='60'/%3E%3C/g%3E%3C/svg%3E");
-  opacity:0.04;pointer-events:none;
-}
-.arch-curve{
-  position:absolute;inset:0;
-  width:100%;height:100%;
-}
-.arch-content{
-  position:relative;z-index:2;
+.hero-inner{
   display:flex;flex-direction:column;align-items:center;
-  padding:2.5rem 2rem 2.5rem;
-  text-align:center;max-width:720px;margin:0 auto;
+  text-align:center;max-width:640px;margin:0 auto;
 }
-/* ── Blason : logo rond sur fond transparent ── */
-.arch-blazon{
-  margin-bottom:1.5rem;
-  position:relative;
-}
-.arch-blazon-img{
-  width:min(180px,42vw);
+/* Blason */
+.hero-blazon{margin-bottom:2rem;}
+.hero-blazon-img{
+  width:min(220px,48vw);
   height:auto;
   border-radius:50%;
-  filter:drop-shadow(0 6px 24px rgba(0,0,0,0.35)) drop-shadow(0 0 0 3px rgba(255,255,255,0.25));
+  filter:drop-shadow(0 8px 32px rgba(164,68,20,0.22));
   opacity:0;
-  transform:scale(0.82) translateY(-8px);
-  animation:archLogoIn 0.7s cubic-bezier(0.34,1.56,0.64,1) 2.5s forwards;
+  transform:scale(0.85);
+  animation:heroLogoIn 0.7s cubic-bezier(0.34,1.56,0.64,1) 2.5s forwards;
 }
-@keyframes archLogoIn{to{opacity:1;transform:scale(1) translateY(0);}}
-/* ── Typographie ── */
-.arch-title{
+@keyframes heroLogoIn{to{opacity:1;transform:scale(1);}}
+/* Typographie */
+.hero-title{
   font-family:'Playfair Display',Georgia,serif;
-  font-size:clamp(1.9rem,5vw,3.2rem);
+  font-size:clamp(2rem,5.5vw,3.2rem);
   font-weight:700;letter-spacing:0.2em;
-  color:#FFFFFF;text-transform:uppercase;
-  margin:0 0 0.25rem;line-height:1.1;
-  text-shadow:0 2px 12px rgba(0,0,0,0.3);
+  color:#2C1810;text-transform:uppercase;
+  margin:0 0 0.3rem;line-height:1.1;
 }
-.arch-subtitle{
+.hero-subtitle{
   font-family:'Playfair Display',Georgia,serif;
-  font-size:clamp(0.8rem,2vw,1rem);
-  color:rgba(255,255,255,0.88);
-  letter-spacing:0.22em;text-transform:uppercase;
-  margin:0 0 0.75rem;
+  font-size:clamp(0.82rem,2.2vw,1rem);
+  color:#C4622D;letter-spacing:0.22em;
+  text-transform:uppercase;margin:0 0 0.9rem;
 }
-.arch-rule{
-  width:60px;height:1px;
-  background:rgba(255,255,255,0.45);
-  margin:0 auto 0.75rem;
+.hero-rule{
+  width:56px;height:1px;
+  background:#C4622D;opacity:0.45;
+  margin:0 auto 0.9rem;
 }
-.arch-tagline{
-  font-size:0.82rem;color:rgba(255,255,255,0.72);
-  margin:0 0 2rem;font-style:italic;letter-spacing:0.04em;
+.hero-tagline{
+  font-size:0.83rem;color:#8A7060;
+  margin:0 0 2.2rem;font-style:italic;letter-spacing:0.03em;
 }
-/* ── CTA ── */
-.arch-actions{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-bottom:2rem;}
-.btn-arch-primary{
-  background:#FFFFFF;color:#A8511F;
-  padding:0.85rem 2rem;border-radius:4px;
+/* CTA */
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-bottom:2.2rem;}
+.btn-hero-primary{
+  background:#C4622D;color:#FAF6F0;
+  padding:0.9rem 2.2rem;border-radius:4px;
   font-family:inherit;font-weight:700;font-size:0.88rem;
-  letter-spacing:0.06em;text-decoration:none;
-  transition:all 0.2s;box-shadow:0 2px 16px rgba(0,0,0,0.18);
+  letter-spacing:0.07em;text-decoration:none;
+  transition:background 0.2s,box-shadow 0.2s;
+  box-shadow:0 2px 14px rgba(196,98,45,0.28);
 }
-.btn-arch-primary:hover{background:#FAF6F0;}
-.btn-arch-secondary{
-  background:transparent;color:#FFFFFF;
-  padding:0.85rem 2rem;border:1.5px solid rgba(255,255,255,0.65);
+.btn-hero-primary:hover{background:#A8511F;box-shadow:0 4px 20px rgba(196,98,45,0.4);}
+.btn-hero-secondary{
+  background:transparent;color:#C4622D;
+  padding:0.9rem 2.2rem;border:1.5px solid #C4622D;
   border-radius:4px;font-family:inherit;font-weight:500;
-  font-size:0.88rem;letter-spacing:0.06em;text-decoration:none;
+  font-size:0.88rem;letter-spacing:0.07em;text-decoration:none;
   transition:all 0.2s;
 }
-.btn-arch-secondary:hover{background:rgba(255,255,255,0.1);}
-/* ── Stats ── */
-.arch-stats{display:flex;align-items:center;gap:1.5rem;}
-.arch-stat{display:flex;flex-direction:column;align-items:center;}
-.arch-stat-n{font-family:'Playfair Display',Georgia,serif;font-size:1.25rem;font-weight:700;color:#FFFFFF;line-height:1;}
-.arch-stat-l{font-size:0.7rem;color:rgba(255,255,255,0.68);letter-spacing:0.12em;text-transform:uppercase;margin-top:0.2rem;}
-.arch-stat-sep{width:1px;height:28px;background:rgba(255,255,255,0.28);}
+.btn-hero-secondary:hover{background:rgba(196,98,45,0.06);}
+/* Stats */
+.hero-stats{display:flex;align-items:center;gap:1.5rem;}
+.hero-stat{display:flex;flex-direction:column;align-items:center;}
+.hero-stat-n{font-family:'Playfair Display',Georgia,serif;font-size:1.3rem;font-weight:700;color:#2C1810;line-height:1;}
+.hero-stat-l{font-size:0.7rem;color:#9A8070;letter-spacing:0.12em;text-transform:uppercase;margin-top:0.2rem;}
+.hero-stat-sep{width:1px;height:28px;background:rgba(44,24,16,0.18);}
 @media(max-width:640px){
-  .arch-header{min-height:500px;}
-  .arch-blazon-img{width:min(140px,38vw);}
-  .arch-stats{gap:1rem;}
-  .arch-title{letter-spacing:0.12em;}
+  .hero-header{min-height:auto;padding:3rem 1.5rem;}
+  .hero-blazon-img{width:min(170px,44vw);}
+  .hero-stats{gap:1rem;}
 }
 </style>
 
