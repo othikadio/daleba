@@ -315,7 +315,7 @@ router.post('/close-appointment', async (req, res) => {
     { expiresIn: '48h' }
   );
 
-  const ratingLink = `${BASE_URL}/noter-service.html?token=${ratingToken}`;
+  const ratingLink = `${BASE_URL}/portail-client.html?token=${ratingToken}`;
 
   // Marquer comme clôturé en DB
   if (pool && !DEMO_MODE) {

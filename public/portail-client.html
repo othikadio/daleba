@@ -244,7 +244,163 @@
   const phone = localStorage.getItem('daleba_phone') || '';
   const name  = localStorage.getItem('daleba_name')  || '';
 
-  // Auth guard
+  // ── Mode Notation (lien SMS close-appointment) ────────────────────────────────
+  (function detectRatingMode() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const ratingToken = urlParams.get('token');
+    if (!ratingToken) return; // mode normal
+
+    // Décoder le payload JWT sans vérification (côté client - display only)
+    function decodePayload(jwt) {
+      try {
+        return JSON.parse(atob(jwt.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+      } catch(e) { return null; }
+    }
+
+    const payload = decodePayload(ratingToken);
+    if (!payload || !payload.appointmentId) return;
+
+    // Afficher l'interface de notation à la place du portail
+    document.body.innerHTML = `
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Votre avis — Kadio Coiffure</title>
+<link rel="stylesheet" href="/assets/css/salon.css"/>
+<style>
+  .rating-wrap{max-width:420px;margin:3rem auto;padding:2rem;background:#fff;border-radius:10px;box-shadow:0 2px 20px rgba(0,0,0,0.08);text-align:center;}
+  .salon-badge{font-family:'Playfair Display',Georgia,serif;font-size:1rem;color:#C4622D;letter-spacing:.15em;text-transform:uppercase;margin-bottom:.5rem;}
+  .rating-title{font-family:'Playfair Display',Georgia,serif;font-size:1.4rem;color:#2C1810;margin-bottom:.5rem;}
+  .rating-staff{font-size:.85rem;color:#888;margin-bottom:1.5rem;}
+  .stars-row{display:flex;justify-content:center;gap:.5rem;margin-bottom:1rem;}
+  .star-btn{background:none;border:none;cursor:pointer;color:#E0D0C0;font-size:0;transition:color .15s;}
+  .star-btn svg{pointer-events:none;}
+  .star-btn.lit{color:#C4622D;}
+  .rating-label{font-size:.9rem;color:#888;min-height:1.4rem;margin-bottom:1rem;}
+  .comment-box{width:100%;box-sizing:border-box;padding:.75rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;font-size:.9rem;resize:vertical;margin-bottom:1rem;}
+  .comment-box:focus{outline:none;border-color:#C4622D;}
+  .submit-btn{background:#C4622D;color:#fff;border:none;border-radius:6px;padding:.85rem 2.5rem;font-size:.95rem;font-weight:700;cursor:pointer;letter-spacing:.04em;width:100%;}
+  .submit-btn:disabled{opacity:.5;cursor:default;}
+  .thankyou{display:none;padding:1.5rem 0;}
+  .thankyou-icon{margin-bottom:1rem;}
+  .google-link-box{background:#FAF6F0;border:1px solid #E8D5C8;border-radius:8px;padding:1.25rem;margin-top:1rem;}
+  .google-link-btn{display:inline-block;margin-top:.75rem;background:#C4622D;color:#fff;padding:.7rem 1.5rem;border-radius:6px;text-decoration:none;font-weight:700;font-size:.9rem;}
+  .google-link-btn:hover{background:#A8511F;}
+  .block-msg{background:#FAF6F0;border-radius:8px;padding:1.25rem;margin-top:1rem;color:#555;font-size:.9rem;line-height:1.6;}
+</style>
+</head>
+<body style="background:#FAF6F0;min-height:100vh;">
+<div class="rating-wrap">
+  <div class="salon-badge">Kadio Coiffure & Esthétique</div>
+  <h2 class="rating-title" id="rTitle">Comment s'est passée votre prestation ?</h2>
+  <p class="rating-staff" id="rStaff"></p>
+
+  <div id="ratingForm">
+    <div class="stars-row" id="starsRow">
+      ${[1,2,3,4,5].map(v=>`
+      <button class="star-btn" data-v="${v}" type="button" aria-label="${v} étoile${v>1?'s':''}">
+        <svg width="44" height="44" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z" fill="currentColor"/></svg>
+      </button>`).join('')}
+    </div>
+    <div class="rating-label" id="rLabel">Sélectionnez votre note</div>
+    <textarea class="comment-box" id="rComment" rows="3" placeholder="Un commentaire ? (optionnel)"></textarea>
+    <button class="submit-btn" id="rSubmit" disabled type="button">Envoyer mon avis</button>
+  </div>
+
+  <div class="thankyou" id="rThankyou">
+    <div class="thankyou-icon">
+      <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+        <circle cx="30" cy="30" r="28" fill="#7A9E6E"/>
+        <path d="M18 30l9 9 15-15" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h3 style="font-family:'Playfair Display',Georgia,serif;color:#2C1810;">Merci pour votre confiance !</h3>
+    <div id="rFollowup"></div>
+  </div>
+</div>
+
+<script>
+  const GOOGLE_LINK = 'https://g.page/r/CwVGb0-S7xEAAAQvFbH8bg/review';
+  const labels = ['','Pas satisfait(e)','Peut mieux faire','Correct','Bien','Excellent !'];
+  let currentRating = 0;
+
+  const stars = document.querySelectorAll('.star-btn');
+  stars.forEach(s => {
+    s.addEventListener('mouseover', () => {
+      const v = parseInt(s.dataset.v);
+      stars.forEach(x => x.classList.toggle('lit', parseInt(x.dataset.v) <= v));
+      document.getElementById('rLabel').textContent = labels[v];
+    });
+    s.addEventListener('click', () => {
+      currentRating = parseInt(s.dataset.v);
+      stars.forEach(x => x.classList.toggle('lit', parseInt(x.dataset.v) <= currentRating));
+      document.getElementById('rLabel').textContent = labels[currentRating];
+      document.getElementById('rSubmit').disabled = false;
+    });
+  });
+
+  document.getElementById('starsRow').addEventListener('mouseleave', () => {
+    stars.forEach(x => x.classList.toggle('lit', parseInt(x.dataset.v) <= currentRating));
+    document.getElementById('rLabel').textContent = currentRating ? labels[currentRating] : 'Sélectionnez votre note';
+  });
+
+  document.getElementById('rSubmit').addEventListener('click', async () => {
+    if (!currentRating) return;
+    const btn = document.getElementById('rSubmit');
+    btn.textContent = 'Envoi...'; btn.disabled = true;
+
+    const payload = ${JSON.stringify(payload)};
+
+    try {
+      await fetch('/api/salon/rate-service', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          appointmentId: payload.appointmentId,
+          clientPhone:   payload.clientPhone,
+          clientName:    payload.clientName,
+          staffName:     payload.staffName,
+          rating:        currentRating,
+          comment:       document.getElementById('rComment').value || null,
+        }),
+      });
+    } catch(e) {}
+
+    document.getElementById('ratingForm').style.display = 'none';
+    document.getElementById('rThankyou').style.display = 'block';
+
+    if (currentRating >= 4) {
+      document.getElementById('rFollowup').innerHTML = \`
+        <div class="google-link-box">
+          <p style="font-size:.9rem;color:#555;line-height:1.6;">Votre satisfaction nous touche profondément.<br>Partagez votre expérience pour aider d'autres clients à nous trouver.</p>
+          <a class="google-link-btn" href="\${GOOGLE_LINK}" target="_blank" rel="noopener">Laisser un avis Google</a>
+        </div>\`;
+    } else {
+      document.getElementById('rFollowup').innerHTML = \`
+        <div class="block-msg">
+          Nous sommes sincèrement désolés que cette visite n'ait pas été à la hauteur de vos attentes.<br><br>
+          Notre responsable a été informé et vous contactera personnellement pour améliorer votre prochaine expérience.
+        </div>\`;
+    }
+  });
+
+  // Init
+  if (${JSON.stringify(payload.staffName)}) {
+    document.getElementById('rStaff').textContent = 'Prestation avec ' + ${JSON.stringify(payload.staffName)};
+  }
+  if (${JSON.stringify(payload.clientName)}) {
+    document.getElementById('rTitle').textContent = 'Bonjour ' + ${JSON.stringify(payload.clientName).replace(/['"]/g, '')} + ' — Comment s\'était votre prestation ?';
+  }
+<\/script>
+</body>
+</html>`;
+
+    document.open(); document.write(document.body.innerHTML); document.close();
+  })();
+
+  // Auth guard (mode normal seulement)
   if (!token) window.location.href = '/login.html';
 
   // Greeting
