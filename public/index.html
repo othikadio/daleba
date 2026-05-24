@@ -25,9 +25,9 @@
 #kc-splash.kcs-hide{opacity:0;visibility:hidden;pointer-events:none;}
 .kcs-bg{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23C4622D' stroke-width='0.6'%3E%3Crect x='15' y='15' width='30' height='30' transform='rotate(45 30 30)'/%3E%3Crect x='22' y='22' width='16' height='16' transform='rotate(45 30 30)'/%3E%3Cline x1='0' y1='30' x2='60' y2='30'/%3E%3Cline x1='30' y1='0' x2='30' y2='60'/%3E%3C/g%3E%3C/svg%3E");opacity:0.05;pointer-events:none;}
 .kcs-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:2rem;}
-.kcs-emblem{opacity:0;transform:scale(0.78);animation:kcsEmblem 0.9s cubic-bezier(0.34,1.56,0.64,1) 0.2s forwards;filter:drop-shadow(0 8px 32px rgba(196,98,45,0.4));margin-bottom:0.5rem;}
-.kcs-logo-img{width:min(340px,80vw);height:auto;border-radius:12px;}
-@keyframes kcsEmblem{to{opacity:1;transform:scale(1);}}
+.kcs-emblem{opacity:0;transform:scale(0.55);animation:kcsEmblem 2s cubic-bezier(0.16,1,0.3,1) 0.15s forwards;filter:drop-shadow(0 16px 56px rgba(196,98,45,0.55));margin-bottom:0;}
+.kcs-logo-img{width:min(700px,88vw);max-height:82vh;object-fit:contain;border-radius:16px;}
+@keyframes kcsEmblem{0%{opacity:0;transform:scale(0.55);}12%{opacity:1;}100%{opacity:1;transform:scale(1.10);}}
 .kcs-title{font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:clamp(1.6rem,6vw,2.4rem);font-weight:700;letter-spacing:.22em;color:#2C1810;text-transform:uppercase;margin:0 0 .35rem;opacity:0;transform:translateY(14px);animation:kcsText .6s ease .9s forwards;}
 .kcs-sub{font-family:'Playfair Display',Georgia,serif;font-size:clamp(.8rem,2.5vw,1rem);color:#C4622D;letter-spacing:.25em;text-transform:uppercase;margin:0 0 1.25rem;opacity:0;transform:translateY(10px);animation:kcsText .5s ease 1.15s forwards;}
 .kcs-line{width:0;height:1px;background:linear-gradient(90deg,transparent,#C4622D,transparent);animation:kcsLine .6s ease 1.5s forwards;opacity:0;}
@@ -39,6 +39,8 @@
 (function(){
   if(sessionStorage.getItem('kc_splashed')){
     document.getElementById('kc-splash').style.display='none';
+    var al=document.getElementById('archLogoImg');
+    if(al){al.style.animation='none';al.style.opacity='1';al.style.transform='scale(1)';}
     return;
   }
   sessionStorage.setItem('kc_splashed','1');
@@ -85,26 +87,7 @@
   </div>
   <div class="arch-content">
     <div class="arch-emblem">
-      <svg viewBox="0 0 120 120" width="110" height="110" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="60" cy="60" r="56" fill="none" stroke="#FAF6F0" stroke-width="2"/>
-        <circle cx="60" cy="60" r="50" fill="#A8511F"/>
-        <g stroke="#FAF6F0" stroke-width="1" fill="#C4622D">
-          <polygon points="60,14 66,24 60,34 54,24"/>
-          <polygon points="60,86 66,96 60,106 54,96"/>
-          <polygon points="14,60 24,54 34,60 24,66"/>
-          <polygon points="86,60 96,54 106,60 96,66"/>
-        </g>
-        <g fill="#FAF6F0">
-          <ellipse cx="60" cy="58" rx="14" ry="18"/>
-          <line x1="44" y1="55" x2="40" y2="55" stroke="#A8511F" stroke-width="1.5"/>
-          <line x1="80" y1="55" x2="76" y2="55" stroke="#A8511F" stroke-width="1.5"/>
-          <line x1="44" y1="59" x2="40" y2="59" stroke="#A8511F" stroke-width="1.5"/>
-          <line x1="80" y1="59" x2="76" y2="59" stroke="#A8511F" stroke-width="1.5"/>
-          <path d="M46,44 Q60,34 74,44 L72,48 Q60,40 48,48 Z"/>
-          <rect x="56" y="34" width="8" height="6" rx="1"/>
-        </g>
-        <circle cx="60" cy="60" r="38" fill="none" stroke="#FAF6F0" stroke-width="0.75" stroke-dasharray="3,3"/>
-      </svg>
+      <img src="/assets/logo-officiel.jpg" alt="Kadio Coiffure" class="arch-logo-img" id="archLogoImg">
     </div>
     <h1 class="arch-title">KADIO COIFFURE</h1>
     <p class="arch-subtitle">Maitre Coiffeur &amp; Barbier</p>
@@ -128,7 +111,9 @@
 .arch-bg{position:absolute;bottom:0;left:0;right:0;height:100%;}
 .arch-bg svg{width:100%;height:100%;}
 .arch-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;padding:3rem 2rem 2rem;text-align:center;max-width:700px;margin:0 auto;}
-.arch-emblem{margin-bottom:1.25rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.2));}
+.arch-emblem{margin-bottom:1.25rem;}
+.arch-logo-img{width:min(260px,55vw);height:auto;border-radius:10px;filter:drop-shadow(0 4px 18px rgba(0,0,0,0.28));opacity:0;transform:scale(0.88);animation:archLogoIn 0.65s cubic-bezier(0.34,1.56,0.64,1) 2.5s forwards;}
+@keyframes archLogoIn{to{opacity:1;transform:scale(1);}}
 .arch-title{font-family:'Playfair Display',Georgia,serif;font-size:clamp(1.8rem,5vw,3rem);font-weight:700;letter-spacing:0.18em;color:#FFFFFF;text-transform:uppercase;margin:0 0 0.3rem;line-height:1.1;text-shadow:0 2px 8px rgba(0,0,0,0.25);}
 .arch-subtitle{font-family:'Playfair Display',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.85);letter-spacing:0.2em;text-transform:uppercase;margin:0 0 0.4rem;}
 .arch-tagline{font-size:0.85rem;color:rgba(255,255,255,0.75);margin:0 0 1.75rem;font-style:italic;}
