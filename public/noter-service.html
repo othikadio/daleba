@@ -41,15 +41,19 @@
     .intro { font-size: 0.9rem; color: var(--muted); margin-bottom: 28px; line-height: 1.6; }
     .stars-wrap { display: flex; justify-content: center; gap: 12px; margin-bottom: 24px; }
     .star {
-      font-size: 3rem;
+      font-size: 0;
       cursor: pointer;
-      color: #ddd;
+      color: #E0D0C0;
       transition: color .15s, transform .1s;
       user-select: none;
-      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
-    .star.lit { color: #FFC107; }
-    .star:active { transform: scale(1.2); }
+    .star svg { pointer-events: none; }
+    .star.lit { color: #C4622D; }
+    .star:hover { color: #C4622D; opacity: 0.85; }
+    .star:active { transform: scale(1.15); }
     .rating-label {
       font-size: 0.88rem;
       color: var(--primary);
@@ -127,7 +131,7 @@
 </head>
 <body>
   <div class="card">
-    <div class="logo">KADIO</div>
+    <div class="logo">KADIO COIFFURE</div>
     <div class="subtitle">Coiffure &amp; Esthétique</div>
 
     <!-- ── Étape 1 : notation ─────────────────────────────────────────── -->
@@ -136,11 +140,11 @@
       <p class="intro">Votre avis nous aide à vous offrir le meilleur service.</p>
 
       <div class="stars-wrap" id="starsWrap">
-        <span class="star" data-v="1"></span>
-        <span class="star" data-v="2"></span>
-        <span class="star" data-v="3"></span>
-        <span class="star" data-v="4"></span>
-        <span class="star" data-v="5"></span>
+        <span class="star" data-v="1"><svg viewBox="0 0 24 24" width="36" height="36"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z" fill="currentColor"/></svg></span>
+        <span class="star" data-v="2"><svg viewBox="0 0 24 24" width="36" height="36"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z" fill="currentColor"/></svg></span>
+        <span class="star" data-v="3"><svg viewBox="0 0 24 24" width="36" height="36"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z" fill="currentColor"/></svg></span>
+        <span class="star" data-v="4"><svg viewBox="0 0 24 24" width="36" height="36"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z" fill="currentColor"/></svg></span>
+        <span class="star" data-v="5"><svg viewBox="0 0 24 24" width="36" height="36"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z" fill="currentColor"/></svg></span>
       </div>
       <div class="rating-label" id="ratingLabel">Sélectionnez votre note</div>
 
@@ -152,7 +156,11 @@
     <div class="step" id="step2good">
       <h2 style="margin-bottom:16px">Merci pour votre confiance ! </h2>
       <div class="google-box">
-        <div class="google-logo">⭐</div>
+        <div class="google-logo">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M24 4l5.09 10.32L42 16.22l-9 8.77 2.12 12.37L24 31.5l-11.12 5.86L15 24.99 6 16.22l12.91-1.9z" fill="#C4622D" stroke="#C4622D" stroke-width="1"/>
+          </svg>
+        </div>
         <p>
           Vous avez adoré votre expérience chez Kadio Coiffure.<br>
           Partagez votre avis sur Google pour aider d'autres clients à nous trouver !
@@ -166,7 +174,14 @@
     <!-- ── Étape 2b : mauvaise note ─────────────────────────────────── -->
     <div class="step" id="step2bad">
       <div class="thankyou-box">
-        <div class="emoji"></div>
+        <div class="emoji-replace">
+          <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="30" cy="30" r="28" fill="#FAF6F0" stroke="#C4622D" stroke-width="1.5"/>
+            <path d="M20 35 Q30 42 40 35" stroke="#7A9E6E" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <circle cx="23" cy="25" r="3" fill="#C4622D"/>
+            <circle cx="37" cy="25" r="3" fill="#C4622D"/>
+          </svg>
+        </div>
         <h2 style="margin-bottom:12px">Merci pour votre retour</h2>
         <p>
           Nous sommes désolés que votre visite n'ait pas été à la hauteur de vos attentes.<br><br>
@@ -177,14 +192,33 @@
   </div>
 
   <script>
-    // Récupérer appointmentId et phone depuis l'URL
+    // Décoder le token JWT (payload) ou utiliser les params URL
+    function decodeJWTPayload(token) {
+      try {
+        const base64 = token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+        return JSON.parse(atob(base64));
+      } catch(e) { return null; }
+    }
+
     const params = new URLSearchParams(window.location.search);
-    const appointmentId = params.get('appt') || params.get('id') || 'demo';
-    const clientPhone   = params.get('phone') || localStorage.getItem('kc_phone') || '';
-    const clientName    = params.get('name') || localStorage.getItem('kc_name') || '';
+    const jwtToken = params.get('token');
+    let appointmentId, clientPhone, clientName, staffName;
+
+    if (jwtToken) {
+      const payload = decodeJWTPayload(jwtToken);
+      appointmentId = payload?.appointmentId || 'demo';
+      clientPhone   = payload?.clientPhone   || '';
+      clientName    = payload?.clientName    || '';
+      staffName     = payload?.staffName     || '';
+    } else {
+      appointmentId = params.get('appt') || params.get('id') || 'demo';
+      clientPhone   = params.get('phone') || localStorage.getItem('kc_phone') || '';
+      clientName    = params.get('name')  || localStorage.getItem('kc_name')  || '';
+      staffName     = '';
+    }
+
     const googlePlaceId = 'CwVGb0-S7xEAAAQvFbH8bg';
     const googleLink    = `https://g.page/r/${googlePlaceId}/review`;
-
     document.getElementById('googleLink').href = googleLink;
 
     const labels = ['', 'Pas satisfait(e)', 'Peut mieux faire', 'Correct', 'Bien', 'Excellent !'];

@@ -34,34 +34,76 @@
   </div>
 </nav>
 
-<!-- ── HERO ────────────────────────────────────── -->
-<section class="hero">
-  <div class="container">
-    <div class="hero-content">
-      <span class="hero-overline">Salon Afro · Barbier · Longueuil</span>
-      <h1>L'excellence coiffure afro à votre service</h1>
-      <p>Expert en tresses, locks, barbier, tissage et techniques afro. Un accueil chaleureux et un savoir-faire authentique — à deux pas de Montréal.</p>
-      <div class="hero-actions">
-        <a href="/booking.html" class="btn btn-primary btn-lg">Prendre rendez-vous</a>
-        <a href="/menu.html" class="btn btn-secondary btn-lg">Voir nos services</a>
-      </div>
-      <div class="hero-stats">
-        <div class="stat-item">
-          <span class="stat-number">50+</span>
-          <span class="stat-label">Services disponibles</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number">5/5</span>
-          <span class="stat-label">Satisfaction client</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number">Longueuil</span>
-          <span class="stat-label">QC, Canada</span>
-        </div>
-      </div>
+<!-- ── ARCH HEADER ────────────────────────────── -->
+<div class="arch-header">
+  <div class="arch-bg">
+    <svg viewBox="0 0 1200 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,320 L0,160 Q600,0 1200,160 L1200,320 Z" fill="#C4622D"/>
+    </svg>
+  </div>
+  <div class="arch-content">
+    <div class="arch-emblem">
+      <svg viewBox="0 0 120 120" width="110" height="110" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="60" cy="60" r="56" fill="none" stroke="#FAF6F0" stroke-width="2"/>
+        <circle cx="60" cy="60" r="50" fill="#A8511F"/>
+        <g stroke="#FAF6F0" stroke-width="1" fill="#C4622D">
+          <polygon points="60,14 66,24 60,34 54,24"/>
+          <polygon points="60,86 66,96 60,106 54,96"/>
+          <polygon points="14,60 24,54 34,60 24,66"/>
+          <polygon points="86,60 96,54 106,60 96,66"/>
+        </g>
+        <g fill="#FAF6F0">
+          <ellipse cx="60" cy="58" rx="14" ry="18"/>
+          <line x1="44" y1="55" x2="40" y2="55" stroke="#A8511F" stroke-width="1.5"/>
+          <line x1="80" y1="55" x2="76" y2="55" stroke="#A8511F" stroke-width="1.5"/>
+          <line x1="44" y1="59" x2="40" y2="59" stroke="#A8511F" stroke-width="1.5"/>
+          <line x1="80" y1="59" x2="76" y2="59" stroke="#A8511F" stroke-width="1.5"/>
+          <path d="M46,44 Q60,34 74,44 L72,48 Q60,40 48,48 Z"/>
+          <rect x="56" y="34" width="8" height="6" rx="1"/>
+        </g>
+        <circle cx="60" cy="60" r="38" fill="none" stroke="#FAF6F0" stroke-width="0.75" stroke-dasharray="3,3"/>
+      </svg>
+    </div>
+    <h1 class="arch-title">KADIO COIFFURE</h1>
+    <p class="arch-subtitle">Maitre Coiffeur &amp; Barbier</p>
+    <p class="arch-tagline">Soins 100% naturels aux plantes &mdash; Zero produit chimique</p>
+    <div class="arch-actions">
+      <a href="/booking.html" class="btn-arch-primary">Prendre rendez-vous</a>
+      <a href="/menu.html" class="btn-arch-secondary">Voir nos services</a>
+    </div>
+    <div class="arch-stats">
+      <div class="arch-stat"><span class="arch-stat-n">50+</span><span class="arch-stat-l">Services</span></div>
+      <div class="arch-stat-sep"></div>
+      <div class="arch-stat"><span class="arch-stat-n">5/5</span><span class="arch-stat-l">Satisfaction</span></div>
+      <div class="arch-stat-sep"></div>
+      <div class="arch-stat"><span class="arch-stat-n">Longueuil</span><span class="arch-stat-l">QC, Canada</span></div>
     </div>
   </div>
-</section>
+</div>
+<style>
+.arch-header{position:relative;background:#FAF6F0;overflow:hidden;min-height:540px;display:flex;align-items:center;justify-content:center;}
+.arch-header::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23C4622D' stroke-width='0.6'%3E%3Crect x='15' y='15' width='30' height='30' transform='rotate(45 30 30)'/%3E%3Crect x='22' y='22' width='16' height='16' transform='rotate(45 30 30)'/%3E%3Cline x1='0' y1='30' x2='60' y2='30'/%3E%3Cline x1='30' y1='0' x2='30' y2='60'/%3E%3C/g%3E%3C/svg%3E");opacity:0.05;pointer-events:none;}
+.arch-bg{position:absolute;bottom:0;left:0;right:0;height:100%;}
+.arch-bg svg{width:100%;height:100%;}
+.arch-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;padding:3rem 2rem 2rem;text-align:center;max-width:700px;margin:0 auto;}
+.arch-emblem{margin-bottom:1.25rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.2));}
+.arch-title{font-family:'Playfair Display',Georgia,serif;font-size:clamp(1.8rem,5vw,3rem);font-weight:700;letter-spacing:0.18em;color:#FFFFFF;text-transform:uppercase;margin:0 0 0.3rem;line-height:1.1;text-shadow:0 2px 8px rgba(0,0,0,0.25);}
+.arch-subtitle{font-family:'Playfair Display',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.85);letter-spacing:0.2em;text-transform:uppercase;margin:0 0 0.4rem;}
+.arch-tagline{font-size:0.85rem;color:rgba(255,255,255,0.75);margin:0 0 1.75rem;font-style:italic;}
+.arch-actions{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-bottom:2rem;}
+.btn-arch-primary{background:#FFFFFF;color:#C4622D;padding:0.85rem 2rem;border-radius:6px;font-family:inherit;font-weight:700;font-size:0.9rem;letter-spacing:0.04em;text-decoration:none;transition:all 0.2s;box-shadow:0 2px 12px rgba(0,0,0,0.15);}
+.btn-arch-primary:hover{background:#FAF6F0;color:#A8511F;}
+.btn-arch-secondary{background:transparent;color:#FFFFFF;padding:0.85rem 2rem;border:2px solid rgba(255,255,255,0.7);border-radius:6px;font-family:inherit;font-weight:600;font-size:0.9rem;letter-spacing:0.04em;text-decoration:none;transition:all 0.2s;}
+.btn-arch-secondary:hover{background:rgba(255,255,255,0.1);}
+.arch-stats{display:flex;align-items:center;gap:1.5rem;}
+.arch-stat{display:flex;flex-direction:column;align-items:center;}
+.arch-stat-n{font-family:'Playfair Display',Georgia,serif;font-size:1.3rem;font-weight:700;color:#FFFFFF;line-height:1;}
+.arch-stat-l{font-size:0.72rem;color:rgba(255,255,255,0.7);letter-spacing:0.1em;text-transform:uppercase;margin-top:0.2rem;}
+.arch-stat-sep{width:1px;height:32px;background:rgba(255,255,255,0.3);}
+@media(max-width:640px){.arch-header{min-height:460px;}.arch-emblem svg{width:80px;height:80px;}.arch-stats{gap:1rem;}}
+</style>
+
+
 
 <!-- ── EXPERTISES ───────────────────────────────── -->
 <section class="section" style="background: var(--white);">

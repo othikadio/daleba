@@ -53,15 +53,17 @@ async function initTables() {
 initTables();
 
 // ── Messages ────────────────────────────────────────────────────────────────
-const WELCOME_SMS = (clientName) =>
-  `Bienvenue chez Kadio Coiffure & Esthétique, ${clientName} ! ` +
-  `Installez-vous confortablement. Nous avons le plaisir de vous offrir une boisson : ` +
-  `eau, jus, café, chocolat chaud, ou un verre de vin ou une bière pour relaxer, ` +
-  `accompagnés de petites grignotines. ` +
-  `Les toilettes se trouvent au fond à droite du salon. Bonne séance ! — Équipe Kadio`;
+const WELCOME_SMS =
+  `Bienvenue chez Kadio Coiffure & Esthétique. Votre maître coiffeur est informé de votre arrivée et vous installe dans un instant. Pendant votre attente, notre bar à plantes et nos rafraîchissements vous sont gracieusement offerts : eau, jus, café, chocolat chaud, vin ou bière. Les commodités sont à votre disposition au fond à droite du salon. Passez un excellent moment de détente.`;
 
 const ARRIVAL_NOTIFY = (clientName, staffName) =>
   `[Kadio] Arrivée confirmée : ${clientName} est arrivé(e). Coiffeur : ${staffName || 'N/A'}.`;
+
+const WALKIN_SMS = (estimatedWait) =>
+  `Vous êtes bien inscrit dans notre file d'attente express Kadio. Temps d'attente estimé : environ ${estimatedWait} minutes. Installez-vous et détendez-vous.`;
+
+const RATING_ALERT = (clientName, rating, staffName, comment) =>
+  `ALERTE QUALITÉ KADIO : Le client ${clientName} vient de laisser une note de ${rating}/5 pour sa prestation avec ${staffName || 'votre équipe'}. Motif/Commentaire : ${comment || 'Aucun commentaire'}. Veuillez intervenir en privé.`;
 
 // ── POST /api/salon/arrival-confirm ─────────────────────────────────────────
 router.post('/arrival-confirm', async (req, res) => {
@@ -82,7 +84,7 @@ router.post('/arrival-confirm', async (req, res) => {
   }
 
   // 2. SMS bienvenue au client
-  await sms(clientPhone, WELCOME_SMS(clientName));
+  await sms(clientPhone, WELCOME_SMS);
 
   // 3. Notification à Ulrich
   const ulrichPhone = process.env.ULRICH_PHONE_NUMBER || '+15149845970';
@@ -151,14 +153,13 @@ router.post('/rate-service', async (req, res) => {
 
   if (rating >= 4) {
     // Bonne note → lien Google Review
-    const msgGoogle = `Merci pour votre visite chez Kadio Coiffure ! Votre avis compte beaucoup pour nous. Laissez-nous une note Google ici : ${googleLink} — Merci !`;
+    const msgGoogle = `Merci pour votre visite chez Kadio Coiffure ! Votre satisfaction est notre fierté. Partagez votre expérience sur Google : ${googleLink}`;
     await sms(clientPhone, msgGoogle);
     googleSmsSent = true;
   } else {
     // Mauvaise note → alerte interne, PAS de lien Google
-    const nameStr = clientName || clientPhone;
-    const msgAlert = `ALERTE AVIS — Client ${nameStr} a noté ${rating}/5. Contact requis avant avis public. Tél: ${clientPhone}`;
-    await sms(ulrichPhone, msgAlert);
+    const nameStr = clientName || 'Client';
+    await sms(ulrichPhone, RATING_ALERT(nameStr, rating, req.body.staffName, req.body.comment));
     alertSent = true;
   }
 
@@ -224,6 +225,114 @@ router.get('/ratings/summary', async (req, res) => {
   } catch(e) {
     res.status(500).json({ error: e.message });
   }
+});
+
+// ── POST /api/salon/walkin — Entrée Express ─────────────────────────────────
+router.post('/walkin', async (req, res) => {
+  const { name, phone } = req.body;
+  if (!name || !phone) {
+    return res.status(400).json({ error: 'name et phone requis' });
+  }
+
+  // Normalisation E.164
+  let normalPhone = phone.replace(/[^\d+]/g, '');
+  if (!normalPhone.startsWith('+') && normalPhone.length === 10) normalPhone = '+1' + normalPhone;
+  else if (!normalPhone.startsWith('+') && normalPhone.length === 11 && normalPhone.startsWith('1')) normalPhone = '+' + normalPhone;
+
+  // Compter combien de walk-ins actifs pour estimer l'attente
+  let queueCount = 1;
+  let walkinId   = null;
+
+  if (pool && !DEMO_MODE) {
+    try {
+      const countRes = await pool.query(
+        `SELECT COUNT(*) FROM kadio_walkins WHERE status='waiting' AND created_at > NOW() - INTERVAL '3 hours'`
+      );
+      queueCount = parseInt(countRes.rows[0].count) + 1;
+    } catch(_) {}
+
+    try {
+      const ins = await pool.query(
+        `INSERT INTO kadio_walkins (client_name, client_phone, status, created_at)
+         VALUES ($1, $2, 'waiting', NOW()) RETURNING id`,
+        [name, normalPhone]
+      );
+      walkinId = ins.rows[0]?.id;
+    } catch(e) {
+      // Table peut ne pas exister encore — créer
+      try {
+        await pool.query(`
+          CREATE TABLE IF NOT EXISTS kadio_walkins (
+            id SERIAL PRIMARY KEY,
+            client_name VARCHAR(100),
+            client_phone VARCHAR(20),
+            status VARCHAR(20) DEFAULT 'waiting',
+            staff_assigned VARCHAR(100),
+            created_at TIMESTAMP DEFAULT NOW(),
+            served_at TIMESTAMP
+          )
+        `);
+        const ins2 = await pool.query(
+          `INSERT INTO kadio_walkins (client_name, client_phone, status) VALUES ($1, $2, 'waiting') RETURNING id`,
+          [name, normalPhone]
+        );
+        walkinId = ins2.rows[0]?.id;
+      } catch(e2) { console.warn(`${LOG} walkin DB: ${e2.message}`); }
+    }
+  } else {
+    walkinId = Date.now();
+  }
+
+  // Temps d'attente estimé : 30 min par personne avant soi
+  const estimatedWait = Math.max(10, (queueCount - 1) * 30);
+
+  // SMS au client
+  await sms(normalPhone, WALKIN_SMS(estimatedWait));
+
+  // Notif Ulrich
+  const ulrichPhone = process.env.ULRICH_PHONE_NUMBER || '+15149845970';
+  await sms(ulrichPhone, `[Kadio Walk-in] ${name} (${normalPhone}) ajouté à la file. Attente estimée : ${estimatedWait} min.`);
+
+  console.log(`${LOG} Walk-in enregistré : ${name} (${normalPhone}) — attente ~${estimatedWait}min`);
+  res.json({ success: true, walkinId, clientName: name, clientPhone: normalPhone, estimatedWait });
+});
+
+// ── POST /api/salon/close-appointment ─────────────────────────────────────────
+router.post('/close-appointment', async (req, res) => {
+  const { appointmentId, clientPhone, clientName, staffName, staffId } = req.body;
+  if (!appointmentId || !clientPhone) {
+    return res.status(400).json({ error: 'appointmentId et clientPhone requis' });
+  }
+
+  const BASE_URL = process.env.BASE_URL || 'https://daleba.vercel.app';
+
+  // Générer un token d'évaluation (encodage simple base64 signé)
+  const jwt = require('jsonwebtoken');
+  const JWT_SECRET = process.env.JWT_SECRET || 'daleba-secret-change-in-prod';
+  const ratingToken = jwt.sign(
+    { appointmentId, clientPhone, clientName, staffName, staffId, iat: Date.now() },
+    JWT_SECRET,
+    { expiresIn: '48h' }
+  );
+
+  const ratingLink = `${BASE_URL}/noter-service.html?token=${ratingToken}`;
+
+  // Marquer comme clôturé en DB
+  if (pool && !DEMO_MODE) {
+    try {
+      await pool.query(
+        `UPDATE appointments SET status='completed', updated_at=NOW() WHERE id=$1`,
+        [appointmentId]
+      );
+    } catch(e) { console.warn(`${LOG} close-appointment DB: ${e.message}`); }
+  }
+
+  // SMS au client avec lien de notation
+  const ratingMsg = `Merci pour votre visite chez Kadio Coiffure & Esthétique ! Votre coiffeur a terminé votre prestation. Donnez-nous votre avis en toute discrétion (30 secondes) : ${ratingLink}`;
+  await sms(clientPhone, ratingMsg);
+
+  console.log(`${LOG} Prestation clôturée — appt:${appointmentId}, lien envoyé → ${clientPhone}`);
+  res.json({ success: true, smsSent: true, appointmentId, ratingLink });
 });
 
 module.exports = router;

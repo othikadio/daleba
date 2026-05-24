@@ -675,11 +675,245 @@
     .toast.success { background: var(--sage); }
     .toast.error { background: #DC2626; }
 
+    /* ── Staff View ───────────────────────────────────────────────────────────── */
+    .staff-view {
+      display: flex;
+      gap: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .staff-time-gutter {
+      width: 52px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+    }
+
+    .staff-time-gutter .time-label {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .staff-time-gutter .time-label:first-child {
+      height: 56px; /* align with staff header */
+      border-bottom: 2px solid var(--border);
+    }
+
+    .staff-columns {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      flex: 1;
+      overflow-x: auto;
+    }
+
+    .staff-col {
+      border-right: 1px solid var(--border);
+      min-width: 140px;
+    }
+
+    .staff-col:last-child { border-right: none; }
+
+    .staff-col-header {
+      height: 56px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 2px solid var(--border);
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .staff-col-name {
+      font-family: var(--font-serif);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--terracotta);
+      letter-spacing: 0.03em;
+    }
+
+    .staff-col-role {
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .staff-hour-row {
+      height: 60px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    .staff-hour-row:last-child { border-bottom: none; }
+
+    .staff-event-block {
+      position: absolute;
+      left: 2px;
+      right: 2px;
+      border-radius: 5px;
+      padding: 4px 6px;
+      font-size: 11px;
+      overflow: hidden;
+      z-index: 10;
+      cursor: grab;
+      border-left: 3px solid var(--terracotta);
+      background: var(--terracotta-bg);
+      color: #7C2D12;
+    }
+
+    .staff-event-block:active { cursor: grabbing; }
+
+    .staff-event-block.pending {
+      border-left-color: var(--sage);
+      background: var(--sage-bg);
+      color: #1A4014;
+    }
+
+    .staff-event-name {
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .staff-event-time {
+      font-size: 10px;
+      opacity: 0.8;
+    }
+
+    .staff-event-actions {
+      display: flex;
+      gap: 3px;
+      margin-top: 4px;
+    }
+
+    .btn-vip {
+      background: var(--sage);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 10px;
+      padding: 2px 6px;
+      cursor: pointer;
+      flex: 1;
+      white-space: nowrap;
+    }
+
+    .btn-vip:hover { background: var(--sage-dark); }
+
+    .btn-close-appt {
+      background: var(--terracotta);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 10px;
+      padding: 2px 6px;
+      cursor: pointer;
+      flex: 1;
+      white-space: nowrap;
+    }
+
+    .btn-close-appt:hover { background: var(--terracotta-light); }
+
+    /* ── Walk-in button ──────────────────────────────────────────────────────── */
+    .btn-walkin {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--terracotta);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.03em;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-walkin:hover { background: var(--terracotta-light); }
+
+    .btn-walkin-icon {
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Action modal ─────────────────────────────────────────────────────────── */
+    .action-modal-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .badge-confirmed { background: var(--terracotta-bg); color: var(--terracotta); }
+    .badge-pending   { background: var(--sage-bg);       color: var(--sage-dark);  }
+
+    .action-btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .action-btn-full {
+      grid-column: 1 / -1;
+    }
+
+    .btn-action-vip {
+      padding: 12px;
+      background: var(--sage);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+    .btn-action-vip:hover { background: var(--sage-dark); }
+
+    .btn-action-close {
+      padding: 12px;
+      background: var(--terracotta);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+    .btn-action-close:hover { background: var(--terracotta-light); }
+
+    .btn-action-reschedule {
+      padding: 10px;
+      background: var(--bg);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 12px;
+      cursor: pointer;
+      text-align: center;
+    }
+
     @media (max-width: 640px) {
       .toolbar { flex-wrap: wrap; height: auto; padding: 8px 16px; gap: 8px; }
       #view-container { padding: 12px 16px; }
       .week-view { font-size: 10px; }
       .legend { display: none; }
+      .staff-columns { grid-template-columns: repeat(3, 1fr); }
     }
   </style>
 </head>
@@ -712,9 +946,10 @@
 
   <div class="toolbar">
     <div class="tabs">
-      <button class="tab active" onclick="switchView('day')">Aujourd'hui</button>
-      <button class="tab" onclick="switchView('week')">Cette semaine</button>
-      <button class="tab" onclick="switchView('month')">Ce mois</button>
+      <button class="tab active" id="tab-day" onclick="switchView('day')">Aujourd'hui</button>
+      <button class="tab" id="tab-week" onclick="switchView('week')">Cette semaine</button>
+      <button class="tab" id="tab-month" onclick="switchView('month')">Ce mois</button>
+      <button class="tab" id="tab-staff" onclick="switchView('staff')" style="color:var(--terracotta);font-weight:700;">Par coiffeur</button>
     </div>
 
     <div class="date-nav">
@@ -724,6 +959,15 @@
       <button class="today-btn" onclick="goToday()">Aujourd'hui</button>
       <button class="refresh-btn" id="refresh-btn" onclick="loadData()" title="Actualiser">&#8635;</button>
     </div>
+
+    <button class="btn-walkin" onclick="openWalkin()">
+      <span class="btn-walkin-icon">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+      </span>
+      Entrée Express Walk-in
+    </button>
 
     <div class="legend">
       <div class="legend-item"><div class="legend-dot" style="background:var(--terracotta)"></div> Confirmé</div>
@@ -755,6 +999,47 @@
   </div>
 </div>
 
+<!-- Walk-in modal -->
+<div class="modal-overlay" id="walkin-modal" style="display:none;">
+  <div class="modal">
+    <h3>Entrée Express Walk-in</h3>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:0;">Deux informations uniquement. Le client recevra un SMS.</p>
+    <label>Prénom &amp; Nom</label>
+    <input type="text" id="walkin-name" placeholder="Ex: Marie Dupont" autocomplete="off" />
+    <label>Numéro de téléphone</label>
+    <input type="tel" id="walkin-phone" placeholder="Ex: 514 555-0123" autocomplete="tel" />
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeWalkin()">Annuler</button>
+      <button class="btn btn-primary" id="walkin-submit" onclick="submitWalkin()">Inscrire dans la file</button>
+    </div>
+  </div>
+</div>
+
+<!-- Appointment action modal -->
+<div class="modal-overlay" id="action-modal" style="display:none;">
+  <div class="modal">
+    <div>
+      <span class="action-modal-badge badge-confirmed" id="action-badge">Confirmé</span>
+    </div>
+    <h3 id="action-client">Nom Client</h3>
+    <p style="font-size:13px;color:var(--text-muted);" id="action-detail"></p>
+    <div class="action-btn-row">
+      <button class="btn-action-vip" onclick="confirmArrival()">
+        Confirmer l'arrivée — SMS VIP
+      </button>
+      <button class="btn-action-close" onclick="closeAppointment()">
+        Clôturer la prestation
+      </button>
+      <button class="btn-action-reschedule action-btn-full" onclick="switchToReschedule()">
+        Déplacer / Reporter
+      </button>
+    </div>
+    <div class="modal-actions" style="margin-top:12px;">
+      <button class="btn btn-secondary" onclick="closeActionModal()">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -764,6 +1049,16 @@ let currentDate = new Date();
 let appointments = [];
 let authToken = null;
 let activeBooking = null;
+let activeAction  = null; // for action modal
+
+const STAFF_MEMBERS = [
+  { name: 'Maya',    role: 'Coiffure' },
+  { name: 'Mariel',  role: 'Barbier'  },
+  { name: 'Mariane', role: 'Coiffure' },
+  { name: 'Raquel',  role: 'Coiffure' },
+  { name: 'Brenda',  role: 'Coiffure' },
+  { name: 'Ange',    role: 'Coiffure' },
+];
 
 const BASE = '';
 const HOURS_START = 8;
@@ -909,7 +1204,10 @@ function getDateRange() {
 // ── Navigation ──────────────────────────────────────────────────────────────────
 function switchView(v) {
   currentView = v;
-  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['day','week','month'][i] === v));
+  const tabMap = { day: 'tab-day', week: 'tab-week', month: 'tab-month', staff: 'tab-staff' };
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const activeTab = document.getElementById(tabMap[v]);
+  if (activeTab) activeTab.classList.add('active');
   loadData();
 }
 
@@ -948,9 +1246,14 @@ function render() {
   if (currentView === 'week')  container.innerHTML = renderWeek();
   if (currentView === 'month') container.innerHTML = renderMonth();
 
+  if (currentView === 'staff') container.innerHTML = renderStaff();
+
   if (currentView === 'day') {
     renderCurrentTimeLine();
     initDragDrop();
+  }
+  if (currentView === 'staff') {
+    initStaffDragDrop();
   }
 }
 
@@ -1284,6 +1587,198 @@ function formatDate(d) {
   const day = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${day}`;
 }
+
+// ── Staff View ─────────────────────────────────────────────────────────────────
+function renderStaff() {
+  const dateStr = formatDate(currentDate);
+  const dayAppts = appointments.filter(a => {
+    const d = new Date(a.start_at || a.startAt || a.start_time);
+    return formatDate(d) === dateStr;
+  });
+
+  const colsHtml = STAFF_MEMBERS.map(staff => {
+    const staffAppts = dayAppts.filter(a => {
+      const sn = (a.staff_name || a.staffName || a.provider_name || '').toLowerCase();
+      return sn.includes(staff.name.toLowerCase());
+    });
+    let rowsHtml = '';
+    for (let hr = HOURS_START; hr < HOURS_END; hr++) {
+      const hourAppts = staffAppts.filter(a => {
+        const d = new Date(a.start_at || a.startAt || a.start_time);
+        return d.getHours() === hr;
+      });
+      let evHtml = '';
+      for (const a of hourAppts) {
+        const d    = new Date(a.start_at || a.startAt || a.start_time);
+        const mins = d.getMinutes();
+        const dur  = a.duration_min || a.durationMinutes || 60;
+        const top  = (mins / 60) * 60;
+        const ht   = Math.max(38, (dur / 60) * 60 - 2);
+        const status  = getStatus(a);
+        const client  = (a.client_name || a.clientName || 'Client').replace(/'/g, "\u2019");
+        const service = (a.service_name || a.serviceName || 'Service').replace(/'/g, "\u2019");
+        const t   = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+        const id  = a.id || a.booking_id || a.square_booking_id || '';
+        const ph  = (a.client_phone || a.clientPhone || '');
+        const iso = a.start_at || a.startAt || a.start_time;
+        evHtml += `
+          <div class="staff-event-block ${status}"
+               style="top:${top}px;height:${ht}px;"
+               data-id="${id}" data-start="${iso}" data-staff="${staff.name}"
+               data-client="${client}" data-service="${service}" data-phone="${ph}"
+               onclick="openActionModal(event,'${id}','${client.replace(/'/g,'')}','${service.replace(/'/g,'')}','${t}','${ph}','${staff.name}','${iso}')">
+            <div class="staff-event-name">${client}</div>
+            <div class="staff-event-time">${t} &middot; ${dur}min</div>
+            ${ht >= 50 ? `<div class="staff-event-actions" onclick="event.stopPropagation()">
+              <button class="btn-vip" onclick="event.stopPropagation();triggerVIP('${id}','${ph}','${client.replace(/'/g,'')}','${staff.name}')">Arriv\u00e9e</button>
+              <button class="btn-close-appt" onclick="event.stopPropagation();triggerClose('${id}','${ph}','${client.replace(/'/g,'')}','${staff.name}')">Cl\u00f4turer</button>
+            </div>` : ''}
+          </div>`;
+      }
+      rowsHtml += `<div class="staff-hour-row" data-hour="${hr}" data-staff="${staff.name}">${evHtml}</div>`;
+    }
+    return `<div class="staff-col" data-staff="${staff.name}">
+      <div class="staff-col-header">
+        <div class="staff-col-name">${staff.name}</div>
+        <div class="staff-col-role">${staff.role}</div>
+      </div>${rowsHtml}</div>`;
+  }).join('');
+
+  const timeLabels = Array.from({length: HOURS_COUNT}, (_,i) =>
+    `<div class="time-label">${String(HOURS_START + i).padStart(2,'0')}:00</div>`
+  ).join('');
+
+  return `<div style="display:flex;gap:0;overflow-x:auto;">
+    <div class="staff-time-gutter">
+      <div class="time-label" style="height:56px;border-bottom:2px solid var(--border);"></div>
+      ${timeLabels}
+    </div>
+    <div class="staff-view" style="flex:1;">
+      <div class="staff-columns" style="grid-template-columns:repeat(6,minmax(150px,1fr));">
+        ${colsHtml}
+      </div>
+    </div>
+  </div>`;
+}
+
+function initStaffDragDrop() {
+  if (typeof interact === 'undefined') return;
+  interact('.staff-event-block').draggable({
+    inertia: false,
+    listeners: {
+      start(e) { e.target.style.opacity='0.7'; e.target.style.zIndex='50'; },
+      move(e) {
+        const t = e.target;
+        const x = (parseFloat(t.dataset.dx)||0) + e.dx;
+        const y = (parseFloat(t.dataset.dy)||0) + e.dy;
+        t.style.transform = `translate(${x}px,${y}px)`;
+        t.dataset.dx = x; t.dataset.dy = y;
+      },
+      end(e) {
+        const t = e.target;
+        t.style.opacity=''; t.style.zIndex=''; t.style.transform='';
+        delete t.dataset.dx; delete t.dataset.dy;
+        const drop = document.elementFromPoint(e.clientX, e.clientY);
+        const col  = drop?.closest('[data-staff]');
+        const newStaff = col?.dataset.staff;
+        const oldStaff = t.dataset.staff;
+        if (newStaff && newStaff !== oldStaff) reassignStaff(t.dataset.id, t.dataset.client, t.dataset.service, t.dataset.start, oldStaff, newStaff);
+      },
+    },
+  });
+}
+
+async function reassignStaff(bookingId, client, service, startISO, oldStaff, newStaff) {
+  const appt = appointments.find(a => String(a.id||a.booking_id||a.square_booking_id) === String(bookingId));
+  if (appt) { appt.staff_name = newStaff; appt.staffName = newStaff; render(); }
+  showToast(`${client} \u2192 ${newStaff}`, 'success');
+  try {
+    const h = {'Content-Type':'application/json'};
+    if (authToken && authToken !== 'demo') h['Authorization'] = `Bearer ${authToken}`;
+    await fetch(`${BASE}/api/calendar/appointments/${bookingId}/reassign`, {
+      method:'PATCH', headers:h, body:JSON.stringify({staffName:newStaff}),
+    });
+  } catch(_) {}
+}
+
+function openActionModal(ev, id, client, service, time, phone, staffName, startISO) {
+  ev.stopPropagation();
+  activeAction = {id, client, service, time, phone, staffName, startISO};
+  document.getElementById('action-client').textContent = client;
+  document.getElementById('action-detail').textContent = `${time} \u00b7 ${service} \u00b7 ${staffName}`;
+  document.getElementById('action-modal').style.display = 'flex';
+}
+function closeActionModal() { document.getElementById('action-modal').style.display='none'; activeAction=null; }
+function switchToReschedule() {
+  if (!activeAction) return;
+  closeActionModal();
+  openReschedule(activeAction.id, activeAction.client, activeAction.service, activeAction.startISO);
+}
+async function confirmArrival() { if (!activeAction) return; await triggerVIP(activeAction.id, activeAction.phone, activeAction.client, activeAction.staffName); closeActionModal(); }
+async function closeAppointment() { if (!activeAction) return; await triggerClose(activeAction.id, activeAction.phone, activeAction.client, activeAction.staffName); closeActionModal(); }
+
+async function triggerVIP(apptId, phone, clientName, staffName) {
+  if (!phone || phone==='undefined' || phone==='') { showToast('Num\u00e9ro manquant pour ce RDV', 'error'); return; }
+  const t0 = Date.now();
+  try {
+    const h = {'Content-Type':'application/json'};
+    if (authToken && authToken !== 'demo') h['Authorization'] = `Bearer ${authToken}`;
+    const r = await fetch(`${BASE}/api/salon/arrival-confirm`, {
+      method:'POST', headers:h, body:JSON.stringify({appointmentId:apptId, clientPhone:phone, clientName, staffName}),
+    });
+    const d = await r.json();
+    const ms = ((Date.now()-t0)/1000).toFixed(1);
+    if (d.success) showToast(`SMS VIP \u2192 ${clientName} (${ms}s)`, 'success');
+    else showToast(d.error||'Erreur SMS', 'error');
+  } catch(e) { showToast('Erreur r\u00e9seau', 'error'); }
+}
+
+async function triggerClose(apptId, phone, clientName, staffName) {
+  if (!phone || phone==='undefined' || phone==='') { showToast('Num\u00e9ro manquant pour ce RDV', 'error'); return; }
+  try {
+    const h = {'Content-Type':'application/json'};
+    if (authToken && authToken !== 'demo') h['Authorization'] = `Bearer ${authToken}`;
+    const r = await fetch(`${BASE}/api/salon/close-appointment`, {
+      method:'POST', headers:h, body:JSON.stringify({appointmentId:apptId, clientPhone:phone, clientName, staffName}),
+    });
+    const d = await r.json();
+    if (d.success) { showToast(`Cl\u00f4tur\u00e9 \u2014 SMS avis \u2192 ${clientName}`, 'success'); setTimeout(loadData, 1500); }
+    else showToast(d.error||'Erreur cl\u00f4ture', 'error');
+  } catch(e) { showToast('Erreur r\u00e9seau', 'error'); }
+}
+
+function openWalkin() {
+  document.getElementById('walkin-name').value='';
+  document.getElementById('walkin-phone').value='';
+  document.getElementById('walkin-modal').style.display='flex';
+  setTimeout(()=>document.getElementById('walkin-name').focus(),100);
+}
+function closeWalkin() { document.getElementById('walkin-modal').style.display='none'; }
+
+async function submitWalkin() {
+  const name  = document.getElementById('walkin-name').value.trim();
+  const phone = document.getElementById('walkin-phone').value.trim();
+  if (!name||!phone) { showToast('Nom et t\u00e9l\u00e9phone requis', 'error'); return; }
+  const btn = document.getElementById('walkin-submit');
+  btn.textContent='Envoi...'; btn.disabled=true;
+  try {
+    const h = {'Content-Type':'application/json'};
+    if (authToken && authToken !== 'demo') h['Authorization'] = `Bearer ${authToken}`;
+    const r = await fetch(`${BASE}/api/salon/walkin`, {
+      method:'POST', headers:h, body:JSON.stringify({name, phone}),
+    });
+    const d = await r.json();
+    if (d.success) { closeWalkin(); showToast(`${name} inscrit(e) \u2014 attente ~${d.estimatedWait}min`, 'success'); }
+    else showToast(d.error||'Erreur inscription', 'error');
+  } catch(e) { showToast('Erreur r\u00e9seau', 'error'); }
+  btn.textContent='Inscrire dans la file'; btn.disabled=false;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('walkin-modal').addEventListener('click', e => { if(e.target===e.currentTarget) closeWalkin(); });
+  document.getElementById('action-modal').addEventListener('click', e => { if(e.target===e.currentTarget) closeActionModal(); });
+});
+
 
 // ── Auto-refresh every 5 min ───────────────────────────────────────────────────
 setInterval(() => {
