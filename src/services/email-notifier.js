@@ -13,13 +13,14 @@
 const https       = require('https');
 const nodemailer  = require('nodemailer');
 
+const RESEND_KEY   = process.env.RESEND_API_KEY || 're_hVMJtA4G_5BydQQv4noQx767KpL4xowMk';
 const ULRICH_EMAIL = process.env.NOTIFICATION_EMAIL || 'kadioothniel@yahoo.fr';
 const FROM_NAME    = 'DALEBA Radar';
-const FROM_ADDR    = process.env.EMAIL_FROM || 'radar@daleba.io';
+const FROM_ADDR    = process.env.EMAIL_FROM || 'onboarding@resend.dev';
 
 // ── Provider 1 : Resend REST API ──────────────────────────────────────────────
 async function sendViaResend(subject, html, text) {
-  const key = process.env.RESEND_API_KEY;
+  const key = RESEND_KEY;
   if (!key) throw new Error('RESEND_API_KEY non configuré');
 
   const body = JSON.stringify({
@@ -245,7 +246,7 @@ async function notifyProposal(opportunity, proposalText) {
   console.log(`[email-notifier] Envoi à ${ULRICH_EMAIL} — "${subject.slice(0, 80)}"`);
 
   // Essai dans l'ordre des providers disponibles
-  if (process.env.RESEND_API_KEY) {
+  if (RESEND_KEY) {
     return sendViaResend(subject, html, plainText);
   }
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
