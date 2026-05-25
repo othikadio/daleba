@@ -162,4 +162,77 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// ── POST /api/proposals/:id/send — Agent Envoyeur (déclenché par Ulrich) ──────
+router.post('/:id/send', async (req, res) => {
+  try {
+    // 1. Charger la proposition + opportunité liée
+    const { rows: propRows } = await pool.query(
+      `SELECT p.*, o.title, o.source_platform, o.source_url, o.language_original,
+              o.description_orig, o.description_fr, o.category, o.score,
+              o.country, o.budget_estimated, o.budget_currency
+       FROM daleba_proposals p
+       JOIN daleba_opportunities o ON o.id = p.opportunity_id
+       WHERE p.id = $1`,
+      [req.params.id]
+    );
+    if (!propRows.length) return res.status(404).json({ error: 'Proposition introuvable' });
+
+    const row = propRows[0];
+    if (row.status === 'sent_to_client') {
+      return res.status(409).json({ error: 'Déjà envoyée', sent_at: row.sent_at });
+    }
+
+    const opportunity = {
+      id:                 row.opportunity_id,
+      title:              row.title,
+      source_platform:    row.source_platform,
+      source_url:         row.source_url,
+      language_original:  row.language_original,
+      description_orig:   row.description_orig,
+      description_fr:     row.description_fr,
+      category:           row.category,
+      score:              row.score,
+      country:            row.country,
+      budget_estimated:   row.budget_estimated,
+      budget_currency:    row.budget_currency,
+    };
+
+    const proposal = {
+      id:             row.id,
+      generated_text: row.generated_text,
+    };
+
+    // 2. Appeler l'Agent Envoyeur
+    const { sendProposal } = require('../services/sender-agent');
+    const result = await sendProposal(opportunity, proposal);
+
+    // 3. Mettre à jour le statut en DB
+    const newStatus = result.success ? 'sent_to_client' : 'manual_required';
+    const { rows: updated } = await pool.query(
+      `UPDATE daleba_proposals
+       SET status = $1,
+           sent_at = CASE WHEN $2 THEN NOW() ELSE sent_at END,
+           notes = $3
+       WHERE id = $4 RETURNING *`,
+      [
+        newStatus,
+        result.success,
+        result.success
+          ? `Email direct → ${result.contactEmail} | Resend: ${result.resendId}`
+          : `Manuel requis: ${result.reason}`,
+        req.params.id,
+      ]
+    );
+
+    res.json({
+      proposal:  updated[0],
+      send_result: result,
+    });
+  } catch (err) {
+    console.error('[proposals/send] Erreur:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 module.exports = router;

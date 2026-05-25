@@ -297,6 +297,72 @@
       margin-top: 0.1rem;
     }
     .kpi-bar-loading .kpi-value { color: var(--text-dim, #8b949e); font-size: 1.2rem; }
+
+    /* ── Agent Envoyeur ─────────────────────────────────────────── */
+    .btn-send {
+      padding: 0.45rem 1.1rem;
+      background: linear-gradient(135deg, #c9a84c, #e6c96a);
+      color: #0d1117;
+      border: none;
+      border-radius: 5px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: all 0.18s;
+      flex-shrink: 0;
+    }
+    .btn-send:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(201,168,76,0.35); }
+    .btn-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+    .send-result {
+      margin-top: 0.6rem;
+      padding: 0.55rem 0.9rem;
+      border-radius: 5px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+    .send-result.success {
+      background: rgba(45,164,78,0.12);
+      border: 1px solid rgba(45,164,78,0.3);
+      color: #2da44e;
+    }
+    .send-result.manual {
+      background: rgba(201,168,76,0.10);
+      border: 1px solid rgba(201,168,76,0.3);
+      color: #c9a84c;
+    }
+    .send-result.error {
+      background: rgba(248,81,73,0.10);
+      border: 1px solid rgba(248,81,73,0.25);
+      color: #f85149;
+    }
+    .sent-stamp {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(45,164,78,0.12);
+      border: 1px solid rgba(45,164,78,0.3);
+      color: #2da44e;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+    }
+    .manual-stamp {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(201,168,76,0.10);
+      border: 1px solid rgba(201,168,76,0.3);
+      color: #c9a84c;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
@@ -577,8 +643,17 @@
   function renderProposalBlock(card, oppId, text, status, propId) {
     const block = document.getElementById('proposal-block-' + oppId) || card.querySelector('.proposal-block');
     if (!block) return;
-    const statusLabel = status === 'draft_pending_ulrich' ? 'Brouillon — En attente Ulrich' : status;
+    const statusLabel = status === 'draft_pending_ulrich' ? 'Brouillon — En attente Ulrich'
+      : status === 'sent_to_client'  ? 'Envoyée au client'
+      : status === 'manual_required' ? 'Envoi manuel requis'
+      : status;
     const statusClass = status === 'draft_pending_ulrich' ? 'status-draft' : 'status-approved-send';
+    const canSend = (status === 'draft_pending_ulrich' || status === 'manual_required');
+    const statusStamp = status === 'sent_to_client'
+      ? `<span class="sent-stamp">ENVOYE</span>`
+      : status === 'manual_required'
+      ? `<span class="manual-stamp">MANUEL REQUIS</span>`
+      : '';
 
     // Stocker le texte brut dans un élément <textarea> caché (pas d'encodage HTML parasite)
     block.innerHTML = `
@@ -591,9 +666,12 @@
         style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;"
         readonly></textarea>
       <div class="proposal-footer">
-        <button class="btn-copy" onclick="copyProposal(event, ${propId}, this)">Copier le texte</button>
+        <button class="btn-copy"  onclick="copyProposal(event, ${propId}, this)">Copier le texte</button>
         <button class="btn-regen" onclick="regenProposal(event, ${oppId}, this)">Régénérer</button>
-      </div>`;
+        ${statusStamp}
+        ${canSend ? `<button class="btn-send" id="send-btn-${propId}" onclick="propulser(event, ${propId}, this)">PROPULSER LA CANDIDATURE</button>` : ''}
+      </div>
+      <div id="send-result-${propId}"></div>`;
 
     // Affecter le texte brut à la textarea APRÈS insertion dans le DOM
     const ta = block.querySelector('#proposal-raw-' + propId);
@@ -708,6 +786,78 @@
     setTimeout(() => t.classList.remove('visible'), duration);
   }
 
+
+
+  // ── Agent Envoyeur — bouton Propulser ────────────────────────────────────
+  async function propulser(evt, propId, btn) {
+    if (evt) { evt.preventDefault(); evt.stopPropagation(); }
+    const resultDiv = document.getElementById('send-result-' + propId);
+
+    if (!confirm('Confirmer l\'envoi de cette candidature ? Cette action est irréversible.')) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Envoi en cours…';
+    if (resultDiv) resultDiv.innerHTML = '';
+
+    try {
+      const r = await fetch(`/api/proposals/${propId}/send`, { method: 'POST' });
+      const data = await r.json();
+
+      if (r.status === 409) {
+        if (resultDiv) {
+          resultDiv.innerHTML = `<div class="send-result success">Déjà envoyée le ${new Date(data.sent_at).toLocaleString('fr-CA')}</div>`;
+        }
+        btn.remove();
+        return;
+      }
+
+      const res = data.send_result || {};
+
+      if (res.success) {
+        // Email direct envoyé
+        btn.remove();
+        if (resultDiv) {
+          resultDiv.innerHTML = `<div class="send-result success">
+            Candidature envoyée par email à <strong>${escHtml(res.contactEmail)}</strong><br>
+            ID Resend : ${escHtml(res.resendId)} · ${new Date().toLocaleString('fr-CA')}
+          </div>`;
+        }
+        // Mettre à jour le badge statut sur la carte
+        const propBlock = document.getElementById('proposal-block-' + data.proposal?.opportunity_id);
+        if (propBlock) {
+          const badge = propBlock.querySelector('.proposal-status-badge');
+          if (badge) { badge.textContent = 'Envoyée au client'; badge.className = 'proposal-status-badge status-approved-send'; }
+          const footer = propBlock.querySelector('.proposal-footer');
+          if (footer && !footer.querySelector('.sent-stamp')) {
+            const stamp = document.createElement('span');
+            stamp.className = 'sent-stamp';
+            stamp.textContent = 'ENVOYE';
+            footer.appendChild(stamp);
+          }
+        }
+      } else {
+        // Méthode manuelle requise
+        btn.disabled = false;
+        btn.textContent = 'PROPULSER LA CANDIDATURE';
+        if (resultDiv) {
+          const url = res.sourceUrl || '#';
+          resultDiv.innerHTML = `<div class="send-result manual">
+            <strong>Envoi automatique indisponible sur cette plateforme.</strong><br>
+            ${escHtml(res.reason || '')}<br>
+            <a href="${url}" target="_blank" rel="noopener" style="color:#c9a84c;font-weight:700;">
+              Ouvrir l'annonce source et soumettre manuellement
+            </a>
+          </div>`;
+        }
+      }
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = 'PROPULSER LA CANDIDATURE';
+      if (resultDiv) {
+        resultDiv.innerHTML = `<div class="send-result error">Erreur : ${escHtml(e.message)}</div>`;
+      }
+    }
+  }
 
   // ── KPI Bar ──────────────────────────────────────────────────────────────
   async function loadKPI() {
