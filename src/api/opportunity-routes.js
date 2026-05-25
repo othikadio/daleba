@@ -219,6 +219,15 @@ router.put('/:id/approve', async (req, res) => {
           [opp.id, text]
         );
         console.log(`[approve] Proposition générée pour opp #${opp.id}`);
+
+        // ── ÉTAPE 3 : Notification email à Ulrich ────────────────────────────
+        try {
+          const { notifyProposal } = require('../services/email-notifier');
+          const result = await notifyProposal(opp, text);
+          console.log(`[approve] Email envoyé via ${result.provider}`, result.previewUrl || result.messageId || '');
+        } catch (mailErr) {
+          console.error(`[approve] Email notification échouée (non bloquant):`, mailErr.message);
+        }
       } catch (err) {
         console.error(`[approve] Agent Rédacteur erreur opp #${opp.id}:`, err.message);
       }

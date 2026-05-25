@@ -1,0 +1,258 @@
+/**
+ * DALEBA — Email Notifier (Étape 3)
+ * Envoie un courriel de notification à Ulrich dès qu'une proposition
+ * est générée par l'Agent Rédacteur.
+ *
+ * Priorité des providers :
+ *  1. Resend REST API (RESEND_API_KEY env var)
+ *  2. SMTP custom  (SMTP_HOST + SMTP_USER + SMTP_PASS env vars)
+ *  3. Ethereal     (auto-généré, prévisualisation URL dans les logs — dev only)
+ */
+'use strict';
+
+const https       = require('https');
+const nodemailer  = require('nodemailer');
+
+const ULRICH_EMAIL = process.env.NOTIFICATION_EMAIL || 'kadioothniel@yahoo.fr';
+const FROM_NAME    = 'DALEBA Radar';
+const FROM_ADDR    = process.env.EMAIL_FROM || 'radar@daleba.io';
+
+// ── Provider 1 : Resend REST API ──────────────────────────────────────────────
+async function sendViaResend(subject, html, text) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) throw new Error('RESEND_API_KEY non configuré');
+
+  const body = JSON.stringify({
+    from:    `${FROM_NAME} <${FROM_ADDR}>`,
+    to:      [ULRICH_EMAIL],
+    subject,
+    html,
+    text,
+  });
+
+  return new Promise((resolve, reject) => {
+    const req = https.request({
+      hostname: 'api.resend.com',
+      path:     '/emails',
+      method:   'POST',
+      headers: {
+        'Authorization':  `Bearer ${key}`,
+        'Content-Type':   'application/json',
+        'Content-Length': Buffer.byteLength(body),
+      },
+      timeout: 15000,
+    }, (res) => {
+      let data = '';
+      res.on('data', c => { data += c; });
+      res.on('end', () => {
+        const json = JSON.parse(data);
+        if (res.statusCode >= 400) throw new Error(`Resend ${res.statusCode}: ${data}`);
+        resolve({ provider: 'resend', id: json.id });
+      });
+    });
+    req.on('error', reject);
+    req.on('timeout', () => { req.destroy(); reject(new Error('Resend timeout')); });
+    req.write(body);
+    req.end();
+  });
+}
+
+// ── Provider 2 : SMTP custom (Gmail, Yahoo, Brevo, etc.) ─────────────────────
+async function sendViaSMTP(subject, html, text) {
+  const host = process.env.SMTP_HOST;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  const port = parseInt(process.env.SMTP_PORT || '587');
+
+  if (!host || !user || !pass) throw new Error('SMTP_HOST / SMTP_USER / SMTP_PASS non configurés');
+
+  const transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    auth: { user, pass },
+    tls: { rejectUnauthorized: false },
+  });
+
+  const info = await transporter.sendMail({
+    from:    `"${FROM_NAME}" <${user}>`,
+    to:      ULRICH_EMAIL,
+    subject,
+    html,
+    text,
+  });
+
+  return { provider: 'smtp', messageId: info.messageId };
+}
+
+// ── Provider 3 : Ethereal (test/dev uniquement) ───────────────────────────────
+async function sendViaEthereal(subject, html, text) {
+  const testAccount = await nodemailer.createTestAccount();
+  const transporter = nodemailer.createTransport({
+    host:   'smtp.ethereal.email',
+    port:   587,
+    secure: false,
+    auth: { user: testAccount.user, pass: testAccount.pass },
+  });
+
+  const info = await transporter.sendMail({
+    from:    `"${FROM_NAME}" <${testAccount.user}>`,
+    to:      ULRICH_EMAIL,
+    subject,
+    html,
+    text,
+  });
+
+  const previewUrl = nodemailer.getTestMessageUrl(info);
+  console.log(`[email-notifier] ⚠️  MODE ETHEREAL (test) — prévisualisation : ${previewUrl}`);
+  return { provider: 'ethereal', previewUrl, messageId: info.messageId };
+}
+
+// ── Constructeur HTML du courriel ─────────────────────────────────────────────
+function buildEmailContent(opportunity, proposalText) {
+  const score        = opportunity.score || '—';
+  const title        = opportunity.title || '(sans titre)';
+  const platform     = opportunity.source_platform || '—';
+  const country      = opportunity.country || 'International';
+  const category     = opportunity.category || '—';
+  const budget       = opportunity.budget_estimated
+    ? `${Number(opportunity.budget_estimated).toLocaleString('fr-CA')} ${opportunity.budget_currency || 'USD'}`
+    : (opportunity.budget_raw || 'Non précisé');
+  const sourceUrl    = opportunity.source_url || null;
+  const detectedAt   = opportunity.detected_at
+    ? new Date(opportunity.detected_at).toLocaleDateString('fr-CA', { dateStyle: 'long' })
+    : '—';
+
+  // Texte plat
+  const plainText = [
+    `[DALEBA RADAR] Nouvelle opportunité — Score ${score}/100`,
+    ``,
+    `Titre     : ${title}`,
+    `Plateforme: ${platform} · ${country}`,
+    `Catégorie : ${category}`,
+    `Budget    : ${budget}`,
+    `Détectée  : ${detectedAt}`,
+    sourceUrl ? `Lien source: ${sourceUrl}` : '',
+    ``,
+    `━━ PROPOSITION DALEBA ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    ``,
+    proposalText,
+    ``,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    ``,
+    `Dashboard : https://daleba.vercel.app/admin-radar.html`,
+  ].filter(l => l !== null).join('\n');
+
+  // HTML
+  const scoreColor = score >= 80 ? '#2da44e' : score >= 60 ? '#c9a84c' : '#c4622d';
+  const proposalHtml = proposalText
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+
+  const html = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DALEBA Radar — Nouvelle opportunité</title>
+</head>
+<body style="margin:0;padding:0;background:#0d1117;font-family:'Segoe UI',Arial,sans-serif;color:#e6edf3;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0d1117;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+        <!-- Header -->
+        <tr><td style="background:#161b22;border-radius:12px 12px 0 0;padding:28px 32px;border-bottom:2px solid #c9a84c;">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td>
+                <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#c9a84c;margin-bottom:6px;">Radar Planétaire DALEBA</div>
+                <div style="font-size:22px;font-weight:700;color:#e6edf3;line-height:1.3;">${title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+              </td>
+              <td align="right" valign="top" style="padding-left:16px;">
+                <div style="background:${scoreColor};color:#fff;font-size:20px;font-weight:800;border-radius:50%;width:52px;height:52px;display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:52px;vertical-align:middle;">${score}</div>
+                <div style="font-size:10px;color:#8b949e;text-align:center;margin-top:3px;">/100</div>
+              </td>
+            </tr>
+          </table>
+        </td></tr>
+
+        <!-- Meta -->
+        <tr><td style="background:#161b22;padding:20px 32px;border-bottom:1px solid #21262d;">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="padding:6px 0;width:50%;">
+                <span style="font-size:11px;color:#8b949e;text-transform:uppercase;letter-spacing:0.06em;">Plateforme</span><br>
+                <span style="font-size:14px;font-weight:600;color:#e6edf3;">${platform}</span>
+              </td>
+              <td style="padding:6px 0;width:50%;">
+                <span style="font-size:11px;color:#8b949e;text-transform:uppercase;letter-spacing:0.06em;">Pays</span><br>
+                <span style="font-size:14px;font-weight:600;color:#e6edf3;">${country}</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:6px 0;">
+                <span style="font-size:11px;color:#8b949e;text-transform:uppercase;letter-spacing:0.06em;">Catégorie</span><br>
+                <span style="font-size:14px;font-weight:600;color:#c9a84c;">${category}</span>
+              </td>
+              <td style="padding:6px 0;">
+                <span style="font-size:11px;color:#8b949e;text-transform:uppercase;letter-spacing:0.06em;">Budget estimé</span><br>
+                <span style="font-size:14px;font-weight:600;color:#2da44e;">${budget}</span>
+              </td>
+            </tr>
+            ${sourceUrl ? `<tr><td colspan="2" style="padding:10px 0 0;">
+              <a href="${sourceUrl}" style="display:inline-block;background:#21262d;color:#58a6ff;text-decoration:none;font-size:13px;font-weight:600;padding:8px 16px;border-radius:6px;border:1px solid #30363d;">Voir l'annonce originale</a>
+            </td></tr>` : ''}
+          </table>
+        </td></tr>
+
+        <!-- Proposal -->
+        <tr><td style="background:#0d1117;padding:0;">
+          <div style="background:#161b22;border-left:3px solid #c9a84c;margin:0;padding:20px 32px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c9a84c;margin-bottom:14px;">Proposition générée par l'Agent Rédacteur</div>
+            <div style="font-size:14px;line-height:1.75;color:#c9d1d9;">${proposalHtml}</div>
+          </div>
+        </td></tr>
+
+        <!-- CTA -->
+        <tr><td style="background:#161b22;border-radius:0 0 12px 12px;padding:24px 32px;border-top:1px solid #21262d;text-align:center;">
+          <a href="https://daleba.vercel.app/admin-radar.html" style="display:inline-block;background:#c9a84c;color:#0d1117;text-decoration:none;font-size:13px;font-weight:700;padding:12px 28px;border-radius:8px;letter-spacing:0.04em;">Ouvrir le Dashboard Radar</a>
+          <div style="margin-top:14px;font-size:11px;color:#484f58;">DALEBA · Usine d'Agents Autonomes · ${detectedAt}</div>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  const subject = `[Daleba Radar] Nouvelle opportunité détectée (Score: ${score}/100) — ${title.slice(0, 60)}${title.length > 60 ? '…' : ''}`;
+
+  return { subject, html, plainText };
+}
+
+// ── Fonction principale exportée ──────────────────────────────────────────────
+/**
+ * Envoie la notification email à Ulrich.
+ * @param {Object} opportunity   - Ligne daleba_opportunities
+ * @param {string} proposalText  - Texte brut de la proposition
+ * @returns {Promise<Object>}    - { provider, ... }
+ */
+async function notifyProposal(opportunity, proposalText) {
+  const { subject, html, plainText } = buildEmailContent(opportunity, proposalText);
+
+  console.log(`[email-notifier] Envoi à ${ULRICH_EMAIL} — "${subject.slice(0, 80)}"`);
+
+  // Essai dans l'ordre des providers disponibles
+  if (process.env.RESEND_API_KEY) {
+    return sendViaResend(subject, html, plainText);
+  }
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    return sendViaSMTP(subject, html, plainText);
+  }
+  // Fallback dev : Ethereal (prévisualisation URL dans les logs)
+  return sendViaEthereal(subject, html, plainText);
+}
+
+module.exports = { notifyProposal, buildEmailContent };
