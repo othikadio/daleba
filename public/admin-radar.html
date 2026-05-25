@@ -259,9 +259,68 @@
     }
     .status-draft { background: rgba(201,168,76,0.15); color: #c9a84c; }
     .status-approved-send { background: rgba(63,185,80,0.15); color: #3fb950; }
+
+    /* ── KPI Bar ─────────────────────────────────────────────── */
+    .kpi-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border, #21262d);
+      border-bottom: 1px solid var(--border, #21262d);
+    }
+    @media (max-width: 540px) { .kpi-bar { grid-template-columns: 1fr; } }
+    .kpi-item {
+      background: var(--card-bg, #161b22);
+      padding: 1.1rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .kpi-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim, #8b949e);
+    }
+    .kpi-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text, #e6edf3);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .kpi-value.kpi-cash { color: #2da44e; }
+    .kpi-sub {
+      font-size: 0.72rem;
+      color: var(--text-dim, #8b949e);
+      margin-top: 0.1rem;
+    }
+    .kpi-bar-loading .kpi-value { color: var(--text-dim, #8b949e); font-size: 1.2rem; }
   </style>
 </head>
 <body>
+
+<!-- ── KPI Bar ─────────────────────────────────────────────────────── -->
+<div class="kpi-bar kpi-bar-loading" id="kpi-bar">
+  <div class="kpi-item">
+    <div class="kpi-label">Opportunités détectées</div>
+    <div class="kpi-value" id="kpi-opp">—</div>
+    <div class="kpi-sub" id="kpi-opp-sub">chargement…</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-label">Propositions générées</div>
+    <div class="kpi-value" id="kpi-prop">—</div>
+    <div class="kpi-sub" id="kpi-prop-sub">chargement…</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-label">Chiffre d'affaires encaissé (Square)</div>
+    <div class="kpi-value kpi-cash" id="kpi-cash">—</div>
+    <div class="kpi-sub" id="kpi-cash-sub">chargement…</div>
+  </div>
+</div>
+
+
 <div class="layout">
   <!-- Sidebar -->
   <aside class="sidebar">
@@ -649,12 +708,47 @@
     setTimeout(() => t.classList.remove('visible'), duration);
   }
 
+
+  // ── KPI Bar ──────────────────────────────────────────────────────────────
+  async function loadKPI() {
+    try {
+      const r = await fetch('/api/revenue/summary');
+      if (!r.ok) return;
+      const d = await r.json();
+
+      const opp   = d.opportunities || {};
+      const prop  = d.proposals     || {};
+      const rev   = d.revenue       || {};
+
+      document.getElementById('kpi-opp').textContent  = opp.total ?? '—';
+      document.getElementById('kpi-opp-sub').textContent =
+        `${opp.approved ?? 0} approuvée${(opp.approved ?? 0) !== 1 ? 's' : ''} · ${opp.pending ?? 0} en attente`;
+
+      document.getElementById('kpi-prop').textContent = prop.total ?? '—';
+      document.getElementById('kpi-prop-sub').textContent =
+        `${prop.pending ?? 0} en attente de validation`;
+
+      const total    = parseFloat(rev.total || 0);
+      const currency = rev.currency || 'CAD';
+      document.getElementById('kpi-cash').textContent =
+        total.toLocaleString('fr-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $';
+      document.getElementById('kpi-cash-sub').textContent =
+        `${rev.completed ?? 0} paiements · ${currency} via Square`;
+
+      document.getElementById('kpi-bar').classList.remove('kpi-bar-loading');
+    } catch (e) {
+      console.warn('[kpi] Erreur chargement:', e.message);
+    }
+  }
+
   // Init
+  loadKPI();
   loadStats();
   loadOpportunities().then(() => setTimeout(loadExistingProposals, 500));
 
   // Polling auto toutes les 60s
   setInterval(() => { loadStats(); loadOpportunities(); }, 60 * 1000);
+  setInterval(loadKPI, 5 * 60 * 1000);
 </script>
 </body>
 </html>

@@ -106,7 +106,8 @@ app.use('/api/loyalty', loyaltyHybridRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/hunter', require('./api/hunter-routes')); // Agent chasseur IA
 app.use('/api/opportunities', require('./api/opportunity-routes'));
-app.use('/api/proposals',    require('./api/proposal-routes')); // Radar Planétaire — opportunités mondiales
+app.use('/api/proposals',    require('./api/proposal-routes'));
+app.use('/api/revenue',      require('./api/revenue-routes')); // Radar Planétaire — opportunités mondiales
 app.use('/api/voice', require('./api/voice-dashboard-routes'));     // Jarvis — commande vocale + meta
 app.use('/api/dashboard', require('./api/voice-dashboard-routes')); // Jarvis — statut meta + site
 app.use('/api/salon', require('./api/salon-ops-routes'));  // V35 — Arrivée VIP + ratings + bouclier Google
