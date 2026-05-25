@@ -236,3 +236,32 @@ router.delete('/:id', async (req, res) => {
 });
 
 module.exports = router;
+
+// ── POST /api/opportunities/seed-test — inject fake opportunity for testing ──
+router.post('/seed-test', async (req, res) => {
+  if (DEMO_MODE || !pool) return res.json({ message: 'Demo mode', demo: true });
+  try {
+    const { rows } = await pool.query(`
+      INSERT INTO daleba_opportunities
+        (source_platform, source_url, country, language_original, title,
+         description_orig, description_fr, budget_raw, budget_estimated,
+         budget_currency, category, score, keywords_matched, status)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'pending')
+      RETURNING *
+    `, [
+      'Test', 'https://example.com/test-' + Date.now(),
+      'Canada', 'en',
+      'Automatisation CRM + WhatsApp Bot pour e-commerce (PME Montréal)',
+      'Looking for a developer to automate our CRM (HubSpot) with WhatsApp notifications and order tracking. Budget $8000 CAD. Ongoing contract possible.',
+      'Recherche développeur pour automatiser CRM HubSpot avec notifications WhatsApp et suivi de commandes. Budget 8 000$ CAD. Contrat récurrent possible.',
+      '$8000 CAD',
+      6000, 'USD',
+      'chatbot-ia', 87,
+      'automation, whatsapp, crm, integration, api',
+    ]);
+    res.json({ inserted: true, opportunity: rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
