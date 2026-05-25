@@ -45,7 +45,7 @@ const PASS_PLANS = {
     discount: 0.10,
     label: '12 mois — 10% de réduction',
     description: 'Engagement 12 mois — 10% de réduction sur tous vos services.',
-    badge: '🔥 Maximum d'économies',
+    badge: "🔥 Maximum d'économies",
   },
 };
 

@@ -131,10 +131,13 @@ async function sqPost(path, body) {
 // ── Catégories ────────────────────────────────────────────────────────────────
 function categorize(name) {
   const n = name.toLowerCase();
-  if (n.includes('lock') || n.includes('dread') || n.includes('interlock') || n.includes('microloc') || n.includes('sisterlock')) return 'Locks';
-  if (n.includes('tresse') || n.includes('braid') || n.includes('knotless') || n.includes('twist') || n.includes('barrel')) return 'Tresses';
+  // Locks : verrous, dreads, interlock, sisterlocks, repiquer, défaire
+  if (n.includes('lock') || n.includes('dread') || n.includes('interlock') || n.includes('microloc') || n.includes('sisterlock') || n.includes('repiquer') || n.includes('défaire')) return 'Locks';
+  // Tresses & Nattes
+  if (n.includes('tresse') || n.includes('natte') || n.includes('braid') || n.includes('knotless') || n.includes('twist') || n.includes('barrel') || n.includes('crochet')) return 'Tresses';
+  // Coupe & Barbier
+  if (n.includes('barb') || n.includes('fade') || n.includes('coupe barb') || n.includes('contour') || n.includes('coupe enfant')) return 'Barbier';
   if (n.includes('extension') || n.includes('tissage')) return 'Extensions';
-  if (n.includes('barb') || n.includes('fade') || n.includes('coupe barb')) return 'Barbier';
   if (n.includes('color') || n.includes('coloration') || n.includes('soin') || n.includes('teinte')) return 'Soins';
   return 'Autre';
 }
