@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usine de Production — DALEBA</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --surface2:  #21262d;
+      --border:    #30363d;
+      --text:      #e6edf3;
+      --text-dim:  #8b949e;
+      --gold:      #c9a84c;
+      --gold-dim:  rgba(201,168,76,0.12);
+      --green:     #2da44e;
+      --red:       #f85149;
+      --blue:      #58a6ff;
+      --radius:    8px;
+    }
+
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; min-height: 100vh; }
+
+    /* ── Navbar ── */
+    .navbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-logo { font-weight: 800; font-size: 1rem; color: var(--gold); text-decoration: none; letter-spacing: 0.04em; }
+    .nav-links { display: flex; gap: 1rem; list-style: none; }
+    .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 0.82rem; font-weight: 500; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); }
+
+    /* ── Layout ── */
+    .page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
+    .page-header p { color: var(--text-dim); font-size: 0.88rem; margin-top: 0.4rem; }
+
+    .label-tag {
+      display: inline-block;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--gold);
+      background: var(--gold-dim); padding: 0.2rem 0.6rem;
+      border-radius: 4px; margin-bottom: 0.5rem;
+    }
+
+    /* ── Grid ── */
+    .grid { display: grid; grid-template-columns: 420px 1fr; gap: 1.5rem; align-items: start; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+    /* ── Input Panel ── */
+    .input-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      position: sticky; top: 68px;
+    }
+    .input-panel h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 1.25rem; }
+
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group label {
+      display: block; font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--text-dim); margin-bottom: 0.5rem;
+    }
+    .form-group textarea, .form-group input {
+      width: 100%; background: var(--bg); color: var(--text);
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 0.75rem 0.9rem; font-size: 0.88rem; font-family: inherit;
+      resize: vertical; outline: none; transition: border-color 0.15s;
+    }
+    .form-group textarea:focus, .form-group input:focus { border-color: var(--gold); }
+    .form-group textarea { min-height: 130px; }
+
+    .btn-generate {
+      width: 100%; padding: 0.85rem;
+      background: var(--gold); color: #0d1117;
+      border: none; border-radius: 6px;
+      font-size: 0.88rem; font-weight: 800;
+      letter-spacing: 0.04em; cursor: pointer;
+      transition: all 0.18s;
+    }
+    .btn-generate:hover { background: #e6c96a; }
+    .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .engine-badge {
+      margin-top: 0.75rem; text-align: center;
+      font-size: 0.7rem; color: var(--text-dim);
+    }
+    .engine-badge span { color: var(--gold); font-weight: 700; }
+
+    /* ── Tasks List ── */
+    .tasks-panel h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 1.25rem; }
+
+    .task-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+      overflow: hidden;
+      transition: border-color 0.15s;
+    }
+    .task-card:hover { border-color: var(--gold); }
+    .task-card.generating { border-left: 3px solid var(--gold); animation: pulse-border 1.5s ease-in-out infinite; }
+    .task-card.error { border-left: 3px solid var(--red); }
+    .task-card.spec_approved { border-left: 3px solid var(--green); }
+    @keyframes pulse-border { 0%,100% { border-left-color: var(--gold); } 50% { border-left-color: transparent; } }
+
+    .task-head {
+      padding: 1rem 1.25rem;
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem;
+      cursor: pointer;
+    }
+    .task-head:hover { background: rgba(255,255,255,0.02); }
+
+    .task-need { font-size: 0.9rem; font-weight: 600; line-height: 1.4; }
+    .task-meta { font-size: 0.72rem; color: var(--text-dim); margin-top: 0.25rem; }
+
+    .task-status-badge {
+      flex-shrink: 0;
+      font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 0.2rem 0.55rem; border-radius: 4px;
+    }
+    .badge-generating { background: rgba(201,168,76,0.15); color: var(--gold); }
+    .badge-spec_pending_ulrich { background: rgba(88,166,255,0.12); color: var(--blue); }
+    .badge-spec_approved       { background: rgba(45,164,78,0.12); color: var(--green); }
+    .badge-in_development      { background: rgba(201,168,76,0.15); color: var(--gold); }
+    .badge-delivered           { background: rgba(45,164,78,0.2); color: var(--green); }
+    .badge-error               { background: rgba(248,81,73,0.12); color: var(--red); }
+
+    .task-body { border-top: 1px solid var(--border); padding: 1.25rem; display: none; }
+    .task-body.open { display: block; }
+
+    .spec-content {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 1rem 1.25rem;
+      font-size: 0.83rem; line-height: 1.75; color: var(--text-dim);
+      max-height: 500px; overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    .spec-content h2 { color: var(--gold); font-size: 0.85rem; font-weight: 700; margin: 1rem 0 0.35rem; }
+    .spec-content h2:first-child { margin-top: 0; }
+
+    .task-actions {
+      display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.9rem;
+    }
+    .btn-sm {
+      padding: 0.35rem 0.85rem; border-radius: 5px;
+      font-size: 0.75rem; font-weight: 700; cursor: pointer;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--text-dim); transition: all 0.15s;
+    }
+    .btn-sm:hover { background: var(--surface2); color: var(--text); }
+    .btn-approve {
+      border-color: rgba(45,164,78,0.4); color: var(--green);
+    }
+    .btn-approve:hover { background: rgba(45,164,78,0.1); }
+    .btn-copy-spec {
+      border-color: rgba(201,168,76,0.4); color: var(--gold);
+    }
+    .btn-copy-spec:hover { background: var(--gold-dim); }
+    .btn-regen-spec { color: var(--text-dim); }
+    .btn-del { border-color: rgba(248,81,73,0.3); color: var(--red); }
+    .btn-del:hover { background: rgba(248,81,73,0.08); }
+
+    .generating-msg {
+      text-align: center; padding: 2rem;
+      font-size: 0.82rem; color: var(--gold);
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .dot-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); animation: dp 1.2s ease-in-out infinite; }
+    @keyframes dp { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.7)} }
+
+    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-dim); font-size: 0.88rem; }
+
+    /* ── Toast ── */
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.85rem 1.25rem; font-size: 0.83rem; max-width: 340px; opacity: 0; pointer-events: none; transition: opacity 0.25s; z-index: 999; }
+    .toast.show { opacity: 1; pointer-events: auto; }
+
+    /* ── Copy textarea ── */
+    .spec-raw { position: absolute; left: -9999px; opacity: 0; pointer-events: none; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/admin-radar.html" class="nav-logo">DALEBA</a>
+  <ul class="nav-links">
+    <li><a href="/admin-radar.html">Radar</a></li>
+    <li><a href="/admin-production.html" class="active">Production</a></li>
+  </ul>
+</nav>
+
+<div class="page">
+  <div class="page-header">
+    <div class="label-tag">Usine de Production — Étape 1</div>
+    <h1>Agent Product Owner</h1>
+    <p>Saisit un besoin client brut — l'agent génère le cahier des charges complet en quelques secondes.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- ── Panneau de saisie ── -->
+    <div class="input-panel">
+      <h2>Nouveau besoin client</h2>
+
+      <div class="form-group">
+        <label>Besoin brut</label>
+        <textarea id="need-input" placeholder="Ex : Système de réservation en ligne avec rappels SMS automatiques pour un salon de coiffure à Montréal. Les clients doivent pouvoir choisir le coiffeur, l'heure, recevoir une confirmation et un rappel 24h avant."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Contexte additionnel (optionnel)</label>
+        <textarea id="context-input" style="min-height:70px" placeholder="Stack existant, contraintes budget, délai souhaité, intégrations requises..."></textarea>
+      </div>
+
+      <button class="btn-generate" id="btn-generate" onclick="generateSpec()">
+        Générer le cahier des charges
+      </button>
+
+      <div class="engine-badge" id="engine-badge">
+        Moteur : <span>DeepSeek</span> — Claude disponible avec <code>ANTHROPIC_API_KEY</code>
+      </div>
+    </div>
+
+    <!-- ── Liste des tâches ── -->
+    <div class="tasks-panel">
+      <h2>Cahiers des charges générés <span id="task-count" style="color:var(--text-dim);font-weight:400"></span></h2>
+      <div id="tasks-list"><div class="empty-state">Aucun cahier des charges pour l'instant.<br>Saisissez un besoin à gauche pour commencer.</div></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let pollingIds = {};
+
+  // ── Charger les tâches existantes ────────────────────────────────────────────
+  async function loadTasks() {
+    try {
+      const r = await fetch('/api/production/tasks?limit=50');
+      const d = await r.json();
+      const tasks = d.tasks || [];
+      document.getElementById('task-count').textContent = tasks.length ? `(${tasks.length})` : '';
+      renderTasks(tasks);
+      // Poller les tasks en cours de génération
+      tasks.filter(t => t.status === 'generating').forEach(t => startPolling(t.id));
+    } catch (e) {
+      console.warn('loadTasks:', e.message);
+    }
+  }
+
+  function renderTasks(tasks) {
+    const el = document.getElementById('tasks-list');
+    if (!tasks.length) {
+      el.innerHTML = '<div class="empty-state">Aucun cahier des charges pour l\'instant.<br>Saisissez un besoin à gauche pour commencer.</div>';
+      return;
+    }
+    el.innerHTML = tasks.map(t => renderTaskCard(t)).join('');
+  }
+
+  function renderTaskCard(t) {
+    const statusLabel = {
+      generating:            'Génération…',
+      spec_pending_ulrich:   'En attente validation',
+      spec_approved:         'Spec approuvée',
+      in_development:        'En développement',
+      delivered:             'Livré',
+      error:                 'Erreur',
+    }[t.status] || t.status;
+
+    const badgeClass = 'badge-' + t.status.replace(/_/g,'_');
+    const date = new Date(t.created_at).toLocaleDateString('fr-CA', { dateStyle: 'medium' });
+    const engine = t.engine_used ? ` · ${t.engine_used}` : '';
+
+    return `<div class="task-card ${t.status}" id="task-card-${t.id}">
+      <div class="task-head" onclick="toggleTask(${t.id})">
+        <div>
+          <div class="task-need">${escHtml(t.client_need_raw.slice(0, 120))}${t.client_need_raw.length > 120 ? '…' : ''}</div>
+          <div class="task-meta">#${t.id} · ${date}${engine}</div>
+        </div>
+        <span class="task-status-badge ${badgeClass}">${statusLabel}</span>
+      </div>
+      <div class="task-body" id="task-body-${t.id}">
+        ${t.status === 'generating'
+          ? `<div class="generating-msg"><div class="dot-pulse"></div>L'Agent PO génère le cahier des charges…</div>`
+          : t.status === 'error'
+          ? `<div style="color:var(--red);padding:0.5rem;font-size:0.83rem">Erreur : ${escHtml(t.notes || 'inconnue')}</div>`
+          : renderSpec(t)}
+      </div>
+    </div>`;
+  }
+
+  function renderSpec(t) {
+    const specHtml = t.spec_preview
+      ? escHtml(t.spec_preview) + (t.specifications_functional ? '' : '…')
+      : '<em style="color:var(--text-dim)">Spec non disponible</em>';
+
+    const canApprove = t.status === 'spec_pending_ulrich';
+
+    return `
+      <div class="spec-content" id="spec-display-${t.id}">${formatSpec(t.spec_preview || '')}</div>
+      <textarea class="spec-raw" id="spec-raw-${t.id}"></textarea>
+      <div class="task-actions">
+        <button class="btn-sm btn-copy-spec" onclick="copySpec(event, ${t.id})">Copier la spec</button>
+        ${canApprove ? `<button class="btn-sm btn-approve" onclick="approveSpec(event, ${t.id})">Approuver</button>` : ''}
+        <button class="btn-sm btn-regen-spec" onclick="regenSpec(event, ${t.id})">Regénérer</button>
+        <button class="btn-sm btn-del" onclick="deleteTask(event, ${t.id})">Supprimer</button>
+      </div>`;
+  }
+
+  function formatSpec(text) {
+    // Formater les titres markdown
+    return escHtml(text)
+      .replace(/^## (.+)$/gm, '<strong style="color:var(--gold);display:block;margin-top:0.8rem">$1</strong>')
+      .replace(/^# (.+)$/gm, '<strong style="color:var(--text);display:block;font-size:1rem;margin-top:1rem">$1</strong>');
+  }
+
+  function toggleTask(id) {
+    const body = document.getElementById('task-body-' + id);
+    if (!body) return;
+    const open = body.classList.toggle('open');
+    // Charger la spec complète si on ouvre
+    if (open && !body.dataset.loaded) {
+      loadFullSpec(id);
+    }
+  }
+
+  async function loadFullSpec(id) {
+    try {
+      const r = await fetch(`/api/production/tasks/${id}`);
+      const t = await r.json();
+      const display = document.getElementById('spec-display-' + id);
+      const raw     = document.getElementById('spec-raw-' + id);
+      if (display) display.innerHTML = formatSpec(t.specifications_functional || '');
+      if (raw)     raw.value = t.specifications_functional || '';
+      const body = document.getElementById('task-body-' + id);
+      if (body) body.dataset.loaded = '1';
+    } catch (e) { console.warn('loadFullSpec:', e.message); }
+  }
+
+  // ── Générer ──────────────────────────────────────────────────────────────────
+  async function generateSpec() {
+    const need    = document.getElementById('need-input').value.trim();
+    const context = document.getElementById('context-input').value.trim();
+    if (!need) { showToast('Saisit le besoin client avant de générer.'); return; }
+
+    const btn = document.getElementById('btn-generate');
+    btn.disabled = true;
+    btn.textContent = 'Génération en cours…';
+
+    try {
+      const r = await fetch('/api/production/tasks', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ client_need_raw: need, context_additional: context }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'Erreur serveur');
+
+      document.getElementById('need-input').value    = '';
+      document.getElementById('context-input').value = '';
+
+      showToast('Agent PO lancé — le cahier des charges apparaîtra dans quelques secondes.');
+      await loadTasks();
+      startPolling(d.task.id);
+    } catch (e) {
+      showToast('Erreur : ' + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Générer le cahier des charges';
+    }
+  }
+
+  // ── Polling pour les tâches en cours de génération ───────────────────────────
+  function startPolling(taskId) {
+    if (pollingIds[taskId]) return;
+    let attempts = 0;
+    pollingIds[taskId] = setInterval(async () => {
+      attempts++;
+      if (attempts > 24) { // 2 min max
+        clearInterval(pollingIds[taskId]);
+        delete pollingIds[taskId];
+        return;
+      }
+      try {
+        const r = await fetch(`/api/production/tasks/${taskId}`);
+        const t = await r.json();
+        if (t.status !== 'generating') {
+          clearInterval(pollingIds[taskId]);
+          delete pollingIds[taskId];
+          // Mettre à jour la carte sans recharger toute la liste
+          const card = document.getElementById('task-card-' + taskId);
+          if (card) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = renderTaskCard(t);
+            card.replaceWith(tmp.firstElementChild);
+          } else {
+            await loadTasks();
+          }
+        }
+      } catch (e) {}
+    }, 5000);
+  }
+
+  // ── Actions ──────────────────────────────────────────────────────────────────
+  async function copySpec(evt, id) {
+    evt.stopPropagation();
+    const raw = document.getElementById('spec-raw-' + id);
+    let text = raw?.value;
+    if (!text) {
+      const r = await fetch(`/api/production/tasks/${id}`);
+      const t = await r.json();
+      text = t.specifications_functional || '';
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast('Spec copiée dans le presse-papiers.');
+    } catch (e) {
+      showToast('Erreur copie : ' + e.message);
+    }
+  }
+
+  async function approveSpec(evt, id) {
+    evt.stopPropagation();
+    try {
+      const r = await fetch(`/api/production/tasks/${id}/status`, {
+        method:  'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ status: 'spec_approved' }),
+      });
+      if (r.ok) {
+        showToast('Spec approuvée.');
+        await loadTasks();
+      }
+    } catch (e) { showToast('Erreur : ' + e.message); }
+  }
+
+  async function regenSpec(evt, id) {
+    evt.stopPropagation();
+    if (!confirm('Regénérer ce cahier des charges ? La version actuelle sera remplacée.')) return;
+    try {
+      await fetch(`/api/production/tasks/${id}/regen`, { method: 'POST' });
+      showToast('Regénération lancée…');
+      await loadTasks();
+      startPolling(id);
+    } catch (e) { showToast('Erreur : ' + e.message); }
+  }
+
+  async function deleteTask(evt, id) {
+    evt.stopPropagation();
+    if (!confirm('Supprimer ce cahier des charges définitivement ?')) return;
+    try {
+      await fetch(`/api/production/tasks/${id}`, { method: 'DELETE' });
+      showToast('Supprimé.');
+      await loadTasks();
+    } catch (e) { showToast('Erreur : ' + e.message); }
+  }
+
+  // ── Utils ─────────────────────────────────────────────────────────────────────
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 4000);
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────────
+  loadTasks();
+  setInterval(loadTasks, 30000);
+</script>
+</body>
+</html>
