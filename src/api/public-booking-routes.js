@@ -35,8 +35,10 @@ const TWILIO_FROM   = process.env.TWILIO_NUMBER || '+13022328291';
 const BASE_URL      = process.env.BASE_URL || 'https://daleba-api-production.up.railway.app';
 
 // ── Pools staff par catégorie (attribution automatique) ─────────────────────────
-const LOCKS_TRESSES_STAFF = ['TMGu2jn-HBum8WXd','TMAGAFNXr7vV2-QB','TM8NBmgX4_UygdcS','TMmC4jrNifA6_KwT'];
-const BARBIER_STAFF       = ['TMaHJL5XF8PxTXYE','TMcbNdwKFHBxMM62'];
+// IDs mis à jour après seed-katalog v2 (25 mai 2026) — Mariane|Raquel|Brenda|Ange
+const LOCKS_TRESSES_STAFF = ['TMQ3Y-gDTAJsLHAE','TM4IFu4-YrX4qaWm','TMFn2I3DG8VyIPfA','TMnydQt2iOacv__q'];
+// Wilfried|Mariel
+const BARBIER_STAFF       = ['TM3XigRJM4pPT7cS','TMBspiV8A9J6j1m5'];
 // Conserver pour compatibilité legacy
 const BARBIER_STAFF_IDS   = BARBIER_STAFF;
 
