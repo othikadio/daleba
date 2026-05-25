@@ -4,52 +4,238 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Abonnements — Kadio Coiffure</title>
-  <meta name="description" content="Économisez jusqu'à 10% sur vos services Locks, Tresses & Nattes chez Kadio Coiffure à Longueuil. Engagement 3 mois ou 6 mois." />
+  <meta name="description" content="Économisez 5% ou 10% sur vos services Locks et Tresses avec les abonnements Kadio Coiffure." />
   <link rel="stylesheet" href="/assets/css/salon.css" />
   <style>
+    /* ── Pass cards ──────────────────────────────────────────── */
+    .pass-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    @media (max-width: 680px) {
+      .pass-grid { grid-template-columns: 1fr; }
+    }
+
     .pass-card {
       background: var(--white);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      padding: 2rem 1.5rem;
-      text-align: center;
-      position: relative;
-      transition: box-shadow 0.2s, border-color 0.2s;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.2s, transform 0.2s;
     }
-    .pass-card:hover { box-shadow: var(--shadow-md); border-color: rgba(201,168,76,0.5); }
-    .pass-card.featured { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(201,168,76,0.2); }
-    .pass-discount {
+    .pass-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .pass-card.featured {
+      border: 2px solid var(--terracotta);
+      box-shadow: 0 0 0 4px rgba(196,98,45,0.08), var(--shadow-md);
+    }
+
+    /* Header of each card */
+    .pass-card-head {
+      padding: 2rem 1.75rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .pass-tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.7rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+    .pass-tag-standard { background: var(--cream-dark); color: var(--text-muted); }
+    .pass-tag-prestige  { background: var(--terracotta); color: #fff; }
+
+    .pass-discount-num {
+      font-family: var(--font-serif);
       font-size: 3.5rem;
-      font-family: 'Playfair Display', serif;
-      color: var(--gold);
       font-weight: 700;
       line-height: 1;
-      margin-bottom: 0.25rem;
+      color: var(--text-dark);
+      margin-bottom: 0.1rem;
     }
-    .pass-label { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.75rem; }
-    .pass-desc { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.25rem; }
-    .pass-badge {
-      position: absolute;
-      top: -0.65rem; left: 50%; transform: translateX(-50%);
-      background: var(--gold); color: #fff;
-      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
-      padding: 0.2rem 0.8rem; border-radius: 999px; white-space: nowrap;
+    .pass-discount-sub {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
     }
-    .rules-list { list-style: none; padding: 0; }
-    .rules-list li {
-      display: flex; align-items: flex-start; gap: 0.75rem;
-      padding: 0.75rem 0; border-bottom: 1px solid var(--border);
-      font-size: 0.9rem; color: var(--text-muted);
+    .pass-title {
+      font-family: var(--font-serif);
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 0.35rem;
     }
-    .rules-list li:last-child { border-bottom: none; }
-    .rules-list li::before {
-      content: ''; width: 6px; height: 6px; border-radius: 50%;
-      background: var(--terracotta); margin-top: 0.45rem; flex-shrink: 0;
+    .pass-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Services list inside card */
+    .pass-card-services {
+      padding: 1.25rem 1.75rem;
+      flex: 1;
+    }
+    .services-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+    .svc-cat-block { margin-bottom: 1.1rem; }
+    .svc-cat-block:last-child { margin-bottom: 0; }
+    .svc-cat-name {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      margin-bottom: 0.4rem;
+    }
+    .svc-cat-items {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .svc-cat-items li {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      padding: 0.25rem 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .svc-cat-items li:last-child { border-bottom: none; }
+    .svc-cat-items li::before {
+      content: '';
+      display: inline-block;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--terracotta);
+      flex-shrink: 0;
+    }
+
+    /* Card footer */
+    .pass-card-footer {
+      padding: 1.25rem 1.75rem 1.75rem;
+      border-top: 1px solid var(--border);
+    }
+    .pass-rules {
+      font-size: 0.79rem;
+      color: var(--text-muted);
+      margin-bottom: 1.1rem;
+      line-height: 1.6;
+    }
+    .pass-cta {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: all 0.18s;
+      border: 2px solid var(--terracotta);
+      text-align: center;
+      display: block;
+      text-decoration: none;
+    }
+    .pass-cta-outline {
+      background: transparent;
+      color: var(--terracotta);
+    }
+    .pass-cta-outline:hover {
+      background: var(--terracotta);
+      color: #fff;
+    }
+    .pass-cta-solid {
+      background: var(--terracotta);
+      color: #fff;
+    }
+    .pass-cta-solid:hover {
+      background: var(--terracotta-dark);
+      border-color: var(--terracotta-dark);
+    }
+
+    /* Comparison table */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--white);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .compare-table th {
+      padding: 0.85rem 1.25rem;
+      text-align: left;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: var(--cream-dark);
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-table td {
+      padding: 0.9rem 1.25rem;
+      font-size: 0.88rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table tr:nth-child(2) { background: rgba(196,98,45,0.03); }
+    .highlight-val { font-weight: 700; color: var(--terracotta); }
+
+    /* Rules section */
+    .rules-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    @media (max-width: 560px) {
+      .rules-grid { grid-template-columns: 1fr; }
+    }
+    .rule-item {
+      padding: 0.9rem 1.1rem;
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      display: flex;
+      gap: 0.7rem;
+      align-items: flex-start;
+    }
+    .rule-icon {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--terracotta);
+      flex-shrink: 0;
+      margin-top: 1px;
     }
   </style>
 </head>
 <body>
 
+<!-- ── Navbar ──────────────────────────────────────────── -->
 <nav class="navbar" id="navbar">
   <div class="nav-inner">
     <a href="/" class="nav-logo">Kadio <span>Coiffure</span></a>
@@ -64,129 +250,209 @@
   </div>
 </nav>
 
+<!-- ── Page Header ─────────────────────────────────────── -->
 <div class="page-header">
   <div class="subtitle">Économisez sur chaque visite</div>
   <h1>Abonnements</h1>
   <div class="divider"></div>
-  <p style="color:var(--text-muted);margin:0.75rem auto 0;max-width:520px">Engagez-vous sur plusieurs mois et obtenez une réduction automatique sur <strong>tous</strong> vos services — Locks &amp; Tresses&nbsp;&amp;&nbsp;Nattes.</p>
+  <p style="color:var(--text-muted);margin:0.75rem auto 0;max-width:500px;font-size:0.95rem">
+    Engagez-vous sur plusieurs mois et bénéficiez d'une réduction automatique appliquée à chaque réservation.
+  </p>
 </div>
 
-<!-- ── NOTICE TAXES ── -->
-<div style="background:rgba(196,98,45,0.07);border-bottom:1px solid rgba(196,98,45,0.2);padding:0.85rem 0">
-  <div class="container">
-    <p style="margin:0;font-size:0.875rem;color:var(--terracotta-dark);font-weight:500;text-align:center">
-      Tous les prix sont avant taxes (TPS 5% + TVQ 9,975%). Dépôt de sécurité 20% requis pour Locks &amp; Tresses — <strong>0$ pour Coupe &amp; Barbier</strong>.
+<!-- ── Tax notice ──────────────────────────────────────── -->
+<div style="background:rgba(196,98,45,0.06);border-top:1px solid rgba(196,98,45,0.15);border-bottom:1px solid rgba(196,98,45,0.15);padding:0.7rem 0">
+  <div class="container" style="text-align:center">
+    <p style="margin:0;font-size:0.8rem;font-weight:600;color:var(--terracotta-dark)">
+      Tous les prix sont avant taxes (TPS 5% + TVQ 9,975%) &nbsp;—&nbsp;
+      Acompte 20% pour Locks &amp; Tresses &nbsp;·&nbsp; Aucun acompte pour Coupe &amp; Barbier
     </p>
   </div>
 </div>
 
-<!-- ── PASSES : 2 NIVEAUX ── -->
+<!-- ── Pass cards ──────────────────────────────────────── -->
 <section class="section">
   <div class="container">
-    <div class="section-header">
-      <div class="subtitle">Options d'engagement</div>
-      <h2>Choisissez votre engagement</h2>
-      <div class="divider"></div>
-      <p>Plus votre engagement est long, plus vos économies sont grandes. La réduction s'applique automatiquement à chaque visite.</p>
-    </div>
 
-    <div class="grid grid-2" style="max-width:720px;margin:0 auto;gap:2rem">
+    <div class="pass-grid">
 
-      <!-- Engagement 3 mois -->
+      <!-- ── Passe Privilège 3 Mois ── -->
       <div class="pass-card">
-        <div class="pass-discount">5%</div>
-        <div class="pass-label">Engagement 3 mois</div>
-        <div class="pass-desc">3 mois d'engagement — 5% de réduction automatique sur chaque service Locks &amp; Tresses à chaque visite.</div>
-        <a href="/booking.html" class="btn btn-outline" style="width:100%">Réserver et activer →</a>
-      </div>
+        <div class="pass-card-head">
+          <div class="pass-tag pass-tag-standard">Engagement 3 mois</div>
+          <div class="pass-discount-num">–5%</div>
+          <div class="pass-discount-sub">de réduction à chaque visite</div>
+          <div class="pass-title">Passe Privilège</div>
+          <div class="pass-subtitle">
+            Idéale pour un engagement initial. La réduction de 5% s'applique automatiquement sur chaque service éligible pendant 3 mois.
+          </div>
+        </div>
 
-      <!-- Engagement 6 mois et plus (featured) -->
+        <div class="pass-card-services">
+          <div class="services-label">Services inclus</div>
+
+          <div class="svc-cat-block">
+            <div class="svc-cat-name">Locks</div>
+            <ul class="svc-cat-items">
+              <li>Repousses retwist au gel — tête complète</li>
+              <li>Repousses retwist-interlock — demi tête</li>
+              <li>Repousses interlock au crochet — tête complète</li>
+              <li>Repousses interlock au crochet — demi tête</li>
+              <li>Repiquer les racines</li>
+              <li>Départ de locks instantané</li>
+              <li>Installation des locks</li>
+              <li>Coiffure locks long</li>
+              <li>Tresser vos locks</li>
+              <li>Installation &amp; Entretien Sisterlocks</li>
+            </ul>
+          </div>
+
+          <div class="svc-cat-block">
+            <div class="svc-cat-name">Tresses &amp; Nattes</div>
+            <ul class="svc-cat-items">
+              <li>Nattes Américaines</li>
+              <li>Nattes collées / Barrel twist</li>
+              <li>Twist demi tête &amp; tête complète</li>
+              <li>Crochet braids</li>
+              <li>Knotless Braids (court, gros, moyen, petit)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="pass-card-footer">
+          <div class="pass-rules">
+            Réduction applicable uniquement aux services Locks et Tresses &amp; Nattes.
+            Non cumulable avec d'autres offres.
+          </div>
+          <a href="/booking.html" class="pass-cta pass-cta-outline">Réserver et activer</a>
+        </div>
+      </div><!-- /passe privilege -->
+
+      <!-- ── Passe Prestige 6 Mois+ ── -->
       <div class="pass-card featured">
-        <div class="pass-badge">⭐ Meilleur rapport</div>
-        <div class="pass-discount">10%</div>
-        <div class="pass-label">Engagement 6 mois +</div>
-        <div class="pass-desc">6 mois d'engagement ou plus — 10% de réduction automatique sur chaque service Locks &amp; Tresses à chaque visite.</div>
-        <a href="/booking.html" class="btn btn-primary" style="width:100%">Réserver et activer →</a>
-      </div>
+        <div class="pass-card-head">
+          <div class="pass-tag pass-tag-prestige">Engagement 6 mois et plus</div>
+          <div class="pass-discount-num">–10%</div>
+          <div class="pass-discount-sub">de réduction à chaque visite</div>
+          <div class="pass-title">Passe Prestige</div>
+          <div class="pass-subtitle">
+            Le meilleur rapport qualité / engagement. 10% de réduction sur chaque service éligible pour 6 mois ou plus.
+          </div>
+        </div>
 
-    </div>
+        <div class="pass-card-services">
+          <div class="services-label">Services inclus</div>
 
-    <!-- Tableau comparatif -->
-    <div style="max-width:600px;margin:3rem auto 0">
-      <table style="width:100%;border-collapse:collapse;background:var(--white);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm)">
+          <div class="svc-cat-block">
+            <div class="svc-cat-name">Locks</div>
+            <ul class="svc-cat-items">
+              <li>Repousses retwist au gel — tête complète</li>
+              <li>Repousses retwist-interlock — demi tête</li>
+              <li>Repousses interlock au crochet — tête complète</li>
+              <li>Repousses interlock au crochet — demi tête</li>
+              <li>Repiquer les racines</li>
+              <li>Départ de locks instantané</li>
+              <li>Installation des locks</li>
+              <li>Coiffure locks long</li>
+              <li>Tresser vos locks</li>
+              <li>Installation &amp; Entretien Sisterlocks</li>
+            </ul>
+          </div>
+
+          <div class="svc-cat-block">
+            <div class="svc-cat-name">Tresses &amp; Nattes</div>
+            <ul class="svc-cat-items">
+              <li>Nattes Américaines</li>
+              <li>Nattes collées / Barrel twist</li>
+              <li>Twist demi tête &amp; tête complète</li>
+              <li>Crochet braids</li>
+              <li>Knotless Braids (court, gros, moyen, petit)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="pass-card-footer">
+          <div class="pass-rules">
+            Réduction applicable uniquement aux services Locks et Tresses &amp; Nattes.
+            Engagement 6 mois minimum. Non cumulable avec d'autres offres.
+          </div>
+          <a href="/booking.html" class="pass-cta pass-cta-solid">Réserver et activer</a>
+        </div>
+      </div><!-- /passe prestige -->
+
+    </div><!-- /pass-grid -->
+  </div>
+</section>
+
+<!-- ── Comparison table ────────────────────────────────── -->
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div style="max-width:600px;margin:0 auto">
+      <h3 style="text-align:center;margin-bottom:1.5rem;font-size:1.1rem">Comparatif</h3>
+      <table class="compare-table">
         <thead>
-          <tr style="background:var(--cream-dark)">
-            <th style="padding:1rem 1.25rem;text-align:left;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:700">Engagement</th>
-            <th style="padding:1rem 1.25rem;text-align:center;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:700">Réduction</th>
-            <th style="padding:1rem 1.25rem;text-align:center;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:700">Durée min.</th>
+          <tr>
+            <th>Abonnement</th>
+            <th>Réduction</th>
+            <th>Durée minimale</th>
           </tr>
         </thead>
         <tbody>
-          <tr style="border-top:1px solid var(--border)">
-            <td style="padding:1rem 1.25rem;font-weight:600">Engagement 3 mois</td>
-            <td style="padding:1rem 1.25rem;text-align:center;color:var(--gold);font-weight:700">−5%</td>
-            <td style="padding:1rem 1.25rem;text-align:center;color:var(--text-muted)">3 mois</td>
+          <tr>
+            <td><strong>Passe Privilège</strong></td>
+            <td class="highlight-val">−5%</td>
+            <td>3 mois</td>
           </tr>
-          <tr style="border-top:1px solid var(--border);background:rgba(201,168,76,0.04)">
-            <td style="padding:1rem 1.25rem;font-weight:600">Engagement 6 mois ⭐</td>
-            <td style="padding:1rem 1.25rem;text-align:center;color:var(--gold);font-weight:700">−10%</td>
-            <td style="padding:1rem 1.25rem;text-align:center;color:var(--text-muted)">6 mois</td>
+          <tr>
+            <td><strong>Passe Prestige</strong></td>
+            <td class="highlight-val">−10%</td>
+            <td>6 mois</td>
           </tr>
-          <tr style="border-top:1px solid var(--border)">
-            <td style="padding:1rem 1.25rem;font-weight:600">Engagement 12 mois 🔥</td>
-            <td style="padding:1rem 1.25rem;text-align:center;color:var(--gold);font-weight:700">−10%</td>
-            <td style="padding:1rem 1.25rem;text-align:center;color:var(--text-muted)">12 mois</td>
+          <tr>
+            <td colspan="3" style="font-size:0.78rem;color:var(--text-muted);padding-top:0.6rem;padding-bottom:0.6rem">
+              Réduction applicable sur Locks et Tresses &amp; Nattes uniquement. Coupe &amp; Barbier : aucun acompte, hors abonnement.
+            </td>
           </tr>
         </tbody>
       </table>
-      <p style="text-align:center;font-size:0.8rem;color:var(--text-muted);margin-top:0.75rem">* À partir de 6 mois, la réduction est fixée à 10% quelle que soit la durée d'engagement.</p>
     </div>
-
   </div>
 </section>
 
-<!-- ── RÈGLEMENT ── -->
-<section class="section" style="padding-top:0">
+<!-- ── Rules ───────────────────────────────────────────── -->
+<section class="section" style="padding-top:0;padding-bottom:3.5rem">
   <div class="container">
-    <div style="max-width:700px;margin:0 auto">
-      <div class="section-header" style="text-align:left">
-        <div class="subtitle">À savoir</div>
-        <h2>Règlement des abonnements</h2>
-        <div class="divider" style="margin-left:0"></div>
-      </div>
-      <div class="card">
-        <div class="card-body">
-          <ul class="rules-list">
-            <li>Tous les prix affichés sont avant taxes (TPS 5% + TVQ 9,975%).</li>
-            <li>La réduction s'applique automatiquement à chaque réservation pendant toute la durée de l'engagement.</li>
-            <li>Locks &amp; Tresses&nbsp;&amp;&nbsp;Nattes : dépôt de sécurité de 20% du prix HT requis à la réservation en ligne.</li>
-            <li>Coupe &amp; Barbier : aucun acompte requis — dépôt strictement 0$.</li>
-            <li>Engagement 3 mois = 5% de réduction | Engagement 6 mois et plus = 10% de réduction.</li>
-            <li>Les abonnements sont personnels et non transférables.</li>
-            <li>Politique d'annulation selon les règles du salon — contactez-nous pour toute modification.</li>
-            <li>Pour activer votre abonnement, mentionnez-le lors de votre prochaine visite ou contactez le salon.</li>
-          </ul>
-        </div>
-      </div>
-      <div style="text-align:center;margin-top:2.5rem">
-        <a href="/booking.html" class="btn btn-primary btn-lg">Prendre rendez-vous →</a>
-      </div>
+    <h3 style="text-align:center;margin-bottom:1.5rem;font-size:1.1rem">Règlement</h3>
+    <div class="rules-grid">
+      <div class="rule-item"><div class="rule-icon"></div>Tous les prix sont affichés avant taxes (TPS 5% + TVQ 9,975%).</div>
+      <div class="rule-item"><div class="rule-icon"></div>La réduction est appliquée automatiquement à chaque réservation en ligne.</div>
+      <div class="rule-item"><div class="rule-icon"></div>Locks &amp; Tresses : acompte de sécurité 20% requis à la réservation en ligne.</div>
+      <div class="rule-item"><div class="rule-icon"></div>Coupe &amp; Barbier : aucun acompte requis — paiement intégral en salon.</div>
+      <div class="rule-item"><div class="rule-icon"></div>Les abonnements sont personnels et non transférables à un tiers.</div>
+      <div class="rule-item"><div class="rule-icon"></div>Pour activer votre abonnement, contactez le salon lors de votre première visite.</div>
+    </div>
+
+    <div style="text-align:center;margin-top:2.5rem">
+      <a href="/booking.html" class="btn btn-primary btn-lg">Prendre rendez-vous</a>
     </div>
   </div>
 </section>
 
+<!-- ── Footer ──────────────────────────────────────────── -->
 <footer>
   <div class="container">
     <div class="footer-bottom" style="padding:1.5rem 0;border-top:none">
       <p>© 2025 Kadio Coiffure · <a href="tel:+15149195970">514-919-5970</a></p>
-      <p style="font-size:0.85rem;color:rgba(255,255,255,0.5)">615 Antoinette Robidoux, local 100, Longueuil, QC</p>
+      <p style="font-size:0.82rem;color:rgba(255,255,255,0.5)">615 Antoinette Robidoux, local 100, Longueuil, QC</p>
     </div>
   </div>
 </footer>
 
 <script>
-window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', scrollY > 50));
-document.getElementById('navToggle').addEventListener('click', () => document.getElementById('navLinks').classList.toggle('open'));
+window.addEventListener('scroll', () =>
+  document.getElementById('navbar').classList.toggle('scrolled', scrollY > 50));
+document.getElementById('navToggle').addEventListener('click', () =>
+  document.getElementById('navLinks').classList.toggle('open'));
 </script>
 </body>
 </html>
