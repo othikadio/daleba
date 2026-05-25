@@ -520,28 +520,78 @@
     if (!block) return;
     const statusLabel = status === 'draft_pending_ulrich' ? 'Brouillon — En attente Ulrich' : status;
     const statusClass = status === 'draft_pending_ulrich' ? 'status-draft' : 'status-approved-send';
+
+    // Stocker le texte brut dans un élément <textarea> caché (pas d'encodage HTML parasite)
     block.innerHTML = `
       <div class="proposal-header">
         Proposition générée
         <span class="proposal-status-badge ${statusClass}">${statusLabel}</span>
       </div>
-      <div class="proposal-body" id="proposal-text-${propId}">${escHtml(text)}</div>
+      <div class="proposal-body">${escHtml(text)}</div>
+      <textarea id="proposal-raw-${propId}" aria-hidden="true" tabindex="-1"
+        style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;"
+        readonly></textarea>
       <div class="proposal-footer">
-        <button class="btn-copy" onclick="copyProposal(${propId}, this)">Copier le texte</button>
-        <button class="btn-regen" onclick="regenProposal(${oppId}, this)">Régénérer</button>
+        <button class="btn-copy" onclick="copyProposal(event, ${propId}, this)">Copier le texte</button>
+        <button class="btn-regen" onclick="regenProposal(event, ${oppId}, this)">Régénérer</button>
       </div>`;
+
+    // Affecter le texte brut à la textarea APRÈS insertion dans le DOM
+    const ta = block.querySelector('#proposal-raw-' + propId);
+    if (ta) ta.value = text;
   }
 
-  async function copyProposal(propId, btn) {
-    const el = document.getElementById('proposal-text-' + propId);
-    if (!el) return;
-    await navigator.clipboard.writeText(el.textContent);
-    btn.textContent = 'Copié !';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = 'Copier le texte'; btn.classList.remove('copied'); }, 2500);
+  async function copyProposal(evt, propId, btn) {
+    if (evt) { evt.preventDefault(); evt.stopPropagation(); }
+    const ta = document.getElementById('proposal-raw-' + propId);
+    if (!ta) { console.warn('copyProposal: textarea #proposal-raw-' + propId + ' introuvable'); return; }
+    const textToCopy = ta.value;
+    if (!textToCopy) { console.warn('copyProposal: texte vide'); return; }
+
+    let success = false;
+
+    // Méthode 1 : Clipboard API (Chrome, Firefox, Safari 13.1+)
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(textToCopy);
+        success = true;
+      } catch (e) {
+        console.warn('clipboard.writeText échoué:', e.message);
+      }
+    }
+
+    // Méthode 2 : fallback execCommand (iOS Safari, anciens navigateurs)
+    if (!success) {
+      try {
+        ta.style.position = 'fixed';
+        ta.style.left = '0';
+        ta.style.top = '0';
+        ta.style.opacity = '0.01';
+        ta.removeAttribute('readonly');
+        ta.focus();
+        ta.select();
+        success = document.execCommand('copy');
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'absolute';
+        ta.style.left = '-9999px';
+        ta.style.opacity = '0';
+      } catch (e) {
+        console.warn('execCommand copy échoué:', e.message);
+      }
+    }
+
+    if (success) {
+      btn.textContent = 'Copié !';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copier le texte'; btn.classList.remove('copied'); }, 2500);
+    } else {
+      btn.textContent = 'Erreur — réessayez';
+      setTimeout(() => { btn.textContent = 'Copier le texte'; }, 3000);
+    }
   }
 
-  async function regenProposal(oppId, btn) {
+  async function regenProposal(evt, oppId, btn) {
+    if (evt) { evt.preventDefault(); evt.stopPropagation(); }
     btn.disabled = true;
     btn.textContent = 'Régénération…';
     const card = document.getElementById('card-' + oppId);
