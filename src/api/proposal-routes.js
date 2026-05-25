@@ -1,0 +1,165 @@
+/**
+ * DALEBA — Proposal Routes (Agent Rédacteur)
+ *
+ * GET  /api/proposals                        → liste des propositions
+ * GET  /api/proposals/opportunity/:oppId     → proposition d'une opportunité
+ * GET  /api/proposals/:id                    → détail proposition
+ * POST /api/proposals/generate/:oppId        → générer manuellement
+ * PUT  /api/proposals/:id/status             → changer statut
+ * DELETE /api/proposals/:id                  → supprimer
+ */
+'use strict';
+
+const express = require('express');
+const router  = express.Router();
+
+let pool      = null;
+let DEMO_MODE = true;
+try {
+  const db  = require('../memory/db');
+  pool      = db.pool;
+  DEMO_MODE = db.DEMO_MODE;
+} catch (e) {}
+
+// ── Auto-migration ────────────────────────────────────────────────────────────
+async function initTable() {
+  if (DEMO_MODE || !pool) return;
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS daleba_proposals (
+        id              SERIAL PRIMARY KEY,
+        opportunity_id  INTEGER NOT NULL REFERENCES daleba_opportunities(id) ON DELETE CASCADE,
+        generated_text  TEXT    NOT NULL,
+        status          VARCHAR(30) DEFAULT 'draft_pending_ulrich',
+        created_at      TIMESTAMPTZ DEFAULT NOW(),
+        sent_at         TIMESTAMPTZ,
+        notes           TEXT
+      );
+      CREATE INDEX IF NOT EXISTS idx_prop_opp    ON daleba_proposals(opportunity_id);
+      CREATE INDEX IF NOT EXISTS idx_prop_status ON daleba_proposals(status);
+    `);
+    console.log('[proposals] Table daleba_proposals OK');
+  } catch (e) {
+    if (!e.message.includes('already exists')) console.error('[proposals] initTable:', e.message);
+  }
+}
+initTable();
+
+// ── GET /api/proposals ────────────────────────────────────────────────────────
+router.get('/', async (req, res) => {
+  try {
+    const { status, limit = 50, offset = 0 } = req.query;
+    let where = '';
+    const params = [];
+    if (status) { where = 'WHERE p.status = $1'; params.push(status); }
+    const limitIdx  = params.length + 1;
+    const offsetIdx = params.length + 2;
+
+    const { rows } = await pool.query(`
+      SELECT p.*, o.title AS opp_title, o.source_platform, o.category,
+             o.score, o.country, o.budget_estimated, o.budget_currency
+      FROM daleba_proposals p
+      JOIN daleba_opportunities o ON o.id = p.opportunity_id
+      ${where}
+      ORDER BY p.created_at DESC
+      LIMIT $${limitIdx} OFFSET $${offsetIdx}
+    `, [...params, parseInt(limit), parseInt(offset)]);
+
+    res.json({ proposals: rows, count: rows.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/proposals/opportunity/:oppId ─────────────────────────────────────
+router.get('/opportunity/:oppId', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT p.*, o.title AS opp_title, o.source_platform, o.category,
+              o.score, o.country, o.budget_estimated, o.budget_currency, o.language_original
+       FROM daleba_proposals p
+       JOIN daleba_opportunities o ON o.id = p.opportunity_id
+       WHERE p.opportunity_id = $1
+       ORDER BY p.created_at DESC LIMIT 1`,
+      [req.params.oppId]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'No proposal yet' });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/proposals/:id ────────────────────────────────────────────────────
+router.get('/:id', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT * FROM daleba_proposals WHERE id = $1', [req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /api/proposals/generate/:oppId — génération manuelle ─────────────────
+router.post('/generate/:oppId', async (req, res) => {
+  // Répond immédiatement, génère en arrière-plan
+  res.json({ message: 'Génération lancée', opportunity_id: req.params.oppId, started_at: new Date() });
+
+  try {
+    const oppResult = await pool.query(
+      'SELECT * FROM daleba_opportunities WHERE id = $1', [req.params.oppId]
+    );
+    if (!oppResult.rows.length) return;
+
+    const opp  = oppResult.rows[0];
+    const { generateProposal } = require('../services/proposal-writer');
+    const text = await generateProposal(opp);
+
+    await pool.query(`
+      INSERT INTO daleba_proposals (opportunity_id, generated_text, status)
+      VALUES ($1, $2, 'draft_pending_ulrich')
+    `, [opp.id, text]);
+
+    console.log(`[proposals] Proposition enregistrée pour opp #${opp.id}`);
+  } catch (err) {
+    console.error('[proposals/generate] Erreur:', err.message);
+  }
+});
+
+// ── PUT /api/proposals/:id/status ─────────────────────────────────────────────
+router.put('/:id/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    const allowed = ['draft_pending_ulrich', 'approved_to_send', 'sent', 'archived'];
+    if (!allowed.includes(status)) {
+      return res.status(400).json({ error: `Status invalide. Autorisés: ${allowed.join(', ')}` });
+    }
+    const extraFields = status === 'sent' ? ', sent_at = NOW()' : '';
+    const { rows } = await pool.query(
+      `UPDATE daleba_proposals SET status = $1${extraFields} WHERE id = $2 RETURNING *`,
+      [status, req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── DELETE /api/proposals/:id ─────────────────────────────────────────────────
+router.delete('/:id', async (req, res) => {
+  try {
+    const { rowCount } = await pool.query(
+      'DELETE FROM daleba_proposals WHERE id = $1', [req.params.id]
+    );
+    if (!rowCount) return res.status(404).json({ error: 'Not found' });
+    res.json({ deleted: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+module.exports = router;

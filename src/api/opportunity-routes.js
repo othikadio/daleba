@@ -200,7 +200,29 @@ router.put('/:id/approve', async (req, res) => {
       [req.params.id]
     );
     if (!rows.length) return res.status(404).json({ error: 'Not found' });
-    res.json(rows[0]);
+    const opp = rows[0];
+    res.json(opp);
+
+    // ── TRIGGER Agent Rédacteur (arrière-plan) ───────────────────────────────
+    setImmediate(async () => {
+      if (DEMO_MODE || !pool) return;
+      try {
+        const existing = await pool.query(
+          'SELECT id FROM daleba_proposals WHERE opportunity_id = $1 LIMIT 1', [opp.id]
+        );
+        if (existing.rows.length > 0) return; // déjà générée
+        const { generateProposal } = require('../services/proposal-writer');
+        const text = await generateProposal(opp);
+        await pool.query(
+          `INSERT INTO daleba_proposals (opportunity_id, generated_text, status)
+           VALUES ($1, $2, 'draft_pending_ulrich')`,
+          [opp.id, text]
+        );
+        console.log(`[approve] Proposition générée pour opp #${opp.id}`);
+      } catch (err) {
+        console.error(`[approve] Agent Rédacteur erreur opp #${opp.id}:`, err.message);
+      }
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -167,6 +167,98 @@
       .sidebar { display: none; }
       .main { margin-left: 0; padding: 16px; }
     }
+
+    /* ── Proposition Block ───────────────────────────────────────── */
+    .proposal-block {
+      margin-top: 1rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(201,168,76,0.25);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .proposal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.65rem 1rem;
+      background: rgba(201,168,76,0.08);
+      border-bottom: 1px solid rgba(201,168,76,0.2);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #c9a84c;
+    }
+    .proposal-body {
+      padding: 1rem;
+      font-size: 0.84rem;
+      line-height: 1.7;
+      color: var(--text-dim, #b0b8c1);
+      white-space: pre-wrap;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+    .proposal-footer {
+      padding: 0.65rem 1rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .proposal-generating {
+      padding: 1rem;
+      font-size: 0.82rem;
+      color: #c9a84c;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .pulse-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #c9a84c;
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(0.8); }
+    }
+    .btn-copy {
+      padding: 0.35rem 0.85rem;
+      border: 1px solid rgba(201,168,76,0.4);
+      background: transparent;
+      color: #c9a84c;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-copy:hover { background: rgba(201,168,76,0.12); }
+    .btn-copy.copied { color: #3fb950; border-color: rgba(63,185,80,0.4); }
+    .btn-regen {
+      padding: 0.35rem 0.85rem;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: transparent;
+      color: var(--text-dim, #b0b8c1);
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-regen:hover { background: rgba(255,255,255,0.06); }
+    .proposal-status-badge {
+      font-size: 0.68rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 3px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .status-draft { background: rgba(201,168,76,0.15); color: #c9a84c; }
+    .status-approved-send { background: rgba(63,185,80,0.15); color: #3fb950; }
   </style>
 </head>
 <body>
@@ -374,7 +466,105 @@
       const actions = card.querySelector('.card-actions');
       if (actions) actions.remove();
       loadStats();
+
+      // Afficher le bloc "génération en cours"
+      showProposalGenerating(card, id);
+
+      // Poller la proposition générée (max 60s)
+      pollProposal(card, id, 0);
     } catch(e) { alert('Erreur: ' + e.message); }
+  }
+
+  function showProposalGenerating(card, id) {
+    // Supprimer ancien bloc si présent
+    const old = card.querySelector('.proposal-block');
+    if (old) old.remove();
+
+    const block = document.createElement('div');
+    block.className = 'proposal-block';
+    block.id = 'proposal-block-' + id;
+    block.innerHTML = `
+      <div class="proposal-header">
+        Agent Rédacteur
+        <span class="proposal-status-badge status-draft">En cours de rédaction…</span>
+      </div>
+      <div class="proposal-generating">
+        <div class="pulse-dot"></div>
+        DeepSeek rédige la proposition sur mesure…
+      </div>`;
+    card.appendChild(block);
+  }
+
+  async function pollProposal(card, oppId, attempt) {
+    if (attempt > 12) { // 60s max (12 × 5s)
+      const block = document.getElementById('proposal-block-' + oppId);
+      if (block) block.querySelector('.proposal-generating').textContent = 'Génération longue — actualisez dans quelques instants.';
+      return;
+    }
+    await new Promise(r => setTimeout(r, 5000));
+    try {
+      const r = await fetch(`/api/proposals/opportunity/${oppId}`);
+      if (r.ok) {
+        const proposal = await r.json();
+        renderProposalBlock(card, oppId, proposal.generated_text, proposal.status, proposal.id);
+      } else {
+        pollProposal(card, oppId, attempt + 1);
+      }
+    } catch (e) {
+      pollProposal(card, oppId, attempt + 1);
+    }
+  }
+
+  function renderProposalBlock(card, oppId, text, status, propId) {
+    const block = document.getElementById('proposal-block-' + oppId) || card.querySelector('.proposal-block');
+    if (!block) return;
+    const statusLabel = status === 'draft_pending_ulrich' ? 'Brouillon — En attente Ulrich' : status;
+    const statusClass = status === 'draft_pending_ulrich' ? 'status-draft' : 'status-approved-send';
+    block.innerHTML = `
+      <div class="proposal-header">
+        Proposition générée
+        <span class="proposal-status-badge ${statusClass}">${statusLabel}</span>
+      </div>
+      <div class="proposal-body" id="proposal-text-${propId}">${escHtml(text)}</div>
+      <div class="proposal-footer">
+        <button class="btn-copy" onclick="copyProposal(${propId}, this)">Copier le texte</button>
+        <button class="btn-regen" onclick="regenProposal(${oppId}, this)">Régénérer</button>
+      </div>`;
+  }
+
+  async function copyProposal(propId, btn) {
+    const el = document.getElementById('proposal-text-' + propId);
+    if (!el) return;
+    await navigator.clipboard.writeText(el.textContent);
+    btn.textContent = 'Copié !';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copier le texte'; btn.classList.remove('copied'); }, 2500);
+  }
+
+  async function regenProposal(oppId, btn) {
+    btn.disabled = true;
+    btn.textContent = 'Régénération…';
+    const card = document.getElementById('card-' + oppId);
+    try {
+      await fetch(`/api/proposals/generate/${oppId}`, { method: 'POST' });
+      showProposalGenerating(card, oppId);
+      pollProposal(card, oppId, 0);
+    } catch(e) { alert('Erreur: ' + e.message); }
+  }
+
+  // Charger les propositions existantes sur les cartes déjà approuvées
+  async function loadExistingProposals() {
+    const approvedCards = document.querySelectorAll('.opp-card.approved');
+    for (const card of approvedCards) {
+      const oppId = card.id.replace('card-', '');
+      try {
+        const r = await fetch(`/api/proposals/opportunity/${oppId}`);
+        if (r.ok) {
+          const proposal = await r.json();
+          renderProposalBlock(card, oppId, proposal.generated_text, proposal.status, proposal.id);
+        }
+      } catch(e) {}
+    }
   }
 
   async function rejectOpp(id) {
@@ -411,7 +601,7 @@
 
   // Init
   loadStats();
-  loadOpportunities();
+  loadOpportunities().then(() => setTimeout(loadExistingProposals, 500));
 
   // Polling auto toutes les 60s
   setInterval(() => { loadStats(); loadOpportunities(); }, 60 * 1000);
