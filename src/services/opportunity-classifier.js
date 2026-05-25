@@ -1,0 +1,158 @@
+/**
+ * Opportunity Classifier — Radar Planétaire
+ * Utilise GPT-4o-mini pour scorer, catégoriser, traduire chaque opportunité brute.
+ */
+'use strict';
+
+const https = require('https');
+
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+const SYSTEM_PROMPT = `Tu es un classificateur d'opportunités business pour une agence tech (DALEBA) spécialisée en :
+- Automatisation de workflows, bots, agents IA
+- Intégrations API (WhatsApp, Meta, Square, Stripe, CRM, ERP)
+- Chatbots / agents conversationnels / LLM
+- Applications SaaS et dashboards
+- Systèmes de réservation en ligne
+- Services numériques pour PME
+
+Analyse chaque opportunité et retourne UNIQUEMENT un JSON valide (pas de texte autour).`;
+
+const USER_PROMPT_TPL = (opp) => `Analyse cette opportunité :
+
+Plateforme : ${opp.platform}
+Titre : ${opp.title}
+Description : ${opp.description?.slice(0, 1500) || '(vide)'}
+Budget brut : ${opp.budget_raw || 'non précisé'}
+Pays : ${opp.country || 'inconnu'}
+Langue détectée : ${opp.language || 'en'}
+
+Réponds avec ce JSON exact :
+{
+  "score": <0-100>,
+  "category": "<automation|api-integration|chatbot-ia|saas|web-app|autre>",
+  "keywords_matched": "<mots clés pertinents séparés par virgule>",
+  "budget_estimated": <nombre USD ou null>,
+  "budget_currency": "<USD|EUR|CAD|GBP>",
+  "country": "<pays ou null>",
+  "language_original": "<code ISO 2 lettres>",
+  "description_fr": "<traduction/résumé en français, 2-4 phrases max>",
+  "relevant": <true|false>
+}
+
+Règles de scoring :
+- Score > 80 : budget > 5000 USD, mots "enterprise/scalable/ongoing", projet clair et précis
+- Score 60-80 : projet défini, budget mentionné ou estimable, dans notre scope
+- Score 40-60 : potentiellement intéressant mais vague
+- Score < 40 : hors scope, trop vague, pas de budget, simple question
+- Mots positifs : automation, automate, workflow, API, integration, chatbot, AI agent, LLM, SaaS, dashboard, booking, CRM, WhatsApp bot, Instagram automation, automatisation, intégration, agent IA, automatización, integración`;
+
+function callOpenAI(messages) {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages,
+      temperature: 0.2,
+      max_tokens: 400,
+    });
+
+    const req = https.request({
+      hostname: 'api.openai.com',
+      path: '/v1/chat/completions',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Content-Length': Buffer.byteLength(body),
+      },
+      timeout: 20000,
+    }, (res) => {
+      let data = '';
+      res.on('data', (c) => { data += c; });
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          resolve(json);
+        } catch {
+          reject(new Error('OpenAI parse error: ' + data.slice(0, 200)));
+        }
+      });
+    });
+
+    req.on('error', reject);
+    req.on('timeout', () => { req.destroy(); reject(new Error('OpenAI timeout')); });
+    req.write(body);
+    req.end();
+  });
+}
+
+async function classifyOpportunity(rawOpportunity) {
+  try {
+    const messages = [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user',   content: USER_PROMPT_TPL(rawOpportunity) },
+    ];
+
+    const res = await callOpenAI(messages);
+    const content = res.choices?.[0]?.message?.content || '';
+
+    // Extraire le JSON de la réponse (peut avoir des backticks)
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON in response: ' + content.slice(0, 200));
+
+    const classification = JSON.parse(jsonMatch[0]);
+
+    return {
+      ...rawOpportunity,
+      score:              Math.max(0, Math.min(100, parseInt(classification.score) || 0)),
+      category:           classification.category || 'autre',
+      keywords_matched:   classification.keywords_matched || '',
+      budget_estimated:   classification.budget_estimated ? parseFloat(classification.budget_estimated) : null,
+      budget_currency:    classification.budget_currency || 'USD',
+      country:            classification.country || rawOpportunity.country || null,
+      language_original:  classification.language_original || rawOpportunity.language || 'en',
+      description_fr:     classification.description_fr || '',
+      relevant:           classification.relevant !== false,
+    };
+  } catch (err) {
+    console.warn(`[classifier] Erreur pour "${rawOpportunity.title?.slice(0, 60)}": ${err.message}`);
+    // Fallback : scoring basique par keywords
+    const text = `${rawOpportunity.title} ${rawOpportunity.description}`.toLowerCase();
+    const keywords = ['automation', 'api', 'chatbot', 'integration', 'saas', 'bot', 'workflow', 'llm'];
+    const matched  = keywords.filter(k => text.includes(k));
+    return {
+      ...rawOpportunity,
+      score:             matched.length * 12,
+      category:          'autre',
+      keywords_matched:  matched.join(', '),
+      budget_estimated:  null,
+      budget_currency:   'USD',
+      language_original: rawOpportunity.language || 'en',
+      description_fr:    rawOpportunity.description?.slice(0, 300) || '',
+      relevant:          matched.length >= 2,
+    };
+  }
+}
+
+/**
+ * Classifie un tableau d'opportunités brutes, en série pour éviter rate limit.
+ * @param {Array} rawOpportunities
+ * @param {number} [concurrency=3]
+ */
+async function classifyBatch(rawOpportunities, concurrency = 3) {
+  const results = [];
+  for (let i = 0; i < rawOpportunities.length; i += concurrency) {
+    const chunk = rawOpportunities.slice(i, i + concurrency);
+    const classified = await Promise.allSettled(chunk.map(classifyOpportunity));
+    for (const r of classified) {
+      if (r.status === 'fulfilled') results.push(r.value);
+    }
+    // Petite pause pour éviter rate-limit
+    if (i + concurrency < rawOpportunities.length) {
+      await new Promise(r => setTimeout(r, 500));
+    }
+  }
+  return results;
+}
+
+module.exports = { classifyOpportunity, classifyBatch };

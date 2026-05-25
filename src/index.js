@@ -105,6 +105,7 @@ app.use('/api/accounting', accountingRoutes);
 app.use('/api/loyalty', loyaltyHybridRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/hunter', require('./api/hunter-routes')); // Agent chasseur IA
+app.use('/api/opportunities', require('./api/opportunity-routes')); // Radar Planétaire — opportunités mondiales
 app.use('/api/voice', require('./api/voice-dashboard-routes'));     // Jarvis — commande vocale + meta
 app.use('/api/dashboard', require('./api/voice-dashboard-routes')); // Jarvis — statut meta + site
 app.use('/api/salon', require('./api/salon-ops-routes'));  // V35 — Arrivée VIP + ratings + bouclier Google
@@ -410,6 +411,10 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   // Démarrer le chasseur d'agents IA autonome
   const { startHunter } = require('./services/agent-hunter');
   startHunter().catch(e => console.warn('[Hunter] Démarrage:', e.message));
+
+  // Radar Planétaire — scan opportunités mondiales toutes les 4h
+  const { startOpportunityWorker } = require('./workers/opportunity-worker');
+  startOpportunityWorker();
 
   app.listen(PORT, () => {
     console.log(`

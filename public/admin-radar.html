@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Radar — Opportunités Mondiales | DALEBA</title>
+  <style>
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --surface2:  #1c2128;
+      --border:    #30363d;
+      --accent:    #58a6ff;
+      --green:     #3fb950;
+      --red:       #f85149;
+      --yellow:    #d29922;
+      --purple:    #a371f7;
+      --text:      #e6edf3;
+      --text-dim:  #8b949e;
+      --font:      'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+
+    /* Layout */
+    .layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 220px; background: var(--surface); border-right: 1px solid var(--border);
+      padding: 24px 0; position: fixed; height: 100vh; display: flex; flex-direction: column;
+    }
+    .sidebar .logo {
+      padding: 0 20px 24px; font-size: 1.25rem; font-weight: 700;
+      color: var(--accent); letter-spacing: 0.05em; border-bottom: 1px solid var(--border);
+    }
+    .sidebar .logo span { color: var(--text-dim); font-size: 0.7rem; display: block; font-weight: 400; margin-top: 2px; }
+    .sidebar nav { padding: 16px 0; flex: 1; }
+    .sidebar nav a {
+      display: block; padding: 10px 20px; color: var(--text-dim); text-decoration: none;
+      font-size: 0.875rem; border-left: 3px solid transparent; transition: all 0.15s;
+    }
+    .sidebar nav a.active, .sidebar nav a:hover { color: var(--text); background: var(--surface2); border-left-color: var(--accent); }
+    .sidebar nav a.active { color: var(--accent); }
+    .main { margin-left: 220px; flex: 1; padding: 32px; }
+
+    /* Header */
+    .page-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px; flex-wrap: wrap; gap: 12px;
+    }
+    .page-header h1 { font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+    .badge-pending {
+      background: var(--yellow); color: #000; font-size: 0.75rem; font-weight: 700;
+      padding: 2px 10px; border-radius: 12px;
+    }
+    .btn {
+      padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer;
+      font-size: 0.875rem; font-weight: 600; transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--accent); color: #0d1117; }
+    .btn-success { background: var(--green); color: #0d1117; }
+    .btn-danger  { background: var(--red);   color: #fff; }
+    .btn-sm { padding: 5px 12px; font-size: 0.8rem; }
+    .btn:disabled { opacity: 0.45; cursor: default; }
+
+    /* Stats bar */
+    .stats-bar {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px; margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      padding: 16px; text-align: center;
+    }
+    .stat-card .value { font-size: 2rem; font-weight: 700; line-height: 1; }
+    .stat-card .label { font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .stat-card.blue  .value { color: var(--accent); }
+    .stat-card.yellow .value { color: var(--yellow); }
+    .stat-card.green  .value { color: var(--green); }
+    .stat-card.red    .value { color: var(--red); }
+
+    /* Filters */
+    .filters {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;
+    }
+    .filter-btn {
+      padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text-dim); cursor: pointer; font-size: 0.82rem;
+      transition: all 0.15s;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--accent); color: #0d1117; border-color: var(--accent); font-weight: 600;
+    }
+    .filter-sep { width: 1px; background: var(--border); margin: 0 4px; }
+
+    /* Cards */
+    .cards-grid { display: flex; flex-direction: column; gap: 14px; }
+    .opp-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      padding: 18px; transition: border-color 0.15s;
+    }
+    .opp-card:hover { border-color: #444c56; }
+    .opp-card.approved { border-left: 3px solid var(--green); }
+    .opp-card.rejected { border-left: 3px solid var(--red); opacity: 0.6; }
+
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .card-title { font-size: 1rem; font-weight: 600; line-height: 1.3; flex: 1; }
+    .card-title a { color: var(--text); text-decoration: none; }
+    .card-title a:hover { color: var(--accent); }
+
+    .card-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; align-items: center; }
+    .tag {
+      font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; font-weight: 600;
+      background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim);
+    }
+    .tag.platform { color: var(--accent); border-color: var(--accent); }
+    .tag.category-automation   { color: #ff9f43; border-color: #ff9f43; }
+    .tag.category-api-integration { color: var(--purple); border-color: var(--purple); }
+    .tag.category-chatbot-ia   { color: #1dd1a1; border-color: #1dd1a1; }
+    .tag.category-saas         { color: #feca57; border-color: #feca57; }
+    .tag.category-web-app      { color: var(--accent); border-color: var(--accent); }
+    .tag.budget { color: var(--green); border-color: var(--green); }
+
+    /* Score bar */
+    .score-wrap { display: flex; align-items: center; gap: 8px; min-width: 130px; }
+    .score-bar-bg { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+    .score-label { font-size: 0.78rem; font-weight: 700; min-width: 28px; text-align: right; }
+
+    .card-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.55; margin-bottom: 12px; }
+
+    .card-actions { display: flex; gap: 8px; }
+
+    /* Status badge */
+    .status-badge {
+      font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .status-pending  { background: rgba(210,153,34,0.2);  color: var(--yellow); }
+    .status-approved { background: rgba(63,185,80,0.2);   color: var(--green); }
+    .status-rejected { background: rgba(248,81,73,0.2);   color: var(--red); }
+
+    /* Scan feedback */
+    .scan-toast {
+      position: fixed; bottom: 24px; right: 24px; background: var(--surface2);
+      border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px;
+      font-size: 0.875rem; display: none; z-index: 999; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .scan-toast.visible { display: block; }
+    .scan-toast .icon { margin-right: 6px; }
+
+    /* Empty */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-dim); }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+
+    /* Loader */
+    .loader { text-align: center; padding: 40px; color: var(--text-dim); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block; width: 28px; height: 28px; border: 3px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite;
+      margin-bottom: 10px;
+    }
+
+    /* Responsive */
+    @media(max-width: 768px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">DALEBA <span>Admin Panel</span></div>
+    <nav>
+      <a href="/admin-dashboard.html">🏠 Dashboard</a>
+      <a href="/admin-radar.html" class="active">🌍 Radar</a>
+      <a href="/admin-funding.html">💰 Financement</a>
+      <a href="/admin-campaigns.html">📣 Campagnes</a>
+      <a href="/admin-staff.html">👥 Staff</a>
+      <a href="/admin-studio.html">🎬 Studio</a>
+      <a href="/admin-accounting.html">📊 Comptabilité</a>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <!-- Header -->
+    <div class="page-header">
+      <h1>
+        🌍 Radar — Opportunités Mondiales
+        <span class="badge-pending" id="badge-pending">…</span>
+      </h1>
+      <button class="btn btn-primary" id="btn-scan" onclick="triggerScan()">
+        🔍 Scanner maintenant
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-card blue">
+        <div class="value" id="stat-total">—</div>
+        <div class="label">Total</div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="value" id="stat-pending">—</div>
+        <div class="label">En attente</div>
+      </div>
+      <div class="stat-card green">
+        <div class="value" id="stat-approved">—</div>
+        <div class="label">Approuvées</div>
+      </div>
+      <div class="stat-card red">
+        <div class="value" id="stat-rejected">—</div>
+        <div class="label">Rejetées</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="value" id="stat-avg">—</div>
+        <div class="label">Score moyen</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <button class="filter-btn active" data-status="all"      onclick="setFilter('status','all',this)">Toutes</button>
+      <button class="filter-btn"        data-status="pending"  onclick="setFilter('status','pending',this)">En attente</button>
+      <button class="filter-btn"        data-status="approved" onclick="setFilter('status','approved',this)">Approuvées</button>
+      <button class="filter-btn"        data-status="rejected" onclick="setFilter('status','rejected',this)">Rejetées</button>
+      <div class="filter-sep"></div>
+      <button class="filter-btn" data-cat="" onclick="setFilter('category','',this)">Toutes catégories</button>
+      <button class="filter-btn" data-cat="automation"      onclick="setFilter('category','automation',this)">🤖 Automation</button>
+      <button class="filter-btn" data-cat="api-integration" onclick="setFilter('category','api-integration',this)">🔌 API</button>
+      <button class="filter-btn" data-cat="chatbot-ia"      onclick="setFilter('category','chatbot-ia',this)">💬 Chatbot/IA</button>
+      <button class="filter-btn" data-cat="saas"            onclick="setFilter('category','saas',this)">☁️ SaaS</button>
+      <button class="filter-btn" data-cat="web-app"         onclick="setFilter('category','web-app',this)">🌐 Web App</button>
+    </div>
+
+    <!-- Cards -->
+    <div id="cards-container" class="cards-grid">
+      <div class="loader"><div class="spinner"></div><br/>Chargement...</div>
+    </div>
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="scan-toast" id="scan-toast">
+  <span class="icon">🔍</span> <span id="toast-msg">Scan lancé…</span>
+</div>
+
+<script>
+  const state = { status: 'all', category: '' };
+
+  function setFilter(key, val, el) {
+    state[key] = val;
+    // Toggle active sur les boutons du même groupe
+    const group = el.closest('.filters').querySelectorAll(key === 'status' ? '[data-status]' : '[data-cat]');
+    group.forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    loadOpportunities();
+  }
+
+  async function loadStats() {
+    try {
+      const r = await fetch('/api/opportunities/stats');
+      if (!r.ok) return;
+      const d = await r.json();
+      document.getElementById('stat-total').textContent    = d.total || 0;
+      document.getElementById('stat-pending').textContent  = d.pending || 0;
+      document.getElementById('stat-approved').textContent = d.approved || 0;
+      document.getElementById('stat-rejected').textContent = d.rejected || 0;
+      document.getElementById('stat-avg').textContent      = d.avg_score || 0;
+      document.getElementById('badge-pending').textContent = (d.pending || 0) + ' en attente';
+    } catch(e) { console.warn('stats error', e); }
+  }
+
+  async function loadOpportunities() {
+    const container = document.getElementById('cards-container');
+    container.innerHTML = '<div class="loader"><div class="spinner"></div><br/>Chargement...</div>';
+
+    const params = new URLSearchParams({ limit: 100, offset: 0 });
+    if (state.status && state.status !== 'all') params.set('status', state.status);
+    if (state.category) params.set('category', state.category);
+
+    try {
+      const r = await fetch('/api/opportunities?' + params.toString());
+      const d = await r.json();
+      renderCards(d.items || []);
+    } catch(e) {
+      container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div>Erreur de chargement</div>';
+    }
+  }
+
+  function scoreColor(s) {
+    if (s >= 75) return '#3fb950';
+    if (s >= 50) return '#d29922';
+    return '#f85149';
+  }
+
+  function categoryClass(cat) {
+    return 'category-' + (cat || 'autre');
+  }
+
+  function renderCards(items) {
+    const container = document.getElementById('cards-container');
+    if (!items.length) {
+      container.innerHTML = '<div class="empty-state"><div class="icon">🌐</div>Aucune opportunité ici.<br/>Lance un scan pour en découvrir.</div>';
+      return;
+    }
+
+    container.innerHTML = items.map(opp => {
+      const score = parseInt(opp.score) || 0;
+      const cat   = opp.category || 'autre';
+      const status = opp.status || 'pending';
+      const budget = opp.budget_estimated
+        ? `$${Number(opp.budget_estimated).toLocaleString('fr-CA')} ${opp.budget_currency || 'USD'}`
+        : (opp.budget_raw || null);
+
+      return `
+        <div class="opp-card ${status}" id="card-${opp.id}">
+          <div class="card-top">
+            <div class="card-title">
+              ${opp.source_url
+                ? `<a href="${opp.source_url}" target="_blank" rel="noopener">${escHtml(opp.title || '—')}</a>`
+                : escHtml(opp.title || '—')}
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+              <div class="score-wrap">
+                <div class="score-bar-bg">
+                  <div class="score-bar-fill" style="width:${score}%;background:${scoreColor(score)}"></div>
+                </div>
+                <span class="score-label" style="color:${scoreColor(score)}">${score}</span>
+              </div>
+              <span class="status-badge status-${status}">${status}</span>
+            </div>
+          </div>
+
+          <div class="card-meta">
+            <span class="tag platform">${escHtml(opp.source_platform || '?')}</span>
+            <span class="tag ${categoryClass(cat)}">${cat}</span>
+            ${opp.country ? `<span class="tag">📍 ${escHtml(opp.country)}</span>` : ''}
+            ${budget ? `<span class="tag budget">💰 ${escHtml(budget)}</span>` : ''}
+            ${opp.keywords_matched ? `<span class="tag" style="color:var(--text-dim);font-size:0.68rem;">🔑 ${escHtml(opp.keywords_matched.slice(0,80))}</span>` : ''}
+          </div>
+
+          ${opp.description_fr
+            ? `<div class="card-desc">${escHtml(opp.description_fr.slice(0, 400))}</div>`
+            : (opp.description_orig
+              ? `<div class="card-desc">${escHtml((opp.description_orig || '').slice(0, 400))}</div>`
+              : '')}
+
+          ${status === 'pending' ? `
+          <div class="card-actions">
+            <button class="btn btn-success btn-sm" onclick="approveOpp(${opp.id})">✅ Approuver</button>
+            <button class="btn btn-danger btn-sm"  onclick="rejectOpp(${opp.id})">❌ Rejeter</button>
+          </div>` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  async function approveOpp(id) {
+    const card = document.getElementById('card-' + id);
+    try {
+      await fetch(`/api/opportunities/${id}/approve`, { method: 'PUT' });
+      card.classList.remove('pending'); card.classList.add('approved');
+      card.querySelector('.status-badge').textContent = 'approved';
+      card.querySelector('.status-badge').className   = 'status-badge status-approved';
+      const actions = card.querySelector('.card-actions');
+      if (actions) actions.remove();
+      loadStats();
+    } catch(e) { alert('Erreur: ' + e.message); }
+  }
+
+  async function rejectOpp(id) {
+    const card = document.getElementById('card-' + id);
+    try {
+      await fetch(`/api/opportunities/${id}/reject`, { method: 'PUT' });
+      card.classList.remove('pending'); card.classList.add('rejected');
+      card.querySelector('.status-badge').textContent = 'rejected';
+      card.querySelector('.status-badge').className   = 'status-badge status-rejected';
+      const actions = card.querySelector('.card-actions');
+      if (actions) actions.remove();
+      loadStats();
+    } catch(e) { alert('Erreur: ' + e.message); }
+  }
+
+  async function triggerScan() {
+    const btn = document.getElementById('btn-scan');
+    btn.disabled = true;
+    btn.textContent = '⏳ Scan en cours…';
+    showToast('🔍 Scan lancé en arrière-plan. Les nouvelles opportunités apparaîtront dans quelques minutes.', 8000);
+    try {
+      await fetch('/api/opportunities/scan', { method: 'POST' });
+      setTimeout(() => { loadOpportunities(); loadStats(); }, 5000);
+    } catch(e) { showToast('❌ Erreur: ' + e.message, 4000); }
+    setTimeout(() => { btn.disabled = false; btn.textContent = '🔍 Scanner maintenant'; }, 15000);
+  }
+
+  function showToast(msg, duration = 4000) {
+    const t = document.getElementById('scan-toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('visible');
+    setTimeout(() => t.classList.remove('visible'), duration);
+  }
+
+  // Init
+  loadStats();
+  loadOpportunities();
+
+  // Polling auto toutes les 60s
+  setInterval(() => { loadStats(); loadOpportunities(); }, 60 * 1000);
+</script>
+</body>
+</html>
