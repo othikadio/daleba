@@ -122,6 +122,69 @@ async function scanHackerNews() {
   return results;
 }
 
+
+// ── Source : Remotive.io — API JSON publique (remote tech jobs) ─────────────
+
+const REMOTIVE_CATS = ['software-dev', 'devops-sysadmin', 'data'];
+const RELEVANT_TAGS = ['api','automation','bot','chatbot','integration','saas','llm','ai','workflow','crm','erp'];
+
+async function scanRemotive() {
+  const results = [];
+  for (const cat of REMOTIVE_CATS) {
+    try {
+      const url = `https://remotive.com/api/remote-jobs?category=${cat}&limit=30`;
+      const { status, body } = await fetchUrl(url);
+      if (status !== 200) continue;
+      const json = safeJSON(body);
+      const jobs = json?.jobs || [];
+      for (const job of jobs) {
+        const text = `${job.title} ${job.description || ''} ${(job.tags||[]).join(' ')}`.toLowerCase();
+        const matched = RELEVANT_TAGS.filter(k => text.includes(k));
+        if (matched.length === 0) continue;
+        results.push({
+          platform:    'Remotive',
+          url:         job.url,
+          title:       job.title,
+          description: (job.description || '').replace(/<[^>]+>/g,'').slice(0, 2000),
+          budget_raw:  extractBudget(job.salary || ''),
+          country:     job.candidate_required_location || 'Worldwide',
+          language:    'en',
+          detected_at: new Date(),
+        });
+      }
+    } catch (err) { console.warn(`[scanner] Remotive ${cat}: ${err.message}`); }
+  }
+  return results;
+}
+
+// ── Source : WeWorkRemotely RSS ─────────────────────────────────────────────
+
+async function scanWeWorkRemotely() {
+  const results = [];
+  try {
+    const url = 'https://weworkremotely.com/remote-jobs.rss';
+    const { status, body } = await fetchUrl(url);
+    if (status !== 200) return results;
+    const items = parseRSS(body);
+    for (const item of items) {
+      const text = `${item.title} ${item.description}`.toLowerCase();
+      const matched = RELEVANT_TAGS.filter(k => text.includes(k));
+      if (matched.length === 0) continue;
+      results.push({
+        platform:    'WeWorkRemotely',
+        url:         item.link,
+        title:       item.title,
+        description: item.description,
+        budget_raw:  extractBudget(item.title + ' ' + item.description),
+        country:     'Worldwide',
+        language:    'en',
+        detected_at: new Date(),
+      });
+    }
+  } catch (err) { console.warn(`[scanner] WeWorkRemotely: ${err.message}`); }
+  return results;
+}
+
 // ── Source 3 : Upwork RSS ──────────────────────────────────────────────────
 
 function parseRSS(xml) {
@@ -245,15 +308,15 @@ async function scanFreelancer() {
 async function scanAll() {
   console.log('[scanner] Démarrage scan toutes sources...');
   const settled = await Promise.allSettled([
-    scanReddit(),
     scanHackerNews(),
+    scanRemotive(),
+    scanWeWorkRemotely(),
     scanUpwork(),
-    scanPeoplePerHour(),
     scanFreelancer(),
   ]);
 
   const all = [];
-  const names = ['Reddit', 'HackerNews', 'Upwork', 'PeoplePerHour', 'Freelancer'];
+  const names = ['HackerNews', 'Remotive', 'WeWorkRemotely', 'Upwork', 'Freelancer'];
   settled.forEach((result, i) => {
     if (result.status === 'fulfilled') {
       console.log(`[scanner] ${names[i]}: ${result.value.length} résultats`);
@@ -267,4 +330,4 @@ async function scanAll() {
   return all;
 }
 
-module.exports = { scanAll, scanReddit, scanHackerNews, scanUpwork, scanPeoplePerHour, scanFreelancer };
+module.exports = { scanAll, scanHackerNews, scanRemotive, scanWeWorkRemotely, scanUpwork, scanFreelancer };

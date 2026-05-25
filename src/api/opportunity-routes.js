@@ -12,7 +12,52 @@
 
 const express = require('express');
 const router  = express.Router();
-const { pool } = require('../memory/db');
+
+// ── DB avec graceful degradation ─────────────────────────────────────────────
+let pool = null;
+let DEMO_MODE = true;
+try {
+  const db = require('../memory/db');
+  pool = db.pool;
+  DEMO_MODE = db.DEMO_MODE;
+} catch (e) {}
+
+// ── Auto-migration au démarrage ──────────────────────────────────────────────
+async function initTable() {
+  if (DEMO_MODE || !pool) return;
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS daleba_opportunities (
+        id                 SERIAL PRIMARY KEY,
+        source_platform    VARCHAR(100) NOT NULL,
+        source_url         TEXT,
+        country            VARCHAR(100),
+        language_original  VARCHAR(10)  DEFAULT 'en',
+        title              VARCHAR(600),
+        description_orig   TEXT,
+        description_fr     TEXT,
+        budget_raw         VARCHAR(300),
+        budget_estimated   DECIMAL(12,2),
+        budget_currency    VARCHAR(10)  DEFAULT 'USD',
+        category           VARCHAR(100),
+        score              INTEGER      DEFAULT 0,
+        keywords_matched   TEXT,
+        status             VARCHAR(20)  DEFAULT 'pending',
+        detected_at        TIMESTAMPTZ  DEFAULT NOW(),
+        approved_at        TIMESTAMPTZ,
+        rejected_at        TIMESTAMPTZ,
+        notes              TEXT
+      );
+      CREATE INDEX IF NOT EXISTS idx_opp_status   ON daleba_opportunities(status);
+      CREATE INDEX IF NOT EXISTS idx_opp_score    ON daleba_opportunities(score DESC);
+      CREATE INDEX IF NOT EXISTS idx_opp_detected ON daleba_opportunities(detected_at DESC);
+    `);
+    console.log('[opportunities] Table daleba_opportunities OK');
+  } catch (e) {
+    if (!e.message.includes('already exists')) console.error('[opportunities] initTable:', e.message);
+  }
+}
+initTable();
 
 // ── GET /api/opportunities — liste paginée ─────────────────────────────────
 router.get('/', async (req, res) => {

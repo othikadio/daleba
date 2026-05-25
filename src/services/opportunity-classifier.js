@@ -6,7 +6,11 @@
 
 const https = require('https');
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+// DeepSeek — actif et valide (OpenAI key expirée)
+const AI_API_KEY  = process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY || 'sk-cca2191225a9417cb589dab3c7172015';
+const AI_BASE     = 'api.deepseek.com';
+const AI_PATH     = '/chat/completions';
+const AI_MODEL    = 'deepseek-chat';
 
 const SYSTEM_PROMPT = `Tu es un classificateur d'opportunités business pour une agence tech (DALEBA) spécialisée en :
 - Automatisation de workflows, bots, agents IA
@@ -50,22 +54,22 @@ Règles de scoring :
 function callOpenAI(messages) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
-      model: 'gpt-4o-mini',
+      model: AI_MODEL,
       messages,
       temperature: 0.2,
-      max_tokens: 400,
+      max_tokens: 500,
     });
 
     const req = https.request({
-      hostname: 'api.openai.com',
-      path: '/v1/chat/completions',
+      hostname: AI_BASE,
+      path: AI_PATH,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${AI_API_KEY}`,
         'Content-Length': Buffer.byteLength(body),
       },
-      timeout: 20000,
+      timeout: 25000,
     }, (res) => {
       let data = '';
       res.on('data', (c) => { data += c; });
