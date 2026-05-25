@@ -1,12 +1,17 @@
 /**
  * DALEBA — Seed Officiel : Équipe + Catalogue Kadio Coiffure
+ * Source de vérité : feuille de route Ulrich, 25 mai 2026
  * Exécuter : node src/scripts/seed-katalog.js
  *
  * Ce script :
  *  1. Désactive TOUS les anciens membres Square (status → INACTIVE)
  *  2. Crée les 6 collaborateurs officiels
  *  3. Supprime les anciens items du catalogue
- *  4. Injecte le catalogue complet (3 catégories, 29 services)
+ *  4. Injecte le catalogue complet (3 catégories, 30 services)
+ *
+ * ATTRIBUTION AUTOMATIQUE (pas de sélection par le client) :
+ *  - LOCKS & TRESSES & NATTES → Mariane | Raquel | Brenda | Ange
+ *  - COUPE & BARBIER          → Wilfried | Mariel
  */
 
 require('dotenv').config();
@@ -39,6 +44,9 @@ async function sq(method, path, body) {
 }
 
 // ─── ÉQUIPE ──────────────────────────────────────────────────────────────────
+// Attribution automatique :
+//   LOCKS & TRESSES → Mariane, Raquel, Brenda, Ange
+//   COUPE & BARBIER → Wilfried, Mariel
 
 const TEAM = [
   { given_name: 'Wilfried', family_name: 'Kadio',  role: 'barbier'   },
@@ -57,7 +65,6 @@ async function disableOldTeam() {
   const old = data.team_members || [];
   console.log(`  ${old.length} membre(s) actif(s) trouvé(s)`);
   for (const m of old) {
-    // Nettoyer les champs que Square n'accepte pas en PUT
     const payload = {
       given_name:  m.given_name,
       family_name: m.family_name,
@@ -71,7 +78,6 @@ async function disableOldTeam() {
       await sq('PUT', `/v2/team-members/${m.id}`, { team_member: payload });
       console.log(`  ✂️  ${m.given_name} ${m.family_name} → INACTIVE`);
     } catch (e) {
-      // Ignorer le propriétaire du compte (ne peut pas être désactivé)
       console.log(`  ⚠️  ${m.given_name} ${m.family_name} ignoré (${e.message.slice(0,50)})`);
     }
   }
@@ -100,47 +106,184 @@ async function createTeam() {
   return created;
 }
 
-// ─── CATALOGUE ───────────────────────────────────────────────────────────────
+// ─── CATALOGUE OFFICIEL ───────────────────────────────────────────────────────
+// Durées en minutes | Prix en centimes CAD
+// Variable = true → tarif sur devis / prix variable
 
-// Durées en minutes
 const SERVICES = {
+
+  // ════════════════════════════════════════════════════════════════════
+  // LOCKS — Attribution : Mariane, Raquel, Brenda, Ange
+  // ════════════════════════════════════════════════════════════════════
   'Locks': [
-    { name: 'Repousses locks retwist au gel — tête complète (avec style)',      duration: 120, price_min: 13500,  price_max: null  },
-    { name: 'Repousses locks retwist-interlock au gel — demi tête (avec style)',duration:  90, price_min: 11000,  price_max: null  },
-    { name: 'Repousses locks interlock au crochet — tête complète',             duration: 150, price_min: 15000,  price_max: null  },
-    { name: 'Repousses locks interlock au crochet — demi tête',                 duration: 105, price_min: 12500,  price_max: null  },
-    { name: 'Repiquer les racines — plusieurs mois de repousses (racine seule)',duration:  60, price_min:  6000,  price_max: 10000 },
-    { name: 'Départ de locks instantané au crochet — tête complète',            duration: 240, price_min: 35000,  price_max: null  },
-    { name: 'Départ de locks instantané au crochet — demi tête',                duration: 180, price_min: 25000,  price_max: null  },
-    { name: 'Installation des locks (sans extensions fournies)',                 duration: 180, price_min: 25000,  price_max: null  },
-    { name: 'Coiffure locks long',                                              duration:  60, price_min:  6000,  price_max: null  },
-    { name: 'Tresser vos dreads / locks',                                       duration:  30, price_min:  4500,  price_max: null  },
-    { name: 'Réparation de dreads / locks',                                     duration:  60, price_min:  null,  price_max: null, variable: true },
-    { name: 'Défaire des locks (maximum de cheveux conservé)',                  duration: 300, price_min: 20000,  price_max: null  },
-    { name: 'Défaire une coiffure',                                             duration:  30, price_min:  null,  price_max: null, variable: true },
-    { name: 'Installation Sisterlocks',                                         duration: 600, price_min: 85000,  price_max: null  },
-    { name: 'Entretien Sisterlocks',                                            duration: 270, price_min:  null,  price_max: null, variable: true },
+    {
+      name:      'Repousses locks retwist au gel tête complète (avec style au choix)',
+      duration:  120,         // 2h
+      price_min: 13500,       // 135$ + taxes
+    },
+    {
+      name:      'Repousses locks retwist-interlock au gel demi tête (avec style au choix)',
+      duration:  90,          // 1h30
+      price_min: 11000,       // 110$ + taxes
+    },
+    {
+      name:      'Repousses locks interlock au crochet tête complète',
+      duration:  150,         // 2h30
+      price_min: 15000,       // 150$ + taxes
+    },
+    {
+      name:      'Repousses locks interlock au crochet demi tête',
+      duration:  105,         // 1h45
+      price_min: 12500,       // 125$ + taxes
+    },
+    {
+      name:      'Repiquer les racines — plusieurs mois de repousses (racine uniquement)',
+      duration:  60,          // 1h à 3h (min bookable)
+      price_min: 6000,        // 60$
+      price_max: 10000,       // 100$ + taxes
+    },
+    {
+      name:      'Départ de locks instantané au crochet tête complète',
+      duration:  240,         // 4h+
+      price_min: 35000,       // À partir de 350$ + taxes
+    },
+    {
+      name:      'Départ de locks instantané au crochet demi tête',
+      duration:  180,         // 3h+
+      price_min: 25000,       // À partir de 250$ + taxes
+    },
+    {
+      name:      'Installation des locks (sans extensions fournies)',
+      duration:  180,         // 3h+
+      price_min: 25000,       // À partir de 250$ + taxes
+    },
+    {
+      name:      'Coiffure locks long',
+      duration:  60,          // 1h
+      price_min: 6000,        // 60$ + taxes
+    },
+    {
+      name:      'Tresser vos dreads / locks',
+      duration:  30,          // 30min
+      price_min: 4500,        // 45$ + taxes
+    },
+    {
+      name:      'Réparation de dreads / locks',
+      duration:  60,
+      variable:  true,        // Prix en fonction des réparations
+    },
+    {
+      name:      'Défaire des locks (en gardant le plus de cheveux possible)',
+      duration:  300,         // Min. 5h
+      price_min: 20000,       // À partir de 200$ + taxes
+    },
+    {
+      name:      'Défaire une coiffure',
+      duration:  30,
+      variable:  true,        // Prix selon la coiffure à défaire
+    },
+    {
+      name:      'Installation Sisterlocks',
+      duration:  600,         // 10h+
+      price_min: 85000,       // 850$+ + taxes
+    },
+    {
+      name:      'Entretien Sisterlocks',
+      duration:  270,         // 4h30
+      variable:  true,        // Sur RDV + taxes
+    },
   ],
+
+  // ════════════════════════════════════════════════════════════════════
+  // TRESSES & NATTES — Attribution : Mariane, Raquel, Brenda, Ange
+  // ════════════════════════════════════════════════════════════════════
   'Tresses & Nattes': [
-    { name: 'Nattes Américaines',                                               duration: 240, price_min: 14000,  price_max: null  },
-    { name: 'Nattes collées / barrel twist — 2 à 6 nattes',                    duration:  60, price_min:  2000,  price_max: null  },
-    { name: 'Nattes collées / barrel twist — 7 nattes et plus',                duration: 120, price_min:  8000,  price_max: null  },
-    { name: 'Twist demi tête',                                                  duration: 150, price_min:  7000,  price_max: null  },
-    { name: 'Twist tête complète',                                              duration: 180, price_min: 12000,  price_max: null  },
-    { name: 'Crochet braids',                                                   duration: 120, price_min: 17000,  price_max: null  },
-    { name: 'Knotless Braids court',                                            duration: 360, price_min: 12000,  price_max: null  },
-    { name: 'Knotless Gros',                                                    duration: 300, price_min: 12000,  price_max: null  },
-    { name: 'Knotless Moyen',                                                   duration: 300, price_min: 15000,  price_max: null  },
-    { name: 'Knotless Petit',                                                   duration: 480, price_min: 30000,  price_max: null  },
+    {
+      name:      'Nattes Américaines',
+      duration:  240,         // min. 4h
+      price_min: 14000,       // À partir de 140$+ + taxes
+    },
+    {
+      name:      'Nattes collées / barrel twist — 2 à 6 nattes',
+      duration:  60,          // À partir de 1h
+      price_min: 2000,        // À partir de 20$+ + taxes
+    },
+    {
+      name:      'Nattes collées / barrel twist — 7 nattes et plus',
+      duration:  120,         // À partir de 2h
+      price_min: 8000,        // À partir de 80$+ + taxes
+    },
+    {
+      name:      'Twist demi tête',
+      duration:  150,         // 2h30
+      price_min: 7000,        // À partir de 70$ + taxes
+    },
+    {
+      name:      'Twist tête complète',
+      duration:  180,         // min. 3h
+      price_min: 12000,       // À partir de 120$ + taxes
+    },
+    {
+      name:      'Crochet braids',
+      duration:  120,         // min. 2h
+      price_min: 17000,       // À partir de 170$+ + taxes
+    },
+    {
+      name:      'Knotless Braids court',
+      duration:  360,         // min. 6h
+      price_min: 12000,       // À partir de 120$ + taxes
+    },
+    {
+      name:      'Knotless Gros',
+      duration:  300,         // 5h
+      price_min: 12000,       // 120$+ + taxes
+    },
+    {
+      name:      'Knotless Moyen',
+      duration:  300,         // 5h
+      price_min: 15000,       // 150$+ + taxes
+    },
+    {
+      name:      'Knotless Petit',
+      duration:  480,         // 8h
+      price_min: 30000,       // 300$+ + taxes
+    },
   ],
+
+  // ════════════════════════════════════════════════════════════════════
+  // COUPE & BARBIER — Attribution : Wilfried, Mariel (exclusivement)
+  // Acompte : 0$ (exonéré)
+  // ════════════════════════════════════════════════════════════════════
   'Coupe & Barbier': [
-    { name: 'Coupe barbier sans barbe',        duration: 35, price_min:  3500, price_max: null, staff: ['Wilfried', 'Mariel'] },
-    { name: 'Coupe barbier avec barbe',        duration: 45, price_min:  4000, price_max: null, staff: ['Wilfried', 'Mariel'] },
-    { name: 'Coupe barbier enfant (≤12 ans)',  duration: 40, price_min:  3000, price_max: null, staff: ['Wilfried', 'Mariel'] },
-    { name: 'Contours',                        duration: 60, price_min:  2000, price_max: null, staff: ['Wilfried', 'Mariel'] },
-    { name: 'Barbe',                           duration: 30, price_min:  2000, price_max: null, staff: ['Wilfried', 'Mariel'] },
+    {
+      name:      'Coupe barbier sans barbe',
+      duration:  35,          // 35 min
+      price_min: 3500,        // 35$+ + taxes
+    },
+    {
+      name:      'Coupe barbier avec barbe',
+      duration:  45,          // 45 min
+      price_min: 4000,        // 40$ + taxes
+    },
+    {
+      name:      'Coupe barbier enfant (12 ans et moins)',
+      duration:  40,          // 40 min
+      price_min: 3000,        // 30$ + taxes
+    },
+    {
+      name:      'Contours',
+      duration:  60,          // 1h
+      price_min: 2000,        // 20$+ + taxes
+    },
+    {
+      name:      'Barbe',
+      duration:  30,          // 30 min
+      price_min: 2000,        // 20$ + taxes
+    },
   ],
 };
+
+// ─── Suppression ancien catalogue ────────────────────────────────────────────
 
 async function deleteOldCatalog() {
   console.log('\n── Suppression de l\'ancien catalogue ──');
@@ -151,7 +294,6 @@ async function deleteOldCatalog() {
   const ids = items.map(o => o.id);
   console.log(`  ${ids.length} objet(s) à supprimer`);
 
-  // Batch delete par chunks de 200
   for (let i = 0; i < ids.length; i += 200) {
     await sq('POST', '/v2/catalog/batch-delete', {
       object_ids: ids.slice(i, i + 200),
@@ -160,16 +302,17 @@ async function deleteOldCatalog() {
   console.log('  ✅ Catalogue purgé');
 }
 
+// ─── Injection catalogue ──────────────────────────────────────────────────────
+
 async function injectCatalog() {
   console.log('\n── Injection du catalogue officiel ──');
 
   const objects = [];
 
-  // Créer les catégories et items
   for (const [catName, services] of Object.entries(SERVICES)) {
-    const catId = `#${catName.replace(/\s+/g, '_').toUpperCase()}`;
+    const catId = `#${catName.replace(/[\s&]+/g, '_').toUpperCase()}`;
 
-    // Catégorie
+    // Catégorie Square
     objects.push({
       type: 'CATEGORY',
       id:   catId,
@@ -178,15 +321,11 @@ async function injectCatalog() {
 
     // Items
     for (const svc of services) {
-      const itemId = `#ITEM_${randomId()}`;
-
-      // Prix : fixe ou variable
       const variationData = {
         name:               'Tarif',
         pricing_type:       svc.variable ? 'VARIABLE_PRICING' : 'FIXED_PRICING',
         service_duration:   svc.duration * 60 * 1000, // ms
         available_for_booking: true,
-        team_member_ids:    [],   // rempli plus bas si barbier-only
       };
 
       if (!svc.variable && svc.price_min) {
@@ -195,7 +334,7 @@ async function injectCatalog() {
 
       objects.push({
         type: 'ITEM',
-        id:   itemId,
+        id:   `#ITEM_${randomId()}`,
         item_data: {
           name:              svc.name,
           category_id:       catId,
@@ -216,16 +355,17 @@ async function injectCatalog() {
     batches: [{ objects }],
   });
 
-  const created = result.objects || result.id_mappings || [];
-  console.log(`  ✅ ${objects.filter(o => o.type === 'CATEGORY').length} catégories + ${objects.filter(o => o.type === 'ITEM').length} services injectés`);
+  const cats  = objects.filter(o => o.type === 'CATEGORY').length;
+  const items = objects.filter(o => o.type === 'ITEM').length;
+  console.log(`  ✅ ${cats} catégories + ${items} services injectés`);
   return result;
 }
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 
 async function main() {
-  console.log('🚀 DALEBA — Seed Kadio Coiffure\n');
-  console.log(`Token: ${TOKEN.slice(0,8)}...`);
+  console.log('🚀 DALEBA — Seed Kadio Coiffure (v2 — 25 mai 2026)\n');
+  console.log(`Token:    ${TOKEN.slice(0,8)}...`);
   console.log(`Location: ${LOCATION_ID}`);
 
   try {
@@ -235,16 +375,29 @@ async function main() {
     await deleteOldCatalog();
     await injectCatalog();
 
-    console.log('\n╔════════════════════════════════════════╗');
-    console.log('║  ✅ ÉTAPE 1 COMPLÈTE                   ║');
-    console.log('╠════════════════════════════════════════╣');
-    console.log(`║  Équipe : ${team.length} collaborateurs actifs      ║`);
-    team.forEach(m => console.log(`║    • ${m.given_name.padEnd(10)} [${m.role}]${' '.repeat(12)}║`));
     const totalSvcs = Object.values(SERVICES).reduce((a, b) => a + b.length, 0);
-    console.log(`║  Catalogue : ${totalSvcs} services en 3 catégories  ║`);
-    console.log('╚════════════════════════════════════════╝');
 
-    console.log('\nProchaine étape : logique de calcul des prix variables + assignation barbiers');
+    console.log('\n╔══════════════════════════════════════════════════╗');
+    console.log('║  ✅ SEED COMPLET — Kadio Coiffure                ║');
+    console.log('╠══════════════════════════════════════════════════╣');
+    console.log(`║  Équipe : ${team.length} collaborateurs actifs                 ║`);
+    team.forEach(m => {
+      const line = `║    • ${m.given_name.padEnd(10)} [${m.role.padEnd(8)}] id: ${m.id.slice(0,8)}  ║`;
+      console.log(line);
+    });
+    console.log(`║  Catalogue : ${totalSvcs} services en 3 catégories             ║`);
+    console.log('╠══════════════════════════════════════════════════╣');
+    console.log('║  Attribution automatique :                       ║');
+    console.log('║    Locks & Tresses → Mariane|Raquel|Brenda|Ange  ║');
+    console.log('║    Coupe & Barbier → Wilfried|Mariel             ║');
+    console.log('╠══════════════════════════════════════════════════╣');
+    console.log('║  Acomptes :                                      ║');
+    console.log('║    Locks & Tresses → 20% du prix HT              ║');
+    console.log('║    Coupe & Barbier → 0$ (exonéré)                ║');
+    console.log('╠══════════════════════════════════════════════════╣');
+    console.log('║  Abonnements :                                   ║');
+    console.log('║    3 mois = 5%  |  6 mois et + = 10%            ║');
+    console.log('╚══════════════════════════════════════════════════╝');
 
   } catch (err) {
     console.error('\n🔥 ERREUR:', err.message);

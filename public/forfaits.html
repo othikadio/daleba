@@ -3,287 +3,190 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Forfaits &amp; Abonnements — Kadio Coiffure &amp; Esthétique</title>
-  <meta name="description" content="Forfaits mensuels et passes prépayées pour locks, tresses, barbier, tissage à Longueuil. Économisez avec les abonnements Kadio Coiffure." />
+  <title>Abonnements — Kadio Coiffure</title>
+  <meta name="description" content="Économisez jusqu'à 10% sur vos services Locks, Tresses & Nattes chez Kadio Coiffure à Longueuil. Engagement 3 mois ou 6 mois." />
   <link rel="stylesheet" href="/assets/css/salon.css" />
   <style>
-    .passes-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); }
-    .passes-table th, .passes-table td { padding: 1rem 1.25rem; text-align: left; border-top: 1px solid var(--border); font-size: 0.9rem; }
-    .passes-table thead tr { background: var(--cream-dark); }
-    .passes-table th { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); border-top: none; }
-    .passes-table tr:hover td { background: rgba(196, 98, 45, 0.02); }
+    .pass-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      position: relative;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .pass-card:hover { box-shadow: var(--shadow-md); border-color: rgba(201,168,76,0.5); }
+    .pass-card.featured { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(201,168,76,0.2); }
+    .pass-discount {
+      font-size: 3.5rem;
+      font-family: 'Playfair Display', serif;
+      color: var(--gold);
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+    .pass-label { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.75rem; }
+    .pass-desc { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.25rem; }
+    .pass-badge {
+      position: absolute;
+      top: -0.65rem; left: 50%; transform: translateX(-50%);
+      background: var(--gold); color: #fff;
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      padding: 0.2rem 0.8rem; border-radius: 999px; white-space: nowrap;
+    }
     .rules-list { list-style: none; padding: 0; }
-    .rules-list li { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; color: var(--text-muted); }
+    .rules-list li {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      padding: 0.75rem 0; border-bottom: 1px solid var(--border);
+      font-size: 0.9rem; color: var(--text-muted);
+    }
     .rules-list li:last-child { border-bottom: none; }
-    .rules-list li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--terracotta); margin-top: 0.45rem; flex-shrink: 0; }
+    .rules-list li::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--terracotta); margin-top: 0.45rem; flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
 
-<!-- ── NAVBAR ──────────────────────────────────── -->
-<nav class="navbar">
-  <div class="navbar-inner">
-    <a href="/" class="navbar-brand"><img src="/assets/logo-icon.png" alt="Kadio Coiffure" class="nav-brand-logo"></a>
-    <ul class="navbar-nav" id="navMenu">
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Kadio <span>Coiffure</span></a>
+    <ul class="nav-links" id="navLinks">
       <li><a href="/">Accueil</a></li>
-      <li><a href="/menu.html">Services</a></li>
-      <li><a href="/booking.html">Réservation</a></li>
-      <li><a href="/forfaits.html" class="active">Forfaits</a></li>
-      <li><a href="/formation.html">Formation</a></li>
-      <li><a href="/#contact">Contact</a></li>
+      <li><a href="/services.html">Services</a></li>
+      <li><a href="/team.html">Équipe</a></li>
+      <li><a href="/forfaits.html" class="active">Abonnements</a></li>
+      <li><a href="/booking.html" class="btn btn-primary btn-sm">Réserver</a></li>
     </ul>
-    <div class="navbar-cta">
-      <a href="/booking.html" class="btn btn-primary btn-sm">Prendre rendez-vous</a>
-    </div>
-    <button class="navbar-toggle" id="navToggle" aria-label="Menu">
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="2" y1="5.5" x2="20" y2="5.5"/>
-        <line x1="2" y1="11" x2="20" y2="11"/>
-        <line x1="2" y1="16.5" x2="20" y2="16.5"/>
-      </svg>
-    </button>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
   </div>
 </nav>
 
-<!-- ── PAGE HEADER ─────────────────────────────── -->
 <div class="page-header">
-  <div class="container">
-    <span class="section-overline">Abonnements</span>
-    <h1>Forfaits &amp; Abonnements</h1>
-    <p>Tous les prix sont avant taxes (TPS 5% + TVQ 9,975%)</p>
-  </div>
+  <div class="subtitle">Économisez sur chaque visite</div>
+  <h1>Abonnements</h1>
+  <div class="divider"></div>
+  <p style="color:var(--text-muted);margin:0.75rem auto 0;max-width:520px">Engagez-vous sur plusieurs mois et obtenez une réduction automatique sur <strong>tous</strong> vos services — Locks &amp; Tresses&nbsp;&amp;&nbsp;Nattes.</p>
 </div>
 
-<!-- ── DEPOSIT NOTICE ──────────────────────────── -->
-<div style="background: rgba(196, 98, 45, 0.07); border-bottom: 1px solid rgba(196, 98, 45, 0.2); padding: 1rem 0;">
+<!-- ── NOTICE TAXES ── -->
+<div style="background:rgba(196,98,45,0.07);border-bottom:1px solid rgba(196,98,45,0.2);padding:0.85rem 0">
   <div class="container">
-    <p style="margin: 0; font-size: 0.875rem; color: var(--terracotta-dark); font-weight: 500; text-align: center;">
-      Un dépôt de sécurité de 20% est requis lors de toute réservation en ligne — sauf pour les services Barbier (dépôt: 0$).
+    <p style="margin:0;font-size:0.875rem;color:var(--terracotta-dark);font-weight:500;text-align:center">
+      Tous les prix sont avant taxes (TPS 5% + TVQ 9,975%). Dépôt de sécurité 20% requis pour Locks &amp; Tresses — <strong>0$ pour Coupe &amp; Barbier</strong>.
     </p>
   </div>
 </div>
 
-<!-- ── FORFAITS MENSUELS ───────────────────────── -->
+<!-- ── PASSES : 2 NIVEAUX ── -->
 <section class="section">
   <div class="container">
     <div class="section-header">
-      <span class="section-overline">Mensuel</span>
-      <h2>Forfaits Mensuels</h2>
-      <p>Profitez d'un service régulier à tarif préférentiel. Renouvellement automatique mensuel.</p>
-      <div class="divider-accent"></div>
+      <div class="subtitle">Options d'engagement</div>
+      <h2>Choisissez votre engagement</h2>
+      <div class="divider"></div>
+      <p>Plus votre engagement est long, plus vos économies sont grandes. La réduction s'applique automatiquement à chaque visite.</p>
     </div>
 
-    <div class="alert alert-info" style="text-align: center; font-size: 0.9rem;">
-      Forfait Famille: <strong>-10% automatique dès 2 forfaits sélectionnés</strong> — applicable à toute combinaison de forfaits pour votre famille.
-    </div>
+    <div class="grid grid-2" style="max-width:720px;margin:0 auto;gap:2rem">
 
-    <div class="grid-3" style="gap: 1.25rem;">
-
-      <div class="forfait-card">
-        <div class="forfait-name">Locs Illimité</div>
-        <div class="forfait-price">129,99$</div>
-        <div class="forfait-price-note">par mois + taxes</div>
+      <!-- Engagement 3 mois -->
+      <div class="pass-card">
+        <div class="pass-discount">5%</div>
+        <div class="pass-label">Engagement 3 mois</div>
+        <div class="pass-desc">3 mois d'engagement — 5% de réduction automatique sur chaque service Locks &amp; Tresses à chaque visite.</div>
+        <a href="/booking.html" class="btn btn-outline" style="width:100%">Réserver et activer →</a>
       </div>
 
-      <div class="forfait-card">
-        <div class="forfait-name">Microlocs / Sisterlocks</div>
-        <div class="forfait-price">149,99$</div>
-        <div class="forfait-price-note">par mois + taxes</div>
-      </div>
-
-      <div class="forfait-card">
-        <div class="forfait-name">Knotless &amp; Tresses Signature</div>
-        <div class="forfait-price">139,99$</div>
-        <div class="forfait-price-note">par mois + taxes &nbsp;|&nbsp; 12 ans et plus</div>
-      </div>
-
-      <div class="forfait-card">
-        <div class="forfait-name">Tresses Rapides</div>
-        <div class="forfait-price">79,99$</div>
-        <div class="forfait-price-note">par mois + taxes &nbsp;|&nbsp; 12 ans et plus</div>
-        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem; margin-bottom:0;">Surplus 7$ au-delà des hanches. Extra mini-tresses: 50$–100$.</p>
-      </div>
-
-      <div class="forfait-card">
-        <div class="forfait-name">Barbier Coupe &amp; Barbe</div>
-        <div class="forfait-price">64,99$</div>
-        <div class="forfait-price-note">par mois + taxes</div>
-      </div>
-
-      <div class="forfait-card">
-        <div class="forfait-name">Barbier Coupe Simple (Sans barbe)</div>
-        <div class="forfait-price">59,99$</div>
-        <div class="forfait-price-note">par mois + taxes</div>
-      </div>
-
-      <div class="forfait-card">
-        <div class="forfait-name">Barbier Barbe Illimitée</div>
-        <div class="forfait-price">35,99$</div>
-        <div class="forfait-price-note">par mois + taxes</div>
-      </div>
-
-      <div class="forfait-card">
-        <div class="forfait-name">Tresses Rapides Enfant</div>
-        <div class="forfait-price">59,99$</div>
-        <div class="forfait-price-note">par mois + taxes</div>
-        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem; margin-bottom:0;">Surplus 5$ au-delà de l'épaule.</p>
-      </div>
-
-      <div class="forfait-card">
-        <div class="forfait-name">Knotless Enfant</div>
-        <div class="forfait-price">95,99$</div>
-        <div class="forfait-price-note">par mois + taxes</div>
-      </div>
-
-      <div class="forfait-card">
-        <div class="forfait-name">Locs Enfant</div>
-        <div class="forfait-price">79,99$</div>
-        <div class="forfait-price-note">par mois + taxes</div>
-      </div>
-
-      <div class="forfait-card">
-        <div class="forfait-name">Barbier Enfant</div>
-        <div class="forfait-price">49,99$</div>
-        <div class="forfait-price-note">par mois + taxes</div>
-      </div>
-
-      <div class="forfait-card">
-        <div class="forfait-name">Abonnement Mise en plis + Lavage</div>
-        <div class="forfait-price">60,00$</div>
-        <div class="forfait-price-note">par mois + taxes &nbsp;|&nbsp; 1 mise en plis/semaine</div>
-      </div>
-
-      <div class="forfait-card">
-        <div class="forfait-name">Abonnement Pose perruques</div>
-        <div class="forfait-price">120,00$</div>
-        <div class="forfait-price-note">par mois + taxes &nbsp;|&nbsp; 1 pose/semaine</div>
-      </div>
-
-      <div class="forfait-card">
-        <div class="forfait-name">Abonnement Twists et tresses court</div>
-        <div class="forfait-price">119,99$</div>
-        <div class="forfait-price-note">par mois + taxes &nbsp;|&nbsp; 1 coiffure/mois</div>
-      </div>
-
-      <div class="forfait-card">
-        <div class="forfait-name">Combo Tresses Rapides + Barbier</div>
-        <div class="forfait-price">104,99$</div>
-        <div class="forfait-price-note">par mois + taxes</div>
-      </div>
-
-      <div class="forfait-card forfait-card-featured">
-        <span class="badge badge-terracotta mb-2">Populaire</span>
-        <div class="forfait-name">Combo Locs + Barbier</div>
-        <div class="forfait-price">154,99$</div>
-        <div class="forfait-price-note">par mois + taxes</div>
+      <!-- Engagement 6 mois et plus (featured) -->
+      <div class="pass-card featured">
+        <div class="pass-badge">⭐ Meilleur rapport</div>
+        <div class="pass-discount">10%</div>
+        <div class="pass-label">Engagement 6 mois +</div>
+        <div class="pass-desc">6 mois d'engagement ou plus — 10% de réduction automatique sur chaque service Locks &amp; Tresses à chaque visite.</div>
+        <a href="/booking.html" class="btn btn-primary" style="width:100%">Réserver et activer →</a>
       </div>
 
     </div>
 
-    <div class="alert alert-info mt-4" style="max-width: 600px; margin-left: auto; margin-right: auto;">
-      <strong>Forfait Famille:</strong> Bénéficiez automatiquement de <strong>-10%</strong> lorsque vous sélectionnez 2 forfaits ou plus pour les membres de votre famille.
-    </div>
-  </div>
-</section>
-
-<!-- ── PASSES PRÉPAYÉES ────────────────────────── -->
-<section class="section" style="background: var(--white); padding-top: 0;">
-  <div class="container">
-    <div class="section-header">
-      <span class="section-overline">Économisez</span>
-      <h2>Passes Prépayées</h2>
-      <p>Payez d'avance pour plusieurs mois et réalisez des économies. Disponible pour tous les forfaits.</p>
-      <div class="divider-accent"></div>
-    </div>
-
-    <div class="table-wrap" style="max-width: 700px; margin: 0 auto;">
-      <table class="passes-table">
+    <!-- Tableau comparatif -->
+    <div style="max-width:600px;margin:3rem auto 0">
+      <table style="width:100%;border-collapse:collapse;background:var(--white);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm)">
         <thead>
-          <tr>
-            <th>Option de paiement</th>
-            <th>Modalité</th>
-            <th>Avantage</th>
+          <tr style="background:var(--cream-dark)">
+            <th style="padding:1rem 1.25rem;text-align:left;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:700">Engagement</th>
+            <th style="padding:1rem 1.25rem;text-align:center;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:700">Réduction</th>
+            <th style="padding:1rem 1.25rem;text-align:center;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:700">Durée min.</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td><strong>Paiement 2 mois</strong></td>
-            <td>Paiement unique</td>
-            <td style="color: var(--sage-dark); font-weight: 600;">Économie incluse</td>
+          <tr style="border-top:1px solid var(--border)">
+            <td style="padding:1rem 1.25rem;font-weight:600">Engagement 3 mois</td>
+            <td style="padding:1rem 1.25rem;text-align:center;color:var(--gold);font-weight:700">−5%</td>
+            <td style="padding:1rem 1.25rem;text-align:center;color:var(--text-muted)">3 mois</td>
           </tr>
-          <tr>
-            <td><strong>Paiement 3 mois</strong></td>
-            <td>Paiement unique</td>
-            <td style="color: var(--sage-dark); font-weight: 600;">Économie accrue</td>
+          <tr style="border-top:1px solid var(--border);background:rgba(201,168,76,0.04)">
+            <td style="padding:1rem 1.25rem;font-weight:600">Engagement 6 mois ⭐</td>
+            <td style="padding:1rem 1.25rem;text-align:center;color:var(--gold);font-weight:700">−10%</td>
+            <td style="padding:1rem 1.25rem;text-align:center;color:var(--text-muted)">6 mois</td>
           </tr>
-          <tr>
-            <td><strong>Paiement 6 mois</strong></td>
-            <td>Paiement unique</td>
-            <td style="color: var(--sage-dark); font-weight: 600;">Meilleur rapport qualité/prix</td>
-          </tr>
-          <tr>
-            <td><strong>Paiement 12 mois</strong></td>
-            <td>Paiement unique</td>
-            <td style="color: var(--terracotta); font-weight: 700;">Maximum d'économies</td>
+          <tr style="border-top:1px solid var(--border)">
+            <td style="padding:1rem 1.25rem;font-weight:600">Engagement 12 mois 🔥</td>
+            <td style="padding:1rem 1.25rem;text-align:center;color:var(--gold);font-weight:700">−10%</td>
+            <td style="padding:1rem 1.25rem;text-align:center;color:var(--text-muted)">12 mois</td>
           </tr>
         </tbody>
       </table>
+      <p style="text-align:center;font-size:0.8rem;color:var(--text-muted);margin-top:0.75rem">* À partir de 6 mois, la réduction est fixée à 10% quelle que soit la durée d'engagement.</p>
     </div>
-
-    <p style="text-align: center; font-size: 0.875rem; margin-top: 1.5rem;">
-      Pour obtenir le montant exact de votre passe prépayée, contactez le salon ou demandez lors de votre prochain rendez-vous.
-    </p>
 
   </div>
 </section>
 
-<!-- ── RÈGLEMENT ───────────────────────────────── -->
-<section class="section" style="padding-top: 0;">
+<!-- ── RÈGLEMENT ── -->
+<section class="section" style="padding-top:0">
   <div class="container">
-    <div style="max-width: 700px; margin: 0 auto;">
-      <div class="section-header" style="text-align: left;">
-        <span class="section-overline">À savoir</span>
-        <h2>Règlement général des abonnements</h2>
-        <div class="divider-accent" style="margin-left: 0;"></div>
+    <div style="max-width:700px;margin:0 auto">
+      <div class="section-header" style="text-align:left">
+        <div class="subtitle">À savoir</div>
+        <h2>Règlement des abonnements</h2>
+        <div class="divider" style="margin-left:0"></div>
       </div>
-
       <div class="card">
         <div class="card-body">
           <ul class="rules-list">
             <li>Tous les prix affichés sont avant taxes (TPS 5% + TVQ 9,975%).</li>
-            <li>Un dépôt de sécurité de 20% est requis à la réservation en ligne pour tous les forfaits.</li>
-            <li>Les Barbiers sont exonérés du dépôt de sécurité (dépôt: 0$).</li>
+            <li>La réduction s'applique automatiquement à chaque réservation pendant toute la durée de l'engagement.</li>
+            <li>Locks &amp; Tresses&nbsp;&amp;&nbsp;Nattes : dépôt de sécurité de 20% du prix HT requis à la réservation en ligne.</li>
+            <li>Coupe &amp; Barbier : aucun acompte requis — dépôt strictement 0$.</li>
+            <li>Engagement 3 mois = 5% de réduction | Engagement 6 mois et plus = 10% de réduction.</li>
+            <li>Les abonnements sont personnels et non transférables.</li>
             <li>Politique d'annulation selon les règles du salon — contactez-nous pour toute modification.</li>
-            <li>Les forfaits sont personnels et non transférables à une autre personne.</li>
-            <li>Renouvellement automatique mensuel sauf avis contraire communiqué avant la date de renouvellement.</li>
-            <li>Le forfait Famille (-10%) s'applique automatiquement dès la sélection de 2 forfaits ou plus.</li>
-            <li>Les passes prépayées sont valables pour la durée correspondante à compter de la date d'activation.</li>
+            <li>Pour activer votre abonnement, mentionnez-le lors de votre prochaine visite ou contactez le salon.</li>
           </ul>
         </div>
       </div>
-
-      <div style="text-align: center; margin-top: 2.5rem;">
-        <a href="/booking.html" class="btn btn-primary btn-lg">Souscrire un forfait</a>
+      <div style="text-align:center;margin-top:2.5rem">
+        <a href="/booking.html" class="btn btn-primary btn-lg">Prendre rendez-vous →</a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── FOOTER ───────────────────────────────────── -->
-<footer class="footer">
-  <div class="footer-inner">
-    <div class="footer-brand">Kadio Coiffure &amp; Esthétique</div>
-    <div class="footer-copy">
-      615 Antoinette Robidoux, local 100, Longueuil, QC &nbsp;|&nbsp; <a href="mailto:kadiocoiffureetesthetique@yahoo.com" style="color: rgba(255,255,255,0.6);">kadiocoiffureetesthetique@yahoo.com</a>
+<footer>
+  <div class="container">
+    <div class="footer-bottom" style="padding:1.5rem 0;border-top:none">
+      <p>© 2025 Kadio Coiffure · <a href="tel:+15149195970">514-919-5970</a></p>
+      <p style="font-size:0.85rem;color:rgba(255,255,255,0.5)">615 Antoinette Robidoux, local 100, Longueuil, QC</p>
     </div>
-    <div class="footer-copy">&copy; 2025 Kadio Coiffure &amp; Esthétique. Tous droits réservés.</div>
   </div>
 </footer>
 
 <script>
-  const toggle = document.getElementById('navToggle');
-  const menu = document.getElementById('navMenu');
-  toggle.addEventListener('click', () => menu.classList.toggle('open'));
+window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', scrollY > 50));
+document.getElementById('navToggle').addEventListener('click', () => document.getElementById('navLinks').classList.toggle('open'));
 </script>
 </body>
 </html>

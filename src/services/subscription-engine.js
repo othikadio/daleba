@@ -19,149 +19,70 @@ function calculateTaxes(price) {
   return { subtotal: price, tps, tvq, total };
 }
 
-// ─── FORFAITS RÉELS KADIO COIFFURE ──────────────────────────────────────────
-// Règle commission : forfait < 120$ → 10$ fixe | forfait >= 120$ → 15$ fixe
+// ─── PASSES PRÉPAYÉES KADIO COIFFURE ──────────────────────────────────────────
+// Engagement = prépaiement sur plusieurs mois — réduction appliquée sur chaque service
 
-const FORFAITS = {
-  'locs-illimite': {
-    id: 'locs-illimite', name: 'Locs Illimité',
-    price: 129.99, category: 'locs',
-    commission: 15, badge: '🔥 Populaire',
-    includes: ['Retwist illimité', '1 lavage/semaine inclus', 'Priorité réservation'],
+const PASS_PLANS = {
+  '3months': {
+    id: '3months',
+    months: 3,
+    discount: 0.05,
+    label: '3 mois — 5% de réduction',
+    description: 'Engagement 3 mois — 5% de réduction sur tous vos services.',
+    badge: null,
   },
-  'microlocks-sisterlocks': {
-    id: 'microlocks-sisterlocks', name: 'Microlocks / Sisterlocks',
-    price: 149.99, category: 'locs',
-    commission: 15, badge: '✨ Premium',
-    includes: ['Entretien microlocks illimité', '1 lavage/semaine inclus', 'Priorité réservation'],
+  '6months': {
+    id: '6months',
+    months: 6,
+    discount: 0.10,
+    label: '6 mois — 10% de réduction',
+    description: 'Engagement 6 mois — 10% de réduction sur tous vos services.',
+    badge: '⭐ Meilleur rapport',
   },
-  'knotless-tresses-signature': {
-    id: 'knotless-tresses-signature', name: 'Knotless & Tresses Signature',
-    price: 139.99, category: 'tresses',
-    commission: 15, badge: null,
-    includes: ['Knotless illimités', '1 lavage/semaine inclus', 'Priorité réservation'],
-  },
-  'tresses-rapides-adulte': {
-    id: 'tresses-rapides-adulte', name: 'Tresses Rapides Adulte',
-    price: 79.99, category: 'tresses',
-    commission: 10, badge: null,
-    includes: ['Tresses rapides illimitées', '1 lavage/semaine inclus'],
-  },
-  'barbier-coupe-barbe': {
-    id: 'barbier-coupe-barbe', name: 'Barbier Coupe & Barbe',
-    price: 64.99, category: 'barbier',
-    commission: 10, badge: '⭐ Best value',
-    includes: ['Coupe + barbe illimitées', '1 lavage/semaine inclus'],
-  },
-  'barbier-coupe-simple': {
-    id: 'barbier-coupe-simple', name: 'Barbier Coupe Simple',
-    price: 59.99, category: 'barbier',
-    commission: 10, badge: null,
-    includes: ['Coupes illimitées', '1 lavage/semaine inclus'],
-  },
-  'barbier-barbe-illimitee': {
-    id: 'barbier-barbe-illimitee', name: 'Barbier Barbe Illimitée',
-    price: 35.99, category: 'barbier',
-    commission: 10, badge: null,
-    includes: ['Barbe illimitée'],
-  },
-  'tresses-rapides-enfant': {
-    id: 'tresses-rapides-enfant', name: 'Tresses Rapides Enfant',
-    price: 59.99, category: 'tresses',
-    commission: 10, badge: '👧 Enfant',
-    includes: ['Tresses rapides illimitées', '1 lavage/semaine inclus'],
-  },
-  'knotless-enfant': {
-    id: 'knotless-enfant', name: 'Knotless Enfant',
-    price: 95.99, category: 'tresses',
-    commission: 10, badge: '👧 Enfant',
-    includes: ['Knotless illimités', '1 lavage/semaine inclus'],
-  },
-  'locs-enfant': {
-    id: 'locs-enfant', name: 'Locs Enfant',
-    price: 79.99, category: 'locs',
-    commission: 10, badge: '👧 Enfant',
-    includes: ['Entretien locs illimité', '1 lavage/semaine inclus'],
-  },
-  'barbier-enfant': {
-    id: 'barbier-enfant', name: 'Barbier Enfant',
-    price: 49.99, category: 'barbier',
-    commission: 10, badge: '👦 Enfant',
-    includes: ['Coupes enfant illimitées'],
-  },
-  'mise-en-pli-lavage': {
-    id: 'mise-en-pli-lavage', name: 'Mise en pli + Lavage',
-    price: 60.00, category: 'soins',
-    commission: 10, badge: null,
-    includes: ['Mise en pli + lavage illimités'],
-  },
-  'pose-perruques': {
-    id: 'pose-perruques', name: 'Pose Perruques',
-    price: 120.00, category: 'tissage',
-    commission: 15, badge: null,
-    includes: ['Poses perruques illimitées', '1 lavage/semaine inclus'],
-  },
-  'twists-tresses-court': {
-    id: 'twists-tresses-court', name: 'Twists et Tresses Court',
-    price: 119.99, category: 'tresses',
-    commission: 10, badge: null,
-    includes: ['Twists et tresses courtes illimités', '1 lavage/semaine inclus'],
-  },
-  'combo-tresses-barbier': {
-    id: 'combo-tresses-barbier', name: 'Combo Tresses + Barbier',
-    price: 104.99, category: 'combo',
-    commission: 10, badge: '👨‍👩‍👧 Famille',
-    includes: ['Tresses rapides + coupe barbier illimités', '1 lavage/semaine inclus'],
-  },
-  'combo-locs-barbier': {
-    id: 'combo-locs-barbier', name: 'Combo Locs + Barbier',
-    price: 154.99, category: 'combo',
-    commission: 15, badge: '👨‍👩‍👧 Famille',
-    includes: ['Locs + coupe barbier illimités', '1 lavage/semaine inclus'],
+  '12months': {
+    id: '12months',
+    months: 12,
+    discount: 0.10,
+    label: '12 mois — 10% de réduction',
+    description: 'Engagement 12 mois — 10% de réduction sur tous vos services.',
+    badge: '🔥 Maximum d'économies',
   },
 };
 
-// Remise famille : -10% dès 2 forfaits sur le même compte
-const FAMILY_DISCOUNT = 0.10;
+// Alias pour compatibilité rétro si d'autres modules lisent FORFAITS
+const FORFAITS = {};
 
-// ─── UTILITAIRES ─────────────────────────────────────────────────────────────
+// ─── UTILITAIRES PASSES ─────────────────────────────────────────────────────────────
 
-function getAllForfaits() {
-  return Object.values(FORFAITS).map(f => ({
-    ...f,
-    taxes: calculateTaxes(f.price),
-    priceLabel: `${f.price.toFixed(2)} $/mois + taxes`,
-  }));
+function getAllPassPlans() {
+  return Object.values(PASS_PLANS);
 }
 
-function getForfait(id) {
-  const f = FORFAITS[id];
-  if (!f) throw new Error(`Forfait inconnu: ${id}`);
-  return { ...f, taxes: calculateTaxes(f.price) };
+function getPassPlan(id) {
+  const p = PASS_PLANS[id];
+  if (!p) throw new Error(`Plan inconnu: ${id}`);
+  return p;
 }
 
-function calculateCommission(forfaitId) {
-  const f = FORFAITS[forfaitId];
-  if (!f) throw new Error(`Forfait inconnu: ${forfaitId}`);
-  return f.price < 120 ? 10 : 15;
+/**
+ * Calculer le montant total d'une passe prépayée
+ * @param {string} planId - '3months', '6months', '12months'
+ * @param {number} avgMonthlySpend - dépense mensuelle estimée en $ HT
+ */
+function calculatePassAmount(planId, avgMonthlySpend) {
+  const plan = getPassPlan(planId);
+  const gross   = avgMonthlySpend * plan.months;
+  const savings = Math.round(gross * plan.discount * 100) / 100;
+  const amount  = Math.round((gross - savings) * 100) / 100;
+  return { amountCAD: amount, gross, savings, discount: plan.discount, months: plan.months };
 }
 
-function applyFamilyDiscount(totalPrice, nbForfaits) {
-  if (nbForfaits >= 2) {
-    const discount = totalPrice * FAMILY_DISCOUNT;
-    return { original: totalPrice, discount, final: parseFloat((totalPrice - discount).toFixed(2)) };
-  }
-  return { original: totalPrice, discount: 0, final: totalPrice };
-}
-
-function getForfaitsByCategory() {
-  const categories = {};
-  Object.values(FORFAITS).forEach(f => {
-    if (!categories[f.category]) categories[f.category] = [];
-    categories[f.category].push({ ...f, taxes: calculateTaxes(f.price) });
-  });
-  return categories;
-}
+// Stubs de compatibilité (utilisés par d'autres modules)
+function getAllForfaits() { return []; }
+function getForfait(id) { throw new Error(`FORFAITS supprimés — utiliser PASS_PLANS. id: ${id}`); }
+function calculateCommission() { return 0; }
+function applyFamilyDiscount(totalPrice) { return { original: totalPrice, discount: 0, final: totalPrice }; }
+function getForfaitsByCategory() { return {}; }
 
 // ─── GÉNÉRATION CODE SCAN ────────────────────────────────────────────────────
 function generateScanCode() {
@@ -425,6 +346,12 @@ async function deductPass(subscriberId, serviceUsed = '') {
 }
 
 module.exports = {
+  // Passes prépayées (nouvelle logique)
+  PASS_PLANS,
+  getAllPassPlans,
+  getPassPlan,
+  calculatePassAmount,
+  // Stubs de compatibilité
   FORFAITS,
   calculateTaxes,
   getAllForfaits,

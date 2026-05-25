@@ -34,8 +34,11 @@ const TWILIO_TOKEN  = process.env.TWILIO_AUTH_TOKEN;
 const TWILIO_FROM   = process.env.TWILIO_NUMBER || '+13022328291';
 const BASE_URL      = process.env.BASE_URL || 'https://daleba-api-production.up.railway.app';
 
-// ── ID du barbier (Mariel Yonkeu Satching) ────────────────────────────────────
-const BARBIER_STAFF_IDS = ['TMQ9dzPRRMFbmlW9'];
+// ── Pools staff par catégorie (attribution automatique) ─────────────────────────
+const LOCKS_TRESSES_STAFF = ['TMGu2jn-HBum8WXd','TMAGAFNXr7vV2-QB','TM8NBmgX4_UygdcS','TMmC4jrNifA6_KwT'];
+const BARBIER_STAFF       = ['TMaHJL5XF8PxTXYE','TMcbNdwKFHBxMM62'];
+// Conserver pour compatibilité legacy
+const BARBIER_STAFF_IDS   = BARBIER_STAFF;
 
 // ── Taxes Québec (TPS 5% + TVQ 9.975%) ──────────────────────────────────────────
 function calculateTaxes(priceBeforeTax) {
@@ -138,18 +141,25 @@ function cleanFrName(name) { return name.split('/')[0].trim(); }
 // ── Calcul acompte ─────────────────────────────────────────────────────────────
 /**
  * Retourne { depositAmount: number, depositWaived: boolean }
- * - Barbier (Mariel) → waived=true, amount=0
+ * Règle basée sur la CATÉGORIE uniquement (jamais sur le staff):
+ * - Barbier → waived=true, amount=0
  * - Service gratuit ou prix nul → waived=true, amount=0
- * - Autres → 20% du prix
+ * - Locks & Tresses → 20% du prix HT
  */
-function calcDeposit(price, staffId, category) {
-  const isBarbier = BARBIER_STAFF_IDS.includes(staffId) || category === 'Barbier';
+function calcDeposit(price, category) {
+  const isBarbier = category === 'Barbier';
   const priceNum  = parseFloat(price) || 0;
   if (isBarbier || priceNum <= 0) {
     return { depositAmount: 0, depositWaived: true };
   }
   const depositAmount = Math.round(priceNum * 0.20 * 100) / 100;
   return { depositAmount, depositWaived: false };
+}
+
+// ── Sélectionner le pool staff selon la catégorie ────────────────────────────
+function getStaffPool(category) {
+  if (category === 'Barbier') return BARBIER_STAFF;
+  return LOCKS_TRESSES_STAFF; // Locks, Tresses et défaut
 }
 
 // ── Twilio SMS ─────────────────────────────────────────────────────────────────
@@ -194,7 +204,7 @@ router.get('/services', async (req, res) => {
         const price = v.item_variation_data?.price_money;
         const cat   = categorize(item.item_data?.name || '');
         const raw   = price ? (price.amount / 100) : 0;
-        const dep   = calcDeposit(raw, null, cat);
+        const dep   = calcDeposit(raw, cat);
         services.push({
           id:           v.id,
           catalogId:    item.id,
@@ -213,9 +223,12 @@ router.get('/services', async (req, res) => {
       }
     }
 
+    // Filtrer : uniquement les 3 catégories autorisées (Locks, Tresses, Barbier)
+    const ALLOWED_CATS = ['Locks', 'Tresses', 'Barbier'];
+    const filtered = services.filter(s => ALLOWED_CATS.includes(s.category));
     // Trier : prix décroissant
-    services.sort((a, b) => b.priceNum - a.priceNum);
-    res.json({ services, count: services.length });
+    filtered.sort((a, b) => b.priceNum - a.priceNum);
+    res.json({ services: filtered, count: filtered.length });
   } catch (err) {
     console.error('[public/services]', err.message);
     res.status(500).json({ error: err.message });
@@ -261,37 +274,50 @@ router.get('/staff', async (req, res) => {
 //  POST /api/public/availability
 // ─────────────────────────────────────────────────────────────────────────────
 router.post('/availability', async (req, res) => {
-  const { date, staffId, serviceId, durationMinutes } = req.body;
+  const { date, staffId, serviceId, durationMinutes, serviceCategory } = req.body;
   if (!date) return res.status(400).json({ error: 'date requis (YYYY-MM-DD)' });
 
   const startAt = `${date}T00:00:00Z`;
   const endAt   = `${date}T23:59:59Z`;
 
   try {
-    const sqBody = {
-      query: {
-        filter: {
-          location_id: LOCATION_ID,
-          start_at_range: { start_at: startAt, end_at: endAt },
-          ...(staffId || serviceId ? {
+    // Si staffId fourni, utiliser directement. Sinon, agréger sur le pool de la catégorie.
+    const poolIds = staffId ? [staffId] : getStaffPool(serviceCategory || 'Locks');
+
+    // Lancer les requêtes en parallèle pour chaque staff du pool
+    const results = await Promise.allSettled(poolIds.map(sid => {
+      const sqBody = {
+        query: {
+          filter: {
+            location_id: LOCATION_ID,
+            start_at_range: { start_at: startAt, end_at: endAt },
             segment_filters: [{
               ...(serviceId ? { service_variation_id: serviceId } : {}),
-              ...(staffId  ? { team_member_id_filter: { any: [staffId] } } : {}),
+              team_member_id_filter: { any: [sid] },
             }],
-          } : {}),
+          },
         },
-      },
-    };
-
-    const sqData = await sqPost('/v2/bookings/availability/search', sqBody);
-    const slots  = (sqData.availabilities || []).map(a => ({
-      startAt:  a.start_at,
-      label:    new Date(a.start_at).toLocaleTimeString('fr-CA', { hour:'2-digit', minute:'2-digit', timeZone:'America/Toronto' }),
-      staffIds: (a.appointment_segments || []).map(s => s.team_member_id),
+      };
+      return sqPost('/v2/bookings/availability/search', sqBody);
     }));
 
+    // Fusionner et dédupliquer par startAt
+    const slotMap = new Map();
+    for (const res of results) {
+      if (res.status !== 'fulfilled') continue;
+      for (const a of (res.value.availabilities || [])) {
+        if (!slotMap.has(a.start_at)) {
+          slotMap.set(a.start_at, {
+            startAt:  a.start_at,
+            label:    new Date(a.start_at).toLocaleTimeString('fr-CA', { hour:'2-digit', minute:'2-digit', timeZone:'America/Toronto' }),
+            staffIds: (a.appointment_segments || []).map(s => s.team_member_id),
+          });
+        }
+      }
+    }
+    const slots = Array.from(slotMap.values()).sort((a, b) => a.startAt.localeCompare(b.startAt));
+
     if (slots.length) return res.json({ slots, count: slots.length });
-    // Square returned empty — generate synthetic (business hours)
     res.json({ slots: generateFallbackSlots(date), fallback: true });
   } catch (err) {
     console.warn('[public/availability] Square fallback:', err.message);
@@ -322,22 +348,65 @@ function generateFallbackSlots(date) {
 router.post('/book', async (req, res) => {
   const {
     serviceId, serviceName, servicePrice, serviceCategory,
-    staffId, staffName,
     startAt, durationMinutes,
     customer,   // { firstName, lastName, phone, email }
     customerNote,
   } = req.body;
+  // staffId optionnel — le backend l'assigne automatiquement
+  let { staffId, staffName } = req.body;
 
   // ── Validation ──
-  if (!serviceId || !staffId || !startAt) {
-    return res.status(400).json({ error: 'serviceId, staffId, startAt requis' });
+  if (!serviceId || !startAt) {
+    return res.status(400).json({ error: 'serviceId et startAt requis' });
   }
   if (!customer?.firstName || !customer?.phone) {
     return res.status(400).json({ error: 'customer.firstName et customer.phone requis' });
   }
 
+  // ── Auto-attribution du staff si absent ──
+  if (!staffId) {
+    const pool = getStaffPool(serviceCategory || 'Locks');
+    // Tester la disponibilité de chaque staff et prendre le premier disponible
+    const dt = new Date(startAt);
+    const dateStr = dt.toISOString().slice(0,10);
+    let assignedStaff = null;
+    for (const sid of pool) {
+      try {
+        const avRes = await sqPost('/v2/bookings/availability/search', {
+          query: {
+            filter: {
+              location_id: LOCATION_ID,
+              start_at_range: {
+                start_at: `${dateStr}T00:00:00Z`,
+                end_at:   `${dateStr}T23:59:59Z`,
+              },
+              segment_filters: [{
+                ...(serviceId ? { service_variation_id: serviceId } : {}),
+                team_member_id_filter: { any: [sid] },
+              }],
+            },
+          },
+        });
+        const avails = avRes.availabilities || [];
+        const match  = avails.find(a => a.start_at === startAt || a.start_at.startsWith(startAt.slice(0,16)));
+        if (match || avails.length > 0) {
+          assignedStaff = sid;
+          break;
+        }
+      } catch (e) {
+        console.warn(`[public/book] availability check for ${sid}:`, e.message);
+      }
+    }
+    if (!assignedStaff) {
+      // Fallback : prendre le premier du pool
+      assignedStaff = pool[0];
+    }
+    staffId   = assignedStaff;
+    staffName = staffName || `Coiffeur assigné`;
+  }
+
   // ── Calcul acompte + taxes QC ──
-  const { depositAmount, depositWaived } = calcDeposit(servicePrice, staffId, serviceCategory);
+  const { depositAmount, depositWaived } = calcDeposit(servicePrice, serviceCategory);
   const clientFullName = [customer.firstName, customer.lastName].filter(Boolean).join(' ');
   const priceNum = parseFloat(servicePrice) || 0;
   const taxes = calculateTaxes(priceNum);
@@ -594,70 +663,83 @@ router.get('/booking-status/:id', async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  FORFAITS — configuration statique (prix depuis Square au runtime)
+//  PASSES PRÉPAYÉES — engagement 3/6/12 mois avec réduction
 // ─────────────────────────────────────────────────────────────────────────────
+// Règle officielle : 3 mois = 5% | 6 mois et plus = 10%
 const PASS_TYPES = {
-  barbier_monthly: {
-    label:         'Abonnement Barbier Mensuel',
-    description:   '4 coupes/mois à tarif réduit — sans acompte',
-    servicesTotal: 4,
-    priceCAD:      120.00,   // vs 4×40 = 160 → économie 25%
-    validityDays:  30,
-    depositWaived: true,     // exempt acompte
-    category:      'Barbier',
-    emoji:         '💈',
+  '3months': {
+    label:        'Engagement 3 mois — 5% de réduction',
+    description:  'Engagement 3 mois — 5% de réduction sur tous vos services Locks & Tresses & Nattes.',
+    months:       3,
+    discount:     0.05,
+    validityDays: 90,
+    priceCAD:     null,
+    emoji:        '✨',
   },
-  prepaid_5x: {
-    label:         'Passe 5 Services',
-    description:   '5 séances au choix (tresses, locks, etc.) avec 10% de réduction',
-    servicesTotal: 5,
-    priceCAD:      null,     // calculé dynamiquement (5 × prix service × 0.90)
-    validityDays:  180,
-    depositWaived: false,
-    category:      'Multi',
-    emoji:         '🎟️',
+  '6months': {
+    label:        'Engagement 6 mois — 10% de réduction',
+    description:  'Engagement 6 mois — 10% de réduction sur tous vos services Locks & Tresses & Nattes.',
+    months:       6,
+    discount:     0.10,
+    validityDays: 180,
+    priceCAD:     null,
+    emoji:        '⭐',
+  },
+  '12months': {
+    label:        'Engagement 12 mois — 10% de réduction',
+    description:  'Engagement 12 mois — 10% de réduction sur tous vos services Locks & Tresses & Nattes.',
+    months:       12,
+    discount:     0.10,
+    validityDays: 365,
+    priceCAD:     null,
+    emoji:        '🔥',
   },
 };
 
 // GET /api/public/passes/types — types de passes disponibles
 router.get('/passes/types', (req, res) => res.json({ types: PASS_TYPES }));
 
-// POST /api/public/passes — acheter une passe
+// POST /api/public/passes — acheter une passe prépayée (engagement 3/6/12 mois)
 router.post('/passes', async (req, res) => {
-  const { passType, clientName, clientPhone, clientEmail, referenceServicePrice } = req.body;
+  const { passType, clientName, clientPhone, clientEmail, avgMonthlySpend } = req.body;
 
   const type = PASS_TYPES[passType];
-  if (!type) return res.status(400).json({ error: `Type de passe inconnu: ${passType}` });
+  if (!type) return res.status(400).json({ error: `Type de passe inconnu: ${passType}. Options: 3months, 6months, 12months` });
   if (!clientName || !clientPhone) return res.status(400).json({ error: 'clientName et clientPhone requis' });
 
-  // Calculer le prix
-  let amountCAD = type.priceCAD;
-  if (!amountCAD && referenceServicePrice) {
-    amountCAD = Math.round(parseFloat(referenceServicePrice) * 5 * 0.90 * 100) / 100;
+  // Calculer le montant (dépenses mensuelles estimées × mois × (1 - remise))
+  let amountCAD = null;
+  if (avgMonthlySpend) {
+    const monthly = parseFloat(avgMonthlySpend) || 0;
+    const gross   = monthly * type.months;
+    amountCAD     = Math.round(gross * (1 - type.discount) * 100) / 100;
   }
-  if (!amountCAD) return res.status(400).json({ error: 'Prix introuvable. Fournir referenceServicePrice.' });
+  // Si pas de montant, on enregistre quand même la passe (le montant sera collecté en salon)
+  if (!amountCAD) amountCAD = 0;
 
-  // Créer session Stripe
-  let paymentUrl = null;
+  // Créer session Stripe si montant > 0
+  let paymentUrl    = null;
   let stripeSessionId = null;
-  try {
-    const stripeService = require('../services/stripe');
-    const sess = await stripeService.createCheckoutSession({
-      clientName,
-      clientEmail: clientEmail || `${clientPhone.replace(/\D/g,'')}@kadio.noemail`,
-      amount:      Math.round(amountCAD * 100),
-      description: type.label + ' — Kadio Coiffure',
-      sessionId:   `pass-${passType}-${Date.now()}`,
-      successUrl:  `${BASE_URL}/booking-confirmation.html?pass_type=${passType}&session_id={CHECKOUT_SESSION_ID}`,
-      cancelUrl:   `${BASE_URL}/services.html`,
-    });
-    stripeSessionId = sess.stripeSessionId;
-    paymentUrl      = sess.checkoutUrl;
-  } catch (stripeErr) {
-    return res.status(500).json({ error: `Stripe: ${stripeErr.message}` });
+  if (amountCAD > 0) {
+    try {
+      const stripeService = require('../services/stripe');
+      const sess = await stripeService.createCheckoutSession({
+        clientName,
+        clientEmail: clientEmail || `${clientPhone.replace(/\D/g,'')}@kadio.noemail`,
+        amount:      Math.round(amountCAD * 100),
+        description: type.label + ' — Kadio Coiffure',
+        sessionId:   `pass-${passType}-${Date.now()}`,
+        successUrl:  `${BASE_URL}/booking-confirmation.html?pass_type=${passType}&session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl:   `${BASE_URL}/forfaits.html`,
+      });
+      stripeSessionId = sess.stripeSessionId;
+      paymentUrl      = sess.checkoutUrl;
+    } catch (stripeErr) {
+      console.warn('[passes] Stripe:', stripeErr.message);
+    }
   }
 
-  // Créer entrée DB (en attente de paiement)
+  // Créer entrée DB
   let passId = null;
   if (!DEMO_MODE && pool) {
     try {
@@ -667,14 +749,25 @@ router.post('/passes', async (req, res) => {
         INSERT INTO daleba_prepaid_passes
           (client_name, client_phone, pass_type, services_total, amount_paid, stripe_session_id, is_active, expires_at)
         VALUES ($1,$2,$3,$4,$5,$6, false, $7) RETURNING id
-      `, [clientName, clientPhone, passType, type.servicesTotal, amountCAD, stripeSessionId, expiresAt.toISOString()]);
+      `, [clientName, clientPhone, passType,
+          type.months, // services_total = nombre de mois
+          amountCAD, stripeSessionId, expiresAt.toISOString()]);
       passId = ins.rows[0]?.id;
     } catch (e) {
       console.error('[passes] DB error:', e.message);
     }
   }
 
-  res.json({ success: true, paymentUrl, stripeSessionId, passId, amountCAD, type });
+  res.json({
+    success: true,
+    paymentUrl,
+    stripeSessionId,
+    passId,
+    amountCAD,
+    discount: type.discount,
+    months:   type.months,
+    type,
+  });
 });
 
 // GET /api/public/passes/:phone — passes actives d'un client
@@ -809,13 +902,7 @@ router.post('/passes/validate', async (req, res) => {
         created_at          TIMESTAMPTZ DEFAULT NOW()
       )
     `);
-    // Ins\u00e9rer passe test si absente
-    const ex = await pool.query("SELECT id FROM daleba_prepaid_passes WHERE client_phone='+15141234567' LIMIT 1");
-    if (ex.rowCount === 0) {
-      await pool.query(`INSERT INTO daleba_prepaid_passes (client_name,client_phone,pass_type,services_total,services_used,amount_paid)
-        VALUES ('Client Test','+15141234567','barbier_monthly',4,0,120.00)`);
-      console.log('[daleba_bookings] Passe test ins\u00e9r\u00e9e');
-    }
+    // (Passe test barbier_monthly supprimée — V36)
   } catch (e) {
     console.error('[daleba_bookings] init error:', e.message);
   }
