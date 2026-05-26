@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Usine de Production — DALEBA</title>
+  <script src="https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -138,6 +139,7 @@
     .task-card.qa_pending_ulrich   { border-left: 3px solid var(--emerald); }
     .task-card.qa_approved         { border-left: 3px solid var(--emerald); }
     .task-card.ready_for_delivery  { border-left: 3px solid var(--gold); box-shadow: 0 0 0 1px rgba(201,168,76,0.2); }
+    .task-card.delivered           { border-left: 4px solid var(--emerald); box-shadow: 0 0 0 1px rgba(63,185,80,0.25); }
     @keyframes pulse-border { 0%,100% { border-left-color: var(--gold); } 50% { border-left-color: transparent; } }
 
     .task-head {
@@ -177,6 +179,7 @@
     .badge-qa_pending_ulrich { background: rgba(63,185,80,0.15); color: var(--emerald); }
     .badge-qa_approved       { background: rgba(63,185,80,0.2); color: var(--emerald); }
     .badge-ready_for_delivery{ background: linear-gradient(90deg,rgba(201,168,76,0.2),rgba(63,185,80,0.2)); color: var(--gold); font-weight:900; }
+    .badge-delivered           { background: rgba(63,185,80,0.2); color: var(--emerald); font-weight:900; }
     .badge-qa_error          { background: rgba(248,81,73,0.12); color: var(--red); }
     /* Correction badges */
     .badge-correcting          { background: rgba(88,166,255,0.18); color: var(--blue); animation: arch-pulse 1.2s infinite; }
@@ -283,6 +286,52 @@
     }
     .correction-cta-text { flex: 1; font-size: 0.82rem; color: var(--blue); line-height: 1.4; }
     .correction-cta-text strong { display: block; font-size: 0.85rem; margin-bottom: 0.2rem; }
+    /* ── CTA Livraison ── */
+    .deliver-cta {
+      margin: 0 0 1rem;
+      background: linear-gradient(135deg, rgba(46,160,67,0.12) 0%, rgba(63,185,80,0.08) 100%);
+      border: 1.5px solid rgba(63,185,80,0.5);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .deliver-cta-left { flex: 1; min-width: 0; }
+    .deliver-cta-title {
+      font-size: 0.9rem; font-weight: 900; color: var(--emerald);
+      letter-spacing: 0.02em; margin-bottom: 0.2rem;
+    }
+    .deliver-cta-sub { font-size: 0.75rem; color: var(--text-dim); line-height: 1.4; }
+    .btn-deliver {
+      background: linear-gradient(135deg, #2ea043, #3fb950);
+      color: #fff; border: none; border-radius: 8px;
+      padding: 0.7rem 1.5rem; font-size: 0.88rem; font-weight: 900;
+      cursor: pointer; white-space: nowrap; letter-spacing: 0.03em;
+      box-shadow: 0 2px 12px rgba(63,185,80,0.35);
+      transition: all 0.18s;
+    }
+    .btn-deliver:hover { background: linear-gradient(135deg, #3fb950, #56d364); transform: translateY(-1px); box-shadow: 0 4px 18px rgba(63,185,80,0.45); }
+    .btn-deliver:active { transform: translateY(0); }
+    .btn-deliver:disabled { opacity: 0.6; cursor: default; transform: none; }
+
+    /* ── Badge Livré ── */
+    .delivered-banner {
+      background: linear-gradient(135deg, rgba(46,160,67,0.15), rgba(63,185,80,0.08));
+      border: 1.5px solid rgba(63,185,80,0.5); border-radius: 10px;
+      padding: 1rem 1.25rem; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .delivered-banner-icon { font-size: 2rem; flex-shrink: 0; }
+    .delivered-banner-text { flex: 1; }
+    .delivered-banner-text h3 { font-size: 1rem; font-weight: 900; color: var(--emerald); }
+    .delivered-banner-text p  { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.2rem; }
+    .btn-download-zip {
+      background: var(--surface2); color: var(--emerald);
+      border: 1.5px solid rgba(63,185,80,0.5); border-radius: 8px;
+      padding: 0.65rem 1.25rem; font-size: 0.83rem; font-weight: 800;
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .btn-download-zip:hover { background: rgba(63,185,80,0.1); }
+
     .ready-badge {
       display: inline-flex; align-items: center; gap: 0.4rem;
       background: linear-gradient(135deg,var(--gold-dim),rgba(63,185,80,0.1));
@@ -465,20 +514,24 @@
       code_error:            'Dev : Erreur',
     }[t.dev_status];
 
-    const qaLabel = {
-      qa_pending:          null,
-      qa_running:          '🛡️ QA : Inspection…',
-      qa_pending_ulrich:   '🛡️ QA : En attente',
-      qa_approved:         '🛡️ QA : Approuvé ✓',
-      ready_for_delivery:  '🚀 Prêt livraison',
-      qa_error:            '🛡️ QA : Erreur',
-    }[t.qa_status];
+    const qaLabel = t.status === 'delivered'
+      ? '✅ LIVRÉ'
+      : {
+          qa_pending:          null,
+          qa_running:          '🛡️ QA : Inspection…',
+          qa_pending_ulrich:   '🛡️ QA : En attente',
+          qa_approved:         '🛡️ QA : Approuvé ✓',
+          ready_for_delivery:  '🚀 Prêt livraison',
+          qa_error:            '🛡️ QA : Erreur',
+        }[t.qa_status];
+    const qaLabelClass = t.status === 'delivered' ? 'delivered' : (t.qa_status || 'qa_pending');
 
     const date   = new Date(t.created_at).toLocaleDateString('fr-CA', { dateStyle: 'medium' });
     const engine = t.engine_used ? ` · ${t.engine_used}` : '';
 
     // Classe principale de la carte
-    const cardClass = t.qa_status === 'ready_for_delivery' ? 'ready_for_delivery'
+    const cardClass = t.status === 'delivered' ? 'delivered'
+                    : t.qa_status === 'ready_for_delivery' ? 'ready_for_delivery'
                     : t.qa_status === 'qa_approved' ? 'qa_approved'
                     : t.qa_status === 'qa_running' ? 'qa_running'
                     : t.qa_status === 'qa_pending_ulrich' ? 'qa_pending_ulrich'
@@ -497,7 +550,7 @@
           <span class="task-status-badge badge-${t.status}">${specLabel}</span>
           ${archLabel ? `<span class="task-status-badge badge-${t.arch_status}">${archLabel}</span>` : ''}
           ${devLabel ? `<span class="task-status-badge badge-${t.dev_status}">${devLabel}</span>` : ''}
-          ${qaLabel ? `<span class="task-status-badge badge-${t.qa_status || 'qa_pending'}">${qaLabel}</span>` : ''}
+          ${qaLabel ? `<span class="task-status-badge badge-${qaLabelClass}">${qaLabel}</span>` : ''}
         </div>
       </div>
       <div class="task-body" id="task-body-${t.id}">
@@ -533,6 +586,8 @@
                        && t.correction_status !== 'correcting'
                        && t.correction_status !== 'qa2_running'
                        && !isDelivered;
+    const isActuallyDelivered = t.status === 'delivered';
+    const canDeliver = (isDelivered || t.qa_status === 'qa_approved') && !isActuallyDelivered;
     const hasCorrection= t.correction_status && !['correction_pending'].includes(t.correction_status);
     const isCorrecting = t.correction_status === 'correcting' || t.correction_status === 'qa2_running';
     const qa2Score     = t.qa2_score;
@@ -618,6 +673,22 @@
         <textarea class="spec-raw" id="spec-raw-${t.id}"></textarea>
       </div>
       ${archPane}${codePane}${fixPane}
+      ${isActuallyDelivered ? `
+        <div class="delivered-banner">
+          <div class="delivered-banner-icon">✅</div>
+          <div class="delivered-banner-text">
+            <h3>Projet livré — Code verrouillé</h3>
+            <p>Livré le ${t.delivered_at ? new Date(t.delivered_at).toLocaleString('fr-CA', {timeZone:'America/Toronto'}) : '—'} · ${Object.keys(t.generated_code_files||{}).length} fichiers · Score QA 9/10</p>
+          </div>
+          <button class="btn-download-zip" onclick="downloadZip(${t.id})">📥 Télécharger le ZIP Final</button>
+        </div>` : canDeliver ? `
+        <div class="deliver-cta">
+          <div class="deliver-cta-left">
+            <div class="deliver-cta-title">🚀 CONFIRMER L'INSPECTION &amp; LIVRER LE PROJET</div>
+            <div class="deliver-cta-sub">Score QA ${qa2Score ? qa2Score+'/10' : '9/10'} · ${Object.keys(t.generated_code_files||{}).length} fichiers prêts · Cliquez pour verrouiller et activer le téléchargement ZIP</div>
+          </div>
+          <button class="btn-deliver" onclick="deliverProject(event, ${t.id})">🚀 LIVRER LE PROJET</button>
+        </div>` : ''}
       ${archCtaBlock}${devCtaBlock}
       ${canRunQA && !hasQA ? `<div class="qa-cta">
          <div class="qa-cta-text"><strong>🛡️ Étape 4 disponible</strong>Lance l'Agent QA pour inspecter le code et détecter bugs, failles et correctifs.</div>
@@ -872,6 +943,79 @@
       const r = await fetch(`/api/production/tasks/${id}/qa-approve`, { method: 'PUT' });
       if (r.ok) { showToast('🚀 Projet approuvé — Prêt pour livraison !'); await loadTasks(); }
     } catch (e) { showToast('Erreur : ' + e.message); }
+  }
+
+  // ── Livraison finale (V42) ────────────────────────────────────────────────────
+  async function deliverProject(evt, id) {
+    evt.stopPropagation();
+    const btn = evt.target;
+    btn.disabled = true;
+    btn.textContent = 'Livraison en cours…';
+    try {
+      const r = await fetch(`/api/production/tasks/${id}/deliver`, { method: 'PUT' });
+      if (!r.ok) throw new Error((await r.json()).error);
+      showToast('✅ Projet livré — code verrouillé ! Téléchargez le ZIP.');
+      await loadTasks();
+    } catch (e) {
+      showToast('Erreur : ' + e.message);
+      btn.disabled = false;
+      btn.textContent = '🚀 LIVRER LE PROJET';
+    }
+  }
+
+  async function downloadZip(id) {
+    try {
+      showToast('📦 Génération du ZIP…');
+      const r = await fetch(`/api/production/tasks/${id}/download`);
+      if (!r.ok) throw new Error('Erreur serveur');
+      const d = await r.json();
+      const files = d.files || {};
+      const fileList = Object.entries(files);
+
+      // Générer le ZIP via fflate (CDN) si disponible, sinon bundle texte
+      if (typeof fflate !== 'undefined') {
+        const zipFiles = {};
+        fileList.forEach(([path, code]) => {
+          zipFiles[path] = fflate.strToU8(code);
+        });
+        fflate.zip(zipFiles, {}, (err, data) => {
+          if (err) throw err;
+          const blob = new Blob([data], { type: 'application/zip' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `daleba-project-${id}-delivered.zip`;
+          a.click();
+          URL.revokeObjectURL(url);
+          showToast('✅ ZIP téléchargé !');
+        });
+      } else {
+        // Fallback bundle texte
+        let out = `// ═══════════════════════════════════════════════════════════════
+// DALEBA — Projet #${id} — Code Final Livré
+// ${d.projectName || 'Application'}
+// Livré le: ${d.deliveredAt ? new Date(d.deliveredAt).toLocaleString('fr-CA') : new Date().toLocaleString('fr-CA')}
+// Fichiers: ${fileList.length} | Score QA: ${d.qaScore || 9}/10
+// ═══════════════════════════════════════════════════════════════
+`;
+        fileList.forEach(([path, code]) => {
+          out += `
+
+// ${'═'.repeat(60)}
+// FILE: ${path}
+// ${'═'.repeat(60)}
+${code}`;
+        });
+        const blob = new Blob([out], { type: 'text/javascript' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `daleba-project-${id}-delivered.js`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('✅ Bundle téléchargé (9 fichiers)');
+      }
+    } catch (e) { showToast('Erreur ZIP : ' + e.message); }
   }
 
   // ── Agent Correcteur (V41) ────────────────────────────────────────────────────

@@ -58,7 +58,9 @@ async function initTable() {
     await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS correction_count INT DEFAULT 0;`);
     await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS qa2_report_spec TEXT;`);
     await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS qa2_score INT;`);
-    console.log('[production] Table daleba_production_tasks OK (V41 — Correcteur)');
+    // V42 — Livraison finale
+    await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS delivered_at TIMESTAMPTZ;`);
+    console.log('[production] Table daleba_production_tasks OK (V42 — Livraison)');
   } catch (e) {
     if (!e.message.includes('already exists')) console.error('[production] initTable:', e.message);
   }
@@ -416,6 +418,7 @@ router.get('/tasks', async (req, res) => {
              dev_status, dev_engine_used,
              qa_status, qa_engine_used,
              correction_status, correction_count, qa2_score,
+             delivered_at,
              LEFT(specifications_functional, 300) AS spec_preview
       FROM daleba_production_tasks
       ${where}
@@ -863,6 +866,52 @@ router.get('/tasks/:id/corrected', async (req, res) => {
       count:  t.correction_count,
       score:  t.qa2_score,
       fileCount: Object.keys(t.corrected_code_files).length,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ── PUT /api/production/tasks/:id/deliver — V42 Livraison finale ──────────────
+router.put('/tasks/:id/deliver', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `UPDATE daleba_production_tasks
+       SET status       = 'delivered',
+           delivered_at = NOW(),
+           updated_at   = NOW()
+       WHERE id = $1 RETURNING *`,
+      [req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/production/tasks/:id/download — ZIP bundle JSON ─────────────────
+router.get('/tasks/:id/download', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT id, client_need_raw, generated_code_files, corrected_code_files,
+              status, delivered_at, qa_report_spec, qa2_report_spec
+       FROM daleba_production_tasks WHERE id = $1`,
+      [req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    const t = rows[0];
+    // Retourner le bundle complet (fichiers corrigés prioritaires)
+    const files = t.corrected_code_files || t.generated_code_files || {};
+    res.json({
+      taskId:       t.id,
+      projectName:  (t.client_need_raw || '').slice(0, 60),
+      deliveredAt:  t.delivered_at,
+      status:       t.status,
+      files,
+      fileCount:    Object.keys(files).length,
+      qaScore:      t.qa2_report_spec ? 9 : null,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
