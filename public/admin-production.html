@@ -24,6 +24,8 @@
       --cyan:      #39d0d8;
       --orange:    #f0883e;
       --orange-dim:rgba(240,136,62,0.12);
+      --emerald:   #3fb950;
+      --red-soft:  rgba(248,81,73,0.12);
       --radius:    8px;
     }
 
@@ -132,6 +134,10 @@
     .task-card.code_generating     { border-left: 3px solid var(--orange); animation: pulse-border 1.5s ease-in-out infinite; }
     .task-card.code_pending_ulrich { border-left: 3px solid var(--orange); }
     .task-card.code_approved       { border-left: 3px solid var(--cyan); }
+    .task-card.qa_running          { border-left: 3px solid var(--emerald); animation: pulse-border 1.5s ease-in-out infinite; }
+    .task-card.qa_pending_ulrich   { border-left: 3px solid var(--emerald); }
+    .task-card.qa_approved         { border-left: 3px solid var(--emerald); }
+    .task-card.ready_for_delivery  { border-left: 3px solid var(--gold); box-shadow: 0 0 0 1px rgba(201,168,76,0.2); }
     @keyframes pulse-border { 0%,100% { border-left-color: var(--gold); } 50% { border-left-color: transparent; } }
 
     .task-head {
@@ -165,6 +171,13 @@
     .badge-code_pending_ulrich { background: rgba(240,136,62,0.15); color: var(--orange); }
     .badge-code_approved       { background: rgba(57,208,216,0.15); color: var(--cyan); }
     .badge-code_error          { background: rgba(248,81,73,0.12); color: var(--red); }
+    /* QA badges */
+    .badge-qa_pending        { background: rgba(139,148,158,0.12); color: var(--text-dim); }
+    .badge-qa_running        { background: rgba(63,185,80,0.18); color: var(--emerald); animation: arch-pulse 1.2s ease-in-out infinite; }
+    .badge-qa_pending_ulrich { background: rgba(63,185,80,0.15); color: var(--emerald); }
+    .badge-qa_approved       { background: rgba(63,185,80,0.2); color: var(--emerald); }
+    .badge-ready_for_delivery{ background: linear-gradient(90deg,rgba(201,168,76,0.2),rgba(63,185,80,0.2)); color: var(--gold); font-weight:900; }
+    .badge-qa_error          { background: rgba(248,81,73,0.12); color: var(--red); }
     @keyframes arch-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
     .task-body { border-top: 1px solid var(--border); padding: 1.25rem; display: none; }
@@ -230,6 +243,28 @@
     .btn-dev:hover { background: var(--orange-dim); }
     .btn-dev-approve { border-color: rgba(57,208,216,0.4); color: var(--cyan); }
     .btn-dev-approve:hover { background: rgba(57,208,216,0.1); }
+    .btn-qa {
+      border-color: rgba(63,185,80,0.5); color: var(--emerald);
+      font-size: 0.78rem; padding: 0.4rem 1rem;
+    }
+    .btn-qa:hover { background: rgba(63,185,80,0.1); }
+    .btn-qa-approve { border-color: rgba(201,168,76,0.5); color: var(--gold); font-weight: 800; }
+    .btn-qa-approve:hover { background: var(--gold-dim); }
+    .qa-cta {
+      margin-top: 1rem; padding: 1rem 1.25rem;
+      background: rgba(63,185,80,0.06); border: 1px dashed rgba(63,185,80,0.3);
+      border-radius: 6px; display: flex; align-items: center; gap: 1rem;
+    }
+    .qa-cta-text { flex: 1; font-size: 0.82rem; color: var(--emerald); line-height: 1.4; }
+    .qa-cta-text strong { display: block; font-size: 0.85rem; margin-bottom: 0.2rem; }
+    .dot-qa { width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); animation: dp 1.2s ease-in-out infinite; }
+    .ready-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: linear-gradient(135deg,var(--gold-dim),rgba(63,185,80,0.1));
+      border: 1px solid rgba(201,168,76,0.3); border-radius: 6px;
+      padding: 0.5rem 1rem; font-size: 0.8rem; font-weight: 800;
+      color: var(--gold); letter-spacing: 0.04em; margin-top: 0.75rem;
+    }
     .btn-regen-spec { color: var(--text-dim); }
     .btn-del { border-color: rgba(248,81,73,0.3); color: var(--red); }
     .btn-del:hover { background: rgba(248,81,73,0.08); }
@@ -305,8 +340,8 @@
       <span class="step-num">💻</span>
       Étape 3 — Agent Dev
     </div>
-    <div class="step-item">
-      <span class="step-num">🔒</span>
+    <div class="step-item active">
+      <span class="step-num">🛡️</span>
       Étape 4 — Agent QA
     </div>
     <div class="step-item">
@@ -367,6 +402,7 @@
       tasks.filter(t => t.status === 'generating').forEach(t => startPolling(t.id, 'spec'));
       tasks.filter(t => t.arch_status === 'arch_generating').forEach(t => startPolling(t.id, 'arch'));
       tasks.filter(t => t.dev_status === 'code_generating').forEach(t => startPolling(t.id, 'dev'));
+      tasks.filter(t => t.qa_status === 'qa_running').forEach(t => startPolling(t.id, 'qa'));
     } catch (e) { console.warn('loadTasks:', e.message); }
   }
 
@@ -403,11 +439,24 @@
       code_error:            'Dev : Erreur',
     }[t.dev_status];
 
+    const qaLabel = {
+      qa_pending:          null,
+      qa_running:          '🛡️ QA : Inspection…',
+      qa_pending_ulrich:   '🛡️ QA : En attente',
+      qa_approved:         '🛡️ QA : Approuvé ✓',
+      ready_for_delivery:  '🚀 Prêt livraison',
+      qa_error:            '🛡️ QA : Erreur',
+    }[t.qa_status];
+
     const date   = new Date(t.created_at).toLocaleDateString('fr-CA', { dateStyle: 'medium' });
     const engine = t.engine_used ? ` · ${t.engine_used}` : '';
 
     // Classe principale de la carte
-    const cardClass = t.arch_status === 'arch_generating' ? 'arch_generating'
+    const cardClass = t.qa_status === 'ready_for_delivery' ? 'ready_for_delivery'
+                    : t.qa_status === 'qa_approved' ? 'qa_approved'
+                    : t.qa_status === 'qa_running' ? 'qa_running'
+                    : t.qa_status === 'qa_pending_ulrich' ? 'qa_pending_ulrich'
+                    : t.arch_status === 'arch_generating' ? 'arch_generating'
                     : t.arch_status === 'arch_pending_ulrich' ? 'arch_pending_ulrich'
                     : t.arch_status === 'arch_approved' ? 'arch_approved'
                     : t.status;
@@ -422,6 +471,7 @@
           <span class="task-status-badge badge-${t.status}">${specLabel}</span>
           ${archLabel ? `<span class="task-status-badge badge-${t.arch_status}">${archLabel}</span>` : ''}
           ${devLabel ? `<span class="task-status-badge badge-${t.dev_status}">${devLabel}</span>` : ''}
+          ${qaLabel ? `<span class="task-status-badge badge-${t.qa_status || 'qa_pending'}">${qaLabel}</span>` : ''}
         </div>
       </div>
       <div class="task-body" id="task-body-${t.id}">
@@ -446,14 +496,32 @@
     const hasCode    = t.dev_status && t.dev_status !== 'code_pending';
     const canApproveDev = t.dev_status === 'code_pending_ulrich';
 
+    const canRunQA   = hasCode && t.dev_status !== 'code_generating'
+                     && t.qa_status !== 'qa_running' && t.qa_status !== 'qa_approved'
+                     && t.qa_status !== 'ready_for_delivery';
+    const hasQA      = t.qa_status && !['qa_pending'].includes(t.qa_status);
+    const canApproveQA = t.qa_status === 'qa_pending_ulrich';
+    const isDelivered  = t.qa_status === 'ready_for_delivery' || t.status === 'ready_for_delivery';
+
     // Tabs
     const tabArch = hasArch ? `<div class="spec-tab arch-tab" id="tab-arch-${t.id}" onclick="switchTab(${t.id}, 'arch')">📐 Architecture</div>` : '';
     const tabCode = hasCode ? `<div class="spec-tab" id="tab-code-${t.id}" onclick="switchTab(${t.id}, 'code')" style="color:var(--orange)">💻 Code</div>` : '';
-    const tabs = (hasArch || hasCode)
+    const tabQA   = hasQA   ? `<div class="spec-tab" id="tab-qa-${t.id}" onclick="switchTab(${t.id}, 'qa')" style="color:var(--emerald)">🛡️ QA</div>` : '';
+    const tabs = (hasArch || hasCode || hasQA)
       ? `<div class="spec-tabs">
            <div class="spec-tab active" id="tab-spec-${t.id}" onclick="switchTab(${t.id}, 'spec')">📋 Cahier des charges</div>
-           ${tabArch}${tabCode}
+           ${tabArch}${tabCode}${tabQA}
          </div>` : '';
+
+    const qaPane = hasQA ? `
+      <div class="tab-pane" id="pane-qa-${t.id}">
+        ${t.qa_status === 'qa_running'
+          ? `<div class="arch-generating-msg" style="color:var(--emerald)"><div class="dot-qa"></div>L'Agent QA inspecte le code… (60-90s)</div>`
+          : t.qa_status === 'qa_error'
+          ? `<div style="color:var(--red);padding:0.5rem;font-size:0.83rem">Erreur QA : ${escHtml(t.notes || 'inconnue')}</div>`
+          : `<div class="spec-content" id="qa-display-${t.id}"><em style="color:var(--text-dim)">Chargement…</em></div>
+             <textarea class="spec-raw" id="qa-raw-${t.id}"></textarea>`}
+      </div>` : '';
 
     const archPane = hasArch ? `
       <div class="tab-pane" id="pane-arch-${t.id}">
@@ -498,6 +566,11 @@
       </div>
       ${archPane}${codePane}
       ${archCtaBlock}${devCtaBlock}
+      ${canRunQA && !hasQA ? `<div class="qa-cta">
+         <div class="qa-cta-text"><strong>🛡️ Étape 4 disponible</strong>Lance l'Agent QA pour inspecter le code et détecter bugs, failles et correctifs.</div>
+         <button class="btn-sm btn-qa" onclick="runQA(event, ${t.id})">Lancer l'Inspection du Code</button>
+       </div>` : ''}
+      ${isDelivered ? `<div class="ready-badge">🚀 Projet prêt pour livraison client</div>` : ''}
       <div class="task-actions">
         <button class="btn-sm btn-copy-spec" onclick="copyContent(event, ${t.id}, 'spec')">Copier spec</button>
         ${hasArch && t.arch_status !== 'arch_generating' ? `<button class="btn-sm btn-copy-spec" onclick="copyContent(event, ${t.id}, 'arch')" style="border-color:rgba(188,140,255,0.4);color:var(--purple)">Copier arch</button>` : ''}
@@ -506,6 +579,8 @@
         ${canApproveArch ? `<button class="btn-sm btn-arch-approve" onclick="approveArch(event, ${t.id})">✓ Approuver arch</button>` : ''}
         ${canRunDev && hasCode ? `<button class="btn-sm btn-dev" onclick="runDev(event, ${t.id})">💻 Regénérer code</button>` : ''}
         ${canApproveDev ? `<button class="btn-sm btn-dev-approve" onclick="approveDev(event, ${t.id})">✓ Approuver code</button>` : ''}
+        ${canRunQA && hasQA ? `<button class="btn-sm btn-qa" onclick="runQA(event, ${t.id})">🛡️ Relancer QA</button>` : ''}
+        ${canApproveQA ? `<button class="btn-sm btn-qa-approve" onclick="approveQA(event, ${t.id})">🚀 Approuver & Livrer</button>` : ''}
         <button class="btn-sm btn-regen-spec" onclick="regenSpec(event, ${t.id})">Regénérer spec</button>
         <button class="btn-sm btn-del" onclick="deleteTask(event, ${t.id})">Supprimer</button>
       </div>`;
@@ -513,7 +588,7 @@
 
   // ── Tabs ──────────────────────────────────────────────────────────────────────
   function switchTab(id, tab) {
-    ['spec', 'arch', 'code'].forEach(t => {
+    ['spec', 'arch', 'code', 'qa'].forEach(t => {
       const tabEl  = document.getElementById(`tab-${t}-${id}`);
       const paneEl = document.getElementById(`pane-${t}-${id}`);
       if (tabEl)  tabEl.classList.toggle('active', t === tab);
@@ -526,6 +601,10 @@
     if (tab === 'code') {
       const explorer = document.getElementById('code-explorer-' + id);
       if (explorer && !explorer.dataset.loaded) loadCodeFiles(id);
+    }
+    if (tab === 'qa') {
+      const display = document.getElementById('qa-display-' + id);
+      if (display && display.dataset.loaded !== '1') loadQAReport(id);
     }
   }
 
@@ -689,6 +768,47 @@
     } catch (e) { showToast('Erreur : ' + e.message); }
   }
 
+  // ── QA (Étape 4) ─────────────────────────────────────────────────────────────
+  async function loadQAReport(id) {
+    const display = document.getElementById('qa-display-' + id);
+    const rawEl   = document.getElementById('qa-raw-' + id);
+    if (!display) return;
+    try {
+      const r = await fetch(`/api/production/tasks/${id}`);
+      const t = await r.json();
+      if (t.qa_report_spec) {
+        display.innerHTML = formatSpec(t.qa_report_spec);
+        display.dataset.loaded = '1';
+        if (rawEl) rawEl.value = t.qa_report_spec;
+      }
+    } catch (e) { console.warn('loadQAReport:', e.message); }
+  }
+
+  async function runQA(evt, id) {
+    evt.stopPropagation();
+    const btn = evt.target;
+    btn.disabled = true; btn.textContent = 'Inspection…';
+    try {
+      const r = await fetch(`/api/production/tasks/${id}/qa`, { method: 'POST' });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'Erreur serveur');
+      showToast('🛡️ Agent QA lancé — inspection en cours (60-90s)…');
+      await loadTasks();
+      startPolling(id, 'qa');
+    } catch (e) {
+      showToast('Erreur : ' + e.message);
+      btn.disabled = false; btn.textContent = 'Lancer l\'Inspection du Code';
+    }
+  }
+
+  async function approveQA(evt, id) {
+    evt.stopPropagation();
+    try {
+      const r = await fetch(`/api/production/tasks/${id}/qa-approve`, { method: 'PUT' });
+      if (r.ok) { showToast('🚀 Projet approuvé — Prêt pour livraison !'); await loadTasks(); }
+    } catch (e) { showToast('Erreur : ' + e.message); }
+  }
+
   // ── Lancer Architecte (Étape 2) ───────────────────────────────────────────────
   async function runArchitect(evt, id) {
     evt.stopPropagation();
@@ -723,13 +843,16 @@
           ? t.status !== 'generating'
           : mode === 'arch'
           ? t.arch_status !== 'arch_generating'
-          : t.dev_status !== 'code_generating';
+          : mode === 'dev'
+          ? t.dev_status !== 'code_generating'
+          : t.qa_status !== 'qa_running';
         if (done) {
           clearInterval(pollingIds[key]); delete pollingIds[key];
           await loadTasks();
           const msg = mode === 'spec'  ? 'Cahier des charges généré !'
-                    : mode === 'arch'  ? 'Architecture technique générée ! Consultez l\'onglet Arch.'
-                    : `Code backend généré (${Object.keys(t.generated_code_files||{}).length} fichiers) ! Consultez l\'onglet Code.`;
+                    : mode === 'arch'  ? 'Architecture générée ! Consultez l\'onglet Arch.'
+                    : mode === 'dev'   ? `Code backend généré (${Object.keys(t.generated_code_files||{}).length} fichiers) ! Consultez l\'onglet Code.`
+                    : '🛡️ Rapport QA généré ! Consultez l\'onglet QA.';
           showToast(msg);
         }
       } catch (e) {}
@@ -744,7 +867,9 @@
     if (!text) {
       const r = await fetch(`/api/production/tasks/${id}`);
       const t = await r.json();
-      text = type === 'arch' ? (t.technical_architecture_spec || '') : (t.specifications_functional || '');
+      text = type === 'arch' ? (t.technical_architecture_spec || '')
+           : type === 'qa'   ? (t.qa_report_spec || '')
+           : (t.specifications_functional || '');
     }
     try {
       await navigator.clipboard.writeText(text);

@@ -47,7 +47,11 @@ async function initTable() {
     await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS generated_code_raw TEXT;`);
     await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS dev_engine_used VARCHAR(30);`);
     await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS dev_status VARCHAR(30) DEFAULT 'code_pending';`);
-    console.log('[production] Table daleba_production_tasks OK (Étape 1+2+3)');
+    // Étape 4 — Agent QA
+    await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS qa_report_spec TEXT;`);
+    await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS qa_engine_used VARCHAR(30);`);
+    await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS qa_status VARCHAR(30) DEFAULT 'qa_pending';`);
+    console.log('[production] Table daleba_production_tasks OK (Étape 1+2+3+4)');
   } catch (e) {
     if (!e.message.includes('already exists')) console.error('[production] initTable:', e.message);
   }
@@ -403,6 +407,7 @@ router.get('/tasks', async (req, res) => {
              status, created_at, updated_at, notes,
              arch_status, arch_engine_used,
              dev_status, dev_engine_used,
+             qa_status, qa_engine_used,
              LEFT(specifications_functional, 300) AS spec_preview
       FROM daleba_production_tasks
       ${where}
@@ -674,6 +679,75 @@ router.post('/tasks/:id/inject-file', async (req, res) => {
     );
 
     res.json({ ok: true, path, totalFiles: Object.keys(files).length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ── POST /api/production/tasks/:id/qa — Étape 4 ──────────────────────────────
+router.post('/tasks/:id/qa', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT * FROM daleba_production_tasks WHERE id = $1', [req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    const task = rows[0];
+
+    if (!task.generated_code_files || Object.keys(task.generated_code_files).length === 0) {
+      return res.status(400).json({ error: 'Le code (Étape 3) doit être généré avant l\'inspection QA.' });
+    }
+
+    await pool.query(
+      `UPDATE daleba_production_tasks SET qa_status = 'qa_running', updated_at = NOW() WHERE id = $1`,
+      [task.id]
+    );
+    res.json({ message: 'Agent QA lancé — inspection en cours (60-90s)…', task_id: task.id });
+
+    setImmediate(async () => {
+      try {
+        const { runQAInspection } = require('../services/qa-agent');
+        const { report, engine } = await runQAInspection(
+          task.generated_code_files,
+          task.client_need_raw
+        );
+
+        await pool.query(`
+          UPDATE daleba_production_tasks
+          SET qa_report_spec  = $1,
+              qa_engine_used  = $2,
+              qa_status       = 'qa_pending_ulrich',
+              updated_at      = NOW()
+          WHERE id = $3
+        `, [report, engine, task.id]);
+
+        console.log(`[production] Rapport QA généré — task #${task.id} (${engine})`);
+      } catch (err) {
+        await pool.query(
+          `UPDATE daleba_production_tasks SET qa_status = 'qa_error', notes = $1, updated_at = NOW() WHERE id = $2`,
+          [err.message, task.id]
+        ).catch(() => {});
+        console.error(`[production] Erreur QA task #${task.id}:`, err.message);
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── PUT /api/production/tasks/:id/qa-approve ──────────────────────────────────
+router.put('/tasks/:id/qa-approve', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `UPDATE daleba_production_tasks
+       SET qa_status = 'qa_approved',
+           status    = 'ready_for_delivery',
+           updated_at = NOW()
+       WHERE id = $1 RETURNING *`,
+      [req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
