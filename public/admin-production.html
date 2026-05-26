@@ -22,6 +22,8 @@
       --purple:    #bc8cff;
       --purple-dim:rgba(188,140,255,0.12);
       --cyan:      #39d0d8;
+      --orange:    #f0883e;
+      --orange-dim:rgba(240,136,62,0.12);
       --radius:    8px;
     }
 
@@ -127,6 +129,9 @@
     .task-card.spec_approved { border-left: 3px solid var(--green); }
     .task-card.arch_pending_ulrich { border-left: 3px solid var(--purple); }
     .task-card.arch_approved { border-left: 3px solid var(--cyan); }
+    .task-card.code_generating     { border-left: 3px solid var(--orange); animation: pulse-border 1.5s ease-in-out infinite; }
+    .task-card.code_pending_ulrich { border-left: 3px solid var(--orange); }
+    .task-card.code_approved       { border-left: 3px solid var(--cyan); }
     @keyframes pulse-border { 0%,100% { border-left-color: var(--gold); } 50% { border-left-color: transparent; } }
 
     .task-head {
@@ -154,6 +159,12 @@
     .badge-arch_pending_ulrich   { background: rgba(188,140,255,0.15); color: var(--purple); }
     .badge-arch_approved         { background: rgba(57,208,216,0.15); color: var(--cyan); }
     .badge-arch_error            { background: rgba(248,81,73,0.12); color: var(--red); }
+    /* Dev badges */
+    .badge-code_pending        { background: rgba(139,148,158,0.12); color: var(--text-dim); }
+    .badge-code_generating     { background: rgba(240,136,62,0.18); color: var(--orange); animation: arch-pulse 1.2s ease-in-out infinite; }
+    .badge-code_pending_ulrich { background: rgba(240,136,62,0.15); color: var(--orange); }
+    .badge-code_approved       { background: rgba(57,208,216,0.15); color: var(--cyan); }
+    .badge-code_error          { background: rgba(248,81,73,0.12); color: var(--red); }
     @keyframes arch-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
     .task-body { border-top: 1px solid var(--border); padding: 1.25rem; display: none; }
@@ -212,11 +223,26 @@
     .btn-architect:hover { background: var(--purple-dim); }
     .btn-arch-approve { border-color: rgba(57,208,216,0.4); color: var(--cyan); }
     .btn-arch-approve:hover { background: rgba(57,208,216,0.1); }
+    .btn-dev {
+      border-color: rgba(240,136,62,0.5); color: var(--orange);
+      font-size: 0.78rem; padding: 0.4rem 1rem;
+    }
+    .btn-dev:hover { background: var(--orange-dim); }
+    .btn-dev-approve { border-color: rgba(57,208,216,0.4); color: var(--cyan); }
+    .btn-dev-approve:hover { background: rgba(57,208,216,0.1); }
+    .btn-arch-approve:hover { background: rgba(57,208,216,0.1); }
     .btn-regen-spec { color: var(--text-dim); }
     .btn-del { border-color: rgba(248,81,73,0.3); color: var(--red); }
     .btn-del:hover { background: rgba(248,81,73,0.08); }
 
     /* ── Architect CTA section ── */
+    .dev-cta {
+      margin-top: 1rem; padding: 1rem 1.25rem;
+      background: var(--orange-dim); border: 1px dashed rgba(240,136,62,0.3);
+      border-radius: 6px; display: flex; align-items: center; gap: 1rem;
+    }
+    .dev-cta-text { flex: 1; font-size: 0.82rem; color: var(--orange); line-height: 1.4; }
+    .dev-cta-text strong { display: block; font-size: 0.85rem; margin-bottom: 0.2rem; }
     .arch-cta {
       margin-top: 1rem; padding: 1rem 1.25rem;
       background: var(--purple-dim); border: 1px dashed rgba(188,140,255,0.3);
@@ -237,6 +263,7 @@
     }
     .dot-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); animation: dp 1.2s ease-in-out infinite; }
     .dot-arch  { width: 8px; height: 8px; border-radius: 50%; background: var(--purple); animation: dp 1.2s ease-in-out infinite; }
+    .dot-dev   { width: 8px; height: 8px; border-radius: 50%; background: var(--orange); animation: dp 1.2s ease-in-out infinite; }
     @keyframes dp { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.7)} }
 
     .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-dim); font-size: 0.88rem; }
@@ -275,8 +302,8 @@
       <span class="step-num">📐</span>
       Étape 2 — Agent Architecte
     </div>
-    <div class="step-item">
-      <span class="step-num">🔒</span>
+    <div class="step-item active">
+      <span class="step-num">💻</span>
       Étape 3 — Agent Dev
     </div>
     <div class="step-item">
@@ -338,8 +365,9 @@
       const tasks = d.tasks || [];
       document.getElementById('task-count').textContent = tasks.length ? `(${tasks.length})` : '';
       renderTasks(tasks);
-      tasks.filter(t => t.status === 'generating' || t.arch_status === 'arch_generating')
-           .forEach(t => startPolling(t.id));
+      tasks.filter(t => t.status === 'generating').forEach(t => startPolling(t.id, 'spec'));
+      tasks.filter(t => t.arch_status === 'arch_generating').forEach(t => startPolling(t.id, 'arch'));
+      tasks.filter(t => t.dev_status === 'code_generating').forEach(t => startPolling(t.id, 'dev'));
     } catch (e) { console.warn('loadTasks:', e.message); }
   }
 
@@ -368,6 +396,14 @@
       arch_error:            'Arch : Erreur',
     }[t.arch_status];
 
+    const devLabel = {
+      code_pending:          null,
+      code_generating:       'Dev : Génération…',
+      code_pending_ulrich:   'Dev : En attente',
+      code_approved:         'Dev : Approuvé ✓',
+      code_error:            'Dev : Erreur',
+    }[t.dev_status];
+
     const date   = new Date(t.created_at).toLocaleDateString('fr-CA', { dateStyle: 'medium' });
     const engine = t.engine_used ? ` · ${t.engine_used}` : '';
 
@@ -386,6 +422,7 @@
         <div class="badges">
           <span class="task-status-badge badge-${t.status}">${specLabel}</span>
           ${archLabel ? `<span class="task-status-badge badge-${t.arch_status}">${archLabel}</span>` : ''}
+          ${devLabel ? `<span class="task-status-badge badge-${t.dev_status}">${devLabel}</span>` : ''}
         </div>
       </div>
       <div class="task-body" id="task-body-${t.id}">
@@ -403,38 +440,55 @@
     const canRunArchitect = (t.status === 'spec_approved' || t.status === 'spec_pending_ulrich')
                           && t.arch_status !== 'arch_generating'
                           && t.arch_status !== 'arch_approved';
-    const canApproveArch = t.arch_status === 'arch_pending_ulrich';
+    const canApproveArch  = t.arch_status === 'arch_pending_ulrich';
     const hasArch = t.arch_status && t.arch_status !== 'arch_pending';
 
+    const canRunDev  = t.arch_status === 'arch_approved' || t.arch_status === 'arch_pending_ulrich';
+    const hasCode    = t.dev_status && t.dev_status !== 'code_pending';
+    const canApproveDev = t.dev_status === 'code_pending_ulrich';
+
     // Tabs
-    const tabs = hasArch
+    const tabArch = hasArch ? `<div class="spec-tab arch-tab" id="tab-arch-${t.id}" onclick="switchTab(${t.id}, 'arch')">📐 Architecture</div>` : '';
+    const tabCode = hasCode ? `<div class="spec-tab" id="tab-code-${t.id}" onclick="switchTab(${t.id}, 'code')" style="color:var(--orange)">💻 Code</div>` : '';
+    const tabs = (hasArch || hasCode)
       ? `<div class="spec-tabs">
            <div class="spec-tab active" id="tab-spec-${t.id}" onclick="switchTab(${t.id}, 'spec')">📋 Cahier des charges</div>
-           <div class="spec-tab arch-tab" id="tab-arch-${t.id}" onclick="switchTab(${t.id}, 'arch')">📐 Architecture Technique</div>
-         </div>`
-      : '';
+           ${tabArch}${tabCode}
+         </div>` : '';
 
     const archPane = hasArch ? `
       <div class="tab-pane" id="pane-arch-${t.id}">
         ${t.arch_status === 'arch_generating'
           ? `<div class="arch-generating-msg"><div class="dot-arch"></div>L'Agent Architecte conçoit l'architecture technique… (30-60s)</div>`
           : t.arch_status === 'arch_error'
-          ? `<div style="color:var(--red);padding:0.5rem;font-size:0.83rem">Erreur Architecte : ${escHtml(t.arch_notes || t.notes || 'inconnue')}</div>`
+          ? `<div style="color:var(--red);padding:0.5rem;font-size:0.83rem">Erreur Architecte : ${escHtml(t.notes || 'inconnue')}</div>`
           : `<div class="spec-content" id="arch-display-${t.id}"><em style="color:var(--text-dim)">Chargement…</em></div>
-             <textarea class="spec-raw" id="arch-raw-${t.id}"></textarea>`
-        }
+             <textarea class="spec-raw" id="arch-raw-${t.id}"></textarea>`}
+      </div>` : '';
+
+    const codePane = hasCode ? `
+      <div class="tab-pane" id="pane-code-${t.id}">
+        ${t.dev_status === 'code_generating'
+          ? `<div class="arch-generating-msg" style="color:var(--orange)"><div class="dot-dev"></div>L'Agent Développeur génère le code backend… (60-120s)</div>`
+          : t.dev_status === 'code_error'
+          ? `<div style="color:var(--red);padding:0.5rem;font-size:0.83rem">Erreur Dev : ${escHtml(t.notes || 'inconnue')}</div>`
+          : `<div id="code-explorer-${t.id}">
+               <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:0.75rem">Chargement des fichiers…</div>
+             </div>`}
       </div>` : '';
 
     // CTA Architecte
     const archCtaBlock = canRunArchitect && !hasArch
       ? `<div class="arch-cta">
-           <div class="arch-cta-text">
-             <strong>📐 Étape 2 disponible</strong>
-             Lance l'Agent Architecte pour générer les scripts SQL, les routes API et les contrats WebSocket.
-           </div>
-           <button class="btn-sm btn-architect" onclick="runArchitect(event, ${t.id})">
-             Générer l'Architecture
-           </button>
+           <div class="arch-cta-text"><strong>📐 Étape 2 disponible</strong>Lance l'Agent Architecte pour générer scripts SQL, routes API et contrats WebSocket.</div>
+           <button class="btn-sm btn-architect" onclick="runArchitect(event, ${t.id})">Générer l'Architecture</button>
+         </div>` : '';
+
+    // CTA Dev
+    const devCtaBlock = canRunDev && !hasCode
+      ? `<div class="dev-cta">
+           <div class="dev-cta-text"><strong>💻 Étape 3 disponible</strong>Lance l'Agent Développeur pour générer le code backend complet (models, controllers, sockets).</div>
+           <button class="btn-sm btn-dev" onclick="runDev(event, ${t.id})">Déclencher la Production du Code</button>
          </div>` : '';
 
     return `
@@ -443,14 +497,16 @@
         <div class="spec-content" id="spec-display-${t.id}"><em style="color:var(--text-dim)">Chargement…</em></div>
         <textarea class="spec-raw" id="spec-raw-${t.id}"></textarea>
       </div>
-      ${archPane}
-      ${archCtaBlock}
+      ${archPane}${codePane}
+      ${archCtaBlock}${devCtaBlock}
       <div class="task-actions">
         <button class="btn-sm btn-copy-spec" onclick="copyContent(event, ${t.id}, 'spec')">Copier spec</button>
         ${hasArch && t.arch_status !== 'arch_generating' ? `<button class="btn-sm btn-copy-spec" onclick="copyContent(event, ${t.id}, 'arch')" style="border-color:rgba(188,140,255,0.4);color:var(--purple)">Copier arch</button>` : ''}
         ${canApproveSpec ? `<button class="btn-sm btn-approve" onclick="approveSpec(event, ${t.id})">✓ Approuver spec</button>` : ''}
         ${canRunArchitect && hasArch ? `<button class="btn-sm btn-architect" onclick="runArchitect(event, ${t.id})">📐 Regénérer arch</button>` : ''}
         ${canApproveArch ? `<button class="btn-sm btn-arch-approve" onclick="approveArch(event, ${t.id})">✓ Approuver arch</button>` : ''}
+        ${canRunDev && hasCode ? `<button class="btn-sm btn-dev" onclick="runDev(event, ${t.id})">💻 Regénérer code</button>` : ''}
+        ${canApproveDev ? `<button class="btn-sm btn-dev-approve" onclick="approveDev(event, ${t.id})">✓ Approuver code</button>` : ''}
         <button class="btn-sm btn-regen-spec" onclick="regenSpec(event, ${t.id})">Regénérer spec</button>
         <button class="btn-sm btn-del" onclick="deleteTask(event, ${t.id})">Supprimer</button>
       </div>`;
@@ -458,21 +514,19 @@
 
   // ── Tabs ──────────────────────────────────────────────────────────────────────
   function switchTab(id, tab) {
-    const specTab  = document.getElementById('tab-spec-' + id);
-    const archTab  = document.getElementById('tab-arch-' + id);
-    const specPane = document.getElementById('pane-spec-' + id);
-    const archPane = document.getElementById('pane-arch-' + id);
-    if (!specTab || !archTab) return;
-
-    if (tab === 'spec') {
-      specTab.classList.add('active'); archTab.classList.remove('active');
-      specPane.classList.add('active'); archPane.classList.remove('active');
-    } else {
-      archTab.classList.add('active'); specTab.classList.remove('active');
-      archPane.classList.add('active'); specPane.classList.remove('active');
-      // Charger la spec arch si pas encore chargée
+    ['spec', 'arch', 'code'].forEach(t => {
+      const tabEl  = document.getElementById(`tab-${t}-${id}`);
+      const paneEl = document.getElementById(`pane-${t}-${id}`);
+      if (tabEl)  tabEl.classList.toggle('active', t === tab);
+      if (paneEl) paneEl.classList.toggle('active', t === tab);
+    });
+    if (tab === 'arch') {
       const display = document.getElementById('arch-display-' + id);
       if (display && display.dataset.loaded !== '1') loadArchFull(id);
+    }
+    if (tab === 'code') {
+      const explorer = document.getElementById('code-explorer-' + id);
+      if (explorer && !explorer.dataset.loaded) loadCodeFiles(id);
     }
   }
 
@@ -541,6 +595,101 @@
     finally { btn.disabled = false; btn.textContent = '⚡ Générer le cahier des charges'; }
   }
 
+  // ── Charger Code Files (Étape 3) ─────────────────────────────────────────────
+  async function loadCodeFiles(id) {
+    const explorer = document.getElementById('code-explorer-' + id);
+    if (!explorer) return;
+    try {
+      const r = await fetch(`/api/production/tasks/${id}/code`);
+      if (!r.ok) { explorer.innerHTML = '<div style="color:var(--red);font-size:0.8rem">Erreur chargement code</div>'; return; }
+      const d = await r.json();
+      const files = d.files || {};
+      const fileList = Object.keys(files);
+      explorer.dataset.loaded = '1';
+      explorer.innerHTML = `
+        <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;flex-wrap:wrap;align-items:center">
+          <span style="font-size:0.75rem;color:var(--text-dim)">${fileList.length} fichiers générés · <span style="color:var(--orange)">${d.engine}</span></span>
+          <button class="btn-sm" style="border-color:rgba(240,136,62,0.4);color:var(--orange);font-size:0.7rem" onclick="downloadAllCode(${id})">⬇ Télécharger tout</button>
+        </div>
+        <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;max-height:600px">
+          <div style="width:200px;border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0;background:var(--surface2)">
+            ${fileList.map((f, i) => `
+              <div class="file-tab" id="ftab-${id}-${i}" onclick="showFile(${id},${i},'${f.replace(/'/g,"\'")}',${JSON.stringify(JSON.stringify(files[f]))})"
+                style="padding:0.55rem 0.75rem;font-size:0.72rem;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text-dim);font-family:monospace;${i===0?'background:var(--bg);color:var(--orange)':''}">
+                ${f.split('/').pop()}
+                <div style="font-size:0.62rem;color:var(--text-dim);opacity:0.6">${f.split('/')[0]}/</div>
+              </div>`).join('')}
+          </div>
+          <div id="code-view-${id}" style="flex:1;overflow:auto;padding:0;background:#010409">
+            <pre style="margin:0;padding:1rem;font-size:0.78rem;line-height:1.6;color:#e6edf3;font-family:'Courier New',monospace">${escHtml(files[fileList[0]] || '')}</pre>
+          </div>
+        </div>`;
+    } catch (e) {
+      if (explorer) explorer.innerHTML = `<div style="color:var(--red);font-size:0.8rem">Erreur: ${e.message}</div>`;
+    }
+  }
+
+  function showFile(taskId, idx, path, contentJson) {
+    // Highlight onglet
+    document.querySelectorAll(`[id^="ftab-${taskId}-"]`).forEach(el => {
+      el.style.background = ''; el.style.color = 'var(--text-dim)';
+    });
+    const tab = document.getElementById(`ftab-${taskId}-${idx}`);
+    if (tab) { tab.style.background = 'var(--bg)'; tab.style.color = 'var(--orange)'; }
+    // Afficher code
+    const view = document.getElementById('code-view-' + taskId);
+    const code = JSON.parse(contentJson);
+    if (view) view.innerHTML = `<pre style="margin:0;padding:1rem;font-size:0.78rem;line-height:1.6;color:#e6edf3;font-family:'Courier New',monospace">${escHtml(code)}</pre>`;
+  }
+
+  async function downloadAllCode(id) {
+    try {
+      const r = await fetch(`/api/production/tasks/${id}/code`);
+      const d = await r.json();
+      const files = d.files || {};
+      let zip = '// ============================================================\n';
+      zip += `// DALEBA — Code généré par Agent Dev · Task #${id}\n`;
+      zip += '// ============================================================\n\n';
+      Object.entries(files).forEach(([path, code]) => {
+        zip += `\n// ============================================================\n`;
+        zip += `// FILE: ${path}\n`;
+        zip += `// ============================================================\n`;
+        zip += code + '\n';
+      });
+      const blob = new Blob([zip], { type: 'text/javascript' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url;
+      a.download = `daleba-code-task-${id}.js`; a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) { showToast('Erreur export: ' + e.message); }
+  }
+
+  // ── Lancer Dev (Étape 3) ──────────────────────────────────────────────────────
+  async function runDev(evt, id) {
+    evt.stopPropagation();
+    const btn = evt.target;
+    btn.disabled = true; btn.textContent = 'Lancement…';
+    try {
+      const r = await fetch(`/api/production/tasks/${id}/dev`, { method: 'POST' });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'Erreur serveur');
+      showToast('Agent Développeur lancé — code en production (60-120s)…');
+      await loadTasks();
+      startPolling(id, 'dev');
+    } catch (e) {
+      showToast('Erreur : ' + e.message);
+      btn.disabled = false; btn.textContent = 'Déclencher la Production du Code';
+    }
+  }
+
+  async function approveDev(evt, id) {
+    evt.stopPropagation();
+    try {
+      const r = await fetch(`/api/production/tasks/${id}/dev-approve`, { method: 'PUT' });
+      if (r.ok) { showToast('Code approuvé ✓'); await loadTasks(); }
+    } catch (e) { showToast('Erreur : ' + e.message); }
+  }
+
   // ── Lancer Architecte (Étape 2) ───────────────────────────────────────────────
   async function runArchitect(evt, id) {
     evt.stopPropagation();
@@ -573,11 +722,16 @@
         const t = await r.json();
         const done = mode === 'spec'
           ? t.status !== 'generating'
-          : t.arch_status !== 'arch_generating';
+          : mode === 'arch'
+          ? t.arch_status !== 'arch_generating'
+          : t.dev_status !== 'code_generating';
         if (done) {
           clearInterval(pollingIds[key]); delete pollingIds[key];
           await loadTasks();
-          showToast(mode === 'spec' ? 'Cahier des charges généré ! Ouvrez la tâche pour consulter.' : 'Architecture technique générée ! Consultez l\'onglet Arch.');
+          const msg = mode === 'spec'  ? 'Cahier des charges généré !'
+                    : mode === 'arch'  ? 'Architecture technique générée ! Consultez l\'onglet Arch.'
+                    : `Code backend généré (${Object.keys(t.generated_code_files||{}).length} fichiers) ! Consultez l\'onglet Code.`;
+          showToast(msg);
         }
       } catch (e) {}
     }, 5000);

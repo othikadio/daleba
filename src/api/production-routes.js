@@ -42,7 +42,12 @@ async function initTable() {
     await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS technical_architecture_spec TEXT;`);
     await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS arch_engine_used VARCHAR(30);`);
     await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS arch_status VARCHAR(30) DEFAULT 'arch_pending';`);
-    console.log('[production] Table daleba_production_tasks OK (Étape 1+2)');
+    // Étape 3 — Agent Dev
+    await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS generated_code_files JSONB;`);
+    await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS generated_code_raw TEXT;`);
+    await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS dev_engine_used VARCHAR(30);`);
+    await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS dev_status VARCHAR(30) DEFAULT 'code_pending';`);
+    console.log('[production] Table daleba_production_tasks OK (Étape 1+2+3)');
   } catch (e) {
     if (!e.message.includes('already exists')) console.error('[production] initTable:', e.message);
   }
@@ -110,6 +115,8 @@ router.get('/tasks', async (req, res) => {
     const { rows } = await pool.query(`
       SELECT id, client_need_raw, context_additional, engine_used,
              status, created_at, updated_at, notes,
+             arch_status, arch_engine_used,
+             dev_status, dev_engine_used,
              LEFT(specifications_functional, 300) AS spec_preview
       FROM daleba_production_tasks
       ${where}
@@ -250,6 +257,97 @@ router.post('/tasks/:id/architect', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+
+// ── POST /api/production/tasks/:id/dev — Étape 3 ─────────────────────────────
+router.post('/tasks/:id/dev', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT * FROM daleba_production_tasks WHERE id = $1', [req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    const task = rows[0];
+
+    if (!task.technical_architecture_spec) {
+      return res.status(400).json({ error: 'L\'architecture technique (Étape 2) doit être générée avant de coder.' });
+    }
+
+    await pool.query(
+      `UPDATE daleba_production_tasks SET dev_status = 'code_generating', updated_at = NOW() WHERE id = $1`,
+      [task.id]
+    );
+    res.json({ message: 'Agent Développeur lancé — code en production (60-120s)…', task_id: task.id });
+
+    setImmediate(async () => {
+      try {
+        const { generateCode } = require('../services/dev-agent');
+        const { files, rawOutput, engine, fileCount } = await generateCode(
+          task.client_need_raw,
+          task.specifications_functional || '',
+          task.technical_architecture_spec
+        );
+
+        await pool.query(`
+          UPDATE daleba_production_tasks
+          SET generated_code_files = $1,
+              generated_code_raw   = $2,
+              dev_engine_used      = $3,
+              dev_status           = 'code_pending_ulrich',
+              updated_at           = NOW()
+          WHERE id = $4
+        `, [JSON.stringify(files), rawOutput, engine, task.id]);
+
+        console.log(`[production] Code généré — task #${task.id} — ${fileCount} fichiers (${engine})`);
+      } catch (err) {
+        await pool.query(
+          `UPDATE daleba_production_tasks SET dev_status = 'code_error', notes = $1, updated_at = NOW() WHERE id = $2`,
+          [err.message, task.id]
+        ).catch(() => {});
+        console.error(`[production] Erreur dev task #${task.id}:`, err.message);
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── PUT /api/production/tasks/:id/dev-approve ─────────────────────────────────
+router.put('/tasks/:id/dev-approve', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `UPDATE daleba_production_tasks
+       SET dev_status = 'code_approved', updated_at = NOW()
+       WHERE id = $1 RETURNING *`,
+      [req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/production/tasks/:id/code — télécharger les fichiers ─────────────
+router.get('/tasks/:id/code', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT id, generated_code_files, dev_status, dev_engine_used FROM daleba_production_tasks WHERE id = $1',
+      [req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    const t = rows[0];
+    if (!t.generated_code_files) return res.status(404).json({ error: 'Code pas encore généré' });
+    res.json({
+      files: t.generated_code_files,
+      engine: t.dev_engine_used,
+      status: t.dev_status,
+      fileCount: Object.keys(t.generated_code_files).length,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // ── PUT /api/production/tasks/:id/arch-approve ────────────────────────────────
 router.put('/tasks/:id/arch-approve', async (req, res) => {
