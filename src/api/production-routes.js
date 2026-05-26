@@ -60,7 +60,20 @@ async function initTable() {
     await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS qa2_score INT;`);
     // V42 — Livraison finale
     await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS delivered_at TIMESTAMPTZ;`);
-    console.log('[production] Table daleba_production_tasks OK (V42 — Livraison)');
+    await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS contract_amount NUMERIC(12,2) DEFAULT 0;`);
+    // Table revenus DALEBA OS
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS daleba_contracts_revenue (
+        id            SERIAL PRIMARY KEY,
+        task_id       INT REFERENCES daleba_production_tasks(id) ON DELETE SET NULL,
+        project_name  TEXT,
+        amount        NUMERIC(12,2) NOT NULL DEFAULT 0,
+        currency      VARCHAR(3) DEFAULT 'CAD',
+        delivered_at  TIMESTAMPTZ DEFAULT NOW(),
+        notes         TEXT
+      )
+    `);
+    console.log('[production] Table daleba_contracts_revenue OK (V42)');
   } catch (e) {
     if (!e.message.includes('already exists')) console.error('[production] initTable:', e.message);
   }
@@ -876,16 +889,50 @@ router.get('/tasks/:id/corrected', async (req, res) => {
 // ── PUT /api/production/tasks/:id/deliver — V42 Livraison finale ──────────────
 router.put('/tasks/:id/deliver', async (req, res) => {
   try {
+    const amount = parseFloat(req.body?.amount) || 0;
     const { rows } = await pool.query(
       `UPDATE daleba_production_tasks
-       SET status       = 'delivered',
-           delivered_at = NOW(),
-           updated_at   = NOW()
+       SET status          = 'delivered',
+           delivered_at    = NOW(),
+           contract_amount = $2,
+           updated_at      = NOW()
        WHERE id = $1 RETURNING *`,
-      [req.params.id]
+      [req.params.id, amount]
     );
     if (!rows.length) return res.status(404).json({ error: 'Not found' });
-    res.json(rows[0]);
+    const task = rows[0];
+
+    // Enregistrer dans daleba_contracts_revenue
+    if (amount > 0) {
+      await pool.query(
+        `INSERT INTO daleba_contracts_revenue (task_id, project_name, amount, currency)
+         VALUES ($1, $2, $3, 'CAD')`,
+        [task.id, (task.client_need_raw || '').slice(0, 80), amount]
+      );
+    }
+    res.json(task);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/revenue/daleba — Revenus DALEBA OS ───────────────────────────────
+router.get('/revenue/daleba', async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT
+        COALESCE(SUM(amount), 0)::FLOAT AS total_revenue,
+        COUNT(*)::INT                    AS total_contracts,
+        MAX(delivered_at)                AS last_contract_at
+      FROM daleba_contracts_revenue
+    `);
+    const row = rows[0] || {};
+    res.json({
+      total_revenue_cad: row.total_revenue || 0,
+      total_contracts:   row.total_contracts || 0,
+      last_contract_at:  row.last_contract_at || null,
+      currency:          'CAD',
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

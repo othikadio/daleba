@@ -193,8 +193,12 @@
 
     <div class="sidebar-section">
       <div class="sidebar-section-label">Salon</div>
+      <div class="nav-item" onclick="switchPanel('daleba-revenue')">
+        <span class="icon">🤖</span> Revenus DALEBA OS
+        <span class="nav-badge" id="badge-daleba" style="background:rgba(63,185,80,0.15);color:var(--emerald)">$0</span>
+      </div>
       <div class="nav-item" onclick="switchPanel('square')">
-        <span class="icon">💰</span> Square & CA
+        <span class="icon">💈</span> CA Salon · Square
       </div>
       <div class="nav-item" onclick="switchPanel('staff')">
         <span class="icon">💇</span> Équipe
@@ -227,10 +231,16 @@
       </div>
 
       <div class="hub-grid">
-        <div class="kpi-card" onclick="switchPanel('square')">
-          <h3>💰 Chiffre d'Affaires Square</h3>
-          <div class="kpi-val" id="kpi-revenue">…</div>
-          <div class="kpi-sub" id="kpi-revenue-sub">Chargement…</div>
+        <div class="kpi-card" onclick="switchPanel('square')" style="border-top: 3px solid var(--gold);">
+          <h3>💈 CA Salon — Square</h3>
+          <div class="kpi-val" id="kpi-revenue" style="color:var(--gold)">…</div>
+          <div class="kpi-sub" id="kpi-revenue-sub">Revenus Kadio Coiffure</div>
+        </div>
+        <div class="kpi-card" onclick="switchPanel('daleba-revenue')" style="border-top: 3px solid var(--emerald);">
+          <h3>🤖 Revenus DALEBA OS</h3>
+          <div class="kpi-val" id="kpi-daleba-revenue" style="color:var(--emerald)">$0</div>
+          <div class="kpi-sub" id="kpi-daleba-sub">0 contrats livrés</div>
+          <div class="kpi-trend trend-up" id="kpi-daleba-last" style="font-size:0.68rem;margin-top:0.3rem"></div>
         </div>
         <div class="kpi-card" onclick="switchPanel('radar')">
           <h3>🌍 Opportunités Radar</h3>
@@ -320,6 +330,24 @@
       <iframe src="/admin-production.html" class="embed-frame" style="flex:1;border:none" id="iframe-prod"></iframe>
     </div>
 
+    <!-- Revenus DALEBA OS -->
+    <div class="panel" id="panel-daleba-revenue">
+      <div class="square-panel">
+        <h2>🤖 Revenus DALEBA OS — Contrats Livrés</h2>
+        <div class="metric-row">
+          <div class="metric-box"><div class="m-label">Total Revenus</div><div class="m-val" id="dal-total" style="color:var(--emerald)">$0,00</div><div class="m-sub">Contrats facturés · CAD</div></div>
+          <div class="metric-box"><div class="m-label">Nb Contrats</div><div class="m-val" id="dal-count" style="color:var(--blue)">0</div><div class="m-sub">Projets livrés</div></div>
+          <div class="metric-box"><div class="m-label">Panier Moyen</div><div class="m-val" id="dal-avg" style="color:var(--purple)">$0</div><div class="m-sub">Par contrat</div></div>
+        </div>
+        <div id="dal-contracts" style="margin-top:1.5rem">
+          <div style="font-size:0.8rem;color:var(--text-dim);text-align:center;padding:2rem">
+            Aucun contrat livré pour l'instant.<br>
+            <span style="font-size:0.72rem">Les projets livrés via l'Usine de Production apparaîtront ici.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Square & CA -->
     <div class="panel" id="panel-square">
       <div class="square-panel">
@@ -358,6 +386,7 @@
       if (n.getAttribute('onclick')?.includes(`'${id}'`)) n.classList.add('active');
     });
     if (id === 'square') loadSquare();
+    if (id === 'daleba-revenue') loadDalebaRevenue();
     if (id === 'proposals') loadProposals();
   }
 
@@ -377,11 +406,26 @@
         const ca = rv.total_revenue_cad || 0;
         document.getElementById('kpi-revenue').textContent = '$' + Math.round(ca).toLocaleString('fr-CA');
         document.getElementById('kpi-revenue-sub').textContent = `${rv.total_payments || 0} paiements · Square`;
-        document.getElementById('live-revenue').textContent = 'CA: $' + Math.round(ca / 1000) + 'k';
+        document.getElementById('live-revenue').textContent = 'Salon: $' + Math.round(ca / 1000) + 'k';
         document.getElementById('sq-ca').textContent = '$' + ca.toLocaleString('fr-CA', {minimumFractionDigits:2, maximumFractionDigits:2});
         document.getElementById('sq-tx').textContent = (rv.total_payments || 0).toLocaleString('fr-CA');
         const avg = ca / (rv.total_payments || 1);
         document.getElementById('sq-avg').textContent = '$' + avg.toFixed(2);
+      }
+      // Revenus DALEBA OS
+      const dal = await fetch('/api/production/revenue/daleba').then(r => r.json()).catch(() => null);
+      if (dal) {
+        const dca = dal.total_revenue_cad || 0;
+        const dct = dal.total_contracts || 0;
+        document.getElementById('kpi-daleba-revenue').textContent = '$' + dca.toLocaleString('fr-CA', {minimumFractionDigits:2, maximumFractionDigits:2});
+        document.getElementById('kpi-daleba-sub').textContent = `${dct} contrat${dct > 1 ? 's' : ''} livré${dct > 1 ? 's' : ''}`;
+        document.getElementById('badge-daleba').textContent = dct > 0 ? dct : '$0';
+        if (dal.last_contract_at) {
+          document.getElementById('kpi-daleba-last').textContent = 'Dernier: ' + new Date(dal.last_contract_at).toLocaleDateString('fr-CA');
+        }
+        document.getElementById('dal-total').textContent = '$' + dca.toLocaleString('fr-CA', {minimumFractionDigits:2, maximumFractionDigits:2});
+        document.getElementById('dal-count').textContent = dct;
+        document.getElementById('dal-avg').textContent = dct > 0 ? '$' + (dca / dct).toFixed(2) : '$0';
       }
     } catch (e) {}
 
@@ -414,6 +458,29 @@
   }
 
   // ── Square ────────────────────────────────────────────────────────────────────
+  async function loadDalebaRevenue() {
+    const el = document.getElementById('dal-contracts');
+    try {
+      const r = await fetch('/api/production/revenue/daleba');
+      const d = await r.json();
+      const dca = d.total_revenue_cad || 0;
+      const dct = d.total_contracts || 0;
+      document.getElementById('dal-total').textContent = '$' + dca.toLocaleString('fr-CA', {minimumFractionDigits:2,maximumFractionDigits:2});
+      document.getElementById('dal-count').textContent = dct;
+      document.getElementById('dal-avg').textContent = dct > 0 ? '$' + (dca/dct).toFixed(2) : '$0';
+      if (dct === 0) {
+        el.innerHTML = `<div style="font-size:0.8rem;color:var(--text-dim);text-align:center;padding:2rem">
+          Aucun contrat livré pour l'instant.<br>
+          <span style="font-size:0.72rem">Livrez un projet via l'Usine de Production pour le voir apparaître ici.</span>
+        </div>`;
+      }
+      // Rafraîchir KPI badge
+      document.getElementById('badge-daleba').textContent = dct > 0 ? dct : '$0';
+    } catch(e) {
+      if (el) el.innerHTML = `<div style="color:var(--red);font-size:0.8rem">Erreur: ${e.message}</div>`;
+    }
+  }
+
   async function loadSquare() {
     const el = document.getElementById('square-detail');
     el.innerHTML = '<div class="loading-state"><div class="dot-load"></div></div>';

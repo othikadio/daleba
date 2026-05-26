@@ -324,6 +324,36 @@
     .delivered-banner-text { flex: 1; }
     .delivered-banner-text h3 { font-size: 1rem; font-weight: 900; color: var(--emerald); }
     .delivered-banner-text p  { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.2rem; }
+    /* ── Modal montant ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 500;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    .modal-box {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.75rem; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .modal-box h2 { font-size: 1.1rem; font-weight: 900; margin-bottom: 0.4rem; }
+    .modal-box p  { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1.25rem; line-height: 1.5; }
+    .modal-amount-wrap { position: relative; margin-bottom: 1.25rem; }
+    .modal-currency {
+      position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+      font-size: 1rem; font-weight: 800; color: var(--emerald);
+    }
+    .modal-amount-input {
+      width: 100%; background: var(--surface2); border: 1.5px solid rgba(63,185,80,0.4);
+      border-radius: 8px; padding: 0.85rem 1rem 0.85rem 2.5rem;
+      font-size: 1.4rem; font-weight: 900; color: var(--emerald);
+      letter-spacing: 0.02em; outline: none;
+      transition: border-color 0.15s;
+    }
+    .modal-amount-input:focus { border-color: var(--emerald); }
+    .modal-amount-input::placeholder { color: var(--text-dim); font-size: 1rem; font-weight: 400; }
+    .modal-footer { display: flex; gap: 0.75rem; justify-content: flex-end; }
+    .btn-modal-cancel { background: none; border: 1px solid var(--border); color: var(--text-dim); border-radius: 6px; padding: 0.6rem 1.25rem; cursor: pointer; font-size: 0.83rem; }
+    .btn-modal-cancel:hover { background: var(--surface2); }
+
     .btn-download-zip {
       background: var(--surface2); color: var(--emerald);
       border: 1.5px solid rgba(63,185,80,0.5); border-radius: 8px;
@@ -461,6 +491,27 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ── Modal Montant Contrat ──────────────────────────────────────────────── -->
+<div class="modal-overlay" id="modal-amount" style="display:none" onclick="closeModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <h2>🚀 Confirmer la livraison</h2>
+    <p>Entrez le montant du contrat pour ce projet.<br>
+       Il sera comptabilisé dans vos <strong>Revenus DALEBA OS</strong>, séparément du CA salon.</p>
+    <div class="modal-amount-wrap">
+      <span class="modal-currency">$</span>
+      <input class="modal-amount-input" id="modal-amount-input"
+             type="number" min="0" step="0.01" placeholder="0.00 CAD" />
+    </div>
+    <div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:1.25rem">
+      Laissez à 0 pour livrer sans enregistrer de montant.
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="document.getElementById('modal-amount').style.display='none'">Annuler</button>
+      <button class="btn-deliver" id="modal-confirm-btn" onclick="confirmDeliver()">🚀 Livrer le Projet</button>
+    </div>
+  </div>
+</div>
 
 <script>
   let pollingIds = {};
@@ -946,20 +997,48 @@
   }
 
   // ── Livraison finale (V42) ────────────────────────────────────────────────────
-  async function deliverProject(evt, id) {
+  let _pendingDeliverId = null;
+
+  function deliverProject(evt, id) {
     evt.stopPropagation();
-    const btn = evt.target;
-    btn.disabled = true;
+    _pendingDeliverId = id;
+    const input = document.getElementById('modal-amount-input');
+    if (input) { input.value = ''; setTimeout(() => input.focus(), 100); }
+    document.getElementById('modal-amount').style.display = 'flex';
+  }
+
+  function closeModal(evt) {
+    document.getElementById('modal-amount').style.display = 'none';
+  }
+
+  async function confirmDeliver() {
+    const id = _pendingDeliverId;
+    if (!id) return;
+    const amountRaw = document.getElementById('modal-amount-input')?.value;
+    const amount    = parseFloat(amountRaw) || 0;
+    const btn       = document.getElementById('modal-confirm-btn');
+    btn.disabled    = true;
     btn.textContent = 'Livraison en cours…';
+
     try {
-      const r = await fetch(`/api/production/tasks/${id}/deliver`, { method: 'PUT' });
+      const r = await fetch(`/api/production/tasks/${id}/deliver`, {
+        method:  'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ amount }),
+      });
       if (!r.ok) throw new Error((await r.json()).error);
-      showToast('✅ Projet livré — code verrouillé ! Téléchargez le ZIP.');
+
+      document.getElementById('modal-amount').style.display = 'none';
+      const msg = amount > 0
+        ? `✅ Projet livré — $${amount.toFixed(2)} enregistrés dans Revenus DALEBA OS !`
+        : '✅ Projet livré — code verrouillé. Téléchargez le ZIP.';
+      showToast(msg);
       await loadTasks();
     } catch (e) {
       showToast('Erreur : ' + e.message);
-      btn.disabled = false;
-      btn.textContent = '🚀 LIVRER LE PROJET';
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = '🚀 Livrer le Projet';
     }
   }
 
