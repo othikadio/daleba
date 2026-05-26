@@ -167,7 +167,7 @@ router.post('/scan', async (req, res) => {
       if (!REMOTE_REQUIRED.some(re => re.test(fullText))) return false;
       return true;
     });
-    console.log(\`[scan] Pré-filtre: \${raw.length} → \${preFiltered.length} (éliminé \${raw.length - preFiltered.length} non-remote/CDI)\`);
+    console.log("[scan] Pré-filtre: " + raw.length + " → " + preFiltered.length + " (éliminé " + (raw.length - preFiltered.length) + " non-remote/CDI)");
     // ────────────────────────────────────────────────────────────────────────────
     const classified = await classifyBatch(preFiltered);
 
