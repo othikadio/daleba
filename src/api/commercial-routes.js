@@ -325,3 +325,65 @@ router.put('/emails/:id/read', async (req, res) => {
 });
 
 module.exports = router;
+
+// ── POST /webhook/inbound — Réception leads sans Gmail (V43 fallback) ─────────
+// Compatible : formulaire site web, Zapier, Make, forward email, etc.
+router.post('/webhook/inbound', async (req, res) => {
+  try {
+    const {
+      from_email, from_name, subject, body,
+      source = 'webhook', secret
+    } = req.body;
+
+    // Validation minimale
+    if (!from_email || !body) {
+      return res.status(400).json({ error: 'from_email et body requis' });
+    }
+
+    // Insérer dans daleba_emails
+    const { rows } = await pool.query(`
+      INSERT INTO daleba_emails
+        (message_id, from_email, from_name, subject, body_text, received_at, status)
+      VALUES ($1,$2,$3,$4,$5,NOW(),'unread')
+      ON CONFLICT (message_id) DO NOTHING
+      RETURNING id
+    `, [
+      `webhook-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      from_email,
+      from_name || from_email,
+      subject || '(Contact entrant)',
+      body.slice(0, 3000),
+    ]);
+
+    if (!rows.length) return res.json({ ok: true, duplicate: true });
+
+    const emailId = rows[0].id;
+
+    // Analyser automatiquement avec l'IA
+    setImmediate(async () => {
+      try {
+        const { analyzeEmail } = require('../services/commercial-agent');
+        const analysis = await analyzeEmail({ from: from_email, subject: subject || '', text: body });
+        await pool.query(`
+          UPDATE daleba_emails
+          SET intent=$1, intent_fr=$2, urgency=$3, summary=$4,
+              reply_draft=$5, reply_html=$6, engine_used=$7,
+              should_create_task=$8, task_description=$9, status='analyzed'
+          WHERE id=$10
+        `, [
+          analysis.intent, analysis.intent_fr, analysis.urgency, analysis.summary,
+          analysis.reply_text, analysis.reply_html, analysis.engine,
+          analysis.should_create_task, analysis.task_description, emailId
+        ]);
+        console.log(`[commercial] Lead #${emailId} analysé — intent: ${analysis.intent}`);
+      } catch (e) {
+        console.warn('[commercial] Analyse auto KO:', e.message);
+      }
+    });
+
+    res.json({ ok: true, email_id: emailId, message: 'Lead reçu et analyse IA lancée' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+

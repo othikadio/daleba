@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DALEBA OS — Nous contacter</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0d1117;--surface:#161b22;--border:#30363d;--text:#e6edf3;--text-dim:#8b949e;--emerald:#3fb950;--gold:#c9a84c}
+    body{background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2rem 2.5rem;width:100%;max-width:500px}
+    .logo{font-size:1.1rem;font-weight:900;color:var(--gold);margin-bottom:0.3rem}
+    h1{font-size:1.4rem;font-weight:800;margin-bottom:0.4rem}
+    p{font-size:0.82rem;color:var(--text-dim);margin-bottom:1.75rem;line-height:1.6}
+    label{display:block;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-dim);margin-bottom:0.35rem}
+    input,textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:0.7rem 0.9rem;font-size:0.85rem;font-family:inherit;outline:none;transition:border-color 0.15s;margin-bottom:1rem}
+    input:focus,textarea:focus{border-color:rgba(63,185,80,0.5)}
+    textarea{resize:vertical;min-height:130px}
+    .btn{width:100%;background:linear-gradient(135deg,#2ea043,#3fb950);color:#fff;border:none;border-radius:8px;padding:0.85rem;font-size:0.92rem;font-weight:900;cursor:pointer;letter-spacing:0.02em;box-shadow:0 2px 12px rgba(63,185,80,0.3);transition:all 0.15s}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 4px 18px rgba(63,185,80,0.4)}
+    .btn:disabled{opacity:0.6;cursor:default;transform:none}
+    .success{text-align:center;padding:2rem 1rem;display:none}
+    .success-icon{font-size:3rem;margin-bottom:1rem}
+    .success h2{color:var(--emerald);font-size:1.2rem;margin-bottom:0.5rem}
+    .success p{color:var(--text-dim);font-size:0.82rem}
+    .error-msg{color:#f85149;font-size:0.78rem;margin-top:-0.6rem;margin-bottom:0.8rem;display:none}
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">DALEBA OS</div>
+  <h1>Démarrons votre projet</h1>
+  <p>Décrivez votre besoin — notre Agent Commercial IA analysera votre message et vous répondra rapidement avec une proposition adaptée.</p>
+
+  <form id="contact-form">
+    <label>Votre email *</label>
+    <input type="email" id="f-email" placeholder="vous@entreprise.com" required/>
+    <label>Votre nom</label>
+    <input type="text" id="f-name" placeholder="Prénom Nom"/>
+    <label>Objet</label>
+    <input type="text" id="f-subject" placeholder="Développement application, site web…"/>
+    <label>Votre besoin *</label>
+    <textarea id="f-body" placeholder="Décrivez votre projet, budget approximatif, délai souhaité…" required></textarea>
+    <div class="error-msg" id="error-msg"></div>
+    <button class="btn" type="submit" id="submit-btn">🚀 Envoyer ma demande</button>
+  </form>
+
+  <div class="success" id="success">
+    <div class="success-icon">✅</div>
+    <h2>Message reçu !</h2>
+    <p>Notre Agent Commercial IA analyse votre besoin.<br>Vous recevrez une réponse personnalisée sous peu.</p>
+  </div>
+</div>
+<script>
+document.getElementById('contact-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  const err = document.getElementById('error-msg');
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours…';
+  err.style.display = 'none';
+  try {
+    const r = await fetch('/api/commercial/webhook/inbound', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        from_email: document.getElementById('f-email').value,
+        from_name:  document.getElementById('f-name').value,
+        subject:    document.getElementById('f-subject').value,
+        body:       document.getElementById('f-body').value,
+        source:     'contact-form',
+      }),
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    document.getElementById('contact-form').style.display = 'none';
+    document.getElementById('success').style.display = 'block';
+  } catch(e) {
+    err.textContent = 'Erreur : ' + e.message;
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = '🚀 Envoyer ma demande';
+  }
+});
+</script>
+</body>
+</html>
