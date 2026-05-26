@@ -17,11 +17,26 @@ const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
 
 console.log(`[corrector-agent] Moteur: deepseek-coder (fichier-par-fichier)`);
 
-// ── Prompt Système ─────────────────────────────────────────────────────────────
+// ── Prompt Système V42 — Blocs ciblés ───────────────────────────────────────────
 const SYSTEM_PROMPT = `Tu es un ingénieur backend senior spécialisé en correction de code Node.js.
-Applique UNIQUEMENT les corrections demandées. Ne modifie rien d'autre.
-Ajoute un commentaire inline court sur chaque ligne corrigée : // FIX: description
-Retourne le fichier COMPLET et fonctionnel. Commence directement par le code, sans markdown ni explication.`;
+
+STRATÉGIE BLOCS CIBLÉS (V42) :
+- Tu reçois UN fichier et UNE liste de corrections à appliquer
+- Retourne UNIQUEMENT les blocs modifiés au format PATCH
+- NE RETOURNE PAS tout le fichier — seulement les différences
+- Format de réponse OBLIGATOIRE pour chaque correction :
+
+=== PATCH: description courte ===
+OLD:
+[code original exact, 1 à 5 lignes maximum]
+NEW:
+[code corrigé exact]
+
+RÈGLES :
+- OLD doit être une copie exacte du code original (copié-collé tel quel)
+- NEW ne contient que les lignes modifiées
+- Pas de commentaire // FIX: dans le code corrigé (code propre)
+- Si rien à corriger dans ce fichier, réponds exactement : NO_CHANGES_NEEDED`;
 
 // ── Extraire une section du rapport QA ────────────────────────────────────────
 function extractSection(text, startMarker, endMarker) {
@@ -57,6 +72,38 @@ function getFilesToFix(qaReport) {
   }
 
   return filesToFix;
+}
+
+
+// ── Parseur de patches V42 (format OLD:/NEW:) ────────────────────────────────
+/**
+ * Parse la réponse PATCH de l'agent et l'applique sur le code source.
+ * Chaque patch est un remplacement exact de bloc OLD par bloc NEW.
+ */
+function applyPatchResponse(rawResponse, originalCode) {
+  if (!rawResponse || rawResponse.trim() === 'NO_CHANGES_NEEDED') {
+    return { code: originalCode, patchCount: 0 };
+  }
+
+  const patchRegex = /=== PATCH:[^=\n]*===\s*OLD:\s*([\s\S]*?)\s*NEW:\s*([\s\S]*?)(?==== PATCH:|$)/g;
+  let code = originalCode;
+  let patchCount = 0;
+  let match;
+
+  while ((match = patchRegex.exec(rawResponse)) !== null) {
+    const oldBlock = match[1].trim();
+    const newBlock = match[2].trim();
+    if (!oldBlock || oldBlock === newBlock) continue;
+    if (code.includes(oldBlock)) {
+      code = code.replace(oldBlock, newBlock);
+      patchCount++;
+      console.log(`[corrector-agent] Patch appliqué: ${oldBlock.slice(0, 50).replace(/\n/g, '↲')}`);
+    } else {
+      console.warn(`[corrector-agent] Patch OLD non trouvé: ${oldBlock.slice(0, 60).replace(/\n/g, '↲')}`);
+    }
+  }
+
+  return { code, patchCount };
 }
 
 // ── Corriger un seul fichier (appel ciblé) ────────────────────────────────────
@@ -179,13 +226,26 @@ async function correctSingleFile(filePath, fileCode, qaReport) {
     engine = 'claude-fallback';
   }
 
-  // Nettoyer balises markdown si présentes
-  out = out
+  // V42 : appliquer via parseur de patches (blocs ciblés)
+  const { code: patchedCode, patchCount } = applyPatchResponse(out, fileCode);
+
+  if (patchCount > 0) {
+    console.log(`[corrector-agent] ${patchCount} patch(es) appliqués sur ${filePath}`);
+    return { code: patchedCode, engine };
+  }
+
+  // Fallback : réponse pleine (si l'agent a ignoré le format PATCH)
+  const cleaned = out
     .replace(/^```(?:js|javascript|typescript)?\n?/gm, '')
     .replace(/^```$/gm, '')
     .trim();
+  if (cleaned.length > 100 && cleaned !== 'NO_CHANGES_NEEDED') {
+    console.log(`[corrector-agent] Fallback plein fichier ${filePath} (${cleaned.length} chars)`);
+    return { code: cleaned, engine };
+  }
 
-  return { code: out, engine };
+  console.log(`[corrector-agent] Aucun changement sur ${filePath}`);
+  return { code: fileCode, engine }; // rien à corriger
 }
 
 // ── Extraction du score QA depuis un rapport ───────────────────────────────────
