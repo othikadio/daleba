@@ -12,13 +12,27 @@ const AI_BASE     = 'api.deepseek.com';
 const AI_PATH     = '/chat/completions';
 const AI_MODEL    = 'deepseek-chat';
 
-const SYSTEM_PROMPT = `Tu es un classificateur d'opportunités business pour une agence tech (DALEBA) spécialisée en :
+const SYSTEM_PROMPT = `Tu es un classificateur d'opportunités business pour DALEBA OS, une agence tech spécialisée en :
 - Automatisation de workflows, bots, agents IA
 - Intégrations API (WhatsApp, Meta, Square, Stripe, CRM, ERP)
 - Chatbots / agents conversationnels / LLM
 - Applications SaaS et dashboards
 - Systèmes de réservation en ligne
 - Services numériques pour PME
+
+STRATÉGIE STRICTE : DALEBA ne prend QUE des missions freelance/forfait/short-term, 100% à distance.
+
+Critères D'EXCLUSION ABSOLUE (relevant=false, score=0) :
+- CDI, CDD, emploi temps plein, poste permanent, à pourvoir
+- "Manager", "Directeur", "VP", "Lead" avec gestion d'équipe
+- Présentiel obligatoire / on-site / hybrid obligé
+- "Full-time employee", "W2", "staff", "hire"
+- Recrutement RH, offre d'emploi classique
+
+Critères REQUIS pour être relevant=true :
+- Freelance, contrat, mission, projet, forfait, short-term, part-time
+- Remote, télétravail, à distance, distributed, anywhere
+- Livrable clair (app, bot, API, intégration, automatisation)
 
 Analyse chaque opportunité et retourne UNIQUEMENT un JSON valide (pas de texte autour).`;
 
@@ -35,21 +49,25 @@ Réponds avec ce JSON exact :
 {
   "score": <0-100>,
   "category": "<automation|api-integration|chatbot-ia|saas|web-app|autre>",
+  "work_type": "<freelance|contract|full-time|unknown>",
+  "is_remote": <true|false|null>,
   "keywords_matched": "<mots clés pertinents séparés par virgule>",
   "budget_estimated": <nombre USD ou null>,
   "budget_currency": "<USD|EUR|CAD|GBP>",
   "country": "<pays ou null>",
   "language_original": "<code ISO 2 lettres>",
   "description_fr": "<traduction/résumé en français, 2-4 phrases max>",
-  "relevant": <true|false>
+  "relevant": <true|false>,
+  "exclusion_reason": "<raison si relevant=false, sinon null>"
 }
 
-Règles de scoring :
-- Score > 80 : budget > 5000 USD, mots "enterprise/scalable/ongoing", projet clair et précis
-- Score 60-80 : projet défini, budget mentionné ou estimable, dans notre scope
-- Score 40-60 : potentiellement intéressant mais vague
-- Score < 40 : hors scope, trop vague, pas de budget, simple question
-- Mots positifs : automation, automate, workflow, API, integration, chatbot, AI agent, LLM, SaaS, dashboard, booking, CRM, WhatsApp bot, Instagram automation, automatisation, intégration, agent IA, automatización, integración`;
+Règles de scoring (s'appliquent SEULEMENT si relevant=true) :
+- Score > 80 : mission remote confirmée + budget > 2000 USD + livrable tech clair
+- Score 60-80 : mission freelance/contrat, scope défini, budget estimable
+- Score 40-60 : potentiellement intéressant mais vague sur remote ou budget
+- Score < 40 : vague, pas de budget, incertain
+- Si relevant=false : score = 0 OBLIGATOIRE
+- Mots positifs : automation, automate, workflow, API, integration, chatbot, AI agent, LLM, SaaS, dashboard, booking, CRM, WhatsApp bot, remote, freelance, contract, short-term`;
 
 function callOpenAI(messages) {
   return new Promise((resolve, reject) => {
@@ -106,17 +124,21 @@ async function classifyOpportunity(rawOpportunity) {
 
     const classification = JSON.parse(jsonMatch[0]);
 
+    const isRelevant = classification.relevant !== false;
     return {
       ...rawOpportunity,
-      score:              Math.max(0, Math.min(100, parseInt(classification.score) || 0)),
+      score:              isRelevant ? Math.max(0, Math.min(100, parseInt(classification.score) || 0)) : 0,
       category:           classification.category || 'autre',
+      work_type:          classification.work_type || 'unknown',
+      is_remote:          classification.is_remote ?? null,
       keywords_matched:   classification.keywords_matched || '',
       budget_estimated:   classification.budget_estimated ? parseFloat(classification.budget_estimated) : null,
       budget_currency:    classification.budget_currency || 'USD',
       country:            classification.country || rawOpportunity.country || null,
       language_original:  classification.language_original || rawOpportunity.language || 'en',
       description_fr:     classification.description_fr || '',
-      relevant:           classification.relevant !== false,
+      relevant:           isRelevant,
+      exclusion_reason:   classification.exclusion_reason || null,
     };
   } catch (err) {
     console.warn(`[classifier] Erreur pour "${rawOpportunity.title?.slice(0, 60)}": ${err.message}`);
