@@ -365,6 +365,34 @@ router.put('/tasks/:id/arch-approve', async (req, res) => {
   }
 });
 
+
+// ── POST /api/production/tasks/:id/inject-file — injecter un fichier dans le JSONB ──
+router.post('/tasks/:id/inject-file', async (req, res) => {
+  try {
+    const { path, content } = req.body;
+    if (!path || !content) return res.status(400).json({ error: 'path et content requis' });
+
+    const { rows } = await pool.query(
+      'SELECT generated_code_files FROM daleba_production_tasks WHERE id = $1', [req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+
+    const files = rows[0].generated_code_files || {};
+    files[path] = content;
+
+    await pool.query(
+      `UPDATE daleba_production_tasks
+       SET generated_code_files = $1, updated_at = NOW()
+       WHERE id = $2`,
+      [JSON.stringify(files), req.params.id]
+    );
+
+    res.json({ ok: true, path, totalFiles: Object.keys(files).length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── DELETE /api/production/tasks/:id ──────────────────────────────────────────
 router.delete('/tasks/:id', async (req, res) => {
   try {
