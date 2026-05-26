@@ -22,20 +22,27 @@ async function initTable() {
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS daleba_production_tasks (
-        id                       SERIAL PRIMARY KEY,
-        client_need_raw          TEXT    NOT NULL,
-        context_additional       TEXT,
+        id                        SERIAL PRIMARY KEY,
+        client_need_raw           TEXT    NOT NULL,
+        context_additional        TEXT,
         specifications_functional TEXT,
-        engine_used              VARCHAR(30),
-        status                   VARCHAR(30) DEFAULT 'spec_pending_ulrich',
-        created_at               TIMESTAMPTZ DEFAULT NOW(),
-        updated_at               TIMESTAMPTZ DEFAULT NOW(),
-        notes                    TEXT
+        engine_used               VARCHAR(30),
+        status                    VARCHAR(30) DEFAULT 'spec_pending_ulrich',
+        technical_architecture_spec TEXT,
+        arch_engine_used          VARCHAR(30),
+        arch_status               VARCHAR(30) DEFAULT 'arch_pending',
+        created_at                TIMESTAMPTZ DEFAULT NOW(),
+        updated_at                TIMESTAMPTZ DEFAULT NOW(),
+        notes                     TEXT
       );
       CREATE INDEX IF NOT EXISTS idx_prod_status ON daleba_production_tasks(status);
       CREATE INDEX IF NOT EXISTS idx_prod_created ON daleba_production_tasks(created_at DESC);
     `);
-    console.log('[production] Table daleba_production_tasks OK');
+    // Migration douce : ajouter colonnes si la table existait déjà
+    await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS technical_architecture_spec TEXT;`);
+    await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS arch_engine_used VARCHAR(30);`);
+    await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS arch_status VARCHAR(30) DEFAULT 'arch_pending';`);
+    console.log('[production] Table daleba_production_tasks OK (Étape 1+2)');
   } catch (e) {
     if (!e.message.includes('already exists')) console.error('[production] initTable:', e.message);
   }
@@ -184,6 +191,74 @@ router.put('/tasks/:id/status', async (req, res) => {
        SET status = $1, notes = COALESCE($2, notes), updated_at = NOW()
        WHERE id = $3 RETURNING *`,
       [status, notes || null, req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /api/production/tasks/:id/architect — Étape 2 ──────────────────────
+router.post('/tasks/:id/architect', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT * FROM daleba_production_tasks WHERE id = $1', [req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    const task = rows[0];
+
+    if (!task.specifications_functional) {
+      return res.status(400).json({ error: 'Le cahier des charges fonctionnel (Étape 1) doit être généré avant l\'architecture.' });
+    }
+
+    // Passer en mode generating
+    await pool.query(
+      `UPDATE daleba_production_tasks SET arch_status = 'arch_generating', updated_at = NOW() WHERE id = $1`,
+      [task.id]
+    );
+    res.json({ message: 'Agent Architecte lancé — architecture en cours…', task_id: task.id });
+
+    // Générer en arrière-plan
+    setImmediate(async () => {
+      try {
+        const { generateArchitecture } = require('../services/architect-agent');
+        const { arch, engine } = await generateArchitecture(
+          task.specifications_functional,
+          task.client_need_raw
+        );
+
+        await pool.query(`
+          UPDATE daleba_production_tasks
+          SET technical_architecture_spec = $1,
+              arch_engine_used = $2,
+              arch_status = 'arch_pending_ulrich',
+              updated_at = NOW()
+          WHERE id = $3
+        `, [arch, engine, task.id]);
+
+        console.log(`[production] Architecture générée — task #${task.id} (${engine})`);
+      } catch (err) {
+        await pool.query(
+          `UPDATE daleba_production_tasks SET arch_status = 'arch_error', notes = $1, updated_at = NOW() WHERE id = $2`,
+          [err.message, task.id]
+        ).catch(() => {});
+        console.error(`[production] Erreur architecture task #${task.id}:`, err.message);
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── PUT /api/production/tasks/:id/arch-approve ────────────────────────────────
+router.put('/tasks/:id/arch-approve', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `UPDATE daleba_production_tasks
+       SET arch_status = 'arch_approved', updated_at = NOW()
+       WHERE id = $1 RETURNING *`,
+      [req.params.id]
     );
     if (!rows.length) return res.status(404).json({ error: 'Not found' });
     res.json(rows[0]);

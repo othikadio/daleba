@@ -19,6 +19,9 @@
       --green:     #2da44e;
       --red:       #f85149;
       --blue:      #58a6ff;
+      --purple:    #bc8cff;
+      --purple-dim:rgba(188,140,255,0.12);
+      --cyan:      #39d0d8;
       --radius:    8px;
     }
 
@@ -30,9 +33,7 @@
       border-bottom: 1px solid var(--border);
       padding: 0 1.5rem;
       height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
       position: sticky; top: 0; z-index: 100;
     }
     .nav-logo { font-weight: 800; font-size: 1rem; color: var(--gold); text-decoration: none; letter-spacing: 0.04em; }
@@ -41,30 +42,42 @@
     .nav-links a:hover, .nav-links a.active { color: var(--text); }
 
     /* ── Layout ── */
-    .page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
-
+    .page { max-width: 1180px; margin: 0 auto; padding: 2rem 1.5rem; }
     .page-header { margin-bottom: 2rem; }
     .page-header h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
     .page-header p { color: var(--text-dim); font-size: 0.88rem; margin-top: 0.4rem; }
 
+    /* Pipeline steps header */
+    .pipeline-steps {
+      display: flex; gap: 0; margin-bottom: 2rem;
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .step-item {
+      flex: 1; padding: 0.75rem 1rem; text-align: center;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
+      border-right: 1px solid var(--border); color: var(--text-dim);
+      position: relative;
+    }
+    .step-item:last-child { border-right: none; }
+    .step-item.active { color: var(--gold); background: var(--gold-dim); }
+    .step-item.done { color: var(--green); }
+    .step-item .step-num { display: block; font-size: 1rem; margin-bottom: 0.15rem; }
+
     .label-tag {
-      display: inline-block;
-      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+      display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
       text-transform: uppercase; color: var(--gold);
-      background: var(--gold-dim); padding: 0.2rem 0.6rem;
-      border-radius: 4px; margin-bottom: 0.5rem;
+      background: var(--gold-dim); padding: 0.2rem 0.6rem; border-radius: 4px; margin-bottom: 0.5rem;
     }
 
     /* ── Grid ── */
-    .grid { display: grid; grid-template-columns: 420px 1fr; gap: 1.5rem; align-items: start; }
+    .grid { display: grid; grid-template-columns: 400px 1fr; gap: 1.5rem; align-items: start; }
     @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
 
     /* ── Input Panel ── */
     .input-panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
       position: sticky; top: 68px;
     }
     .input-panel h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 1.25rem; }
@@ -82,15 +95,14 @@
       resize: vertical; outline: none; transition: border-color 0.15s;
     }
     .form-group textarea:focus, .form-group input:focus { border-color: var(--gold); }
-    .form-group textarea { min-height: 130px; }
+    .form-group textarea { min-height: 120px; }
 
     .btn-generate {
       width: 100%; padding: 0.85rem;
       background: var(--gold); color: #0d1117;
       border: none; border-radius: 6px;
-      font-size: 0.88rem; font-weight: 800;
-      letter-spacing: 0.04em; cursor: pointer;
-      transition: all 0.18s;
+      font-size: 0.88rem; font-weight: 800; letter-spacing: 0.04em;
+      cursor: pointer; transition: all 0.18s;
     }
     .btn-generate:hover { background: #e6c96a; }
     .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -105,17 +117,16 @@
     .tasks-panel h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 1.25rem; }
 
     .task-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      margin-bottom: 1rem;
-      overflow: hidden;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); margin-bottom: 1rem; overflow: hidden;
       transition: border-color 0.15s;
     }
-    .task-card:hover { border-color: var(--gold); }
+    .task-card:hover { border-color: rgba(201,168,76,0.4); }
     .task-card.generating { border-left: 3px solid var(--gold); animation: pulse-border 1.5s ease-in-out infinite; }
-    .task-card.error { border-left: 3px solid var(--red); }
+    .task-card.error, .task-card.arch_error { border-left: 3px solid var(--red); }
     .task-card.spec_approved { border-left: 3px solid var(--green); }
+    .task-card.arch_pending_ulrich { border-left: 3px solid var(--purple); }
+    .task-card.arch_approved { border-left: 3px solid var(--cyan); }
     @keyframes pulse-border { 0%,100% { border-left-color: var(--gold); } 50% { border-left-color: transparent; } }
 
     .task-head {
@@ -124,38 +135,64 @@
       cursor: pointer;
     }
     .task-head:hover { background: rgba(255,255,255,0.02); }
-
     .task-need { font-size: 0.9rem; font-weight: 600; line-height: 1.4; }
     .task-meta { font-size: 0.72rem; color: var(--text-dim); margin-top: 0.25rem; }
 
+    .badges { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; flex-shrink: 0; }
     .task-status-badge {
-      flex-shrink: 0;
-      font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em;
+      font-size: 0.63rem; font-weight: 800; letter-spacing: 0.08em;
       text-transform: uppercase; padding: 0.2rem 0.55rem; border-radius: 4px;
     }
-    .badge-generating { background: rgba(201,168,76,0.15); color: var(--gold); }
-    .badge-spec_pending_ulrich { background: rgba(88,166,255,0.12); color: var(--blue); }
-    .badge-spec_approved       { background: rgba(45,164,78,0.12); color: var(--green); }
-    .badge-in_development      { background: rgba(201,168,76,0.15); color: var(--gold); }
-    .badge-delivered           { background: rgba(45,164,78,0.2); color: var(--green); }
-    .badge-error               { background: rgba(248,81,73,0.12); color: var(--red); }
+    /* Spec badges */
+    .badge-generating            { background: rgba(201,168,76,0.15); color: var(--gold); }
+    .badge-spec_pending_ulrich   { background: rgba(88,166,255,0.12); color: var(--blue); }
+    .badge-spec_approved         { background: rgba(45,164,78,0.12); color: var(--green); }
+    .badge-error                 { background: rgba(248,81,73,0.12); color: var(--red); }
+    /* Arch badges */
+    .badge-arch_pending          { background: rgba(139,148,158,0.12); color: var(--text-dim); }
+    .badge-arch_generating       { background: rgba(188,140,255,0.15); color: var(--purple); animation: arch-pulse 1.2s ease-in-out infinite; }
+    .badge-arch_pending_ulrich   { background: rgba(188,140,255,0.15); color: var(--purple); }
+    .badge-arch_approved         { background: rgba(57,208,216,0.15); color: var(--cyan); }
+    .badge-arch_error            { background: rgba(248,81,73,0.12); color: var(--red); }
+    @keyframes arch-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
     .task-body { border-top: 1px solid var(--border); padding: 1.25rem; display: none; }
     .task-body.open { display: block; }
+
+    /* ── Tabs ── */
+    .spec-tabs { display: flex; gap: 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .spec-tab {
+      padding: 0.5rem 1rem; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      color: var(--text-dim); border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: all 0.15s;
+    }
+    .spec-tab:hover { color: var(--text); }
+    .spec-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+    .spec-tab.arch-tab.active { color: var(--purple); border-bottom-color: var(--purple); }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
 
     .spec-content {
       background: var(--bg); border: 1px solid var(--border);
       border-radius: 6px; padding: 1rem 1.25rem;
       font-size: 0.83rem; line-height: 1.75; color: var(--text-dim);
-      max-height: 500px; overflow-y: auto;
+      max-height: 540px; overflow-y: auto;
       white-space: pre-wrap;
     }
-    .spec-content h2 { color: var(--gold); font-size: 0.85rem; font-weight: 700; margin: 1rem 0 0.35rem; }
-    .spec-content h2:first-child { margin-top: 0; }
-
-    .task-actions {
-      display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.9rem;
+    /* Code blocks */
+    .spec-content code {
+      background: var(--surface2); padding: 0.1em 0.35em; border-radius: 3px;
+      font-family: 'Courier New', monospace; font-size: 0.82em; color: var(--cyan);
     }
+    .spec-content pre {
+      background: #010409; border: 1px solid var(--border); border-radius: 6px;
+      padding: 1rem; overflow-x: auto; margin: 0.75rem 0;
+    }
+    .spec-content pre code {
+      background: none; padding: 0; border-radius: 0; color: #e6edf3; font-size: 0.8rem;
+    }
+
+    .task-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.9rem; }
     .btn-sm {
       padding: 0.35rem 0.85rem; border-radius: 5px;
       font-size: 0.75rem; font-weight: 700; cursor: pointer;
@@ -163,33 +200,51 @@
       color: var(--text-dim); transition: all 0.15s;
     }
     .btn-sm:hover { background: var(--surface2); color: var(--text); }
-    .btn-approve {
-      border-color: rgba(45,164,78,0.4); color: var(--green);
-    }
+    .btn-sm:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-approve { border-color: rgba(45,164,78,0.4); color: var(--green); }
     .btn-approve:hover { background: rgba(45,164,78,0.1); }
-    .btn-copy-spec {
-      border-color: rgba(201,168,76,0.4); color: var(--gold);
-    }
+    .btn-copy-spec { border-color: rgba(201,168,76,0.4); color: var(--gold); }
     .btn-copy-spec:hover { background: var(--gold-dim); }
+    .btn-architect {
+      border-color: rgba(188,140,255,0.5); color: var(--purple);
+      font-size: 0.78rem; padding: 0.4rem 1rem;
+    }
+    .btn-architect:hover { background: var(--purple-dim); }
+    .btn-arch-approve { border-color: rgba(57,208,216,0.4); color: var(--cyan); }
+    .btn-arch-approve:hover { background: rgba(57,208,216,0.1); }
     .btn-regen-spec { color: var(--text-dim); }
     .btn-del { border-color: rgba(248,81,73,0.3); color: var(--red); }
     .btn-del:hover { background: rgba(248,81,73,0.08); }
+
+    /* ── Architect CTA section ── */
+    .arch-cta {
+      margin-top: 1rem; padding: 1rem 1.25rem;
+      background: var(--purple-dim); border: 1px dashed rgba(188,140,255,0.3);
+      border-radius: 6px; display: flex; align-items: center; gap: 1rem;
+    }
+    .arch-cta-text { flex: 1; font-size: 0.82rem; color: var(--purple); line-height: 1.4; }
+    .arch-cta-text strong { display: block; font-size: 0.85rem; margin-bottom: 0.2rem; }
 
     .generating-msg {
       text-align: center; padding: 2rem;
       font-size: 0.82rem; color: var(--gold);
       display: flex; align-items: center; justify-content: center; gap: 0.5rem;
     }
+    .arch-generating-msg {
+      text-align: center; padding: 1.5rem;
+      font-size: 0.82rem; color: var(--purple);
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
     .dot-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); animation: dp 1.2s ease-in-out infinite; }
+    .dot-arch  { width: 8px; height: 8px; border-radius: 50%; background: var(--purple); animation: dp 1.2s ease-in-out infinite; }
     @keyframes dp { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.7)} }
 
     .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-dim); font-size: 0.88rem; }
 
     /* ── Toast ── */
-    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.85rem 1.25rem; font-size: 0.83rem; max-width: 340px; opacity: 0; pointer-events: none; transition: opacity 0.25s; z-index: 999; }
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.85rem 1.25rem; font-size: 0.83rem; max-width: 360px; opacity: 0; pointer-events: none; transition: opacity 0.25s; z-index: 999; }
     .toast.show { opacity: 1; pointer-events: auto; }
 
-    /* ── Copy textarea ── */
     .spec-raw { position: absolute; left: -9999px; opacity: 0; pointer-events: none; }
   </style>
 </head>
@@ -205,9 +260,33 @@
 
 <div class="page">
   <div class="page-header">
-    <div class="label-tag">Usine de Production — Étape 1</div>
-    <h1>Agent Product Owner</h1>
-    <p>Saisit un besoin client brut — l'agent génère le cahier des charges complet en quelques secondes.</p>
+    <div class="label-tag">Usine de Production Multi-Agents</div>
+    <h1>Pipeline de Conception IA</h1>
+    <p>Chaque besoin client traverse un pipeline d'agents spécialisés — de l'idée au code.</p>
+  </div>
+
+  <!-- Pipeline Steps -->
+  <div class="pipeline-steps">
+    <div class="step-item done">
+      <span class="step-num">✅</span>
+      Étape 1 — Agent Product Owner
+    </div>
+    <div class="step-item active">
+      <span class="step-num">📐</span>
+      Étape 2 — Agent Architecte
+    </div>
+    <div class="step-item">
+      <span class="step-num">🔒</span>
+      Étape 3 — Agent Dev
+    </div>
+    <div class="step-item">
+      <span class="step-num">🔒</span>
+      Étape 4 — Agent QA
+    </div>
+    <div class="step-item">
+      <span class="step-num">🔒</span>
+      Étape 5 — Agent Deploy
+    </div>
   </div>
 
   <div class="grid">
@@ -218,27 +297,29 @@
 
       <div class="form-group">
         <label>Besoin brut</label>
-        <textarea id="need-input" placeholder="Ex : Système de réservation en ligne avec rappels SMS automatiques pour un salon de coiffure à Montréal. Les clients doivent pouvoir choisir le coiffeur, l'heure, recevoir une confirmation et un rappel 24h avant."></textarea>
+        <textarea id="need-input" placeholder="Ex : Système de réservation en ligne avec rappels SMS automatiques pour un salon de coiffure. Les clients choisissent le coiffeur, l'heure, reçoivent une confirmation et un rappel 24h avant."></textarea>
       </div>
 
       <div class="form-group">
         <label>Contexte additionnel (optionnel)</label>
-        <textarea id="context-input" style="min-height:70px" placeholder="Stack existant, contraintes budget, délai souhaité, intégrations requises..."></textarea>
+        <textarea id="context-input" style="min-height:70px" placeholder="Stack existant, budget, délai, intégrations requises..."></textarea>
       </div>
 
       <button class="btn-generate" id="btn-generate" onclick="generateSpec()">
-        Générer le cahier des charges
+        ⚡ Générer le cahier des charges
       </button>
 
       <div class="engine-badge" id="engine-badge">
-        Moteur : <span>DeepSeek</span> — Claude disponible avec <code>ANTHROPIC_API_KEY</code>
+        Étape 1 : Agent Product Owner · Moteur <span>Claude</span>
       </div>
     </div>
 
     <!-- ── Liste des tâches ── -->
     <div class="tasks-panel">
-      <h2>Cahiers des charges générés <span id="task-count" style="color:var(--text-dim);font-weight:400"></span></h2>
-      <div id="tasks-list"><div class="empty-state">Aucun cahier des charges pour l'instant.<br>Saisissez un besoin à gauche pour commencer.</div></div>
+      <h2>Projets en pipeline <span id="task-count" style="color:var(--text-dim);font-weight:400"></span></h2>
+      <div id="tasks-list">
+        <div class="empty-state">Aucun projet pour l'instant.<br>Saisissez un besoin à gauche pour démarrer le pipeline.</div>
+      </div>
     </div>
 
   </div>
@@ -249,7 +330,7 @@
 <script>
   let pollingIds = {};
 
-  // ── Charger les tâches existantes ────────────────────────────────────────────
+  // ── Chargement ────────────────────────────────────────────────────────────────
   async function loadTasks() {
     try {
       const r = await fetch('/api/production/tasks?limit=50');
@@ -257,117 +338,195 @@
       const tasks = d.tasks || [];
       document.getElementById('task-count').textContent = tasks.length ? `(${tasks.length})` : '';
       renderTasks(tasks);
-      // Poller les tasks en cours de génération
-      tasks.filter(t => t.status === 'generating').forEach(t => startPolling(t.id));
-    } catch (e) {
-      console.warn('loadTasks:', e.message);
-    }
+      tasks.filter(t => t.status === 'generating' || t.arch_status === 'arch_generating')
+           .forEach(t => startPolling(t.id));
+    } catch (e) { console.warn('loadTasks:', e.message); }
   }
 
   function renderTasks(tasks) {
     const el = document.getElementById('tasks-list');
     if (!tasks.length) {
-      el.innerHTML = '<div class="empty-state">Aucun cahier des charges pour l\'instant.<br>Saisissez un besoin à gauche pour commencer.</div>';
+      el.innerHTML = '<div class="empty-state">Aucun projet pour l\'instant.<br>Saisissez un besoin à gauche pour démarrer le pipeline.</div>';
       return;
     }
-    el.innerHTML = tasks.map(t => renderTaskCard(t)).join('');
+    el.innerHTML = tasks.map(renderTaskCard).join('');
   }
 
   function renderTaskCard(t) {
-    const statusLabel = {
-      generating:            'Génération…',
-      spec_pending_ulrich:   'En attente validation',
-      spec_approved:         'Spec approuvée',
-      in_development:        'En développement',
-      delivered:             'Livré',
-      error:                 'Erreur',
+    const specLabel = {
+      generating:          'PO : Génération…',
+      spec_pending_ulrich: 'PO : En attente',
+      spec_approved:       'PO : Approuvé ✓',
+      error:               'PO : Erreur',
     }[t.status] || t.status;
 
-    const badgeClass = 'badge-' + t.status.replace(/_/g,'_');
-    const date = new Date(t.created_at).toLocaleDateString('fr-CA', { dateStyle: 'medium' });
+    const archLabel = {
+      arch_pending:          null,
+      arch_generating:       'Arch : Génération…',
+      arch_pending_ulrich:   'Arch : En attente',
+      arch_approved:         'Arch : Approuvé ✓',
+      arch_error:            'Arch : Erreur',
+    }[t.arch_status];
+
+    const date   = new Date(t.created_at).toLocaleDateString('fr-CA', { dateStyle: 'medium' });
     const engine = t.engine_used ? ` · ${t.engine_used}` : '';
 
-    return `<div class="task-card ${t.status}" id="task-card-${t.id}">
+    // Classe principale de la carte
+    const cardClass = t.arch_status === 'arch_generating' ? 'arch_generating'
+                    : t.arch_status === 'arch_pending_ulrich' ? 'arch_pending_ulrich'
+                    : t.arch_status === 'arch_approved' ? 'arch_approved'
+                    : t.status;
+
+    return `<div class="task-card ${cardClass}" id="task-card-${t.id}">
       <div class="task-head" onclick="toggleTask(${t.id})">
         <div>
-          <div class="task-need">${escHtml(t.client_need_raw.slice(0, 120))}${t.client_need_raw.length > 120 ? '…' : ''}</div>
+          <div class="task-need">${escHtml(t.client_need_raw.slice(0, 110))}${t.client_need_raw.length > 110 ? '…' : ''}</div>
           <div class="task-meta">#${t.id} · ${date}${engine}</div>
         </div>
-        <span class="task-status-badge ${badgeClass}">${statusLabel}</span>
+        <div class="badges">
+          <span class="task-status-badge badge-${t.status}">${specLabel}</span>
+          ${archLabel ? `<span class="task-status-badge badge-${t.arch_status}">${archLabel}</span>` : ''}
+        </div>
       </div>
       <div class="task-body" id="task-body-${t.id}">
         ${t.status === 'generating'
-          ? `<div class="generating-msg"><div class="dot-pulse"></div>L'Agent PO génère le cahier des charges…</div>`
+          ? `<div class="generating-msg"><div class="dot-pulse"></div>L'Agent Product Owner génère le cahier des charges…</div>`
           : t.status === 'error'
-          ? `<div style="color:var(--red);padding:0.5rem;font-size:0.83rem">Erreur : ${escHtml(t.notes || 'inconnue')}</div>`
-          : renderSpec(t)}
+          ? `<div style="color:var(--red);padding:0.5rem;font-size:0.83rem">Erreur PO : ${escHtml(t.notes || 'inconnue')}</div>`
+          : renderTaskBody(t)}
       </div>
     </div>`;
   }
 
-  function renderSpec(t) {
-    const specHtml = t.spec_preview
-      ? escHtml(t.spec_preview) + (t.specifications_functional ? '' : '…')
-      : '<em style="color:var(--text-dim)">Spec non disponible</em>';
+  function renderTaskBody(t) {
+    const canApproveSpec = t.status === 'spec_pending_ulrich';
+    const canRunArchitect = (t.status === 'spec_approved' || t.status === 'spec_pending_ulrich')
+                          && t.arch_status !== 'arch_generating'
+                          && t.arch_status !== 'arch_approved';
+    const canApproveArch = t.arch_status === 'arch_pending_ulrich';
+    const hasArch = t.arch_status && t.arch_status !== 'arch_pending';
 
-    const canApprove = t.status === 'spec_pending_ulrich';
+    // Tabs
+    const tabs = hasArch
+      ? `<div class="spec-tabs">
+           <div class="spec-tab active" id="tab-spec-${t.id}" onclick="switchTab(${t.id}, 'spec')">📋 Cahier des charges</div>
+           <div class="spec-tab arch-tab" id="tab-arch-${t.id}" onclick="switchTab(${t.id}, 'arch')">📐 Architecture Technique</div>
+         </div>`
+      : '';
+
+    const archPane = hasArch ? `
+      <div class="tab-pane" id="pane-arch-${t.id}">
+        ${t.arch_status === 'arch_generating'
+          ? `<div class="arch-generating-msg"><div class="dot-arch"></div>L'Agent Architecte conçoit l'architecture technique… (30-60s)</div>`
+          : t.arch_status === 'arch_error'
+          ? `<div style="color:var(--red);padding:0.5rem;font-size:0.83rem">Erreur Architecte : ${escHtml(t.arch_notes || t.notes || 'inconnue')}</div>`
+          : `<div class="spec-content" id="arch-display-${t.id}"><em style="color:var(--text-dim)">Chargement…</em></div>
+             <textarea class="spec-raw" id="arch-raw-${t.id}"></textarea>`
+        }
+      </div>` : '';
+
+    // CTA Architecte
+    const archCtaBlock = canRunArchitect && !hasArch
+      ? `<div class="arch-cta">
+           <div class="arch-cta-text">
+             <strong>📐 Étape 2 disponible</strong>
+             Lance l'Agent Architecte pour générer les scripts SQL, les routes API et les contrats WebSocket.
+           </div>
+           <button class="btn-sm btn-architect" onclick="runArchitect(event, ${t.id})">
+             Générer l'Architecture
+           </button>
+         </div>` : '';
 
     return `
-      <div class="spec-content" id="spec-display-${t.id}">${formatSpec(t.spec_preview || '')}</div>
-      <textarea class="spec-raw" id="spec-raw-${t.id}"></textarea>
+      ${tabs}
+      <div class="tab-pane active" id="pane-spec-${t.id}">
+        <div class="spec-content" id="spec-display-${t.id}"><em style="color:var(--text-dim)">Chargement…</em></div>
+        <textarea class="spec-raw" id="spec-raw-${t.id}"></textarea>
+      </div>
+      ${archPane}
+      ${archCtaBlock}
       <div class="task-actions">
-        <button class="btn-sm btn-copy-spec" onclick="copySpec(event, ${t.id})">Copier la spec</button>
-        ${canApprove ? `<button class="btn-sm btn-approve" onclick="approveSpec(event, ${t.id})">Approuver</button>` : ''}
-        <button class="btn-sm btn-regen-spec" onclick="regenSpec(event, ${t.id})">Regénérer</button>
+        <button class="btn-sm btn-copy-spec" onclick="copyContent(event, ${t.id}, 'spec')">Copier spec</button>
+        ${hasArch && t.arch_status !== 'arch_generating' ? `<button class="btn-sm btn-copy-spec" onclick="copyContent(event, ${t.id}, 'arch')" style="border-color:rgba(188,140,255,0.4);color:var(--purple)">Copier arch</button>` : ''}
+        ${canApproveSpec ? `<button class="btn-sm btn-approve" onclick="approveSpec(event, ${t.id})">✓ Approuver spec</button>` : ''}
+        ${canRunArchitect && hasArch ? `<button class="btn-sm btn-architect" onclick="runArchitect(event, ${t.id})">📐 Regénérer arch</button>` : ''}
+        ${canApproveArch ? `<button class="btn-sm btn-arch-approve" onclick="approveArch(event, ${t.id})">✓ Approuver arch</button>` : ''}
+        <button class="btn-sm btn-regen-spec" onclick="regenSpec(event, ${t.id})">Regénérer spec</button>
         <button class="btn-sm btn-del" onclick="deleteTask(event, ${t.id})">Supprimer</button>
       </div>`;
   }
 
-  function formatSpec(text) {
-    // Formater les titres markdown
-    return escHtml(text)
-      .replace(/^## (.+)$/gm, '<strong style="color:var(--gold);display:block;margin-top:0.8rem">$1</strong>')
-      .replace(/^# (.+)$/gm, '<strong style="color:var(--text);display:block;font-size:1rem;margin-top:1rem">$1</strong>');
+  // ── Tabs ──────────────────────────────────────────────────────────────────────
+  function switchTab(id, tab) {
+    const specTab  = document.getElementById('tab-spec-' + id);
+    const archTab  = document.getElementById('tab-arch-' + id);
+    const specPane = document.getElementById('pane-spec-' + id);
+    const archPane = document.getElementById('pane-arch-' + id);
+    if (!specTab || !archTab) return;
+
+    if (tab === 'spec') {
+      specTab.classList.add('active'); archTab.classList.remove('active');
+      specPane.classList.add('active'); archPane.classList.remove('active');
+    } else {
+      archTab.classList.add('active'); specTab.classList.remove('active');
+      archPane.classList.add('active'); specPane.classList.remove('active');
+      // Charger la spec arch si pas encore chargée
+      const display = document.getElementById('arch-display-' + id);
+      if (display && display.dataset.loaded !== '1') loadArchFull(id);
+    }
   }
 
+  // ── Toggle Task ───────────────────────────────────────────────────────────────
   function toggleTask(id) {
     const body = document.getElementById('task-body-' + id);
     if (!body) return;
     const open = body.classList.toggle('open');
-    // Charger la spec complète si on ouvre
-    if (open && !body.dataset.loaded) {
-      loadFullSpec(id);
-    }
+    if (open && !body.dataset.loaded) loadFullSpec(id);
   }
 
   async function loadFullSpec(id) {
     try {
       const r = await fetch(`/api/production/tasks/${id}`);
       const t = await r.json();
+
       const display = document.getElementById('spec-display-' + id);
       const raw     = document.getElementById('spec-raw-' + id);
-      if (display) display.innerHTML = formatSpec(t.specifications_functional || '');
+      if (display) { display.innerHTML = formatSpec(t.specifications_functional || ''); display.dataset.loaded = '1'; }
       if (raw)     raw.value = t.specifications_functional || '';
+
       const body = document.getElementById('task-body-' + id);
       if (body) body.dataset.loaded = '1';
     } catch (e) { console.warn('loadFullSpec:', e.message); }
   }
 
-  // ── Générer ──────────────────────────────────────────────────────────────────
+  async function loadArchFull(id) {
+    try {
+      const r = await fetch(`/api/production/tasks/${id}`);
+      const t = await r.json();
+
+      const display = document.getElementById('arch-display-' + id);
+      const raw     = document.getElementById('arch-raw-' + id);
+      if (display && t.technical_architecture_spec) {
+        display.innerHTML = formatSpec(t.technical_architecture_spec);
+        display.dataset.loaded = '1';
+      }
+      if (raw) raw.value = t.technical_architecture_spec || '';
+    } catch (e) { console.warn('loadArchFull:', e.message); }
+  }
+
+  // ── Générer Spec (Étape 1) ────────────────────────────────────────────────────
   async function generateSpec() {
     const need    = document.getElementById('need-input').value.trim();
     const context = document.getElementById('context-input').value.trim();
     if (!need) { showToast('Saisit le besoin client avant de générer.'); return; }
 
     const btn = document.getElementById('btn-generate');
-    btn.disabled = true;
-    btn.textContent = 'Génération en cours…';
+    btn.disabled = true; btn.textContent = 'Génération en cours…';
 
     try {
       const r = await fetch('/api/production/tasks', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ client_need_raw: need, context_additional: context }),
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_need_raw: need, context_additional: context }),
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || 'Erreur serveur');
@@ -375,63 +534,73 @@
       document.getElementById('need-input').value    = '';
       document.getElementById('context-input').value = '';
 
-      showToast('Agent PO lancé — le cahier des charges apparaîtra dans quelques secondes.');
+      showToast('Agent Product Owner lancé — cahier des charges en cours…');
       await loadTasks();
-      startPolling(d.task.id);
-    } catch (e) {
-      showToast('Erreur : ' + e.message);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Générer le cahier des charges';
-    }
+      startPolling(d.task.id, 'spec');
+    } catch (e) { showToast('Erreur : ' + e.message); }
+    finally { btn.disabled = false; btn.textContent = '⚡ Générer le cahier des charges'; }
   }
 
-  // ── Polling pour les tâches en cours de génération ───────────────────────────
-  function startPolling(taskId) {
-    if (pollingIds[taskId]) return;
+  // ── Lancer Architecte (Étape 2) ───────────────────────────────────────────────
+  async function runArchitect(evt, id) {
+    evt.stopPropagation();
+    const btn = evt.target;
+    btn.disabled = true; btn.textContent = 'Lancement…';
+
+    try {
+      const r = await fetch(`/api/production/tasks/${id}/architect`, { method: 'POST' });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'Erreur serveur');
+
+      showToast('Agent Architecte lancé — architecture en cours (30-60s)…');
+      await loadTasks();
+      startPolling(id, 'arch');
+    } catch (e) { showToast('Erreur : ' + e.message); btn.disabled = false; btn.textContent = 'Générer l\'Architecture'; }
+  }
+
+  // ── Polling ───────────────────────────────────────────────────────────────────
+  function startPolling(taskId, mode) {
+    const key = `${taskId}-${mode}`;
+    if (pollingIds[key]) return;
     let attempts = 0;
-    pollingIds[taskId] = setInterval(async () => {
+    pollingIds[key] = setInterval(async () => {
       attempts++;
-      if (attempts > 24) { // 2 min max
-        clearInterval(pollingIds[taskId]);
-        delete pollingIds[taskId];
-        return;
+      if (attempts > 36) { // 3 min max
+        clearInterval(pollingIds[key]); delete pollingIds[key]; return;
       }
       try {
         const r = await fetch(`/api/production/tasks/${taskId}`);
         const t = await r.json();
-        if (t.status !== 'generating') {
-          clearInterval(pollingIds[taskId]);
-          delete pollingIds[taskId];
-          // Mettre à jour la carte sans recharger toute la liste
-          const card = document.getElementById('task-card-' + taskId);
-          if (card) {
-            const tmp = document.createElement('div');
-            tmp.innerHTML = renderTaskCard(t);
-            card.replaceWith(tmp.firstElementChild);
-          } else {
-            await loadTasks();
-          }
+        const done = mode === 'spec'
+          ? t.status !== 'generating'
+          : t.arch_status !== 'arch_generating';
+        if (done) {
+          clearInterval(pollingIds[key]); delete pollingIds[key];
+          await loadTasks();
+          showToast(mode === 'spec' ? 'Cahier des charges généré ! Ouvrez la tâche pour consulter.' : 'Architecture technique générée ! Consultez l\'onglet Arch.');
         }
       } catch (e) {}
     }, 5000);
   }
 
-  // ── Actions ──────────────────────────────────────────────────────────────────
-  async function copySpec(evt, id) {
+  // ── Actions ───────────────────────────────────────────────────────────────────
+  async function copyContent(evt, id, type) {
     evt.stopPropagation();
-    const raw = document.getElementById('spec-raw-' + id);
-    let text = raw?.value;
+    const rawEl = document.getElementById((type === 'arch' ? 'arch-raw-' : 'spec-raw-') + id);
+    let text = rawEl?.value;
     if (!text) {
       const r = await fetch(`/api/production/tasks/${id}`);
       const t = await r.json();
-      text = t.specifications_functional || '';
+      text = type === 'arch' ? (t.technical_architecture_spec || '') : (t.specifications_functional || '');
     }
     try {
       await navigator.clipboard.writeText(text);
-      showToast('Spec copiée dans le presse-papiers.');
-    } catch (e) {
-      showToast('Erreur copie : ' + e.message);
+      showToast(type === 'arch' ? 'Architecture copiée.' : 'Spec copiée.');
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      showToast('Copié (fallback).');
     }
   }
 
@@ -439,39 +608,56 @@
     evt.stopPropagation();
     try {
       const r = await fetch(`/api/production/tasks/${id}/status`, {
-        method:  'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ status: 'spec_approved' }),
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'spec_approved' }),
       });
-      if (r.ok) {
-        showToast('Spec approuvée.');
-        await loadTasks();
-      }
+      if (r.ok) { showToast('Spec approuvée — Étape 2 disponible.'); await loadTasks(); }
+    } catch (e) { showToast('Erreur : ' + e.message); }
+  }
+
+  async function approveArch(evt, id) {
+    evt.stopPropagation();
+    try {
+      const r = await fetch(`/api/production/tasks/${id}/arch-approve`, { method: 'PUT' });
+      if (r.ok) { showToast('Architecture approuvée ✓'); await loadTasks(); }
     } catch (e) { showToast('Erreur : ' + e.message); }
   }
 
   async function regenSpec(evt, id) {
     evt.stopPropagation();
-    if (!confirm('Regénérer ce cahier des charges ? La version actuelle sera remplacée.')) return;
+    if (!confirm('Regénérer le cahier des charges ? La version actuelle sera remplacée.')) return;
     try {
       await fetch(`/api/production/tasks/${id}/regen`, { method: 'POST' });
-      showToast('Regénération lancée…');
-      await loadTasks();
-      startPolling(id);
+      showToast('Regénération lancée…'); await loadTasks(); startPolling(id, 'spec');
     } catch (e) { showToast('Erreur : ' + e.message); }
   }
 
   async function deleteTask(evt, id) {
     evt.stopPropagation();
-    if (!confirm('Supprimer ce cahier des charges définitivement ?')) return;
+    if (!confirm('Supprimer ce projet définitivement ?')) return;
     try {
       await fetch(`/api/production/tasks/${id}`, { method: 'DELETE' });
-      showToast('Supprimé.');
-      await loadTasks();
+      showToast('Supprimé.'); await loadTasks();
     } catch (e) { showToast('Erreur : ' + e.message); }
   }
 
-  // ── Utils ─────────────────────────────────────────────────────────────────────
+  // ── Formatage Markdown → HTML ─────────────────────────────────────────────────
+  function formatSpec(text) {
+    return escHtml(text)
+      // Code blocks
+      .replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) =>
+        `</em><pre><code>${code.trim()}</code></pre><em style="display:none">`)
+      .replace(/<\/em><pre>/g, '<pre>').replace(/<\/code><\/pre><em[^>]*>/g, '</code></pre>')
+      // Headings
+      .replace(/^### (.+)$/gm, '<strong style="color:var(--text);display:block;margin-top:0.6rem">$1</strong>')
+      .replace(/^## (.+)$/gm, '<strong style="color:var(--gold);display:block;margin-top:1rem;font-size:0.9rem">$1</strong>')
+      .replace(/^# (.+)$/gm, '<strong style="color:var(--text);display:block;font-size:1rem;margin-top:1.2rem">$1</strong>')
+      // Inline code
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      // Bold
+      .replace(/\*\*([^*]+)\*\*/g, '<strong style="color:var(--text)">$1</strong>');
+  }
+
   function escHtml(str) {
     return String(str)
       .replace(/&/g,'&amp;').replace(/</g,'&lt;')
@@ -480,9 +666,8 @@
 
   function showToast(msg) {
     const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 4000);
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 4500);
   }
 
   // ── Init ──────────────────────────────────────────────────────────────────────
