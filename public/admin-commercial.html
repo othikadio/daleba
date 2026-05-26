@@ -146,13 +146,33 @@ async function checkConnection() {
     const badge = document.getElementById('conn-badge');
     if (d.ok) {
       badge.className = 'conn-badge conn-ok';
-      badge.textContent = `✅ ${d.user} · ${d.unread || 0} non-lus`;
+      badge.textContent = `✅ ${d.user}`;
+    } else if (d.setup || d.authUrl) {
+      badge.className = 'conn-badge conn-fail';
+      badge.textContent = '🔑 Autorisation requise';
+      showOAuthBanner(document.getElementById('detail-empty'), d.authUrl);
     } else {
       badge.className = 'conn-badge conn-fail';
-      badge.textContent = '❌ Gmail non connecté';
+      badge.textContent = '❌ ' + (d.error || 'Non connecté');
       showSetupBanner(document.getElementById('detail-empty'));
     }
   } catch (e) {}
+}
+
+function showOAuthBanner(container, authUrl) {
+  if (!container) return;
+  container.innerHTML = `
+    <div class="setup-banner" style="max-width:480px">
+      <h3>🔑 Autorisation Gmail requise</h3>
+      <p>Un seul clic suffit pour connecter <strong>Daleba2024@gmail.com</strong> à l'Agent Commercial.<br>
+         Google ouvrira un écran de consentement — sélectionne le compte Daleba2024@gmail.com et autorise l'accès.</p>
+      ${authUrl ? `<div style="margin-top:1rem">
+        <a href="${authUrl}" target="_blank" style="display:inline-block;background:linear-gradient(135deg,#2ea043,#3fb950);color:#fff;padding:0.75rem 1.75rem;border-radius:8px;font-weight:900;font-size:0.9rem;text-decoration:none;box-shadow:0 2px 12px rgba(63,185,80,0.35)">
+          🔑 Autoriser l'accès Gmail
+        </a>
+      </div>
+      <p style="margin-top:0.75rem;font-size:0.72rem">Après autorisation, tu seras redirigé ici automatiquement.</p>` : ''}
+    </div>`;
 }
 
 function showSetupBanner(container) {

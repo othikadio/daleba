@@ -17,7 +17,8 @@ let pool;
 try { const db = require('../memory/db'); pool = db.pool; } catch (e) {}
 if (!pool) pool = { query: async () => ({ rows: [], rowCount: 0 }) }; // fallback démo
 
-const { fetchUnreadEmails, sendEmail, markAsRead, checkConnection, GMAIL_USER } = require('../services/email-reader');
+const emailOAuth = require('../services/email-reader-oauth');
+const { fetchUnreadEmails, sendEmail, markAsRead, checkConnection, GMAIL_USER } = emailOAuth;
 const { analyzeEmail } = require('../services/commercial-agent');
 
 // ── Migration DB ──────────────────────────────────────────────────────────────
@@ -48,9 +49,70 @@ async function initTables() {
   `);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_daleba_emails_status ON daleba_emails(status)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_daleba_emails_received ON daleba_emails(received_at DESC)`);
-  console.log('[commercial] Tables daleba_emails OK');
+  // Table settings (stockage refresh_token OAuth2)
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS daleba_settings (
+      key        TEXT PRIMARY KEY,
+      value      TEXT,
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `);
+  console.log('[commercial] Tables daleba_emails + daleba_settings OK');
 }
-initTables().catch(console.error);
+initTables().then(() => { emailOAuth.setPool(pool); }).catch(console.error);
+
+
+// ── GET /oauth/start — Lancer le flow OAuth2 Gmail ───────────────────────────
+router.get('/oauth/start', (req, res) => {
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    return res.status(503).json({
+      error: 'GOOGLE_CLIENT_ID et GOOGLE_CLIENT_SECRET requis dans Railway',
+      setup: true,
+    });
+  }
+  const authUrl = emailOAuth.buildAuthUrl();
+  // Redirection directe ou retour JSON selon le paramètre
+  if (req.query.redirect === 'false') return res.json({ authUrl });
+  res.redirect(authUrl);
+});
+
+// ── GET /oauth/callback — Capturer le code Google ────────────────────────────
+router.get('/oauth/callback', async (req, res) => {
+  const { code, error } = req.query;
+
+  if (error) {
+    return res.send(`<h2>❌ Autorisation refusée : ${error}</h2><p><a href="/admin-commercial.html">Retour</a></p>`);
+  }
+  if (!code) {
+    return res.send('<h2>❌ Code manquant</h2>');
+  }
+
+  try {
+    const tokenData = await emailOAuth.exchangeCode(code);
+    await emailOAuth.saveTokens({
+      access_token:  tokenData.access_token,
+      refresh_token: tokenData.refresh_token,
+      expiry_date:   Date.now() + (tokenData.expires_in || 3600) * 1000,
+    });
+
+    // Vérifier la connexion
+    const status = await emailOAuth.checkConnection();
+
+    res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>DALEBA — Gmail Connecté</title>
+    <style>body{background:#0d1117;color:#e6edf3;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
+    .box{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:2rem 2.5rem;max-width:420px;text-align:center}
+    h2{color:#3fb950;font-size:1.3rem;margin-bottom:0.75rem}p{color:#8b949e;font-size:0.85rem;margin:0.4rem 0}
+    a{display:inline-block;margin-top:1.25rem;background:linear-gradient(135deg,#2ea043,#3fb950);color:#fff;padding:0.65rem 1.5rem;border-radius:7px;text-decoration:none;font-weight:800}</style></head>
+    <body><div class="box">
+      <h2>✅ Gmail connecté !</h2>
+      <p><strong>${status.user || 'Daleba2024@gmail.com'}</strong></p>
+      <p>L'Agent Commercial peut maintenant lire et envoyer des emails.</p>
+      <a href="/admin-commercial.html">→ Ouvrir l'Agent Commercial</a>
+    </div></body></html>`);
+  } catch (err) {
+    res.status(500).send(`<h2>❌ Erreur : ${err.message}</h2><p><a href="/admin-commercial.html">Retour</a></p>`);
+  }
+});
 
 // ── GET /status ───────────────────────────────────────────────────────────────
 router.get('/status', async (req, res) => {
