@@ -72,6 +72,17 @@ router.get('/', async (req, res) => {
 });
 
 // ── GET /api/proposals/opportunity/:oppId ─────────────────────────────────────
+
+// ── DELETE /api/proposals/reset — V42 Reset données de test ──────────────────
+router.delete('/reset', async (req, res) => {
+  try {
+    const result = await pool.query('DELETE FROM daleba_proposals');
+    res.json({ ok: true, deleted: result.rowCount, table: 'daleba_proposals' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get('/opportunity/:oppId', async (req, res) => {
   try {
     const { rows } = await pool.query(
