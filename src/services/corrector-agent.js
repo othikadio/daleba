@@ -1,8 +1,10 @@
 /**
  * DALEBA — Agent Correcteur (Usine de Production, V41)
  *
- * Lit le rapport QA, applique les correctifs exacts sur les 9 fichiers,
- * puis relance automatiquement l'Agent QA pour obtenir une nouvelle note.
+ * Stratégie fichier-par-fichier :
+ *   1. Identifie les fichiers mentionnés dans les sections CRITIQUE + MAJEUR du rapport QA
+ *   2. Corrige chaque fichier SÉPARÉMENT (évite la troncature DeepSeek)
+ *   3. Relance automatiquement l'Agent QA pour obtenir une nouvelle note
  *
  * Moteur : DeepSeek-Coder (principal) → Claude (fallback)
  */
@@ -13,55 +15,15 @@ const https = require('https');
 const DEEPSEEK_KEY  = process.env.DEEPSEEK_API_KEY || 'sk-cca2191225a9417cb589dab3c7172015';
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
 
-console.log(`[corrector-agent] Moteur: deepseek-coder`);
+console.log(`[corrector-agent] Moteur: deepseek-coder (fichier-par-fichier)`);
 
 // ── Prompt Système ─────────────────────────────────────────────────────────────
-const SYSTEM_PROMPT = `Tu es un ingénieur backend senior spécialisé en correction de code.
-Ton unique rôle : lire un rapport QA et appliquer EXACTEMENT les corrections listées sur les fichiers fournis.
+const SYSTEM_PROMPT = `Tu es un ingénieur backend senior spécialisé en correction de code Node.js.
+Applique UNIQUEMENT les corrections demandées. Ne modifie rien d'autre.
+Ajoute un commentaire inline court sur chaque ligne corrigée : // FIX: description
+Retourne le fichier COMPLET et fonctionnel. Commence directement par le code, sans markdown ni explication.`;
 
-RÈGLES STRICTES :
-1. Applique UNIQUEMENT les corrections identifiées comme 🔴 CRITIQUE et 🟠 MAJEUR dans le rapport QA
-2. Ne modifie rien d'autre — pas de refactoring, pas d'ajouts non demandés
-3. Si un fichier n'a aucune correction à appliquer, retourne-le IDENTIQUE
-4. Pour chaque correction appliquée, ajoute un commentaire inline court : // FIX: description
-
-FORMAT DE RÉPONSE OBLIGATOIRE (identique à l'Étape 3) :
-
-=== FILE: models/db.js ===
-[contenu complet corrigé]
-
-=== FILE: models/users.js ===
-[contenu complet corrigé]
-
-[etc. pour les 9 fichiers, dans le même ordre]
-
-Ne génère aucune explication avant ou après les fichiers.`;
-
-// ── Prompt utilisateur ─────────────────────────────────────────────────────────
-function buildCorrectionPrompt(qaReport, codeFiles) {
-  const fileEntries = Object.entries(codeFiles)
-    .map(([path, code]) => `=== FILE: ${path} ===\n${code}`)
-    .join('\n\n');
-
-  // Extraire uniquement les sections CRITIQUE et MAJEUR du rapport
-  const criticalSection = extractSection(qaReport, '🔴 CRITIQUE', '🟠 MAJEUR');
-  const majorSection    = extractSection(qaReport, '🟠 MAJEUR',   '🟡 MINEUR');
-
-  return `RAPPORT QA — CORRECTIONS À APPLIQUER :
-
-${criticalSection ? `## 🔴 CRITIQUE (à corriger en priorité absolue)\n${criticalSection}` : ''}
-
-${majorSection ? `## 🟠 MAJEUR (à corriger)\n${majorSection}` : ''}
-
----
-
-CODE SOURCE ACTUEL (${Object.keys(codeFiles).length} fichiers) :
-
-${fileEntries}
-
-Applique maintenant TOUTES les corrections listées ci-dessus et retourne les ${Object.keys(codeFiles).length} fichiers complets corrigés.`;
-}
-
+// ── Extraire une section du rapport QA ────────────────────────────────────────
 function extractSection(text, startMarker, endMarker) {
   const start = text.indexOf(startMarker);
   if (start === -1) return '';
@@ -69,17 +31,57 @@ function extractSection(text, startMarker, endMarker) {
   return text.slice(start + startMarker.length, end === -1 ? text.length : end).trim();
 }
 
-// ── Parseur de fichiers (réutilise le format Étape 3) ─────────────────────────
-function parseGeneratedFiles(rawOutput) {
-  const files = {};
-  const regex = /=== FILE: ([^\s=]+) ===([\s\S]*?)(?==== FILE:|$)/g;
-  let match;
-  while ((match = regex.exec(rawOutput)) !== null) {
-    const path    = match[1].trim();
-    const content = match[2].trim();
-    if (path && content) files[path] = content;
+// ── Identifier les fichiers à corriger depuis le rapport ─────────────────────
+function getFilesToFix(qaReport) {
+  const filesToFix = new Set();
+  const critBlock = extractSection(qaReport, 'CRITIQUE', 'MAJEUR');
+  const majBlock  = extractSection(qaReport, 'MAJEUR',   'MINEUR');
+  const combined  = critBlock + '\n' + majBlock;
+
+  const knownFiles = [
+    'models/db.js', 'models/users.js', 'models/orders.js',
+    'models/gps_logs.js', 'models/deliveries.js',
+    'controllers/auth.controller.js', 'controllers/delivery.controller.js',
+    'controllers/schedule.controller.js', 'sockets/location.socket.js',
+  ];
+
+  knownFiles.forEach(filepath => {
+    const filename = filepath.split('/').pop();
+    if (combined.includes(filename)) filesToFix.add(filepath);
+  });
+
+  // Fallback si rien détecté : cibler les 3 fichiers les plus problématiques
+  if (filesToFix.size === 0) {
+    ['controllers/delivery.controller.js', 'models/gps_logs.js', 'sockets/location.socket.js']
+      .forEach(f => filesToFix.add(f));
   }
-  return files;
+
+  return filesToFix;
+}
+
+// ── Corriger un seul fichier (appel ciblé) ────────────────────────────────────
+function buildSingleFilePrompt(filePath, fileCode, qaReport) {
+  const critBlock = extractSection(qaReport, 'CRITIQUE', 'MAJEUR');
+  const majBlock  = extractSection(qaReport, 'MAJEUR',   'MINEUR');
+  const fileName  = filePath.split('/').pop();
+
+  // Extraire uniquement les corrections pertinentes pour ce fichier
+  const relevant = [critBlock, majBlock].join('\n')
+    .split('\n\n')
+    .filter(block => block.includes(fileName))
+    .join('\n\n') || 'Voir rapport complet — corrige les problèmes évidents dans ce fichier.';
+
+  return `CORRECTIONS À APPLIQUER sur ${filePath} :
+
+${relevant}
+
+---
+
+CODE ACTUEL DE ${filePath} :
+
+${fileCode}
+
+Retourne le fichier COMPLET corrigé. Commence directement par le code.`;
 }
 
 // ── Appel DeepSeek-Coder ───────────────────────────────────────────────────────
@@ -87,8 +89,8 @@ function callDeepSeek(userPrompt) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
       model:       'deepseek-coder',
-      temperature: 0.05,   // Quasi-déterministe pour les corrections
-      max_tokens:  8000,
+      temperature: 0.05,
+      max_tokens:  4000,
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user',   content: userPrompt },
@@ -104,7 +106,7 @@ function callDeepSeek(userPrompt) {
         'Content-Type':   'application/json',
         'Content-Length': Buffer.byteLength(body),
       },
-      timeout: 120000,
+      timeout: 90000,
     }, (res) => {
       let data = '';
       res.on('data', c => { data += c; });
@@ -128,7 +130,7 @@ function callClaude(userPrompt) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
       model:      'claude-opus-4-5',
-      max_tokens: 8000,
+      max_tokens: 4000,
       system:     SYSTEM_PROMPT,
       messages:   [{ role: 'user', content: userPrompt }],
     });
@@ -143,7 +145,7 @@ function callClaude(userPrompt) {
         'content-type':      'application/json',
         'Content-Length':    Buffer.byteLength(body),
       },
-      timeout: 120000,
+      timeout: 90000,
     }, (res) => {
       let data = '';
       res.on('data', c => { data += c; });
@@ -162,50 +164,82 @@ function callClaude(userPrompt) {
   });
 }
 
+// ── Corriger un seul fichier ───────────────────────────────────────────────────
+async function correctSingleFile(filePath, fileCode, qaReport) {
+  const prompt = buildSingleFilePrompt(filePath, fileCode, qaReport);
+  let out, engine;
+
+  try {
+    out    = await callDeepSeek(prompt);
+    engine = 'deepseek-coder';
+  } catch (err) {
+    console.warn(`[corrector-agent] DeepSeek KO sur ${filePath}, fallback Claude:`, err.message);
+    if (!ANTHROPIC_KEY) throw err;
+    out    = await callClaude(prompt);
+    engine = 'claude-fallback';
+  }
+
+  // Nettoyer balises markdown si présentes
+  out = out
+    .replace(/^```(?:js|javascript|typescript)?\n?/gm, '')
+    .replace(/^```$/gm, '')
+    .trim();
+
+  return { code: out, engine };
+}
+
 // ── Extraction du score QA depuis un rapport ───────────────────────────────────
 function extractQAScore(qaReport) {
-  const match = qaReport.match(/Score\s+global\s*:\s*(\d+)\s*\/\s*10/i);
+  const match = qaReport.match(/Score\s+global\s*:\s*\**(\d+)\**\s*\/\s*10/i);
   return match ? parseInt(match[1]) : null;
 }
 
 // ── Fonction principale ────────────────────────────────────────────────────────
 /**
- * Applique les correctifs QA sur le code source.
- * @param {string} qaReport          — Rapport QA (Étape 4)
+ * Applique les correctifs QA fichier-par-fichier.
+ * @param {string} qaReport          — Rapport QA
  * @param {Object} generatedFiles    — Fichiers actuels { path: code }
  * @param {string} clientNeedRaw     — Besoin original
- * @returns {Promise<{correctedFiles: Object, rawOutput: string, engine: string, fileCount: number}>}
+ * @returns {Promise<{correctedFiles, rawOutput, engine, fileCount}>}
  */
 async function applyCorrections(qaReport, generatedFiles, clientNeedRaw) {
-  const userPrompt = buildCorrectionPrompt(qaReport, generatedFiles);
+  const filesToFix = getFilesToFix(qaReport);
   const totalChars = Object.values(generatedFiles).reduce((s, c) => s + c.length, 0);
 
-  console.log(`[corrector-agent] Correction de ${Object.keys(generatedFiles).length} fichiers (${totalChars} chars)`);
+  console.log(`[corrector-agent] ${filesToFix.size} fichiers ciblés / ${Object.keys(generatedFiles).length} total (${totalChars} chars)`);
+  console.log('[corrector-agent] Fichiers:', [...filesToFix].join(', '));
 
-  let rawOutput, engine;
-  try {
-    rawOutput = await callDeepSeek(userPrompt);
-    engine    = 'deepseek-coder';
-  } catch (err) {
-    console.warn('[corrector-agent] DeepSeek KO, fallback Claude:', err.message);
-    if (!ANTHROPIC_KEY) throw new Error('DeepSeek KO et pas de ANTHROPIC_API_KEY');
-    rawOutput = await callClaude(userPrompt);
-    engine    = 'claude-fallback';
-  }
+  // Copier tous les fichiers originaux
+  const correctedFiles = { ...generatedFiles };
+  const rawParts       = [];
+  let   lastEngine     = 'deepseek-coder';
 
-  let correctedFiles = parseGeneratedFiles(rawOutput);
+  for (const filePath of filesToFix) {
+    if (!generatedFiles[filePath]) {
+      console.warn(`[corrector-agent] Fichier introuvable: ${filePath}`);
+      continue;
+    }
+    try {
+      const { code, engine } = await correctSingleFile(filePath, generatedFiles[filePath], qaReport);
 
-  // Si le parseur rate des fichiers, conserver les originaux non modifiés
-  const missing = Object.keys(generatedFiles).filter(p => !correctedFiles[p]);
-  if (missing.length > 0) {
-    console.warn(`[corrector-agent] ${missing.length} fichiers non parsés, conservation originaux:`, missing);
-    missing.forEach(p => { correctedFiles[p] = generatedFiles[p]; });
+      if (code && code.length > 100) {
+        correctedFiles[filePath] = code;
+        lastEngine = engine;
+        rawParts.push(`=== FILE: ${filePath} ===\n${code}`);
+        console.log(`[corrector-agent] ✓ ${filePath} corrigé (${code.length} chars, ${engine})`);
+      } else {
+        console.warn(`[corrector-agent] ⚠ ${filePath} — réponse trop courte (${code?.length} chars), original conservé`);
+      }
+    } catch (err) {
+      console.error(`[corrector-agent] Erreur ${filePath}:`, err.message);
+    }
   }
 
   const fileCount = Object.keys(correctedFiles).length;
-  console.log(`[corrector-agent] ${fileCount} fichiers corrigés via ${engine} (${rawOutput.length} chars raw)`);
+  const rawOutput = rawParts.join('\n\n');
 
-  return { correctedFiles, rawOutput, engine, fileCount };
+  console.log(`[corrector-agent] Terminé — ${filesToFix.size} fichiers traités, ${fileCount} au total`);
+  return { correctedFiles, rawOutput, engine: lastEngine, fileCount };
 }
 
 module.exports = { applyCorrections, extractQAScore };
