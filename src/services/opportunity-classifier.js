@@ -28,11 +28,14 @@ Critères D'EXCLUSION ABSOLUE (relevant=false, score=0) :
 - Présentiel obligatoire / on-site / hybrid obligé
 - "Full-time employee", "W2", "staff", "hire"
 - Recrutement RH, offre d'emploi classique
+- TARIF HORAIRE : toute mission avec tarif à l'heure ("/hr", "per hour", "hourly rate", "$/h", "taux horaire", "par heure")
+  Exception : si le budget TOTAL du projet est mentionné en plus du tarif horaire ET que le total est un forfait fixe
 
 Critères REQUIS pour être relevant=true :
 - Freelance, contrat, mission, projet, forfait, short-term, part-time
 - Remote, télétravail, à distance, distributed, anywhere
 - Livrable clair (app, bot, API, intégration, automatisation)
+- Budget FIXE global (ex: "$2000 fixed", "budget: 1500€", "forfait 3000$") — PAS un tarif horaire
 
 Analyse chaque opportunité et retourne UNIQUEMENT un JSON valide (pas de texte autour).`;
 
@@ -51,6 +54,7 @@ Réponds avec ce JSON exact :
   "category": "<automation|api-integration|chatbot-ia|saas|web-app|autre>",
   "work_type": "<freelance|contract|full-time|unknown>",
   "is_remote": <true|false|null>,
+  "budget_type": "<fixed|hourly|unknown>",
   "keywords_matched": "<mots clés pertinents séparés par virgule>",
   "budget_estimated": <nombre USD ou null>,
   "budget_currency": "<USD|EUR|CAD|GBP>",
@@ -124,13 +128,15 @@ async function classifyOpportunity(rawOpportunity) {
 
     const classification = JSON.parse(jsonMatch[0]);
 
-    const isRelevant = classification.relevant !== false;
+    const isRelevant = classification.relevant !== false
+                       && classification.budget_type !== 'hourly'; // forfait uniquement
     return {
       ...rawOpportunity,
       score:              isRelevant ? Math.max(0, Math.min(100, parseInt(classification.score) || 0)) : 0,
       category:           classification.category || 'autre',
       work_type:          classification.work_type || 'unknown',
       is_remote:          classification.is_remote ?? null,
+      budget_type:        classification.budget_type || 'unknown',
       keywords_matched:   classification.keywords_matched || '',
       budget_estimated:   classification.budget_estimated ? parseFloat(classification.budget_estimated) : null,
       budget_currency:    classification.budget_currency || 'USD',

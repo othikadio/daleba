@@ -54,6 +54,7 @@ async function initTable() {
     `);
     await pool.query(`ALTER TABLE daleba_opportunities ADD COLUMN IF NOT EXISTS work_type VARCHAR(20) DEFAULT 'unknown'`);
     await pool.query(`ALTER TABLE daleba_opportunities ADD COLUMN IF NOT EXISTS is_remote BOOLEAN DEFAULT NULL`);
+    await pool.query(`ALTER TABLE daleba_opportunities ADD COLUMN IF NOT EXISTS budget_type VARCHAR(20) DEFAULT 'unknown'`);
     console.log('[opportunities] Table daleba_opportunities OK (V43 — filtres remote/freelance)');
   } catch (e) {
     if (!e.message.includes('already exists')) console.error('[opportunities] initTable:', e.message);
@@ -153,6 +154,12 @@ router.post('/scan', async (req, res) => {
       /\b(on.?site.?required|présentiel.?obligatoire|in.?office|must.?be.?located|relocation.?required|sur.?place)\b/i,
       // Offres d'emploi classiques
       /\b(nous.?recrutons|nous.?recherchons.?un.?(collaborateur|salarié)|join.?our.?team.?as.?(a|an).+employee|w2.?only|w2.?position)\b/i,
+      // Tarif horaire — forfait uniquement, pas de /hr
+      /\$\s*\d+\s*(\/\s*h(r|our)?\b|\s*per\s*hour|\s*hourly)/i,
+      /\b\d+\s*(€|\$|usd|cad|eur)\s*(\/\s*(h|hr|heure|hour)\b|\s*par\s*heure|\s*de\s*l.heure)/i,
+      /\bhourly\s*(rate|pay|comp(ensation)?|billing)\b/i,
+      /\b(taux\s*horaire|facturation\s*à\s*l.heure|rémunération\s*horaire)\b/i,
+      /\brate\s*:\s*\$?\d+\s*\/\s*h(r|our)?\b/i,
     ];
     const REMOTE_REQUIRED = [
       /\b(remote|télétravail|à.?distance|distributed|anywhere|work.?from.?home|wfh|fully.?remote|100.?%.?remote|remote.?first|remote.?ok|remote.?friendly|freelance|contract|mission|forfait|short.?term|part.?time|contractuel)\b/i,
@@ -173,10 +180,11 @@ router.post('/scan', async (req, res) => {
 
     let inserted = 0;
     for (const opp of classified) {
-      // Post-filtre : exclure full-time et présentiel confirmés
+      // Post-filtre : exclure full-time, présentiel et tarifs horaires
       if (!opp.relevant) continue;
       if (opp.work_type === 'full-time') continue;
-      if (opp.is_remote === false) continue;  // présentiel confirmé par l'IA
+      if (opp.is_remote === false) continue;
+      if (opp.budget_type === 'hourly') continue;  // forfait uniquement
       if (opp.score < 25) continue;
       try {
         await pool.query(`
@@ -184,8 +192,8 @@ router.post('/scan', async (req, res) => {
             (source_platform, source_url, country, language_original, title,
              description_orig, description_fr, budget_raw, budget_estimated,
              budget_currency, category, score, keywords_matched, status,
-             work_type, is_remote)
-          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'pending',$14,$15)
+             work_type, is_remote, budget_type)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'pending',$14,$15,$16)
           ON CONFLICT DO NOTHING
         `, [
           opp.platform, opp.url, opp.country, opp.language_original,
@@ -200,6 +208,7 @@ router.post('/scan', async (req, res) => {
           opp.keywords_matched,
           opp.work_type || 'unknown',
           opp.is_remote ?? null,
+          opp.budget_type || 'unknown',
         ]);
         inserted++;
       } catch (e) {
