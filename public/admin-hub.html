@@ -189,6 +189,10 @@
         <span class="icon">⚡</span> Pipeline Agents
         <span class="nav-badge" id="badge-tasks">…</span>
       </div>
+      <div class="nav-item" onclick="window.open('/admin-commercial.html','_blank')">
+        <span class="icon">📬</span> Agent Commercial
+        <span class="nav-badge" id="badge-emails" style="background:rgba(88,166,255,0.15);color:var(--blue)">…</span>
+      </div>
     </div>
 
     <div class="sidebar-section">
@@ -256,6 +260,11 @@
           <h3>⚡ Projets en Pipeline</h3>
           <div class="kpi-val" id="kpi-tasks" style="color:var(--orange)">…</div>
           <div class="kpi-sub">Étapes 1→4 actives</div>
+        </div>
+        <div class="kpi-card" onclick="window.open('/admin-commercial.html','_blank')" style="border-top: 3px solid var(--blue);">
+          <h3>📬 Emails Prospects</h3>
+          <div class="kpi-val" id="kpi-emails" style="color:var(--blue)">…</div>
+          <div class="kpi-sub" id="kpi-emails-sub">Non analysés</div>
         </div>
       </div>
 
@@ -453,6 +462,14 @@
       if (tk) {
         document.getElementById('kpi-tasks').textContent = tk.total || 0;
         document.getElementById('badge-tasks').textContent = tk.total || 0;
+      }
+      // Emails commerciaux
+      const em = await fetch('/api/commercial/emails?limit=1&status=unread').then(r => r.json()).catch(() => null);
+      if (em) {
+        const cnt = em.total || 0;
+        document.getElementById('kpi-emails').textContent = cnt;
+        document.getElementById('kpi-emails-sub').textContent = cnt > 0 ? `${cnt} non analysé${cnt>1?'s':''}` : 'Boîte synchronisée';
+        document.getElementById('badge-emails').textContent = cnt || '✓';
       }
     } catch (e) {}
   }

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DALEBA — Agent Commercial</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:#0d1117; --surface:#161b22; --surface2:#21262d; --border:#30363d;
+      --text:#e6edf3; --text-dim:#8b949e; --gold:#c9a84c; --gold-dim:rgba(201,168,76,0.12);
+      --green:#2da44e; --red:#f85149; --blue:#58a6ff; --purple:#bc8cff;
+      --cyan:#39d0d8; --orange:#f0883e; --emerald:#3fb950; --radius:8px;
+    }
+    html,body { height:100%; background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,sans-serif; }
+    body { display:flex; flex-direction:column; }
+
+    .topbar { background:var(--surface); border-bottom:1px solid var(--border); height:52px; display:flex; align-items:center; padding:0 1.5rem; gap:1rem; flex-shrink:0; }
+    .topbar-logo { font-weight:900; font-size:1rem; color:var(--gold); }
+    .topbar-logo span { color:var(--text-dim); font-size:0.72rem; font-weight:400; margin-left:0.5rem; }
+    .back-btn { font-size:0.78rem; color:var(--text-dim); text-decoration:none; padding:0.3rem 0.7rem; border:1px solid var(--border); border-radius:5px; transition:all 0.15s; }
+    .back-btn:hover { color:var(--text); border-color:var(--text-dim); }
+    .conn-badge { margin-left:auto; font-size:0.72rem; font-weight:700; padding:0.2rem 0.7rem; border-radius:10px; }
+    .conn-ok   { background:rgba(63,185,80,0.15); color:var(--emerald); }
+    .conn-fail { background:rgba(248,81,73,0.15); color:var(--red); }
+
+    .layout { display:flex; flex:1; overflow:hidden; }
+
+    /* ── Inbox list ── */
+    .inbox-pane { width:340px; border-right:1px solid var(--border); display:flex; flex-direction:column; flex-shrink:0; background:var(--surface); }
+    .inbox-header { padding:1rem; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:0.75rem; }
+    .inbox-header h2 { font-size:0.9rem; font-weight:800; flex:1; }
+    .btn-refresh { padding:0.35rem 0.75rem; font-size:0.75rem; background:none; border:1px solid var(--border); color:var(--text-dim); border-radius:5px; cursor:pointer; }
+    .btn-refresh:hover { color:var(--text); border-color:var(--text-dim); }
+    .inbox-list { flex:1; overflow-y:auto; }
+    .email-item { padding:0.85rem 1rem; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.12s; }
+    .email-item:hover { background:var(--surface2); }
+    .email-item.active { background:rgba(88,166,255,0.08); border-left:2.5px solid var(--blue); }
+    .email-item.urgency-high   { border-left:2.5px solid var(--red); }
+    .email-item.urgency-medium { border-left:2.5px solid var(--orange); }
+    .email-item.status-replied { opacity:0.6; }
+    .email-from { font-size:0.8rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .email-subject { font-size:0.75rem; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:0.15rem; }
+    .email-meta { display:flex; align-items:center; gap:0.5rem; margin-top:0.3rem; }
+    .email-date { font-size:0.68rem; color:var(--text-dim); }
+    .intent-badge { font-size:0.62rem; font-weight:700; padding:0.1rem 0.45rem; border-radius:4px; }
+    .intent-interest   { background:rgba(88,166,255,0.15); color:var(--blue); }
+    .intent-quote      { background:rgba(201,168,76,0.15); color:var(--gold); }
+    .intent-agreement  { background:rgba(63,185,80,0.2); color:var(--emerald); font-size:0.72rem; }
+    .intent-payment    { background:rgba(63,185,80,0.3); color:var(--emerald); font-weight:900; }
+    .intent-question   { background:rgba(188,140,255,0.15); color:var(--purple); }
+    .intent-objection  { background:rgba(240,136,62,0.15); color:var(--orange); }
+    .intent-other      { background:rgba(139,148,158,0.12); color:var(--text-dim); }
+    .unread-dot { width:7px; height:7px; border-radius:50%; background:var(--blue); flex-shrink:0; }
+
+    /* ── Detail pane ── */
+    .detail-pane { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+    .detail-empty { flex:1; display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:0.85rem; flex-direction:column; gap:0.5rem; }
+    .detail-empty span { font-size:2rem; }
+    .detail-header { padding:1rem 1.5rem; border-bottom:1px solid var(--border); background:var(--surface); }
+    .detail-subject { font-size:1rem; font-weight:800; margin-bottom:0.4rem; }
+    .detail-from { font-size:0.78rem; color:var(--text-dim); }
+    .detail-actions { display:flex; gap:0.6rem; margin-top:0.75rem; flex-wrap:wrap; }
+    .btn-action { padding:0.45rem 1rem; font-size:0.78rem; font-weight:700; border-radius:6px; cursor:pointer; border:1px solid; transition:all 0.15s; }
+    .btn-analyze { border-color:rgba(88,166,255,0.5); color:var(--blue); background:none; }
+    .btn-analyze:hover { background:rgba(88,166,255,0.1); }
+    .btn-send-reply { border-color:rgba(63,185,80,0.5); color:var(--emerald); background:none; font-weight:800; }
+    .btn-send-reply:hover { background:rgba(63,185,80,0.1); }
+    .btn-create-task { border-color:rgba(201,168,76,0.5); color:var(--gold); background:none; }
+    .btn-create-task:hover { background:var(--gold-dim); }
+    .btn-draft { border-color:rgba(139,148,158,0.4); color:var(--text-dim); background:none; }
+    .btn-draft:hover { background:var(--surface2); }
+    .detail-body { flex:1; overflow:auto; padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem; }
+
+    .email-text-box { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem 1.25rem; font-size:0.82rem; line-height:1.7; color:var(--text-dim); white-space:pre-wrap; max-height:200px; overflow-y:auto; }
+    .analysis-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1.25rem; }
+    .analysis-card h3 { font-size:0.78rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-dim); margin-bottom:0.75rem; }
+    .analysis-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+    .analysis-item { font-size:0.78rem; }
+    .analysis-item .a-label { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-dim); margin-bottom:0.2rem; }
+    .analysis-item .a-val { font-weight:700; }
+    .reply-box { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem 1.25rem; }
+    .reply-box h3 { font-size:0.78rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-dim); margin-bottom:0.75rem; }
+    .reply-textarea { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:0.82rem; line-height:1.65; padding:0.85rem 1rem; resize:vertical; min-height:150px; outline:none; font-family:inherit; }
+    .reply-textarea:focus { border-color:rgba(63,185,80,0.5); }
+    .task-preview { background:rgba(201,168,76,0.08); border:1px solid rgba(201,168,76,0.3); border-radius:8px; padding:1rem 1.25rem; font-size:0.8rem; }
+    .task-preview h3 { font-size:0.78rem; font-weight:800; color:var(--gold); margin-bottom:0.5rem; }
+
+    /* ── Setup banner ── */
+    .setup-banner { margin:1.5rem; background:rgba(88,166,255,0.08); border:1px solid rgba(88,166,255,0.3); border-radius:8px; padding:1.25rem 1.5rem; }
+    .setup-banner h3 { font-size:0.88rem; font-weight:800; color:var(--blue); margin-bottom:0.5rem; }
+    .setup-banner p { font-size:0.78rem; color:var(--text-dim); line-height:1.6; }
+    .setup-steps { margin-top:0.75rem; font-size:0.78rem; color:var(--text-dim); }
+    .setup-steps li { margin:0.3rem 0 0 1.2rem; }
+    code { background:var(--surface2); padding:0.1rem 0.4rem; border-radius:3px; font-size:0.78rem; color:var(--cyan); }
+
+    .loading { text-align:center; padding:2rem; color:var(--text-dim); font-size:0.82rem; }
+    .toast { position:fixed; bottom:1.5rem; right:1.5rem; background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.85rem 1.25rem; font-size:0.83rem; max-width:380px; opacity:0; pointer-events:none; transition:opacity 0.25s; z-index:999; }
+    .toast.show { opacity:1; }
+
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+    .analyzing { animation:pulse 1.2s infinite; color:var(--blue); }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">DALEBA <span>Agent Commercial V43</span></div>
+  <a href="/admin-hub.html" class="back-btn">← Hub</a>
+  <div class="conn-badge conn-fail" id="conn-badge">⏳ Vérification…</div>
+</div>
+
+<div class="layout">
+
+  <!-- Inbox -->
+  <div class="inbox-pane">
+    <div class="inbox-header">
+      <h2>📬 Boîte de réception</h2>
+      <button class="btn-refresh" onclick="loadInbox()">⟳ Sync</button>
+    </div>
+    <div class="inbox-list" id="inbox-list">
+      <div class="loading">Chargement…</div>
+    </div>
+  </div>
+
+  <!-- Detail -->
+  <div class="detail-pane" id="detail-pane">
+    <div class="detail-empty" id="detail-empty">
+      <span>📭</span>
+      Sélectionnez un email pour l'analyser
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentEmailId = null;
+
+// ── Connexion Gmail ──────────────────────────────────────────────────────────
+async function checkConnection() {
+  try {
+    const r = await fetch('/api/commercial/status');
+    const d = await r.json();
+    const badge = document.getElementById('conn-badge');
+    if (d.ok) {
+      badge.className = 'conn-badge conn-ok';
+      badge.textContent = `✅ ${d.user} · ${d.unread || 0} non-lus`;
+    } else {
+      badge.className = 'conn-badge conn-fail';
+      badge.textContent = '❌ Gmail non connecté';
+      showSetupBanner(document.getElementById('detail-empty'));
+    }
+  } catch (e) {}
+}
+
+function showSetupBanner(container) {
+  container.innerHTML = `
+    <div class="setup-banner" style="max-width:520px">
+      <h3>📧 Connexion Gmail requise</h3>
+      <p>Pour connecter <strong>Daleba2024@gmail.com</strong>, ajoutez ces variables dans Railway :</p>
+      <ol class="setup-steps">
+        <li>Ouvrez <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color:var(--blue)">myaccount.google.com/apppasswords</a></li>
+        <li>Créez un App Password pour "Mail" → notez les 16 caractères</li>
+        <li>Dans Railway → Variables :<br>
+          <code>GMAIL_USER</code> = <code>Daleba2024@gmail.com</code><br>
+          <code>GMAIL_APP_PASSWORD</code> = <code>xxxx xxxx xxxx xxxx</code>
+        </li>
+        <li>Redémarrez le service Railway → l'agent se connecte automatiquement</li>
+      </ol>
+    </div>`;
+}
+
+// ── Inbox ─────────────────────────────────────────────────────────────────────
+async function loadInbox() {
+  const list = document.getElementById('inbox-list');
+  list.innerHTML = '<div class="loading">Synchronisation Gmail…</div>';
+  try {
+    // D'abord essayer de fetch depuis Gmail
+    const r = await fetch('/api/commercial/inbox?limit=30');
+    const d = await r.json();
+
+    if (!d.ok || !d.emails?.length) {
+      // Fallback : afficher ce qui est en DB
+      return loadEmailsFromDB();
+    }
+    renderEmailList(d.emails);
+  } catch (e) {
+    loadEmailsFromDB();
+  }
+}
+
+async function loadEmailsFromDB() {
+  const list = document.getElementById('inbox-list');
+  try {
+    const r = await fetch('/api/commercial/emails?limit=50');
+    const d = await r.json();
+    if (!d.emails?.length) {
+      list.innerHTML = '<div class="loading" style="padding:2rem">Aucun email pour l\'instant.<br><small>Cliquez ⟳ pour synchroniser Gmail.</small></div>';
+      return;
+    }
+    renderEmailList(d.emails, true);
+  } catch (e) {
+    list.innerHTML = `<div class="loading" style="color:var(--red)">Erreur: ${e.message}</div>`;
+  }
+}
+
+function renderEmailList(emails, fromDB = false) {
+  const list = document.getElementById('inbox-list');
+  if (!emails.length) {
+    list.innerHTML = '<div class="loading">Boîte vide — en attente de réponses.</div>';
+    return;
+  }
+  list.innerHTML = emails.map(e => {
+    const date  = new Date(e.date || e.received_at).toLocaleDateString('fr-CA', { month:'short', day:'numeric' });
+    const intent= e.intent || '';
+    const urgency = e.urgency || '';
+    const isUnread = !fromDB || e.status === 'unread';
+    const isReplied = e.status === 'replied';
+    const intentLabel = {
+      interest: 'Intérêt', quote: 'Devis', agreement: '✅ Accord',
+      payment: '💰 Paiement', question: 'Question', objection: 'Objection',
+      unsubscribe: 'Désabo', other: ''
+    }[intent] || '';
+
+    return `<div class="email-item ${urgency ? 'urgency-'+urgency : ''} ${isReplied?'status-replied':''}"
+                 onclick="openEmail(${e.id || e.uid}, this)"
+                 data-id="${e.id || e.uid}">
+      <div style="display:flex;align-items:center;gap:0.4rem">
+        ${isUnread ? '<div class="unread-dot"></div>' : ''}
+        <div class="email-from">${escHtml(e.from_name || e.from || e.from_email)}</div>
+      </div>
+      <div class="email-subject">${escHtml(e.subject)}</div>
+      <div class="email-meta">
+        <span class="email-date">${date}</span>
+        ${intentLabel ? `<span class="intent-badge intent-${intent}">${intentLabel}</span>` : ''}
+        ${isReplied ? '<span style="font-size:0.62rem;color:var(--emerald)">Répondu</span>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Email detail ──────────────────────────────────────────────────────────────
+async function openEmail(id, el) {
+  document.querySelectorAll('.email-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  currentEmailId = id;
+
+  const pane = document.getElementById('detail-pane');
+  pane.innerHTML = '<div class="loading" style="flex:1">Chargement…</div>';
+
+  try {
+    const r = await fetch(`/api/commercial/emails?limit=1&offset=0`);
+    const d = await r.json();
+    // Chercher l'email par id
+    const all = await fetch('/api/commercial/emails?limit=100');
+    const allD = await all.json();
+    const email = allD.emails?.find(e => e.id == id);
+    if (!email) { pane.innerHTML = '<div class="loading">Email introuvable en DB.</div>'; return; }
+    renderEmailDetail(email);
+  } catch (e) {
+    pane.innerHTML = `<div class="loading" style="color:var(--red)">Erreur: ${e.message}</div>`;
+  }
+}
+
+function renderEmailDetail(email) {
+  const pane = document.getElementById('detail-pane');
+  const hasAnalysis = !!email.intent;
+  const hasReply    = !!email.reply_draft;
+  const canCreateTask = email.should_create_task && !email.task_id;
+
+  pane.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-subject">${escHtml(email.subject)}</div>
+      <div class="detail-from">De : <strong>${escHtml(email.from_email)}</strong>
+        · ${new Date(email.received_at).toLocaleString('fr-CA', {timeZone:'America/Toronto'})}
+        ${email.intent ? `· <span class="intent-badge intent-${email.intent}" style="font-size:0.72rem">${email.intent_fr||email.intent}</span>` : ''}
+        ${email.urgency === 'high' ? '<span style="font-size:0.72rem;color:var(--red);font-weight:800">🔴 URGENT</span>' : ''}
+      </div>
+      <div class="detail-actions">
+        ${!hasAnalysis ? `<button class="btn-action btn-analyze" id="btn-analyze" onclick="analyzeEmail(${email.id})">🤖 Analyser avec l'IA</button>` : ''}
+        ${hasReply    ? `<button class="btn-action btn-send-reply" onclick="sendReply(${email.id})">📤 Envoyer la réponse</button>` : ''}
+        ${hasReply    ? `<button class="btn-action btn-draft" onclick="saveDraft(${email.id})">💾 Sauver brouillon</button>` : ''}
+        ${canCreateTask ? `<button class="btn-action btn-create-task" onclick="createTask(${email.id})">⚡ Créer tâche Production</button>` : ''}
+        ${email.task_id ? `<span style="font-size:0.72rem;color:var(--emerald);padding:0.4rem 0.75rem;border:1px solid rgba(63,185,80,0.3);border-radius:5px">✅ Tâche #${email.task_id} créée</span>` : ''}
+      </div>
+    </div>
+    <div class="detail-body">
+      <div>
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-dim);margin-bottom:0.5rem">Email reçu</div>
+        <div class="email-text-box">${escHtml(email.body_text || '(contenu vide)')}</div>
+      </div>
+
+      ${hasAnalysis ? `
+      <div class="analysis-card">
+        <h3>🤖 Analyse IA — ${email.engine_used || 'deepseek'}</h3>
+        <div class="analysis-grid">
+          <div class="analysis-item"><div class="a-label">Intention</div><div class="a-val"><span class="intent-badge intent-${email.intent}">${email.intent_fr||email.intent}</span></div></div>
+          <div class="analysis-item"><div class="a-label">Urgence</div><div class="a-val" style="color:${email.urgency==='high'?'var(--red)':email.urgency==='medium'?'var(--orange)':'var(--emerald)'}">⬤ ${email.urgency||'medium'}</div></div>
+          <div class="analysis-item" style="grid-column:1/-1"><div class="a-label">Résumé</div><div class="a-val" style="font-weight:400">${escHtml(email.summary||'')}</div></div>
+        </div>
+      </div>` : ''}
+
+      ${hasReply ? `
+      <div class="reply-box">
+        <h3>✍️ Réponse générée — modifiable</h3>
+        <textarea class="reply-textarea" id="reply-text-${email.id}">${escHtml(email.reply_draft||'')}</textarea>
+      </div>` : ''}
+
+      ${canCreateTask && email.task_description ? `
+      <div class="task-preview">
+        <h3>⚡ Tâche à créer pour l'Usine de Production</h3>
+        <div style="margin-top:0.4rem;color:var(--text-dim);font-size:0.78rem">${escHtml(email.task_description)}</div>
+      </div>` : ''}
+    </div>`;
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+async function analyzeEmail(id) {
+  const btn = document.getElementById('btn-analyze');
+  if (btn) { btn.disabled = true; btn.textContent = '🤖 Analyse en cours…'; btn.className += ' analyzing'; }
+  try {
+    const r = await fetch(`/api/commercial/analyze/${id}`, { method: 'POST' });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    showToast(`✅ Analyse terminée — Intention: ${d.analysis.intent_fr || d.analysis.intent}`);
+    await refreshEmailDetail(id);
+    loadEmailsFromDB();
+  } catch (e) {
+    showToast('Erreur analyse : ' + e.message);
+    if (btn) { btn.disabled = false; btn.textContent = '🤖 Analyser avec l\'IA'; }
+  }
+}
+
+async function sendReply(id) {
+  const textarea = document.getElementById(`reply-text-${id}`);
+  const text = textarea?.value || '';
+  if (!text.trim()) return showToast('Réponse vide — rien à envoyer');
+  try {
+    const r = await fetch(`/api/commercial/reply/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, mode: 'send' }),
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    showToast('📤 Réponse envoyée depuis Daleba2024@gmail.com !');
+    await refreshEmailDetail(id);
+    loadEmailsFromDB();
+  } catch (e) {
+    showToast('Erreur envoi : ' + e.message);
+  }
+}
+
+async function saveDraft(id) {
+  const textarea = document.getElementById(`reply-text-${id}`);
+  const text = textarea?.value || '';
+  const r = await fetch(`/api/commercial/reply/${id}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, mode: 'draft' }),
+  });
+  if (r.ok) showToast('💾 Brouillon sauvegardé');
+}
+
+async function createTask(emailId) {
+  const r = await fetch(`/api/commercial/emails?limit=100`);
+  const d = await r.json();
+  const email = d.emails?.find(e => e.id == emailId);
+  if (!email) return showToast('Email introuvable');
+
+  const desc = email.task_description || email.summary || email.subject;
+  const budget = prompt('Budget estimé du contrat (en $CAD, laisser vide si inconnu) :');
+
+  try {
+    const r2 = await fetch('/api/commercial/create-task', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email_id: emailId,
+        client_need: desc,
+        budget: budget || 0,
+        client_email: email.from_email,
+      }),
+    });
+    const d2 = await r2.json();
+    if (!r2.ok) throw new Error(d2.error);
+    showToast(`⚡ ${d2.message}`);
+    await refreshEmailDetail(emailId);
+  } catch (e) {
+    showToast('Erreur : ' + e.message);
+  }
+}
+
+async function refreshEmailDetail(id) {
+  const r = await fetch('/api/commercial/emails?limit=100');
+  const d = await r.json();
+  const email = d.emails?.find(e => e.id == id);
+  if (email) renderEmailDetail(email);
+}
+
+function escHtml(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4500);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+checkConnection();
+loadInbox();
+</script>
+</body>
+</html>
