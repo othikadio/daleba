@@ -51,7 +51,14 @@ async function initTable() {
     await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS qa_report_spec TEXT;`);
     await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS qa_engine_used VARCHAR(30);`);
     await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS qa_status VARCHAR(30) DEFAULT 'qa_pending';`);
-    console.log('[production] Table daleba_production_tasks OK (Étape 1+2+3+4)');
+    // V41 — Agent Correcteur
+    await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS corrected_code_files JSONB;`);
+    await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS corrector_engine_used VARCHAR(30);`);
+    await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS correction_status VARCHAR(30) DEFAULT 'correction_pending';`);
+    await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS correction_count INT DEFAULT 0;`);
+    await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS qa2_report_spec TEXT;`);
+    await pool.query(`ALTER TABLE daleba_production_tasks ADD COLUMN IF NOT EXISTS qa2_score INT;`);
+    console.log('[production] Table daleba_production_tasks OK (V41 — Correcteur)');
   } catch (e) {
     if (!e.message.includes('already exists')) console.error('[production] initTable:', e.message);
   }
@@ -408,6 +415,7 @@ router.get('/tasks', async (req, res) => {
              arch_status, arch_engine_used,
              dev_status, dev_engine_used,
              qa_status, qa_engine_used,
+             correction_status, correction_count, qa2_score,
              LEFT(specifications_functional, 300) AS spec_preview
       FROM daleba_production_tasks
       ${where}
@@ -748,6 +756,114 @@ router.put('/tasks/:id/qa-approve', async (req, res) => {
     );
     if (!rows.length) return res.status(404).json({ error: 'Not found' });
     res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ── POST /api/production/tasks/:id/correct — V41 Agent Correcteur ─────────────
+router.post('/tasks/:id/correct', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT * FROM daleba_production_tasks WHERE id = $1', [req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    const task = rows[0];
+
+    if (!task.qa_report_spec) {
+      return res.status(400).json({ error: 'Le rapport QA doit exister avant de corriger.' });
+    }
+    if (!task.generated_code_files || Object.keys(task.generated_code_files).length === 0) {
+      return res.status(400).json({ error: 'Les fichiers de code doivent exister.' });
+    }
+
+    await pool.query(
+      `UPDATE daleba_production_tasks SET correction_status = 'correcting', updated_at = NOW() WHERE id = $1`,
+      [task.id]
+    );
+    res.json({ message: 'Agent Correcteur lancé — corrections + re-QA en cours (90-150s)…', task_id: task.id });
+
+    setImmediate(async () => {
+      try {
+        const { applyCorrections, extractQAScore } = require('../services/corrector-agent');
+        const { runQAInspection }                  = require('../services/qa-agent');
+
+        // Utiliser les fichiers corrigés si déjà une correction précédente, sinon les originaux
+        const sourceFiles = task.corrected_code_files || task.generated_code_files;
+
+        // ÉTAPE A — Appliquer les corrections
+        const { correctedFiles, engine, fileCount } = await applyCorrections(
+          task.qa_report_spec,
+          sourceFiles,
+          task.client_need_raw
+        );
+
+        await pool.query(`
+          UPDATE daleba_production_tasks
+          SET corrected_code_files  = $1,
+              corrector_engine_used = $2,
+              correction_status     = 'qa2_running',
+              correction_count      = COALESCE(correction_count, 0) + 1,
+              updated_at            = NOW()
+          WHERE id = $3
+        `, [JSON.stringify(correctedFiles), engine, task.id]);
+
+        console.log(`[production] Corrections appliquées — task #${task.id} (${fileCount} fichiers, ${engine})`);
+
+        // ÉTAPE B — Re-lancer QA automatiquement sur le code corrigé
+        const { report: qa2Report, engine: qa2Engine } = await runQAInspection(
+          correctedFiles,
+          task.client_need_raw
+        );
+
+        const score = extractQAScore(qa2Report);
+        const isReady = score !== null && score >= 7;
+        const finalStatus = isReady ? 'ready_for_delivery' : 'correction_pending';
+        const mainStatus  = isReady ? 'ready_for_delivery' : task.status;
+
+        await pool.query(`
+          UPDATE daleba_production_tasks
+          SET qa2_report_spec    = $1,
+              qa2_score          = $2,
+              correction_status  = $3,
+              status             = $4,
+              updated_at         = NOW()
+          WHERE id = $5
+        `, [qa2Report, score, finalStatus, mainStatus, task.id]);
+
+        console.log(`[production] Re-QA terminé — score: ${score}/10 — status: ${finalStatus} — task #${task.id}`);
+      } catch (err) {
+        await pool.query(
+          `UPDATE daleba_production_tasks SET correction_status = 'correction_error', notes = $1, updated_at = NOW() WHERE id = $2`,
+          [err.message, task.id]
+        ).catch(() => {});
+        console.error(`[production] Erreur correcteur task #${task.id}:`, err.message);
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/production/tasks/:id/corrected — fichiers corrigés ───────────────
+router.get('/tasks/:id/corrected', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT id, corrected_code_files, corrector_engine_used, correction_status, correction_count, qa2_score
+       FROM daleba_production_tasks WHERE id = $1`, [req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    const t = rows[0];
+    if (!t.corrected_code_files) return res.status(404).json({ error: 'Pas encore de corrections' });
+    res.json({
+      files: t.corrected_code_files,
+      engine: t.corrector_engine_used,
+      status: t.correction_status,
+      count:  t.correction_count,
+      score:  t.qa2_score,
+      fileCount: Object.keys(t.corrected_code_files).length,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

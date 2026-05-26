@@ -178,6 +178,11 @@
     .badge-qa_approved       { background: rgba(63,185,80,0.2); color: var(--emerald); }
     .badge-ready_for_delivery{ background: linear-gradient(90deg,rgba(201,168,76,0.2),rgba(63,185,80,0.2)); color: var(--gold); font-weight:900; }
     .badge-qa_error          { background: rgba(248,81,73,0.12); color: var(--red); }
+    /* Correction badges */
+    .badge-correcting          { background: rgba(88,166,255,0.18); color: var(--blue); animation: arch-pulse 1.2s infinite; }
+    .badge-qa2_running         { background: rgba(63,185,80,0.18); color: var(--emerald); animation: arch-pulse 1.2s infinite; }
+    .badge-correction_pending  { background: rgba(88,166,255,0.12); color: var(--blue); }
+    .badge-correction_error    { background: rgba(248,81,73,0.12); color: var(--red); }
     @keyframes arch-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
     .task-body { border-top: 1px solid var(--border); padding: 1.25rem; display: none; }
@@ -258,6 +263,26 @@
     .qa-cta-text { flex: 1; font-size: 0.82rem; color: var(--emerald); line-height: 1.4; }
     .qa-cta-text strong { display: block; font-size: 0.85rem; margin-bottom: 0.2rem; }
     .dot-qa { width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); animation: dp 1.2s ease-in-out infinite; }
+    .dot-fix { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); animation: dp 1.2s ease-in-out infinite; }
+    .btn-correct {
+      border-color: rgba(88,166,255,0.5); color: var(--blue);
+      font-size: 0.78rem; padding: 0.4rem 1rem;
+    }
+    .btn-correct:hover { background: rgba(88,166,255,0.1); }
+    .score-pill {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.15rem 0.6rem; border-radius: 12px; font-size: 0.72rem; font-weight: 800;
+    }
+    .score-low  { background: rgba(248,81,73,0.15); color: var(--red); }
+    .score-mid  { background: rgba(240,136,62,0.15); color: var(--orange); }
+    .score-high { background: rgba(63,185,80,0.15); color: var(--emerald); }
+    .correction-cta {
+      margin-top: 1rem; padding: 1rem 1.25rem;
+      background: rgba(88,166,255,0.06); border: 1px dashed rgba(88,166,255,0.3);
+      border-radius: 6px; display: flex; align-items: center; gap: 1rem;
+    }
+    .correction-cta-text { flex: 1; font-size: 0.82rem; color: var(--blue); line-height: 1.4; }
+    .correction-cta-text strong { display: block; font-size: 0.85rem; margin-bottom: 0.2rem; }
     .ready-badge {
       display: inline-flex; align-items: center; gap: 0.4rem;
       background: linear-gradient(135deg,var(--gold-dim),rgba(63,185,80,0.1));
@@ -403,6 +428,7 @@
       tasks.filter(t => t.arch_status === 'arch_generating').forEach(t => startPolling(t.id, 'arch'));
       tasks.filter(t => t.dev_status === 'code_generating').forEach(t => startPolling(t.id, 'dev'));
       tasks.filter(t => t.qa_status === 'qa_running').forEach(t => startPolling(t.id, 'qa'));
+      tasks.filter(t => ['correcting','qa2_running'].includes(t.correction_status)).forEach(t => startPolling(t.id, 'correct'));
     } catch (e) { console.warn('loadTasks:', e.message); }
   }
 
@@ -501,17 +527,44 @@
                      && t.qa_status !== 'ready_for_delivery';
     const hasQA      = t.qa_status && !['qa_pending'].includes(t.qa_status);
     const canApproveQA = t.qa_status === 'qa_pending_ulrich';
-    const isDelivered  = t.qa_status === 'ready_for_delivery' || t.status === 'ready_for_delivery';
+    const isDelivered  = t.status === 'ready_for_delivery' || t.correction_status === 'ready_for_delivery';
+
+    const canCorrect   = (t.qa_status === 'qa_pending_ulrich' || t.qa_status === 'qa_approved')
+                       && t.correction_status !== 'correcting'
+                       && t.correction_status !== 'qa2_running'
+                       && !isDelivered;
+    const hasCorrection= t.correction_status && !['correction_pending'].includes(t.correction_status);
+    const isCorrecting = t.correction_status === 'correcting' || t.correction_status === 'qa2_running';
+    const qa2Score     = t.qa2_score;
+    const corrCount    = t.correction_count || 0;
 
     // Tabs
     const tabArch = hasArch ? `<div class="spec-tab arch-tab" id="tab-arch-${t.id}" onclick="switchTab(${t.id}, 'arch')">📐 Architecture</div>` : '';
     const tabCode = hasCode ? `<div class="spec-tab" id="tab-code-${t.id}" onclick="switchTab(${t.id}, 'code')" style="color:var(--orange)">💻 Code</div>` : '';
-    const tabQA   = hasQA   ? `<div class="spec-tab" id="tab-qa-${t.id}" onclick="switchTab(${t.id}, 'qa')" style="color:var(--emerald)">🛡️ QA</div>` : '';
-    const tabs = (hasArch || hasCode || hasQA)
+    const tabQA   = hasQA        ? `<div class="spec-tab" id="tab-qa-${t.id}" onclick="switchTab(${t.id}, 'qa')" style="color:var(--emerald)">🛡️ QA</div>` : '';
+    const tabFix  = hasCorrection ? `<div class="spec-tab" id="tab-fix-${t.id}" onclick="switchTab(${t.id}, 'fix')" style="color:var(--blue)">🔧 Corrections${qa2Score ? ` <span class="score-pill ${qa2Score>=7?'score-high':qa2Score>=5?'score-mid':'score-low'}">${qa2Score}/10</span>` : ''}</div>` : '';
+    const tabs = (hasArch || hasCode || hasQA || hasCorrection)
       ? `<div class="spec-tabs">
            <div class="spec-tab active" id="tab-spec-${t.id}" onclick="switchTab(${t.id}, 'spec')">📋 Cahier des charges</div>
-           ${tabArch}${tabCode}${tabQA}
+           ${tabArch}${tabCode}${tabQA}${tabFix}
          </div>` : '';
+
+    const fixPane = hasCorrection ? `
+      <div class="tab-pane" id="pane-fix-${t.id}">
+        ${isCorrecting
+          ? `<div class="arch-generating-msg" style="color:var(--blue)">
+               <div class="dot-fix"></div>
+               ${t.correction_status === 'correcting' ? 'Agent Correcteur applique les fixes…' : '🛡️ Re-QA en cours sur le code corrigé…'}
+             </div>`
+          : `<div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.75rem;flex-wrap:wrap">
+               ${qa2Score !== null && qa2Score !== undefined
+                 ? `<span style="font-size:0.8rem;color:var(--text-dim)">Round ${corrCount} · Re-QA score : <span class="score-pill ${qa2Score>=7?'score-high':qa2Score>=5?'score-mid':'score-low'}">${qa2Score}/10</span></span>`
+                 : ''}
+               <button class="btn-sm" style="border-color:rgba(88,166,255,0.4);color:var(--blue);font-size:0.7rem" onclick="downloadCorrected(${t.id})">⬇ Télécharger corrigé</button>
+             </div>
+             <div id="fix-explorer-${t.id}"><div style="font-size:0.78rem;color:var(--text-dim)">Chargement…</div></div>
+             <div class="spec-content" id="qa2-display-${t.id}" style="margin-top:1rem;max-height:400px"><em style="color:var(--text-dim)">Rapport re-QA…</em></div>`}
+      </div>` : '';
 
     const qaPane = hasQA ? `
       <div class="tab-pane" id="pane-qa-${t.id}">
@@ -564,13 +617,20 @@
         <div class="spec-content" id="spec-display-${t.id}"><em style="color:var(--text-dim)">Chargement…</em></div>
         <textarea class="spec-raw" id="spec-raw-${t.id}"></textarea>
       </div>
-      ${archPane}${codePane}
+      ${archPane}${codePane}${fixPane}
       ${archCtaBlock}${devCtaBlock}
       ${canRunQA && !hasQA ? `<div class="qa-cta">
          <div class="qa-cta-text"><strong>🛡️ Étape 4 disponible</strong>Lance l'Agent QA pour inspecter le code et détecter bugs, failles et correctifs.</div>
          <button class="btn-sm btn-qa" onclick="runQA(event, ${t.id})">Lancer l'Inspection du Code</button>
        </div>` : ''}
-      ${isDelivered ? `<div class="ready-badge">🚀 Projet prêt pour livraison client</div>` : ''}
+      ${canCorrect && hasQA ? `<div class="correction-cta">
+         <div class="correction-cta-text">
+           <strong>🔧 ${corrCount > 0 ? `Round ${corrCount+1} — Nouvel essai` : 'Agent Correcteur disponible'}</strong>
+           Applique automatiquement les correctifs QA et relance une inspection pour valider le score.
+         </div>
+         <button class="btn-sm btn-correct" onclick="runCorrection(event, ${t.id})">Appliquer les Corrections</button>
+       </div>` : ''}
+      ${isDelivered ? `<div class="ready-badge">🚀 Projet prêt pour livraison client ${qa2Score ? `· Score final : ${qa2Score}/10` : ''}</div>` : ''}
       <div class="task-actions">
         <button class="btn-sm btn-copy-spec" onclick="copyContent(event, ${t.id}, 'spec')">Copier spec</button>
         ${hasArch && t.arch_status !== 'arch_generating' ? `<button class="btn-sm btn-copy-spec" onclick="copyContent(event, ${t.id}, 'arch')" style="border-color:rgba(188,140,255,0.4);color:var(--purple)">Copier arch</button>` : ''}
@@ -581,6 +641,7 @@
         ${canApproveDev ? `<button class="btn-sm btn-dev-approve" onclick="approveDev(event, ${t.id})">✓ Approuver code</button>` : ''}
         ${canRunQA && hasQA ? `<button class="btn-sm btn-qa" onclick="runQA(event, ${t.id})">🛡️ Relancer QA</button>` : ''}
         ${canApproveQA ? `<button class="btn-sm btn-qa-approve" onclick="approveQA(event, ${t.id})">🚀 Approuver & Livrer</button>` : ''}
+        ${canCorrect && hasQA ? `<button class="btn-sm btn-correct" onclick="runCorrection(event, ${t.id})">🔧 Corriger</button>` : ''}
         <button class="btn-sm btn-regen-spec" onclick="regenSpec(event, ${t.id})">Regénérer spec</button>
         <button class="btn-sm btn-del" onclick="deleteTask(event, ${t.id})">Supprimer</button>
       </div>`;
@@ -588,7 +649,7 @@
 
   // ── Tabs ──────────────────────────────────────────────────────────────────────
   function switchTab(id, tab) {
-    ['spec', 'arch', 'code', 'qa'].forEach(t => {
+    ['spec', 'arch', 'code', 'qa', 'fix'].forEach(t => {
       const tabEl  = document.getElementById(`tab-${t}-${id}`);
       const paneEl = document.getElementById(`pane-${t}-${id}`);
       if (tabEl)  tabEl.classList.toggle('active', t === tab);
@@ -605,6 +666,10 @@
     if (tab === 'qa') {
       const display = document.getElementById('qa-display-' + id);
       if (display && display.dataset.loaded !== '1') loadQAReport(id);
+    }
+    if (tab === 'fix') {
+      const explorer = document.getElementById('fix-explorer-' + id);
+      if (explorer && !explorer.dataset.loaded) loadCorrectedFiles(id);
     }
   }
 
@@ -809,6 +874,86 @@
     } catch (e) { showToast('Erreur : ' + e.message); }
   }
 
+  // ── Agent Correcteur (V41) ────────────────────────────────────────────────────
+  async function runCorrection(evt, id) {
+    evt.stopPropagation();
+    const btn = evt.target;
+    btn.disabled = true; btn.textContent = 'Correction…';
+    try {
+      const r = await fetch(`/api/production/tasks/${id}/correct`, { method: 'POST' });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'Erreur serveur');
+      showToast('🔧 Agent Correcteur lancé — corrections + re-QA en cours (90-150s)…');
+      await loadTasks();
+      startPolling(id, 'correct');
+    } catch (e) {
+      showToast('Erreur : ' + e.message);
+      btn.disabled = false; btn.textContent = 'Appliquer les Corrections';
+    }
+  }
+
+  async function loadCorrectedFiles(id) {
+    const explorer = document.getElementById('fix-explorer-' + id);
+    if (!explorer) return;
+    try {
+      const r = await fetch(`/api/production/tasks/${id}/corrected`);
+      if (!r.ok) { explorer.innerHTML = '<div style="color:var(--text-dim);font-size:0.8rem">Pas encore de corrections</div>'; return; }
+      const d = await r.json();
+      const files = d.files || {};
+      const fileList = Object.keys(files);
+      explorer.dataset.loaded = '1';
+      explorer.innerHTML = `
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.5rem">
+          ${fileList.length} fichiers corrigés · <span style="color:var(--blue)">${d.engine}</span> · Round ${d.count}
+          ${d.score !== null ? ` · Score re-QA : <span class="score-pill ${d.score>=7?'score-high':d.score>=5?'score-mid':'score-low'}">${d.score}/10</span>` : ''}
+        </div>
+        <div style="display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;max-height:500px">
+          <div style="width:200px;border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0;background:var(--surface2)">
+            ${fileList.map((f,i) => `
+              <div onclick="showCorrectedFile(${id},${i},'${f.replace(/'/g,"\'")}',${JSON.stringify(JSON.stringify(files[f]))})"
+                style="padding:0.55rem 0.75rem;font-size:0.72rem;cursor:pointer;border-bottom:1px solid var(--border);
+                       color:${i===0?'var(--blue)':'var(--text-dim)'};font-family:monospace;
+                       background:${i===0?'var(--bg)':''}">
+                ${f.split('/').pop()}<div style="font-size:0.62rem;opacity:0.6">${f.split('/')[0]}/</div>
+              </div>`).join('')}
+          </div>
+          <div id="fix-view-${id}" style="flex:1;overflow:auto;background:#010409">
+            <pre style="margin:0;padding:1rem;font-size:0.78rem;line-height:1.6;color:#e6edf3;font-family:'Courier New',monospace">${escHtml(files[fileList[0]] || '')}</pre>
+          </div>
+        </div>`;
+
+      // Charger rapport re-QA
+      const fullTask = await (await fetch(`/api/production/tasks/${id}`)).json();
+      const qa2El = document.getElementById('qa2-display-' + id);
+      if (qa2El && fullTask.qa2_report_spec) {
+        qa2El.innerHTML = formatSpec(fullTask.qa2_report_spec);
+      }
+    } catch (e) {
+      if (explorer) explorer.innerHTML = `<div style="color:var(--red);font-size:0.8rem">Erreur: ${e.message}</div>`;
+    }
+  }
+
+  function showCorrectedFile(taskId, idx, path, contentJson) {
+    const view = document.getElementById('fix-view-' + taskId);
+    const code = JSON.parse(contentJson);
+    if (view) view.innerHTML = `<pre style="margin:0;padding:1rem;font-size:0.78rem;line-height:1.6;color:#e6edf3;font-family:'Courier New',monospace">${escHtml(code)}</pre>`;
+  }
+
+  async function downloadCorrected(id) {
+    try {
+      const r = await fetch(`/api/production/tasks/${id}/corrected`);
+      const d = await r.json();
+      const files = d.files || {};
+      let out = `// DALEBA — Code CORRIGÉ · Task #${id} · Round ${d.count} · Score ${d.score}/10\n\n`;
+      Object.entries(files).forEach(([p, c]) => { out += `\n// === FILE: ${p} ===\n${c}\n`; });
+      const blob = new Blob([out], { type: 'text/javascript' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url;
+      a.download = `daleba-corrected-task-${id}-r${d.count}.js`; a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) { showToast('Erreur : ' + e.message); }
+  }
+
   // ── Lancer Architecte (Étape 2) ───────────────────────────────────────────────
   async function runArchitect(evt, id) {
     evt.stopPropagation();
@@ -845,14 +990,17 @@
           ? t.arch_status !== 'arch_generating'
           : mode === 'dev'
           ? t.dev_status !== 'code_generating'
-          : t.qa_status !== 'qa_running';
+          : mode === 'qa'
+          ? t.qa_status !== 'qa_running'
+          : !['correcting','qa2_running'].includes(t.correction_status);
         if (done) {
           clearInterval(pollingIds[key]); delete pollingIds[key];
           await loadTasks();
           const msg = mode === 'spec'  ? 'Cahier des charges généré !'
                     : mode === 'arch'  ? 'Architecture générée ! Consultez l\'onglet Arch.'
-                    : mode === 'dev'   ? `Code backend généré (${Object.keys(t.generated_code_files||{}).length} fichiers) ! Consultez l\'onglet Code.`
-                    : '🛡️ Rapport QA généré ! Consultez l\'onglet QA.';
+                    : mode === 'dev'    ? `Code backend généré (${Object.keys(t.generated_code_files||{}).length} fichiers) ! Consultez l\'onglet Code.`
+                    : mode === 'qa'     ? '🛡️ Rapport QA généré ! Consultez l\'onglet QA.'
+                    : `🔧 Corrections appliquées ! Score re-QA : ${t.qa2_score !== null ? t.qa2_score + '/10' : '?'}. Consultez l\'onglet Corrections.`;
           showToast(msg);
         }
       } catch (e) {}
