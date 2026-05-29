@@ -393,13 +393,13 @@ async function scanAndNotify() {
       }
     }
 
-    // Notif coiffeur 1h : entre 45min et 75min avant
-    if (diffMin >= 45 && diffMin <= 75 && booking.staff_phone) {
-      if (!(await alreadySent(booking.booking_id, 'staff_1h'))) {
-        await sendStaffReminder(booking);
-        sent++;
-      }
-    }
+    // Notif coiffeur 1h : DÉSACTIVÉE (Ulrich uniquement reçoit les confirmations — 29 mai 2026)
+    // if (diffMin >= 45 && diffMin <= 75 && booking.staff_phone) {
+    //   if (!(await alreadySent(booking.booking_id, 'staff_1h'))) {
+    //     await sendStaffReminder(booking);
+    //     sent++;
+    //   }
+    // }
   }
 
   if (sent > 0) {
