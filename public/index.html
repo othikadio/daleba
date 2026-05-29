@@ -3,468 +3,315 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kadio Coiffure & Esthétique — Salon Afro, Barbier, Longueuil</title>
-  <meta name="description" content="Expert en tresses, locks, barbier, tissage et techniques afro à Longueuil, QC. Kadio Coiffure & Esthétique — un accueil chaleureux et un savoir-faire authentique." />
-  <link rel="stylesheet" href="/assets/css/salon.css" />
+  <title>Kadio Coiffure — Bienvenue</title>
+  <meta name="description" content="Prenez rendez-vous ou découvrez nos forfaits chez Kadio Coiffure, Longueuil." />
+  <meta property="og:title" content="Kadio Coiffure" />
+  <meta property="og:description" content="Coiffure, tresses, locks & barbier à Longueuil. Réservez en ligne !" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --terracotta: #C4622D;
+      --gold: #C9A84C;
+      --dark: #1a1a1a;
+      --radius: 18px;
+      --shadow: 0 8px 32px rgba(0,0,0,0.22);
+    }
+
+    html, body {
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── HERO BACKGROUND ── */
+    .bg-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: url('/img/hero-hub.jpg') center center / cover no-repeat;
+      filter: blur(6px) brightness(0.55);
+      transform: scale(1.05); /* évite les bords blancs du blur */
+    }
+
+    /* ── OVERLAY dégradé sombre pour lisibilité ── */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(
+        160deg,
+        rgba(20,10,5,0.45) 0%,
+        rgba(10,5,2,0.35) 100%
+      );
+    }
+
+    /* ── CONTENU ── */
+    .page {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1.25rem 4rem;
+    }
+
+    /* ── Logo / Avatar ── */
+    .salon-avatar {
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--terracotta), var(--gold));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      border: 2px solid rgba(255,255,255,0.2);
+    }
+
+    /* ── Header ── */
+    .salon-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 0.3rem;
+      letter-spacing: -0.01em;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    }
+
+    .salon-tagline {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.8);
+      text-align: center;
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.04em;
+    }
+
+    .salon-location {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.65);
+      text-align: center;
+      margin-bottom: 0.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      justify-content: center;
+    }
+    .salon-zones {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      margin-bottom: 0.4rem;
+    }
+    .salon-hours {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+    /* ── SOCIAL ICONS ── */
+    .social-row {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-top: 1.25rem;
+    }
+    .social-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 30px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.75rem;
+      font-weight: 600;
+      backdrop-filter: blur(8px);
+      transition: background 0.15s;
+    }
+    .social-btn:hover { background: rgba(255,255,255,0.22); }
+
+    /* ── CTA Buttons ── */
+    .hub-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .hub-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      padding: 1rem 1.4rem;
+      border-radius: var(--radius);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      border: none;
+      width: 100%;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .hub-btn:active  { transform: scale(0.97); }
+    .hub-btn:hover   { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(0,0,0,0.3); }
+
+    /* Rendez-vous : terracotta solide */
+    .hub-btn-primary {
+      background: linear-gradient(135deg, rgba(196,98,45,0.92), rgba(232,130,74,0.92));
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    /* Forfaits : or semi-transparent */
+    .hub-btn-gold {
+      background: linear-gradient(135deg, rgba(201,168,76,0.88), rgba(224,190,114,0.88));
+      color: #1a1a1a;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* Contact : verre dépoli clair */
+    .hub-btn-glass {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-icon  { font-size: 1.35rem; flex-shrink: 0; width: 1.8rem; text-align: center; }
+    .btn-text  { flex: 1; }
+    .btn-label { display: block; }
+    .btn-sub   { display: block; font-size: 0.73rem; font-weight: 400; opacity: 0.8; margin-top: 0.1rem; }
+    .btn-arrow { font-size: 1rem; opacity: 0.7; flex-shrink: 0; }
+
+    /* ── Divider ── */
+    .hub-divider {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      width: 100%;
+      max-width: 420px;
+      color: rgba(255,255,255,0.45);
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+    }
+    .hub-divider::before, .hub-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* ── Footer ── */
+    .hub-footer {
+      margin-top: 2.25rem;
+      font-size: 0.73rem;
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      line-height: 1.7;
+    }
+    .hub-footer a { color: rgba(255,255,255,0.7); text-decoration: none; }
+    .hub-footer a:hover { color: #fff; }
+
+    @media (max-width: 400px) {
+      .salon-name { font-size: 1.65rem; }
+      .hub-btn { font-size: 0.88rem; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- ── SPLASH SCREEN ───────────────────────────── -->
-<div id="kc-splash">
-  <div class="kcs-bg"></div>
-  <div class="kcs-inner">
-    <div class="kcs-emblem">
-      <img src="/assets/logo-blason.png" alt="Kadio Coiffure" class="kcs-logo-img">
-    </div>
-    <div class="kcs-line"></div>
+<!-- Arrière-plan flouté -->
+<div class="bg-layer"></div>
+<div class="overlay"></div>
+
+<div class="page">
+
+  <div class="salon-avatar">✂️</div>
+
+  <h1 class="salon-name">Kadio Coiffure</h1>
+  <p class="salon-tagline">Locks · Tresses · Coupes · Barbier</p>
+  <p class="salon-location">📍 615 Antoinette-Robidoux, Longueuil</p>
+  <p class="salon-zones">Zones desservies : Sainte-Anne-de-Bellevue · Pointe-Claire</p>
+  <p class="salon-hours">🕐 Mar–Sam 9h–19h &nbsp;·&nbsp; Dim 10h–17h &nbsp;·&nbsp; Lun fermé</p>
+
+  <div class="hub-links">
+
+    <!-- RDV -->
+    <a class="hub-btn hub-btn-primary"
+       href="https://square.site/book/LTDE9RP9PSHX7/kadio-coiffure-et-esthetique-inc-longueuil-qc"
+       target="_blank" rel="noopener">
+      <span class="btn-icon">📅</span>
+      <span class="btn-text">
+        <span class="btn-label">Prendre un rendez-vous</span>
+        <span class="btn-sub">Choisissez votre service, votre coiffeur·se et votre heure</span>
+      </span>
+      <span class="btn-arrow">→</span>
+    </a>
+
+    <div class="hub-divider">ou</div>
+
+    <!-- Forfaits -->
+    <a class="hub-btn hub-btn-gold"
+       href="/forfaits"
+       target="_blank" rel="noopener">
+      <span class="btn-icon">💳</span>
+      <span class="btn-text">
+        <span class="btn-label">Forfaits & Abonnements</span>
+        <span class="btn-sub">Abonnez-vous mensuellement · 2 forfaits = -10% famille</span>
+      </span>
+      <span class="btn-arrow">→</span>
+    </a>
+
+    <div class="hub-divider">aussi</div>
+
+    <!-- Contact -->
+    <a class="hub-btn hub-btn-glass"
+       href="https://wa.me/15149195970?text=Bonjour%20Kadio%20Coiffure%20!%20J%27aimerais%20obtenir%20plus%20d%27informations."
+       target="_blank" rel="noopener">
+      <span class="btn-icon">💬</span>
+      <span class="btn-text">
+        <span class="btn-label">Nous contacter</span>
+        <span class="btn-sub">WhatsApp · Réponse rapide</span>
+      </span>
+      <span class="btn-arrow">→</span>
+    </a>
+
   </div>
+
+  <!-- Réseaux sociaux -->
+  <div class="social-row">
+    <a class="social-btn" href="https://www.facebook.com/profile.php?id=255568957645612" target="_blank" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+      Facebook
+    </a>
+    <a class="social-btn" href="https://www.instagram.com/kadiocoiffure" target="_blank" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      Instagram
+    </a>
+    <a class="social-btn" href="https://www.tiktok.com/@kadiocoiffure" target="_blank" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/></svg>
+      TikTok
+    </a>
+  </div>
+
+  <div class="hub-footer">
+    <a href="tel:+15149195970">514 919-5970</a> &nbsp;·&nbsp; Appels &amp; WhatsApp
+  </div>
+
 </div>
-
-<style>
-#kc-splash{position:fixed;inset:0;z-index:9999;background:#FAF6F0;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:opacity 0.7s ease,visibility 0.7s ease;}
-#kc-splash.kcs-hide{opacity:0;visibility:hidden;pointer-events:none;}
-.kcs-bg{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23C4622D' stroke-width='0.6'%3E%3Crect x='15' y='15' width='30' height='30' transform='rotate(45 30 30)'/%3E%3Crect x='22' y='22' width='16' height='16' transform='rotate(45 30 30)'/%3E%3Cline x1='0' y1='30' x2='60' y2='30'/%3E%3Cline x1='30' y1='0' x2='30' y2='60'/%3E%3C/g%3E%3C/svg%3E");opacity:0.05;pointer-events:none;}
-.kcs-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:2rem;}
-.kcs-emblem{opacity:0;transform:scale(0.45);animation:kcsEmblem 2s cubic-bezier(0.16,1,0.3,1) 0.1s forwards;filter:drop-shadow(0 16px 56px rgba(196,98,45,0.55));margin-bottom:0;}
-.kcs-logo-img{width:min(85vmin,92vw);height:auto;border-radius:50%;filter:drop-shadow(0 0 80px rgba(196,98,45,0.55));}
-@keyframes kcsEmblem{0%{opacity:0;transform:scale(0.45);}10%{opacity:1;}100%{opacity:1;transform:scale(1.15);}}
-.kcs-title{font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:clamp(1.6rem,6vw,2.4rem);font-weight:700;letter-spacing:.22em;color:#2C1810;text-transform:uppercase;margin:0 0 .35rem;opacity:0;transform:translateY(14px);animation:kcsText .6s ease .9s forwards;}
-.kcs-sub{font-family:'Playfair Display',Georgia,serif;font-size:clamp(.8rem,2.5vw,1rem);color:#C4622D;letter-spacing:.25em;text-transform:uppercase;margin:0 0 1.25rem;opacity:0;transform:translateY(10px);animation:kcsText .5s ease 1.15s forwards;}
-.kcs-line{width:0;height:1px;background:linear-gradient(90deg,transparent,#C4622D,transparent);animation:kcsLine .6s ease 1.5s forwards;opacity:0;}
-@keyframes kcsText{to{opacity:1;transform:translateY(0);}}
-@keyframes kcsLine{to{width:120px;opacity:1;}}
-</style>
-
-<script>
-(function(){
-  if(sessionStorage.getItem('kc_splashed')){
-    document.getElementById('kc-splash').style.display='none';
-    var al=document.getElementById('archLogoImg');
-    if(al){al.style.animation='none';al.style.opacity='1';al.style.transform='scale(1)';}
-    return;
-  }
-  sessionStorage.setItem('kc_splashed','1');
-  setTimeout(function(){
-    var s=document.getElementById('kc-splash');
-    s.classList.add('kcs-hide');
-    setTimeout(function(){s.style.display='none';},750);
-  },2800);
-})();
-</script>
-
-
-<!-- ── NAVBAR ──────────────────────────────────── -->
-<nav class="navbar">
-  <div class="navbar-inner">
-    <a href="/" class="navbar-brand"><img src="/assets/logo-icon.png" alt="Kadio Coiffure" class="nav-brand-logo"></a>
-    <ul class="navbar-nav" id="navMenu">
-      <li><a href="/" class="active">Accueil</a></li>
-      <li><a href="/menu.html">Services</a></li>
-      <li><a href="/booking.html">Réservation</a></li>
-      <li><a href="/forfaits.html">Forfaits</a></li>
-      <li><a href="/formation.html">Formation</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-    <div class="navbar-cta">
-      <a href="/booking.html" class="btn btn-primary btn-sm">Prendre rendez-vous</a>
-    </div>
-    <button class="navbar-toggle" id="navToggle" aria-label="Menu">
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="2" y1="5.5" x2="20" y2="5.5"/>
-        <line x1="2" y1="11" x2="20" y2="11"/>
-        <line x1="2" y1="16.5" x2="20" y2="16.5"/>
-      </svg>
-    </button>
-  </div>
-</nav>
-
-<!-- ── HERO HEADER ─────────────────────────────── -->
-<section class="hero-header">
-  <div class="hero-inner">
-
-    <!-- Blason officiel — PNG transparent -->
-    <div class="hero-blazon" id="heroBlazon">
-      <img src="/assets/logo-blason.png" alt="Kadio Coiffure" class="hero-blazon-img" id="archLogoImg">
-    </div>
-
-    <h1 class="hero-title">KADIO COIFFURE</h1>
-    <p class="hero-tagline">Soins 100&nbsp;% naturels aux plantes &mdash; Zéro produit chimique</p>
-
-    <div class="hero-actions">
-      <a href="/booking.html" class="btn-hero-primary">Prendre rendez-vous</a>
-      <a href="/menu.html" class="btn-hero-secondary">Voir nos services</a>
-    </div>
-
-    <div class="hero-stats">
-      <div class="hero-stat"><span class="hero-stat-n">50+</span><span class="hero-stat-l">Services</span></div>
-      <div class="hero-stat-sep"></div>
-      <div class="hero-stat"><span class="hero-stat-n">5/5</span><span class="hero-stat-l">Satisfaction</span></div>
-      <div class="hero-stat-sep"></div>
-      <div class="hero-stat"><span class="hero-stat-n">Longueuil</span><span class="hero-stat-l">QC, Canada</span></div>
-    </div>
-
-  </div>
-</section>
-
-<style>
-/* ── HERO HEADER — fond crème pur, blason centré ── */
-.hero-header{
-  background:#FAF6F0;
-  padding:4rem 1.5rem 3.5rem;
-  display:flex;align-items:center;justify-content:center;
-  min-height:520px;
-}
-.hero-inner{
-  display:flex;flex-direction:column;align-items:center;
-  text-align:center;max-width:640px;margin:0 auto;
-}
-/* Blason */
-.hero-blazon{margin-bottom:2rem;}
-.hero-blazon-img{
-  width:min(240px,52vw);
-  height:auto;
-  border-radius:50%;
-  filter:drop-shadow(0 8px 36px rgba(164,68,20,0.25));
-  opacity:0;
-  transform:scale(0.85);
-  animation:heroLogoIn 0.7s cubic-bezier(0.34,1.56,0.64,1) 2.5s forwards;
-}
-@keyframes heroLogoIn{to{opacity:1;transform:scale(1);}}
-/* Typographie */
-.hero-title{
-  font-family:'Playfair Display',Georgia,serif;
-  font-size:clamp(2rem,5.5vw,3.2rem);
-  font-weight:700;letter-spacing:0.2em;
-  color:#2C1810;text-transform:uppercase;
-  margin:0 0 0.3rem;line-height:1.1;
-}
-.hero-subtitle{display:none;}
-.hero-rule{display:none;}
-.hero-tagline{
-  font-size:0.83rem;color:#8A7060;
-  margin:0 0 2.2rem;font-style:italic;letter-spacing:0.03em;
-}
-/* CTA */
-.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-bottom:2.2rem;}
-.btn-hero-primary{
-  background:#C4622D;color:#FAF6F0;
-  padding:0.9rem 2.2rem;border-radius:4px;
-  font-family:inherit;font-weight:700;font-size:0.88rem;
-  letter-spacing:0.07em;text-decoration:none;
-  transition:background 0.2s,box-shadow 0.2s;
-  box-shadow:0 2px 14px rgba(196,98,45,0.28);
-}
-.btn-hero-primary:hover{background:#A8511F;box-shadow:0 4px 20px rgba(196,98,45,0.4);}
-.btn-hero-secondary{
-  background:transparent;color:#C4622D;
-  padding:0.9rem 2.2rem;border:1.5px solid #C4622D;
-  border-radius:4px;font-family:inherit;font-weight:500;
-  font-size:0.88rem;letter-spacing:0.07em;text-decoration:none;
-  transition:all 0.2s;
-}
-.btn-hero-secondary:hover{background:rgba(196,98,45,0.06);}
-/* Stats */
-.hero-stats{display:flex;align-items:center;gap:1.5rem;}
-.hero-stat{display:flex;flex-direction:column;align-items:center;}
-.hero-stat-n{font-family:'Playfair Display',Georgia,serif;font-size:1.3rem;font-weight:700;color:#2C1810;line-height:1;}
-.hero-stat-l{font-size:0.7rem;color:#9A8070;letter-spacing:0.12em;text-transform:uppercase;margin-top:0.2rem;}
-.hero-stat-sep{width:1px;height:28px;background:rgba(44,24,16,0.18);}
-@media(max-width:640px){
-  .hero-header{min-height:auto;padding:3rem 1.5rem;}
-  .hero-blazon-img{width:min(170px,44vw);}
-  .hero-stats{gap:1rem;}
-}
-</style>
-
-
-
-<!-- ── EXPERTISES ───────────────────────────────── -->
-<section class="section" style="background: var(--white);">
-  <div class="container">
-    <div class="section-header">
-      <span class="section-overline">Ce que nous faisons</span>
-      <h2>Nos expertises</h2>
-      <p>Un éventail complet de services coiffure afro, dispensés par des professionnels passionnés.</p>
-      <div class="divider-accent"></div>
-    </div>
-    <div class="grid-3">
-
-      <div class="service-card">
-        <div class="service-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-            <path d="M8 12c0 2.21 1.79 4 4 4s4-1.79 4-4"/>
-          </svg>
-        </div>
-        <h3>Locks &amp; Dreadlocks</h3>
-        <p>Démarrage, entretien, retwist, interlock au crochet, réparation et Sisterlocks. Toutes longueurs, toutes textures.</p>
-        <a href="/menu.html#locks" class="btn btn-secondary btn-sm mt-2">Voir les tarifs</a>
-      </div>
-
-      <div class="service-card">
-        <div class="service-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 6c0 0 3-2 8-2s8 2 8 2"/>
-            <path d="M4 12c0 0 3-2 8-2s8 2 8 2"/>
-            <path d="M4 18c0 0 3-2 8-2s8 2 8 2"/>
-          </svg>
-        </div>
-        <h3>Tresses &amp; Nattes</h3>
-        <p>Knotless braids, nattes américaines, nattes collées, twist, crochet braids — de toutes tailles et longueurs.</p>
-        <a href="/menu.html#tresses" class="btn btn-secondary btn-sm mt-2">Voir les tarifs</a>
-      </div>
-
-      <div class="service-card">
-        <div class="service-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 4l2 2-2 2"/>
-            <path d="M8 6h10a2 2 0 0 1 0 4H8"/>
-            <path d="M12 14h5a2 2 0 0 1 0 4H6l-2-2"/>
-          </svg>
-        </div>
-        <h3>Barbier &amp; Coupe</h3>
-        <p>Coupes hommes, contours, barbe, dégradés. Service enfants disponible. Résultats nets et précis.</p>
-        <a href="/menu.html#barbier" class="btn btn-secondary btn-sm mt-2">Voir les tarifs</a>
-      </div>
-
-      <div class="service-card">
-        <div class="service-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="8" r="4"/>
-            <path d="M6 20v-1a6 6 0 0 1 12 0v1"/>
-          </svg>
-        </div>
-        <h3>Tissage &amp; Perruques</h3>
-        <p>Pose de lace frontale, closure, perruques, tissage — coiffure sur mesure pour chaque occasion.</p>
-        <a href="/menu.html#tissage" class="btn btn-secondary btn-sm mt-2">Voir les tarifs</a>
-      </div>
-
-      <div class="service-card">
-        <div class="service-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 12l2 2 4-4"/>
-            <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.86 0 3.58.57 5 1.53"/>
-          </svg>
-        </div>
-        <h3>Technique &amp; Soins</h3>
-        <p>Lissage, soins hydratants, mise en plis, teinture, finger coils, lavage-séchage — pour une chevelure saine.</p>
-        <a href="/menu.html#soins" class="btn btn-secondary btn-sm mt-2">Voir les tarifs</a>
-      </div>
-
-      <div class="service-card">
-        <div class="service-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-        </div>
-        <h3>Formations</h3>
-        <p>Certifications professionnelles en Locks et Sisterlocks. Devenez expert reconnu avec un certificat à la clé.</p>
-        <a href="/formation.html" class="btn btn-secondary btn-sm mt-2">En savoir plus</a>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ── RÉALISATIONS ─────────────────────────────── -->
-<section class="section">
-  <div class="container">
-    <div class="section-header">
-      <span class="section-overline">Portfolio</span>
-      <h2>Nos réalisations</h2>
-      <p>Un aperçu du travail de notre équipe — authenticité, précision et passion à chaque coiffure.</p>
-      <div class="divider-accent"></div>
-    </div>
-    <div class="gallery-grid">
-
-      <div class="gallery-item">
-        <img src="/img/realisation-1.jpg" alt="Locks retwist soignés tête complète" />
-        <span class="gallery-caption">Locks retwist — tête complète</span>
-      </div>
-
-      <div class="gallery-item">
-        <img src="/img/realisation-2.jpg" alt="Knotless braids longues et précises" />
-        <span class="gallery-caption">Knotless Braids</span>
-      </div>
-
-      <div class="gallery-item">
-        <img src="/img/realisation-3.jpg" alt="Coupe barbier dégradé contours nets" />
-        <span class="gallery-caption">Barbier — Dégradé contours</span>
-      </div>
-
-      <div class="gallery-item">
-        <img src="/img/realisation-4.jpg" alt="Tresses nattes américaines longues" />
-        <span class="gallery-caption">Nattes Américaines</span>
-      </div>
-
-      <div class="gallery-item">
-        <img src="/img/realisation-5.jpg" alt="Pose lace frontale naturelle" />
-        <span class="gallery-caption">Pose Lace Frontale</span>
-      </div>
-
-      <div class="gallery-item">
-        <img src="/img/realisation-6.jpg" alt="Sisterlocks installation complète" />
-        <span class="gallery-caption">Sisterlocks</span>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ── AVIS ─────────────────────────────────────── -->
-<section class="section reviews-section">
-  <div class="container">
-    <div class="section-header">
-      <span class="section-overline">Témoignages</span>
-      <h2>Ce que disent nos clients</h2>
-      <p>La satisfaction de nos clients est notre plus grande fierté.</p>
-      <div class="divider-accent"></div>
-    </div>
-    <div class="grid-2" style="gap: 1.5rem;">
-
-      <div class="review-card">
-        <div class="review-header">
-          <div class="review-avatar">A</div>
-          <div class="review-meta">
-            <h4>Aminata Diallo</h4>
-            <div class="review-rating">5/5 — Google Review</div>
-          </div>
-        </div>
-        <p class="review-text">"Je viens ici depuis deux ans pour mes locks et je ne changerais pour rien au monde. Le travail est minutieux, les résultats sont toujours impeccables. On se sent vraiment prise en charge."</p>
-      </div>
-
-      <div class="review-card">
-        <div class="review-header">
-          <div class="review-avatar" style="background: var(--sage);">K</div>
-          <div class="review-meta">
-            <h4>Koffi Mensah</h4>
-            <div class="review-rating">5/5 — Google Review</div>
-          </div>
-        </div>
-        <p class="review-text">"Meilleur barbier de Longueuil, sans hésitation. Contours parfaits, barbe bien soignée et une ambiance top. Je recommande à tous mes amis."</p>
-      </div>
-
-      <div class="review-card">
-        <div class="review-header">
-          <div class="review-avatar" style="background: var(--terracotta-dark);">F</div>
-          <div class="review-meta">
-            <h4>Fatou Camara</h4>
-            <div class="review-rating">5/5 — Google Review</div>
-          </div>
-        </div>
-        <p class="review-text">"J'ai fait mes knotless braids ici et le résultat était au-delà de mes attentes. L'équipe est professionnelle, patiente et attentive à chaque détail. Je reviendrai certainement."</p>
-      </div>
-
-      <div class="review-card">
-        <div class="review-header">
-          <div class="review-avatar" style="background: #8B6E4E;">M</div>
-          <div class="review-meta">
-            <h4>Moussa Konaté</h4>
-            <div class="review-rating">5/5 — Google Review</div>
-          </div>
-        </div>
-        <p class="review-text">"Excellente première expérience pour la pose de lace frontale. Propre, rapide et très naturel. Le salon est bien situé et l'accueil est chaleureux. Un vrai salon de qualité."</p>
-      </div>
-
-    </div>
-    <div class="review-link">
-      <a href="https://g.page/r/kadiocoiffure" target="_blank" rel="noopener" class="btn btn-secondary">Voir tous nos avis Google</a>
-    </div>
-  </div>
-</section>
-
-<!-- ── CONTACT ──────────────────────────────────── -->
-<section class="section contact-section" id="contact">
-  <div class="container">
-    <div class="contact-grid">
-      <div class="contact-info">
-        <span class="section-overline">Nous trouver</span>
-        <h2>Venez nous rendre visite</h2>
-        <p>Notre salon est situé au coeur de Longueuil, facilement accessible depuis Montréal.</p>
-
-        <div class="contact-item">
-          <div class="contact-item-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-              <circle cx="12" cy="10" r="3"/>
-            </svg>
-          </div>
-          <div class="contact-item-text">
-            <strong>Adresse</strong>
-            <span>615 Antoinette Robidoux, local 100<br>Longueuil, QC J4J 2V8</span>
-          </div>
-        </div>
-
-        <div class="contact-item">
-          <div class="contact-item-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.5 2 2 0 0 1 3.6 1.32h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.68 2.81a2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6 6l1.04-.96a2 2 0 0 1 2.11-.45c.91.32 1.85.55 2.81.68A2 2 0 0 1 21.88 16z"/>
-            </svg>
-          </div>
-          <div class="contact-item-text">
-            <strong>Téléphone</strong>
-            <a href="tel:+15149195970">(514) 919-5970</a>
-          </div>
-        </div>
-
-        <div class="contact-item">
-          <div class="contact-item-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-              <polyline points="22,6 12,13 2,6"/>
-            </svg>
-          </div>
-          <div class="contact-item-text">
-            <strong>Courriel</strong>
-            <a href="mailto:kadiocoiffureetesthetique@yahoo.com">kadiocoiffureetesthetique@yahoo.com</a>
-          </div>
-        </div>
-
-        <div class="contact-item">
-          <div class="contact-item-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12 6 12 12 16 14"/>
-            </svg>
-          </div>
-          <div class="contact-item-text">
-            <strong>Horaires</strong>
-            <span>Sur rendez-vous — contactez le salon pour les horaires</span>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div class="card" style="padding: 0;">
-          <div style="background: var(--cream-dark); border-radius: var(--radius-md); padding: 2.5rem; display: flex; flex-direction: column; gap: 1.25rem;">
-            <h3 style="font-size: 1.2rem;">Prendre rendez-vous</h3>
-            <p style="margin: 0;">Réservez en ligne 24h/24, 7j/7. Rapide, simple et confirmé instantanément.</p>
-            <a href="/booking.html" class="btn btn-primary">Réserver maintenant</a>
-            <a href="/forfaits.html" class="btn btn-secondary">Voir les forfaits mensuels</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── FOOTER ───────────────────────────────────── -->
-<footer class="footer">
-  <div class="footer-inner">
-    <div class="footer-brand">Kadio Coiffure &amp; Esthétique</div>
-    <div class="footer-copy">
-      615 Antoinette Robidoux, local 100, Longueuil, QC &nbsp;|&nbsp; <a href="mailto:kadiocoiffureetesthetique@yahoo.com" style="color: rgba(255,255,255,0.6);">kadiocoiffureetesthetique@yahoo.com</a>
-    </div>
-    <div class="footer-copy">&copy; 2025 Kadio Coiffure &amp; Esthétique. Tous droits réservés.</div>
-  </div>
-</footer>
-
-<script>
-  const toggle = document.getElementById('navToggle');
-  const menu = document.getElementById('navMenu');
-  toggle.addEventListener('click', () => {
-    menu.classList.toggle('open');
-  });
-</script>
 </body>
 </html>

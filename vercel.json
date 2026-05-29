@@ -26,7 +26,11 @@
     },
     {
       "src": "^/$",
-      "dest": "/public/index.html"
+      "dest": "/public/hub.html"
+    },
+    {
+      "src": "^/hub$",
+      "dest": "/public/hub.html"
     },
     {
       "src": "^/([a-zA-Z0-9_-]+)$",
