@@ -294,6 +294,25 @@ router.get('/meta-status', (req, res) => {
   });
 });
 
+
+// ─── POST /api/dashboard/subscribe-page ── Abonner la page FB aux webhooks ──
+router.post('/subscribe-page', async (req, res) => {
+  try {
+    const token = process.env.META_ACCESS_TOKEN;
+    const pageId = process.env.META_FB_PAGE_ID || '255568957645612';
+    if (!token) return res.status(400).json({ error: 'META_ACCESS_TOKEN manquant' });
+    const resp = await fetch(`https://graph.facebook.com/${pageId}/subscribed_apps`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ access_token: token, subscribed_fields: 'messages,messaging_postbacks,messaging_optins' })
+    });
+    const data = await resp.json();
+    res.json({ success: !!data.success, raw: data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── POST /api/dashboard/meta-update ─────────────────────────────────────────
 router.post('/meta-update', async (req, res) => {
   const { token, igAccountId, fbPageId } = req.body || {};
