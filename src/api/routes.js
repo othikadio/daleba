@@ -611,14 +611,41 @@ const metaMsg = require('../services/meta-messenger');
 
 // Webhook WhatsApp (Twilio ou Meta Cloud API)
 router.post('/webhook/whatsapp', async (req, res) => {
-  const parsed = commHub.parseWhatsAppWebhook(req.body);
-  if (!parsed) return res.sendStatus(200);
-  try {
-    await commHub.receiveMessage(parsed);
-  } catch (err) {
-    bus.emit('error', `WhatsApp webhook: ${err.message}`);
+  res.sendStatus(200); // répondre immédiatement (obligation Meta)
+  const waEngine = require('../services/whatsapp-engine');
+
+  // Meta Cloud API (WhatsApp Business)
+  const metaParsed = waEngine.parseMetaCloudWebhook(req.body);
+  if (metaParsed) {
+    waEngine.handleIncoming(metaParsed).catch(err =>
+      bus.emit('error', `[WA-Meta] ${err.message}`)
+    );
+    return;
   }
-  res.sendStatus(200);
+
+  // Twilio WhatsApp
+  const twilioParsed = commHub.parseWhatsAppWebhook(req.body);
+  if (twilioParsed) {
+    waEngine.handleIncoming({
+      from: twilioParsed.from,
+      type: req.body.MediaContentType0 ? 'audio' : 'text',
+      text: twilioParsed.text,
+      audioUrl: req.body.MediaUrl0 || null,
+      mimeType: req.body.MediaContentType0 || 'audio/ogg',
+    }).catch(err => bus.emit('error', `[WA-Twilio] ${err.message}`));
+    return;
+  }
+});
+
+// Vérification webhook Meta Cloud API (WhatsApp)
+router.get('/webhook/whatsapp', (req, res) => {
+  const mode      = req.query['hub.mode'];
+  const token     = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
+  if (mode === 'subscribe' && token === (process.env.META_VERIFY_TOKEN || 'kadio-daleba-2026')) {
+    return res.status(200).send(challenge);
+  }
+  res.sendStatus(403);
 });
 
 // ─── VÉRIFICATION WEBHOOK META (GET) — requis par Meta pour activer l'abonnement ─────────────

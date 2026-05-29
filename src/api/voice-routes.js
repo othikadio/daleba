@@ -192,17 +192,22 @@ router.post('/voice/status', twilioAuthMiddleware, safeVoiceRoute(async (req, re
   const missedStatuses = ['no-answer', 'busy', 'failed', 'canceled'];
   if (From && missedStatuses.includes(CallStatus)) {
     try {
-      const twilio = require('../services/twilio');
-      const { BOOKING_LINK, SALON_INFO } = require('../services/ad-intent-router');
-      const smsText =
-        `Bonjour ! Nous avons raté votre appel chez ${SALON_INFO.name} 💇\n` +
-        `Pour réserver votre créneau en ligne :\n` +
-        `👉 ${BOOKING_LINK}\n` +
-        `Questions ? Appelez-nous au ${SALON_INFO.phone} ✨`;
-      await twilio.sendSMS(From, smsText);
-      bus.system(`📲 SMS appel manqué envoyé à ${fromMasked}`);
+      const twilioSvc = require('../services/twilio');
+      const missedText =
+        `Bonjour ! Nous avons rate votre appel chez Kadio Coiffure.\n\n` +
+        `Reservez directement en ligne :\n` +
+        `https://kadiocoiffure.vercel.app/hub\n\n` +
+        `Ou repondez ici et nous vous rappelons rapidement !`;
+
+      // SMS classique
+      await twilioSvc.sendSMS(From, missedText);
+      bus.system(`SMS appel manque envoye a ${fromMasked}`);
+
+      // WhatsApp automatique (actif des que le numero WA est configure)
+      const waEngine = require('../services/whatsapp-engine');
+      waEngine.handleMissedCall(From).catch(() => {});
     } catch (smsErr) {
-      bus.emit('error', `SMS appel manqué: ${smsErr.message}`);
+      bus.emit('error', `Appel manque handler: ${smsErr.message}`);
     }
   }
 
