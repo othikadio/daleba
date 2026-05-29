@@ -17,7 +17,7 @@ INFOS SALON :
 - Adresse : 615 Antoinette-Robidoux, local 100, Longueuil QC J4J 2V8
 - Téléphone : 514-919-5970
 - Courriel : kadiocoiffureetesthetique@yahoo.com
-- Horaires (source Square officielle) : Lundi 12h-17h | Mardi FERMÉ | Mercredi 10h-17h | Jeudi 10h-21h | Vendredi 10h-21h | Samedi 10h-21h | Dimanche 10h-17h
+- Horaires : Lundi 12h-19h | Mardi FERMÉ | Mercredi 10h-19h | Jeudi 10h-21h | Vendredi 10h-21h | Samedi 10h-21h | Dimanche 10h-17h
 - Services : Locks/Dreads, Tresses, Knotless Braids, Barbier, Tissage, Perruques, Soins capillaires, Formations
 - Lien central (RDV + Forfaits + Contact) : https://daleba.vercel.app/hub
 
