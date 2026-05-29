@@ -29,9 +29,13 @@ TARIFS CLÉS (prix avant taxes — TPS 5% + TVQ 9,975%) :
 - Tissage : 120$+ | Lace frontale : 150$+ | Frontale 360° : 200$+
 - Laver, sécher, lisser : 65$+ | Chignon : 80$+
 
-FORFAITS MENSUELS :
-- Locs Illimité : 129,99$/mois | Knotless & Tresses Signature : 139,99$/mois
-- Barbier Coupe & Barbe : 64,99$/mois | Tresses Rapides : 79,99$/mois
+FORFAITS MENSUELS (abonnements Stripe — paiement en ligne) :
+- Locs Illimité : 129,99$/mois | Microlocs/Sisterlocks : 149,99$/mois
+- Knotless & Tresses Signature : 139,99$/mois | Tresses rapides : 79,99$/mois
+- Barbier coupe + barbe : 64,99$/mois | Coupe simple : 59,99$/mois | Barbe illimitée : 35,99$/mois
+- Combos adultes : Tresses + Barbier 104,99$ | Locs + Barbier 154,99$/mois
+- Enfants : Tresses rapides 59,99$ | Knotless 95,99$ | Locs 79,99$ | Barbier 49,99$/mois
+- TARIF FAMILLE : 2 abonnements ou plus = -10% automatique avec le code FAMILLE10
 
 RÈGLES :
 - Dépôt 20% requis à la réservation (SAUF barbier : 0$ de dépôt)
