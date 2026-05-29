@@ -18,7 +18,7 @@ const SALON_INFO = {
   facebook:  'kadio coiffure',
   instagram: '@kadiocoiffure',
   tiktok:    '@kadiocoiffure',
-  website:   'kadiocoiffure.com',
+  website:   'kadiocoiffure.vercel.app/hub/hub',
   hours: {
     'Lundi – Vendredi': '9h00 – 20h00',
     'Samedi':           '8h00 – 18h00',

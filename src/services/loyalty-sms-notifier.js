@@ -42,7 +42,7 @@ async function processExpiryReminders(pool) {
   for (const c of r.rows) {
     try {
       const twilio = require('./twilio-sender');
-      const body = `Bonjour ${c.customer_name||''}! Vous avez ${c.points_balance} points de fidélité chez Kadio Coiffure qui vous attendent 🌿 Récompenses disponibles à utiliser lors de votre prochaine visite. Ne laissez pas vos points expirer ! Réservez sur daleba.vercel.app 💜`;
+      const body = `Bonjour ${c.customer_name||''}! Vous avez ${c.points_balance} points de fidélité chez Kadio Coiffure qui vous attendent 🌿 Récompenses disponibles à utiliser lors de votre prochaine visite. Ne laissez pas vos points expirer ! Réservez sur kadiocoiffure.vercel.app/hub 💜`;
       await twilio.sendSMS({ to: c.customer_phone, body });
       sent++;
       bus.system(`[LoyaltySMS] 📩 Relance inactivité: ${c.customer_name} (${c.points_balance}pts)`);

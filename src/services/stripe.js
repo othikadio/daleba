@@ -27,8 +27,8 @@ async function createCheckoutSession({
   amount,
   description,
   sessionId,
-  successUrl = process.env.STRIPE_SUCCESS_URL || 'https://kadiocoiffure.com/confirmation',
-  cancelUrl = process.env.STRIPE_CANCEL_URL || 'https://kadiocoiffure.com/annulation',
+  successUrl = process.env.STRIPE_SUCCESS_URL || 'https://kadiocoiffure.vercel.app/hub/hub',
+  cancelUrl = process.env.STRIPE_CANCEL_URL || 'https://kadiocoiffure.vercel.app/hub/hub',
 }) {
   if (!stripe) throw new Error('Stripe non configuré — ajoutez STRIPE_SECRET_KEY');
   const session = await stripe.checkout.sessions.create({

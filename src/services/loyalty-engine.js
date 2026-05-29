@@ -128,8 +128,8 @@ async function runReengagementCampaign(inactiveDays = 30) {
       const pointsLeft = nextReward ? nextReward.points - client.points : 0;
 
       const message = client.points > 0
-        ? `Bonjour ${client.name || 'cher(e) client(e)'} ! 💇 Chez Kadio Coiffure, vous nous manquez. Vous avez ${client.points} points fidélité${pointsLeft > 0 ? ` (encore ${pointsLeft} pts pour "${nextReward.reward}")` : ''}. Réservez en ligne : daleba.vercel.app ✨`
-        : `Bonjour ${client.name || ''} ! On ne vous a pas vu ce mois-ci chez Kadio Coiffure 💫 Votre prochaine visite mérite une attention particulière. Prenez RDV : daleba.vercel.app 📱`;
+        ? `Bonjour ${client.name || 'cher(e) client(e)'} ! 💇 Chez Kadio Coiffure, vous nous manquez. Vous avez ${client.points} points fidélité${pointsLeft > 0 ? ` (encore ${pointsLeft} pts pour "${nextReward.reward}")` : ''}. Réservez en ligne : kadiocoiffure.vercel.app/hub ✨`
+        : `Bonjour ${client.name || ''} ! On ne vous a pas vu ce mois-ci chez Kadio Coiffure 💫 Votre prochaine visite mérite une attention particulière. Prenez RDV : kadiocoiffure.vercel.app/hub 📱`;
 
       await twilio.sendSMS(client.phone, message);
 

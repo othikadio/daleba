@@ -110,7 +110,7 @@ async function handleInfoIntent({ text, sessionId }) {
     const result = await claude.query(text, DALEBA_SYSTEM_PROMPT, []);
     return result.content;
   } catch {
-    return `Bonjour ! Pour toute information sur nos services et tarifs, contactez-nous au 514-919-5970 ou visitez daleba.vercel.app 💇✨`;
+    return `Bonjour ! Pour toute information sur nos services et tarifs, contactez-nous au 514-919-5970 ou visitez kadiocoiffure.vercel.app/hub 💇✨`;
   }
 }
 

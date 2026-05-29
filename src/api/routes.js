@@ -871,7 +871,7 @@ Génère:
 1) Analyse du profil capillaire
 2) RECETTE BOTANIQUE PERSONNALISÉE (ingrédients + proportions + mode d'application)
 3) Routine soins hebdomadaire (3 étapes max)
-4) Lien réservation soin Bar à Plantes: https://daleba.vercel.app/reservation`;
+4) Lien réservation soin Bar à Plantes: https://kadiocoiffure.vercel.app/hub`;
 
     const result = await claude.query(query, systemPrompt, []);
     const diagnosticText = result.content;
@@ -879,7 +879,7 @@ Génère:
     // ── Envoi automatique SMS/WhatsApp si téléphone fourni ──────────────────
     if (phone) {
       const twilio = require('../services/twilio');
-      const shortMsg = `Bonjour ${name || ''} ! 🌿 Voici votre diagnostic capillaire personnalisé du Bar à Plantes Kadio Coiffure :\n\n${diagnosticText.slice(0, 600)}${diagnosticText.length > 600 ? '...' : ''}\n\n📅 Réservez votre soin: https://daleba.vercel.app/reservation`;
+      const shortMsg = `Bonjour ${name || ''} ! 🌿 Voici votre diagnostic capillaire personnalisé du Bar à Plantes Kadio Coiffure :\n\n${diagnosticText.slice(0, 600)}${diagnosticText.length > 600 ? '...' : ''}\n\n📅 Réservez votre soin: https://kadiocoiffure.vercel.app/hub`;
 
       // Tentative WhatsApp en priorité, fallback SMS
       const dest = `whatsapp:${phone}`;
@@ -898,7 +898,7 @@ Génère:
       diagnostic: diagnosticText,
       profile: { name, hairType, concerns, goals },
       smsSent: !!phone,
-      bookingCta: 'https://daleba.vercel.app/reservation',
+      bookingCta: 'https://kadiocoiffure.vercel.app/hub',
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

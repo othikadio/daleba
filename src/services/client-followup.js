@@ -10,9 +10,9 @@ const TEMPLATES = {
   POST_VISIT_2H: (nom) =>
     `Merci ${nom} de votre visite chez Kadio Coiffure ! Comment s'est passée votre expérience ? 😊 Répondez à ce message pour nous laisser un avis.`,
   RELANCE_7J: (nom) =>
-    `Bonjour ${nom} ! 💇 C'est DALEBA de chez Kadio Coiffure. Il serait temps de reprendre soin de vous non ? Réservez en 2 clics : https://daleba.vercel.app/reservation`,
+    `Bonjour ${nom} ! 💇 C'est DALEBA de chez Kadio Coiffure. Il serait temps de reprendre soin de vous non ? Réservez en 2 clics : https://kadiocoiffure.vercel.app/hub`,
   INACTIF_30J: (nom) =>
-    `Bonjour ${nom}, ça fait un moment qu'on ne vous a pas vu ! 🌟 Votre prochaine transformation vous attend. Réservez : https://daleba.vercel.app/reservation`,
+    `Bonjour ${nom}, ça fait un moment qu'on ne vous a pas vu ! 🌟 Votre prochaine transformation vous attend. Réservez : https://kadiocoiffure.vercel.app/hub`,
 };
 
 // Tracker des SMS déjà envoyés (en mémoire + persist dans logs)

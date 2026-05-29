@@ -22,7 +22,7 @@ const DALEBA_PERSONA = `Tu es Daleba, la réceptionniste IA de Kadio Coiffure �
 **Salon Kadio Coiffure :**
 - Adresse : 615 Antoinette Robidoux, local 100, Longueuil, QC J4J 2V8
 - Téléphone : (514) 919-5970
-- Site : https://daleba.vercel.app
+- Site : https://kadiocoiffure.vercel.app/hub
 - Horaires : Lun-Ven 9h-19h, Sam 8h-18h, Dim fermé
 - Services & prix approximatifs :
   - Coupe femme : 45–75$
@@ -158,7 +158,7 @@ Dites-moi le service qui vous intéresse !`;
 📍 615 Antoinette Robidoux, local 100, Longueuil
 ⏰ Lun-Ven 9h-19h | Sam 8h-18h
 
-Pour réserver : tapez 1 ou visitez https://daleba.vercel.app/reservation`;
+Pour réserver : tapez 1 ou visitez https://kadiocoiffure.vercel.app/hub`;
     }
 
     if (message.trim() === '3' || /humain|personne|quelqu'un|agent/i.test(message)) {

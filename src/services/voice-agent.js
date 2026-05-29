@@ -187,7 +187,7 @@ async function getSquareAvailability() {
     return `Services: ${servicesLine}\nCréneaux disponibles:\n${slots.join('\n') || 'Aucun créneau libre dans les 3 prochains jours'}`;
   } catch (err) {
     bus.system(`⚠️ [VOICE] getSquareAvailability error: ${err.message}`);
-    return 'Disponibilités momentanément indisponibles — inviter à rappeler ou visiter kadiocoiffure.com';
+    return 'Disponibilités momentanément indisponibles — inviter à rappeler ou visiter kadiocoiffure.vercel.app/hub';
   }
 }
 

@@ -6,7 +6,7 @@
 module.exports = {
   SALON_NAME: process.env.SALON_NAME || 'Kadio Coiffure et Esthétique',
   SALON_ADDRESS: process.env.SALON_ADDRESS || '615 Antoinette Robidoux, Local 100, Longueuil, QC',
-  SALON_WEBSITE: process.env.SALON_WEBSITE || 'kadiocoiffure.com',
+  SALON_WEBSITE: process.env.SALON_WEBSITE || 'kadiocoiffure.vercel.app/hub/hub',
   HOURS: {
     weekdays: '9h à 19h',
     saturday: '8h à 17h',

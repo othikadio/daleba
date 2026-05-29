@@ -5,14 +5,14 @@
  * Prix mis à jour V32 (mai 2026) — vrais tarifs Kadio Coiffure
  */
 
-const BOOKING_LINK = 'https://daleba.vercel.app/booking.html';
+const BOOKING_LINK = 'https://kadiocoiffure.vercel.app/hub';
 
 const SALON_INFO = {
   name: 'Kadio Coiffure et Esthétique',
   address: '615 Antoinette-Robidoux, local 100, Longueuil, QC J4J 2V8',
   phone: '514-919-5970',
   email: 'kadiocoiffureetesthetique@yahoo.com',
-  website: 'daleba.vercel.app',
+  website: 'kadiocoiffure.vercel.app/hub',
   hours: 'Mardi–Samedi : 9h–19h | Dimanche : 10h–17h | Lundi : Fermé',
 };
 

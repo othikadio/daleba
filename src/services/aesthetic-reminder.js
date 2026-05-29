@@ -45,7 +45,7 @@ async function scheduleReminder(pool, { tenantId, clientId, clientName, clientPh
   const lastDate = lastTreatmentDate ? new Date(lastTreatmentDate) : new Date();
   const nextDate = new Date(lastDate.getTime() + cycle * 86400000);
 
-  const msg = `Bonjour ${clientName || 'chère cliente'} 🌿 Votre soin ${treatmentType} a été effectué il y a ${cycle} jours. Il est temps de renouveler votre expérience bien-être chez nous ! Réservez sur daleba.vercel.app ou appelez le ${process.env.SALON_PHONE_NUMBER || 'le salon'}. À très bientôt 💜`;
+  const msg = `Bonjour ${clientName || 'chère cliente'} 🌿 Votre soin ${treatmentType} a été effectué il y a ${cycle} jours. Il est temps de renouveler votre expérience bien-être chez nous ! Réservez sur kadiocoiffure.vercel.app/hub ou appelez le ${process.env.SALON_PHONE_NUMBER || 'le salon'}. À très bientôt 💜`;
 
   const r = await pool.query(`
     INSERT INTO aesthetic_reminders

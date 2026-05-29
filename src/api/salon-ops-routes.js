@@ -304,7 +304,7 @@ router.post('/close-appointment', async (req, res) => {
     return res.status(400).json({ error: 'appointmentId et clientPhone requis' });
   }
 
-  const BASE_URL = process.env.BASE_URL || 'https://daleba.vercel.app';
+  const BASE_URL = process.env.BASE_URL || 'https://kadiocoiffure.vercel.app/hub';
 
   // Générer un token d'évaluation (encodage simple base64 signé)
   const jwt = require('jsonwebtoken');

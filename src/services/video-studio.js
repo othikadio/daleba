@@ -22,7 +22,7 @@ const BOTANICAL_TIPS = [
     title: "🌺 Rituel Beauté Botanique",
     tip1: "Le beurre de karité scelle\nl'hydratation et protège 🧴",
     tip2: "L'aloe vera apaise le cuir chevelu\net réduit les démangeaisons 🌵",
-    cta: "Prenez RDV en ligne !\nkadiocoiffure.com",
+    cta: "Prenez RDV en ligne !\nkadiocoiffure.vercel.app/hub",
   },
 ];
 

@@ -36,7 +36,7 @@ RÈGLES :
 - Si demande de devis → propose 3 niveaux (Starter, Pro, Enterprise)
 - Si accord/paiement confirmé → remercie, confirme les prochaines étapes, annonce le démarrage
 - JAMAIS de fausses promesses sur les délais
-- Signature : "L'équipe DALEBA OS | daleba.vercel.app"
+- Signature : "L'équipe DALEBA OS | kadiocoiffure.vercel.app/hub"
 
 FORMAT DE RÉPONSE OBLIGATOIRE (JSON strict) :
 {

@@ -62,7 +62,7 @@ function buildCampaignEmail({ clientName, skinType, salonName = 'Kadio Coiffure'
     <p>Basé sur votre profil cutané (<strong>${skinType}</strong>), nous avons sélectionné pour vous:</p>
     <ul style="margin:16px 0;padding-left:20px">${botList || '<li>🌿 Soin personnalisé disponible sur demande</li>'}</ul>
     <div style="background:rgba(124,58,237,0.05);border:1px solid rgba(124,58,237,0.15);border-radius:8px;padding:16px;margin:16px 0;text-align:center">
-      <a href="https://daleba.vercel.app" style="background:#7c3aed;color:#fff;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:600;display:inline-block">
+      <a href="https://kadiocoiffure.vercel.app/hub" style="background:#7c3aed;color:#fff;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:600;display:inline-block">
         Réserver mon soin ✨
       </a>
     </div>

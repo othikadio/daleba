@@ -18,8 +18,8 @@ const BRAND = {
   name:     process.env.SALON_NAME    || 'KADIO COIFFURE',
   address:  process.env.SALON_ADDRESS || '615 Antoinette-Robidoux, local 100, Longueuil QC J4J 2V8',
   phone:    process.env.SALON_PHONE   || '+1 (514) 919-5970',
-  email:    process.env.SALON_EMAIL   || 'contact@kadiocoiffure.com',
-  website:  process.env.SALON_WEBSITE || 'kadiocoiffure.com',
+  email:    process.env.SALON_EMAIL   || 'contact@kadiocoiffure.vercel.app/hub',
+  website:  process.env.SALON_WEBSITE || 'kadiocoiffure.vercel.app/hub/hub',
   tpsNum:   process.env.SALON_TPS_NUMBER || 'À configurer',
   tvqNum:   process.env.SALON_TVQ_NUMBER || 'À configurer',
   gold:     '#D4AF37',
@@ -190,7 +190,7 @@ async function sendReceiptByEmail(customerEmail, pdfPath, txId) {
       const pdfBytes = fs.readFileSync(pdfPath).toString('base64');
       await sgMail.send({
         to:   customerEmail,
-        from: process.env.SALON_EMAIL || 'noreply@kadiocoiffure.com',
+        from: process.env.SALON_EMAIL || 'noreply@kadiocoiffure.vercel.app/hub',
         subject: `Votre reçu — ${BRAND.name}`,
         text:  `Merci pour votre visite chez ${BRAND.name}. Veuillez trouver votre reçu en pièce jointe.`,
         attachments: [{

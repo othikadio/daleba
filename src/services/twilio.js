@@ -102,7 +102,7 @@ async function sendCancellation({ clientPhone, clientName, date }) {
   const message =
     `❌ Kadio Coiffure — Annulation\n` +
     `Bonjour ${clientName}, votre RDV du ${date} a été annulé.\n` +
-    `Pour reprendre RDV: kadiocoiffure.com`;
+    `Pour reprendre RDV: kadiocoiffure.vercel.app/hub`;
 
   return sendSMS(clientPhone, message);
 }

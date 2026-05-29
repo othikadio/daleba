@@ -501,7 +501,7 @@ router.post('/book', async (req, res) => {
     const depositLine = depositWaived
       ? 'Aucun dépôt requis.'
       : `Dépôt de 20% : ${depositAmount}$ CAD requis.`;
-    const baseUrl = process.env.API_BASE_URL || 'https://daleba.vercel.app';
+    const baseUrl = process.env.API_BASE_URL || 'https://kadiocoiffure.vercel.app/hub';
     const ratingUrl = `${baseUrl}/noter-service?appt=${bookingId}&phone=${encodeURIComponent(clientPhone)}&name=${encodeURIComponent(firstName)}`;
     const smsBody = `Bonjour ${firstName}, votre rendez-vous chez Kadio Coiffure est confirmé pour le ${dateFR}. Service: ${service.name}. ${depositLine} Adresse: 615 Antoinette-Robidoux, local 100, Longueuil. Besoin de modifier? Appelez le (514) 919-5970. Notez votre expérience : ${ratingUrl}`;
     smsResult = await sendSMS(clientPhone, smsBody);

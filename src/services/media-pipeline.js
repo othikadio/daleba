@@ -72,7 +72,7 @@ Spécialités : Locs, Knotless braids, Microlocks, Tresses, Coupe barbier, Tissa
 Cible : Communauté afro-caribéenne de Montréal/Longueuil, 18-45 ans
 Ton : Chaleureux, professionnel, fier de la culture, authentique
 Langue : Français canadien (expressions québécoises légères OK)
-CTA habituel : "Réservez votre prochain rendez-vous → kadiocoiffure.vercel.app"
+CTA habituel : "Réservez votre prochain rendez-vous → kadiocoiffure.vercel.app/hub/hub
 `.trim();
 
   const platformGuides = {
@@ -97,7 +97,7 @@ Réponds en JSON strict : {"caption":"...","hashtags":"...","hook":"..."}`;
   if (!Anthropic || !process.env.ANTHROPIC_API_KEY) {
     // Fallback demo caption
     return {
-      caption: `✨ Nouveau look Kadio Coiffure ! Réservez votre prochain rendez-vous → kadiocoiffure.vercel.app`,
+      caption: `✨ Nouveau look Kadio Coiffure ! Réservez votre prochain rendez-vous → kadiocoiffure.vercel.app/hub/hub,
       hashtags: '#coiffure #braids #montreal #longueuil #knotless #locs #naturalhair #afro #coiffureafro',
       hook: 'Regardez ce résultat 👀',
     };
