@@ -466,6 +466,34 @@ router.get('/social/status', (req, res) => {
   res.json(getSocialStatus());
 });
 
+// Diagnostic Meta token (clé secrète)
+router.get('/social/meta-diag', async (req, res) => {
+  try {
+    const token = await metaMsg.getActiveToken ? await metaMsg.getActiveToken() : null;
+    if (!token) return res.json({ status: 'no_token', configured: false });
+
+    // Vérifier le token via Meta
+    const r = await fetch(`https://graph.facebook.com/v19.0/me?fields=id,name&access_token=${token}`);
+    const data = await r.json();
+
+    // Vérifier les permissions
+    const permsR = await fetch(`https://graph.facebook.com/v19.0/me/permissions?access_token=${token}`);
+    const permsData = await permsR.json();
+    const granted = (permsData.data || []).filter(p => p.status === 'granted').map(p => p.permission);
+
+    res.json({
+      tokenPresent: true,
+      tokenLength: token.length,
+      pageInfo: data,
+      grantedPermissions: granted,
+      hasInstagramMessages: granted.includes('instagram_manage_messages'),
+      hasMessagesPermission: granted.includes('pages_messaging'),
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── ROUTES FOLLOWUP (Point 40) ───────────────────────────────────────
 
 router.get('/admin/followup/stats', (req, res) => {
@@ -695,15 +723,28 @@ router.post('/webhook/facebook', async (req, res) => {
 // Instagram DMs — Flux publicitaire
 router.post('/webhook/instagram', async (req, res) => {
   res.sendStatus(200); // Réponse immédiate à Meta (<5s)
+  const rawBody = JSON.stringify(req.body).slice(0, 200);
+  console.log(`[IG-WEBHOOK] Corps reçu: ${rawBody}`);
   try {
     const parsed = commHub.parseInstagramWebhook(req.body);
-    if (!parsed) return;
+    if (!parsed) {
+      console.log(`[IG-WEBHOOK] Parse échoué ou message echo/non-texte. Body: ${rawBody}`);
+      return;
+    }
+    console.log(`[IG-WEBHOOK] Parsé OK: from=${parsed.from} text="${parsed.text.slice(0, 80)}"`);
     bus.chat(`[INSTAGRAM] Prospect: ${parsed.from} — "${parsed.text.slice(0, 60)}"`);
     // Routeur publicitaire rapide
     const reply = await routeAdMessage(parsed.text, 'instagram');
-    await metaMsg.sendInstagramMessage(parsed.from, reply);
+    console.log(`[IG-WEBHOOK] Réponse générée: "${String(reply).slice(0, 100)}"`);
+    const sendResult = await metaMsg.sendInstagramMessage(parsed.from, reply);
+    if (sendResult && !sendResult.success) {
+      console.error(`[IG-WEBHOOK] ❌ Échec envoi DM: ${JSON.stringify(sendResult)}`);
+    } else {
+      console.log(`[IG-WEBHOOK] ✅ DM envoyé à ${parsed.from}`);
+    }
     bus.chat(`[INSTAGRAM] Réponse envoyée à ${parsed.from}`);
   } catch (err) {
+    console.error(`[IG-WEBHOOK] EXCEPTION: ${err.message}`, err.stack);
     bus.emit('error', `Instagram webhook: ${err.message}`);
   }
 });
