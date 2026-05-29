@@ -285,6 +285,43 @@ router.post('/command', async (req, res) => {
   res.json({ reply, intent, provider: intent === 'general' ? 'ai-router' : 'daleba-engine' });
 });
 
+
+// ─── GET /api/dashboard/debug-meta ── Diagnostic token Meta ──────────────────
+router.get('/debug-meta', async (req, res) => {
+  try {
+    const token = process.env.META_ACCESS_TOKEN;
+    const appId = process.env.META_APP_ID || '1694870868184251';
+    const appSecret = process.env.META_APP_SECRET || '6bcb4a9fa3df065e748dd1eb596c69ab';
+    const pageId = process.env.META_FB_PAGE_ID || '255568957645612';
+    if (!token) return res.json({ error: 'META_ACCESS_TOKEN manquant' });
+    
+    // Get app token for debug_token call
+    const appTokenResp = await fetch(`https://graph.facebook.com/oauth/access_token?client_id=${appId}&client_secret=${appSecret}&grant_type=client_credentials`);
+    const { access_token: appToken } = await appTokenResp.json();
+    
+    // Debug the page token
+    const debugResp = await fetch(`https://graph.facebook.com/debug_token?input_token=${token}&access_token=${appToken}`);
+    const debugData = await debugResp.json();
+    
+    // Check page subscriptions
+    const pageSub = await fetch(`https://graph.facebook.com/${pageId}/subscribed_apps?access_token=${token}`);
+    const pageSubData = await pageSub.json();
+    
+    res.json({ 
+      token_debug: debugData.data,
+      page_subscriptions: pageSubData,
+      env: { 
+        hasToken: !!token, 
+        tokenEnd: token ? token.slice(-8) : null,
+        pageId,
+        appId
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── GET /api/dashboard/meta-status ──────────────────────────────────────────
 router.get('/meta-status', (req, res) => {
   res.json({
