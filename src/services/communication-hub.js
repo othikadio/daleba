@@ -1,5 +1,5 @@
 /**
- * DALEBA — Communication Hub Omnicanal
+ * DALEBA - Communication Hub Omnicanal
  * Centralise WhatsApp Business, Facebook Messenger, Instagram DMs, SMS Twilio
  * Analyse via brain-context.js + réservation autonome via Square
  */
@@ -17,21 +17,21 @@ const CHANNELS = {
 // ─── ROUTEUR DE MESSAGES ENTRANTS ────────────────────────────────────────────
 
 /**
- * Point d'entrée universel — analyse et route chaque message entrant
+ * Point d'entrée universel - analyse et route chaque message entrant
  * @param {Object} msg
- * @param {string} msg.channel   — 'whatsapp'|'facebook'|'instagram'|'sms'
- * @param {string} msg.from      — numéro ou PSID expéditeur
- * @param {string} msg.text      — contenu du message
- * @param {string} msg.sessionId — ID de session (from + channel)
+ * @param {string} msg.channel   - 'whatsapp'|'facebook'|'instagram'|'sms'
+ * @param {string} msg.from      - numéro ou PSID expéditeur
+ * @param {string} msg.text      - contenu du message
+ * @param {string} msg.sessionId - ID de session (from + channel)
  */
 async function receiveMessage({ channel, from, text, sessionId }) {
-  bus.chat(`[${channel.toUpperCase()}] De: ${from} — ${text.slice(0, 60)}`);
+  bus.chat(`[${channel.toUpperCase()}] De: ${from} - ${text.slice(0, 60)}`);
 
-  // ─── V22 : Human-in-the-loop — vérification avant tout traitement bot ─────
+  // ─── V22 : Human-in-the-loop - vérification avant tout traitement bot ─────
   const { isHumanRequired, getOrCreateChatSession } = require('../memory/db');
   const humanRequired = await isHumanRequired(from, channel).catch(() => false);
   if (humanRequired) {
-    bus.system(`👤 [${channel.toUpperCase()}] Session ${from} en mode HUMAN — réponse bot gelée`);
+    bus.system(`👤 [${channel.toUpperCase()}] Session ${from} en mode HUMAN - réponse bot gelée`);
     // Notifie Ulrich du message entrant sans répondre au client
     const { alertUlrich } = require('./twilio');
     alertUlrich(
@@ -78,28 +78,23 @@ function detectIntent(text) {
 
 async function handleBookingIntent({ text, sessionId }) {
   try {
-    // Récupérer les disponibilités Square
-    const square = require('./square');
-    const now = new Date();
-    const in7days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    const { bookings = [] } = await square.getBookings(now.toISOString(), in7days.toISOString()).catch(() => ({ bookings: [] }));
-
-    const slotsCount = bookings.filter(b => b.status === 'ACCEPTED' || b.status === 'APPROVED').length;
-
-    // Appel LLM pour construire une réponse naturelle
-    const { enrichSystemPrompt } = require('./brain-context');
     const claude = require('../agents/claude');
     const { DALEBA_SYSTEM_PROMPT } = require('../agents/persona');
 
-    const enriched = await enrichSystemPrompt(text, DALEBA_SYSTEM_PROMPT);
+    // Appel LLM : poser des questions d'écoute active avant de proposer
     const result = await claude.query(
-      `Client demande un rendez-vous: "${text}". Il y a actuellement ${slotsCount} RDV cette semaine. Propose de l'aider à trouver un créneau en demandant service souhaité et date préférée.`,
-      enriched,
+      `Message client : "${text}"
+
+La cliente demande un rendez-vous. Commence par lui poser UNE question pour cerner son besoin :
+- Si elle n'a pas mentionné le service : demande quel type de coiffure (locks, tresses, barbier, tissage...)
+- Si elle a mentionné le service : demande sa date/heure préférée
+Sois chaleureuse, max 2 phrases. Ne liste PAS les services ni les tarifs.`,
+      DALEBA_SYSTEM_PROMPT,
       []
     );
     return result.content;
   } catch (err) {
-    return `Bonjour ! Je suis Daleba chez Kadio Coiffure ✨ Je serais ravie de vous aider à prendre un rendez-vous. Quel service souhaitez-vous et quand êtes-vous disponible ?`;
+    return `Bien sûr ! 💜 C'est pour quel type de service ? Des locks, des tresses, une coupe barbier...?`;
   }
 }
 
@@ -117,17 +112,23 @@ async function handleInfoIntent({ text, sessionId }) {
 async function handleModifyIntent({ from, text, intent }) {
   return intent === 'cancel'
     ? `Je comprends que vous souhaitez annuler votre rendez-vous. Pour confirmer, pouvez-vous me donner votre nom et la date de votre RDV ? Notre équipe traitera votre demande dans les plus brefs délais.`
-    : `Vous souhaitez modifier votre rendez-vous — pas de problème ! Donnez-moi votre nom et votre créneau actuel, et je vous propose de nouvelles disponibilités.`;
+    : `Vous souhaitez modifier votre rendez-vous - pas de problème ! Donnez-moi votre nom et votre créneau actuel, et je vous propose de nouvelles disponibilités.`;
 }
 
 async function handleGeneralIntent({ text, sessionId }) {
   try {
     const claude = require('../agents/claude');
     const { DALEBA_SYSTEM_PROMPT } = require('../agents/persona');
-    const result = await claude.query(text, DALEBA_SYSTEM_PROMPT, []);
+    const result = await claude.query(
+      `Message client : "${text}"
+
+Réponds de façon naturelle et chaleureuse. Si le sujet n'est pas clair, pose une question ouverte pour comprendre leur besoin. Max 2-3 phrases. Pas de liste, pas de menu.`,
+      DALEBA_SYSTEM_PROMPT,
+      []
+    );
     return result.content;
   } catch {
-    return `Bonjour ! Je suis Daleba, votre assistante chez Kadio Coiffure ✨ Comment puis-je vous aider ?`;
+    return `Bonjour ! 🌸 Je suis Daleba chez Kadio Coiffure. Comment puis-je vous aider aujourd'hui ?`;
   }
 }
 

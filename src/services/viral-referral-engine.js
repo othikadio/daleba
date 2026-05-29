@@ -60,7 +60,7 @@ async function createReferralCode(pool, tenantId, { customerId, customerName, cu
   `, [tenantId, customerId, customerPhone, code]).catch(() => {});
 
   bus.system(`[ViralReferral] Code créé: ${code} pour ${customerName||customerId}`);
-  return { code, shareUrl: `https://daleba.vercel.app?ref=${code}`, message: `Partagez votre code ${code} et gagnez 500 points par filleul !` };
+  return { code, shareUrl: `https://kadiocoiffure.vercel.app/hub?ref=${code}`, message: `Partagez votre code ${code} et gagnez 500 points par filleul !` };
 }
 
 /**

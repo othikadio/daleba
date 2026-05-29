@@ -33,15 +33,13 @@ function detectPurchaseIntent(text) {
   };
 }
 
-// ─── GÉNÉRATION LIEN RÉSERVATION UNIQUE [138] ────────────────────────────────
+// ─── LIEN OFFICIEL UNIQUE [138] ─────────────────────────────────────────────
+// Lien officiel Kadio Coiffure — NE JAMAIS changer sans validation Ulrich
+const OFFICIAL_HUB_LINK = 'https://kadiocoiffure.vercel.app/hub';
 
 function generateBookingLink(userId, platform) {
-  const token   = crypto.createHmac('sha256', process.env.ANTHROPIC_API_KEY || 'daleba')
-    .update(`${userId}_${platform}_${Date.now()}`)
-    .digest('hex')
-    .slice(0, 16);
-  const baseUrl = process.env.DALEBA_BASE_URL || 'https://daleba-api-production.up.railway.app';
-  return `${baseUrl}/api/booking/reserve?ref=${token}&src=${platform}`;
+  // Toujours retourner le Hub officiel — plus de liens custom générés
+  return OFFICIAL_HUB_LINK;
 }
 
 // ─── COLLECTE COMMENTAIRES META [135] ────────────────────────────────────────
