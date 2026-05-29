@@ -92,19 +92,52 @@
     /* ── SECTIONS ── */
     .section {
       max-width: 900px;
-      margin: 0 auto 2.5rem;
+      margin: 0 auto 3rem;
       padding: 0 1.5rem;
     }
-    .section-title {
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--border);
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
     }
+    .section-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--terracotta), var(--terracotta-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .section-icon.gold { background: linear-gradient(135deg, var(--gold), #e0be72); }
+    .section-icon.dark { background: linear-gradient(135deg, #2d2d2d, #4a4a4a); }
+    .section-icon.blue { background: linear-gradient(135deg, #4a6fa5, #6a8fc5); }
+    .section-icon.green { background: linear-gradient(135deg, #5a8a5a, #7ab07a); }
+    .section-meta { flex: 1; }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 0.1rem;
+      letter-spacing: -0.01em;
+    }
+    .section-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .section-rule {
+      height: 2px;
+      background: linear-gradient(to right, var(--terracotta), transparent);
+      border: none;
+      margin-bottom: 1.25rem;
+      border-radius: 2px;
+    }
+    .section-rule.gold { background: linear-gradient(to right, var(--gold), transparent); }
+    .section-rule.dark { background: linear-gradient(to right, #2d2d2d, transparent); }
 
     /* ── FORFAIT GRID ── */
     .forfait-grid {
@@ -201,7 +234,14 @@
 
 <!-- Locks & Locs -->
 <div class="section">
-  <div class="section-title">🔒 Locks & Locs — Adultes</div>
+  <div class="section-header">
+    <div class="section-icon">🔒</div>
+    <div class="section-meta">
+      <div class="section-title">Locks &amp; Locs</div>
+      <div class="section-sub">Adultes</div>
+    </div>
+  </div>
+  <hr class="section-rule">
   <div class="forfait-grid">
     <div class="forfait-card">
       <div class="forfait-name">Abonnement locs illimité</div>
@@ -220,7 +260,14 @@
 
 <!-- Tresses & Knotless -->
 <div class="section">
-  <div class="section-title">🌿 Tresses & Knotless — Adultes</div>
+  <div class="section-header">
+    <div class="section-icon green">🌿</div>
+    <div class="section-meta">
+      <div class="section-title">Tresses</div>
+      <div class="section-sub">Knotless, tresses rapides, twists — Adultes</div>
+    </div>
+  </div>
+  <hr class="section-rule" style="background:linear-gradient(to right,#5a8a5a,transparent)">
   <div class="forfait-grid">
     <div class="forfait-card">
       <div class="forfait-name">Forfait Knotless & Tresses Signature</div>
@@ -245,7 +292,14 @@
 
 <!-- Coiffure -->
 <div class="section">
-  <div class="section-title">💆 Coiffure & Perruques — Adultes</div>
+  <div class="section-header">
+    <div class="section-icon blue">💆</div>
+    <div class="section-meta">
+      <div class="section-title">Coiffure</div>
+      <div class="section-sub">Perruques &amp; mises en plis — Adultes</div>
+    </div>
+  </div>
+  <hr class="section-rule" style="background:linear-gradient(to right,#4a6fa5,transparent)">
   <div class="forfait-grid">
     <div class="forfait-card">
       <div class="forfait-name">Mise en plis</div>
@@ -270,7 +324,14 @@
 
 <!-- Barbier -->
 <div class="section">
-  <div class="section-title">✂️ Barbier — Adultes</div>
+  <div class="section-header">
+    <div class="section-icon dark">✂️</div>
+    <div class="section-meta">
+      <div class="section-title">Barbier</div>
+      <div class="section-sub">Coupes &amp; entretien de barbe — Adultes</div>
+    </div>
+  </div>
+  <hr class="section-rule dark">
   <div class="forfait-grid">
     <div class="forfait-card">
       <div class="forfait-name">Forfait Barbier coupe & barbe</div>
@@ -295,7 +356,14 @@
 
 <!-- Combos -->
 <div class="section">
-  <div class="section-title">🔥 Combos — Meilleure valeur</div>
+  <div class="section-header">
+    <div class="section-icon gold">🔥</div>
+    <div class="section-meta">
+      <div class="section-title">Combos</div>
+      <div class="section-sub">Tresses / Locs + Barbier — Meilleure valeur</div>
+    </div>
+  </div>
+  <hr class="section-rule gold">
   <div class="forfait-grid">
     <div class="forfait-card combo">
       <div class="forfait-name">Combo tresses rapides + barbier</div>
@@ -314,7 +382,14 @@
 
 <!-- Enfants -->
 <div class="section">
-  <div class="section-title">🧒 Enfants</div>
+  <div class="section-header">
+    <div class="section-icon" style="background:linear-gradient(135deg,#C9A84C,#e0be72)">🧒</div>
+    <div class="section-meta">
+      <div class="section-title">Enfants</div>
+      <div class="section-sub">12 ans et moins — tous les services</div>
+    </div>
+  </div>
+  <hr class="section-rule gold">
   <div class="forfait-grid">
     <div class="forfait-card enfant">
       <div class="forfait-name">Tresses rapides enfants</div>
