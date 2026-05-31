@@ -120,6 +120,7 @@ app.use('/api/public', require('./api/public-booking-routes')); // Site public �
 app.use('/api/staff-auth', require('./api/auth-staff-routes')); // Authentification staff JWT + PIN
 app.use('/api/staff-portal', require('./api/staff-portal-routes')); // Portail staff — dashboard, notes, agenda
 app.use('/api/notifications', require('./api/notification-routes')); // Chantier A — SMS auto RDV
+app.use('/api/airtable', require('./api/airtable-routes')); // V47 — Airtable sync + dashboard temps réel
 
 // Middleware erreurs (Point 12)
 app.use(errorMiddleware);
@@ -363,6 +364,10 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   const { runReminderWorker } = require('./workers/reminder-worker');
   setInterval(runReminderWorker, 60 * 60 * 1000); // toutes les heures
   runReminderWorker(); // run immédiatement au démarrage
+
+  // [V47] SMS Reminder Worker Airtable — toutes les 15 minutes
+  const { startSMSReminderWorker } = require('./workers/sms-reminder-worker');
+  startSMSReminderWorker();
 
   // [Chantier A] Notifications SMS auto (confirmation + rappels 24h/2h + staff 1h)
   const apptNotifier = require('./services/appointment-notifier');

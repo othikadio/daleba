@@ -310,6 +310,70 @@ async function getServiceName(serviceVariationId) {
   return data.object?.item_variation_data?.name || data.object?.item_data?.name || null;
 }
 
+// ─── AIRTABLE SYNC HELPERS ───────────────────────────────────────────────────
+
+/**
+ * Sync un booking Square → Airtable (fire-and-forget)
+ * @param {Object} booking - objet Square booking
+ * @param {Object} [extra] - données complémentaires (email, nom, tél, service, prix)
+ */
+async function syncBookingToAirtable(booking, extra = {}) {
+  try {
+    const airtable = require('./airtable');
+    if (!airtable.isConfigured()) return;
+    await airtable.upsertAppointment({
+      squareAppointmentId: booking.id,
+      client: extra.client || booking.customer_note || '',
+      email: extra.email || '',
+      phone: extra.phone || '',
+      service: extra.service || booking.appointment_segments?.[0]?.service_variation_id || '',
+      staff: extra.staff || booking.appointment_segments?.[0]?.team_member_id || '',
+      startAt: booking.start_at,
+      duration: booking.appointment_segments?.[0]?.duration_minutes || null,
+      price: extra.price || 0,
+      status: booking.status,
+      notes: extra.notes || '',
+    });
+  } catch (e) {
+    console.warn('[Square→Airtable] syncBookingToAirtable:', e.message);
+  }
+}
+
+/**
+ * Complète un RDV Square : met à jour Airtable (statut complété) + logge la visite
+ * @param {Object} booking
+ * @param {Object} visitData
+ */
+async function completeBookingInAirtable(booking, visitData = {}) {
+  try {
+    const airtable = require('./airtable');
+    if (!airtable.isConfigured()) return;
+
+    // Mettre à jour le statut du RDV
+    const existing = await airtable.findRecords('Rendez-vous', `{Square Appointment ID} = "${booking.id}"`, 1);
+    if (existing.length > 0) {
+      await airtable.updateRecord('Rendez-vous', existing[0].id, { 'Statut': 'complété' });
+    } else {
+      await syncBookingToAirtable({ ...booking, status: 'COMPLETED' }, visitData);
+    }
+
+    // Logguer la visite
+    await airtable.logVisit({
+      visitId: `sq-${booking.id}`,
+      client: visitData.client || '',
+      email: visitData.email || '',
+      date: booking.start_at || new Date().toISOString(),
+      services: visitData.service || '',
+      staff: visitData.staff || '',
+      total: visitData.total || 0,
+      paymentMethod: 'square',
+      squareAppointmentId: booking.id,
+    });
+  } catch (e) {
+    console.warn('[Square→Airtable] completeBookingInAirtable:', e.message);
+  }
+}
+
 module.exports = {
   getBookings,
   getPayments,
@@ -323,4 +387,6 @@ module.exports = {
   getCustomerByEmail,
   getCustomerBookings,
   getServiceName,
+  syncBookingToAirtable,
+  completeBookingInAirtable,
 };

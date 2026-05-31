@@ -286,6 +286,121 @@ async function getSubscriptionDetails(subscriptionId) {
   };
 }
 
+// ─── SYNC AIRTABLE ───────────────────────────────────────────────────────────
+
+/**
+ * Synchronise un abonnement Stripe → Airtable (fire-and-forget)
+ * @param {Object} subscription - objet Stripe subscription
+ */
+async function syncSubscriptionToAirtable(subscription) {
+  try {
+    const airtable = require('./airtable');
+    if (!airtable.isConfigured()) return;
+
+    const cust = subscription.customer;
+    const item = subscription.items?.data?.[0];
+    const price = item?.price;
+
+    await airtable.upsertSubscriber({
+      email: typeof cust === 'object' ? cust.email : null,
+      name: typeof cust === 'object' ? (cust.name || cust.email) : null,
+      phone: typeof cust === 'object' ? cust.phone : null,
+      customerId: typeof cust === 'object' ? cust.id : cust,
+      subscriptionId: subscription.id,
+      plan: price?.nickname || price?.id || 'Plan',
+      status: subscription.status,
+      amount: price?.unit_amount ? price.unit_amount / 100 : 0,
+      createdAt: subscription.created,
+      currentPeriodEnd: subscription.current_period_end,
+    });
+  } catch (e) {
+    console.warn('[Stripe→Airtable] syncSubscriptionToAirtable:', e.message);
+  }
+}
+
+/**
+ * Synchronise un PaymentIntent Stripe → Airtable (fire-and-forget)
+ * @param {Object} paymentIntent - objet Stripe payment_intent
+ */
+async function syncPaymentToAirtable(paymentIntent) {
+  try {
+    const airtable = require('./airtable');
+    if (!airtable.isConfigured()) return;
+
+    await airtable.upsertPayment({
+      paymentId: paymentIntent.id,
+      customerEmail: paymentIntent.receipt_email || paymentIntent.metadata?.client_email || '',
+      customerName: paymentIntent.metadata?.client_name || '',
+      customerId: paymentIntent.customer || '',
+      amount: paymentIntent.amount ? paymentIntent.amount / 100 : 0,
+      source: 'Stripe',
+      status: paymentIntent.status === 'succeeded' ? 'complété' : mapPIStatus(paymentIntent.status),
+      description: paymentIntent.description || paymentIntent.metadata?.service || '',
+      date: new Date(paymentIntent.created * 1000).toISOString(),
+    });
+  } catch (e) {
+    console.warn('[Stripe→Airtable] syncPaymentToAirtable:', e.message);
+  }
+}
+
+function mapPIStatus(status) {
+  const map = {
+    succeeded: 'complété',
+    canceled: 'annulé',
+    requires_payment_method: 'en_attente',
+    processing: 'en_attente',
+  };
+  return map[status] || 'en_attente';
+}
+
+/**
+ * Traite un événement webhook Stripe et déclenche les syncs Airtable appropriées
+ */
+async function handleWebhookEvent(event) {
+  try {
+    switch (event.type) {
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated': {
+        const sub = event.data.object;
+        // Expand customer si besoin
+        let fullSub = sub;
+        if (typeof sub.customer === 'string' && stripe) {
+          try {
+            const cust = await stripe.customers.retrieve(sub.customer);
+            fullSub = { ...sub, customer: cust };
+          } catch { /* best effort */ }
+        }
+        await syncSubscriptionToAirtable(fullSub);
+        break;
+      }
+      case 'payment_intent.succeeded': {
+        await syncPaymentToAirtable(event.data.object);
+        break;
+      }
+      case 'invoice.paid': {
+        const inv = event.data.object;
+        if (inv.subscription && inv.customer_email) {
+          // Mettre à jour le subscriber (dernier paiement)
+          const airtable = require('./airtable');
+          if (airtable.isConfigured()) {
+            const existing = await airtable.getSubscriberByEmail(inv.customer_email);
+            if (existing) {
+              await airtable.updateRecord('Abonnés', existing.id, {
+                'Statut': 'actif',
+              });
+            }
+          }
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  } catch (e) {
+    console.warn('[Stripe] handleWebhookEvent error:', e.message);
+  }
+}
+
 module.exports = {
   createCheckoutSession,
   createSubscription,
@@ -296,4 +411,7 @@ module.exports = {
   getPortalLinkByEmail,
   listSubscriptions,
   getSubscriptionDetails,
+  syncSubscriptionToAirtable,
+  syncPaymentToAirtable,
+  handleWebhookEvent,
 };

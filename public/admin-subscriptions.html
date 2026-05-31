@@ -158,9 +158,12 @@
 <body>
 
 <div class="topbar">
-  <div class="logo">DALEBA <span>Suivi Abonnés · Stripe + Square</span></div>
+  <div class="logo">DALEBA <span>Suivi Abonnés · Stripe + Square</span>
+    <span id="airtable-badge" style="display:none;margin-left:.75rem;background:rgba(63,185,80,.15);border:1px solid #3fb950;color:#3fb950;font-size:.68rem;font-weight:700;padding:.2rem .55rem;border-radius:20px;letter-spacing:.05em;vertical-align:middle">🟢 Propulsé par Airtable</span>
+  </div>
   <div class="topbar-right">
     <button class="btn" onclick="window.location='/admin-hub.html'">← Hub</button>
+    <button class="btn" id="btn-sync-airtable" onclick="syncAirtable()" title="Sync Stripe → Airtable">🔄 Sync Airtable</button>
     <button class="btn btn-p" onclick="refresh()">🔄 Actualiser</button>
   </div>
 </div>
@@ -178,6 +181,15 @@
     <div class="kpi gold">   <div class="lbl">MRR (CAD)</div>       <div class="val" id="k-mrr">—</div></div>
     <div class="kpi purple"> <div class="lbl">RDV ce mois</div>     <div class="val" id="k-rdv">—</div></div>
     <div class="kpi blue">   <div class="lbl">Total abonnés</div>   <div class="val" id="k-total">—</div></div>
+  </div>
+
+  <!-- Stats Airtable -->
+  <div id="airtable-stats" style="display:none;background:rgba(63,185,80,.07);border:1px solid rgba(63,185,80,.3);border-radius:8px;padding:.65rem 1rem;margin-bottom:.75rem;font-size:.78rem;color:#3fb950;display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+    <span>🟢 <strong>Airtable actif</strong></span>
+    <span id="at-stat-sub"></span>
+    <span id="at-stat-rdv"></span>
+    <span id="at-stat-pay"></span>
+    <span id="at-last-sync" style="margin-left:auto;color:var(--dim)"></span>
   </div>
 
   <!-- Statut API -->
@@ -250,6 +262,10 @@ function setStatus(msg, type) {
 
 async function loadSubscriptions() {
   setStatus('Connexion à Stripe…', 'loading');
+
+  // Check Airtable status en parallèle
+  checkAirtableStatus().catch(function(){});
+
   try {
     var res  = await fetch(API + '/api/payment/subscriptions');
     var data = await res.json();
@@ -261,8 +277,60 @@ async function loadSubscriptions() {
   } catch(e) {
     setStatus('❌ Erreur Stripe : ' + e.message + ' — Vérifiez que Railway est actif.', 'err');
     console.error('[loadSubscriptions]', e);
-    // Afficher quand même la liste vide avec message
     renderList();
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   AIRTABLE
+═══════════════════════════════════════════════ */
+
+async function checkAirtableStatus() {
+  try {
+    var res = await fetch(API + '/api/airtable/status');
+    if (!res.ok) return;
+    var data = await res.json();
+    if (!data.configured) return;
+
+    var badge = document.getElementById('airtable-badge');
+    if (badge) badge.style.display = 'inline';
+
+    var statsEl = document.getElementById('airtable-stats');
+    if (statsEl) {
+      statsEl.style.display = 'flex';
+      var tables = data.tables || {};
+      var sub = document.getElementById('at-stat-sub');
+      var rdv = document.getElementById('at-stat-rdv');
+      var pay = document.getElementById('at-stat-pay');
+      var sync = document.getElementById('at-last-sync');
+      if (sub) sub.textContent = '👥 Abonnés : ' + (tables['Abonnés'] || 0);
+      if (rdv) rdv.textContent = '📅 RDV : ' + (tables['Rendez-vous'] || 0);
+      if (pay) pay.textContent = '💳 Paiements : ' + (tables['Paiements'] || 0);
+      if (sync) sync.textContent = 'Dernière vérif : ' + new Date().toLocaleTimeString('fr-CA');
+    }
+  } catch(e) {
+    console.warn('[Airtable status]', e.message);
+  }
+}
+
+async function syncAirtable() {
+  var btn = document.getElementById('btn-sync-airtable');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Sync en cours…'; }
+  try {
+    var res = await fetch(API + '/api/airtable/sync/stripe', { method: 'POST' });
+    var data = await res.json();
+    if (data.success) {
+      toast('✅ Sync Airtable : ' + data.synced + ' abonné(s) synchronisé(s)');
+      var sync = document.getElementById('at-last-sync');
+      if (sync) sync.textContent = 'Sync : ' + new Date().toLocaleTimeString('fr-CA');
+      checkAirtableStatus().catch(function(){});
+    } else {
+      toast('❌ Sync échoué : ' + (data.error || 'Erreur inconnue'));
+    }
+  } catch(e) {
+    toast('❌ Sync Airtable : ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🔄 Sync Airtable'; }
   }
 }
 

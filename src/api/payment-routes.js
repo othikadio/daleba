@@ -125,6 +125,9 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
   const bus = require('../services/event-bus');
 
   // Traitement des événements Stripe → Event Bus temps réel
+  // Sync Airtable (fire-and-forget, jamais bloquant)
+  stripe.handleWebhookEvent(event).catch(e => console.warn('[Webhook→Airtable]', e.message));
+
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object;
@@ -310,6 +313,65 @@ router.post('/deposit', async (req, res) => {
     });
   } catch (err) {
     console.error('[payment/deposit]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── ENDPOINTS AIRTABLE (lecture depuis Airtable) ─────────────────────────────
+
+// GET /api/payment/airtable/subscribers — lit depuis Airtable
+router.get('/airtable/subscribers', async (req, res) => {
+  try {
+    const airtable = require('../services/airtable');
+    if (!airtable.isConfigured()) {
+      return res.status(503).json({ error: 'Airtable non configuré (AIRTABLE_API_KEY + AIRTABLE_BASE_ID requis)' });
+    }
+    const records = await airtable.findRecords('Abonnés', null, 100);
+    res.json({ success: true, count: records.length, subscribers: records.map(r => ({ id: r.id, ...r.fields })) });
+  } catch (err) {
+    console.error('[payment/airtable/subscribers]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/payment/airtable/payments — lit depuis Airtable
+router.get('/airtable/payments', async (req, res) => {
+  try {
+    const airtable = require('../services/airtable');
+    if (!airtable.isConfigured()) {
+      return res.status(503).json({ error: 'Airtable non configuré' });
+    }
+    const records = await airtable.findRecords('Paiements', null, 100);
+    res.json({ success: true, count: records.length, payments: records.map(r => ({ id: r.id, ...r.fields })) });
+  } catch (err) {
+    console.error('[payment/airtable/payments]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/payment/airtable/sync — force sync Stripe → Airtable
+router.post('/airtable/sync', async (req, res) => {
+  try {
+    const airtable = require('../services/airtable');
+    if (!airtable.isConfigured()) {
+      return res.status(503).json({ error: 'Airtable non configuré' });
+    }
+    const subs = await stripe.listSubscriptions({ status: 'all', limit: 100 });
+    let synced = 0;
+    let errors = 0;
+    for (const sub of subs) {
+      try {
+        await airtable.upsertSubscriber(sub);
+        synced++;
+        await airtable.delay(200);
+      } catch (e) {
+        errors++;
+        console.warn('[Sync Airtable]', sub.customerEmail, e.message);
+      }
+    }
+    res.json({ success: true, synced, errors, total: subs.length });
+  } catch (err) {
+    console.error('[payment/airtable/sync]', err.message);
     res.status(500).json({ error: err.message });
   }
 });
