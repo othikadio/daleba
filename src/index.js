@@ -121,6 +121,7 @@ app.use('/api/staff-auth', require('./api/auth-staff-routes')); // Authentificat
 app.use('/api/staff-portal', require('./api/staff-portal-routes')); // Portail staff — dashboard, notes, agenda
 app.use('/api/notifications', require('./api/notification-routes')); // Chantier A — SMS auto RDV
 app.use('/api/airtable', require('./api/airtable-routes')); // V47 — Airtable sync + dashboard temps réel
+app.use('/api/crm', require('./api/crm-routes')); // V47 — CRM Clients Square
 
 // Middleware erreurs (Point 12)
 app.use(errorMiddleware);

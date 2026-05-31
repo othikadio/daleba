@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DALEBA — Wallet & Cartes Membres</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d1117; --surface: #161b22; --surface2: #21262d;
+    --border: #30363d; --text: #e6edf3; --text-dim: #8b949e;
+    --gold: #c9a84c; --gold-dim: rgba(201,168,76,0.12);
+    --green: #2da44e; --red: #f85149; --blue: #58a6ff;
+    --radius: 8px;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; min-height: 100vh; }
+  .topbar {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    height: 52px; display: flex; align-items: center; padding: 0 1.5rem;
+    justify-content: space-between; position: sticky; top: 0; z-index: 100;
+  }
+  .topbar-logo { font-weight: 900; font-size: 1.1rem; color: var(--gold); letter-spacing: 0.06em; }
+  .topbar-back { color: var(--text-dim); font-size: 0.85rem; cursor: pointer; text-decoration: none; }
+  .topbar-back:hover { color: var(--text); }
+  .container { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+  h1 { font-size: 1.4rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem; }
+  .subtitle { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1.5rem; }
+  /* Stats cards */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1.2rem; text-align: center;
+  }
+  .stat-card .value { font-size: 2rem; font-weight: 800; color: var(--gold); display: block; }
+  .stat-card .label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.3rem; }
+  /* Sections */
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem; margin-bottom: 1.5rem; }
+  .section-title { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+  /* Table */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  th { background: var(--surface2); color: var(--text-dim); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.08em; padding: 0.6rem 0.8rem; text-align: left; }
+  td { padding: 0.6rem 0.8rem; border-top: 1px solid var(--border); color: var(--text); }
+  tr:hover td { background: var(--surface2); }
+  /* Form */
+  .gen-form { display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap; margin-top: 1rem; }
+  .form-group { display: flex; flex-direction: column; gap: 0.3rem; flex: 1; min-width: 200px; }
+  label { font-size: 0.75rem; color: var(--text-dim); }
+  input, select {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 6px; padding: 0.5rem 0.75rem; font-size: 0.85rem; outline: none;
+  }
+  input:focus, select:focus { border-color: var(--gold); }
+  .btn {
+    background: var(--gold); color: #000; border: none; border-radius: 6px;
+    padding: 0.55rem 1.2rem; font-size: 0.85rem; font-weight: 700; cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn.secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn.secondary:hover { background: var(--surface); border-color: var(--gold); }
+  /* Badge */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; }
+  .badge.vip { background: rgba(255,215,0,0.15); color: #ffd700; }
+  .badge.membre { background: rgba(201,168,76,0.15); color: var(--gold); }
+  /* Alert */
+  .alert { padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.85rem; margin-top: 0.75rem; display: none; }
+  .alert.success { background: rgba(45,164,78,0.15); border: 1px solid var(--green); color: var(--green); }
+  .alert.error { background: rgba(248,81,73,0.15); border: 1px solid var(--red); color: var(--red); }
+  /* QR preview */
+  .qr-preview { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; }
+  .qr-item {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1rem; text-align: center; min-width: 160px;
+  }
+  .qr-item img { width: 120px; height: 120px; display: block; margin: 0 auto 0.5rem; border-radius: 6px; }
+  .qr-item .qr-name { font-size: 0.8rem; color: var(--text); font-weight: 600; }
+  .qr-item .qr-id { font-size: 0.7rem; color: var(--text-dim); font-family: monospace; }
+  .qr-item .qr-actions { margin-top: 0.5rem; display: flex; gap: 0.4rem; justify-content: center; }
+  .qr-actions a { font-size: 0.7rem; color: var(--blue); text-decoration: none; }
+  .qr-actions a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="topbar-logo">💳 DALEBA — Wallet</span>
+  <a href="/admin-hub.html" class="topbar-back">← Retour au hub</a>
+</div>
+
+<div class="container">
+  <h1>Cartes Membres Numériques</h1>
+  <p class="subtitle">QR codes, Apple Wallet, suivi des scans en temps réel</p>
+
+  <!-- Stats -->
+  <div class="stats-grid" id="stats-grid">
+    <div class="stat-card"><span class="value" id="stat-today">—</span><span class="label">Scans aujourd'hui</span></div>
+    <div class="stat-card"><span class="value" id="stat-total">—</span><span class="label">Total scans</span></div>
+    <div class="stat-card"><span class="value" id="stat-cards">—</span><span class="label">Cartes générées</span></div>
+    <div class="stat-card"><span class="value" id="stat-vip">—</span><span class="label">Membres VIP</span></div>
+  </div>
+
+  <!-- Générer une carte -->
+  <div class="section">
+    <div class="section-title">🔧 Générer une carte membre</div>
+    <p style="font-size:0.82rem;color:var(--text-dim);margin-bottom:1rem">
+      Entrez l'ID Square du client pour générer sa carte + QR code. Le lien peut être envoyé par SMS.
+    </p>
+    <div class="gen-form">
+      <div class="form-group">
+        <label>ID Square du client</label>
+        <input type="text" id="gen-client-id" placeholder="ex: CSXJZ5J93WBF5K4MRGF0G9E7" />
+      </div>
+      <div class="form-group" style="min-width:160px">
+        <label>Numéro de téléphone (SMS)</label>
+        <input type="tel" id="gen-phone" placeholder="+15141234567" />
+      </div>
+      <button class="btn" onclick="generateCard()">Générer</button>
+      <button class="btn secondary" onclick="loadRecentCustomers()">📋 Clients récents</button>
+    </div>
+    <div class="alert" id="gen-alert"></div>
+    <div id="card-preview" style="margin-top:1rem"></div>
+  </div>
+
+  <!-- Derniers scans -->
+  <div class="section">
+    <div class="section-title">📡 Derniers scans QR <span style="font-size:0.75rem;color:var(--text-dim);font-weight:400">(20 derniers)</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Client ID</th>
+            <th>Heure du scan</th>
+            <th>IP</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="scans-table">
+          <tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:2rem">Chargement...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Cartes récentes -->
+  <div class="section" id="recent-cards-section" style="display:none">
+    <div class="section-title">🃏 Clients récents — Aperçu cartes</div>
+    <div class="qr-preview" id="qr-preview-list"></div>
+  </div>
+</div>
+
+<script>
+const API = '';
+
+async function loadStats() {
+  try {
+    const data = await fetch(`${API}/api/wallet/scan-stats`).then(r => r.json());
+    document.getElementById('stat-today').textContent = data.today ?? 0;
+    document.getElementById('stat-total').textContent = data.total ?? 0;
+    // Scans table
+    const tbody = document.getElementById('scans-table');
+    if (!data.recentScans?.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:2rem">Aucun scan enregistré</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.recentScans.map((s, i) => `
+      <tr>
+        <td style="color:var(--text-dim)">${i + 1}</td>
+        <td><code style="font-size:0.75rem;color:var(--blue)">${s.client_id}</code></td>
+        <td>${new Date(s.scanned_at).toLocaleString('fr-CA')}</td>
+        <td style="color:var(--text-dim);font-size:0.75rem">${s.ip || '—'}</td>
+        <td>
+          <a href="/api/wallet/preview/${s.client_id}" target="_blank" style="color:var(--gold);font-size:0.75rem;text-decoration:none">👁 Voir carte</a>
+          &nbsp;
+          <a href="/admin-clients.html?client=${s.client_id}" target="_blank" style="color:var(--blue);font-size:0.75rem;text-decoration:none">📋 Fiche</a>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function generateCard() {
+  const clientId = document.getElementById('gen-client-id').value.trim();
+  const phone = document.getElementById('gen-phone').value.trim();
+  const alert = document.getElementById('gen-alert');
+  const preview = document.getElementById('card-preview');
+
+  if (!clientId) {
+    showAlert('error', 'Veuillez entrer un ID Square client');
+    return;
+  }
+
+  showAlert('success', 'Génération en cours...');
+
+  try {
+    const data = await fetch(`${API}/api/wallet/pass-data/${clientId}`).then(r => r.json());
+    if (data.error) throw new Error(data.error);
+
+    const qrUrl = `${API}/api/wallet/qr/${clientId}`;
+    const previewUrl = `${API}/api/wallet/preview/${clientId}`;
+    const cardUrl = `${API}/wallet-card/${clientId}`;
+
+    document.getElementById('stat-cards').textContent =
+      (parseInt(document.getElementById('stat-cards').textContent) || 0) + 1;
+
+    preview.innerHTML = `
+      <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:0.75rem">
+        <div class="qr-item">
+          <img src="${qrUrl}" alt="QR ${data.name}" onerror="this.style.opacity=0.3" />
+          <div class="qr-name">${data.name}</div>
+          <div class="qr-id">${clientId.slice(0,12)}...</div>
+          <div style="margin-top:0.4rem">
+            <span class="badge ${data.status === 'VIP' ? 'vip' : 'membre'}">${data.status}</span>
+            <span style="font-size:0.75rem;color:var(--gold);margin-left:0.5rem">${data.points} pts</span>
+          </div>
+          <div class="qr-actions" style="margin-top:0.6rem">
+            <a href="${previewUrl}" target="_blank">🃏 Preview</a>
+            <a href="${cardUrl}" target="_blank">📱 Mobile</a>
+            <a href="/api/wallet/pkpass/${clientId}" download>⬇ .pkpass</a>
+          </div>
+        </div>
+        <div style="flex:1;min-width:220px">
+          <table style="width:100%;font-size:0.82rem">
+            <tr><td style="color:var(--text-dim);padding:4px 0">Nom</td><td><b>${data.name}</b></td></tr>
+            <tr><td style="color:var(--text-dim);padding:4px 0">Email</td><td>${data.email || '—'}</td></tr>
+            <tr><td style="color:var(--text-dim);padding:4px 0">Téléphone</td><td>${data.phone || '—'}</td></tr>
+            <tr><td style="color:var(--text-dim);padding:4px 0">Points</td><td><span style="color:var(--gold)">${data.points}</span></td></tr>
+            <tr><td style="color:var(--text-dim);padding:4px 0">Statut</td><td><span class="badge ${data.status === 'VIP' ? 'vip' : 'membre'}">${data.status}</span></td></tr>
+            <tr><td style="color:var(--text-dim);padding:4px 0">Membre depuis</td><td>${data.joinDate ? new Date(data.joinDate).toLocaleDateString('fr-CA') : '—'}</td></tr>
+          </table>
+          <div style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap">
+            <button class="btn" onclick="copyLink('${cardUrl}')">📋 Copier lien carte</button>
+            ${phone ? `<button class="btn secondary" onclick="sendSMS('${phone}','${clientId}','${data.name}')">📱 Envoyer SMS</button>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+
+    showAlert('success', `✅ Carte générée pour ${data.name}`);
+  } catch (e) {
+    showAlert('error', `Erreur: ${e.message}`);
+    preview.innerHTML = '';
+  }
+}
+
+async function loadRecentCustomers() {
+  const section = document.getElementById('recent-cards-section');
+  const list = document.getElementById('qr-preview-list');
+  section.style.display = 'block';
+  list.innerHTML = '<div style="color:var(--text-dim)">Chargement des clients Square...</div>';
+
+  try {
+    const data = await fetch('/api/clients/list?limit=12').then(r => r.json()).catch(() => null);
+    const customers = data?.customers || data?.result?.customers || [];
+
+    if (!customers.length) {
+      list.innerHTML = '<div style="color:var(--text-dim)">Aucun client trouvé (API Square)</div>';
+      document.getElementById('stat-cards').textContent = 0;
+      document.getElementById('stat-vip').textContent = 0;
+      return;
+    }
+
+    document.getElementById('stat-cards').textContent = customers.length;
+    document.getElementById('stat-vip').textContent = customers.filter(c => (c.loyaltyPoints || 0) >= 500).length;
+
+    list.innerHTML = customers.slice(0, 12).map(c => {
+      const id = c.id || c.customer_id;
+      const name = c.given_name ? `${c.given_name} ${c.family_name || ''}`.trim() : (c.name || 'Client');
+      const pts = c.loyaltyPoints || c.points || 0;
+      return `
+        <div class="qr-item">
+          <img src="/api/wallet/qr/${id}" alt="QR ${name}" loading="lazy" />
+          <div class="qr-name">${name}</div>
+          <div class="qr-id">${id.slice(0,10)}...</div>
+          <div class="qr-actions">
+            <a href="/api/wallet/preview/${id}" target="_blank">🃏 Carte</a>
+            <a href="/admin-clients.html?client=${id}" target="_blank">📋 Fiche</a>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch (e) {
+    list.innerHTML = `<div style="color:var(--red)">Erreur: ${e.message}</div>`;
+  }
+}
+
+function showAlert(type, msg) {
+  const el = document.getElementById('gen-alert');
+  el.className = `alert ${type}`;
+  el.textContent = msg;
+  el.style.display = 'block';
+  if (type === 'success') setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+function copyLink(url) {
+  navigator.clipboard.writeText(url).then(() => showAlert('success', '✅ Lien copié !'));
+}
+
+async function sendSMS(phone, clientId, name) {
+  try {
+    const cardUrl = `/wallet-card/${clientId}`;
+    const fullUrl = `https://daleba-api-production.up.railway.app${cardUrl}`;
+    const resp = await fetch('/api/notifications/sms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: phone,
+        message: `Bonjour ${name} 🌟 Voici votre carte membre Kadio Coiffure : ${fullUrl}`
+      })
+    }).then(r => r.json());
+    showAlert('success', `✅ SMS envoyé à ${phone}`);
+  } catch (e) {
+    showAlert('error', `Erreur SMS: ${e.message}`);
+  }
+}
+
+// Init
+loadStats();
+setInterval(loadStats, 30000); // Refresh toutes les 30s
+</script>
+</body>
+</html>
