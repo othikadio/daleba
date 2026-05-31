@@ -1,925 +1,311 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DALEBA — CRM Clients</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:         #0a0a0a;
-      --surface:    #111111;
-      --surface2:   #1a1a1a;
-      --border:     #1f1f1f;
-      --border2:    #2a2a2a;
-      --text:       #f5f5f5;
-      --text-muted: #666;
-      --text-dim:   #999;
-      --accent:     #c9a96e;
-      --accent-dim: rgba(201,169,110,0.12);
-      --success:    #22c55e;
-      --danger:     #ef4444;
-      --blue:       #3b82f6;
-      --purple:     #a855f7;
-      --radius:     12px;
-      --radius-sm:  8px;
-    }
-
-    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow: hidden; }
-
-    /* ── Topbar ── */
-    .topbar {
-      height: 52px; background: var(--surface); border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; padding: 0 1.5rem;
-      justify-content: space-between; position: sticky; top: 0; z-index: 300;
-      flex-shrink: 0;
-    }
-    .topbar-logo { font-weight: 900; font-size: 1.05rem; color: var(--accent); letter-spacing: 0.06em; }
-    .topbar-logo span { color: var(--text-muted); font-weight: 400; font-size: 0.72rem; margin-left: 0.5rem; }
-    .topbar-right { display: flex; align-items: center; gap: 1rem; font-size: 0.75rem; color: var(--text-muted); }
-    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 6px var(--success); }
-
-    /* ── Layout ── */
-    .app { display: flex; height: calc(100vh - 52px); overflow: hidden; }
-
-    /* ── Sidebar ── */
-    .sidebar {
-      width: 220px; background: var(--surface); border-right: 1px solid var(--border);
-      display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;
-    }
-    .sidebar-section { padding: 1rem 0.75rem 0.5rem; }
-    .sidebar-label {
-      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em;
-      text-transform: uppercase; color: var(--text-muted); padding: 0 0.5rem; margin-bottom: 0.5rem;
-    }
-    .nav-item {
-      display: flex; align-items: center; gap: 0.6rem;
-      padding: 0.48rem 0.75rem; border-radius: 6px; cursor: pointer;
-      font-size: 0.82rem; font-weight: 500; color: var(--text-dim);
-      transition: all 0.14s; text-decoration: none;
-    }
-    .nav-item:hover { background: var(--surface2); color: var(--text); }
-    .nav-item.active { background: var(--accent-dim); color: var(--accent); font-weight: 700; }
-    .nav-item .icon { font-size: 0.95rem; flex-shrink: 0; width: 20px; text-align: center; }
-    .sidebar-divider { border: none; border-top: 1px solid var(--border); margin: 0.4rem 0.75rem; }
-
-    /* ── Main zone ── */
-    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-
-    /* ── Topbar clients ── */
-    .clients-header {
-      padding: 1.25rem 1.5rem 1rem;
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; flex-shrink: 0;
-    }
-    .clients-header h1 { font-size: 1.2rem; font-weight: 800; flex-shrink: 0; }
-    .search-wrap { flex: 1; min-width: 220px; position: relative; }
-    .search-wrap input {
-      width: 100%; padding: 0.55rem 1rem 0.55rem 2.4rem;
-      background: var(--surface2); border: 1px solid var(--border2);
-      color: var(--text); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.85rem;
-      outline: none; transition: border 0.15s;
-    }
-    .search-wrap input:focus { border-color: var(--accent); }
-    .search-wrap input::placeholder { color: var(--text-muted); }
-    .search-icon { position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem; pointer-events: none; }
-    .header-actions { display: flex; align-items: center; gap: 0.6rem; }
-    .btn { padding: 0.5rem 1rem; border-radius: 7px; font-family: 'Inter',sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.14s; }
-    .btn-outline { background: transparent; border: 1px solid var(--border2); color: var(--text-dim); }
-    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
-    .btn-accent { background: var(--accent); color: #0a0a0a; }
-    .btn-accent:hover { background: #dbb87e; }
-    .view-toggle { display: flex; border: 1px solid var(--border2); border-radius: 7px; overflow: hidden; }
-    .view-btn { padding: 0.45rem 0.7rem; background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.85rem; transition: all 0.14s; }
-    .view-btn.active { background: var(--surface2); color: var(--text); }
-
-    /* ── Content ── */
-    .content { flex: 1; overflow: hidden; display: flex; }
-
-    /* ── Clients list ── */
-    .clients-list {
-      flex: 1; overflow-y: auto; padding: 1rem 1.5rem;
-      transition: all 0.2s;
-    }
-    .clients-list.panel-open { flex: 0 0 calc(100% - 440px); }
-
-    /* Stats bar */
-    .stats-bar { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
-    .stat-chip {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-      padding: 0.4rem 0.85rem; font-size: 0.75rem; color: var(--text-dim);
-    }
-    .stat-chip strong { color: var(--text); }
-
-    /* Grid/List view */
-    .clients-grid {
-      display: grid; gap: 0.6rem;
-    }
-    .clients-grid.list-view { grid-template-columns: 1fr; }
-    .clients-grid.grid-view { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-
-    /* Client card */
-    .client-card {
-      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 1rem 1.1rem; cursor: pointer; transition: all 0.15s; position: relative;
-      display: flex; align-items: center; gap: 0.9rem;
-    }
-    .client-card:hover { border-color: var(--border2); background: var(--surface2); }
-    .client-card.selected { border-color: var(--accent); background: rgba(201,169,110,0.04); }
-
-    .avatar {
-      width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center;
-      justify-content: center; font-weight: 800; font-size: 0.95rem; flex-shrink: 0;
-      text-transform: uppercase;
-    }
-    .card-body { flex: 1; min-width: 0; }
-    .card-name { font-weight: 700; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-meta { display: flex; gap: 0.8rem; margin-top: 0.2rem; flex-wrap: wrap; }
-    .card-meta span { font-size: 0.74rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 0.45rem; }
-    .card-visit { font-size: 0.72rem; color: var(--text-muted); }
-    .card-points { font-size: 0.72rem; color: var(--accent); font-weight: 700; }
-    .badge {
-      font-size: 0.62rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 4px;
-      letter-spacing: 0.04em; text-transform: uppercase; flex-shrink: 0;
-    }
-    .badge-vip    { background: rgba(201,169,110,0.2); color: var(--accent); }
-    .badge-reg    { background: rgba(59,130,246,0.15); color: var(--blue); }
-    .badge-new    { background: rgba(34,197,94,0.15); color: var(--success); }
-    .badge-lost   { background: rgba(239,68,68,0.15); color: var(--danger); }
-
-    /* Loading / empty */
-    .loading { text-align: center; padding: 3rem 1rem; color: var(--text-muted); font-size: 0.85rem; }
-    .spinner { display: inline-block; width: 24px; height: 24px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 0.75rem; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .empty { text-align: center; padding: 4rem 1rem; color: var(--text-muted); }
-    .empty .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
-
-    /* ── Slide Panel ── */
-    .slide-panel {
-      width: 440px; flex-shrink: 0; background: var(--surface); border-left: 1px solid var(--border);
-      display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.25s ease;
-      position: relative; overflow: hidden;
-    }
-    .slide-panel.open { transform: translateX(0); }
-    .panel-close {
-      position: absolute; top: 0.75rem; right: 0.75rem;
-      background: transparent; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer;
-      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-      border-radius: 6px; transition: all 0.12s;
-    }
-    .panel-close:hover { background: var(--surface2); color: var(--text); }
-
-    /* Panel header */
-    .panel-head {
-      padding: 1.5rem 1.25rem 1rem; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; gap: 1rem;
-    }
-    .panel-avatar { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.2rem; flex-shrink: 0; }
-    .panel-info { flex: 1; min-width: 0; }
-    .panel-name { font-size: 1rem; font-weight: 800; }
-    .panel-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; }
-    .panel-badges { display: flex; gap: 0.4rem; margin-top: 0.4rem; flex-wrap: wrap; }
-
-    /* Tabs */
-    .panel-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 1.25rem; gap: 0; }
-    .tab-btn {
-      padding: 0.7rem 0.9rem; font-family: 'Inter',sans-serif; font-size: 0.78rem; font-weight: 600;
-      background: transparent; border: none; color: var(--text-muted); cursor: pointer;
-      border-bottom: 2px solid transparent; transition: all 0.14s; white-space: nowrap;
-    }
-    .tab-btn:hover { color: var(--text); }
-    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-    /* Panel body */
-    .panel-body { flex: 1; overflow-y: auto; padding: 1.25rem; }
-    .tab-pane { display: none; }
-    .tab-pane.active { display: block; }
-
-    /* Résumé */
-    .kpi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1rem; }
-    .kpi-box {
-      background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm);
-      padding: 0.75rem 0.9rem;
-    }
-    .kpi-box .k-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.25rem; }
-    .kpi-box .k-val { font-size: 1.3rem; font-weight: 800; }
-    .kpi-box .k-sub { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.15rem; }
-
-    /* Contact row */
-    .contact-row { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
-    .contact-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--text-dim); }
-    .contact-item .ci-icon { width: 18px; text-align: center; flex-shrink: 0; }
-
-    /* Timeline */
-    .timeline { display: flex; flex-direction: column; gap: 0.6rem; }
-    .tl-item {
-      background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm);
-      padding: 0.7rem 0.9rem; font-size: 0.8rem;
-    }
-    .tl-top { display: flex; justify-content: space-between; align-items: center; }
-    .tl-title { font-weight: 600; }
-    .tl-date { font-size: 0.7rem; color: var(--text-muted); }
-    .tl-status { font-size: 0.68rem; font-weight: 700; padding: 0.1rem 0.45rem; border-radius: 4px; margin-top: 0.25rem; display: inline-block; }
-    .tl-status.completed { background: rgba(34,197,94,0.15); color: var(--success); }
-    .tl-status.cancelled { background: rgba(239,68,68,0.15); color: var(--danger); }
-    .tl-status.pending   { background: rgba(59,130,246,0.15); color: var(--blue); }
-    .tl-amount { font-size: 0.82rem; font-weight: 700; color: var(--accent); margin-top: 0.25rem; }
-
-    /* Hair profile */
-    .hair-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
-    .hair-field {
-      background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm);
-      padding: 0.65rem 0.8rem;
-    }
-    .hair-field label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.2rem; }
-    .hair-field span { font-size: 0.8rem; font-weight: 500; }
-    .hair-field-full { grid-column: 1 / -1; }
-
-    /* Notes */
-    .notes-area {
-      width: 100%; min-height: 140px; resize: vertical;
-      background: var(--surface2); border: 1px solid var(--border2);
-      color: var(--text); border-radius: var(--radius-sm); padding: 0.75rem 1rem;
-      font-family: 'Inter', sans-serif; font-size: 0.83rem; line-height: 1.5;
-      outline: none; transition: border 0.15s;
-    }
-    .notes-area:focus { border-color: var(--accent); }
-
-    /* Panel actions */
-    .panel-actions {
-      padding: 1rem 1.25rem; border-top: 1px solid var(--border);
-      display: flex; gap: 0.6rem; flex-wrap: wrap;
-    }
-    .btn-panel { flex: 1; min-width: 140px; padding: 0.6rem 0.75rem; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; border: none; transition: all 0.14s; font-family: 'Inter',sans-serif; text-align: center; }
-    .btn-wallet { background: var(--surface2); border: 1px solid var(--border2); color: var(--text-dim); }
-    .btn-wallet:hover { border-color: var(--accent); color: var(--accent); }
-    .btn-sms { background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3); color: var(--blue); }
-    .btn-sms:hover { background: rgba(59,130,246,0.2); }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
-
-    /* Toast */
-    .toast {
-      position: fixed; bottom: 1.5rem; right: 1.5rem;
-      background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px;
-      padding: 0.75rem 1.25rem; font-size: 0.82rem; max-width: 320px;
-      opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 9999;
-    }
-    .toast.show { opacity: 1; }
-    .toast.toast-ok { border-color: rgba(34,197,94,0.4); color: var(--success); }
-    .toast.toast-err { border-color: rgba(239,68,68,0.4); color: var(--danger); }
-
-    /* Responsive */
-    @media (max-width: 900px) {
-      .sidebar { display: none; }
-      .slide-panel { width: 100%; position: fixed; top: 52px; right: 0; bottom: 0; z-index: 200; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DALEBA — Fiche Client CRM</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d1117; --surface: #161b22; --surface2: #21262d;
+    --border: #30363d; --text: #e6edf3; --text-dim: #8b949e;
+    --gold: #c9a84c; --gold-dim: rgba(201,168,76,0.12);
+    --green: #2da44e; --red: #f85149; --blue: #58a6ff;
+    --radius: 8px;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; min-height: 100vh; }
+  .topbar {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    height: 52px; display: flex; align-items: center; padding: 0 1.5rem;
+    justify-content: space-between; position: sticky; top: 0; z-index: 100;
+  }
+  .topbar-logo { font-weight: 900; font-size: 1rem; color: var(--gold); }
+  .topbar-back { color: var(--text-dim); font-size: 0.85rem; cursor: pointer; text-decoration: none; }
+  .topbar-back:hover { color: var(--text); }
+  .container { max-width: 1000px; margin: 0 auto; padding: 1.5rem; }
+  /* Search bar */
+  .search-bar { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
+  .search-bar input { flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 0.6rem 1rem; font-size: 0.9rem; outline: none; }
+  .search-bar input:focus { border-color: var(--gold); }
+  .btn { background: var(--gold); color: #000; border: none; border-radius: 6px; padding: 0.55rem 1.2rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+  .btn:hover { opacity: 0.85; }
+  .btn.secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  /* Profile card */
+  .profile-card {
+    display: grid; grid-template-columns: 280px 1fr; gap: 1.5rem;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1.5rem; margin-bottom: 1.5rem;
+  }
+  @media (max-width: 700px) { .profile-card { grid-template-columns: 1fr; } }
+  .profile-left { text-align: center; }
+  .avatar {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), #7a5f2e);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; font-weight: 700; color: #000;
+    margin: 0 auto 1rem;
+  }
+  .profile-name { font-size: 1.3rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem; }
+  .profile-id { font-size: 0.7rem; color: var(--text-dim); font-family: monospace; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+  .badge.vip { background: rgba(255,215,0,0.15); color: #ffd700; }
+  .badge.membre { background: var(--gold-dim); color: var(--gold); }
+  .qr-box { margin-top: 1rem; }
+  .qr-box img { width: 120px; height: 120px; border-radius: 8px; border: 2px solid var(--border); }
+  .qr-links { display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.5rem; flex-wrap: wrap; }
+  .qr-links a { font-size: 0.72rem; color: var(--blue); text-decoration: none; }
+  .qr-links a:hover { text-decoration: underline; }
+  .profile-right { }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
+  @media (max-width: 500px) { .info-grid { grid-template-columns: 1fr; } }
+  .info-item { }
+  .info-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.2rem; }
+  .info-value { font-size: 0.9rem; color: var(--text); font-weight: 500; }
+  .info-value.highlight { color: var(--gold); font-weight: 700; }
+  /* Points bar */
+  .points-bar-wrap { margin: 1rem 0; }
+  .points-bar-label { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.3rem; }
+  .points-bar { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .points-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), #ffd700); border-radius: 3px; transition: width 1s ease; }
+  /* History */
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem; margin-bottom: 1.5rem; }
+  .section-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 1rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  th { background: var(--surface2); color: var(--text-dim); text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.08em; padding: 0.5rem 0.75rem; text-align: left; }
+  td { padding: 0.55rem 0.75rem; border-top: 1px solid var(--border); }
+  tr:hover td { background: var(--surface2); }
+  /* Loading */
+  .loader { text-align: center; padding: 3rem; color: var(--text-dim); font-size: 0.9rem; }
+  .no-client { text-align: center; padding: 3rem; }
+  .no-client h2 { color: var(--text-dim); margin-bottom: 1rem; }
+</style>
 </head>
 <body>
-
-<!-- ── Topbar ── -->
 <div class="topbar">
-  <div class="topbar-logo">DALEBA <span>CRM Clients</span></div>
-  <div class="topbar-right">
-    <div class="status-dot"></div>
-    <span>Square Live</span>
+  <span class="topbar-logo">📋 CRM — Fiche Client</span>
+  <div style="display:flex;gap:1rem;align-items:center">
+    <a href="/admin-wallet.html" class="topbar-back">💳 Wallet</a>
+    <a href="/admin-hub.html" class="topbar-back">← Hub</a>
   </div>
 </div>
 
-<div class="app">
-
-  <!-- ── Sidebar ── -->
-  <div class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-label">Vue d'ensemble</div>
-      <a class="nav-item" href="/admin-hub.html">
-        <span class="icon">🏠</span> Dashboard
-      </a>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Salon</div>
-      <a class="nav-item active" href="/admin-clients.html">
-        <span class="icon">👥</span> CRM Clients
-      </a>
-      <a class="nav-item" href="/admin-hub.html">
-        <span class="icon">💈</span> CA Salon · Square
-      </a>
-      <a class="nav-item" href="/admin-staff.html">
-        <span class="icon">💇</span> Équipe
-      </a>
-      <a class="nav-item" href="/admin-subscriptions.html">
-        <span class="icon">💳</span> Abonnés Stripe
-      </a>
-      <a class="nav-item" href="/admin-loyalty.html">
-        <span class="icon">⭐</span> Fidélité
-      </a>
-    </div>
-
-    <hr class="sidebar-divider" />
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Usine</div>
-      <a class="nav-item" href="/admin-radar.html">
-        <span class="icon">🌍</span> Radar Planétaire
-      </a>
-      <a class="nav-item" href="/admin-production.html">
-        <span class="icon">⚡</span> Pipeline Agents
-      </a>
-      <a class="nav-item" href="/admin-commercial.html">
-        <span class="icon">📬</span> Agent Commercial
-      </a>
-    </div>
-
-    <hr class="sidebar-divider" />
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Accès direct</div>
-      <a class="nav-item" href="/admin-accounting.html">
-        <span class="icon">📊</span> Comptabilité
-      </a>
-      <a class="nav-item" href="/admin-campaigns.html">
-        <span class="icon">📣</span> Campagnes
-      </a>
-    </div>
+<div class="container">
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="Rechercher un client (ID Square, nom, email...)" />
+    <button class="btn" onclick="searchClient()">Rechercher</button>
+    <button class="btn secondary" onclick="loadAllClients()">📋 Tous</button>
   </div>
 
-  <!-- ── Main ── -->
-  <div class="main">
+  <div id="client-content">
+    <div class="no-client">
+      <h2>🔍 Rechercher un client</h2>
+      <p style="color:var(--text-dim);font-size:0.85rem">Entrez un ID Square ou un nom dans la barre de recherche</p>
+    </div>
+  </div>
+</div>
 
-    <!-- Header search -->
-    <div class="clients-header">
-      <h1>👥 CRM Clients</h1>
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="Rechercher par nom, email, téléphone…" />
-      </div>
-      <div class="header-actions">
-        <div class="view-toggle">
-          <button class="view-btn active" id="btnList" title="Vue liste" onclick="setView('list')">☰</button>
-          <button class="view-btn" id="btnGrid" title="Vue grille" onclick="setView('grid')">⊞</button>
+<script>
+const API_BASE = '';
+const BACKEND = 'https://daleba-api-production.up.railway.app';
+
+// Check URL param ?client=ID
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const clientId = params.get('client');
+  if (clientId) {
+    document.getElementById('search-input').value = clientId;
+    loadClientById(clientId);
+  }
+});
+
+async function searchClient() {
+  const query = document.getElementById('search-input').value.trim();
+  if (!query) return;
+  // Si ça ressemble à un ID Square (long string sans espaces)
+  if (query.length > 15 && !query.includes(' ')) {
+    loadClientById(query);
+  } else {
+    searchClientByName(query);
+  }
+}
+
+async function loadClientById(clientId) {
+  showLoader();
+  try {
+    const data = await fetch(`${API_BASE}/api/wallet/pass-data/${clientId}`).then(r => r.json());
+    if (data.error) throw new Error(data.error);
+    renderClient(clientId, data);
+  } catch (e) {
+    showError(`Impossible de charger le client: ${e.message}`);
+  }
+}
+
+async function searchClientByName(query) {
+  showLoader();
+  try {
+    const resp = await fetch(`${API_BASE}/api/clients/search?q=${encodeURIComponent(query)}`).then(r => r.json()).catch(() => null);
+    const customers = resp?.customers || resp?.result?.customers || [];
+    if (!customers.length) {
+      showError('Aucun client trouvé pour cette recherche');
+      return;
+    }
+    if (customers.length === 1) {
+      loadClientById(customers[0].id);
+    } else {
+      renderClientList(customers);
+    }
+  } catch (e) {
+    showError(`Erreur de recherche: ${e.message}`);
+  }
+}
+
+async function loadAllClients() {
+  showLoader();
+  try {
+    const resp = await fetch(`${API_BASE}/api/clients/list?limit=50`).then(r => r.json()).catch(() => null);
+    const customers = resp?.customers || resp?.result?.customers || [];
+    if (!customers.length) {
+      showError('Aucun client trouvé dans Square');
+      return;
+    }
+    renderClientList(customers);
+  } catch (e) {
+    showError(`Erreur: ${e.message}`);
+  }
+}
+
+function renderClient(clientId, data) {
+  const initials = (data.name || 'C').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+  const isVIP = data.status === 'VIP';
+  const pct = Math.min(100, (data.points / 500) * 100);
+  const joinDate = data.joinDate ? new Date(data.joinDate).toLocaleDateString('fr-CA') : '—';
+  const qrUrl = `${API_BASE}/api/wallet/qr/${clientId}`;
+  const previewUrl = `${BACKEND}/api/wallet/preview/${clientId}`;
+  const cardUrl = `${BACKEND}/wallet-card/${clientId}`;
+
+  document.getElementById('client-content').innerHTML = `
+    <div class="profile-card">
+      <div class="profile-left">
+        <div class="avatar">${initials}</div>
+        <div class="profile-name">${data.name}</div>
+        <div class="profile-id">${clientId}</div>
+        <span class="badge ${isVIP ? 'vip' : 'membre'}">${data.status}</span>
+        <div class="qr-box">
+          <img src="${qrUrl}" alt="QR Code" onerror="this.style.opacity=0.3" />
+          <div class="qr-links">
+            <a href="${previewUrl}" target="_blank">🃏 Carte</a>
+            <a href="${cardUrl}" target="_blank">📱 Mobile</a>
+            <a href="/api/wallet/pkpass/${clientId}" download>⬇ .pkpass</a>
+          </div>
         </div>
-        <button class="btn btn-outline" onclick="exportCSV()">⬇ Export CSV</button>
-        <button class="btn btn-accent" onclick="loadClients()">🔄 Sync</button>
+      </div>
+      <div class="profile-right">
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Email</div>
+            <div class="info-value">${data.email || '—'}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Téléphone</div>
+            <div class="info-value">${data.phone || '—'}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Points fidélité</div>
+            <div class="info-value highlight">${data.points} pts</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Membre depuis</div>
+            <div class="info-value">${joinDate}</div>
+          </div>
+        </div>
+        <div class="points-bar-wrap">
+          <div class="points-bar-label">
+            <span>Progression vers VIP</span>
+            <span>${data.points}/500 pts</span>
+          </div>
+          <div class="points-bar">
+            <div class="points-bar-fill" style="width:${pct}%"></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem">
+          <button class="btn" onclick="copyLink('${cardUrl}')">📋 Copier lien carte</button>
+          <button class="btn secondary" onclick="window.open('${previewUrl}','_blank')">👁 Voir carte</button>
+          <button class="btn secondary" onclick="window.open('/admin-wallet.html?client=${clientId}','_blank')">💳 Wallet admin</button>
+        </div>
       </div>
     </div>
 
-    <div class="content">
+    <div class="section">
+      <div class="section-title">📡 Historique des scans QR</div>
+      <div id="scan-history">Chargement...</div>
+    </div>
+  `;
 
-      <!-- Clients list -->
-      <div class="clients-list" id="clientsList">
-        <div class="stats-bar" id="statsBar" style="display:none">
-          <div class="stat-chip"><strong id="statTotal">0</strong> clients</div>
-          <div class="stat-chip">Dernière sync: <strong id="statSync">—</strong></div>
-        </div>
-        <div class="clients-grid list-view" id="clientsGrid"></div>
-        <div class="loading" id="loadingState">
-          <div class="spinner"></div><br>Chargement des clients Square…
-        </div>
-        <div class="empty" id="emptyState" style="display:none">
-          <div class="empty-icon">👤</div>
-          <div>Aucun client trouvé</div>
-        </div>
-        <!-- Pagination -->
-        <div style="text-align:center;padding:1.5rem 0;display:none" id="loadMoreWrap">
-          <button class="btn btn-outline" onclick="loadMore()">Charger plus…</button>
-        </div>
-      </div>
+  loadScanHistory(clientId);
+}
 
-      <!-- Slide panel -->
-      <div class="slide-panel" id="slidePanel">
-        <button class="panel-close" onclick="closePanel()">✕</button>
-
-        <div class="panel-head">
-          <div class="panel-avatar" id="panelAvatar"></div>
-          <div class="panel-info">
-            <div class="panel-name" id="panelName">—</div>
-            <div class="panel-sub" id="panelSub">—</div>
-            <div class="panel-badges" id="panelBadges"></div>
-          </div>
-        </div>
-
-        <div class="panel-tabs">
-          <button class="tab-btn active" onclick="switchTab('resume')">Résumé</button>
-          <button class="tab-btn" onclick="switchTab('history')">Historique</button>
-          <button class="tab-btn" onclick="switchTab('hair')">Profil Capillaire</button>
-          <button class="tab-btn" onclick="switchTab('notes')">Notes</button>
-        </div>
-
-        <div class="panel-body">
-
-          <!-- Résumé -->
-          <div class="tab-pane active" id="tab-resume">
-            <div class="contact-row" id="resumeContacts"></div>
-            <div class="kpi-row">
-              <div class="kpi-box">
-                <div class="k-label">CA Total</div>
-                <div class="k-val" id="kpiCA">—</div>
-                <div class="k-sub">dépenses cumulées</div>
-              </div>
-              <div class="kpi-box">
-                <div class="k-label">Visites</div>
-                <div class="k-val" id="kpiVisits">—</div>
-                <div class="k-sub">RDV complétés</div>
-              </div>
-              <div class="kpi-box">
-                <div class="k-label">Fréquence</div>
-                <div class="k-val" id="kpiFreq">—</div>
-                <div class="k-sub">jours entre visites</div>
-              </div>
-              <div class="kpi-box">
-                <div class="k-label">Points Fidélité</div>
-                <div class="k-val" id="kpiPoints" style="color:var(--accent)">—</div>
-                <div class="k-sub">points cumulés</div>
-              </div>
-            </div>
-            <div class="kpi-box" style="margin-bottom:0.6rem">
-              <div class="k-label">Service préféré</div>
-              <div class="k-val" id="kpiService" style="font-size:0.95rem">—</div>
-            </div>
-            <div class="kpi-box">
-              <div class="k-label">Dernière visite</div>
-              <div class="k-val" id="kpiLastVisit" style="font-size:0.95rem">—</div>
-            </div>
-          </div>
-
-          <!-- Historique -->
-          <div class="tab-pane" id="tab-history">
-            <div style="margin-bottom:0.75rem;font-size:0.78rem;color:var(--text-muted)">RDV et paiements Square</div>
-            <div class="timeline" id="historyTimeline">
-              <div class="loading"><div class="spinner"></div><br>Chargement…</div>
-            </div>
-          </div>
-
-          <!-- Profil capillaire -->
-          <div class="tab-pane" id="tab-hair">
-            <div class="hair-grid" id="hairGrid">
-              <div class="hair-field"><label>Type de cheveux</label><span id="hp-type">—</span></div>
-              <div class="hair-field"><label>Texture</label><span id="hp-texture">—</span></div>
-              <div class="hair-field"><label>Service habituel</label><span id="hp-service">—</span></div>
-              <div class="hair-field"><label>Fréquence</label><span id="hp-freq">—</span></div>
-              <div class="hair-field hair-field-full"><label>Allergies / Contre-indications</label><span id="hp-allergies">Aucune renseignée</span></div>
-              <div class="hair-field hair-field-full"><label>Notes capillaires</label><span id="hp-notes">—</span></div>
-            </div>
-          </div>
-
-          <!-- Notes -->
-          <div class="tab-pane" id="tab-notes">
-            <div style="margin-bottom:0.6rem;font-size:0.78rem;color:var(--text-muted)">Notes sauvegardées dans Square CRM</div>
-            <textarea class="notes-area" id="notesArea" placeholder="Ajouter des notes sur ce client…"></textarea>
-            <button class="btn btn-accent" style="margin-top:0.75rem;width:100%" onclick="saveNotes()">💾 Sauvegarder</button>
-          </div>
-
-        </div><!-- /panel-body -->
-
-        <div class="panel-actions">
-          <button class="btn-panel btn-wallet" onclick="sendWallet()">📱 Carte Wallet</button>
-          <button class="btn-panel btn-sms" onclick="sendSMS()">📲 SMS Promo</button>
-        </div>
-      </div><!-- /slide-panel -->
-
-    </div><!-- /content -->
-  </div><!-- /main -->
-
-</div><!-- /app -->
-
-<div class="toast" id="toast"></div>
-
-<script>
-  const API = '';
-  let allClients = [];
-  let filteredClients = [];
-  let currentCursor = null;
-  let currentView = 'list';
-  let selectedClientId = null;
-  let searchTimer = null;
-
-  // ── Avatar colors ──────────────────────────────────────────────────────────
-  const AVATAR_COLORS = [
-    '#c9a96e','#3b82f6','#a855f7','#22c55e','#ef4444','#f59e0b','#06b6d4','#ec4899'
-  ];
-  function avatarColor(name) {
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
-  }
-  function initials(first, last) {
-    return ((first?.[0] || '') + (last?.[0] || '')).toUpperCase() || '??';
-  }
-
-  // ── Badge logic ───────────────────────────────────────────────────────────
-  function clientBadge(c) {
-    const pts = c.loyalty_points || 0;
-    const created = c.created_at ? new Date(c.created_at) : null;
-    const daysSince = created ? Math.floor((Date.now() - created) / 86400000) : 999;
-    if (pts >= 500) return { label: 'VIP', cls: 'badge-vip' };
-    if (daysSince < 30) return { label: 'Nouveau', cls: 'badge-new' };
-    if (daysSince > 365) return { label: 'Inactif', cls: 'badge-lost' };
-    return { label: 'Régulier', cls: 'badge-reg' };
-  }
-
-  function lastVisitText(c) {
-    if (!c.updated_at) return 'Jamais';
-    const days = Math.floor((Date.now() - new Date(c.updated_at)) / 86400000);
-    if (days === 0) return "Aujourd'hui";
-    if (days === 1) return 'Hier';
-    if (days < 30) return `Il y a ${days}j`;
-    if (days < 365) return `Il y a ${Math.floor(days/30)}mois`;
-    return `Il y a ${Math.floor(days/365)}an`;
-  }
-
-  // ── Load clients ──────────────────────────────────────────────────────────
-  async function loadClients(reset = true) {
-    if (reset) {
-      allClients = [];
-      currentCursor = null;
-      document.getElementById('clientsGrid').innerHTML = '';
-      document.getElementById('loadingState').style.display = 'block';
-      document.getElementById('emptyState').style.display = 'none';
-      document.getElementById('loadMoreWrap').style.display = 'none';
-      document.getElementById('statsBar').style.display = 'none';
-    }
-
-    try {
-      const search = document.getElementById('searchInput').value.trim();
-      const params = new URLSearchParams({ limit: 50 });
-      if (search) params.set('search', search);
-      if (currentCursor) params.set('cursor', currentCursor);
-
-      const res = await fetch(`${API}/api/crm/clients?${params}`);
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || 'Erreur Square');
-
-      const customers = data.customers || [];
-      allClients = reset ? customers : [...allClients, ...customers];
-      currentCursor = data.cursor || null;
-
-      renderClients(allClients);
-
-      document.getElementById('statTotal').textContent = allClients.length;
-      document.getElementById('statSync').textContent = new Date().toLocaleTimeString('fr-CA');
-      document.getElementById('statsBar').style.display = 'flex';
-      document.getElementById('loadMoreWrap').style.display = currentCursor ? 'block' : 'none';
-    } catch (err) {
-      showToast('⚠ ' + err.message, 'err');
-      document.getElementById('loadingState').style.display = 'none';
-      if (allClients.length === 0) document.getElementById('emptyState').style.display = 'block';
-    } finally {
-      document.getElementById('loadingState').style.display = 'none';
-    }
-  }
-
-  function loadMore() { loadClients(false); }
-
-  // ── Render cards ──────────────────────────────────────────────────────────
-  function renderClients(clients) {
-    const grid = document.getElementById('clientsGrid');
-    const q = document.getElementById('searchInput').value.trim().toLowerCase();
-
-    filteredClients = q ? clients.filter(c => {
-      const full = `${c.given_name || ''} ${c.family_name || ''} ${c.email_address || ''} ${c.phone_number || ''}`.toLowerCase();
-      return full.includes(q);
-    }) : clients;
-
-    if (filteredClients.length === 0) {
-      grid.innerHTML = '';
-      document.getElementById('emptyState').style.display = 'block';
+async function loadScanHistory(clientId) {
+  try {
+    const data = await fetch(`${API_BASE}/api/wallet/scan-stats`).then(r => r.json());
+    const scans = (data.recentScans || []).filter(s => s.client_id === clientId);
+    const el = document.getElementById('scan-history');
+    if (!scans.length) {
+      el.innerHTML = '<div style="color:var(--text-dim);font-size:0.85rem">Aucun scan enregistré pour ce client</div>';
       return;
     }
-    document.getElementById('emptyState').style.display = 'none';
-
-    grid.innerHTML = filteredClients.map(c => {
-      const fname = c.given_name || '';
-      const lname = c.family_name || '';
-      const name = `${fname} ${lname}`.trim() || 'Client inconnu';
-      const ini = initials(fname, lname);
-      const color = avatarColor(name);
-      const badge = clientBadge(c);
-      const pts = c.loyalty_points || 0;
-
-      return `
-        <div class="client-card ${c.id === selectedClientId ? 'selected' : ''}"
-             onclick="openClient('${c.id}')">
-          <div class="avatar" style="background:${color}22;color:${color}">${ini}</div>
-          <div class="card-body">
-            <div style="display:flex;align-items:center;gap:0.5rem">
-              <span class="card-name">${name}</span>
-              <span class="badge ${badge.cls}">${badge.label}</span>
-            </div>
-            <div class="card-meta">
-              ${c.email_address ? `<span>📧 ${c.email_address}</span>` : ''}
-              ${c.phone_number ? `<span>📞 ${c.phone_number}</span>` : ''}
-            </div>
-            <div class="card-bottom">
-              <span class="card-visit">Màj ${lastVisitText(c)}</span>
-              <span class="card-points">${pts > 0 ? `${pts} pts` : ''}</span>
-            </div>
-          </div>
-        </div>`;
-    }).join('');
+    el.innerHTML = `<table>
+      <thead><tr><th>#</th><th>Date/heure</th><th>IP</th></tr></thead>
+      <tbody>${scans.map((s,i) => `
+        <tr>
+          <td style="color:var(--text-dim)">${i+1}</td>
+          <td>${new Date(s.scanned_at).toLocaleString('fr-CA')}</td>
+          <td style="color:var(--text-dim);font-size:0.75rem">${s.ip || '—'}</td>
+        </tr>
+      `).join('')}</tbody>
+    </table>`;
+  } catch (e) {
+    document.getElementById('scan-history').innerHTML = '<div style="color:var(--text-dim)">Impossible de charger l\'historique</div>';
   }
+}
 
-  // ── View toggle ───────────────────────────────────────────────────────────
-  function setView(v) {
-    currentView = v;
-    const grid = document.getElementById('clientsGrid');
-    grid.className = `clients-grid ${v}-view`;
-    document.getElementById('btnList').classList.toggle('active', v === 'list');
-    document.getElementById('btnGrid').classList.toggle('active', v === 'grid');
-  }
+function renderClientList(customers) {
+  const rows = customers.map(c => {
+    const id = c.id || c.customer_id;
+    const name = c.given_name ? `${c.given_name} ${c.family_name || ''}`.trim() : (c.name || 'Client');
+    const pts = c.loyaltyPoints || c.points || 0;
+    return `
+      <tr style="cursor:pointer" onclick="loadClientById('${id}')">
+        <td><b>${name}</b></td>
+        <td style="font-family:monospace;font-size:0.75rem;color:var(--text-dim)">${id}</td>
+        <td>${c.email_address || '—'}</td>
+        <td><span style="color:var(--gold)">${pts} pts</span></td>
+        <td><img src="/api/wallet/qr/${id}" style="width:40px;height:40px;border-radius:4px" loading="lazy" /></td>
+      </tr>
+    `;
+  }).join('');
 
-  // ── Open client panel ─────────────────────────────────────────────────────
-  async function openClient(id) {
-    selectedClientId = id;
-    // Re-render to show selected
-    renderClients(allClients);
+  document.getElementById('client-content').innerHTML = `
+    <div class="section">
+      <div class="section-title">👥 ${customers.length} client(s) trouvé(s) — Cliquez pour ouvrir la fiche</div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Nom</th><th>ID Square</th><th>Email</th><th>Points</th><th>QR</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
 
-    const panel = document.getElementById('slidePanel');
-    panel.classList.add('open');
-    document.getElementById('clientsList').classList.add('panel-open');
-
-    // Reset tabs
-    switchTab('resume');
-    resetPanel();
-
-    try {
-      const res = await fetch(`${API}/api/crm/clients/${id}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      const c = data.customer;
-      populatePanel(c);
-
-      // Load history in background
-      loadHistory(id);
-    } catch (err) {
-      showToast('⚠ ' + err.message, 'err');
-    }
-  }
-
-  function resetPanel() {
-    document.getElementById('panelName').textContent = 'Chargement…';
-    document.getElementById('panelSub').textContent = '';
-    document.getElementById('panelBadges').innerHTML = '';
-    document.getElementById('resumeContacts').innerHTML = '';
-    document.getElementById('kpiCA').textContent = '—';
-    document.getElementById('kpiVisits').textContent = '—';
-    document.getElementById('kpiFreq').textContent = '—';
-    document.getElementById('kpiPoints').textContent = '—';
-    document.getElementById('kpiService').textContent = '—';
-    document.getElementById('kpiLastVisit').textContent = '—';
-    document.getElementById('historyTimeline').innerHTML = '<div class="loading"><div class="spinner"></div><br>Chargement…</div>';
-  }
-
-  function populatePanel(c) {
-    const fname = c.given_name || '';
-    const lname = c.family_name || '';
-    const name = `${fname} ${lname}`.trim() || 'Client inconnu';
-    const ini = initials(fname, lname);
-    const color = avatarColor(name);
-    const badge = clientBadge(c);
-    const pts = c.loyalty_points || 0;
-
-    // Avatar
-    const av = document.getElementById('panelAvatar');
-    av.textContent = ini;
-    av.style.background = color + '22';
-    av.style.color = color;
-
-    document.getElementById('panelName').textContent = name;
-    document.getElementById('panelSub').textContent = c.email_address || c.phone_number || 'Aucun contact renseigné';
-
-    const badgesEl = document.getElementById('panelBadges');
-    badgesEl.innerHTML = `<span class="badge ${badge.cls}">${badge.label}</span>`;
-    if (pts > 0) badgesEl.innerHTML += `<span class="badge badge-vip">⭐ ${pts} pts</span>`;
-
-    // Contacts
-    document.getElementById('resumeContacts').innerHTML = [
-      c.email_address ? `<div class="contact-item"><span class="ci-icon">📧</span>${c.email_address}</div>` : '',
-      c.phone_number  ? `<div class="contact-item"><span class="ci-icon">📞</span>${c.phone_number}</div>` : '',
-      c.address?.locality ? `<div class="contact-item"><span class="ci-icon">📍</span>${[c.address.address_line_1, c.address.locality, c.address.country].filter(Boolean).join(', ')}</div>` : '',
-    ].join('');
-
-    // KPIs
-    document.getElementById('kpiPoints').textContent = pts.toLocaleString('fr-CA');
-    document.getElementById('kpiLastVisit').textContent = c.updated_at ? new Date(c.updated_at).toLocaleDateString('fr-CA') : '—';
-
-    // Hair profile
-    const hp = c.hair_profile;
-    document.getElementById('hp-type').textContent = hp?.hair_type || '—';
-    document.getElementById('hp-texture').textContent = hp?.texture || '—';
-    document.getElementById('hp-service').textContent = hp?.usual_service || '—';
-    document.getElementById('hp-freq').textContent = hp?.frequency || '—';
-    document.getElementById('hp-allergies').textContent = hp?.allergies || 'Aucune renseignée';
-    document.getElementById('hp-notes').textContent = hp?.notes || '—';
-
-    // Notes
-    document.getElementById('notesArea').value = c.notes || c.note || '';
-  }
-
-  async function loadHistory(id) {
-    try {
-      const [aptsRes, paysRes] = await Promise.all([
-        fetch(`${API}/api/crm/clients/${id}/appointments`),
-        fetch(`${API}/api/crm/clients/${id}/payments`)
-      ]);
-
-      const apts = aptsRes.ok ? (await aptsRes.json()).appointments || [] : [];
-      const pays = paysRes.ok ? (await paysRes.json()).payments || [] : [];
-
-      // KPI calculations
-      const completedApts = apts.filter(a => a.status === 'COMPLETED');
-      const totalCA = pays.reduce((sum, p) => {
-        const amt = p.amount_money?.amount || p.total_money?.amount || 0;
-        return sum + amt;
-      }, 0);
-
-      document.getElementById('kpiVisits').textContent = completedApts.length;
-      document.getElementById('kpiCA').textContent = `${(totalCA / 100).toFixed(2)} $`;
-
-      if (completedApts.length >= 2) {
-        const sorted = completedApts
-          .map(a => new Date(a.start_at))
-          .sort((a, b) => a - b);
-        const gaps = [];
-        for (let i = 1; i < sorted.length; i++) {
-          gaps.push((sorted[i] - sorted[i-1]) / 86400000);
-        }
-        const avgDays = Math.round(gaps.reduce((a, b) => a + b, 0) / gaps.length);
-        document.getElementById('kpiFreq').textContent = `${avgDays}j`;
-      }
-
-      // Service préféré
-      const serviceCount = {};
-      apts.forEach(a => {
-        const service = a.appointment_segments?.[0]?.service_variation_version || 'Service';
-        serviceCount[service] = (serviceCount[service] || 0) + 1;
-      });
-      const topService = Object.entries(serviceCount).sort((a, b) => b[1] - a[1])[0];
-      if (topService) document.getElementById('kpiService').textContent = topService[0];
-
-      // Timeline combinée
-      const events = [
-        ...apts.map(a => ({ type: 'apt', date: a.start_at, data: a })),
-        ...pays.map(p => ({ type: 'pay', date: p.created_at, data: p }))
-      ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 40);
-
-      const tl = document.getElementById('historyTimeline');
-      if (events.length === 0) {
-        tl.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:2rem">Aucun historique trouvé</div>';
-        return;
-      }
-
-      tl.innerHTML = events.map(ev => {
-        const d = new Date(ev.date);
-        const dateStr = d.toLocaleDateString('fr-CA', { day: 'numeric', month: 'short', year: 'numeric' });
-
-        if (ev.type === 'apt') {
-          const a = ev.data;
-          const status = a.status || 'UNKNOWN';
-          const statusCls = status === 'COMPLETED' ? 'completed' : status.includes('CANCEL') ? 'cancelled' : 'pending';
-          const statusLabel = { COMPLETED: 'Complété', CANCELLED_BY_CUSTOMER: 'Annulé (client)', CANCELLED_BY_SELLER: 'Annulé (salon)', ACCEPTED: 'Confirmé', NO_SHOW: 'No Show', PENDING: 'En attente' }[status] || status;
-          return `
-            <div class="tl-item">
-              <div class="tl-top">
-                <span class="tl-title">📅 Rendez-vous</span>
-                <span class="tl-date">${dateStr}</span>
-              </div>
-              <span class="tl-status ${statusCls}">${statusLabel}</span>
-            </div>`;
-        } else {
-          const p = ev.data;
-          const amt = (p.amount_money?.amount || p.total_money?.amount || 0) / 100;
-          const payStatus = p.status === 'COMPLETED' ? 'completed' : 'pending';
-          return `
-            <div class="tl-item">
-              <div class="tl-top">
-                <span class="tl-title">💳 Paiement</span>
-                <span class="tl-date">${dateStr}</span>
-              </div>
-              <div class="tl-amount">${amt.toFixed(2)} $</div>
-              <span class="tl-status ${payStatus}">${p.status || '—'}</span>
-            </div>`;
-        }
-      }).join('');
-    } catch (err) {
-      document.getElementById('historyTimeline').innerHTML =
-        `<div style="color:var(--danger);font-size:0.82rem;text-align:center;padding:1rem">Erreur: ${err.message}</div>`;
-    }
-  }
-
-  // ── Panel tabs ────────────────────────────────────────────────────────────
-  function switchTab(name) {
-    document.querySelectorAll('.tab-btn').forEach((b, i) => {
-      const tabs = ['resume','history','hair','notes'];
-      b.classList.toggle('active', tabs[i] === name);
-    });
-    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-    document.getElementById(`tab-${name}`)?.classList.add('active');
-  }
-
-  // ── Close panel ───────────────────────────────────────────────────────────
-  function closePanel() {
-    selectedClientId = null;
-    document.getElementById('slidePanel').classList.remove('open');
-    document.getElementById('clientsList').classList.remove('panel-open');
-    renderClients(allClients);
-  }
-
-  // ── Save notes ────────────────────────────────────────────────────────────
-  async function saveNotes() {
-    if (!selectedClientId) return;
-    const note = document.getElementById('notesArea').value;
-    try {
-      const res = await fetch(`${API}/api/crm/clients/${selectedClientId}/notes`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ note })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      showToast('✅ Notes sauvegardées', 'ok');
-    } catch (err) {
-      showToast('⚠ ' + err.message, 'err');
-    }
-  }
-
-  // ── Wallet / SMS ──────────────────────────────────────────────────────────
-  async function sendWallet() {
-    if (!selectedClientId) return;
-    try {
-      const res = await fetch(`${API}/api/wallet/qr/${selectedClientId}`);
-      if (!res.ok) throw new Error('Endpoint Wallet non disponible');
-      showToast('📱 Carte Wallet envoyée !', 'ok');
-    } catch (err) {
-      showToast('ℹ Brique Wallet à venir', 'ok');
-    }
-  }
-
-  function sendSMS() {
-    if (!selectedClientId) return;
-    showToast('📲 SMS Promo — fonctionnalité SMS Campaigns', 'ok');
-  }
-
-  // ── Export CSV ────────────────────────────────────────────────────────────
-  function exportCSV() {
-    if (filteredClients.length === 0) { showToast('Aucun client à exporter', 'err'); return; }
-    const rows = [['Prénom','Nom','Email','Téléphone','Points Fidélité','Dernière màj']];
-    filteredClients.forEach(c => {
-      rows.push([
-        c.given_name || '',
-        c.family_name || '',
-        c.email_address || '',
-        c.phone_number || '',
-        c.loyalty_points || 0,
-        c.updated_at ? new Date(c.updated_at).toLocaleDateString('fr-CA') : ''
-      ]);
-    });
-    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = `clients-${Date.now()}.csv`; a.click();
-    URL.revokeObjectURL(url);
-    showToast(`✅ ${filteredClients.length} clients exportés`, 'ok');
-  }
-
-  // ── Search debounce ───────────────────────────────────────────────────────
-  document.getElementById('searchInput').addEventListener('input', () => {
-    clearTimeout(searchTimer);
-    const q = document.getElementById('searchInput').value.trim();
-    if (q.length === 0 || q.length >= 2) {
-      searchTimer = setTimeout(() => {
-        if (q.length >= 3) {
-          loadClients(true); // Server-side search
-        } else {
-          renderClients(allClients); // Client-side filter
-        }
-      }, 400);
-    }
-  });
-
-  // ── Toast ─────────────────────────────────────────────────────────────────
-  let toastTimer;
-  function showToast(msg, type = 'ok') {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = `toast toast-${type} show`;
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
-  }
-
-  // ── Init ──────────────────────────────────────────────────────────────────
-  loadClients();
+function showLoader() {
+  document.getElementById('client-content').innerHTML = '<div class="loader">⏳ Chargement...</div>';
+}
+function showError(msg) {
+  document.getElementById('client-content').innerHTML = `<div class="no-client"><h2 style="color:var(--red)">⚠️ ${msg}</h2></div>`;
+}
+function copyLink(url) {
+  navigator.clipboard.writeText(url).then(() => alert('✅ Lien copié !'));
+}
 </script>
 </body>
 </html>
