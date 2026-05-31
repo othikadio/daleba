@@ -157,18 +157,25 @@ async function getPortalLinkByEmail(email, returnUrl) {
  */
 async function listSubscriptions({ status = 'all', limit = 100 } = {}) {
   if (!stripe) throw new Error('Stripe non configuré — ajoutez STRIPE_SECRET_KEY');
-  const params = { limit, expand: ['data.customer', 'data.default_payment_method'] };
+  const params = { limit, expand: ['data.customer', 'data.default_payment_method', 'data.items.data.price.product'] };
   if (status !== 'all') params.status = status;
   const subs = await stripe.subscriptions.list(params);
   return subs.data.map(sub => {
     const cust = sub.customer;
+    const item = sub.items.data[0];
+    const price = item?.price;
+    const product = price?.product;
+    const planName = (typeof product === 'object' ? product.name : null)
+                  || price?.nickname
+                  || price?.id
+                  || 'Plan';
     return {
       id: sub.id,
       status: sub.status,
       customerId: typeof cust === 'string' ? cust : cust.id,
       customerName: typeof cust === 'object' ? (cust.name || cust.email || cust.id) : cust,
       customerEmail: typeof cust === 'object' ? cust.email : null,
-      plan: sub.items.data[0]?.price?.nickname || sub.items.data[0]?.price?.id || 'Plan',
+      plan: planName,
       amount: sub.items.data[0]?.price?.unit_amount
         ? (sub.items.data[0].price.unit_amount / 100).toFixed(2)
         : null,
