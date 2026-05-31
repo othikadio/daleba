@@ -266,6 +266,16 @@
 </span>
 <span class="btn-arrow">→</span>
 </a>
+<!-- Portail Client Stripe -->
+<div class="hub-divider">mon compte</div>
+<button class="hub-btn hub-btn-glass" id="btn-portal" onclick="openPortal()" style="width:100%;cursor:pointer;border:none;text-align:left;">
+<span class="btn-icon">📄</span>
+<span class="btn-text">
+<span class="btn-label">Gérer mon abonnement</span>
+<span class="btn-sub">Carte bancaire · Forfait · Historique de facturation</span>
+</span>
+<span class="btn-arrow" id="portal-arrow">→</span>
+</button>
 <div class="hub-divider">aussi</div>
 <!-- Contact -->
 <a class="hub-btn hub-btn-glass"
@@ -298,5 +308,36 @@
 <a href="tel:+15149195970">514 919-5970</a> &nbsp;·&nbsp; Appels &amp; WhatsApp
  </div>
 </div>
+
+<script>
+async function openPortal() {
+  const btn = document.getElementById('btn-portal');
+  const arrow = document.getElementById('portal-arrow');
+  const email = prompt('Entrez votre adresse email pour accéder au portail :');
+  if (!email || !email.includes('@')) return;
+  btn.disabled = true;
+  arrow.textContent = '⏳';
+  try {
+    const API = 'https://daleba-api-production.up.railway.app';
+    const res = await fetch(`${API}/api/payment/portal`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, returnUrl: window.location.href })
+    });
+    const data = await res.json();
+    if (data.portalUrl) {
+      window.location.href = data.portalUrl;
+    } else {
+      alert(data.error || 'Aucun abonnement trouvé pour cet email.');
+      btn.disabled = false;
+      arrow.textContent = '→';
+    }
+  } catch (e) {
+    alert('Erreur de connexion. Réessayez.');
+    btn.disabled = false;
+    arrow.textContent = '→';
+  }
+}
+</script>
 </body>
 </html>

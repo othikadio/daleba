@@ -207,6 +207,10 @@
       <div class="nav-item" onclick="switchPanel('staff')">
         <span class="icon">💇</span> Équipe
       </div>
+      <div class="nav-item" onclick="window.open('/admin-subscriptions.html','_blank')">
+        <span class="icon">💳</span> Abonnés Stripe
+        <span class="nav-badge" id="badge-subs" style="background:rgba(201,168,76,0.12);color:#c9a84c">—</span>
+      </div>
     </div>
 
     <hr class="sidebar-divider" />
@@ -435,6 +439,16 @@
         document.getElementById('dal-total').textContent = '$' + dca.toLocaleString('fr-CA', {minimumFractionDigits:2, maximumFractionDigits:2});
         document.getElementById('dal-count').textContent = dct;
         document.getElementById('dal-avg').textContent = dct > 0 ? '$' + (dca / dct).toFixed(2) : '$0';
+      }
+    } catch (e) {}
+
+    try {
+      // Abonnés Stripe (badge sidebar)
+      const sb = await fetch('/api/payment/subscriptions').then(r => r.json()).catch(() => null);
+      if (sb && sb.success) {
+        const activeCount = (sb.subscriptions || []).filter(s => s.status === 'active').length;
+        const el = document.getElementById('badge-subs');
+        if (el) el.textContent = activeCount > 0 ? activeCount : '0';
       }
     } catch (e) {}
 

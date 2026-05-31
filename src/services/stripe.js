@@ -116,10 +116,78 @@ async function refund(paymentIntentId, amount) {
   return stripe.refunds.create(params);
 }
 
+/**
+ * Crée une session Stripe Customer Portal (autogestion carte + forfait)
+ * @param {string} customerId - Stripe Customer ID (cus_xxx)
+ * @param {string} returnUrl - URL de retour après fermeture du portail
+ */
+async function createCustomerPortalSession(customerId, returnUrl) {
+  if (!stripe) throw new Error('Stripe non configuré — ajoutez STRIPE_SECRET_KEY');
+  const session = await stripe.billingPortal.sessions.create({
+    customer: customerId,
+    return_url: returnUrl || 'https://kadiocoiffure.vercel.app/hub',
+  });
+  return { portalUrl: session.url };
+}
+
+/**
+ * Trouve ou crée un customer Stripe par email, puis génère son lien portail
+ * @param {string} email
+ * @param {string} returnUrl
+ */
+async function getPortalLinkByEmail(email, returnUrl) {
+  if (!stripe) throw new Error('Stripe non configuré — ajoutez STRIPE_SECRET_KEY');
+  // Cherche client existant
+  const customers = await stripe.customers.list({ email, limit: 1 });
+  let customer;
+  if (customers.data.length > 0) {
+    customer = customers.data[0];
+  } else {
+    // Crée le client s'il n'existe pas encore
+    customer = await stripe.customers.create({ email });
+  }
+  return createCustomerPortalSession(customer.id, returnUrl);
+}
+
+/**
+ * Liste tous les abonnements actifs/annulés avec info client
+ * @param {Object} options
+ * @param {string} options.status - 'active' | 'canceled' | 'past_due' | 'all'
+ * @param {number} options.limit - max 100
+ */
+async function listSubscriptions({ status = 'all', limit = 100 } = {}) {
+  if (!stripe) throw new Error('Stripe non configuré — ajoutez STRIPE_SECRET_KEY');
+  const params = { limit, expand: ['data.customer', 'data.default_payment_method'] };
+  if (status !== 'all') params.status = status;
+  const subs = await stripe.subscriptions.list(params);
+  return subs.data.map(sub => {
+    const cust = sub.customer;
+    return {
+      id: sub.id,
+      status: sub.status,
+      customerId: typeof cust === 'string' ? cust : cust.id,
+      customerName: typeof cust === 'object' ? (cust.name || cust.email || cust.id) : cust,
+      customerEmail: typeof cust === 'object' ? cust.email : null,
+      plan: sub.items.data[0]?.price?.nickname || sub.items.data[0]?.price?.id || 'Plan',
+      amount: sub.items.data[0]?.price?.unit_amount
+        ? (sub.items.data[0].price.unit_amount / 100).toFixed(2)
+        : null,
+      currency: sub.items.data[0]?.price?.currency?.toUpperCase() || 'CAD',
+      currentPeriodStart: sub.current_period_start,
+      currentPeriodEnd: sub.current_period_end,
+      createdAt: sub.created,
+      cancelAtPeriodEnd: sub.cancel_at_period_end,
+    };
+  });
+}
+
 module.exports = {
   createCheckoutSession,
   createSubscription,
   parseWebhook,
   getSession,
   refund,
+  createCustomerPortalSession,
+  getPortalLinkByEmail,
+  listSubscriptions,
 };

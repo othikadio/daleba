@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DALEBA — Abonnés Stripe</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --surface2: #21262d;
+      --border:   #30363d;
+      --text:     #e6edf3;
+      --dim:      #8b949e;
+      --gold:     #c9a84c;
+      --gold-dim: rgba(201,168,76,0.12);
+      --green:    #3fb950;
+      --red:      #f85149;
+      --blue:     #58a6ff;
+      --orange:   #f0883e;
+      --radius:   8px;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; min-height: 100vh; }
+
+    /* ── Topbar ── */
+    .topbar {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      height: 52px; display: flex; align-items: center; padding: 0 1.5rem;
+      justify-content: space-between; position: sticky; top: 0; z-index: 100;
+    }
+    .topbar-logo { font-weight: 900; font-size: 1.1rem; color: var(--gold); letter-spacing: 0.06em; }
+    .topbar-logo span { color: var(--dim); font-weight: 400; font-size: 0.75rem; margin-left: 0.5rem; }
+    .topbar-right { display: flex; gap: 0.75rem; align-items: center; }
+    .btn-sm {
+      background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+      padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-sm:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-sm.primary { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); font-weight: 700; }
+
+    /* ── Page Layout ── */
+    .page { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    .page-header { margin-bottom: 1.5rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 800; }
+    .page-header p { color: var(--dim); font-size: 0.85rem; margin-top: 0.3rem; }
+
+    /* ── KPI Strip ── */
+    .kpi-strip { display: flex; gap: 1rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
+    .kpi-box {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1rem 1.25rem; flex: 1; min-width: 140px;
+    }
+    .kpi-box .label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); margin-bottom: 0.4rem; }
+    .kpi-box .val { font-size: 2rem; font-weight: 900; }
+    .kpi-box.green .val { color: var(--green); }
+    .kpi-box.red   .val { color: var(--red); }
+    .kpi-box.gold  .val { color: var(--gold); }
+    .kpi-box.blue  .val { color: var(--blue); }
+
+    /* ── Filtres ── */
+    .filters { display: flex; gap: 0.75rem; margin-bottom: 1.25rem; align-items: center; flex-wrap: wrap; }
+    .filter-btn {
+      background: var(--surface2); border: 1px solid var(--border); color: var(--dim);
+      padding: 0.35rem 0.85rem; border-radius: 20px; font-size: 0.78rem; cursor: pointer; transition: all 0.15s;
+    }
+    .filter-btn:hover, .filter-btn.active { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+    .search-box {
+      background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+      padding: 0.4rem 0.85rem; border-radius: 6px; font-size: 0.82rem; width: 220px;
+      outline: none; margin-left: auto;
+    }
+    .search-box:focus { border-color: var(--blue); }
+
+    /* ── Table ── */
+    .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--surface2); }
+    th {
+      text-align: left; padding: 0.65rem 1rem;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim);
+      border-bottom: 1px solid var(--border);
+    }
+    td { padding: 0.75rem 1rem; font-size: 0.84rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.72rem; font-weight: 700;
+    }
+    .badge-active   { background: rgba(63,185,80,0.15);  color: var(--green); }
+    .badge-canceled { background: rgba(248,81,73,0.12);  color: var(--red); }
+    .badge-past_due { background: rgba(240,136,62,0.15); color: var(--orange); }
+    .badge-trialing { background: rgba(88,166,255,0.12); color: var(--blue); }
+
+    .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+    .dot-active   { background: var(--green);  box-shadow: 0 0 5px var(--green); }
+    .dot-canceled { background: var(--red); }
+    .dot-past_due { background: var(--orange); }
+
+    /* ── Notes Visites ── */
+    .note-cell { display: flex; align-items: center; gap: 0.5rem; }
+    .rdv-count {
+      background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 6px; padding: 0.15rem 0.5rem; font-size: 0.78rem; font-weight: 700;
+      min-width: 28px; text-align: center; cursor: pointer; transition: all 0.15s;
+    }
+    .rdv-count:hover { border-color: var(--gold); }
+    .last-visit { font-size: 0.78rem; color: var(--dim); }
+    .note-input {
+      background: transparent; border: 1px solid var(--border); color: var(--text);
+      padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.78rem; width: 140px;
+      outline: none; transition: border-color 0.15s;
+    }
+    .note-input:focus { border-color: var(--blue); }
+
+    /* ── Modal Notes ── */
+    .modal-backdrop {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      z-index: 500; align-items: center; justify-content: center;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.75rem; width: 480px; max-width: 95vw;
+    }
+    .modal h2 { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.3rem; }
+    .modal .sub { font-size: 0.82rem; color: var(--dim); margin-bottom: 1.25rem; }
+    .modal label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dim); display: block; margin-bottom: 0.4rem; }
+    .modal input, .modal textarea {
+      background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+      padding: 0.5rem 0.75rem; border-radius: 6px; width: 100%; font-size: 0.85rem;
+      outline: none; margin-bottom: 1rem; font-family: inherit;
+    }
+    .modal input:focus, .modal textarea:focus { border-color: var(--blue); }
+    .modal textarea { resize: vertical; min-height: 80px; }
+    .visits-log { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; max-height: 160px; overflow-y: auto; margin-bottom: 1rem; }
+    .visit-entry { display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
+    .visit-entry:last-child { border-bottom: none; }
+    .visit-date { color: var(--gold); font-weight: 700; min-width: 90px; }
+    .visit-remove { color: var(--red); cursor: pointer; margin-left: auto; font-size: 0.9rem; }
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 0.5rem; }
+    .modal-actions button { padding: 0.5rem 1.2rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: 700; }
+    .btn-cancel { background: var(--surface2); border: 1px solid var(--border); color: var(--dim); }
+    .btn-save   { background: var(--gold-dim); border: 1px solid var(--gold); color: var(--gold); }
+    .btn-add-visit { background: var(--surface2); border: 1px solid var(--border); color: var(--blue); font-size: 0.78rem; padding: 0.3rem 0.75rem; border-radius: 6px; cursor: pointer; }
+
+    /* ── Loader ── */
+    .loader { display: flex; align-items: center; justify-content: center; padding: 3rem; color: var(--dim); gap: 0.75rem; }
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty { text-align: center; padding: 3rem; color: var(--dim); }
+    .empty .emoji { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .empty p { font-size: 0.9rem; }
+
+    .plan-tag { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 0.15rem 0.45rem; font-size: 0.75rem; color: var(--dim); }
+
+    @media (max-width: 700px) {
+      th.hide-mobile, td.hide-mobile { display: none; }
+      .search-box { width: 100%; margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-logo">DALEBA <span>Abonnés Stripe</span></div>
+  <div class="topbar-right">
+    <button class="btn-sm" onclick="window.location='/admin-hub.html'">← Hub</button>
+    <button class="btn-sm primary" onclick="loadSubscriptions()">🔄 Actualiser</button>
+  </div>
+</div>
+
+<div class="page">
+  <!-- Header -->
+  <div class="page-header">
+    <h1>💳 Abonnés &amp; Forfaits</h1>
+    <p>Liste en direct depuis Stripe · Notes de visites et suivi mensuel</p>
+  </div>
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip">
+    <div class="kpi-box green"><div class="label">Actifs</div><div class="val" id="kpi-active">—</div></div>
+    <div class="kpi-box red">  <div class="label">Bloqués / Annulés</div><div class="val" id="kpi-inactive">—</div></div>
+    <div class="kpi-box gold"> <div class="label">MRR estimé (CAD)</div><div class="val" id="kpi-mrr">—</div></div>
+    <div class="kpi-box blue"> <div class="label">Total abonnés</div><div class="val" id="kpi-total">—</div></div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filters">
+    <button class="filter-btn active" data-filter="all"    onclick="setFilter('all', this)">Tous</button>
+    <button class="filter-btn"        data-filter="active"   onclick="setFilter('active', this)">✅ Actifs</button>
+    <button class="filter-btn"        data-filter="past_due" onclick="setFilter('past_due', this)">⚠️ En retard</button>
+    <button class="filter-btn"        data-filter="canceled" onclick="setFilter('canceled', this)">❌ Annulés</button>
+    <input type="text" class="search-box" id="search-input" placeholder="🔍 Rechercher nom / email…" oninput="applySearch()" />
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <div id="table-loader" class="loader"><div class="spinner"></div> Chargement des abonnés…</div>
+    <table id="sub-table" style="display:none">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th class="hide-mobile">Forfait</th>
+          <th>Statut</th>
+          <th class="hide-mobile">Montant</th>
+          <th class="hide-mobile">Période</th>
+          <th>RDV ce mois</th>
+          <th>Dernière visite</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody id="sub-tbody"></tbody>
+    </table>
+    <div id="empty-state" class="empty" style="display:none">
+      <div class="emoji">📭</div>
+      <p>Aucun abonné trouvé pour ce filtre.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Notes Visites -->
+<div class="modal-backdrop" id="modal-backdrop" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2 id="modal-name">Client</h2>
+    <div class="sub" id="modal-email">email@exemple.com</div>
+
+    <label>Visites ce mois-ci</label>
+    <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;align-items:center;">
+      <button class="btn-add-visit" onclick="addVisitToday()">+ Ajouter aujourd'hui</button>
+      <input type="date" id="modal-custom-date" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0.3rem 0.6rem;border-radius:6px;font-size:0.8rem;outline:none;" />
+      <button class="btn-add-visit" onclick="addCustomDate()">+ Date</button>
+    </div>
+
+    <div class="visits-log" id="visits-log">
+      <div style="color:var(--dim);font-size:0.8rem;text-align:center;">Aucune visite enregistrée</div>
+    </div>
+
+    <label>Note libre</label>
+    <textarea id="modal-note" placeholder="Ex : Préfère Wilfried, cheveux fragiles, allergique au sulfate…"></textarea>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModalBtn()">Annuler</button>
+      <button class="btn-save"   onclick="saveNotes()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://daleba-api-production.up.railway.app';
+const STORAGE_KEY = 'daleba_sub_notes_v2';
+
+let allSubs = [];
+let currentFilter = 'all';
+let activeSubId = null;
+
+// ── Notes stockées localement (localStorage) ──
+function getNotes() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+}
+function saveNotesToStorage(notes) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+}
+function getNoteForSub(subId) {
+  return getNotes()[subId] || { visits: [], note: '' };
+}
+
+// ── Chargement Stripe ──
+async function loadSubscriptions() {
+  document.getElementById('table-loader').style.display = 'flex';
+  document.getElementById('sub-table').style.display = 'none';
+  document.getElementById('empty-state').style.display = 'none';
+
+  try {
+    const res = await fetch(`${API}/api/payment/subscriptions`);
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Erreur API');
+    allSubs = data.subscriptions || [];
+    updateKPIs();
+    renderTable(filteredSubs());
+  } catch (err) {
+    document.getElementById('table-loader').innerHTML =
+      `<div style="text-align:center;color:var(--red)">❌ ${err.message}<br><small>Vérifiez que le backend est actif et que STRIPE_SECRET_KEY est configuré sur Railway.</small></div>`;
+  }
+}
+
+function filteredSubs() {
+  let subs = allSubs;
+  if (currentFilter !== 'all') subs = subs.filter(s => s.status === currentFilter);
+  const q = (document.getElementById('search-input').value || '').toLowerCase();
+  if (q) subs = subs.filter(s =>
+    (s.customerName || '').toLowerCase().includes(q) ||
+    (s.customerEmail || '').toLowerCase().includes(q)
+  );
+  return subs;
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable(filteredSubs());
+}
+
+function applySearch() {
+  renderTable(filteredSubs());
+}
+
+// ── KPIs ──
+function updateKPIs() {
+  const active   = allSubs.filter(s => s.status === 'active').length;
+  const inactive = allSubs.filter(s => s.status !== 'active').length;
+  let mrr = 0;
+  allSubs.filter(s => s.status === 'active').forEach(s => { if (s.amount) mrr += parseFloat(s.amount); });
+
+  document.getElementById('kpi-active').textContent   = active;
+  document.getElementById('kpi-inactive').textContent = inactive;
+  document.getElementById('kpi-mrr').textContent      = mrr > 0 ? `$${mrr.toFixed(0)}` : '—';
+  document.getElementById('kpi-total').textContent    = allSubs.length;
+}
+
+// ── Rendu table ──
+function renderTable(subs) {
+  document.getElementById('table-loader').style.display = 'none';
+  const tbody = document.getElementById('sub-tbody');
+  tbody.innerHTML = '';
+
+  if (subs.length === 0) {
+    document.getElementById('sub-table').style.display = 'none';
+    document.getElementById('empty-state').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('sub-table').style.display = 'table';
+
+  const now = new Date();
+  const monthStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+
+  subs.forEach(sub => {
+    const note    = getNoteForSub(sub.id);
+    const visits  = note.visits || [];
+    const thisMonth = visits.filter(d => d.startsWith(monthStr)).length;
+    const lastVisit = visits.length > 0 ? visits[visits.length - 1] : null;
+
+    const statusMap = {
+      active:   { label: 'Actif',      cls: 'badge-active'   },
+      canceled: { label: 'Annulé',     cls: 'badge-canceled' },
+      past_due: { label: 'En retard',  cls: 'badge-past_due' },
+      trialing: { label: 'Essai',      cls: 'badge-trialing' },
+    };
+    const st = statusMap[sub.status] || { label: sub.status, cls: '' };
+    const dotCls = `dot-${sub.status}` in {
+      'dot-active': 1, 'dot-canceled': 1, 'dot-past_due': 1
+    } ? `dot-${sub.status}` : '';
+
+    const periodEnd = sub.currentPeriodEnd
+      ? new Date(sub.currentPeriodEnd * 1000).toLocaleDateString('fr-CA', { day: '2-digit', month: 'short' })
+      : '—';
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div style="font-weight:600">${esc(sub.customerName || '—')}</div>
+        <div style="font-size:0.75rem;color:var(--dim)">${esc(sub.customerEmail || '')}</div>
+      </td>
+      <td class="hide-mobile"><span class="plan-tag">${esc(sub.plan)}</span></td>
+      <td>
+        <span class="badge ${st.cls}">
+          <span class="dot ${dotCls}"></span>
+          ${st.label}
+          ${sub.cancelAtPeriodEnd ? ' <span style="font-size:0.65rem;opacity:.7">(fin période)</span>' : ''}
+        </span>
+      </td>
+      <td class="hide-mobile" style="font-weight:600;color:${sub.status==='active'?'var(--green)':'var(--dim)'}">
+        ${sub.amount ? `$${sub.amount} ${sub.currency}` : '—'}
+      </td>
+      <td class="hide-mobile" style="color:var(--dim);font-size:0.8rem">jusqu'au ${periodEnd}</td>
+      <td>
+        <span class="rdv-count" onclick="openModal('${sub.id}')" title="Cliquer pour gérer les visites">
+          ${thisMonth}
+        </span>
+      </td>
+      <td>
+        <span class="last-visit">${lastVisit ? formatDate(lastVisit) : '—'}</span>
+      </td>
+      <td>
+        <span style="font-size:0.78rem;color:var(--dim);max-width:140px;display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis" title="${esc(note.note || '')}">
+          ${note.note ? esc(note.note.substring(0, 40)) + (note.note.length > 40 ? '…' : '') : '—'}
+        </span>
+      </td>
+    `;
+    tr.querySelector('.rdv-count').addEventListener('click', () => openModal(sub.id));
+    tbody.appendChild(tr);
+  });
+}
+
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function formatDate(iso) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('fr-CA', { day: '2-digit', month: 'short', year: '2-digit' });
+  } catch { return iso; }
+}
+
+// ── Modal ──
+function openModal(subId) {
+  activeSubId = subId;
+  const sub = allSubs.find(s => s.id === subId);
+  if (!sub) return;
+  document.getElementById('modal-name').textContent  = sub.customerName || sub.customerEmail || subId;
+  document.getElementById('modal-email').textContent = sub.customerEmail || sub.id;
+  const note = getNoteForSub(subId);
+  document.getElementById('modal-note').value = note.note || '';
+  renderVisitLog(note.visits || []);
+  document.getElementById('modal-backdrop').classList.add('open');
+  // Date par défaut = aujourd'hui
+  document.getElementById('modal-custom-date').value = new Date().toISOString().split('T')[0];
+}
+
+function renderVisitLog(visits) {
+  const log = document.getElementById('visits-log');
+  if (visits.length === 0) {
+    log.innerHTML = '<div style="color:var(--dim);font-size:0.8rem;text-align:center;">Aucune visite enregistrée</div>';
+    return;
+  }
+  log.innerHTML = [...visits].reverse().map((d, i) => `
+    <div class="visit-entry">
+      <span class="visit-date">${formatDate(d)}</span>
+      <span style="color:var(--dim);font-size:0.75rem">${d}</span>
+      <span class="visit-remove" onclick="removeVisit(${visits.length - 1 - i})" title="Supprimer">✕</span>
+    </div>
+  `).join('');
+}
+
+function addVisitToday() {
+  if (!activeSubId) return;
+  const today = new Date().toISOString().split('T')[0];
+  addVisit(today);
+}
+function addCustomDate() {
+  const d = document.getElementById('modal-custom-date').value;
+  if (!d) return;
+  addVisit(d);
+}
+function addVisit(dateStr) {
+  const notes = getNotes();
+  const n = notes[activeSubId] || { visits: [], note: '' };
+  if (!n.visits.includes(dateStr)) {
+    n.visits.push(dateStr);
+    n.visits.sort();
+  }
+  notes[activeSubId] = n;
+  saveNotesToStorage(notes);
+  renderVisitLog(n.visits);
+}
+function removeVisit(idx) {
+  const notes = getNotes();
+  const n = notes[activeSubId] || { visits: [], note: '' };
+  n.visits.splice(idx, 1);
+  notes[activeSubId] = n;
+  saveNotesToStorage(notes);
+  renderVisitLog(n.visits);
+}
+function saveNotes() {
+  const notes = getNotes();
+  const n = notes[activeSubId] || { visits: [], note: '' };
+  n.note = document.getElementById('modal-note').value;
+  notes[activeSubId] = n;
+  saveNotesToStorage(notes);
+  closeModalBtn();
+  renderTable(filteredSubs());
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal-backdrop')) closeModalBtn();
+}
+function closeModalBtn() {
+  document.getElementById('modal-backdrop').classList.remove('open');
+  activeSubId = null;
+}
+
+// ── Init ──
+loadSubscriptions();
+</script>
+</body>
+</html>

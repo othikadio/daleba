@@ -6,6 +6,38 @@ const express = require('express');
 const router = express.Router();
 const stripe = require('../services/stripe');
 
+// GET /api/payment/portal — Génère un lien Customer Portal Stripe
+router.post('/portal', async (req, res) => {
+  const { email, customerId, returnUrl } = req.body;
+  if (!email && !customerId) {
+    return res.status(400).json({ error: 'email ou customerId requis' });
+  }
+  try {
+    let result;
+    if (customerId) {
+      result = await stripe.createCustomerPortalSession(customerId, returnUrl);
+    } else {
+      result = await stripe.getPortalLinkByEmail(email, returnUrl);
+    }
+    res.json({ success: true, ...result });
+  } catch (err) {
+    console.error('\u274c Portal error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/payment/subscriptions — Liste des abonnés Stripe
+router.get('/subscriptions', async (req, res) => {
+  const { status = 'all' } = req.query;
+  try {
+    const subs = await stripe.listSubscriptions({ status });
+    res.json({ success: true, count: subs.length, subscriptions: subs });
+  } catch (err) {
+    console.error('\u274c Subscriptions error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // POST /api/payment/create — Créer une session de paiement
 router.post('/create', async (req, res) => {
   const { clientName, clientEmail, amount, description, sessionId } = req.body;
