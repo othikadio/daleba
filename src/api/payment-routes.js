@@ -6,6 +6,38 @@ const express = require('express');
 const router = express.Router();
 const stripe = require('../services/stripe');
 
+// GET /api/payment/subscriber/:subId — Détails complets Stripe + Square
+router.get('/subscriber/:subId', async (req, res) => {
+  const { subId } = req.params;
+  const { monthsBack = 12 } = req.query;
+  try {
+    const details = await stripe.getSubscriptionDetails(subId);
+    let squareData = { customerId: null, bookings: [], found: false };
+    if (details.customer.email) {
+      try {
+        const square = require('../services/square');
+        const sqCustomer = await square.getCustomerByEmail(details.customer.email);
+        if (sqCustomer) {
+          const bookings = await square.getCustomerBookings(sqCustomer.id, parseInt(monthsBack));
+          squareData = {
+            found: true,
+            customerId: sqCustomer.id,
+            customerName: `${sqCustomer.given_name || ''} ${sqCustomer.family_name || ''}`.trim(),
+            phone: sqCustomer.phone_number,
+            bookings: bookings.sort((a, b) => new Date(b.startAt) - new Date(a.startAt)),
+          };
+        }
+      } catch (sqErr) {
+        console.warn('[Square lookup]', sqErr.message);
+      }
+    }
+    res.json({ success: true, ...details, square: squareData });
+  } catch (err) {
+    console.error('\u274c Subscriber details error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/payment/portal — Génère un lien Customer Portal Stripe
 router.post('/portal', async (req, res) => {
   const { email, customerId, returnUrl } = req.body;

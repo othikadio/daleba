@@ -3,290 +3,242 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DALEBA — Abonnés Stripe</title>
+  <title>DALEBA — Suivi Abonnés</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg:       #0d1117;
-      --surface:  #161b22;
-      --surface2: #21262d;
-      --border:   #30363d;
-      --text:     #e6edf3;
-      --dim:      #8b949e;
-      --gold:     #c9a84c;
-      --gold-dim: rgba(201,168,76,0.12);
-      --green:    #3fb950;
-      --red:      #f85149;
-      --blue:     #58a6ff;
-      --orange:   #f0883e;
-      --radius:   8px;
+      --bg:       #0d1117; --surface:  #161b22; --surface2: #21262d; --surface3: #2d333b;
+      --border:   #30363d; --text:     #e6edf3; --dim:      #8b949e;
+      --gold:     #c9a84c; --gold-dim: rgba(201,168,76,0.12); --gold-border: rgba(201,168,76,0.3);
+      --green:    #3fb950; --green-dim: rgba(63,185,80,0.12);
+      --red:      #f85149; --red-dim: rgba(248,81,73,0.10);
+      --blue:     #58a6ff; --blue-dim: rgba(88,166,255,0.10);
+      --orange:   #f0883e; --purple: #bc8cff;
+      --radius:   8px; --radius-lg: 12px;
     }
     body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; min-height: 100vh; }
 
     /* ── Topbar ── */
-    .topbar {
-      background: var(--surface); border-bottom: 1px solid var(--border);
-      height: 52px; display: flex; align-items: center; padding: 0 1.5rem;
-      justify-content: space-between; position: sticky; top: 0; z-index: 100;
-    }
-    .topbar-logo { font-weight: 900; font-size: 1.1rem; color: var(--gold); letter-spacing: 0.06em; }
-    .topbar-logo span { color: var(--dim); font-weight: 400; font-size: 0.75rem; margin-left: 0.5rem; }
-    .topbar-right { display: flex; gap: 0.75rem; align-items: center; }
-    .btn-sm {
-      background: var(--surface2); border: 1px solid var(--border); color: var(--text);
-      padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer;
-      transition: all 0.15s;
-    }
-    .btn-sm:hover { border-color: var(--gold); color: var(--gold); }
-    .btn-sm.primary { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); font-weight: 700; }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); height: 52px; display: flex; align-items: center; padding: 0 1.5rem; justify-content: space-between; position: sticky; top: 0; z-index: 200; }
+    .topbar-logo { font-weight: 900; font-size: 1.1rem; color: var(--gold); letter-spacing: .06em; }
+    .topbar-logo span { color: var(--dim); font-weight: 400; font-size: .75rem; margin-left: .5rem; }
+    .topbar-right { display: flex; gap: .75rem; align-items: center; }
+    .btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: .4rem .9rem; border-radius: 6px; font-size: .8rem; cursor: pointer; transition: all .15s; font-family: inherit; }
+    .btn:hover { border-color: var(--gold); color: var(--gold); }
+    .btn.primary { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); font-weight: 700; }
+    .btn.success { background: var(--green-dim); border-color: var(--green); color: var(--green); font-weight: 700; }
+    .btn.danger  { background: var(--red-dim);   border-color: var(--red);   color: var(--red); }
 
-    /* ── Page Layout ── */
-    .page { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
-
+    /* ── Layout ── */
+    .page { max-width: 1300px; margin: 0 auto; padding: 2rem 1.5rem; }
     .page-header { margin-bottom: 1.5rem; }
     .page-header h1 { font-size: 1.5rem; font-weight: 800; }
-    .page-header p { color: var(--dim); font-size: 0.85rem; margin-top: 0.3rem; }
+    .page-header p  { color: var(--dim); font-size: .85rem; margin-top: .3rem; }
 
-    /* ── KPI Strip ── */
+    /* ── KPIs ── */
     .kpi-strip { display: flex; gap: 1rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
-    .kpi-box {
-      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 1rem 1.25rem; flex: 1; min-width: 140px;
-    }
-    .kpi-box .label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); margin-bottom: 0.4rem; }
-    .kpi-box .val { font-size: 2rem; font-weight: 900; }
+    .kpi-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; flex: 1; min-width: 130px; }
+    .kpi-box .label { font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); margin-bottom: .4rem; }
+    .kpi-box .val { font-size: 1.9rem; font-weight: 900; }
     .kpi-box.green .val { color: var(--green); }
     .kpi-box.red   .val { color: var(--red); }
     .kpi-box.gold  .val { color: var(--gold); }
     .kpi-box.blue  .val { color: var(--blue); }
+    .kpi-box.purple .val { color: var(--purple); }
 
     /* ── Filtres ── */
-    .filters { display: flex; gap: 0.75rem; margin-bottom: 1.25rem; align-items: center; flex-wrap: wrap; }
-    .filter-btn {
-      background: var(--surface2); border: 1px solid var(--border); color: var(--dim);
-      padding: 0.35rem 0.85rem; border-radius: 20px; font-size: 0.78rem; cursor: pointer; transition: all 0.15s;
-    }
+    .filters { display: flex; gap: .6rem; margin-bottom: 1.25rem; flex-wrap: wrap; align-items: center; }
+    .filter-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--dim); padding: .32rem .8rem; border-radius: 20px; font-size: .78rem; cursor: pointer; transition: all .15s; font-family: inherit; }
     .filter-btn:hover, .filter-btn.active { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
-    .search-box {
-      background: var(--surface2); border: 1px solid var(--border); color: var(--text);
-      padding: 0.4rem 0.85rem; border-radius: 6px; font-size: 0.82rem; width: 220px;
-      outline: none; margin-left: auto;
-    }
+    .search-box { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: .38rem .85rem; border-radius: 6px; font-size: .82rem; width: 220px; outline: none; margin-left: auto; }
     .search-box:focus { border-color: var(--blue); }
 
-    /* ── Table ── */
-    .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-    table { width: 100%; border-collapse: collapse; }
-    thead tr { background: var(--surface2); }
-    th {
-      text-align: left; padding: 0.65rem 1rem;
-      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim);
-      border-bottom: 1px solid var(--border);
-    }
-    td { padding: 0.75rem 1rem; font-size: 0.84rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: var(--surface2); }
+    /* ── Cards abonnés ── */
+    .sub-list { display: flex; flex-direction: column; gap: 1rem; }
+    .sub-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; transition: border-color .15s; }
+    .sub-card:hover { border-color: rgba(201,168,76,.4); }
 
-    .badge {
-      display: inline-flex; align-items: center; gap: 0.3rem;
-      padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.72rem; font-weight: 700;
-    }
-    .badge-active   { background: rgba(63,185,80,0.15);  color: var(--green); }
-    .badge-canceled { background: rgba(248,81,73,0.12);  color: var(--red); }
-    .badge-past_due { background: rgba(240,136,62,0.15); color: var(--orange); }
-    .badge-trialing { background: rgba(88,166,255,0.12); color: var(--blue); }
-
+    .sub-header { display: flex; align-items: center; gap: 1rem; padding: 1.1rem 1.25rem; cursor: pointer; }
+    .sub-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--gold-dim); border: 2px solid var(--gold-border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 900; color: var(--gold); flex-shrink: 0; }
+    .sub-info { flex: 1; min-width: 0; }
+    .sub-name { font-weight: 700; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sub-email { font-size: .77rem; color: var(--dim); margin-top: .1rem; }
+    .sub-meta { display: flex; gap: .75rem; align-items: center; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+    .badge { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .6rem; border-radius: 20px; font-size: .72rem; font-weight: 700; }
+    .badge-active   { background: var(--green-dim); color: var(--green); }
+    .badge-canceled { background: var(--red-dim);   color: var(--red); }
+    .badge-past_due { background: rgba(240,136,62,.15); color: var(--orange); }
+    .badge-trialing { background: var(--blue-dim);  color: var(--blue); }
     .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
     .dot-active   { background: var(--green);  box-shadow: 0 0 5px var(--green); }
     .dot-canceled { background: var(--red); }
     .dot-past_due { background: var(--orange); }
+    .price-tag { font-size: .9rem; font-weight: 800; color: var(--gold); }
+    .plan-name { font-size: .78rem; color: var(--dim); background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: .15rem .45rem; }
+    .toggle-icon { font-size: .8rem; color: var(--dim); transition: transform .2s; flex-shrink: 0; }
+    .sub-card.open .toggle-icon { transform: rotate(180deg); }
 
-    /* ── Notes Visites ── */
-    .note-cell { display: flex; align-items: center; gap: 0.5rem; }
-    .rdv-count {
-      background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(201,168,76,0.3);
-      border-radius: 6px; padding: 0.15rem 0.5rem; font-size: 0.78rem; font-weight: 700;
-      min-width: 28px; text-align: center; cursor: pointer; transition: all 0.15s;
-    }
-    .rdv-count:hover { border-color: var(--gold); }
-    .last-visit { font-size: 0.78rem; color: var(--dim); }
-    .note-input {
-      background: transparent; border: 1px solid var(--border); color: var(--text);
-      padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.78rem; width: 140px;
-      outline: none; transition: border-color 0.15s;
-    }
-    .note-input:focus { border-color: var(--blue); }
+    /* ── Détail expandé ── */
+    .sub-detail { display: none; border-top: 1px solid var(--border); }
+    .sub-card.open .sub-detail { display: block; }
 
-    /* ── Modal Notes ── */
-    .modal-backdrop {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-      z-index: 500; align-items: center; justify-content: center;
-    }
-    .modal-backdrop.open { display: flex; }
-    .modal {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-      padding: 1.75rem; width: 480px; max-width: 95vw;
-    }
-    .modal h2 { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.3rem; }
-    .modal .sub { font-size: 0.82rem; color: var(--dim); margin-bottom: 1.25rem; }
-    .modal label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dim); display: block; margin-bottom: 0.4rem; }
-    .modal input, .modal textarea {
-      background: var(--surface2); border: 1px solid var(--border); color: var(--text);
-      padding: 0.5rem 0.75rem; border-radius: 6px; width: 100%; font-size: 0.85rem;
-      outline: none; margin-bottom: 1rem; font-family: inherit;
-    }
-    .modal input:focus, .modal textarea:focus { border-color: var(--blue); }
-    .modal textarea { resize: vertical; min-height: 80px; }
-    .visits-log { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; max-height: 160px; overflow-y: auto; margin-bottom: 1rem; }
-    .visit-entry { display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
-    .visit-entry:last-child { border-bottom: none; }
-    .visit-date { color: var(--gold); font-weight: 700; min-width: 90px; }
-    .visit-remove { color: var(--red); cursor: pointer; margin-left: auto; font-size: 0.9rem; }
-    .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 0.5rem; }
-    .modal-actions button { padding: 0.5rem 1.2rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: 700; }
-    .btn-cancel { background: var(--surface2); border: 1px solid var(--border); color: var(--dim); }
-    .btn-save   { background: var(--gold-dim); border: 1px solid var(--gold); color: var(--gold); }
-    .btn-add-visit { background: var(--surface2); border: 1px solid var(--border); color: var(--blue); font-size: 0.78rem; padding: 0.3rem 0.75rem; border-radius: 6px; cursor: pointer; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; }
+    @media(max-width:900px) { .detail-grid { grid-template-columns: 1fr; } }
 
-    /* ── Loader ── */
-    .loader { display: flex; align-items: center; justify-content: center; padding: 3rem; color: var(--dim); gap: 0.75rem; }
-    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    .detail-col { padding: 1.25rem; border-right: 1px solid var(--border); }
+    .detail-col:last-child { border-right: none; }
+    @media(max-width:900px) { .detail-col { border-right: none; border-bottom: 1px solid var(--border); } }
+    @media(max-width:900px) { .detail-col:last-child { border-bottom: none; } }
+
+    .col-title { font-size: .68rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); margin-bottom: 1rem; display: flex; align-items: center; gap: .5rem; }
+    .col-title .icon { font-size: .9rem; }
+
+    /* Stripe details */
+    .stripe-row { display: flex; justify-content: space-between; align-items: baseline; padding: .45rem 0; border-bottom: 1px solid var(--border); font-size: .83rem; }
+    .stripe-row:last-child { border-bottom: none; }
+    .stripe-row .key { color: var(--dim); }
+    .stripe-row .val { font-weight: 600; text-align: right; max-width: 60%; }
+    .feature-list { list-style: none; margin-top: .5rem; }
+    .feature-list li { font-size: .8rem; color: var(--dim); padding: .25rem 0; display: flex; gap: .5rem; align-items: flex-start; }
+    .feature-list li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .invoice-link { color: var(--blue); font-size: .78rem; text-decoration: none; }
+    .invoice-link:hover { text-decoration: underline; }
+    .card-chip { display: inline-flex; align-items: center; gap: .4rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: .3rem .65rem; font-size: .8rem; margin-top: .5rem; }
+
+    /* Square visits */
+    .checkin-bar { display: flex; gap: .5rem; margin-bottom: .75rem; }
+    .checkin-bar .btn { flex: 1; font-size: .78rem; padding: .38rem .6rem; }
+    .visit-timeline { display: flex; flex-direction: column; gap: .4rem; max-height: 320px; overflow-y: auto; padding-right: .25rem; }
+    .visit-item { display: flex; align-items: center; gap: .75rem; padding: .5rem .75rem; border-radius: 6px; font-size: .82rem; background: var(--surface2); border: 1px solid var(--border); transition: all .15s; }
+    .visit-item.completed  { border-color: rgba(63,185,80,.3);  background: rgba(63,185,80,.05); }
+    .visit-item.cancelled  { border-color: var(--border); opacity: .55; }
+    .visit-item.no_show    { border-color: rgba(248,81,73,.25); background: rgba(248,81,73,.04); }
+    .visit-item.manual     { border-color: var(--gold-border);  background: var(--gold-dim); }
+    .visit-date { font-weight: 700; min-width: 90px; }
+    .visit-service { color: var(--dim); font-size: .78rem; flex: 1; }
+    .visit-status-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .visit-status-dot.completed { background: var(--green); box-shadow: 0 0 5px var(--green); }
+    .visit-status-dot.cancelled { background: var(--border); }
+    .visit-status-dot.no_show   { background: var(--red); }
+    .visit-status-dot.manual    { background: var(--gold); box-shadow: 0 0 5px var(--gold); }
+    .visit-del { color: var(--red-dim); cursor: pointer; font-size: .85rem; padding: .1rem .3rem; border-radius: 4px; background: none; border: none; transition: all .15s; }
+    .visit-del:hover { background: var(--red-dim); color: var(--red); }
+    .visits-month-count { text-align: center; background: var(--gold-dim); border: 1px solid var(--gold-border); border-radius: 6px; padding: .4rem .75rem; font-size: .82rem; color: var(--gold); font-weight: 700; margin-bottom: .75rem; }
+    .sq-loading { color: var(--dim); font-size: .8rem; text-align: center; padding: 1rem; }
+
+    /* Hair profile */
+    .hair-category { margin-bottom: .75rem; }
+    .hair-category label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); display: block; margin-bottom: .3rem; }
+    .hair-category select, .hair-category input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: .4rem .65rem; border-radius: 6px; font-size: .82rem; width: 100%; outline: none; font-family: inherit; }
+    .hair-category select:focus, .hair-category input:focus { border-color: var(--blue); }
+    .hair-notes-list { max-height: 200px; overflow-y: auto; margin-bottom: .75rem; display: flex; flex-direction: column; gap: .4rem; }
+    .hair-note-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: .5rem .75rem; font-size: .8rem; }
+    .hair-note-item .note-date { font-size: .7rem; color: var(--dim); margin-bottom: .2rem; }
+    .hair-note-item .note-text { color: var(--text); }
+    .hair-note-item .note-del { float: right; color: var(--red); cursor: pointer; font-size: .8rem; background: none; border: none; font-family: inherit; }
+    .hair-add-note { display: flex; gap: .5rem; }
+    .hair-add-note textarea { flex: 1; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: .4rem .65rem; border-radius: 6px; font-size: .8rem; font-family: inherit; resize: none; height: 56px; outline: none; }
+    .hair-add-note textarea:focus { border-color: var(--blue); }
+    .evolution-bar { margin-top: .75rem; }
+    .evolution-bar label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); display: block; margin-bottom: .4rem; }
+    .stars { display: flex; gap: .3rem; }
+    .star { font-size: 1.4rem; cursor: pointer; color: var(--border); transition: color .1s; }
+    .star.lit { color: var(--gold); }
+    .hair-save-btn { margin-top: .75rem; width: 100%; }
+
+    /* Loader / empty */
+    .loader { display: flex; align-items: center; justify-content: center; padding: 3rem; color: var(--dim); gap: .75rem; }
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin .7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
     .empty { text-align: center; padding: 3rem; color: var(--dim); }
-    .empty .emoji { font-size: 2.5rem; margin-bottom: 0.75rem; }
-    .empty p { font-size: 0.9rem; }
+    .empty .emoji { font-size: 2.5rem; margin-bottom: .75rem; }
 
-    .plan-tag { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 0.15rem 0.45rem; font-size: 0.75rem; color: var(--dim); }
+    /* Misc */
+    .sep { height: 1px; background: var(--border); margin: .75rem 0; }
+    .text-green { color: var(--green); } .text-red { color: var(--red); } .text-gold { color: var(--gold); } .text-dim { color: var(--dim); }
+    .fw-bold { font-weight: 700; } .mt-4 { margin-top: .25rem; }
+    ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: var(--surface); } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
 
-    @media (max-width: 700px) {
-      th.hide-mobile, td.hide-mobile { display: none; }
-      .search-box { width: 100%; margin-left: 0; }
-    }
+    /* Toast */
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--surface); border: 1px solid var(--green); color: var(--green); padding: .7rem 1.1rem; border-radius: 8px; font-size: .85rem; font-weight: 600; z-index: 9999; animation: toastIn .25s ease; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
 
-<!-- Topbar -->
 <div class="topbar">
-  <div class="topbar-logo">DALEBA <span>Abonnés Stripe</span></div>
+  <div class="topbar-logo">DALEBA <span>Suivi Abonnés · Stripe + Square</span></div>
   <div class="topbar-right">
-    <button class="btn-sm" onclick="window.location='/admin-hub.html'">← Hub</button>
-    <button class="btn-sm primary" onclick="loadSubscriptions()">🔄 Actualiser</button>
+    <button class="btn" onclick="window.location='/admin-hub.html'">← Hub</button>
+    <button class="btn primary" onclick="loadSubscriptions()">🔄 Actualiser</button>
   </div>
 </div>
 
 <div class="page">
-  <!-- Header -->
   <div class="page-header">
-    <h1>💳 Abonnés &amp; Forfaits</h1>
-    <p>Liste en direct depuis Stripe · Notes de visites et suivi mensuel</p>
+    <h1>💳 Suivi complet des abonnés</h1>
+    <p>Stripe (forfaits &amp; paiements) + Square (historique RDV) · Notes capillaires</p>
   </div>
 
-  <!-- KPI Strip -->
+  <!-- KPIs -->
   <div class="kpi-strip">
-    <div class="kpi-box green"><div class="label">Actifs</div><div class="val" id="kpi-active">—</div></div>
-    <div class="kpi-box red">  <div class="label">Bloqués / Annulés</div><div class="val" id="kpi-inactive">—</div></div>
-    <div class="kpi-box gold"> <div class="label">MRR estimé (CAD)</div><div class="val" id="kpi-mrr">—</div></div>
-    <div class="kpi-box blue"> <div class="label">Total abonnés</div><div class="val" id="kpi-total">—</div></div>
+    <div class="kpi-box green">  <div class="label">Actifs</div><div class="val" id="kpi-active">—</div></div>
+    <div class="kpi-box red">    <div class="label">Annulés / Bloqués</div><div class="val" id="kpi-inactive">—</div></div>
+    <div class="kpi-box gold">   <div class="label">MRR estimé (CAD)</div><div class="val" id="kpi-mrr">—</div></div>
+    <div class="kpi-box purple"> <div class="label">RDV ce mois (total)</div><div class="val" id="kpi-rdv">—</div></div>
+    <div class="kpi-box blue">   <div class="label">Total abonnés</div><div class="val" id="kpi-total">—</div></div>
   </div>
 
   <!-- Filtres -->
   <div class="filters">
-    <button class="filter-btn active" data-filter="all"    onclick="setFilter('all', this)">Tous</button>
-    <button class="filter-btn"        data-filter="active"   onclick="setFilter('active', this)">✅ Actifs</button>
-    <button class="filter-btn"        data-filter="past_due" onclick="setFilter('past_due', this)">⚠️ En retard</button>
-    <button class="filter-btn"        data-filter="canceled" onclick="setFilter('canceled', this)">❌ Annulés</button>
-    <input type="text" class="search-box" id="search-input" placeholder="🔍 Rechercher nom / email…" oninput="applySearch()" />
+    <button class="filter-btn active" onclick="setFilter('all',this)">Tous</button>
+    <button class="filter-btn" onclick="setFilter('active',this)">✅ Actifs</button>
+    <button class="filter-btn" onclick="setFilter('past_due',this)">⚠️ En retard</button>
+    <button class="filter-btn" onclick="setFilter('canceled',this)">❌ Annulés</button>
+    <input class="search-box" id="search-input" placeholder="🔍 Nom / email…" oninput="renderList()" />
   </div>
 
-  <!-- Table -->
-  <div class="table-wrap">
-    <div id="table-loader" class="loader"><div class="spinner"></div> Chargement des abonnés…</div>
-    <table id="sub-table" style="display:none">
-      <thead>
-        <tr>
-          <th>Client</th>
-          <th class="hide-mobile">Forfait</th>
-          <th>Statut</th>
-          <th class="hide-mobile">Montant</th>
-          <th class="hide-mobile">Période</th>
-          <th>RDV ce mois</th>
-          <th>Dernière visite</th>
-          <th>Note</th>
-        </tr>
-      </thead>
-      <tbody id="sub-tbody"></tbody>
-    </table>
-    <div id="empty-state" class="empty" style="display:none">
-      <div class="emoji">📭</div>
-      <p>Aucun abonné trouvé pour ce filtre.</p>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Notes Visites -->
-<div class="modal-backdrop" id="modal-backdrop" onclick="closeModal(event)">
-  <div class="modal" onclick="event.stopPropagation()">
-    <h2 id="modal-name">Client</h2>
-    <div class="sub" id="modal-email">email@exemple.com</div>
-
-    <label>Visites ce mois-ci</label>
-    <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;align-items:center;">
-      <button class="btn-add-visit" onclick="addVisitToday()">+ Ajouter aujourd'hui</button>
-      <input type="date" id="modal-custom-date" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0.3rem 0.6rem;border-radius:6px;font-size:0.8rem;outline:none;" />
-      <button class="btn-add-visit" onclick="addCustomDate()">+ Date</button>
-    </div>
-
-    <div class="visits-log" id="visits-log">
-      <div style="color:var(--dim);font-size:0.8rem;text-align:center;">Aucune visite enregistrée</div>
-    </div>
-
-    <label>Note libre</label>
-    <textarea id="modal-note" placeholder="Ex : Préfère Wilfried, cheveux fragiles, allergique au sulfate…"></textarea>
-
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModalBtn()">Annuler</button>
-      <button class="btn-save"   onclick="saveNotes()">💾 Enregistrer</button>
-    </div>
-  </div>
+  <!-- Liste -->
+  <div id="main-loader" class="loader"><div class="spinner"></div> Chargement depuis Stripe…</div>
+  <div class="sub-list" id="sub-list"></div>
+  <div id="empty-state" class="empty" style="display:none"><div class="emoji">📭</div><p>Aucun abonné pour ce filtre.</p></div>
 </div>
 
 <script>
+// ═══════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════
 const API = 'https://daleba-api-production.up.railway.app';
-const STORAGE_KEY = 'daleba_sub_notes_v2';
+const STORAGE_KEY = 'daleba_sub_v3';
 
 let allSubs = [];
 let currentFilter = 'all';
-let activeSubId = null;
 
-// ── Notes stockées localement (localStorage) ──
-function getNotes() {
+// ── Storage ──────────────────────────────────────────────
+function store() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
 }
-function saveNotesToStorage(notes) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
-}
-function getNoteForSub(subId) {
-  return getNotes()[subId] || { visits: [], note: '' };
-}
+function saveStore(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+function subStore(id) { return store()[id] || { manualVisits: [], hairProfile: { texture: '', porosite: '', densite: '', evolution: 0 }, hairNotes: [] }; }
+function saveSubStore(id, data) { const s = store(); s[id] = data; saveStore(s); }
 
-// ── Chargement Stripe ──
+// ═══════════════════════════════════════════════════════════
+// LOAD SUBS
+// ═══════════════════════════════════════════════════════════
 async function loadSubscriptions() {
-  document.getElementById('table-loader').style.display = 'flex';
-  document.getElementById('sub-table').style.display = 'none';
+  document.getElementById('main-loader').style.display = 'flex';
+  document.getElementById('sub-list').innerHTML = '';
   document.getElementById('empty-state').style.display = 'none';
-
   try {
-    const res = await fetch(`${API}/api/payment/subscriptions`);
-    const data = await res.json();
-    if (!data.success) throw new Error(data.error || 'Erreur API');
-    allSubs = data.subscriptions || [];
+    const r = await fetch(`${API}/api/payment/subscriptions`);
+    const d = await r.json();
+    if (!d.success) throw new Error(d.error);
+    allSubs = d.subscriptions || [];
     updateKPIs();
-    renderTable(filteredSubs());
-  } catch (err) {
-    document.getElementById('table-loader').innerHTML =
-      `<div style="text-align:center;color:var(--red)">❌ ${err.message}<br><small>Vérifiez que le backend est actif et que STRIPE_SECRET_KEY est configuré sur Railway.</small></div>`;
+    renderList();
+  } catch (e) {
+    document.getElementById('main-loader').innerHTML =
+      `<div style="color:var(--red);text-align:center">❌ ${e.message}</div>`;
   }
 }
 
@@ -295,8 +247,8 @@ function filteredSubs() {
   if (currentFilter !== 'all') subs = subs.filter(s => s.status === currentFilter);
   const q = (document.getElementById('search-input').value || '').toLowerCase();
   if (q) subs = subs.filter(s =>
-    (s.customerName || '').toLowerCase().includes(q) ||
-    (s.customerEmail || '').toLowerCase().includes(q)
+    (s.customerName||'').toLowerCase().includes(q) ||
+    (s.customerEmail||'').toLowerCase().includes(q)
   );
   return subs;
 }
@@ -305,187 +257,499 @@ function setFilter(f, btn) {
   currentFilter = f;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  renderTable(filteredSubs());
+  renderList();
 }
 
-function applySearch() {
-  renderTable(filteredSubs());
-}
-
-// ── KPIs ──
+// ═══════════════════════════════════════════════════════════
+// KPIs
+// ═══════════════════════════════════════════════════════════
 function updateKPIs() {
-  const active   = allSubs.filter(s => s.status === 'active').length;
+  const active = allSubs.filter(s => s.status === 'active').length;
   const inactive = allSubs.filter(s => s.status !== 'active').length;
   let mrr = 0;
   allSubs.filter(s => s.status === 'active').forEach(s => { if (s.amount) mrr += parseFloat(s.amount); });
 
-  document.getElementById('kpi-active').textContent   = active;
+  // Compter RDV ce mois (toutes sources confondues dans localStorage)
+  const now = new Date();
+  const monthStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  let totalRdv = 0;
+  const s = store();
+  allSubs.forEach(sub => {
+    const d = s[sub.id] || {};
+    (d.manualVisits || []).forEach(v => { if (v.date && v.date.startsWith(monthStr)) totalRdv++; });
+  });
+
+  document.getElementById('kpi-active').textContent = active;
   document.getElementById('kpi-inactive').textContent = inactive;
-  document.getElementById('kpi-mrr').textContent      = mrr > 0 ? `$${mrr.toFixed(0)}` : '—';
-  document.getElementById('kpi-total').textContent    = allSubs.length;
+  document.getElementById('kpi-mrr').textContent = mrr > 0 ? `$${mrr.toFixed(0)}` : '—';
+  document.getElementById('kpi-rdv').textContent = totalRdv || '—';
+  document.getElementById('kpi-total').textContent = allSubs.length;
 }
 
-// ── Rendu table ──
-function renderTable(subs) {
-  document.getElementById('table-loader').style.display = 'none';
-  const tbody = document.getElementById('sub-tbody');
-  tbody.innerHTML = '';
+// ═══════════════════════════════════════════════════════════
+// RENDER LIST
+// ═══════════════════════════════════════════════════════════
+function renderList() {
+  document.getElementById('main-loader').style.display = 'none';
+  const subs = filteredSubs();
+  const list = document.getElementById('sub-list');
+  list.innerHTML = '';
 
   if (subs.length === 0) {
-    document.getElementById('sub-table').style.display = 'none';
     document.getElementById('empty-state').style.display = 'block';
     return;
   }
-
   document.getElementById('empty-state').style.display = 'none';
-  document.getElementById('sub-table').style.display = 'table';
-
-  const now = new Date();
-  const monthStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
 
   subs.forEach(sub => {
-    const note    = getNoteForSub(sub.id);
-    const visits  = note.visits || [];
-    const thisMonth = visits.filter(d => d.startsWith(monthStr)).length;
-    const lastVisit = visits.length > 0 ? visits[visits.length - 1] : null;
-
-    const statusMap = {
-      active:   { label: 'Actif',      cls: 'badge-active'   },
-      canceled: { label: 'Annulé',     cls: 'badge-canceled' },
-      past_due: { label: 'En retard',  cls: 'badge-past_due' },
-      trialing: { label: 'Essai',      cls: 'badge-trialing' },
-    };
-    const st = statusMap[sub.status] || { label: sub.status, cls: '' };
-    const dotCls = `dot-${sub.status}` in {
-      'dot-active': 1, 'dot-canceled': 1, 'dot-past_due': 1
-    } ? `dot-${sub.status}` : '';
-
-    const periodEnd = sub.currentPeriodEnd
-      ? new Date(sub.currentPeriodEnd * 1000).toLocaleDateString('fr-CA', { day: '2-digit', month: 'short' })
-      : '—';
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>
-        <div style="font-weight:600">${esc(sub.customerName || '—')}</div>
-        <div style="font-size:0.75rem;color:var(--dim)">${esc(sub.customerEmail || '')}</div>
-      </td>
-      <td class="hide-mobile"><span class="plan-tag">${esc(sub.plan)}</span></td>
-      <td>
-        <span class="badge ${st.cls}">
-          <span class="dot ${dotCls}"></span>
-          ${st.label}
-          ${sub.cancelAtPeriodEnd ? ' <span style="font-size:0.65rem;opacity:.7">(fin période)</span>' : ''}
-        </span>
-      </td>
-      <td class="hide-mobile" style="font-weight:600;color:${sub.status==='active'?'var(--green)':'var(--dim)'}">
-        ${sub.amount ? `$${sub.amount} ${sub.currency}` : '—'}
-      </td>
-      <td class="hide-mobile" style="color:var(--dim);font-size:0.8rem">jusqu'au ${periodEnd}</td>
-      <td>
-        <span class="rdv-count" onclick="openModal('${sub.id}')" title="Cliquer pour gérer les visites">
-          ${thisMonth}
-        </span>
-      </td>
-      <td>
-        <span class="last-visit">${lastVisit ? formatDate(lastVisit) : '—'}</span>
-      </td>
-      <td>
-        <span style="font-size:0.78rem;color:var(--dim);max-width:140px;display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis" title="${esc(note.note || '')}">
-          ${note.note ? esc(note.note.substring(0, 40)) + (note.note.length > 40 ? '…' : '') : '—'}
-        </span>
-      </td>
-    `;
-    tr.querySelector('.rdv-count').addEventListener('click', () => openModal(sub.id));
-    tbody.appendChild(tr);
+    const card = buildCard(sub);
+    list.appendChild(card);
   });
 }
 
-function esc(str) {
-  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function formatDate(iso) {
-  try {
-    const d = new Date(iso);
-    return d.toLocaleDateString('fr-CA', { day: '2-digit', month: 'short', year: '2-digit' });
-  } catch { return iso; }
+// ═══════════════════════════════════════════════════════════
+// BUILD CARD
+// ═══════════════════════════════════════════════════════════
+function buildCard(sub) {
+  const stMap = {
+    active:   { label:'Actif',     cls:'badge-active'   },
+    canceled: { label:'Annulé',    cls:'badge-canceled' },
+    past_due: { label:'En retard', cls:'badge-past_due' },
+    trialing: { label:'Essai',     cls:'badge-trialing' },
+  };
+  const st = stMap[sub.status] || { label: sub.status, cls: '' };
+  const dotCls = { active:'dot-active', canceled:'dot-canceled', past_due:'dot-past_due' }[sub.status] || '';
+  const initials = (sub.customerName||sub.customerEmail||'?')
+    .split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+
+  const card = document.createElement('div');
+  card.className = 'sub-card';
+  card.id = `card-${sub.id}`;
+
+  card.innerHTML = `
+    <div class="sub-header" onclick="toggleCard('${sub.id}')">
+      <div class="sub-avatar">${esc(initials)}</div>
+      <div class="sub-info">
+        <div class="sub-name">${esc(sub.customerName || '—')}</div>
+        <div class="sub-email">${esc(sub.customerEmail || sub.id)}</div>
+      </div>
+      <div class="sub-meta">
+        <span class="plan-name">${esc(sub.plan)}</span>
+        <span class="price-tag">${sub.amount ? `$${sub.amount} ${sub.currency}/mois` : '—'}</span>
+        <span class="badge ${st.cls}"><span class="dot ${dotCls}"></span>${st.label}</span>
+      </div>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="sub-detail" id="detail-${sub.id}">
+      <div class="detail-grid">
+        <!-- COL 1: Stripe -->
+        <div class="detail-col" id="stripe-col-${sub.id}">
+          <div class="col-title"><span class="icon">💳</span> Forfait &amp; Paiements Stripe</div>
+          <div class="sq-loading"><div class="spinner" style="margin:auto"></div></div>
+        </div>
+        <!-- COL 2: Square visits -->
+        <div class="detail-col" id="square-col-${sub.id}">
+          <div class="col-title"><span class="icon">📅</span> Historique des visites</div>
+          <div class="sq-loading"><div class="spinner" style="margin:auto"></div></div>
+        </div>
+        <!-- COL 3: Hair profile -->
+        <div class="detail-col" id="hair-col-${sub.id}">
+          <div class="col-title"><span class="icon">💇</span> Profil capillaire</div>
+          ${renderHairCol(sub.id)}
+        </div>
+      </div>
+    </div>
+  `;
+  return card;
 }
 
-// ── Modal ──
-function openModal(subId) {
-  activeSubId = subId;
+// ═══════════════════════════════════════════════════════════
+// TOGGLE CARD — lazy load details
+// ═══════════════════════════════════════════════════════════
+const loadedDetails = new Set();
+
+function toggleCard(subId) {
+  const card = document.getElementById(`card-${subId}`);
+  const isOpen = card.classList.contains('open');
+  // Fermer tous les autres
+  document.querySelectorAll('.sub-card.open').forEach(c => c.classList.remove('open'));
+  if (!isOpen) {
+    card.classList.add('open');
+    if (!loadedDetails.has(subId)) {
+      loadedDetails.add(subId);
+      loadSubDetails(subId);
+    }
+  }
+}
+
+async function loadSubDetails(subId) {
+  try {
+    const r = await fetch(`${API}/api/payment/subscriber/${subId}`);
+    const d = await r.json();
+    if (!d.success) throw new Error(d.error || 'Erreur API');
+    renderStripeCol(subId, d);
+    renderSquareCol(subId, d);
+  } catch (e) {
+    document.getElementById(`stripe-col-${subId}`).innerHTML +=
+      `<div style="color:var(--red);font-size:.8rem;margin-top:.5rem">❌ ${esc(e.message)}</div>`;
+    document.getElementById(`square-col-${subId}`).innerHTML +=
+      `<div style="color:var(--red);font-size:.8rem;margin-top:.5rem">❌ ${esc(e.message)}</div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// STRIPE COLUMN
+// ═══════════════════════════════════════════════════════════
+function renderStripeCol(subId, d) {
+  const col = document.getElementById(`stripe-col-${subId}`);
+  const plan = d.plan || {};
+  const pm   = d.paymentMethod;
+  const lp   = d.lastPayment;
+  const renewDate = d.currentPeriodEnd
+    ? new Date(d.currentPeriodEnd * 1000).toLocaleDateString('fr-CA', { day:'2-digit', month:'long', year:'numeric' })
+    : '—';
+  const lastDate = lp
+    ? new Date(lp.date * 1000).toLocaleDateString('fr-CA', { day:'2-digit', month:'long', year:'numeric' })
+    : '—';
+  const startDate = d.currentPeriodStart
+    ? new Date(d.currentPeriodStart * 1000).toLocaleDateString('fr-CA', { day:'2-digit', month:'long', year:'numeric' })
+    : '—';
+
+  let featuresHtml = '';
+  if (plan.features && plan.features.length > 0) {
+    featuresHtml = `<ul class="feature-list">${plan.features.map(f => `<li>${esc(f)}</li>`).join('')}</ul>`;
+  } else if (plan.description) {
+    featuresHtml = `<p style="font-size:.8rem;color:var(--dim);margin-top:.4rem">${esc(plan.description)}</p>`;
+  }
+
+  let invoicesHtml = '';
+  if (d.invoiceHistory && d.invoiceHistory.length > 0) {
+    invoicesHtml = d.invoiceHistory.slice(0, 4).map(inv => `
+      <div class="stripe-row">
+        <span class="key">${new Date(inv.date*1000).toLocaleDateString('fr-CA',{day:'2-digit',month:'short',year:'2-digit'})}</span>
+        <span class="val">
+          $${inv.amount} ${inv.currency}
+          ${inv.url ? `<a class="invoice-link" href="${inv.url}" target="_blank"> 🔗</a>` : ''}
+          <span style="font-size:.7rem;color:${inv.status==='paid'?'var(--green)':'var(--red)'}">${inv.status==='paid'?'✓ payé':'⚠ '+inv.status}</span>
+        </span>
+      </div>
+    `).join('');
+  }
+
+  col.innerHTML = `
+    <div class="col-title"><span class="icon">💳</span> Forfait &amp; Paiements Stripe</div>
+
+    <div class="stripe-row"><span class="key">Forfait</span><span class="val fw-bold text-gold">${esc(plan.name||'—')}</span></div>
+    <div class="stripe-row"><span class="key">Prix</span><span class="val fw-bold">${plan.amount ? `$${plan.amount} ${plan.currency} / ${plan.intervalCount > 1 ? plan.intervalCount + ' ' : ''}${plan.interval}` : '—'}</span></div>
+    <div class="stripe-row"><span class="key">Statut</span><span class="val"><span class="badge badge-${d.status}">${d.status}</span>${d.cancelAtPeriodEnd ? ' <span style="font-size:.7rem;color:var(--orange)">(annulé fin période)</span>' : ''}</span></div>
+    <div class="stripe-row"><span class="key">Période en cours</span><span class="val">${startDate} →</span></div>
+    <div class="stripe-row"><span class="key">Prochain renouvellement</span><span class="val fw-bold text-green">📅 ${renewDate}</span></div>
+    <div class="stripe-row"><span class="key">Dernier paiement</span><span class="val">${lastDate}${lp ? ` · $${lp.amount}` : ''}</span></div>
+
+    ${featuresHtml ? `<div class="sep"></div><div style="font-size:.72rem;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem">Services inclus</div>${featuresHtml}` : ''}
+
+    ${pm ? `<div class="sep"></div><div class="card-chip">💳 ${pm.brand?.toUpperCase()||'Carte'} •••• ${pm.last4} &nbsp; exp ${pm.expMonth}/${pm.expYear}</div>` : ''}
+
+    ${invoicesHtml ? `<div class="sep"></div><div style="font-size:.72rem;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem">Historique factures</div>${invoicesHtml}` : ''}
+
+    <div class="sep"></div>
+    <button class="btn" style="width:100%;font-size:.78rem;margin-top:.25rem" onclick="openPortalForSub('${esc(d.customer?.email||'')}')">🔗 Ouvrir portail client</button>
+  `;
+}
+
+async function openPortalForSub(email) {
+  if (!email) return;
+  try {
+    const r = await fetch(`${API}/api/payment/portal`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email, returnUrl: window.location.href })
+    });
+    const d = await r.json();
+    if (d.portalUrl) window.open(d.portalUrl, '_blank');
+    else alert(d.error || 'Erreur portail');
+  } catch(e) { alert('Erreur: ' + e.message); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// SQUARE COLUMN — Visites + Check-in
+// ═══════════════════════════════════════════════════════════
+function renderSquareCol(subId, d) {
+  const col = document.getElementById(`square-col-${subId}`);
+  const sq = d.square || {};
+  const local = subStore(subId);
+
+  // Fusionner : RDV Square (source fiable) + visites manuelles
+  const squareVisits = (sq.bookings || []).map(b => ({
+    id: b.id,
+    date: b.startAt ? b.startAt.slice(0, 10) : '—',
+    datetime: b.startAt,
+    service: b.serviceName || '—',
+    status: (b.status || '').toLowerCase().replace('cancelled_by_customer','cancelled').replace('cancelled_by_seller','cancelled'),
+    source: 'square',
+  }));
+  const manualVisits = (local.manualVisits || []).map(v => ({
+    id: 'manual-' + v.date,
+    date: v.date,
+    datetime: v.date,
+    service: v.service || 'Passage manuel',
+    status: 'manual',
+    source: 'manual',
+  }));
+
+  // Dédoublonnage : si une visite manuelle correspond à une date Square, on garde Square
+  const squareDates = new Set(squareVisits.map(v => v.date));
+  const filteredManual = manualVisits.filter(v => !squareDates.has(v.date));
+  const allVisits = [...squareVisits, ...filteredManual]
+    .sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+
+  // Compteur ce mois
+  const nowMonth = new Date().toISOString().slice(0, 7);
+  const thisMonth = allVisits.filter(v => v.date.startsWith(nowMonth) && v.status !== 'cancelled').length;
+
+  const noSquare = !sq.found;
+
+  col.innerHTML = `
+    <div class="col-title"><span class="icon">📅</span> Historique des visites ${sq.found ? '<span style="font-size:.65rem;color:var(--green)">✓ Square</span>' : '<span style="font-size:.65rem;color:var(--orange)">⚠ Manual seulement</span>'}</div>
+
+    ${noSquare ? `<div style="font-size:.78rem;color:var(--orange);background:rgba(240,136,62,.08);border:1px solid rgba(240,136,62,.2);border-radius:6px;padding:.5rem .75rem;margin-bottom:.75rem">Client non trouvé dans Square — seules les visites manuelles sont disponibles.</div>` : ''}
+
+    <div class="visits-month-count">📆 ${thisMonth} visite${thisMonth > 1 ? 's' : ''} ce mois-ci</div>
+
+    <div class="checkin-bar">
+      <button class="btn success" onclick="addManualVisit('${subId}', '${d.customer?.email||''}')">✅ Check-in aujourd'hui</button>
+      <button class="btn" onclick="pickDateVisit('${subId}')">📅 Autre date</button>
+      ${sq.found ? `<button class="btn" onclick="refreshSquareVisits('${subId}')">🔄</button>` : ''}
+    </div>
+
+    <div class="visit-timeline" id="timeline-${subId}">
+      ${allVisits.length === 0
+        ? `<div class="sq-loading">Aucune visite enregistrée.</div>`
+        : allVisits.map((v, i) => renderVisitItem(subId, v, i, local)).join('')
+      }
+    </div>
+  `;
+}
+
+function renderVisitItem(subId, v, i, local) {
+  const statusLabel = { completed:'✓ Honoré', cancelled:'✗ Annulé', no_show:'👻 No-show', manual:'📌 Manuel' }[v.status] || v.status;
+  const statusColor = { completed:'var(--green)', cancelled:'var(--dim)', no_show:'var(--red)', manual:'var(--gold)' }[v.status] || 'var(--dim)';
+  const delBtn = v.source === 'manual'
+    ? `<button class="visit-del" onclick="removeManualVisit('${subId}','${v.date}')" title="Supprimer">✕</button>`
+    : '';
+  return `
+    <div class="visit-item ${v.status}">
+      <span class="visit-status-dot ${v.status}"></span>
+      <span class="visit-date">${formatDate(v.date)}</span>
+      <span class="visit-service">${esc(v.service !== '—' ? v.service : 'Service Square')}</span>
+      <span style="font-size:.72rem;color:${statusColor};font-weight:600">${statusLabel}</span>
+      ${delBtn}
+    </div>
+  `;
+}
+
+function addManualVisit(subId, email) {
+  const today = new Date().toISOString().slice(0, 10);
+  _addVisitDate(subId, today);
+}
+function pickDateVisit(subId) {
+  const d = prompt('Date de la visite (AAAA-MM-JJ) :',new Date().toISOString().slice(0,10));
+  if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return;
+  _addVisitDate(subId, d);
+}
+function _addVisitDate(subId, dateStr) {
+  const local = subStore(subId);
+  if (!local.manualVisits) local.manualVisits = [];
+  if (!local.manualVisits.find(v => v.date === dateStr)) {
+    local.manualVisits.push({ date: dateStr, service: 'Passage manuel', addedAt: new Date().toISOString() });
+    local.manualVisits.sort((a,b) => b.date.localeCompare(a.date));
+  }
+  saveSubStore(subId, local);
+  loadedDetails.delete(subId); // force reload col
+  reloadSquareCol(subId);
+  updateKPIs();
+  toast('✅ Visite enregistrée');
+}
+function removeManualVisit(subId, dateStr) {
+  const local = subStore(subId);
+  local.manualVisits = (local.manualVisits||[]).filter(v => v.date !== dateStr);
+  saveSubStore(subId, local);
+  reloadSquareCol(subId);
+  updateKPIs();
+}
+function reloadSquareCol(subId) {
+  // Re-render la colonne sans refetch Stripe
   const sub = allSubs.find(s => s.id === subId);
   if (!sub) return;
-  document.getElementById('modal-name').textContent  = sub.customerName || sub.customerEmail || subId;
-  document.getElementById('modal-email').textContent = sub.customerEmail || sub.id;
-  const note = getNoteForSub(subId);
-  document.getElementById('modal-note').value = note.note || '';
-  renderVisitLog(note.visits || []);
-  document.getElementById('modal-backdrop').classList.add('open');
-  // Date par défaut = aujourd'hui
-  document.getElementById('modal-custom-date').value = new Date().toISOString().split('T')[0];
+  // On relit les données en cache si dispo (on stocke dans un data attr)
+  const card = document.getElementById(`card-${subId}`);
+  if (!card) return;
+  const cached = card._detailData;
+  if (cached) renderSquareCol(subId, cached);
+}
+async function refreshSquareVisits(subId) {
+  const card = document.getElementById(`card-${subId}`);
+  document.getElementById(`square-col-${subId}`).innerHTML =
+    `<div class="col-title"><span class="icon">📅</span> Historique</div><div class="sq-loading"><div class="spinner" style="margin:auto"></div></div>`;
+  loadedDetails.delete(subId);
+  await loadSubDetails(subId);
 }
 
-function renderVisitLog(visits) {
-  const log = document.getElementById('visits-log');
-  if (visits.length === 0) {
-    log.innerHTML = '<div style="color:var(--dim);font-size:0.8rem;text-align:center;">Aucune visite enregistrée</div>';
-    return;
+// Patch loadSubDetails to cache data
+const _origLoad = loadSubDetails;
+async function loadSubDetails(subId) {
+  try {
+    const r = await fetch(`${API}/api/payment/subscriber/${subId}`);
+    const d = await r.json();
+    if (!d.success) throw new Error(d.error || 'Erreur API');
+    // Cache on card element
+    const card = document.getElementById(`card-${subId}`);
+    if (card) card._detailData = d;
+    renderStripeCol(subId, d);
+    renderSquareCol(subId, d);
+  } catch (e) {
+    document.getElementById(`stripe-col-${subId}`).innerHTML +=
+      `<div style="color:var(--red);font-size:.8rem;margin-top:.5rem">❌ ${esc(e.message)}</div>`;
+    document.getElementById(`square-col-${subId}`).innerHTML +=
+      `<div style="color:var(--red);font-size:.8rem;margin-top:.5rem">❌ ${esc(e.message)}</div>`;
   }
-  log.innerHTML = [...visits].reverse().map((d, i) => `
-    <div class="visit-entry">
-      <span class="visit-date">${formatDate(d)}</span>
-      <span style="color:var(--dim);font-size:0.75rem">${d}</span>
-      <span class="visit-remove" onclick="removeVisit(${visits.length - 1 - i})" title="Supprimer">✕</span>
+}
+
+// ═══════════════════════════════════════════════════════════
+// HAIR PROFILE COLUMN
+// ═══════════════════════════════════════════════════════════
+function renderHairCol(subId) {
+  const local = subStore(subId);
+  const p = local.hairProfile || {};
+  const notes = local.hairNotes || [];
+
+  const notesHtml = notes.length > 0
+    ? notes.map((n, i) => `
+      <div class="hair-note-item">
+        <div class="note-date">${formatDate(n.date)} ${n.visit ? `· Visite` : ''}</div>
+        <div class="note-text">${esc(n.text)}</div>
+        <button class="note-del" onclick="removeHairNote('${subId}',${i})">✕</button>
+      </div>
+    `).join('')
+    : `<div style="font-size:.8rem;color:var(--dim);text-align:center;padding:.75rem">Aucune note.</div>`;
+
+  const starsHtml = [1,2,3,4,5].map(i =>
+    `<span class="star ${(p.evolution||0) >= i ? 'lit' : ''}" onclick="setEvolution('${subId}',${i})">★</span>`
+  ).join('');
+
+  return `
+    <div class="hair-category">
+      <label>Texture des cheveux</label>
+      <select id="texture-${subId}" onchange="saveHairProfile('${subId}')">
+        <option value="">— Sélectionner —</option>
+        ${['Lisses (1A-1C)','Ondulés (2A-2C)','Bouclés (3A-3C)','Afro serrés (4A-4C)','Crépus','Tressés / Locks','Extension / Perruque'].map(t =>
+          `<option value="${t}" ${p.texture===t?'selected':''}>${t}</option>`
+        ).join('')}
+      </select>
     </div>
-  `).join('');
+    <div class="hair-category">
+      <label>Porosité</label>
+      <select id="porosite-${subId}" onchange="saveHairProfile('${subId}')">
+        <option value="">— Sélectionner —</option>
+        ${['Faible (hydrophobe)','Normale','Élevée (absorbe vite)','À tester'].map(t =>
+          `<option value="${t}" ${p.porosite===t?'selected':''}>${t}</option>`
+        ).join('')}
+      </select>
+    </div>
+    <div class="hair-category">
+      <label>Densité / État général</label>
+      <select id="densite-${subId}" onchange="saveHairProfile('${subId}')">
+        <option value="">— Sélectionner —</option>
+        ${['Fins &amp; fragiles','Normaux','Épais &amp; résistants','Abîmés / Cassants','En repousse','Post-coloration','Très secs'].map(t =>
+          `<option value="${t}" ${p.densite===t?'selected':''}>${t}</option>`
+        ).join('')}
+      </select>
+    </div>
+    <div class="evolution-bar">
+      <label>Évolution perçue ★</label>
+      <div class="stars">${starsHtml}</div>
+    </div>
+    <div class="sep"></div>
+    <div class="col-title" style="margin-bottom:.5rem"><span class="icon">📝</span> Notes par passage</div>
+    <div class="hair-notes-list" id="hair-notes-${subId}">${notesHtml}</div>
+    <div class="hair-add-note">
+      <textarea id="hair-input-${subId}" placeholder="Ex : Cassure à l'arrière, a aimé le masque kaolin…"></textarea>
+      <button class="btn success" onclick="addHairNote('${subId}')" style="align-self:flex-end">+</button>
+    </div>
+  `;
 }
 
-function addVisitToday() {
-  if (!activeSubId) return;
-  const today = new Date().toISOString().split('T')[0];
-  addVisit(today);
+function saveHairProfile(subId) {
+  const local = subStore(subId);
+  local.hairProfile = {
+    texture:  document.getElementById(`texture-${subId}`)?.value || '',
+    porosite: document.getElementById(`porosite-${subId}`)?.value || '',
+    densite:  document.getElementById(`densite-${subId}`)?.value || '',
+    evolution: local.hairProfile?.evolution || 0,
+  };
+  saveSubStore(subId, local);
+  toast('💇 Profil sauvegardé');
 }
-function addCustomDate() {
-  const d = document.getElementById('modal-custom-date').value;
-  if (!d) return;
-  addVisit(d);
+function setEvolution(subId, val) {
+  const local = subStore(subId);
+  local.hairProfile = local.hairProfile || {};
+  local.hairProfile.evolution = val;
+  saveSubStore(subId, local);
+  // Refresh stars
+  document.querySelectorAll(`#hair-col-${subId} .star`).forEach((el, i) => {
+    el.classList.toggle('lit', i < val);
+  });
+  toast(`⭐ Évolution : ${val}/5`);
 }
-function addVisit(dateStr) {
-  const notes = getNotes();
-  const n = notes[activeSubId] || { visits: [], note: '' };
-  if (!n.visits.includes(dateStr)) {
-    n.visits.push(dateStr);
-    n.visits.sort();
-  }
-  notes[activeSubId] = n;
-  saveNotesToStorage(notes);
-  renderVisitLog(n.visits);
+function addHairNote(subId) {
+  const input = document.getElementById(`hair-input-${subId}`);
+  const text = (input?.value || '').trim();
+  if (!text) return;
+  const local = subStore(subId);
+  local.hairNotes = local.hairNotes || [];
+  local.hairNotes.unshift({ date: new Date().toISOString().slice(0,10), text });
+  saveSubStore(subId, local);
+  input.value = '';
+  // Re-render notes
+  document.getElementById(`hair-notes-${subId}`).innerHTML =
+    local.hairNotes.map((n,i) => `
+      <div class="hair-note-item">
+        <div class="note-date">${formatDate(n.date)}</div>
+        <div class="note-text">${esc(n.text)}</div>
+        <button class="note-del" onclick="removeHairNote('${subId}',${i})">✕</button>
+      </div>
+    `).join('');
+  toast('📝 Note ajoutée');
 }
-function removeVisit(idx) {
-  const notes = getNotes();
-  const n = notes[activeSubId] || { visits: [], note: '' };
-  n.visits.splice(idx, 1);
-  notes[activeSubId] = n;
-  saveNotesToStorage(notes);
-  renderVisitLog(n.visits);
-}
-function saveNotes() {
-  const notes = getNotes();
-  const n = notes[activeSubId] || { visits: [], note: '' };
-  n.note = document.getElementById('modal-note').value;
-  notes[activeSubId] = n;
-  saveNotesToStorage(notes);
-  closeModalBtn();
-  renderTable(filteredSubs());
+function removeHairNote(subId, idx) {
+  const local = subStore(subId);
+  local.hairNotes = (local.hairNotes||[]).filter((_,i) => i !== idx);
+  saveSubStore(subId, local);
+  document.getElementById(`hair-notes-${subId}`).innerHTML =
+    local.hairNotes.length > 0
+    ? local.hairNotes.map((n,i) => `
+      <div class="hair-note-item">
+        <div class="note-date">${formatDate(n.date)}</div>
+        <div class="note-text">${esc(n.text)}</div>
+        <button class="note-del" onclick="removeHairNote('${subId}',${i})">✕</button>
+      </div>
+    `).join('')
+    : `<div style="font-size:.8rem;color:var(--dim);text-align:center;padding:.75rem">Aucune note.</div>`;
 }
 
-function closeModal(e) {
-  if (e.target === document.getElementById('modal-backdrop')) closeModalBtn();
+// ═══════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function formatDate(iso) {
+  try { return new Date(iso).toLocaleDateString('fr-CA',{day:'2-digit',month:'short',year:'numeric'}); }
+  catch { return iso; }
 }
-function closeModalBtn() {
-  document.getElementById('modal-backdrop').classList.remove('open');
-  activeSubId = null;
+function toast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2400);
 }
 
 // ── Init ──

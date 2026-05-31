@@ -181,6 +181,92 @@ async function listSubscriptions({ status = 'all', limit = 100 } = {}) {
   });
 }
 
+/**
+ * Détails complets d'un abonnement Stripe
+ * Inclut : plan, prix, dernière facture, prochain renouvellement, historique paiements
+ * @param {string} subscriptionId
+ */
+async function getSubscriptionDetails(subscriptionId) {
+  if (!stripe) throw new Error('Stripe non configuré');
+
+  const sub = await stripe.subscriptions.retrieve(subscriptionId, {
+    expand: [
+      'customer',
+      'default_payment_method',
+      'latest_invoice',
+      'items.data.price.product',
+    ]
+  });
+
+  const customer = sub.customer;
+  const item = sub.items.data[0];
+  const price = item?.price;
+  const product = price?.product;
+
+  // Historique des 10 dernières factures
+  const invoices = await stripe.invoices.list({
+    customer: typeof customer === 'string' ? customer : customer.id,
+    limit: 10,
+  });
+
+  const lastPaid = invoices.data.find(inv => inv.status === 'paid');
+
+  return {
+    id: sub.id,
+    status: sub.status,
+    cancelAtPeriodEnd: sub.cancel_at_period_end,
+    // Client
+    customer: {
+      id: typeof customer === 'string' ? customer : customer.id,
+      name: typeof customer === 'object' ? customer.name : null,
+      email: typeof customer === 'object' ? customer.email : null,
+      phone: typeof customer === 'object' ? customer.phone : null,
+    },
+    // Forfait
+    plan: {
+      name: (typeof product === 'object' ? product.name : null) ||
+            price?.nickname ||
+            price?.id || 'Forfait',
+      description: typeof product === 'object' ? (product.description || '') : '',
+      features: typeof product === 'object'
+        ? (product.marketing_features || []).map(f => f.name).filter(Boolean)
+        : [],
+      amount: price?.unit_amount ? (price.unit_amount / 100).toFixed(2) : null,
+      currency: price?.currency?.toUpperCase() || 'CAD',
+      interval: price?.recurring?.interval || 'month',
+      intervalCount: price?.recurring?.interval_count || 1,
+    },
+    // Dates clés
+    currentPeriodStart: sub.current_period_start,
+    currentPeriodEnd: sub.current_period_end,
+    createdAt: sub.created,
+    trialEnd: sub.trial_end,
+    // Paiements
+    lastPayment: lastPaid ? {
+      amount: (lastPaid.amount_paid / 100).toFixed(2),
+      currency: lastPaid.currency?.toUpperCase() || 'CAD',
+      date: lastPaid.status_transitions?.paid_at || lastPaid.created,
+      invoiceUrl: lastPaid.hosted_invoice_url,
+    } : null,
+    // Historique factures
+    invoiceHistory: invoices.data.slice(0, 6).map(inv => ({
+      id: inv.id,
+      amount: (inv.amount_paid / 100).toFixed(2),
+      currency: inv.currency?.toUpperCase() || 'CAD',
+      status: inv.status,
+      date: inv.created,
+      url: inv.hosted_invoice_url,
+    })),
+    // Moyen de paiement
+    paymentMethod: sub.default_payment_method ? {
+      brand: sub.default_payment_method.card?.brand,
+      last4: sub.default_payment_method.card?.last4,
+      expMonth: sub.default_payment_method.card?.exp_month,
+      expYear: sub.default_payment_method.card?.exp_year,
+    } : null,
+  };
+}
+
 module.exports = {
   createCheckoutSession,
   createSubscription,
@@ -190,4 +276,5 @@ module.exports = {
   createCustomerPortalSession,
   getPortalLinkByEmail,
   listSubscriptions,
+  getSubscriptionDetails,
 };

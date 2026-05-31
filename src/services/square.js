@@ -244,6 +244,72 @@ async function getSquareWeeklyAudit() {
   };
 }
 
+/**
+ * Recherche un client Square par email
+ * @param {string} email
+ */
+async function getCustomerByEmail(email) {
+  if (!SQUARE_TOKEN || !email) return null;
+  const body = {
+    query: {
+      filter: {
+        email_address: { exact: email }
+      }
+    },
+    limit: 1
+  };
+  const res = await fetch(`${SQUARE_BASE}/v2/customers/search`, {
+    method: 'POST',
+    headers: squareHeaders(),
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return (data.customers || [])[0] || null;
+}
+
+/**
+ * Récupère tous les RDV Square d'un client spécifique
+ * @param {string} customerId - Square Customer ID
+ * @param {number} monthsBack - Combien de mois en arrière (défaut 12)
+ */
+async function getCustomerBookings(customerId, monthsBack = 12) {
+  if (!SQUARE_TOKEN || !customerId) return [];
+  const startAt = new Date();
+  startAt.setMonth(startAt.getMonth() - monthsBack);
+  const params = new URLSearchParams();
+  if (LOCATION_ID) params.set('location_id', LOCATION_ID);
+  params.set('customer_id', customerId);
+  params.set('start_at_min', startAt.toISOString());
+  params.set('limit', '200');
+
+  const res = await fetch(`${SQUARE_BASE}/v2/bookings?${params}`, { headers: squareHeaders() });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return (data.bookings || []).map(b => ({
+    id: b.id,
+    startAt: b.start_at,
+    status: b.status,                      // COMPLETED | CANCELLED_BY_* | NO_SHOW
+    serviceName: b.appointment_segments?.[0]?.service_variation_id || null,
+    staffId: b.appointment_segments?.[0]?.team_member_id || null,
+    durationMin: b.appointment_segments?.[0]?.duration_minutes || null,
+  }));
+}
+
+/**
+ * Récupère le nom d'un service Square depuis son ID
+ * @param {string} serviceVariationId
+ */
+async function getServiceName(serviceVariationId) {
+  if (!SQUARE_TOKEN || !serviceVariationId) return null;
+  const res = await fetch(`${SQUARE_BASE}/v2/catalog/object/${serviceVariationId}`, {
+    headers: squareHeaders()
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.object?.item_variation_data?.name || data.object?.item_data?.name || null;
+}
+
 module.exports = {
   getBookings,
   getPayments,
@@ -254,4 +320,7 @@ module.exports = {
   computeBookingStats,
   aggregateRevenue,
   getSquareWeeklyAudit,
+  getCustomerByEmail,
+  getCustomerBookings,
+  getServiceName,
 };
