@@ -157,15 +157,27 @@ async function getPortalLinkByEmail(email, returnUrl) {
  */
 async function listSubscriptions({ status = 'all', limit = 100 } = {}) {
   if (!stripe) throw new Error('Stripe non configuré — ajoutez STRIPE_SECRET_KEY');
-  const params = { limit, expand: ['data.customer', 'data.default_payment_method', 'data.items.data.price.product'] };
+  const params = { limit, expand: ['data.customer', 'data.default_payment_method', 'data.items.data.price'] };
   if (status !== 'all') params.status = status;
   const subs = await stripe.subscriptions.list(params);
+  // Collecter les IDs produit uniques pour les résoudre en un batch
+  const productIds = [...new Set(subs.data
+    .map(s => s.items.data[0]?.price?.product)
+    .filter(id => id && typeof id === 'string')
+  )];
+  const productNames = {};
+  await Promise.all(productIds.map(async pid => {
+    try {
+      const prod = await stripe.products.retrieve(pid);
+      productNames[pid] = prod.name;
+    } catch(e) { /* silencieux */ }
+  }));
   return subs.data.map(sub => {
     const cust = sub.customer;
     const item = sub.items.data[0];
     const price = item?.price;
-    const product = price?.product;
-    const planName = (typeof product === 'object' ? product.name : null)
+    const productId = typeof price?.product === 'string' ? price.product : null;
+    const planName = productNames[productId]
                   || price?.nickname
                   || price?.id
                   || 'Plan';
