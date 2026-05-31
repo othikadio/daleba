@@ -7,752 +7,777 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg:       #0d1117; --surface:  #161b22; --surface2: #21262d; --surface3: #2d333b;
-      --border:   #30363d; --text:     #e6edf3; --dim:      #8b949e;
-      --gold:     #c9a84c; --gold-dim: rgba(201,168,76,0.12); --gold-border: rgba(201,168,76,0.3);
-      --green:    #3fb950; --green-dim: rgba(63,185,80,0.12);
-      --red:      #f85149; --red-dim: rgba(248,81,73,0.10);
-      --blue:     #58a6ff; --blue-dim: rgba(88,166,255,0.10);
-      --orange:   #f0883e; --purple: #bc8cff;
-      --radius:   8px; --radius-lg: 12px;
+      --bg:#0d1117; --surface:#161b22; --surface2:#21262d; --border:#30363d;
+      --text:#e6edf3; --dim:#8b949e;
+      --gold:#c9a84c; --gold-dim:rgba(201,168,76,.12); --gold-b:rgba(201,168,76,.3);
+      --green:#3fb950; --green-dim:rgba(63,185,80,.12);
+      --red:#f85149;   --red-dim:rgba(248,81,73,.10);
+      --blue:#58a6ff;  --blue-dim:rgba(88,166,255,.10);
+      --orange:#f0883e; --purple:#bc8cff;
+      --r:8px; --rl:12px;
     }
-    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; min-height: 100vh; }
+    body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,sans-serif; min-height:100vh; }
 
-    /* ── Topbar ── */
-    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); height: 52px; display: flex; align-items: center; padding: 0 1.5rem; justify-content: space-between; position: sticky; top: 0; z-index: 200; }
-    .topbar-logo { font-weight: 900; font-size: 1.1rem; color: var(--gold); letter-spacing: .06em; }
-    .topbar-logo span { color: var(--dim); font-weight: 400; font-size: .75rem; margin-left: .5rem; }
-    .topbar-right { display: flex; gap: .75rem; align-items: center; }
-    .btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: .4rem .9rem; border-radius: 6px; font-size: .8rem; cursor: pointer; transition: all .15s; font-family: inherit; }
-    .btn:hover { border-color: var(--gold); color: var(--gold); }
-    .btn.primary { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); font-weight: 700; }
-    .btn.success { background: var(--green-dim); border-color: var(--green); color: var(--green); font-weight: 700; }
-    .btn.danger  { background: var(--red-dim);   border-color: var(--red);   color: var(--red); }
+    /* topbar */
+    .topbar { background:var(--surface); border-bottom:1px solid var(--border); height:52px; display:flex; align-items:center; padding:0 1.5rem; justify-content:space-between; position:sticky; top:0; z-index:200; }
+    .logo { font-weight:900; font-size:1.1rem; color:var(--gold); letter-spacing:.06em; }
+    .logo span { color:var(--dim); font-weight:400; font-size:.75rem; margin-left:.5rem; }
+    .topbar-right { display:flex; gap:.75rem; }
+    .btn { background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:.4rem .9rem; border-radius:6px; font-size:.8rem; cursor:pointer; font-family:inherit; }
+    .btn:hover { border-color:var(--gold); color:var(--gold); }
+    .btn-g { background:var(--green-dim); border-color:var(--green); color:var(--green); font-weight:700; }
+    .btn-p { background:var(--gold-dim);  border-color:var(--gold);  color:var(--gold);  font-weight:700; }
+    .btn-r { background:var(--red-dim);   border-color:var(--red);   color:var(--red); }
 
-    /* ── Layout ── */
-    .page { max-width: 1300px; margin: 0 auto; padding: 2rem 1.5rem; }
-    .page-header { margin-bottom: 1.5rem; }
-    .page-header h1 { font-size: 1.5rem; font-weight: 800; }
-    .page-header p  { color: var(--dim); font-size: .85rem; margin-top: .3rem; }
+    /* page */
+    .page { max-width:1300px; margin:0 auto; padding:2rem 1.5rem; }
+    .page-header { margin-bottom:1.5rem; }
+    .page-header h1 { font-size:1.5rem; font-weight:800; }
+    .page-header p  { color:var(--dim); font-size:.85rem; margin-top:.3rem; }
 
-    /* ── KPIs ── */
-    .kpi-strip { display: flex; gap: 1rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
-    .kpi-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; flex: 1; min-width: 130px; }
-    .kpi-box .label { font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); margin-bottom: .4rem; }
-    .kpi-box .val { font-size: 1.9rem; font-weight: 900; }
-    .kpi-box.green .val { color: var(--green); }
-    .kpi-box.red   .val { color: var(--red); }
-    .kpi-box.gold  .val { color: var(--gold); }
-    .kpi-box.blue  .val { color: var(--blue); }
-    .kpi-box.purple .val { color: var(--purple); }
+    /* KPIs */
+    .kpi-strip { display:flex; gap:1rem; margin-bottom:1.75rem; flex-wrap:wrap; }
+    .kpi { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:1rem 1.25rem; flex:1; min-width:120px; }
+    .kpi .lbl { font-size:.65rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--dim); margin-bottom:.4rem; }
+    .kpi .val { font-size:1.9rem; font-weight:900; }
+    .kpi.green .val { color:var(--green); } .kpi.red .val { color:var(--red); }
+    .kpi.gold  .val { color:var(--gold); } .kpi.blue .val { color:var(--blue); }
+    .kpi.purple .val { color:var(--purple); }
 
-    /* ── Filtres ── */
-    .filters { display: flex; gap: .6rem; margin-bottom: 1.25rem; flex-wrap: wrap; align-items: center; }
-    .filter-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--dim); padding: .32rem .8rem; border-radius: 20px; font-size: .78rem; cursor: pointer; transition: all .15s; font-family: inherit; }
-    .filter-btn:hover, .filter-btn.active { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
-    .search-box { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: .38rem .85rem; border-radius: 6px; font-size: .82rem; width: 220px; outline: none; margin-left: auto; }
-    .search-box:focus { border-color: var(--blue); }
+    /* filters */
+    .filters { display:flex; gap:.6rem; margin-bottom:1.25rem; flex-wrap:wrap; align-items:center; }
+    .fb { background:var(--surface2); border:1px solid var(--border); color:var(--dim); padding:.32rem .8rem; border-radius:20px; font-size:.78rem; cursor:pointer; font-family:inherit; }
+    .fb:hover, .fb.on { border-color:var(--gold); color:var(--gold); background:var(--gold-dim); }
+    .srch { background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:.38rem .85rem; border-radius:6px; font-size:.82rem; width:200px; outline:none; margin-left:auto; }
+    .srch:focus { border-color:var(--blue); }
 
-    /* ── Cards abonnés ── */
-    .sub-list { display: flex; flex-direction: column; gap: 1rem; }
-    .sub-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; transition: border-color .15s; }
-    .sub-card:hover { border-color: rgba(201,168,76,.4); }
+    /* alert / status bar */
+    .status-bar { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:.75rem 1rem; margin-bottom:1rem; font-size:.83rem; display:flex; align-items:center; gap:.75rem; }
+    .status-bar.err { border-color:var(--red); color:var(--red); }
+    .status-bar.ok  { border-color:var(--green); color:var(--green); }
+    .status-bar.loading { color:var(--dim); }
 
-    .sub-header { display: flex; align-items: center; gap: 1rem; padding: 1.1rem 1.25rem; cursor: pointer; }
-    .sub-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--gold-dim); border: 2px solid var(--gold-border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 900; color: var(--gold); flex-shrink: 0; }
-    .sub-info { flex: 1; min-width: 0; }
-    .sub-name { font-weight: 700; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .sub-email { font-size: .77rem; color: var(--dim); margin-top: .1rem; }
-    .sub-meta { display: flex; gap: .75rem; align-items: center; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
-    .badge { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .6rem; border-radius: 20px; font-size: .72rem; font-weight: 700; }
-    .badge-active   { background: var(--green-dim); color: var(--green); }
-    .badge-canceled { background: var(--red-dim);   color: var(--red); }
-    .badge-past_due { background: rgba(240,136,62,.15); color: var(--orange); }
-    .badge-trialing { background: var(--blue-dim);  color: var(--blue); }
-    .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
-    .dot-active   { background: var(--green);  box-shadow: 0 0 5px var(--green); }
-    .dot-canceled { background: var(--red); }
-    .dot-past_due { background: var(--orange); }
-    .price-tag { font-size: .9rem; font-weight: 800; color: var(--gold); }
-    .plan-name { font-size: .78rem; color: var(--dim); background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: .15rem .45rem; }
-    .toggle-icon { font-size: .8rem; color: var(--dim); transition: transform .2s; flex-shrink: 0; }
-    .sub-card.open .toggle-icon { transform: rotate(180deg); }
+    /* cards */
+    .sub-list { display:flex; flex-direction:column; gap:1rem; }
+    .sub-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--rl); overflow:hidden; }
+    .sub-card:hover { border-color:rgba(201,168,76,.4); }
 
-    /* ── Détail expandé ── */
-    .sub-detail { display: none; border-top: 1px solid var(--border); }
-    .sub-card.open .sub-detail { display: block; }
+    .sub-header { display:flex; align-items:center; gap:1rem; padding:1.1rem 1.25rem; cursor:pointer; }
+    .avatar { width:42px; height:42px; border-radius:50%; background:var(--gold-dim); border:2px solid var(--gold-b); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:900; color:var(--gold); flex-shrink:0; }
+    .sub-info { flex:1; min-width:0; }
+    .sub-name  { font-weight:700; font-size:1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .sub-email { font-size:.77rem; color:var(--dim); margin-top:.1rem; }
+    .sub-meta  { display:flex; gap:.75rem; align-items:center; flex-wrap:wrap; justify-content:flex-end; flex-shrink:0; }
+    .badge { display:inline-flex; align-items:center; gap:.3rem; padding:.2rem .6rem; border-radius:20px; font-size:.72rem; font-weight:700; }
+    .b-active   { background:var(--green-dim); color:var(--green); }
+    .b-canceled { background:var(--red-dim);   color:var(--red); }
+    .b-past_due { background:rgba(240,136,62,.15); color:var(--orange); }
+    .b-trialing { background:var(--blue-dim);  color:var(--blue); }
+    .dot { width:7px; height:7px; border-radius:50%; display:inline-block; }
+    .d-active   { background:var(--green); box-shadow:0 0 5px var(--green); }
+    .d-canceled { background:var(--red); }
+    .d-past_due { background:var(--orange); }
+    .price-tag { font-size:.9rem; font-weight:800; color:var(--gold); }
+    .plan-chip { font-size:.78rem; color:var(--dim); background:var(--surface2); border:1px solid var(--border); border-radius:4px; padding:.15rem .45rem; }
+    .chevron { font-size:.8rem; color:var(--dim); transition:transform .2s; flex-shrink:0; }
+    .sub-card.open .chevron { transform:rotate(180deg); }
 
-    .detail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; }
-    @media(max-width:900px) { .detail-grid { grid-template-columns: 1fr; } }
+    /* detail panel */
+    .sub-detail { display:none; border-top:1px solid var(--border); }
+    .sub-card.open .sub-detail { display:block; }
+    .detail-grid { display:grid; grid-template-columns:1fr 1fr 1fr; }
+    @media(max-width:900px) { .detail-grid { grid-template-columns:1fr; } }
+    .dcol { padding:1.25rem; border-right:1px solid var(--border); }
+    .dcol:last-child { border-right:none; }
+    @media(max-width:900px) { .dcol { border-right:none; border-bottom:1px solid var(--border); } }
+    @media(max-width:900px) { .dcol:last-child { border-bottom:none; } }
+    .col-title { font-size:.68rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--dim); margin-bottom:.9rem; display:flex; align-items:center; gap:.4rem; }
 
-    .detail-col { padding: 1.25rem; border-right: 1px solid var(--border); }
-    .detail-col:last-child { border-right: none; }
-    @media(max-width:900px) { .detail-col { border-right: none; border-bottom: 1px solid var(--border); } }
-    @media(max-width:900px) { .detail-col:last-child { border-bottom: none; } }
+    /* stripe col */
+    .srow { display:flex; justify-content:space-between; align-items:baseline; padding:.42rem 0; border-bottom:1px solid var(--border); font-size:.83rem; }
+    .srow:last-of-type { border-bottom:none; }
+    .srow .k { color:var(--dim); } .srow .v { font-weight:600; text-align:right; max-width:60%; }
+    .feat-list { list-style:none; margin:.5rem 0; }
+    .feat-list li { font-size:.8rem; color:var(--dim); padding:.22rem 0; display:flex; gap:.45rem; }
+    .feat-list li::before { content:'✓'; color:var(--green); font-weight:700; flex-shrink:0; }
+    .card-chip { display:inline-flex; align-items:center; gap:.4rem; background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:.3rem .65rem; font-size:.8rem; margin-top:.5rem; }
+    .inv-link { color:var(--blue); font-size:.78rem; text-decoration:none; }
+    .inv-link:hover { text-decoration:underline; }
+    .sep { height:1px; background:var(--border); margin:.65rem 0; }
 
-    .col-title { font-size: .68rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); margin-bottom: 1rem; display: flex; align-items: center; gap: .5rem; }
-    .col-title .icon { font-size: .9rem; }
+    /* visits col */
+    .month-badge { text-align:center; background:var(--gold-dim); border:1px solid var(--gold-b); border-radius:6px; padding:.4rem .75rem; font-size:.82rem; color:var(--gold); font-weight:700; margin-bottom:.75rem; }
+    .checkin-bar { display:flex; gap:.5rem; margin-bottom:.75rem; }
+    .checkin-bar .btn { flex:1; font-size:.78rem; padding:.38rem .55rem; }
+    .vtl { display:flex; flex-direction:column; gap:.35rem; max-height:300px; overflow-y:auto; }
+    .vi { display:flex; align-items:center; gap:.65rem; padding:.45rem .7rem; border-radius:6px; font-size:.82rem; background:var(--surface2); border:1px solid var(--border); }
+    .vi.completed  { border-color:rgba(63,185,80,.3);  background:rgba(63,185,80,.05); }
+    .vi.cancelled  { opacity:.5; }
+    .vi.no_show    { border-color:rgba(248,81,73,.25); }
+    .vi.manual     { border-color:var(--gold-b); background:var(--gold-dim); }
+    .vi-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .vi-dot.completed { background:var(--green); box-shadow:0 0 4px var(--green); }
+    .vi-dot.cancelled { background:var(--dim); }
+    .vi-dot.no_show   { background:var(--red); }
+    .vi-dot.manual    { background:var(--gold); box-shadow:0 0 4px var(--gold); }
+    .vi-date  { font-weight:700; min-width:88px; flex-shrink:0; }
+    .vi-svc   { color:var(--dim); font-size:.78rem; flex:1; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+    .vi-lbl   { font-size:.72rem; font-weight:600; flex-shrink:0; }
+    .vi-del   { background:none; border:none; color:var(--dim); cursor:pointer; font-size:.82rem; padding:.1rem .3rem; border-radius:4px; flex-shrink:0; }
+    .vi-del:hover { background:var(--red-dim); color:var(--red); }
+    .sq-warn  { font-size:.78rem; color:var(--orange); background:rgba(240,136,62,.08); border:1px solid rgba(240,136,62,.2); border-radius:6px; padding:.45rem .7rem; margin-bottom:.7rem; }
+    .spin-sm  { width:14px; height:14px; border:2px solid var(--border); border-top-color:var(--gold); border-radius:50%; animation:spin .7s linear infinite; display:inline-block; }
+    @keyframes spin { to { transform:rotate(360deg); } }
 
-    /* Stripe details */
-    .stripe-row { display: flex; justify-content: space-between; align-items: baseline; padding: .45rem 0; border-bottom: 1px solid var(--border); font-size: .83rem; }
-    .stripe-row:last-child { border-bottom: none; }
-    .stripe-row .key { color: var(--dim); }
-    .stripe-row .val { font-weight: 600; text-align: right; max-width: 60%; }
-    .feature-list { list-style: none; margin-top: .5rem; }
-    .feature-list li { font-size: .8rem; color: var(--dim); padding: .25rem 0; display: flex; gap: .5rem; align-items: flex-start; }
-    .feature-list li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
-    .invoice-link { color: var(--blue); font-size: .78rem; text-decoration: none; }
-    .invoice-link:hover { text-decoration: underline; }
-    .card-chip { display: inline-flex; align-items: center; gap: .4rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: .3rem .65rem; font-size: .8rem; margin-top: .5rem; }
+    /* hair col */
+    .hlbl { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--dim); display:block; margin-bottom:.3rem; }
+    .hsel, .hinput { background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:.4rem .65rem; border-radius:6px; font-size:.82rem; width:100%; outline:none; font-family:inherit; margin-bottom:.7rem; }
+    .hsel:focus, .hinput:focus { border-color:var(--blue); }
+    .stars { display:flex; gap:.3rem; margin-bottom:.7rem; }
+    .star { font-size:1.4rem; cursor:pointer; color:var(--border); transition:color .1s; }
+    .star.lit { color:var(--gold); }
+    .note-list { max-height:180px; overflow-y:auto; display:flex; flex-direction:column; gap:.35rem; margin-bottom:.7rem; }
+    .note-item { background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:.45rem .65rem; font-size:.8rem; position:relative; }
+    .note-date { font-size:.7rem; color:var(--dim); margin-bottom:.15rem; }
+    .note-del  { position:absolute; top:.35rem; right:.5rem; background:none; border:none; color:var(--dim); cursor:pointer; font-size:.82rem; }
+    .note-del:hover { color:var(--red); }
+    .note-add  { display:flex; gap:.5rem; }
+    .note-ta   { flex:1; background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:.4rem .65rem; border-radius:6px; font-size:.8rem; font-family:inherit; resize:none; height:54px; outline:none; }
+    .note-ta:focus { border-color:var(--blue); }
 
-    /* Square visits */
-    .checkin-bar { display: flex; gap: .5rem; margin-bottom: .75rem; }
-    .checkin-bar .btn { flex: 1; font-size: .78rem; padding: .38rem .6rem; }
-    .visit-timeline { display: flex; flex-direction: column; gap: .4rem; max-height: 320px; overflow-y: auto; padding-right: .25rem; }
-    .visit-item { display: flex; align-items: center; gap: .75rem; padding: .5rem .75rem; border-radius: 6px; font-size: .82rem; background: var(--surface2); border: 1px solid var(--border); transition: all .15s; }
-    .visit-item.completed  { border-color: rgba(63,185,80,.3);  background: rgba(63,185,80,.05); }
-    .visit-item.cancelled  { border-color: var(--border); opacity: .55; }
-    .visit-item.no_show    { border-color: rgba(248,81,73,.25); background: rgba(248,81,73,.04); }
-    .visit-item.manual     { border-color: var(--gold-border);  background: var(--gold-dim); }
-    .visit-date { font-weight: 700; min-width: 90px; }
-    .visit-service { color: var(--dim); font-size: .78rem; flex: 1; }
-    .visit-status-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-    .visit-status-dot.completed { background: var(--green); box-shadow: 0 0 5px var(--green); }
-    .visit-status-dot.cancelled { background: var(--border); }
-    .visit-status-dot.no_show   { background: var(--red); }
-    .visit-status-dot.manual    { background: var(--gold); box-shadow: 0 0 5px var(--gold); }
-    .visit-del { color: var(--red-dim); cursor: pointer; font-size: .85rem; padding: .1rem .3rem; border-radius: 4px; background: none; border: none; transition: all .15s; }
-    .visit-del:hover { background: var(--red-dim); color: var(--red); }
-    .visits-month-count { text-align: center; background: var(--gold-dim); border: 1px solid var(--gold-border); border-radius: 6px; padding: .4rem .75rem; font-size: .82rem; color: var(--gold); font-weight: 700; margin-bottom: .75rem; }
-    .sq-loading { color: var(--dim); font-size: .8rem; text-align: center; padding: 1rem; }
-
-    /* Hair profile */
-    .hair-category { margin-bottom: .75rem; }
-    .hair-category label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); display: block; margin-bottom: .3rem; }
-    .hair-category select, .hair-category input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: .4rem .65rem; border-radius: 6px; font-size: .82rem; width: 100%; outline: none; font-family: inherit; }
-    .hair-category select:focus, .hair-category input:focus { border-color: var(--blue); }
-    .hair-notes-list { max-height: 200px; overflow-y: auto; margin-bottom: .75rem; display: flex; flex-direction: column; gap: .4rem; }
-    .hair-note-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: .5rem .75rem; font-size: .8rem; }
-    .hair-note-item .note-date { font-size: .7rem; color: var(--dim); margin-bottom: .2rem; }
-    .hair-note-item .note-text { color: var(--text); }
-    .hair-note-item .note-del { float: right; color: var(--red); cursor: pointer; font-size: .8rem; background: none; border: none; font-family: inherit; }
-    .hair-add-note { display: flex; gap: .5rem; }
-    .hair-add-note textarea { flex: 1; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: .4rem .65rem; border-radius: 6px; font-size: .8rem; font-family: inherit; resize: none; height: 56px; outline: none; }
-    .hair-add-note textarea:focus { border-color: var(--blue); }
-    .evolution-bar { margin-top: .75rem; }
-    .evolution-bar label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); display: block; margin-bottom: .4rem; }
-    .stars { display: flex; gap: .3rem; }
-    .star { font-size: 1.4rem; cursor: pointer; color: var(--border); transition: color .1s; }
-    .star.lit { color: var(--gold); }
-    .hair-save-btn { margin-top: .75rem; width: 100%; }
-
-    /* Loader / empty */
-    .loader { display: flex; align-items: center; justify-content: center; padding: 3rem; color: var(--dim); gap: .75rem; }
-    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin .7s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .empty { text-align: center; padding: 3rem; color: var(--dim); }
-    .empty .emoji { font-size: 2.5rem; margin-bottom: .75rem; }
-
-    /* Misc */
-    .sep { height: 1px; background: var(--border); margin: .75rem 0; }
-    .text-green { color: var(--green); } .text-red { color: var(--red); } .text-gold { color: var(--gold); } .text-dim { color: var(--dim); }
-    .fw-bold { font-weight: 700; } .mt-4 { margin-top: .25rem; }
-    ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: var(--surface); } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-
-    /* Toast */
-    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--surface); border: 1px solid var(--green); color: var(--green); padding: .7rem 1.1rem; border-radius: 8px; font-size: .85rem; font-weight: 600; z-index: 9999; animation: toastIn .25s ease; }
-    @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    /* global */
+    .loader { display:flex; align-items:center; justify-content:center; padding:3rem; color:var(--dim); gap:.75rem; }
+    .spinner { width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--gold); border-radius:50%; animation:spin .7s linear infinite; }
+    .empty { text-align:center; padding:3rem; color:var(--dim); }
+    .empty .ico { font-size:2.5rem; margin-bottom:.75rem; }
+    .toast { position:fixed; bottom:1.5rem; right:1.5rem; background:var(--surface); border:1px solid var(--green); color:var(--green); padding:.7rem 1.1rem; border-radius:8px; font-size:.85rem; font-weight:600; z-index:9999; animation:tin .2s ease; }
+    @keyframes tin { from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)} }
+    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--surface)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
   </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="topbar-logo">DALEBA <span>Suivi Abonnés · Stripe + Square</span></div>
+  <div class="logo">DALEBA <span>Suivi Abonnés · Stripe + Square</span></div>
   <div class="topbar-right">
     <button class="btn" onclick="window.location='/admin-hub.html'">← Hub</button>
-    <button class="btn primary" onclick="loadSubscriptions()">🔄 Actualiser</button>
+    <button class="btn btn-p" onclick="refresh()">🔄 Actualiser</button>
   </div>
 </div>
 
 <div class="page">
   <div class="page-header">
     <h1>💳 Suivi complet des abonnés</h1>
-    <p>Stripe (forfaits &amp; paiements) + Square (historique RDV) · Notes capillaires</p>
+    <p>Stripe (forfaits &amp; paiements) + Square (RDV) · Profil capillaire</p>
   </div>
 
   <!-- KPIs -->
   <div class="kpi-strip">
-    <div class="kpi-box green">  <div class="label">Actifs</div><div class="val" id="kpi-active">—</div></div>
-    <div class="kpi-box red">    <div class="label">Annulés / Bloqués</div><div class="val" id="kpi-inactive">—</div></div>
-    <div class="kpi-box gold">   <div class="label">MRR estimé (CAD)</div><div class="val" id="kpi-mrr">—</div></div>
-    <div class="kpi-box purple"> <div class="label">RDV ce mois (total)</div><div class="val" id="kpi-rdv">—</div></div>
-    <div class="kpi-box blue">   <div class="label">Total abonnés</div><div class="val" id="kpi-total">—</div></div>
+    <div class="kpi green">  <div class="lbl">Actifs</div>          <div class="val" id="k-active">—</div></div>
+    <div class="kpi red">    <div class="lbl">Annulés/Bloqués</div> <div class="val" id="k-inactive">—</div></div>
+    <div class="kpi gold">   <div class="lbl">MRR (CAD)</div>       <div class="val" id="k-mrr">—</div></div>
+    <div class="kpi purple"> <div class="lbl">RDV ce mois</div>     <div class="val" id="k-rdv">—</div></div>
+    <div class="kpi blue">   <div class="lbl">Total abonnés</div>   <div class="val" id="k-total">—</div></div>
+  </div>
+
+  <!-- Statut API -->
+  <div id="status-bar" class="status-bar loading">
+    <div class="spinner"></div> Connexion à Stripe…
   </div>
 
   <!-- Filtres -->
   <div class="filters">
-    <button class="filter-btn active" onclick="setFilter('all',this)">Tous</button>
-    <button class="filter-btn" onclick="setFilter('active',this)">✅ Actifs</button>
-    <button class="filter-btn" onclick="setFilter('past_due',this)">⚠️ En retard</button>
-    <button class="filter-btn" onclick="setFilter('canceled',this)">❌ Annulés</button>
-    <input class="search-box" id="search-input" placeholder="🔍 Nom / email…" oninput="renderList()" />
+    <button class="fb on"  onclick="setFilter('all',this)">Tous</button>
+    <button class="fb"     onclick="setFilter('active',this)">✅ Actifs</button>
+    <button class="fb"     onclick="setFilter('past_due',this)">⚠️ En retard</button>
+    <button class="fb"     onclick="setFilter('canceled',this)">❌ Annulés</button>
+    <input  class="srch" id="srch" placeholder="🔍 Nom / email…" oninput="renderList()"/>
   </div>
 
-  <!-- Liste -->
-  <div id="main-loader" class="loader"><div class="spinner"></div> Chargement depuis Stripe…</div>
-  <div class="sub-list" id="sub-list"></div>
-  <div id="empty-state" class="empty" style="display:none"><div class="emoji">📭</div><p>Aucun abonné pour ce filtre.</p></div>
+  <!-- Liste abonnés -->
+  <div class="sub-list" id="sub-list">
+    <!-- rempli par JS -->
+  </div>
+  <div id="empty-msg" class="empty" style="display:none">
+    <div class="ico">📭</div><p>Aucun abonné pour ce filtre.</p>
+  </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════════
-// CONFIG
-// ═══════════════════════════════════════════════════════════
-const API = 'https://daleba-api-production.up.railway.app';
-const STORAGE_KEY = 'daleba_sub_v3';
+'use strict';
 
-let allSubs = [];
-let currentFilter = 'all';
+/* ═══════════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════════ */
+const API  = 'https://daleba-api-production.up.railway.app';
+const SKEY = 'daleba_sub_v4';
 
-// ── Storage ──────────────────────────────────────────────
+let ALL_SUBS    = [];
+let FILTER      = 'all';
+let DETAIL_CACHE = {};  // subId -> detail data
+let DETAIL_OPEN  = null; // currently open card subId
+
+/* ═══════════════════════════════════════════════
+   STORAGE
+═══════════════════════════════════════════════ */
 function store() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+  try { return JSON.parse(localStorage.getItem(SKEY) || '{}'); }
+  catch(e) { return {}; }
 }
-function saveStore(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
-function subStore(id) { return store()[id] || { manualVisits: [], hairProfile: { texture: '', porosite: '', densite: '', evolution: 0 }, hairNotes: [] }; }
-function saveSubStore(id, data) { const s = store(); s[id] = data; saveStore(s); }
+function saveStore(s) {
+  try { localStorage.setItem(SKEY, JSON.stringify(s)); } catch(e) {}
+}
+function getLocal(id) {
+  var s = store();
+  return s[id] || { manualVisits:[], hairProfile:{}, hairNotes:[] };
+}
+function setLocal(id, data) {
+  var s = store();
+  s[id] = data;
+  saveStore(s);
+}
 
-// ═══════════════════════════════════════════════════════════
-// LOAD SUBS
-// ═══════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
+   LOAD SUBS (liste Stripe)
+═══════════════════════════════════════════════ */
+function setStatus(msg, type) {
+  var el = document.getElementById('status-bar');
+  el.className = 'status-bar ' + (type || '');
+  el.innerHTML = type === 'loading'
+    ? '<div class="spinner"></div> ' + msg
+    : msg;
+}
+
 async function loadSubscriptions() {
-  document.getElementById('main-loader').style.display = 'flex';
-  document.getElementById('sub-list').innerHTML = '';
-  document.getElementById('empty-state').style.display = 'none';
+  setStatus('Connexion à Stripe…', 'loading');
   try {
-    const r = await fetch(`${API}/api/payment/subscriptions`);
-    const d = await r.json();
-    if (!d.success) throw new Error(d.error);
-    allSubs = d.subscriptions || [];
+    var res  = await fetch(API + '/api/payment/subscriptions');
+    var data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Erreur API');
+    ALL_SUBS = data.subscriptions || [];
+    setStatus('✅ ' + ALL_SUBS.length + ' abonné(s) chargé(s) depuis Stripe.', 'ok');
     updateKPIs();
     renderList();
-  } catch (e) {
-    document.getElementById('main-loader').innerHTML =
-      `<div style="color:var(--red);text-align:center">❌ ${e.message}</div>`;
+  } catch(e) {
+    setStatus('❌ Erreur Stripe : ' + e.message + ' — Vérifiez que Railway est actif.', 'err');
+    console.error('[loadSubscriptions]', e);
+    // Afficher quand même la liste vide avec message
+    renderList();
   }
 }
 
-function filteredSubs() {
-  let subs = allSubs;
-  if (currentFilter !== 'all') subs = subs.filter(s => s.status === currentFilter);
-  const q = (document.getElementById('search-input').value || '').toLowerCase();
-  if (q) subs = subs.filter(s =>
-    (s.customerName||'').toLowerCase().includes(q) ||
-    (s.customerEmail||'').toLowerCase().includes(q)
-  );
-  return subs;
+function refresh() {
+  DETAIL_CACHE = {};
+  DETAIL_OPEN  = null;
+  loadSubscriptions();
 }
 
+/* ═══════════════════════════════════════════════
+   KPIs
+═══════════════════════════════════════════════ */
+function updateKPIs() {
+  var active   = ALL_SUBS.filter(function(s){ return s.status === 'active'; }).length;
+  var inactive = ALL_SUBS.filter(function(s){ return s.status !== 'active'; }).length;
+  var mrr      = 0;
+  ALL_SUBS.filter(function(s){ return s.status === 'active'; }).forEach(function(s){
+    if (s.amount) mrr += parseFloat(s.amount);
+  });
+
+  // RDV ce mois (manual only, Square chargé à la demande)
+  var monthStr = new Date().toISOString().slice(0, 7);
+  var rdvCount = 0;
+  var s = store();
+  ALL_SUBS.forEach(function(sub) {
+    var d = s[sub.id] || {};
+    (d.manualVisits || []).forEach(function(v){
+      if (v.date && v.date.startsWith(monthStr)) rdvCount++;
+    });
+  });
+
+  document.getElementById('k-active').textContent   = active;
+  document.getElementById('k-inactive').textContent = inactive;
+  document.getElementById('k-mrr').textContent      = mrr > 0 ? ('$' + mrr.toFixed(0)) : '—';
+  document.getElementById('k-rdv').textContent      = rdvCount || '—';
+  document.getElementById('k-total').textContent    = ALL_SUBS.length;
+}
+
+/* ═══════════════════════════════════════════════
+   FILTER + RENDER LIST
+═══════════════════════════════════════════════ */
 function setFilter(f, btn) {
-  currentFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  FILTER = f;
+  document.querySelectorAll('.fb').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
   renderList();
 }
 
-// ═══════════════════════════════════════════════════════════
-// KPIs
-// ═══════════════════════════════════════════════════════════
-function updateKPIs() {
-  const active = allSubs.filter(s => s.status === 'active').length;
-  const inactive = allSubs.filter(s => s.status !== 'active').length;
-  let mrr = 0;
-  allSubs.filter(s => s.status === 'active').forEach(s => { if (s.amount) mrr += parseFloat(s.amount); });
-
-  // Compter RDV ce mois (toutes sources confondues dans localStorage)
-  const now = new Date();
-  const monthStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-  let totalRdv = 0;
-  const s = store();
-  allSubs.forEach(sub => {
-    const d = s[sub.id] || {};
-    (d.manualVisits || []).forEach(v => { if (v.date && v.date.startsWith(monthStr)) totalRdv++; });
+function filteredSubs() {
+  var subs = ALL_SUBS;
+  if (FILTER !== 'all') subs = subs.filter(function(s){ return s.status === FILTER; });
+  var q = (document.getElementById('srch').value || '').toLowerCase();
+  if (q) subs = subs.filter(function(s){
+    return (s.customerName||'').toLowerCase().indexOf(q) >= 0
+        || (s.customerEmail||'').toLowerCase().indexOf(q) >= 0;
   });
-
-  document.getElementById('kpi-active').textContent = active;
-  document.getElementById('kpi-inactive').textContent = inactive;
-  document.getElementById('kpi-mrr').textContent = mrr > 0 ? `$${mrr.toFixed(0)}` : '—';
-  document.getElementById('kpi-rdv').textContent = totalRdv || '—';
-  document.getElementById('kpi-total').textContent = allSubs.length;
+  return subs;
 }
 
-// ═══════════════════════════════════════════════════════════
-// RENDER LIST
-// ═══════════════════════════════════════════════════════════
 function renderList() {
-  document.getElementById('main-loader').style.display = 'none';
-  const subs = filteredSubs();
-  const list = document.getElementById('sub-list');
+  var subs = filteredSubs();
+  var list = document.getElementById('sub-list');
+  var em   = document.getElementById('empty-msg');
   list.innerHTML = '';
 
   if (subs.length === 0) {
-    document.getElementById('empty-state').style.display = 'block';
+    em.style.display = 'block';
     return;
   }
-  document.getElementById('empty-state').style.display = 'none';
-
-  subs.forEach(sub => {
-    const card = buildCard(sub);
-    list.appendChild(card);
-  });
+  em.style.display = 'none';
+  subs.forEach(function(sub){ list.appendChild(buildCard(sub)); });
 }
 
-// ═══════════════════════════════════════════════════════════
-// BUILD CARD
-// ═══════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
+   BUILD CARD (header seulement)
+═══════════════════════════════════════════════ */
+function stConfig(status) {
+  var m = { active:{l:'Actif',c:'b-active',d:'d-active'},
+            canceled:{l:'Annulé',c:'b-canceled',d:'d-canceled'},
+            past_due:{l:'En retard',c:'b-past_due',d:'d-past_due'},
+            trialing:{l:'Essai',c:'b-trialing',d:''} };
+  return m[status] || { l:status, c:'', d:'' };
+}
+
 function buildCard(sub) {
-  const stMap = {
-    active:   { label:'Actif',     cls:'badge-active'   },
-    canceled: { label:'Annulé',    cls:'badge-canceled' },
-    past_due: { label:'En retard', cls:'badge-past_due' },
-    trialing: { label:'Essai',     cls:'badge-trialing' },
-  };
-  const st = stMap[sub.status] || { label: sub.status, cls: '' };
-  const dotCls = { active:'dot-active', canceled:'dot-canceled', past_due:'dot-past_due' }[sub.status] || '';
-  const initials = (sub.customerName||sub.customerEmail||'?')
-    .split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  var st  = stConfig(sub.status);
+  var ini = ((sub.customerName||sub.customerEmail||'?')
+              .split(' ').map(function(w){ return w[0]||''; }).join('').toUpperCase().slice(0,2));
 
-  const card = document.createElement('div');
+  var card = document.createElement('div');
   card.className = 'sub-card';
-  card.id = `card-${sub.id}`;
+  card.id = 'card-' + sub.id;
 
-  card.innerHTML = `
-    <div class="sub-header" onclick="toggleCard('${sub.id}')">
-      <div class="sub-avatar">${esc(initials)}</div>
-      <div class="sub-info">
-        <div class="sub-name">${esc(sub.customerName || '—')}</div>
-        <div class="sub-email">${esc(sub.customerEmail || sub.id)}</div>
-      </div>
-      <div class="sub-meta">
-        <span class="plan-name">${esc(sub.plan)}</span>
-        <span class="price-tag">${sub.amount ? `$${sub.amount} ${sub.currency}/mois` : '—'}</span>
-        <span class="badge ${st.cls}"><span class="dot ${dotCls}"></span>${st.label}</span>
-      </div>
-      <span class="toggle-icon">▼</span>
-    </div>
-    <div class="sub-detail" id="detail-${sub.id}">
-      <div class="detail-grid">
-        <!-- COL 1: Stripe -->
-        <div class="detail-col" id="stripe-col-${sub.id}">
-          <div class="col-title"><span class="icon">💳</span> Forfait &amp; Paiements Stripe</div>
-          <div class="sq-loading"><div class="spinner" style="margin:auto"></div></div>
-        </div>
-        <!-- COL 2: Square visits -->
-        <div class="detail-col" id="square-col-${sub.id}">
-          <div class="col-title"><span class="icon">📅</span> Historique des visites</div>
-          <div class="sq-loading"><div class="spinner" style="margin:auto"></div></div>
-        </div>
-        <!-- COL 3: Hair profile -->
-        <div class="detail-col" id="hair-col-${sub.id}">
-          <div class="col-title"><span class="icon">💇</span> Profil capillaire</div>
-          ${renderHairCol(sub.id)}
-        </div>
-      </div>
-    </div>
-  `;
+  var hdr = document.createElement('div');
+  hdr.className = 'sub-header';
+  hdr.innerHTML =
+    '<div class="avatar">' + esc(ini) + '</div>' +
+    '<div class="sub-info">' +
+      '<div class="sub-name">'  + esc(sub.customerName || '—') + '</div>' +
+      '<div class="sub-email">' + esc(sub.customerEmail || sub.id) + '</div>' +
+    '</div>' +
+    '<div class="sub-meta">' +
+      '<span class="plan-chip">' + esc(sub.plan) + '</span>' +
+      (sub.amount ? '<span class="price-tag">$' + sub.amount + ' ' + sub.currency + '/mois</span>' : '') +
+      '<span class="badge ' + st.c + '"><span class="dot ' + st.d + '"></span>' + st.l + '</span>' +
+    '</div>' +
+    '<span class="chevron">▼</span>';
+
+  hdr.onclick = function(){ toggleCard(sub.id); };
+  card.appendChild(hdr);
+
+  var detail = document.createElement('div');
+  detail.className = 'sub-detail';
+  detail.id = 'detail-' + sub.id;
+  detail.innerHTML =
+    '<div class="detail-grid">' +
+      '<div class="dcol" id="scol-' + sub.id + '">'  + loadingCol() + '</div>' +
+      '<div class="dcol" id="sqcol-' + sub.id + '">' + loadingCol() + '</div>' +
+      '<div class="dcol" id="hcol-' + sub.id + '">'  + buildHairCol(sub.id) + '</div>' +
+    '</div>';
+  card.appendChild(detail);
   return card;
 }
 
-// ═══════════════════════════════════════════════════════════
-// TOGGLE CARD — lazy load details
-// ═══════════════════════════════════════════════════════════
-const loadedDetails = new Set();
+function loadingCol() {
+  return '<div style="display:flex;align-items:center;gap:.6rem;color:var(--dim);font-size:.82rem;padding:.5rem 0">' +
+         '<span class="spin-sm"></span> Chargement…</div>';
+}
 
+/* ═══════════════════════════════════════════════
+   TOGGLE CARD
+═══════════════════════════════════════════════ */
 function toggleCard(subId) {
-  const card = document.getElementById(`card-${subId}`);
-  const isOpen = card.classList.contains('open');
-  // Fermer tous les autres
-  document.querySelectorAll('.sub-card.open').forEach(c => c.classList.remove('open'));
+  var card   = document.getElementById('card-' + subId);
+  var isOpen = card.classList.contains('open');
+
+  // Fermer tout
+  document.querySelectorAll('.sub-card.open').forEach(function(c){ c.classList.remove('open'); });
+  DETAIL_OPEN = null;
+
   if (!isOpen) {
     card.classList.add('open');
-    if (!loadedDetails.has(subId)) {
-      loadedDetails.add(subId);
-      loadSubDetails(subId);
+    DETAIL_OPEN = subId;
+    // Charger les détails si pas déjà en cache
+    if (DETAIL_CACHE[subId]) {
+      renderStripeCol(subId,  DETAIL_CACHE[subId]);
+      renderSquareCol(subId,  DETAIL_CACHE[subId]);
+    } else {
+      loadDetail(subId);
     }
   }
 }
 
-async function loadSubDetails(subId) {
+/* ═══════════════════════════════════════════════
+   LOAD DETAIL (Stripe + Square)
+═══════════════════════════════════════════════ */
+async function loadDetail(subId) {
   try {
-    const r = await fetch(`${API}/api/payment/subscriber/${subId}`);
-    const d = await r.json();
-    if (!d.success) throw new Error(d.error || 'Erreur API');
-    renderStripeCol(subId, d);
-    renderSquareCol(subId, d);
-  } catch (e) {
-    document.getElementById(`stripe-col-${subId}`).innerHTML +=
-      `<div style="color:var(--red);font-size:.8rem;margin-top:.5rem">❌ ${esc(e.message)}</div>`;
-    document.getElementById(`square-col-${subId}`).innerHTML +=
-      `<div style="color:var(--red);font-size:.8rem;margin-top:.5rem">❌ ${esc(e.message)}</div>`;
+    var res  = await fetch(API + '/api/payment/subscriber/' + subId);
+    var data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Erreur API');
+    DETAIL_CACHE[subId] = data;
+    renderStripeCol(subId, data);
+    renderSquareCol(subId, data);
+  } catch(e) {
+    var msg = '<div style="color:var(--red);font-size:.8rem;padding:.5rem 0">❌ ' + esc(e.message) + '</div>';
+    var sc  = document.getElementById('scol-'  + subId);
+    var sqc = document.getElementById('sqcol-' + subId);
+    if (sc)  sc.innerHTML  = msg;
+    if (sqc) sqc.innerHTML = msg;
+    console.error('[loadDetail:' + subId + ']', e);
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-// STRIPE COLUMN
-// ═══════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
+   STRIPE COLUMN
+═══════════════════════════════════════════════ */
 function renderStripeCol(subId, d) {
-  const col = document.getElementById(`stripe-col-${subId}`);
-  const plan = d.plan || {};
-  const pm   = d.paymentMethod;
-  const lp   = d.lastPayment;
-  const renewDate = d.currentPeriodEnd
-    ? new Date(d.currentPeriodEnd * 1000).toLocaleDateString('fr-CA', { day:'2-digit', month:'long', year:'numeric' })
-    : '—';
-  const lastDate = lp
-    ? new Date(lp.date * 1000).toLocaleDateString('fr-CA', { day:'2-digit', month:'long', year:'numeric' })
-    : '—';
-  const startDate = d.currentPeriodStart
-    ? new Date(d.currentPeriodStart * 1000).toLocaleDateString('fr-CA', { day:'2-digit', month:'long', year:'numeric' })
-    : '—';
+  var col = document.getElementById('scol-' + subId);
+  if (!col) return;
 
-  let featuresHtml = '';
+  var plan = d.plan   || {};
+  var pm   = d.paymentMethod;
+  var lp   = d.lastPayment;
+
+  function fmtDate(ts) {
+    if (!ts) return '—';
+    try { return new Date(ts * 1000).toLocaleDateString('fr-CA', {day:'2-digit',month:'long',year:'numeric'}); }
+    catch(e) { return '—'; }
+  }
+  function fmtShortDate(ts) {
+    if (!ts) return '—';
+    try { return new Date(ts * 1000).toLocaleDateString('fr-CA', {day:'2-digit',month:'short',year:'2-digit'}); }
+    catch(e) { return '—'; }
+  }
+
+  var html = '<div class="col-title"><span>💳</span> Forfait &amp; Paiements</div>';
+
+  html += row('Forfait', '<span style="color:var(--gold);font-weight:800">' + esc(plan.name||'—') + '</span>');
+  html += row('Prix', plan.amount ? ('$' + plan.amount + ' ' + plan.currency + ' / ' + (plan.intervalCount>1?plan.intervalCount+' ':'') + (plan.interval||'mois')) : '—');
+  html += row('Statut', '<span class="badge ' + stConfig(d.status).c + '">' + stConfig(d.status).l + '</span>' + (d.cancelAtPeriodEnd ? ' <small style="color:var(--orange)">(fin période)</small>' : ''));
+  html += row('Dernier paiement', lp ? (fmtDate(lp.date) + ' · <span style="font-weight:700">$' + lp.amount + '</span>') : '—');
+  html += row('Prochain renouvellement', '<span style="color:var(--green);font-weight:700">📅 ' + fmtDate(d.currentPeriodEnd) + '</span>');
+
+  // Services inclus
   if (plan.features && plan.features.length > 0) {
-    featuresHtml = `<ul class="feature-list">${plan.features.map(f => `<li>${esc(f)}</li>`).join('')}</ul>`;
+    html += '<div class="sep"></div>';
+    html += '<div style="font-size:.7rem;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem">Services inclus</div>';
+    html += '<ul class="feat-list">';
+    plan.features.forEach(function(f){ html += '<li>' + esc(f) + '</li>'; });
+    html += '</ul>';
   } else if (plan.description) {
-    featuresHtml = `<p style="font-size:.8rem;color:var(--dim);margin-top:.4rem">${esc(plan.description)}</p>`;
+    html += '<div class="sep"></div>';
+    html += '<p style="font-size:.8rem;color:var(--dim)">' + esc(plan.description) + '</p>';
   }
 
-  let invoicesHtml = '';
+  // Carte bancaire
+  if (pm) {
+    html += '<div class="sep"></div>';
+    html += '<div class="card-chip">💳 ' + esc((pm.brand||'').toUpperCase()) + ' •••• ' + esc(pm.last4||'') + ' &nbsp; exp ' + pm.expMonth + '/' + pm.expYear + '</div>';
+  }
+
+  // Historique factures
   if (d.invoiceHistory && d.invoiceHistory.length > 0) {
-    invoicesHtml = d.invoiceHistory.slice(0, 4).map(inv => `
-      <div class="stripe-row">
-        <span class="key">${new Date(inv.date*1000).toLocaleDateString('fr-CA',{day:'2-digit',month:'short',year:'2-digit'})}</span>
-        <span class="val">
-          $${inv.amount} ${inv.currency}
-          ${inv.url ? `<a class="invoice-link" href="${inv.url}" target="_blank"> 🔗</a>` : ''}
-          <span style="font-size:.7rem;color:${inv.status==='paid'?'var(--green)':'var(--red)'}">${inv.status==='paid'?'✓ payé':'⚠ '+inv.status}</span>
-        </span>
-      </div>
-    `).join('');
+    html += '<div class="sep"></div>';
+    html += '<div style="font-size:.7rem;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem">Dernières factures</div>';
+    d.invoiceHistory.slice(0,4).forEach(function(inv){
+      html += '<div class="srow">';
+      html += '<span class="k">' + fmtShortDate(inv.date) + '</span>';
+      html += '<span class="v">$' + inv.amount + ' ' + inv.currency;
+      if (inv.url) html += ' <a class="inv-link" href="' + esc(inv.url) + '" target="_blank">🔗</a>';
+      html += ' <span style="font-size:.7rem;color:' + (inv.status==='paid'?'var(--green)':'var(--red)') + '">' + (inv.status==='paid'?'✓':'⚠') + '</span>';
+      html += '</span></div>';
+    });
   }
 
-  col.innerHTML = `
-    <div class="col-title"><span class="icon">💳</span> Forfait &amp; Paiements Stripe</div>
+  // Portail Stripe
+  html += '<div class="sep"></div>';
+  html += '<button class="btn" style="width:100%;font-size:.78rem" onclick="openPortal(' + JSON.stringify(d.customer&&d.customer.email||'') + ')">🔗 Portail client Stripe</button>';
 
-    <div class="stripe-row"><span class="key">Forfait</span><span class="val fw-bold text-gold">${esc(plan.name||'—')}</span></div>
-    <div class="stripe-row"><span class="key">Prix</span><span class="val fw-bold">${plan.amount ? `$${plan.amount} ${plan.currency} / ${plan.intervalCount > 1 ? plan.intervalCount + ' ' : ''}${plan.interval}` : '—'}</span></div>
-    <div class="stripe-row"><span class="key">Statut</span><span class="val"><span class="badge badge-${d.status}">${d.status}</span>${d.cancelAtPeriodEnd ? ' <span style="font-size:.7rem;color:var(--orange)">(annulé fin période)</span>' : ''}</span></div>
-    <div class="stripe-row"><span class="key">Période en cours</span><span class="val">${startDate} →</span></div>
-    <div class="stripe-row"><span class="key">Prochain renouvellement</span><span class="val fw-bold text-green">📅 ${renewDate}</span></div>
-    <div class="stripe-row"><span class="key">Dernier paiement</span><span class="val">${lastDate}${lp ? ` · $${lp.amount}` : ''}</span></div>
+  if (lp && lp.invoiceUrl) {
+    html += '<div style="margin-top:.5rem;text-align:center"><a class="inv-link" href="' + esc(lp.invoiceUrl) + '" target="_blank">Voir dernière facture →</a></div>';
+  }
 
-    ${featuresHtml ? `<div class="sep"></div><div style="font-size:.72rem;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem">Services inclus</div>${featuresHtml}` : ''}
-
-    ${pm ? `<div class="sep"></div><div class="card-chip">💳 ${pm.brand?.toUpperCase()||'Carte'} •••• ${pm.last4} &nbsp; exp ${pm.expMonth}/${pm.expYear}</div>` : ''}
-
-    ${invoicesHtml ? `<div class="sep"></div><div style="font-size:.72rem;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem">Historique factures</div>${invoicesHtml}` : ''}
-
-    <div class="sep"></div>
-    <button class="btn" style="width:100%;font-size:.78rem;margin-top:.25rem" onclick="openPortalForSub('${esc(d.customer?.email||'')}')">🔗 Ouvrir portail client</button>
-  `;
+  col.innerHTML = html;
 }
 
-async function openPortalForSub(email) {
-  if (!email) return;
+function row(k, v) {
+  return '<div class="srow"><span class="k">' + k + '</span><span class="v">' + v + '</span></div>';
+}
+
+async function openPortal(email) {
+  if (!email) { alert('Email introuvable pour ce client.'); return; }
   try {
-    const r = await fetch(`${API}/api/payment/portal`, {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ email, returnUrl: window.location.href })
+    var res  = await fetch(API + '/api/payment/portal', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email:email, returnUrl:window.location.href })
     });
-    const d = await r.json();
-    if (d.portalUrl) window.open(d.portalUrl, '_blank');
-    else alert(d.error || 'Erreur portail');
+    var data = await res.json();
+    if (data.portalUrl) { window.open(data.portalUrl, '_blank'); }
+    else { alert(data.error || 'Erreur portail Stripe'); }
   } catch(e) { alert('Erreur: ' + e.message); }
 }
 
-// ═══════════════════════════════════════════════════════════
-// SQUARE COLUMN — Visites + Check-in
-// ═══════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
+   SQUARE COLUMN — Visites
+═══════════════════════════════════════════════ */
 function renderSquareCol(subId, d) {
-  const col = document.getElementById(`square-col-${subId}`);
-  const sq = d.square || {};
-  const local = subStore(subId);
+  var col = document.getElementById('sqcol-' + subId);
+  if (!col) return;
 
-  // Fusionner : RDV Square (source fiable) + visites manuelles
-  const squareVisits = (sq.bookings || []).map(b => ({
-    id: b.id,
-    date: b.startAt ? b.startAt.slice(0, 10) : '—',
-    datetime: b.startAt,
-    service: b.serviceName || '—',
-    status: (b.status || '').toLowerCase().replace('cancelled_by_customer','cancelled').replace('cancelled_by_seller','cancelled'),
-    source: 'square',
-  }));
-  const manualVisits = (local.manualVisits || []).map(v => ({
-    id: 'manual-' + v.date,
-    date: v.date,
-    datetime: v.date,
-    service: v.service || 'Passage manuel',
-    status: 'manual',
-    source: 'manual',
-  }));
+  var sq    = d.square || {};
+  var local = getLocal(subId);
+  var monthStr = new Date().toISOString().slice(0, 7);
 
-  // Dédoublonnage : si une visite manuelle correspond à une date Square, on garde Square
-  const squareDates = new Set(squareVisits.map(v => v.date));
-  const filteredManual = manualVisits.filter(v => !squareDates.has(v.date));
-  const allVisits = [...squareVisits, ...filteredManual]
-    .sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+  // Visites Square (depuis API)
+  var sqVisits = (sq.bookings || []).map(function(b) {
+    var rawStatus = (b.status || '').toLowerCase();
+    var status = rawStatus.indexOf('cancel') >= 0 ? 'cancelled'
+               : rawStatus === 'no_show' ? 'no_show'
+               : rawStatus === 'completed' ? 'completed'
+               : 'completed';
+    return { id:b.id, date:(b.startAt||'').slice(0,10), datetime:b.startAt||'', service:'RDV Square', status:status, src:'square' };
+  });
 
-  // Compteur ce mois
-  const nowMonth = new Date().toISOString().slice(0, 7);
-  const thisMonth = allVisits.filter(v => v.date.startsWith(nowMonth) && v.status !== 'cancelled').length;
+  // Visites manuelles (localStorage)
+  var sqDates = {};
+  sqVisits.forEach(function(v){ sqDates[v.date] = true; });
+  var manVisits = (local.manualVisits || [])
+    .filter(function(v){ return !sqDates[v.date]; })
+    .map(function(v){ return { id:'m-'+v.date, date:v.date, datetime:v.date, service:v.service||'Manuel', status:'manual', src:'manual' }; });
 
-  const noSquare = !sq.found;
+  var allVisits = sqVisits.concat(manVisits).sort(function(a,b){
+    return b.datetime.localeCompare(a.datetime);
+  });
 
-  col.innerHTML = `
-    <div class="col-title"><span class="icon">📅</span> Historique des visites ${sq.found ? '<span style="font-size:.65rem;color:var(--green)">✓ Square</span>' : '<span style="font-size:.65rem;color:var(--orange)">⚠ Manual seulement</span>'}</div>
+  var thisMonth = allVisits.filter(function(v){
+    return v.date.startsWith(monthStr) && v.status !== 'cancelled';
+  }).length;
 
-    ${noSquare ? `<div style="font-size:.78rem;color:var(--orange);background:rgba(240,136,62,.08);border:1px solid rgba(240,136,62,.2);border-radius:6px;padding:.5rem .75rem;margin-bottom:.75rem">Client non trouvé dans Square — seules les visites manuelles sont disponibles.</div>` : ''}
+  var html = '<div class="col-title"><span>📅</span> Visites ' +
+    (sq.found ? '<span style="font-size:.65rem;color:var(--green)">✓ Square</span>'
+              : '<span style="font-size:.65rem;color:var(--orange)">⚠ Manuel</span>') + '</div>';
 
-    <div class="visits-month-count">📆 ${thisMonth} visite${thisMonth > 1 ? 's' : ''} ce mois-ci</div>
+  if (!sq.found) {
+    html += '<div class="sq-warn">Client non trouvé dans Square — les RDV ne se synchronisent pas automatiquement. Utilisez le check-in manuel.</div>';
+  }
 
-    <div class="checkin-bar">
-      <button class="btn success" onclick="addManualVisit('${subId}', '${d.customer?.email||''}')">✅ Check-in aujourd'hui</button>
-      <button class="btn" onclick="pickDateVisit('${subId}')">📅 Autre date</button>
-      ${sq.found ? `<button class="btn" onclick="refreshSquareVisits('${subId}')">🔄</button>` : ''}
-    </div>
+  html += '<div class="month-badge">📆 ' + thisMonth + ' visite' + (thisMonth > 1 ? 's' : '') + ' ce mois-ci</div>';
 
-    <div class="visit-timeline" id="timeline-${subId}">
-      ${allVisits.length === 0
-        ? `<div class="sq-loading">Aucune visite enregistrée.</div>`
-        : allVisits.map((v, i) => renderVisitItem(subId, v, i, local)).join('')
-      }
-    </div>
-  `;
+  html += '<div class="checkin-bar">' +
+    '<button class="btn btn-g" onclick="addVisitToday(\'' + subId + '\')">✅ Check-in aujourd\'hui</button>' +
+    '<button class="btn"       onclick="addVisitPick(\'' + subId + '\')">📅 Autre date</button>' +
+    (sq.found ? '<button class="btn" onclick="reloadDetail(\'' + subId + '\')">🔄</button>' : '') +
+    '</div>';
+
+  html += '<div class="vtl" id="vtl-' + subId + '">';
+  if (allVisits.length === 0) {
+    html += '<div style="color:var(--dim);font-size:.8rem;text-align:center;padding:1rem">Aucune visite enregistrée.</div>';
+  } else {
+    allVisits.forEach(function(v) {
+      var stL = { completed:'✓ Honoré', cancelled:'✗ Annulé', no_show:'👻 No-show', manual:'📌 Manuel' }[v.status] || v.status;
+      var stC = { completed:'var(--green)', cancelled:'var(--dim)', no_show:'var(--red)', manual:'var(--gold)' }[v.status] || 'var(--dim)';
+      var del = v.src === 'manual'
+        ? '<button class="vi-del" onclick="removeVisit(\'' + subId + '\',\'' + v.date + '\')">✕</button>'
+        : '';
+      html += '<div class="vi ' + v.status + '">' +
+        '<span class="vi-dot ' + v.status + '"></span>' +
+        '<span class="vi-date">' + fmtD(v.date) + '</span>' +
+        '<span class="vi-svc">'  + esc(v.service) + '</span>' +
+        '<span class="vi-lbl" style="color:' + stC + '">' + stL + '</span>' +
+        del + '</div>';
+    });
+  }
+  html += '</div>';
+
+  col.innerHTML = html;
 }
 
-function renderVisitItem(subId, v, i, local) {
-  const statusLabel = { completed:'✓ Honoré', cancelled:'✗ Annulé', no_show:'👻 No-show', manual:'📌 Manuel' }[v.status] || v.status;
-  const statusColor = { completed:'var(--green)', cancelled:'var(--dim)', no_show:'var(--red)', manual:'var(--gold)' }[v.status] || 'var(--dim)';
-  const delBtn = v.source === 'manual'
-    ? `<button class="visit-del" onclick="removeManualVisit('${subId}','${v.date}')" title="Supprimer">✕</button>`
-    : '';
-  return `
-    <div class="visit-item ${v.status}">
-      <span class="visit-status-dot ${v.status}"></span>
-      <span class="visit-date">${formatDate(v.date)}</span>
-      <span class="visit-service">${esc(v.service !== '—' ? v.service : 'Service Square')}</span>
-      <span style="font-size:.72rem;color:${statusColor};font-weight:600">${statusLabel}</span>
-      ${delBtn}
-    </div>
-  `;
+function fmtD(iso) {
+  try { return new Date(iso).toLocaleDateString('fr-CA',{day:'2-digit',month:'short',year:'numeric'}); }
+  catch(e) { return iso; }
 }
 
-function addManualVisit(subId, email) {
-  const today = new Date().toISOString().slice(0, 10);
-  _addVisitDate(subId, today);
+function addVisitToday(subId) {
+  _addVisit(subId, new Date().toISOString().slice(0,10));
 }
-function pickDateVisit(subId) {
-  const d = prompt('Date de la visite (AAAA-MM-JJ) :',new Date().toISOString().slice(0,10));
+function addVisitPick(subId) {
+  var d = prompt('Date (AAAA-MM-JJ) :', new Date().toISOString().slice(0,10));
   if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return;
-  _addVisitDate(subId, d);
+  _addVisit(subId, d);
 }
-function _addVisitDate(subId, dateStr) {
-  const local = subStore(subId);
+function _addVisit(subId, dateStr) {
+  var local = getLocal(subId);
   if (!local.manualVisits) local.manualVisits = [];
-  if (!local.manualVisits.find(v => v.date === dateStr)) {
-    local.manualVisits.push({ date: dateStr, service: 'Passage manuel', addedAt: new Date().toISOString() });
-    local.manualVisits.sort((a,b) => b.date.localeCompare(a.date));
+  if (!local.manualVisits.find(function(v){ return v.date === dateStr; })) {
+    local.manualVisits.push({ date:dateStr, service:'Passage manuel', addedAt:new Date().toISOString() });
+    local.manualVisits.sort(function(a,b){ return b.date.localeCompare(a.date); });
   }
-  saveSubStore(subId, local);
-  loadedDetails.delete(subId); // force reload col
-  reloadSquareCol(subId);
+  setLocal(subId, local);
+  // Re-render colonne Square si détails en cache
+  if (DETAIL_CACHE[subId]) renderSquareCol(subId, DETAIL_CACHE[subId]);
   updateKPIs();
-  toast('✅ Visite enregistrée');
+  toast('✅ Visite enregistrée pour le ' + dateStr);
 }
-function removeManualVisit(subId, dateStr) {
-  const local = subStore(subId);
-  local.manualVisits = (local.manualVisits||[]).filter(v => v.date !== dateStr);
-  saveSubStore(subId, local);
-  reloadSquareCol(subId);
+function removeVisit(subId, dateStr) {
+  var local = getLocal(subId);
+  local.manualVisits = (local.manualVisits||[]).filter(function(v){ return v.date !== dateStr; });
+  setLocal(subId, local);
+  if (DETAIL_CACHE[subId]) renderSquareCol(subId, DETAIL_CACHE[subId]);
   updateKPIs();
 }
-function reloadSquareCol(subId) {
-  // Re-render la colonne sans refetch Stripe
-  const sub = allSubs.find(s => s.id === subId);
-  if (!sub) return;
-  // On relit les données en cache si dispo (on stocke dans un data attr)
-  const card = document.getElementById(`card-${subId}`);
-  if (!card) return;
-  const cached = card._detailData;
-  if (cached) renderSquareCol(subId, cached);
-}
-async function refreshSquareVisits(subId) {
-  const card = document.getElementById(`card-${subId}`);
-  document.getElementById(`square-col-${subId}`).innerHTML =
-    `<div class="col-title"><span class="icon">📅</span> Historique</div><div class="sq-loading"><div class="spinner" style="margin:auto"></div></div>`;
-  loadedDetails.delete(subId);
-  await loadSubDetails(subId);
+async function reloadDetail(subId) {
+  delete DETAIL_CACHE[subId];
+  var scol  = document.getElementById('scol-'  + subId);
+  var sqcol = document.getElementById('sqcol-' + subId);
+  if (scol)  scol.innerHTML  = loadingCol();
+  if (sqcol) sqcol.innerHTML = loadingCol();
+  await loadDetail(subId);
 }
 
-// Patch loadSubDetails to cache data
-const _origLoad = loadSubDetails;
-async function loadSubDetails(subId) {
-  try {
-    const r = await fetch(`${API}/api/payment/subscriber/${subId}`);
-    const d = await r.json();
-    if (!d.success) throw new Error(d.error || 'Erreur API');
-    // Cache on card element
-    const card = document.getElementById(`card-${subId}`);
-    if (card) card._detailData = d;
-    renderStripeCol(subId, d);
-    renderSquareCol(subId, d);
-  } catch (e) {
-    document.getElementById(`stripe-col-${subId}`).innerHTML +=
-      `<div style="color:var(--red);font-size:.8rem;margin-top:.5rem">❌ ${esc(e.message)}</div>`;
-    document.getElementById(`square-col-${subId}`).innerHTML +=
-      `<div style="color:var(--red);font-size:.8rem;margin-top:.5rem">❌ ${esc(e.message)}</div>`;
+/* ═══════════════════════════════════════════════
+   HAIR COLUMN (profil capillaire)
+═══════════════════════════════════════════════ */
+function buildHairCol(subId) {
+  var local = getLocal(subId);
+  var p     = local.hairProfile || {};
+  var notes = local.hairNotes   || [];
+
+  var textures = ['Lisses (1A-1C)','Ondulés (2A-2C)','Bouclés (3A-3C)','Afro serrés (4A-4C)','Crépus','Tressés / Locks','Extension / Perruque'];
+  var porosites = ['Faible (hydrophobe)','Normale','Élevée (absorbe vite)','À tester'];
+  var densites  = ['Fins et fragiles','Normaux','Épais et résistants','Abimés / Cassants','En repousse','Post-coloration','Très secs'];
+
+  function sel(id, opts, current) {
+    var o = '<select id="' + id + '" class="hsel" onchange="saveHair(\'' + subId + '\')">';
+    o += '<option value="">— Sélectionner —</option>';
+    opts.forEach(function(t){
+      o += '<option value="' + esc(t) + '"' + (current === t ? ' selected' : '') + '>' + esc(t) + '</option>';
+    });
+    return o + '</select>';
   }
+
+  var starsH = '';
+  for (var i = 1; i <= 5; i++) {
+    starsH += '<span class="star' + ((p.evolution||0) >= i ? ' lit' : '') + '" onclick="setEvol(\'' + subId + '\',' + i + ')">★</span>';
+  }
+
+  var notesH = '';
+  if (notes.length === 0) {
+    notesH = '<div style="font-size:.8rem;color:var(--dim);text-align:center;padding:.75rem">Aucune note.</div>';
+  } else {
+    notes.forEach(function(n, i) {
+      notesH += '<div class="note-item">' +
+        '<div class="note-date">' + fmtD(n.date) + '</div>' +
+        '<div>' + esc(n.text) + '</div>' +
+        '<button class="note-del" onclick="delNote(\'' + subId + '\',' + i + ')">✕</button>' +
+        '</div>';
+    });
+  }
+
+  return '<div class="col-title"><span>💇</span> Profil capillaire</div>' +
+    '<label class="hlbl">Texture</label>' + sel('tx-'+subId, textures, p.texture) +
+    '<label class="hlbl">Porosité</label>' + sel('po-'+subId, porosites, p.porosite) +
+    '<label class="hlbl">État / Densité</label>' + sel('de-'+subId, densites, p.densite) +
+    '<label class="hlbl">Évolution ★</label><div class="stars" id="stars-'+subId+'">' + starsH + '</div>' +
+    '<div class="sep"></div>' +
+    '<div class="col-title" style="margin-bottom:.5rem"><span>📝</span> Notes par passage</div>' +
+    '<div class="note-list" id="notes-'+subId+'">' + notesH + '</div>' +
+    '<div class="note-add">' +
+      '<textarea class="note-ta" id="ntxt-'+subId+'" placeholder="Cassure à l\'arrière, masque kaolin apprécié…"></textarea>' +
+      '<button class="btn btn-g" onclick="addNote(\'' + subId + '\')">+</button>' +
+    '</div>';
 }
 
-// ═══════════════════════════════════════════════════════════
-// HAIR PROFILE COLUMN
-// ═══════════════════════════════════════════════════════════
-function renderHairCol(subId) {
-  const local = subStore(subId);
-  const p = local.hairProfile || {};
-  const notes = local.hairNotes || [];
-
-  const notesHtml = notes.length > 0
-    ? notes.map((n, i) => `
-      <div class="hair-note-item">
-        <div class="note-date">${formatDate(n.date)} ${n.visit ? `· Visite` : ''}</div>
-        <div class="note-text">${esc(n.text)}</div>
-        <button class="note-del" onclick="removeHairNote('${subId}',${i})">✕</button>
-      </div>
-    `).join('')
-    : `<div style="font-size:.8rem;color:var(--dim);text-align:center;padding:.75rem">Aucune note.</div>`;
-
-  const starsHtml = [1,2,3,4,5].map(i =>
-    `<span class="star ${(p.evolution||0) >= i ? 'lit' : ''}" onclick="setEvolution('${subId}',${i})">★</span>`
-  ).join('');
-
-  return `
-    <div class="hair-category">
-      <label>Texture des cheveux</label>
-      <select id="texture-${subId}" onchange="saveHairProfile('${subId}')">
-        <option value="">— Sélectionner —</option>
-        ${['Lisses (1A-1C)','Ondulés (2A-2C)','Bouclés (3A-3C)','Afro serrés (4A-4C)','Crépus','Tressés / Locks','Extension / Perruque'].map(t =>
-          `<option value="${t}" ${p.texture===t?'selected':''}>${t}</option>`
-        ).join('')}
-      </select>
-    </div>
-    <div class="hair-category">
-      <label>Porosité</label>
-      <select id="porosite-${subId}" onchange="saveHairProfile('${subId}')">
-        <option value="">— Sélectionner —</option>
-        ${['Faible (hydrophobe)','Normale','Élevée (absorbe vite)','À tester'].map(t =>
-          `<option value="${t}" ${p.porosite===t?'selected':''}>${t}</option>`
-        ).join('')}
-      </select>
-    </div>
-    <div class="hair-category">
-      <label>Densité / État général</label>
-      <select id="densite-${subId}" onchange="saveHairProfile('${subId}')">
-        <option value="">— Sélectionner —</option>
-        ${['Fins &amp; fragiles','Normaux','Épais &amp; résistants','Abîmés / Cassants','En repousse','Post-coloration','Très secs'].map(t =>
-          `<option value="${t}" ${p.densite===t?'selected':''}>${t}</option>`
-        ).join('')}
-      </select>
-    </div>
-    <div class="evolution-bar">
-      <label>Évolution perçue ★</label>
-      <div class="stars">${starsHtml}</div>
-    </div>
-    <div class="sep"></div>
-    <div class="col-title" style="margin-bottom:.5rem"><span class="icon">📝</span> Notes par passage</div>
-    <div class="hair-notes-list" id="hair-notes-${subId}">${notesHtml}</div>
-    <div class="hair-add-note">
-      <textarea id="hair-input-${subId}" placeholder="Ex : Cassure à l'arrière, a aimé le masque kaolin…"></textarea>
-      <button class="btn success" onclick="addHairNote('${subId}')" style="align-self:flex-end">+</button>
-    </div>
-  `;
-}
-
-function saveHairProfile(subId) {
-  const local = subStore(subId);
+function saveHair(subId) {
+  var local = getLocal(subId);
   local.hairProfile = {
-    texture:  document.getElementById(`texture-${subId}`)?.value || '',
-    porosite: document.getElementById(`porosite-${subId}`)?.value || '',
-    densite:  document.getElementById(`densite-${subId}`)?.value || '',
-    evolution: local.hairProfile?.evolution || 0,
+    texture:   (document.getElementById('tx-'+subId)||{}).value || '',
+    porosite:  (document.getElementById('po-'+subId)||{}).value || '',
+    densite:   (document.getElementById('de-'+subId)||{}).value || '',
+    evolution: (local.hairProfile||{}).evolution || 0,
   };
-  saveSubStore(subId, local);
+  setLocal(subId, local);
   toast('💇 Profil sauvegardé');
 }
-function setEvolution(subId, val) {
-  const local = subStore(subId);
+
+function setEvol(subId, val) {
+  var local = getLocal(subId);
   local.hairProfile = local.hairProfile || {};
   local.hairProfile.evolution = val;
-  saveSubStore(subId, local);
+  setLocal(subId, local);
   // Refresh stars
-  document.querySelectorAll(`#hair-col-${subId} .star`).forEach((el, i) => {
-    el.classList.toggle('lit', i < val);
-  });
-  toast(`⭐ Évolution : ${val}/5`);
-}
-function addHairNote(subId) {
-  const input = document.getElementById(`hair-input-${subId}`);
-  const text = (input?.value || '').trim();
-  if (!text) return;
-  const local = subStore(subId);
-  local.hairNotes = local.hairNotes || [];
-  local.hairNotes.unshift({ date: new Date().toISOString().slice(0,10), text });
-  saveSubStore(subId, local);
-  input.value = '';
-  // Re-render notes
-  document.getElementById(`hair-notes-${subId}`).innerHTML =
-    local.hairNotes.map((n,i) => `
-      <div class="hair-note-item">
-        <div class="note-date">${formatDate(n.date)}</div>
-        <div class="note-text">${esc(n.text)}</div>
-        <button class="note-del" onclick="removeHairNote('${subId}',${i})">✕</button>
-      </div>
-    `).join('');
-  toast('📝 Note ajoutée');
-}
-function removeHairNote(subId, idx) {
-  const local = subStore(subId);
-  local.hairNotes = (local.hairNotes||[]).filter((_,i) => i !== idx);
-  saveSubStore(subId, local);
-  document.getElementById(`hair-notes-${subId}`).innerHTML =
-    local.hairNotes.length > 0
-    ? local.hairNotes.map((n,i) => `
-      <div class="hair-note-item">
-        <div class="note-date">${formatDate(n.date)}</div>
-        <div class="note-text">${esc(n.text)}</div>
-        <button class="note-del" onclick="removeHairNote('${subId}',${i})">✕</button>
-      </div>
-    `).join('')
-    : `<div style="font-size:.8rem;color:var(--dim);text-align:center;padding:.75rem">Aucune note.</div>`;
+  var stars = document.querySelectorAll('#stars-' + subId + ' .star');
+  stars.forEach(function(s, i){ s.classList.toggle('lit', i < val); });
+  toast('⭐ Évolution ' + val + '/5');
 }
 
-// ═══════════════════════════════════════════════════════════
-// UTILS
-// ═══════════════════════════════════════════════════════════
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function formatDate(iso) {
-  try { return new Date(iso).toLocaleDateString('fr-CA',{day:'2-digit',month:'short',year:'numeric'}); }
-  catch { return iso; }
+function addNote(subId) {
+  var ta  = document.getElementById('ntxt-' + subId);
+  var txt = (ta ? ta.value : '').trim();
+  if (!txt) return;
+  var local = getLocal(subId);
+  local.hairNotes = local.hairNotes || [];
+  local.hairNotes.unshift({ date:new Date().toISOString().slice(0,10), text:txt });
+  setLocal(subId, local);
+  if (ta) ta.value = '';
+  refreshNotes(subId, local.hairNotes);
+  toast('📝 Note ajoutée');
 }
+
+function delNote(subId, idx) {
+  var local = getLocal(subId);
+  local.hairNotes = (local.hairNotes||[]).filter(function(_,i){ return i !== idx; });
+  setLocal(subId, local);
+  refreshNotes(subId, local.hairNotes);
+}
+
+function refreshNotes(subId, notes) {
+  var el = document.getElementById('notes-' + subId);
+  if (!el) return;
+  if (!notes || notes.length === 0) {
+    el.innerHTML = '<div style="font-size:.8rem;color:var(--dim);text-align:center;padding:.75rem">Aucune note.</div>';
+    return;
+  }
+  var h = '';
+  notes.forEach(function(n, i) {
+    h += '<div class="note-item">' +
+      '<div class="note-date">' + fmtD(n.date) + '</div>' +
+      '<div>' + esc(n.text) + '</div>' +
+      '<button class="note-del" onclick="delNote(\'' + subId + '\',' + i + ')">✕</button>' +
+      '</div>';
+  });
+  el.innerHTML = h;
+}
+
+/* ═══════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════ */
+function esc(s) {
+  return String(s||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 function toast(msg) {
-  const el = document.createElement('div');
+  var el = document.createElement('div');
   el.className = 'toast';
   el.textContent = msg;
   document.body.appendChild(el);
-  setTimeout(() => el.remove(), 2400);
+  setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 2400);
 }
 
-// ── Init ──
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
 loadSubscriptions();
 </script>
 </body>
