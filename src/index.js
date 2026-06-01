@@ -136,6 +136,18 @@ try {
   app.use('/api/usine', require('./api/usine-live-routes'));
   console.log('[USINE-LIVE] Routes live montées');
 } catch(e) { console.warn('[USINE-LIVE] Routes live non montées:', e.message); }
+
+// ── WhatsApp Salon Kadio Coiffure (Baileys + Agents IA) ──────────────────────
+try {
+  const waSalon = require('./api/whatsapp-salon-routes');
+  app.use('/api/whatsapp', waSalon);
+  // Webhook Stripe dépôt — raw body requis pour vérification signature
+  app.post('/api/stripe/deposit-paid',
+    express.raw({ type: 'application/json' }),
+    waSalon.handleStripeDepositWebhook
+  );
+  console.log('[WA-SALON] Routes WhatsApp montées (/api/whatsapp + /api/stripe/deposit-paid)');
+} catch(e) { console.warn('[WA-SALON] Routes non montées:', e.message); }
 // V46 — Email Queue système autonome
 try {
   app.use('/api/email-queue', require('./api/email-queue-routes'));
