@@ -128,9 +128,14 @@ app.use('/api/saas', require('./api/saas-routes'));               // KADIO OS �
 try {
   app.use('/api/usine/lead-gen', require('./api/lead-gen-routes'));
   app.use('/api/usine', require('./api/seo-audit-routes'));
-  app.use('/api/usine', require('./api/usine-live-routes')); // Live Activity Feed
   console.log('[USINE] Routes Lead Gen + SEO Audit montées');
-} catch(e) { console.warn('[USINE] Routes non montées:', e.message); }
+} catch(e) { console.warn('[USINE] Routes lead-gen/seo non montées:', e.message); }
+
+// Live Activity Feed — bloc indépendant
+try {
+  app.use('/api/usine', require('./api/usine-live-routes'));
+  console.log('[USINE-LIVE] Routes live montées');
+} catch(e) { console.warn('[USINE-LIVE] Routes live non montées:', e.message); }
 // V46 — Email Queue système autonome
 try {
   app.use('/api/email-queue', require('./api/email-queue-routes'));

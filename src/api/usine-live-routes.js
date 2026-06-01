@@ -1,116 +1,141 @@
 /**
- * DALEBA — Usine IA Live Routes
- * Flux de production en direct : stats queues, agents actifs, découvertes
+ * DALEBA — Usine IA Live Routes v2
+ * Endpoints :
+ *   GET  /api/usine/live-stats      — snapshot complet
+ *   GET  /api/usine/live-stream     — SSE temps réel
+ *   POST /api/usine/trigger-scan    — scan international manuel
+ *   GET  /api/usine/production-mode — état du switch ON/OFF
+ *   POST /api/usine/production-mode — basculer ON/OFF
  */
 'use strict';
 
 const express = require('express');
-const router = express.Router();
+const router  = express.Router();
 
-// ── Helpers safe-require ──────────────────────────────────────────────────────
+// ── Switch ON/OFF (en mémoire + variable d'env optionnelle) ──────────────────
+let productionModeEnabled = process.env.USINE_PRODUCTION_MODE !== 'false';
 
-function safeGet(fn) {
-  try { return fn(); } catch (_) { return null; }
+// ── Helpers robustes ─────────────────────────────────────────────────────────
+
+function safeRequire(mod) {
+  try { return require(mod); } catch (_) { return null; }
 }
 
-// ── GET /api/usine/live-stats ─────────────────────────────────────────────────
-// Snapshot complet: queues BullMQ + agents actifs + dernières opportunités DB
+async function safeCall(fn, fallback) {
+  try { return await fn(); } catch (_) { return fallback; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/usine/live-stats
+// ─────────────────────────────────────────────────────────────────────────────
 
 router.get('/live-stats', async (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
   try {
-    const { pool } = require('../memory/db');
+    const db  = safeRequire('../memory/db');
+    const pool = db?.pool || null;
 
-    // 1. Queue stats BullMQ / fallback mémoire
-    let queueStats = { 'lead-gen-queue': {}, 'seo-audit-queue': {}, 'email-sequence-queue': {}, redisAvailable: false };
-    try {
-      const aq = require('../workers/agent-queue');
-      queueStats = await aq.getQueueStats();
-    } catch (_) {}
+    // 1. Queue stats BullMQ
+    let queueStats = {
+      'lead-gen-queue':       { waiting: 0, active: 0, completed: 0, failed: 0 },
+      'seo-audit-queue':      { waiting: 0, active: 0, completed: 0, failed: 0 },
+      'email-sequence-queue': { waiting: 0, active: 0, completed: 0, failed: 0 },
+      redisAvailable: false,
+    };
+    const aq = safeRequire('../workers/agent-queue');
+    if (aq) {
+      queueStats = await safeCall(() => aq.getQueueStats(), queueStats);
+    }
 
-    // 2. Agent Manager live agents
-    let managerStatus = { stats: { liveAgents: 0, totalSpawned: 0, totalCompleted: 0, totalFailed: 0 }, agents: [] };
-    try {
-      const mgr = require('../services/agent-manager');
-      managerStatus = mgr.getStatus();
-    } catch (_) {}
+    // 2. Agent manager
+    let managerStats = { liveAgents: 0, totalSpawned: 0, totalCompleted: 0, totalFailed: 0 };
+    let managerAgents = [];
+    const mgr = safeRequire('../services/agent-manager');
+    if (mgr) {
+      const ms = await safeCall(() => mgr.getStatus(), null);
+      if (ms) { managerStats = ms.stats || managerStats; managerAgents = ms.agents || []; }
+    }
 
-    // 3. Swarm status
-    let swarmStatus = { stats: { activeAgents: 0, totalCreated: 0, totalCompleted: 0 }, agents: [], queue: 0 };
-    try {
-      const swarm = require('../services/swarm');
-      swarmStatus = swarm.getSwarmStatus();
-    } catch (_) {}
+    // 3. Swarm
+    let swarmStats  = { activeAgents: 0, totalCreated: 0, totalCompleted: 0 };
+    let swarmAgents = [];
+    const swarm = safeRequire('../services/swarm');
+    if (swarm) {
+      const ss = await safeCall(() => swarm.getSwarmStatus(), null);
+      if (ss) { swarmStats = ss.stats || swarmStats; swarmAgents = ss.agents || []; }
+    }
 
-    // 4. Dernières opportunités de la DB (vraies découvertes)
+    // 4. Dernières opportunités DB
     let recentOpps = [];
-    try {
-      const r = await pool.query(`
-        SELECT id, title, country, category, score, source_platform, created_at, budget_estimated, budget_currency
+    if (pool) {
+      const r = await safeCall(() => pool.query(`
+        SELECT id, title, country, category, score, source_platform,
+               created_at, budget_estimated, budget_currency
         FROM daleba_opportunities
         ORDER BY created_at DESC LIMIT 15
-      `);
-      recentOpps = r.rows;
-    } catch (_) {}
+      `), { rows: [] });
+      recentOpps = r.rows || [];
+    }
 
     // 5. Totaux DB
     let totals = { opportunities: 0, proposals: 0 };
-    try {
-      const [oR, pR] = await Promise.all([
-        pool.query('SELECT COUNT(*) FROM daleba_opportunities'),
-        pool.query('SELECT COUNT(*) FROM daleba_proposals'),
+    if (pool) {
+      const [oR, pR] = await Promise.allSettled([
+        pool.query('SELECT COUNT(*)::int as n FROM daleba_opportunities'),
+        pool.query('SELECT COUNT(*)::int as n FROM daleba_proposals'),
       ]);
-      totals.opportunities = parseInt(oR.rows[0].count) || 0;
-      totals.proposals = parseInt(pR.rows[0].count) || 0;
-    } catch (_) {}
+      totals.opportunities = oR.status === 'fulfilled' ? (oR.value.rows[0]?.n || 0) : 0;
+      totals.proposals     = pR.status === 'fulfilled' ? (pR.value.rows[0]?.n || 0) : 0;
+    }
 
-    // 6. Recent event-bus events
+    // 6. Événements récents event-bus
     let recentEvents = [];
-    try {
-      const bus = require('../services/event-bus');
-      recentEvents = bus.getRecent(20);
-    } catch (_) {}
+    const bus = safeRequire('../services/event-bus');
+    if (bus) {
+      recentEvents = await safeCall(() => bus.getRecent(20), []);
+    }
 
     // 7. Calcul charge globale
-    const lgW = queueStats['lead-gen-queue']?.waiting || 0;
-    const lgA = queueStats['lead-gen-queue']?.active || 0;
-    const seoW = queueStats['seo-audit-queue']?.waiting || 0;
-    const seoA = queueStats['seo-audit-queue']?.active || 0;
-    const emW = queueStats['email-sequence-queue']?.waiting || 0;
-    const emA = queueStats['email-sequence-queue']?.active || 0;
+    const lg  = queueStats['lead-gen-queue'];
+    const seo = queueStats['seo-audit-queue'];
+    const em  = queueStats['email-sequence-queue'];
 
-    const totalActive = lgA + seoA + emA + managerStatus.stats.liveAgents + swarmStatus.stats.activeAgents;
-    const totalWaiting = lgW + seoW + emW + swarmStatus.queue;
+    const totalActive  = (lg.active||0) + (seo.active||0) + (em.active||0)
+                       + (managerStats.liveAgents||0) + (swarmStats.activeAgents||0);
+    const totalWaiting = (lg.waiting||0) + (seo.waiting||0) + (em.waiting||0);
 
     res.json({
       ts: Date.now(),
-      redisConnected: queueStats.redisAvailable,
+      productionMode: productionModeEnabled,
+      redisConnected: !!queueStats.redisAvailable,
       agents: {
-        active: totalActive,
-        waiting: totalWaiting,
-        capacity: 1000,
-        liveManager: managerStatus.stats.liveAgents,
-        swarmActive: swarmStatus.stats.activeAgents,
+        active:      totalActive,
+        waiting:     totalWaiting,
+        capacity:    1000,
+        liveManager: managerStats.liveAgents  || 0,
+        swarmActive: swarmStats.activeAgents  || 0,
       },
       queues: {
-        leadGen:       { waiting: lgW, active: lgA, completed: queueStats['lead-gen-queue']?.completed || 0, failed: queueStats['lead-gen-queue']?.failed || 0 },
-        seoAudit:      { waiting: seoW, active: seoA, completed: queueStats['seo-audit-queue']?.completed || 0, failed: queueStats['seo-audit-queue']?.failed || 0 },
-        emailSequence: { waiting: emW, active: emA, completed: queueStats['email-sequence-queue']?.completed || 0, failed: queueStats['email-sequence-queue']?.failed || 0 },
+        leadGen:       { waiting: lg.waiting||0,  active: lg.active||0,  completed: lg.completed||0,  failed: lg.failed||0  },
+        seoAudit:      { waiting: seo.waiting||0, active: seo.active||0, completed: seo.completed||0, failed: seo.failed||0 },
+        emailSequence: { waiting: em.waiting||0,  active: em.active||0,  completed: em.completed||0,  failed: em.failed||0  },
       },
       totals,
       recentOpps,
       recentEvents: recentEvents.slice(0, 15),
-      swarmAgents: swarmStatus.agents.slice(0, 20),
-      managerAgents: managerStatus.agents.slice(0, 20),
+      swarmAgents:  swarmAgents.slice(0, 20),
+      managerAgents: managerAgents.slice(0, 20),
     });
 
   } catch (err) {
-    console.error('[usine-live] live-stats error:', err.message);
-    res.status(500).json({ error: err.message });
+    console.error('[usine-live] live-stats:', err.message);
+    res.status(500).json({ error: 'Erreur interne', detail: err.message });
   }
 });
 
-// ── GET /api/usine/live-stream ────────────────────────────────────────────────
-// SSE dédié à l'Usine — push stats toutes les 3s + événements bus temps réel
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/usine/live-stream — SSE
+// ─────────────────────────────────────────────────────────────────────────────
 
 router.get('/live-stream', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
@@ -119,82 +144,125 @@ router.get('/live-stream', (req, res) => {
   res.setHeader('X-Accel-Buffering', 'no');
   res.flushHeaders();
 
-  // Ping initial
-  res.write(`data: ${JSON.stringify({ type: 'connected', ts: Date.now() })}\n\n`);
+  const send = (obj) => {
+    if (!res.writableEnded) {
+      try { res.write(`data: ${JSON.stringify(obj)}\n\n`); } catch (_) {}
+    }
+  };
 
-  // Abonner aux événements du bus global
-  let busListener = null;
-  try {
-    const bus = require('../services/event-bus');
-    const { ipcBus } = require('../services/agent-manager');
+  send({ type: 'connected', ts: Date.now(), productionMode: productionModeEnabled });
 
-    // Re-push chaque événement bus vers ce client SSE
-    busListener = (entry) => {
-      if (!res.writableEnded) {
-        res.write(`data: ${JSON.stringify({ type: 'bus', ...entry })}\n\n`);
-      }
-    };
-    // Écoute les événements bruts de l'event-bus via ipcBus
-    ipcBus.on('agent:state', (d) => {
-      if (!res.writableEnded) {
-        res.write(`data: ${JSON.stringify({ type: 'agent_state', ...d })}\n\n`);
-      }
-    });
-    ipcBus.on('agent:done', (d) => {
-      if (!res.writableEnded) {
-        res.write(`data: ${JSON.stringify({ type: 'agent_done', ...d })}\n\n`);
-      }
-    });
-  } catch (_) {}
+  // Écoute ipcBus agent-manager
+  const ipcListeners = [];
+  const mgr = safeRequire('../services/agent-manager');
+  if (mgr?.ipcBus) {
+    const onState = (d) => send({ type: 'agent_state', ...d });
+    const onDone  = (d) => send({ type: 'agent_done',  ...d });
+    mgr.ipcBus.on('agent:state', onState);
+    mgr.ipcBus.on('agent:done',  onDone);
+    ipcListeners.push(() => { mgr.ipcBus.off('agent:state', onState); mgr.ipcBus.off('agent:done', onDone); });
+  }
 
-  // Push stats toutes les 4 secondes
+  // Push stats toutes les 5s
   const statInterval = setInterval(async () => {
     if (res.writableEnded) { clearInterval(statInterval); return; }
+    const aq = safeRequire('../workers/agent-queue');
+    if (!aq) { send({ type: 'ping', ts: Date.now() }); return; }
     try {
-      const aq = require('../workers/agent-queue');
       const stats = await aq.getQueueStats();
-      const mgr = require('../services/agent-manager');
-      const ms = mgr.getStatus();
-      res.write(`data: ${JSON.stringify({ type: 'stats', stats, liveAgents: ms.stats.liveAgents, ts: Date.now() })}\n\n`);
+      const m = mgr ? await safeCall(() => mgr.getStatus(), null) : null;
+      send({ type: 'stats', stats, liveAgents: m?.stats?.liveAgents || 0, ts: Date.now() });
     } catch (_) {
-      res.write(`data: ${JSON.stringify({ type: 'ping', ts: Date.now() })}\n\n`);
+      send({ type: 'ping', ts: Date.now() });
     }
-  }, 4000);
+  }, 5000);
 
-  // Keepalive
+  // Keepalive toutes les 20s
   const pingInterval = setInterval(() => {
     if (!res.writableEnded) res.write(': ping\n\n');
-  }, 25000);
+  }, 20000);
 
   const cleanup = () => {
     clearInterval(statInterval);
     clearInterval(pingInterval);
+    ipcListeners.forEach(fn => { try { fn(); } catch (_) {} });
   };
-  req.on('close', cleanup);
+  req.on('close',   cleanup);
   req.on('aborted', cleanup);
-  res.on('finish', cleanup);
-  res.on('error', cleanup);
+  res.on('finish',  cleanup);
+  res.on('error',   cleanup);
 });
 
-// ── POST /api/usine/trigger-scan ──────────────────────────────────────────────
-// Force un cycle de scan immédiat (pour le bouton "Lancer un scan")
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/usine/trigger-scan
+// ─────────────────────────────────────────────────────────────────────────────
 
 router.post('/trigger-scan', async (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
   try {
-    const aq = require('../workers/agent-queue');
-    const job = await aq.addLeadGenJob({ trigger: 'manual', ts: Date.now(), source: 'admin-usine' });
-    const job2 = await aq.addSeoAuditJob({ trigger: 'manual', ts: Date.now(), source: 'admin-usine' });
-    // Tenter un scan opportunités en background
+    if (!productionModeEnabled) {
+      return res.status(403).json({ success: false, error: "L'Usine est en mode PAUSE. Activez la production d'abord." });
+    }
+
+    const results = { jobs: [], scanStarted: false };
+
+    // Ajouter jobs dans BullMQ si dispo
+    const aq = safeRequire('../workers/agent-queue');
+    if (aq) {
+      const j1 = await safeCall(() => aq.addLeadGenJob({ trigger: 'manual', ts: Date.now() }), null);
+      const j2 = await safeCall(() => aq.addSeoAuditJob({ trigger: 'manual', ts: Date.now() }), null);
+      if (j1) results.jobs.push(String(j1.id || 'mem'));
+      if (j2) results.jobs.push(String(j2.id || 'mem'));
+    }
+
+    // Lancer le worker opportunity en background (non-bloquant)
     setImmediate(async () => {
       try {
-        const { runOpportunityWorker } = require('../workers/opportunity-worker');
-        if (typeof runOpportunityWorker === 'function') await runOpportunityWorker();
-      } catch (_) {}
+        const ow = safeRequire('../workers/opportunity-worker');
+        if (ow?.runOpportunityWorker) {
+          await ow.runOpportunityWorker();
+        }
+      } catch (e) {
+        console.warn('[trigger-scan] opportunity-worker:', e.message);
+      }
     });
-    res.json({ success: true, jobs: [job?.id, job2?.id], message: 'Scan déclenché' });
+    results.scanStarted = true;
+
+    // Émettre sur l'event-bus
+    const bus = safeRequire('../services/event-bus');
+    if (bus?.system) bus.system('🌍 Scan international déclenché manuellement', { jobs: results.jobs });
+
+    res.json({ success: true, message: 'Scan déclenché', ...results });
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('[trigger-scan]', err.message);
+    res.status(500).json({ success: false, error: err.message });
   }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET  /api/usine/production-mode
+// POST /api/usine/production-mode  { enabled: true|false }
+// ─────────────────────────────────────────────────────────────────────────────
+
+router.get('/production-mode', (req, res) => {
+  res.json({ enabled: productionModeEnabled, ts: Date.now() });
+});
+
+router.post('/production-mode', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  const { enabled } = req.body;
+  if (typeof enabled !== 'boolean') {
+    return res.status(400).json({ error: 'enabled doit être un booléen' });
+  }
+  productionModeEnabled = enabled;
+
+  const bus = safeRequire('../services/event-bus');
+  const label = enabled ? '▶ Usine IA activée — Production ON' : '⏸ Usine IA en pause — Production OFF';
+  if (bus?.system) bus.system(label, { productionMode: enabled });
+
+  console.log(`[USINE] Production mode: ${enabled ? 'ON' : 'OFF'}`);
+  res.json({ success: true, enabled: productionModeEnabled, label });
 });
 
 module.exports = router;

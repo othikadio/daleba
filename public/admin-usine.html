@@ -5,16 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>L'Usine IA — DALEBA</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
-          animation: { 'pulse-fast': 'pulse 1s cubic-bezier(0.4,0,0.6,1) infinite' }
-        }
-      }
-    }
-  </script>
+  <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','ui-sans-serif','system-ui','sans-serif'] } } } }</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
@@ -22,237 +13,262 @@
     body { font-family: 'Inter', system-ui, sans-serif; }
 
     /* Live dot */
-    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block; }
-    .live-dot.active { animation: livePulse 1.2s ease-in-out infinite; }
-    @keyframes livePulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); }
-      50% { box-shadow: 0 0 0 6px rgba(16,185,129,0); }
-    }
+    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block; flex-shrink: 0; }
+    @keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.7)} 50%{box-shadow:0 0 0 6px rgba(16,185,129,0)} }
+    .live-dot.on { animation: livePulse 1.2s ease-in-out infinite; }
+    .live-dot.off { background: #d1d5db; }
+    .live-dot.warn { background: #f59e0b; animation: livePulse 1.2s ease-in-out infinite; }
 
-    /* Feed scroll */
-    #activity-feed { height: 460px; overflow-y: auto; }
-    #activity-feed::-webkit-scrollbar { width: 4px; }
-    #activity-feed::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+    /* Feeds */
+    #activity-feed, #discovery-feed { height: 400px; overflow-y: auto; scroll-behavior: smooth; }
+    #activity-feed::-webkit-scrollbar, #discovery-feed::-webkit-scrollbar { width: 4px; }
+    #activity-feed::-webkit-scrollbar-thumb, #discovery-feed::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
 
-    #discovery-feed { height: 460px; overflow-y: auto; }
-    #discovery-feed::-webkit-scrollbar { width: 4px; }
-    #discovery-feed::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+    /* Slide-in */
+    .feed-item { animation: slideIn 0.25s ease; }
+    @keyframes slideIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
 
-    /* Feed item slide-in */
-    .feed-item { animation: slideIn 0.3s ease; }
-    @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* Agent counter ring */
+    /* Agent ring */
     .ring-svg { transform: rotate(-90deg); }
-    .ring-track { fill: none; stroke: #f3f4f6; stroke-width: 10; }
-    .ring-fill { fill: none; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 0.8s ease; }
+    .ring-track { fill:none; stroke:#f3f4f6; stroke-width:10; }
+    .ring-fill  { fill:none; stroke-width:10; stroke-linecap:round; transition: stroke-dashoffset .8s ease, stroke .4s ease; }
 
     /* Progress bar */
-    .prog-bar { height: 6px; border-radius: 3px; background: #f3f4f6; overflow: hidden; }
-    .prog-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+    .prog-bar { height:5px; border-radius:3px; background:#f3f4f6; overflow:hidden; }
+    .prog-fill { height:100%; border-radius:3px; transition:width .5s ease; }
 
     /* Skeleton */
-    .skel { background: linear-gradient(90deg, #f3f4f6 25%, #e9ecef 50%, #f3f4f6 75%);
-      background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 4px; }
-    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .skel { background: linear-gradient(90deg,#f3f4f6 25%,#e9ecef 50%,#f3f4f6 75%);
+      background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:4px; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
-    /* Tag colors */
-    .tag-sky { background: #e0f2fe; color: #0369a1; }
-    .tag-violet { background: #ede9fe; color: #5b21b6; }
-    .tag-amber { background: #fef3c7; color: #92400e; }
-    .tag-green { background: #d1fae5; color: #065f46; }
-    .tag-gray { background: #f3f4f6; color: #4b5563; }
-    .tag-red { background: #fee2e2; color: #991b1b; }
+    /* Tags */
+    .tag-sky    { background:#e0f2fe; color:#0369a1; }
+    .tag-violet { background:#ede9fe; color:#5b21b6; }
+    .tag-amber  { background:#fef3c7; color:#92400e; }
+    .tag-green  { background:#d1fae5; color:#065f46; }
+    .tag-gray   { background:#f3f4f6; color:#4b5563; }
+    .tag-red    { background:#fee2e2; color:#991b1b; }
+    .tag-indigo { background:#eef2ff; color:#3730a3; }
 
-    /* Scan button pulse */
-    @keyframes scanPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.03)} }
-    .scanning { animation: scanPulse 1.5s ease-in-out infinite; }
+    /* Production toggle */
+    .prod-toggle { position:relative; display:inline-block; width:52px; height:28px; cursor:pointer; }
+    .prod-toggle input { opacity:0; width:0; height:0; }
+    .prod-slider { position:absolute; inset:0; border-radius:28px; background:#d1d5db; transition:background .3s; }
+    .prod-slider::before { content:''; position:absolute; width:22px; height:22px; left:3px; bottom:3px;
+      border-radius:50%; background:white; transition:transform .3s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    input:checked + .prod-slider { background:#10b981; }
+    input:checked + .prod-slider::before { transform:translateX(24px); }
+
+    /* Toast */
+    #toast { position:fixed; bottom:1.5rem; right:1.5rem; background:#111827; color:white;
+      padding:.6rem 1.1rem; border-radius:10px; font-size:.82rem; font-weight:500;
+      opacity:0; transform:translateY(8px); transition:all .25s; pointer-events:none; z-index:999; max-width:320px; }
+    #toast.show { opacity:1; transform:translateY(0); }
+    #toast.err  { background:#dc2626; }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
 
 <!-- ── HEADER ──────────────────────────────────────────────────────────────── -->
 <header class="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
-  <div class="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-    <div class="flex items-center gap-4">
-      <a href="/admin-hub.html" class="text-gray-400 hover:text-gray-600 text-sm">← Hub</a>
-      <div class="h-4 w-px bg-gray-200"></div>
-      <h1 class="font-black text-sm tracking-widest uppercase text-gray-900">L'Usine IA</h1>
-      <span class="text-xs font-semibold uppercase tracking-wider bg-sky-50 text-sky-700 px-2 py-0.5 rounded">DALEBA OS</span>
+  <div class="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
+
+    <div class="flex items-center gap-4 min-w-0">
+      <a href="/admin-hub.html" class="text-gray-400 hover:text-gray-600 text-sm shrink-0">← Hub</a>
+      <div class="h-4 w-px bg-gray-200 shrink-0"></div>
+      <h1 class="font-black text-sm tracking-widest uppercase text-gray-900 truncate">L'Usine IA</h1>
+      <span class="text-xs font-bold uppercase tracking-wider bg-sky-50 text-sky-700 px-2 py-0.5 rounded shrink-0">DALEBA OS</span>
     </div>
-    <div class="flex items-center gap-5">
-      <!-- Live indicator -->
-      <div class="flex items-center gap-2">
-        <span class="live-dot active" id="live-dot"></span>
-        <span class="text-xs font-semibold text-emerald-600" id="live-label">Flux en direct</span>
+
+    <div class="flex items-center gap-4 shrink-0">
+      <!-- Production ON/OFF -->
+      <div class="flex items-center gap-2.5 bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5">
+        <span class="text-xs font-bold uppercase tracking-wide text-gray-500">Production</span>
+        <label class="prod-toggle" title="Activer / Désactiver l'Usine IA">
+          <input type="checkbox" id="prod-toggle-input" onchange="toggleProduction(this.checked)" checked>
+          <span class="prod-slider"></span>
+        </label>
+        <span class="text-xs font-bold" id="prod-label" style="color:#10b981;min-width:32px">ON</span>
       </div>
-      <!-- Redis status -->
-      <div id="redis-badge" class="flex items-center gap-1.5 bg-gray-100 rounded-full px-3 py-1">
+
+      <!-- SSE status -->
+      <div class="flex items-center gap-1.5">
+        <span class="live-dot on" id="sse-dot"></span>
+        <span class="text-xs text-gray-500 font-medium" id="sse-label">Flux actif</span>
+      </div>
+
+      <!-- Redis badge -->
+      <div class="flex items-center gap-1.5 bg-gray-100 rounded-full px-3 py-1">
         <span class="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block" id="redis-dot"></span>
-        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500" id="redis-label">Redis…</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500" id="redis-label">Redis</span>
       </div>
+
       <!-- Scan button -->
       <button id="scan-btn" onclick="triggerScan()"
-        class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition flex items-center gap-2">
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 20 20"><path d="M10 3a7 7 0 100 14A7 7 0 0010 3zM3 10h14M10 3v14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        Lancer un scan
+        class="bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white text-xs font-bold px-4 py-2 rounded-lg transition flex items-center gap-2">
+        🌍 Lancer scan
       </button>
-      <span class="text-xs text-gray-400 tabular-nums" id="clock">--:--</span>
+
+      <span class="text-xs text-gray-400 tabular-nums font-mono" id="clock">--:--:--</span>
     </div>
   </div>
 </header>
 
 <div class="max-w-7xl mx-auto px-6 py-6">
 
-  <!-- ── KPI ROW ─────────────────────────────────────────────────────────────── -->
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <!-- ── PRODUCTION MODE BANNER ─────────────────────────────────────────────── -->
+  <div id="pause-banner" class="hidden mb-5 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3">
+    <span class="text-2xl shrink-0">⏸</span>
+    <div>
+      <p class="text-sm font-bold text-amber-800">Usine en pause — Production OFF</p>
+      <p class="text-xs text-amber-600 mt-0.5">Aucun agent ne s'active. Activez l'interrupteur pour reprendre la production.</p>
+    </div>
+    <button onclick="toggleProduction(true)" class="ml-auto bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-lg">▶ Activer</button>
+  </div>
 
-    <!-- Agent counter with ring -->
+  <!-- ── KPI ROW ─────────────────────────────────────────────────────────────── -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+
+    <!-- Ring counter -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 col-span-2 lg:col-span-1 flex items-center gap-4">
-      <div class="relative flex-shrink-0" style="width:80px;height:80px">
+      <div class="relative shrink-0" style="width:76px;height:76px">
         <svg viewBox="0 0 80 80" class="ring-svg w-full h-full">
-          <circle class="ring-track" cx="40" cy="40" r="35"/>
-          <circle class="ring-fill" id="ring-circle" cx="40" cy="40" r="35"
-            stroke="#0284c7" stroke-dasharray="219.9" stroke-dashoffset="219.9"/>
+          <circle class="ring-track" cx="40" cy="40" r="34"/>
+          <circle class="ring-fill" id="ring-circle" cx="40" cy="40" r="34"
+            stroke="#0284c7" stroke-dasharray="213.6" stroke-dashoffset="213.6"/>
         </svg>
         <div class="absolute inset-0 flex items-center justify-center">
-          <span class="text-sm font-black text-gray-900 tabular-nums" id="active-count">0</span>
+          <span class="text-xs font-black text-gray-900 tabular-nums leading-none text-center" id="ring-label">0</span>
         </div>
       </div>
       <div>
-        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Agents Actifs</p>
-        <p class="text-3xl font-black text-gray-900 leading-none tabular-nums" id="kpi-active">0</p>
-        <p class="text-xs text-gray-400 mt-1">sur <span id="kpi-capacity" class="font-semibold text-gray-600">1 000</span> disponibles</p>
+        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Agents Actifs</p>
+        <p class="text-4xl font-black text-gray-900 leading-none tabular-nums" id="kpi-active">0</p>
+        <p class="text-xs text-gray-400 mt-1">/ <span id="kpi-capacity" class="font-semibold text-gray-600">1 000</span></p>
       </div>
     </div>
 
-    <!-- Jobs en attente -->
+    <!-- En file -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-      <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">En file d'attente</p>
+      <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">File d'attente</p>
       <p class="text-4xl font-black text-gray-900 leading-none tabular-nums" id="kpi-waiting">
-        <span class="skel inline-block w-12 h-9 align-bottom"></span>
+        <span class="skel inline-block w-10 h-9 align-bottom"></span>
       </p>
       <p class="text-xs text-gray-400 mt-2">Jobs Redis BullMQ</p>
     </div>
 
-    <!-- Opportunités totales -->
+    <!-- Opportunités -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-      <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Opportunités découvertes</p>
+      <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Découvertes mondiales</p>
       <p class="text-4xl font-black text-gray-900 leading-none tabular-nums" id="kpi-opps">
-        <span class="skel inline-block w-16 h-9 align-bottom"></span>
+        <span class="skel inline-block w-14 h-9 align-bottom"></span>
       </p>
-      <p class="text-xs text-gray-400 mt-2">Total base de données</p>
+      <p class="text-xs text-gray-400 mt-2">Opportunités en base</p>
     </div>
 
     <!-- Propositions -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
       <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Propositions B2B</p>
       <p class="text-4xl font-black text-gray-900 leading-none tabular-nums" id="kpi-props">
-        <span class="skel inline-block w-12 h-9 align-bottom"></span>
+        <span class="skel inline-block w-10 h-9 align-bottom"></span>
       </p>
       <p class="text-xs text-gray-400 mt-2">Générées par l'IA</p>
     </div>
-
   </div>
 
-  <!-- ── QUEUE HEALTH BARS ───────────────────────────────────────────────────── -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6">
+  <!-- ── QUEUE BARS ──────────────────────────────────────────────────────────── -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-5">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-sm font-bold text-gray-900">Files de Production — Redis BullMQ</h2>
-      <span class="text-xs text-gray-400" id="redis-status-text">Connexion…</span>
+      <h2 class="text-sm font-bold text-gray-900">Files de Production — BullMQ</h2>
+      <span class="text-xs font-medium" id="redis-status-text">…</span>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
       <!-- Lead Gen -->
       <div>
         <div class="flex justify-between items-center mb-2">
           <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-sky-500 inline-block"></span>
+            <span class="w-2 h-2 rounded-full bg-sky-500 shrink-0"></span>
             <span class="text-xs font-semibold text-gray-700">Lead Generation</span>
           </div>
-          <span class="text-xs tabular-nums text-gray-500"><span id="lg-active">0</span> actifs · <span id="lg-waiting">0</span> en attente</span>
+          <span class="text-xs tabular-nums text-gray-500">
+            <span id="lg-active">0</span>A · <span id="lg-waiting">0</span>Q
+          </span>
         </div>
-        <div class="prog-bar">
-          <div class="prog-fill bg-sky-500" id="lg-bar" style="width:0%"></div>
-        </div>
-        <div class="flex justify-between mt-1">
-          <span class="text-[10px] text-gray-400">✅ <span id="lg-done">0</span> complétés</span>
-          <span class="text-[10px] text-red-400">❌ <span id="lg-fail">0</span> échecs</span>
+        <div class="prog-bar"><div class="prog-fill bg-sky-500" id="lg-bar" style="width:0%"></div></div>
+        <div class="flex justify-between mt-1.5">
+          <span class="text-[10px] text-emerald-600 font-medium">✓ <span id="lg-done">0</span></span>
+          <span class="text-[10px] text-red-400">✗ <span id="lg-fail">0</span></span>
         </div>
       </div>
-      <!-- SEO Audit -->
+      <!-- SEO -->
       <div>
         <div class="flex justify-between items-center mb-2">
           <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-violet-500 inline-block"></span>
+            <span class="w-2 h-2 rounded-full bg-violet-500 shrink-0"></span>
             <span class="text-xs font-semibold text-gray-700">SEO Audit</span>
           </div>
-          <span class="text-xs tabular-nums text-gray-500"><span id="seo-active">0</span> actifs · <span id="seo-waiting">0</span> en attente</span>
+          <span class="text-xs tabular-nums text-gray-500">
+            <span id="seo-active">0</span>A · <span id="seo-waiting">0</span>Q
+          </span>
         </div>
-        <div class="prog-bar">
-          <div class="prog-fill bg-violet-500" id="seo-bar" style="width:0%"></div>
-        </div>
-        <div class="flex justify-between mt-1">
-          <span class="text-[10px] text-gray-400">✅ <span id="seo-done">0</span> complétés</span>
-          <span class="text-[10px] text-red-400">❌ <span id="seo-fail">0</span> échecs</span>
+        <div class="prog-bar"><div class="prog-fill bg-violet-500" id="seo-bar" style="width:0%"></div></div>
+        <div class="flex justify-between mt-1.5">
+          <span class="text-[10px] text-emerald-600 font-medium">✓ <span id="seo-done">0</span></span>
+          <span class="text-[10px] text-red-400">✗ <span id="seo-fail">0</span></span>
         </div>
       </div>
-      <!-- Email Sequence -->
+      <!-- Email -->
       <div>
         <div class="flex justify-between items-center mb-2">
           <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+            <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
             <span class="text-xs font-semibold text-gray-700">Séquences Email</span>
           </div>
-          <span class="text-xs tabular-nums text-gray-500"><span id="em-active">0</span> actifs · <span id="em-waiting">0</span> en attente</span>
+          <span class="text-xs tabular-nums text-gray-500">
+            <span id="em-active">0</span>A · <span id="em-waiting">0</span>Q
+          </span>
         </div>
-        <div class="prog-bar">
-          <div class="prog-fill bg-amber-500" id="em-bar" style="width:0%"></div>
-        </div>
-        <div class="flex justify-between mt-1">
-          <span class="text-[10px] text-gray-400">✅ <span id="em-done">0</span> complétés</span>
-          <span class="text-[10px] text-red-400">❌ <span id="em-fail">0</span> échecs</span>
+        <div class="prog-bar"><div class="prog-fill bg-amber-500" id="em-bar" style="width:0%"></div></div>
+        <div class="flex justify-between mt-1.5">
+          <span class="text-[10px] text-emerald-600 font-medium">✓ <span id="em-done">0</span></span>
+          <span class="text-[10px] text-red-400">✗ <span id="em-fail">0</span></span>
         </div>
       </div>
     </div>
   </div>
 
   <!-- ── LIVE FEEDS ──────────────────────────────────────────────────────────── -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
 
-    <!-- Flux d'Activité Agents -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col" style="min-height:0">
-      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-50">
+    <!-- Flux d'activité -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+      <div class="flex items-center justify-between px-5 py-3.5 border-b border-gray-50">
         <div class="flex items-center gap-2">
-          <span class="live-dot active"></span>
-          <h2 class="text-sm font-bold text-gray-900">Flux de Production en Direct</h2>
+          <span class="live-dot on" id="feed-dot"></span>
+          <h2 class="text-sm font-bold text-gray-900">Flux de Production</h2>
         </div>
-        <div class="flex items-center gap-2">
-          <span class="text-xs text-gray-400" id="activity-count">0 événements</span>
+        <div class="flex items-center gap-3">
+          <span class="text-[10px] font-mono text-gray-400" id="activity-count">0 évts</span>
           <button onclick="clearFeed()" class="text-[10px] text-gray-400 hover:text-gray-600 underline">Vider</button>
         </div>
       </div>
       <div id="activity-feed" class="flex-1 p-3 space-y-1.5">
-        <div class="text-center text-gray-300 text-sm py-16">
-          <svg class="w-8 h-8 mx-auto mb-3 text-gray-200" fill="none" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 5v5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          En attente d'activité…
-        </div>
+        <p class="text-center text-gray-300 text-sm py-20 select-none">En attente d'activité…</p>
       </div>
     </div>
 
-    <!-- Flux de Découvertes -->
+    <!-- Découvertes -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col">
-      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-50">
+      <div class="flex items-center justify-between px-5 py-3.5 border-b border-gray-50">
         <div class="flex items-center gap-2">
-          <span class="live-dot active" style="background:#8b5cf6"></span>
-          <h2 class="text-sm font-bold text-gray-900">Dernières Découvertes Mondiales</h2>
+          <span class="live-dot on" style="background:#8b5cf6"></span>
+          <h2 class="text-sm font-bold text-gray-900">Découvertes Mondiales</h2>
         </div>
-        <a href="/admin-radar.html" class="text-xs text-sky-600 hover:underline">Voir tout →</a>
+        <a href="/admin-radar.html" class="text-xs text-sky-600 hover:underline font-medium">Voir tout →</a>
       </div>
       <div id="discovery-feed" class="flex-1 p-3 space-y-1.5">
-        <div class="text-center text-gray-300 text-sm py-16">
-          <svg class="w-8 h-8 mx-auto mb-3 text-gray-200" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
-          Chargement des opportunités…
-        </div>
+        <p class="text-center text-gray-300 text-sm py-20 select-none">Chargement…</p>
       </div>
     </div>
 
@@ -260,444 +276,386 @@
 
   <!-- ── ACTIONS ─────────────────────────────────────────────────────────────── -->
   <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-    <h2 class="text-sm font-bold text-gray-900 mb-4">Actions Manuelles</h2>
-    <div class="flex flex-wrap gap-3">
+    <h2 class="text-sm font-bold text-gray-900 mb-3">Actions Manuelles</h2>
+    <div class="flex flex-wrap gap-2.5">
       <button onclick="triggerScan()"
-        class="bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition flex items-center gap-2">
-        🌍 Lancer un scan international
+        class="bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition">
+        🌍 Scan international
       </button>
       <button onclick="addLeadGenJob()"
         class="bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition">
-        ➕ Ajouter job Lead Gen
+        ➕ Job Lead Gen
       </button>
       <button onclick="addSeoJob()"
         class="bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition">
-        🔍 Ajouter job SEO Audit
+        🔍 Job SEO Audit
       </button>
-      <a href="/admin-radar.html"
-        class="bg-white border border-gray-200 hover:border-sky-300 text-gray-700 text-sm font-semibold px-5 py-2.5 rounded-xl transition flex items-center gap-2">
-        📡 Ouvrir Radar
+      <a href="/admin-radar.html" class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-semibold px-5 py-2.5 rounded-xl transition">
+        📡 Radar
       </a>
-      <a href="/admin-production.html"
-        class="bg-white border border-gray-200 hover:border-violet-300 text-gray-700 text-sm font-semibold px-5 py-2.5 rounded-xl transition flex items-center gap-2">
-        ⚡ Revenue Tracker
+      <a href="/admin-production.html" class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-semibold px-5 py-2.5 rounded-xl transition">
+        ⚡ Revenue
       </a>
     </div>
   </div>
 
 </div>
 
-<!-- ── TOAST ──────────────────────────────────────────────────────────────────── -->
-<div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white text-sm font-medium px-4 py-2.5 rounded-xl shadow-lg opacity-0 translate-y-2 transition-all duration-300 pointer-events-none z-50"></div>
+<div id="toast"></div>
 
+<!-- ═════════════════════════════════════════════════════════════════════════ -->
 <script>
-// ═══════════════════════════════════════════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════════════════════════════════════════
 
-let activityCount = 0;
-let sseConn = null;
-let statsInterval = null;
-let latestStats = null;
+// ─── Config ───────────────────────────────────────────────────────────────────
+const API_BASE = ''; // same origin
 const CAPACITY = 1000;
+const CIRC     = 2 * Math.PI * 34; // ~213.6
 
-// ─── Utility functions ────────────────────────────────────────────────────────
+// ─── State ────────────────────────────────────────────────────────────────────
+let prodMode      = true;
+let sseConn       = null;
+let statsTimer    = null;
+let activityCount = 0;
+let renderedOppIds = new Set();
+let feedInitialized = false;
+let discoveryInitialized = false;
 
-function setText(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = val;
-}
+// ─── DOM helpers ──────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+function setText(id, v) { const e=$(id); if(e) e.textContent = v; }
 
-function showToast(msg, duration = 3500) {
-  const t = document.getElementById('toast');
+function showToast(msg, isErr = false) {
+  const t = $('toast');
   t.textContent = msg;
-  t.classList.remove('opacity-0', 'translate-y-2');
-  t.classList.add('opacity-100', 'translate-y-0');
-  setTimeout(() => {
-    t.classList.add('opacity-0', 'translate-y-2');
-    t.classList.remove('opacity-100', 'translate-y-0');
-  }, duration);
+  t.className = 'show' + (isErr ? ' err' : '');
+  clearTimeout(t._to);
+  t._to = setTimeout(() => { t.className = ''; }, 4000);
 }
 
+// ─── Clock ────────────────────────────────────────────────────────────────────
 function updateClock() {
-  setText('clock', new Date().toLocaleTimeString('fr-CA', { timeZone: 'America/Toronto', hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+  setText('clock', new Date().toLocaleTimeString('fr-CA', {
+    timeZone:'America/Toronto', hour:'2-digit', minute:'2-digit', second:'2-digit'
+  }));
 }
+setInterval(updateClock, 1000); updateClock();
 
-// ─── Agent ring ────────────────────────────────────────────────────────────────
-
-function updateRing(active, capacity) {
-  const r = 35;
-  const circumference = 2 * Math.PI * r; // ~219.9
-  const pct = Math.min(active / capacity, 1);
-  const offset = circumference - pct * circumference;
-  const ring = document.getElementById('ring-circle');
-  if (ring) {
-    ring.style.strokeDashoffset = offset.toFixed(1);
-    // Color based on load
-    if (pct > 0.8) ring.setAttribute('stroke', '#ef4444');
-    else if (pct > 0.5) ring.setAttribute('stroke', '#f59e0b');
-    else ring.setAttribute('stroke', '#0284c7');
+// ─── Production toggle ────────────────────────────────────────────────────────
+async function toggleProduction(enabled) {
+  try {
+    const r = await apiFetch('/api/usine/production-mode', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled }),
+    });
+    prodMode = r.enabled;
+    applyProdMode(prodMode);
+    pushFeedEvent('system', r.label || (enabled ? '▶ Production ON' : '⏸ Production OFF'));
+    showToast(enabled ? '▶ Usine activée — Production ON' : '⏸ Usine en pause — Production OFF');
+  } catch (e) {
+    showToast('Erreur switch: ' + e.message, true);
   }
-  setText('active-count', active);
 }
 
-// ─── Queue bar ────────────────────────────────────────────────────────────────
+function applyProdMode(enabled) {
+  prodMode = enabled;
+  const inp = $('prod-toggle-input');
+  if (inp) inp.checked = enabled;
+  const lbl = $('prod-label');
+  if (lbl) { lbl.textContent = enabled ? 'ON' : 'OFF'; lbl.style.color = enabled ? '#10b981' : '#9ca3af'; }
+  const banner = $('pause-banner');
+  if (banner) banner.classList.toggle('hidden', enabled);
+}
 
+// ─── Fetch JSON with error guard ──────────────────────────────────────────────
+async function apiFetch(url, opts = {}) {
+  const r = await fetch(url, opts);
+  const ct = r.headers.get('content-type') || '';
+  if (!ct.includes('application/json') && !ct.includes('json')) {
+    const text = await r.text();
+    throw new Error(`HTTP ${r.status} — réponse non-JSON: ${text.slice(0, 120)}`);
+  }
+  const json = await r.json();
+  if (!r.ok) throw new Error(json.error || `HTTP ${r.status}`);
+  return json;
+}
+
+// ─── Ring ─────────────────────────────────────────────────────────────────────
+function updateRing(active) {
+  const pct  = Math.min(active / CAPACITY, 1);
+  const off  = CIRC - pct * CIRC;
+  const ring = $('ring-circle');
+  if (!ring) return;
+  ring.style.strokeDashoffset = off.toFixed(2);
+  ring.setAttribute('stroke', pct > .8 ? '#ef4444' : pct > .5 ? '#f59e0b' : '#0284c7');
+  setText('ring-label', active);
+}
+
+// ─── Bar ──────────────────────────────────────────────────────────────────────
 function updateBar(id, active, waiting) {
-  const bar = document.getElementById(id);
-  if (!bar) return;
-  const total = active + waiting;
-  const pct = total > 0 ? Math.min((active / (total + 1)) * 100, 100) : 0;
-  bar.style.width = pct.toFixed(1) + '%';
+  const bar = $(id); if (!bar) return;
+  const tot = active + waiting;
+  bar.style.width = (tot > 0 ? Math.min((active / (tot + 1)) * 100, 100) : 0).toFixed(1) + '%';
 }
 
-// ─── Render stats ──────────────────────────────────────────────────────────────
+// ─── Render stats ─────────────────────────────────────────────────────────────
+function renderStats(d) {
+  // Production mode
+  if (typeof d.productionMode === 'boolean') applyProdMode(d.productionMode);
 
-function renderStats(data) {
-  latestStats = data;
-
-  // Redis status
-  const rd = document.getElementById('redis-dot');
-  const rl = document.getElementById('redis-label');
-  const rst = document.getElementById('redis-status-text');
-  if (data.redisConnected) {
-    if (rd) { rd.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block'; }
-    if (rl) rl.textContent = 'Redis ✓';
-    if (rst) rst.textContent = 'BullMQ connecté à Redis — file persistante active';
-  } else {
-    if (rd) { rd.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 inline-block'; }
-    if (rl) rl.textContent = 'Redis…';
-    if (rst) rst.textContent = 'Mode mémoire — Redis en cours de connexion';
-  }
+  // Redis
+  const ok = !!d.redisConnected;
+  const rd = $('redis-dot'), rl = $('redis-label'), rst = $('redis-status-text');
+  if (rd) rd.className = `w-1.5 h-1.5 rounded-full inline-block ${ok ? 'bg-emerald-500' : 'bg-amber-400'}`;
+  if (rl) rl.textContent = ok ? 'Redis ✓' : 'Mémoire';
+  if (rst) rst.textContent = ok ? 'BullMQ connecté · file persistante Redis' : 'Mode mémoire · Redis en cours de connexion';
 
   // Agents
-  const ag = data.agents || {};
-  const active = ag.active || 0;
+  const ag = d.agents || {};
+  const active  = ag.active  || 0;
   const waiting = ag.waiting || 0;
-
-  setText('kpi-active', active.toLocaleString('fr-CA'));
-  setText('kpi-waiting', waiting.toLocaleString('fr-CA'));
+  setText('kpi-active',   active.toLocaleString('fr-CA'));
+  setText('kpi-waiting',  waiting.toLocaleString('fr-CA'));
   setText('kpi-capacity', (ag.capacity || CAPACITY).toLocaleString('fr-CA'));
-  updateRing(active, ag.capacity || CAPACITY);
+  updateRing(active);
 
   // Totals
-  if (data.totals) {
-    setText('kpi-opps', (data.totals.opportunities || 0).toLocaleString('fr-CA'));
-    setText('kpi-props', (data.totals.proposals || 0).toLocaleString('fr-CA'));
+  if (d.totals) {
+    setText('kpi-opps',  (d.totals.opportunities || 0).toLocaleString('fr-CA'));
+    setText('kpi-props', (d.totals.proposals     || 0).toLocaleString('fr-CA'));
   }
 
   // Queues
-  const q = data.queues || {};
-  const lg = q.leadGen || {};
-  const seo = q.seoAudit || {};
+  const q  = d.queues || {};
+  const lg = q.leadGen       || {};
+  const seo= q.seoAudit      || {};
   const em = q.emailSequence || {};
 
-  setText('lg-active', lg.active || 0);
-  setText('lg-waiting', lg.waiting || 0);
-  setText('lg-done', (lg.completed || 0).toLocaleString('fr-CA'));
-  setText('lg-fail', lg.failed || 0);
-  updateBar('lg-bar', lg.active || 0, lg.waiting || 0);
+  setText('lg-active',  lg.active  || 0); setText('lg-waiting',  lg.waiting  || 0);
+  setText('lg-done',    (lg.completed  || 0).toLocaleString('fr-CA'));
+  setText('lg-fail',    lg.failed   || 0);
+  updateBar('lg-bar',  lg.active||0,  lg.waiting||0);
 
-  setText('seo-active', seo.active || 0);
-  setText('seo-waiting', seo.waiting || 0);
-  setText('seo-done', (seo.completed || 0).toLocaleString('fr-CA'));
-  setText('seo-fail', seo.failed || 0);
-  updateBar('seo-bar', seo.active || 0, seo.waiting || 0);
+  setText('seo-active', seo.active || 0); setText('seo-waiting', seo.waiting || 0);
+  setText('seo-done',   (seo.completed || 0).toLocaleString('fr-CA'));
+  setText('seo-fail',   seo.failed  || 0);
+  updateBar('seo-bar', seo.active||0, seo.waiting||0);
 
-  setText('em-active', em.active || 0);
-  setText('em-waiting', em.waiting || 0);
-  setText('em-done', (em.completed || 0).toLocaleString('fr-CA'));
-  setText('em-fail', em.failed || 0);
-  updateBar('em-bar', em.active || 0, em.waiting || 0);
+  setText('em-active',  em.active  || 0); setText('em-waiting',  em.waiting  || 0);
+  setText('em-done',    (em.completed  || 0).toLocaleString('fr-CA'));
+  setText('em-fail',    em.failed   || 0);
+  updateBar('em-bar',  em.active||0,  em.waiting||0);
 
-  // Discovery feed from real DB opportunities
-  if (data.recentOpps && data.recentOpps.length > 0) {
-    renderDiscoveries(data.recentOpps);
-  }
-
-  // Activity from event-bus + swarm agents
-  if (data.recentEvents && data.recentEvents.length > 0) {
-    data.recentEvents.slice(0, 5).forEach(ev => pushActivityEvent(ev));
-  }
-  if (data.swarmAgents && data.swarmAgents.length > 0) {
-    data.swarmAgents.slice(0, 3).forEach(ag => pushAgentEvent(ag));
-  }
-  if (data.managerAgents && data.managerAgents.length > 0) {
-    data.managerAgents.slice(0, 3).forEach(ag => pushAgentEvent(ag));
-  }
+  // Feeds
+  if (d.recentOpps?.length)   renderDiscoveries(d.recentOpps);
+  if (d.recentEvents?.length) d.recentEvents.slice(0,4).forEach(e => pushFeedEvent(e.type||'system', e.msg||e.message||''));
 }
 
-// ─── Activity Feed ────────────────────────────────────────────────────────────
-
-let activityItems = [];
-const MAX_FEED = 60;
-
-function clearFeed() {
-  activityItems = [];
-  activityCount = 0;
-  const feed = document.getElementById('activity-feed');
-  feed.innerHTML = '<div class="text-center text-gray-300 text-sm py-16">Flux vidé — en attente d\'activité…</div>';
-  setText('activity-count', '0 événements');
-}
-
-function pushActivityEvent(ev) {
-  const feed = document.getElementById('activity-feed');
+// ─── Activity feed ────────────────────────────────────────────────────────────
+function pushFeedEvent(type, msg) {
+  if (!msg) return;
+  const feed = $('activity-feed');
   if (!feed) return;
-
-  // Remove placeholder
-  const placeholder = feed.querySelector('.text-center');
-  if (placeholder) placeholder.remove();
+  if (!feedInitialized) { feed.innerHTML = ''; feedInitialized = true; }
 
   activityCount++;
-  activityItems.unshift({ ts: Date.now(), ...ev });
-  if (activityItems.length > MAX_FEED) activityItems.pop();
+  setText('activity-count', `${activityCount} évts`);
 
-  const type = ev.type || ev.kind || 'system';
-  const msg = ev.msg || ev.message || ev.text || ev.data?.msg || JSON.stringify(ev).slice(0, 120);
-  const time = new Date().toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-  const tagClass = type.includes('error') || type.includes('fail') ? 'tag-red'
-    : type.includes('payment') || type.includes('booking') ? 'tag-green'
-    : type.includes('agent') ? 'tag-sky'
-    : type.includes('chat') || type.includes('sms') ? 'tag-violet'
+  const time = new Date().toLocaleTimeString('fr-CA', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  const tagCls = /error|fail/i.test(type)  ? 'tag-red'
+    : /pay|book/i.test(type)               ? 'tag-green'
+    : /agent/i.test(type)                  ? 'tag-sky'
+    : /chat|sms|msg/i.test(type)           ? 'tag-violet'
+    : /system|boot/i.test(type)            ? 'tag-indigo'
     : 'tag-gray';
 
   const div = document.createElement('div');
-  div.className = 'feed-item flex items-start gap-2.5 p-2.5 rounded-lg bg-gray-50 border border-gray-100 text-xs';
-  div.innerHTML = `
-    <span class="mt-0.5 shrink-0 text-gray-300 tabular-nums font-mono text-[10px]">${time}</span>
-    <span class="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${tagClass}">${type}</span>
-    <span class="text-gray-700 leading-relaxed">${escHtml(msg)}</span>
-  `;
+  div.className = 'feed-item flex items-start gap-2 p-2.5 rounded-lg bg-gray-50 border border-gray-100 text-xs';
+  div.innerHTML =
+    `<span class="shrink-0 text-gray-300 tabular-nums font-mono text-[10px] mt-0.5 select-none">${time}</span>` +
+    `<span class="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${tagCls}">${esc(type)}</span>` +
+    `<span class="text-gray-700 leading-relaxed break-words">${esc(msg)}</span>`;
+
   feed.insertBefore(div, feed.firstChild);
-
-  // Trim old items
-  const children = feed.querySelectorAll('.feed-item');
-  if (children.length > MAX_FEED) children[children.length - 1].remove();
-
-  setText('activity-count', `${activityCount} événements`);
+  const kids = feed.querySelectorAll('.feed-item');
+  if (kids.length > 80) kids[kids.length - 1].remove();
 }
 
-function pushAgentEvent(agent) {
-  if (!agent) return;
-  const status = agent.state || agent.status || 'UNKNOWN';
-  const id = (agent.agentId || agent.id || '').slice(-6);
-  const task = agent.scope || agent.description || agent.type || 'Tâche générique';
-  const msg = `Agent #${id} — ${status} · ${task}`;
-  pushActivityEvent({ type: 'agent_state', msg, data: agent });
-}
-
-// ─── Discovery Feed ────────────────────────────────────────────────────────────
-
-let renderedOppIds = new Set();
-
-function renderDiscoveries(opps) {
-  const feed = document.getElementById('discovery-feed');
+function clearFeed() {
+  const feed = $('activity-feed');
   if (!feed) return;
+  feed.innerHTML = '<p class="text-center text-gray-300 text-sm py-20 select-none">Flux vidé…</p>';
+  feedInitialized = false;
+  activityCount = 0;
+  setText('activity-count', '0 évts');
+}
 
-  const placeholder = feed.querySelector('.text-center');
-  if (placeholder) placeholder.remove();
-
-  // Only render new ones
+// ─── Discovery feed ────────────────────────────────────────────────────────────
+function renderDiscoveries(opps) {
+  const feed = $('discovery-feed'); if (!feed) return;
   const newOpps = opps.filter(o => !renderedOppIds.has(o.id));
-  if (newOpps.length === 0) return;
+  if (!newOpps.length) return;
+  if (!discoveryInitialized) { feed.innerHTML = ''; discoveryInitialized = true; }
 
   newOpps.forEach(opp => {
     renderedOppIds.add(opp.id);
-
-    const score = opp.score || 0;
-    const scoreColor = score >= 70 ? 'text-emerald-600 bg-emerald-50'
-      : score >= 40 ? 'text-amber-600 bg-amber-50'
-      : 'text-gray-500 bg-gray-50';
-
-    const country = opp.country || '??';
-    const platform = opp.source_platform || 'scan';
-    const category = opp.category || 'Général';
+    const score  = opp.score || 0;
+    const sBg    = score >= 70 ? 'bg-emerald-50 text-emerald-700' : score >= 40 ? 'bg-amber-50 text-amber-700' : 'bg-gray-100 text-gray-500';
     const budget = opp.budget_estimated ? `$${Math.round(opp.budget_estimated).toLocaleString('fr-CA')}` : '';
-    const time = new Date(opp.created_at).toLocaleString('fr-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const time   = new Date(opp.created_at).toLocaleString('fr-CA', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
 
     const div = document.createElement('div');
-    div.className = 'feed-item p-3 rounded-xl bg-gray-50 border border-gray-100 text-xs cursor-pointer hover:bg-white hover:shadow-sm transition';
-    div.innerHTML = `
-      <div class="flex items-start justify-between gap-2 mb-1">
-        <span class="font-semibold text-gray-800 leading-snug line-clamp-2 flex-1">${escHtml(opp.title || 'Opportunité sans titre')}</span>
-        <span class="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded ${scoreColor}">${score}/100</span>
-      </div>
-      <div class="flex items-center gap-2 flex-wrap">
-        <span class="tag-sky px-1.5 py-0.5 rounded text-[10px] font-semibold">${escHtml(country)}</span>
-        <span class="tag-violet px-1.5 py-0.5 rounded text-[10px] font-semibold">${escHtml(category)}</span>
-        <span class="tag-gray px-1.5 py-0.5 rounded text-[10px]">${escHtml(platform)}</span>
-        ${budget ? `<span class="tag-green px-1.5 py-0.5 rounded text-[10px] font-semibold">${budget}</span>` : ''}
-        <span class="text-gray-400 ml-auto tabular-nums">${time}</span>
-      </div>
-    `;
+    div.className = 'feed-item p-3 rounded-xl bg-gray-50 border border-gray-100 cursor-pointer hover:bg-white hover:shadow-sm transition text-xs';
     div.onclick = () => window.open('/admin-radar.html', '_blank');
+    div.innerHTML =
+      `<div class="flex items-start justify-between gap-2 mb-1.5">` +
+        `<span class="font-semibold text-gray-800 leading-snug flex-1 line-clamp-2">${esc(opp.title||'Sans titre')}</span>` +
+        `<span class="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded ${sBg}">${score}/100</span>` +
+      `</div>` +
+      `<div class="flex items-center gap-1.5 flex-wrap">` +
+        `<span class="tag-sky px-1.5 py-0.5 rounded text-[10px] font-semibold">${esc(opp.country||'??')}</span>` +
+        `<span class="tag-violet px-1.5 py-0.5 rounded text-[10px] font-semibold">${esc(opp.category||'Général')}</span>` +
+        `<span class="tag-gray px-1.5 py-0.5 rounded text-[10px]">${esc(opp.source_platform||'scan')}</span>` +
+        (budget ? `<span class="tag-green px-1.5 py-0.5 rounded text-[10px] font-semibold">${budget}</span>` : '') +
+        `<span class="text-gray-400 ml-auto tabular-nums">${time}</span>` +
+      `</div>`;
     feed.insertBefore(div, feed.firstChild);
   });
 
-  // Trim
-  const children = feed.querySelectorAll('.feed-item');
-  if (children.length > 30) {
-    for (let i = 30; i < children.length; i++) children[i].remove();
-  }
+  const kids = feed.querySelectorAll('.feed-item');
+  if (kids.length > 30) for (let i = 30; i < kids.length; i++) kids[i].remove();
 }
 
 // ─── Load stats ────────────────────────────────────────────────────────────────
-
 async function loadStats() {
   try {
-    const r = await fetch('/api/usine/live-stats');
-    if (!r.ok) throw new Error(r.status);
-    const data = await r.json();
-    renderStats(data);
+    const d = await apiFetch('/api/usine/live-stats');
+    renderStats(d);
   } catch (e) {
-    console.warn('[usine] stats error:', e.message);
+    console.warn('[usine] stats:', e.message);
+    pushFeedEvent('error', '⚠️ live-stats: ' + e.message);
   }
 }
 
-// ─── SSE Stream ───────────────────────────────────────────────────────────────
+// ─── SSE ──────────────────────────────────────────────────────────────────────
+function setSseStatus(state) {
+  const dot = $('sse-dot'), lbl = $('sse-label');
+  if (state === 'on')   { dot.className='live-dot on';   lbl.textContent='Flux actif'; }
+  if (state === 'off')  { dot.className='live-dot off';  lbl.textContent='Déconnecté'; }
+  if (state === 'warn') { dot.className='live-dot warn'; lbl.textContent='Reconnexion…'; }
+}
 
 function connectSSE() {
   if (sseConn) { try { sseConn.close(); } catch (_) {} }
-
   sseConn = new EventSource('/api/usine/live-stream');
+
+  sseConn.onopen = () => { setSseStatus('on'); };
 
   sseConn.onmessage = (e) => {
     try {
-      const data = JSON.parse(e.data);
-      if (data.type === 'connected') {
-        updateLiveIndicator(true);
-        pushActivityEvent({ type: 'system', msg: '🔌 Flux SSE connecté — surveillance en temps réel active' });
-      } else if (data.type === 'stats') {
-        // Update queue numbers from SSE push
-        if (data.stats) {
-          const lg = data.stats['lead-gen-queue'] || {};
-          const seo = data.stats['seo-audit-queue'] || {};
-          const em = data.stats['email-sequence-queue'] || {};
-          setText('lg-active', lg.active || 0); setText('lg-waiting', lg.waiting || 0);
-          setText('seo-active', seo.active || 0); setText('seo-waiting', seo.waiting || 0);
-          setText('em-active', em.active || 0); setText('em-waiting', em.waiting || 0);
-          updateBar('lg-bar', lg.active || 0, lg.waiting || 0);
-          updateBar('seo-bar', seo.active || 0, seo.waiting || 0);
-          updateBar('em-bar', em.active || 0, em.waiting || 0);
-          const totalActive = (lg.active || 0) + (seo.active || 0) + (em.active || 0) + (data.liveAgents || 0);
-          setText('kpi-active', totalActive.toLocaleString('fr-CA'));
-          updateRing(totalActive, CAPACITY);
-        }
-      } else if (data.type === 'agent_state' || data.type === 'agent_done') {
-        const agId = (data.agentId || data.id || '').slice(-6);
-        const state = data.state || data.type;
-        pushActivityEvent({ type: 'agent', msg: `Agent #${agId} → ${state}${data.scope ? ' · ' + data.scope : ''}` });
-      } else if (data.type === 'bus') {
-        pushActivityEvent(data);
-      } else if (data.type === 'ping') {
-        // silent keepalive
+      const d = JSON.parse(e.data);
+      if (d.type === 'connected') {
+        setSseStatus('on');
+        if (typeof d.productionMode === 'boolean') applyProdMode(d.productionMode);
+        pushFeedEvent('system', '🔌 Flux SSE connecté — surveillance temps réel active');
+
+      } else if (d.type === 'stats') {
+        const s = d.stats || {};
+        const lg = s['lead-gen-queue']||{}, seo = s['seo-audit-queue']||{}, em = s['email-sequence-queue']||{};
+        setText('lg-active', lg.active||0); setText('lg-waiting', lg.waiting||0);
+        setText('seo-active',seo.active||0); setText('seo-waiting',seo.waiting||0);
+        setText('em-active', em.active||0); setText('em-waiting', em.waiting||0);
+        updateBar('lg-bar', lg.active||0, lg.waiting||0);
+        updateBar('seo-bar',seo.active||0,seo.waiting||0);
+        updateBar('em-bar', em.active||0, em.waiting||0);
+        const tot = (lg.active||0)+(seo.active||0)+(em.active||0)+(d.liveAgents||0);
+        setText('kpi-active', tot.toLocaleString('fr-CA')); updateRing(tot);
+
+      } else if (d.type === 'agent_state') {
+        const id = (d.agentId||d.id||'').slice(-6);
+        pushFeedEvent('agent', `Agent #${id} → ${d.state||'?'}${d.scope?' · '+d.scope:''}`);
+
+      } else if (d.type === 'agent_done') {
+        const id = (d.agentId||d.id||'').slice(-6);
+        pushFeedEvent('agent', `✅ Agent #${id} terminé${d.scope?' · '+d.scope:''}`);
+
+      } else if (d.type === 'bus') {
+        pushFeedEvent(d.kind||'system', d.msg||d.message||'');
+
       }
     } catch (_) {}
   };
 
   sseConn.onerror = () => {
-    updateLiveIndicator(false);
-    // Retry in 5s
+    setSseStatus('warn');
+    try { sseConn.close(); } catch(_) {}
     setTimeout(connectSSE, 5000);
   };
 }
 
-function updateLiveIndicator(connected) {
-  const dot = document.getElementById('live-dot');
-  const label = document.getElementById('live-label');
-  if (connected) {
-    dot?.classList.add('active');
-    if (label) label.textContent = 'Flux en direct';
-  } else {
-    dot?.classList.remove('active');
-    if (label) label.textContent = 'Reconnexion…';
-  }
-}
-
 // ─── Trigger scan ─────────────────────────────────────────────────────────────
-
 async function triggerScan() {
-  const btn = document.getElementById('scan-btn');
+  if (!prodMode) { showToast('⏸ Activez la production d\'abord', true); return; }
+  const btn = $('scan-btn');
   btn.disabled = true;
-  btn.textContent = '⏳ Scan en cours…';
-  btn.classList.add('scanning');
-  pushActivityEvent({ type: 'system', msg: '🌍 Scan international déclenché manuellement — analyse en cours…' });
+  btn.textContent = '⏳ En cours…';
+  pushFeedEvent('system', '🌍 Scan international déclenché — agents en déploiement…');
 
   try {
-    const r = await fetch('/api/usine/trigger-scan', { method: 'POST' });
-    const d = await r.json();
+    const d = await apiFetch('/api/usine/trigger-scan', { method: 'POST' });
     if (d.success) {
-      pushActivityEvent({ type: 'agent', msg: `✅ ${d.message} — Jobs #${(d.jobs || []).join(', #')} ajoutés à la file Redis` });
-      showToast('🚀 Scan déclenché — les agents partent à l\'international !');
-      setTimeout(loadStats, 2000);
-    } else {
-      pushActivityEvent({ type: 'error', msg: `❌ Erreur scan: ${d.error}` });
+      pushFeedEvent('agent', `✅ ${d.message} · Jobs [${(d.jobs||[]).join(', ')}] dans Redis`);
+      showToast('🚀 Scan lancé — agents en route !');
+      setTimeout(loadStats, 2500);
     }
   } catch (e) {
-    pushActivityEvent({ type: 'error', msg: `❌ ${e.message}` });
+    pushFeedEvent('error', '❌ trigger-scan: ' + e.message);
+    showToast('❌ Erreur scan: ' + e.message, true);
   } finally {
-    setTimeout(() => {
-      btn.disabled = false;
-      btn.textContent = '🌍 Lancer un scan';
-      btn.classList.remove('scanning');
-    }, 8000);
+    setTimeout(() => { btn.disabled = false; btn.textContent = '🌍 Lancer scan'; }, 10000);
   }
 }
 
 async function addLeadGenJob() {
+  if (!prodMode) { showToast('⏸ Activez la production', true); return; }
   try {
-    const r = await fetch('/api/usine/lead-gen/add', { method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ target: 'international', source: 'admin-manual' }) });
-    const d = await r.json();
-    pushActivityEvent({ type: 'agent', msg: `➕ Lead Gen job #${d.job?.id || '?'} ajouté à la file Redis` });
+    const d = await apiFetch('/api/usine/lead-gen/start', {
+      method: 'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ cities: ['Paris', 'Miami', 'Montréal'], source: 'admin-manual' }),
+    });
+    pushFeedEvent('agent', `➕ Lead Gen démarré · ${d.citiesCount||'?'} villes`);
     showToast('Job Lead Gen ajouté !');
     setTimeout(loadStats, 1500);
-  } catch (e) {
-    showToast('Erreur: ' + e.message);
-  }
+  } catch (e) { showToast('Erreur Lead Gen: ' + e.message, true); }
 }
 
 async function addSeoJob() {
+  if (!prodMode) { showToast('⏸ Activez la production', true); return; }
   try {
-    const r = await fetch('/api/usine/seo-audit/add', { method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ domain: 'exemple.com', source: 'admin-manual' }) });
-    const d = await r.json();
-    pushActivityEvent({ type: 'agent', msg: `🔍 SEO Audit job #${d.job?.id || '?'} ajouté à la file Redis` });
+    const d = await apiFetch('/api/usine/seo/audit/1', {
+      method: 'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ source: 'admin-manual' }),
+    });
+    pushFeedEvent('agent', `🔍 SEO Audit lancé · lead #${d.leadId||'?'}`);
     showToast('Job SEO Audit ajouté !');
     setTimeout(loadStats, 1500);
-  } catch (e) {
-    showToast('Erreur: ' + e.message);
-  }
+  } catch (e) { showToast('Erreur SEO: ' + e.message, true); }
 }
 
-// ─── HTML escape ──────────────────────────────────────────────────────────────
-
-function escHtml(str) {
-  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+// ─── Escape HTML ──────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-
-updateClock();
-setInterval(updateClock, 1000);
-
-// Load initial stats
 loadStats();
-// Refresh every 8 seconds
-statsInterval = setInterval(loadStats, 8000);
-// Connect SSE
+statsTimer = setInterval(loadStats, 9000);
 connectSSE();
 
-// Fallback: push a simulated heartbeat event if feed is empty after 5s
+// Heartbeat visible en cas de silence
 setTimeout(() => {
-  const feed = document.getElementById('activity-feed');
-  if (!feed) return;
-  const hasItems = feed.querySelector('.feed-item');
-  if (!hasItems) {
-    pushActivityEvent({ type: 'system', msg: '🔄 Système opérationnel — en attente de jobs. Cliquez "Lancer un scan" pour démarrer l\'Usine.' });
+  if (!feedInitialized) {
+    pushFeedEvent('system', '🟢 Système opérationnel · En attente de tâches · Cliquez "Lancer scan" pour démarrer');
   }
 }, 5000);
 
