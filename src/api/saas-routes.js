@@ -48,6 +48,42 @@ async function ensureSaasTable() {
 }
 ensureSaasTable().catch(e => console.warn('[saas] table:', e.message));
 
+// ── GET /api/saas/dashboard ─────────────────────────────────────────────────
+router.get('/dashboard', async (req, res) => {
+  try {
+    const stats = await pool.query(`
+      SELECT
+        COUNT(*) FILTER (WHERE status = 'active') AS active_clients,
+        COALESCE(SUM(subscription_price) FILTER (WHERE status = 'active'), 0) AS mrr,
+        COUNT(*) FILTER (WHERE pipeline_stage = 'prospect') AS prospects,
+        COUNT(*) FILTER (WHERE pipeline_stage = 'demo') AS demos,
+        COUNT(*) FILTER (WHERE pipeline_stage = 'onboarding') AS onboarding,
+        COUNT(*) FILTER (WHERE status = 'churned') AS churned
+      FROM daleba_saas_clients
+    `);
+    const s = stats.rows[0];
+    const activeClients = parseInt(s.active_clients) || 0;
+    const churnedClients = parseInt(s.churned) || 0;
+    const totalEver = activeClients + churnedClients;
+    const churnRate = totalEver > 0 ? Math.round((churnedClients / totalEver) * 100) : 0;
+
+    res.json({
+      activeClients,
+      mrr: parseFloat(s.mrr) || 0,
+      churnRate,
+      pipeline: {
+        prospects: parseInt(s.prospects) || 0,
+        demos: parseInt(s.demos) || 0,
+        onboarding: parseInt(s.onboarding) || 0,
+        active: activeClients
+      }
+    });
+  } catch (e) {
+    // Fallback demo
+    res.json({ activeClients: 0, mrr: 0, churnRate: 0, pipeline: { prospects: 0, demos: 0, onboarding: 0, active: 0 }, isDemo: true });
+  }
+});
+
 // ── GET /api/saas/clients ────────────────────────────────────────────────────
 router.get('/clients', async (req, res) => {
   try {
