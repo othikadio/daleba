@@ -130,6 +130,11 @@ try {
   app.use('/api/usine', require('./api/seo-audit-routes'));
   console.log('[USINE] Routes Lead Gen + SEO Audit montées');
 } catch(e) { console.warn('[USINE] Routes non montées:', e.message); }
+// V46 — Email Queue système autonome
+try {
+  app.use('/api/email-queue', require('./api/email-queue-routes'));
+  console.log('[V46] Email Queue routes montées');
+} catch(e) { console.warn('[V46] Email Queue routes non montées:', e.message); }
 // V47 — CRM Clients Square (si dispo)
 try { app.use('/api/crm', require('./api/crm-routes')); } catch(_) {}
 
@@ -411,6 +416,40 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   const mediaPipeline = require('./services/media-pipeline');
   mediaPipeline.init().catch(e => console.warn('[Boot] Media pipeline:', e.message));
   setInterval(mediaPipeline.runPublishWorker, 30 * 60 * 1000);
+
+  // [V46] Email Queue — process toutes les heures + init table au démarrage
+  const emailQueue = require('./services/email-queue');
+  const { getPool } = require('./services/db');
+  const emailQueuePool = getPool();
+  emailQueue.ensureTableExists(emailQueuePool)
+    .then(() => {
+      console.log('[V46] Email Queue table initialized');
+      // Log stats au démarrage
+      return emailQueue.getDailyStats(emailQueuePool);
+    })
+    .then(stats => {
+      console.log('[V46] Email Queue stats:', stats);
+    })
+    .catch(e => console.warn('[Boot] Email Queue init:', e.message));
+  
+  // Process queue toutes les heures
+  setInterval(() => {
+    emailQueue.processQueue(emailQueuePool, 90)
+      .catch(e => console.warn('[V46] Email Queue worker:', e.message));
+  }, 60 * 60 * 1000); // 1h
+  
+  // Process initial après 2 minutes
+  setTimeout(() => {
+    emailQueue.processQueue(emailQueuePool, 90)
+      .catch(e => console.warn('[V46] Email Queue initial:', e.message));
+  }, 2 * 60 * 1000);
+
+  // [V46] Email Sequence worker — toutes les heures
+  const { processEmailSequences } = require('./workers/email-sequence-worker');
+  setInterval(() => {
+    processEmailSequences(emailQueuePool)
+      .catch(e => console.warn('[V46] Email Sequence worker:', e.message));
+  }, 60 * 60 * 1000); // 1h
 
   // Chantier 1 — Meta History Puller : pull au démarrage si vide, puis toutes les 6h
   const metaHistoryPuller = require('./services/meta-history-puller');

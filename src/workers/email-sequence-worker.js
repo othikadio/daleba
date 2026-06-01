@@ -4,15 +4,14 @@
  */
 
 const fs = require('fs');
-const axios = require('axios');
+const emailQueue = require('../services/email-queue');
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_hVMJtA4G_5BydQQv4noQx767KpL4xowMk';
 // Mode supervisé: Resend sandbox → envoie à l'adresse Ulrich avec les détails du lead
 // Basculer sur un vrai domaine Resend pour envois directs aux prospects
 const SUPERVISED_MODE = process.env.RESEND_DOMAIN ? false : true;
 const OWNER_EMAIL = process.env.OWNER_EMAIL || 'kadioothniel@yahoo.fr';
 
-async function sendEmail(data) {
+async function sendEmail(pool, data) {
   const payload = { ...data };
   // En mode supervisé (pas de domaine vérifié), rediriger vers Ulrich
   if (SUPERVISED_MODE) {
@@ -25,10 +24,17 @@ async function sendEmail(data) {
     </div>` + (data.html || '');
     payload.from = 'DALEBA Usine <onboarding@resend.dev>';
   }
-  const res = await axios.post('https://api.resend.com/emails', payload, {
-    headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' }
+  
+  // Enqueue au lieu d'envoyer directement
+  const emailId = await emailQueue.enqueueEmail(pool, {
+    to: payload.to,
+    from: payload.from,
+    subject: payload.subject,
+    html: payload.html,
+    attachments: payload.attachments || null
   });
-  return res.data;
+  
+  return { id: emailId, queued: true };
 }
 
 // =============== Templates email ===============
@@ -171,7 +177,7 @@ body { font-family: Arial, sans-serif; background: #f5f5f5; }
 
 // =============== Envoi d'email avec PDF ===============
 
-async function sendEmailWithPDF(to, subject, html, pdfPath, fromName = 'DALEBA') {
+async function sendEmailWithPDF(pool, to, subject, html, pdfPath, fromName = 'DALEBA') {
   const emailData = {
     from: `${fromName} <onboarding@resend.dev>`,
     to: [to],
@@ -184,11 +190,12 @@ async function sendEmailWithPDF(to, subject, html, pdfPath, fromName = 'DALEBA')
     const pdfBuffer = fs.readFileSync(pdfPath);
     emailData.attachments = [{
       filename: `audit-seo-${Date.now()}.pdf`,
-      content: pdfBuffer
+      content: pdfBuffer.toString('base64'),
+      type: 'application/pdf'
     }];
   }
 
-  return await sendEmail(emailData);
+  return await sendEmail(pool, emailData);
 }
 
 // =============== Démarrer séquence pour un lead ===============
@@ -228,15 +235,15 @@ async function startEmailSequence(lead, auditResult, reportPath, paymentLink, po
   // Étape 1: J+0 — Rapport SEO (avec PDF si dispo, sans si absent)
   try {
     const { subject, html } = getEmailStep1(lead, score, paymentLink);
-    await sendEmailWithPDF(lead.email, subject, html, reportPath); // PDF optionnel
-    console.log(`[EmailSeq] Step 1 envoyé à ${lead.email}`);
+    await sendEmailWithPDF(pool, lead.email, subject, html, reportPath); // PDF optionnel
+    console.log(`[EmailSeq] Step 1 enqueued pour ${lead.email}`);
   } catch (e) {
     // Retry sans PDF si l'échec vient du PDF manquant
     console.warn(`[EmailSeq] Step 1 retry sans PDF pour ${lead.email}:`, e.message);
     try {
       const { subject, html } = getEmailStep1(lead, score, paymentLink);
-      await sendEmailWithPDF(lead.email, subject, html, null);
-      console.log(`[EmailSeq] Step 1 envoyé (sans PDF) à ${lead.email}`);
+      await sendEmailWithPDF(pool, lead.email, subject, html, null);
+      console.log(`[EmailSeq] Step 1 enqueued (sans PDF) pour ${lead.email}`);
     } catch (e2) {
       console.error(`[EmailSeq] Step 1 définitivement échoué pour ${lead.email}:`, e2.message);
       return null;
@@ -300,7 +307,7 @@ async function processEmailSequences(pool) {
       }
 
       if (emailData) {
-        await sendEmail({
+        await sendEmail(pool, {
           from: 'DALEBA <onboarding@resend.dev>',
           to: [seq.email],
           subject: emailData.subject,
@@ -315,7 +322,7 @@ async function processEmailSequences(pool) {
           [nextStep, nextSend, isLast ? 'completed' : 'active', seq.id]
         );
         processed++;
-        console.log(`[EmailSeq] Step ${nextStep} envoyé à ${seq.email}`);
+        console.log(`[EmailSeq] Step ${nextStep} enqueued pour ${seq.email}`);
       }
     } catch (e) {
       console.warn(`[EmailSeq] Error step ${nextStep} for ${seq.email}:`, e.message);
