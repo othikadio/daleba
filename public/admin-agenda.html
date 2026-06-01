@@ -1,356 +1,435 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agenda — Kadio Coiffure</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Planning Interne — Kadio Coiffure</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    .slot-card { transition: box-shadow .15s, transform .15s; }
-    .slot-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.10); transform: translateY(-1px); }
-    .status-ACCEPTED  { background:#d1fae5; color:#065f46; }
-    .status-PENDING   { background:#fef3c7; color:#92400e; }
-    .status-CANCELLED { background:#fee2e2; color:#991b1b; }
-    .status-COMPLETED { background:#ede9fe; color:#4c1d95; }
-    .status-NO_SHOW   { background:#f3f4f6; color:#6b7280; }
-    .skeleton { animation: pulse 1.5s infinite; background:#e5e7eb; border-radius:4px; }
+    body { font-family: 'Inter', sans-serif; background: #f9fafb; }
+    .slot-taken    { background:#fff7ed; border-left:3px solid #f59e0b; }
+    .slot-free     { background:#f0fdf4; border-left:3px solid #22c55e; }
+    .slot-noshow   { background:#fef2f2; border-left:3px solid #ef4444; }
+    .slot-done     { background:#f5f3ff; border-left:3px solid #8b5cf6; }
+    .slot-cancelled{ background:#f9fafb; border-left:3px solid #d1d5db; opacity:.6; }
+    .staff-col { min-width: 180px; }
+    .hour-label { color:#9ca3af; font-size:0.65rem; font-weight:700; letter-spacing:.05em; width:3rem; flex-shrink:0; padding-top:2px; }
+    .skeleton { animation:pulse 1.5s infinite; background:#e5e7eb; border-radius:4px; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-    #nav-day.active, #nav-week.active { background:#fffbeb; color:#92400e; font-weight:700; }
+    .now-line { border-top:2px solid #ef4444; position:relative; }
+    .now-line::before { content:'▶'; color:#ef4444; font-size:0.6rem; position:absolute; left:-1rem; top:-0.45rem; }
+    #view-day.active, #view-week.active { background:#1f2937; color:#fff; }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen">
+<body class="text-gray-900 min-h-screen" style="overflow:hidden;height:100vh;display:flex;flex-direction:column">
 
-<!-- ── TOPBAR ── -->
-<div class="bg-white border-b border-gray-100 px-5 py-3 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+<!-- TOPBAR -->
+<div class="bg-white border-b border-gray-100 px-4 py-2.5 flex items-center justify-between flex-shrink-0 shadow-sm">
   <div class="flex items-center gap-3">
-    <div class="font-black text-sm tracking-widest text-gray-900 uppercase">✂️ Agenda</div>
-    <span class="text-xs text-gray-400">Square Live</span>
+    <span class="font-black text-sm tracking-widest uppercase">📋 Planning</span>
+    <span class="text-xs text-gray-400 hidden sm:block">Gestion interne · Kadio Coiffure</span>
+    <span class="flex items-center gap-1 text-xs text-emerald-600 font-semibold">
+      <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full inline-block"></span>Square Live
+    </span>
   </div>
-  <div class="flex items-center gap-2">
-    <button id="nav-day" onclick="setView('day')"
-      class="active text-xs px-3 py-1.5 rounded-lg border border-gray-200 font-semibold transition">Jour</button>
-    <button id="nav-week" onclick="setView('week')"
-      class="text-xs px-3 py-1.5 rounded-lg border border-gray-200 font-semibold transition text-gray-600">Semaine</button>
-    <button onclick="changeDate(-1)"
-      class="text-xs px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 font-bold">‹</button>
-    <span id="date-label" class="text-sm font-bold text-gray-700 min-w-[140px] text-center">—</span>
-    <button onclick="changeDate(1)"
-      class="text-xs px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 font-bold">›</button>
-    <button onclick="goToday()"
-      class="text-xs px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-semibold transition">Aujourd'hui</button>
+  <div class="flex items-center gap-1.5">
+    <button id="view-day" onclick="setView('day')"
+      class="active text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 font-semibold transition">Jour</button>
+    <button id="view-week" onclick="setView('week')"
+      class="text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 font-semibold transition text-gray-500">Semaine</button>
+    <div class="w-px h-5 bg-gray-200 mx-1"></div>
+    <button onclick="nav(-1)" class="text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 font-bold">‹</button>
+    <span id="date-lbl" class="text-sm font-bold text-gray-800 min-w-[160px] text-center tabular-nums">—</span>
+    <button onclick="nav(1)"  class="text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 font-bold">›</button>
+    <button onclick="goToday()" class="text-xs px-3 py-1.5 rounded-lg bg-gray-900 hover:bg-gray-700 text-white font-semibold transition ml-1">Aujourd'hui</button>
+    <button onclick="reload()" title="Actualiser" class="text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 ml-1">⟳</button>
   </div>
 </div>
 
-<!-- ── FILTRES STAFF ── -->
-<div class="bg-white border-b border-gray-100 px-5 py-2 flex items-center gap-2 overflow-x-auto" id="staff-filter-bar">
-  <button id="staff-all" onclick="filterStaff('all')"
-    class="flex-shrink-0 text-xs px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-semibold">Tous</button>
-  <!-- staff dynamique injecté par JS -->
+<!-- KPI BAR -->
+<div class="bg-white border-b border-gray-100 px-4 py-1.5 flex items-center gap-5 text-xs flex-shrink-0" id="kpi-bar">
+  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-amber-400"></span><span class="text-gray-500">Pris : <strong id="k-taken" class="text-gray-800">—</strong></span></div>
+  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-400"></span><span class="text-gray-500">Libres estimés : <strong id="k-free" class="text-gray-800">—</strong></span></div>
+  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-violet-400"></span><span class="text-gray-500">Terminés : <strong id="k-done" class="text-gray-800">—</strong></span></div>
+  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-red-300"></span><span class="text-gray-500">No-show : <strong id="k-noshow" class="text-gray-800">—</strong></span></div>
+  <div class="ml-auto text-gray-400" id="updated-at"></div>
 </div>
 
-<!-- ── STATS BAR ── -->
-<div class="bg-white border-b border-gray-100 px-5 py-2 flex items-center gap-5 text-xs text-gray-500">
-  <span>Total : <strong id="stat-total" class="text-gray-800">—</strong></span>
-  <span>Confirmés : <strong id="stat-accepted" class="text-emerald-600">—</strong></span>
-  <span>En attente : <strong id="stat-pending" class="text-amber-600">—</strong></span>
-  <span>Annulés : <strong id="stat-cancelled" class="text-red-500">—</strong></span>
-  <span class="ml-auto" id="last-update"></span>
+<!-- STAFF TABS -->
+<div class="bg-white border-b border-gray-100 px-4 py-1.5 flex items-center gap-1.5 overflow-x-auto flex-shrink-0" id="staff-tabs">
+  <button id="tab-all" onclick="filterStaff('all')"
+    class="flex-shrink-0 text-xs px-3 py-1 rounded-full bg-gray-900 text-white font-semibold">Tout le monde</button>
 </div>
 
-<!-- ── CALENDRIER ── -->
-<main class="p-4 max-w-5xl mx-auto">
-  <!-- Loader -->
-  <div id="loader" class="grid gap-3">
-    <div class="skeleton h-16 rounded-xl w-full"></div>
-    <div class="skeleton h-16 rounded-xl w-full"></div>
-    <div class="skeleton h-16 rounded-xl w-5/6"></div>
+<!-- PLANNING GRID -->
+<div class="flex-1 overflow-auto" id="planning-outer">
+  <div id="loader" class="p-6 space-y-3">
+    <div class="skeleton h-12 rounded-xl"></div>
+    <div class="skeleton h-12 rounded-xl w-4/5"></div>
+    <div class="skeleton h-12 rounded-xl"></div>
   </div>
-
-  <!-- Liste RDV -->
-  <div id="agenda-content" class="hidden"></div>
-
-  <!-- Vide -->
-  <div id="empty-state" class="hidden flex flex-col items-center py-16 text-center">
-    <div class="text-5xl mb-4">📅</div>
-    <p class="text-gray-500 font-semibold">Aucun rendez-vous</p>
-    <p class="text-gray-400 text-sm mt-1">Pas de RDV Square pour cette période.</p>
-    <a href="https://squareup.com/appointments/book/LTDE9RP9PSHX7" target="_blank"
-      class="mt-4 bg-amber-500 hover:bg-amber-600 text-white rounded-lg px-5 py-2 text-sm font-semibold transition">
-      Prendre un RDV →
-    </a>
+  <div id="planning-grid" class="hidden p-4"></div>
+  <div id="empty" class="hidden flex-col items-center py-16 text-center">
+    <div class="text-5xl mb-3">📋</div>
+    <p class="text-gray-500 font-semibold">Aucun créneau pour cette période</p>
   </div>
-</main>
+</div>
 
-<!-- ── MODAL DÉTAIL ── -->
-<div id="modal-overlay" class="fixed inset-0 bg-black/40 z-50 hidden" onclick="closeModal()"></div>
-<div id="modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50
-     bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 hidden">
-  <div class="flex justify-between items-start mb-4">
-    <h3 class="font-bold text-lg text-gray-900" id="modal-title">Détail RDV</h3>
-    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-xl font-bold">×</button>
+<!-- MODAL DÉTAIL RDV -->
+<div id="mo" class="fixed inset-0 bg-black/40 z-50 hidden" onclick="closeMo()"></div>
+<div id="md" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50
+  bg-white rounded-2xl shadow-2xl w-full max-w-sm p-5 hidden">
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="font-bold text-gray-900" id="md-title">Rendez-vous</h3>
+    <button onclick="closeMo()" class="text-gray-400 hover:text-gray-600 font-bold text-xl leading-none">×</button>
   </div>
-  <div id="modal-body" class="space-y-3 text-sm text-gray-700"></div>
-  <div class="flex gap-2 mt-5" id="modal-actions"></div>
+  <div id="md-body" class="space-y-2 text-sm"></div>
+  <div class="mt-4 flex gap-2" id="md-actions"></div>
 </div>
 
 <script>
-  const API = 'https://daleba-api-production.up.railway.app';
-  let currentDate = new Date();
-  let viewMode = 'day';
-  let activeStaff = 'all';
-  let allBookings = [];
-  let staffMap = {};
+const API = 'https://daleba-api-production.up.railway.app';
+const HOURS_START = 8;  // 08:00
+const HOURS_END   = 21; // 21:00
+const SLOT_H      = 60; // minutes par créneau affiché
 
-  // ── Navigation ──────────────────────────────────────────────────────────────
-  function setView(mode) {
-    viewMode = mode;
-    document.getElementById('nav-day').classList.toggle('active', mode === 'day');
-    document.getElementById('nav-week').classList.toggle('active', mode === 'week');
-    loadAgenda();
+let curDate   = new Date();
+let viewMode  = 'day';
+let staffFilt = 'all';
+let staffMap  = {};
+let allBookings = [];
+let staffList   = [];
+
+// ── Navigation ──────────────────────────────────────────────────────────────
+function setView(v) {
+  viewMode = v;
+  document.getElementById('view-day').classList.toggle('active', v==='day');
+  document.getElementById('view-week').classList.toggle('active', v==='week');
+  reload();
+}
+function nav(d) {
+  if (viewMode==='day') curDate.setDate(curDate.getDate()+d);
+  else curDate.setDate(curDate.getDate()+d*7);
+  reload();
+}
+function goToday() { curDate = new Date(); reload(); }
+function filterStaff(id) {
+  staffFilt = id;
+  document.querySelectorAll('[id^="tab-"]').forEach(b => {
+    const active = b.id === `tab-${id}`;
+    b.className = `flex-shrink-0 text-xs px-3 py-1 rounded-full font-semibold ${active ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600'}`;
+  });
+  renderGrid();
+}
+
+// ── Load ──────────────────────────────────────────────────────────────────────
+async function reload() {
+  show('loader'); hide('planning-grid'); hide('empty');
+
+  const s = new Date(curDate), e = new Date(curDate);
+  if (viewMode === 'day') { s.setHours(0,0,0,0); e.setHours(23,59,59,999); }
+  else {
+    const dow = s.getDay();
+    s.setDate(s.getDate() - dow + (dow===0 ? -6 : 1)); s.setHours(0,0,0,0);
+    e.setDate(s.getDate()+6); e.setHours(23,59,59,999);
   }
+  updateLabel(s, e);
 
-  function changeDate(delta) {
-    if (viewMode === 'day') currentDate.setDate(currentDate.getDate() + delta);
-    else currentDate.setDate(currentDate.getDate() + delta * 7);
-    loadAgenda();
-  }
+  try {
+    const [bkData, stData] = await Promise.all([
+      fetch(`${API}/api/sq-calendar/appointments?startAt=${s.toISOString()}&endAt=${e.toISOString()}&limit=100`).then(r=>r.json()),
+      Object.keys(staffMap).length ? Promise.resolve(null) :
+        fetch(`${API}/api/sq-calendar/staff`).then(r=>r.json()),
+    ]);
 
-  function goToday() { currentDate = new Date(); loadAgenda(); }
+    allBookings = bkData.bookings || [];
 
-  function filterStaff(staffId) {
-    activeStaff = staffId;
-    document.querySelectorAll('[id^="staff-"]').forEach(b => {
-      b.classList.toggle('bg-amber-100', b.id === `staff-${staffId}`);
-      b.classList.toggle('text-amber-800', b.id === `staff-${staffId}`);
-      b.classList.toggle('bg-gray-100', b.id !== `staff-${staffId}`);
-      b.classList.toggle('text-gray-600', b.id !== `staff-${staffId}`);
-    });
-    renderBookings();
-  }
-
-  // ── Load from Square via Railway ─────────────────────────────────────────────
-  async function loadAgenda() {
-    document.getElementById('loader').classList.remove('hidden');
-    document.getElementById('agenda-content').classList.add('hidden');
-    document.getElementById('empty-state').classList.add('hidden');
-
-    // Calculer la plage de dates
-    const start = new Date(currentDate);
-    const end   = new Date(currentDate);
-    if (viewMode === 'day') {
-      start.setHours(0, 0, 0, 0); end.setHours(23, 59, 59, 999);
-    } else {
-      const dow = start.getDay();
-      start.setDate(start.getDate() - dow + (dow === 0 ? -6 : 1));
-      start.setHours(0, 0, 0, 0);
-      end.setDate(start.getDate() + 6); end.setHours(23, 59, 59, 999);
-    }
-
-    updateDateLabel(start, end);
-
-    try {
-      const url = `${API}/api/sq-calendar/appointments?startAt=${start.toISOString()}&endAt=${end.toISOString()}&limit=50`;
-      const data = await fetch(url).then(r => r.json());
-      allBookings = data.bookings || [];
-
-      // Charger le staff si pas encore fait
-      if (!Object.keys(staffMap).length) await loadStaff();
-
-      // Mettre à jour les stats
-      updateStats(allBookings);
-      renderBookings();
-
-      document.getElementById('last-update').textContent =
-        'Actualisé ' + new Date().toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
-    } catch(e) {
-      document.getElementById('agenda-content').innerHTML =
-        `<div class="text-center py-10 text-red-400 text-sm">Erreur connexion Railway: ${e.message}</div>`;
-      document.getElementById('agenda-content').classList.remove('hidden');
-    }
-    document.getElementById('loader').classList.add('hidden');
-  }
-
-  async function loadStaff() {
-    try {
-      const data = await fetch(`${API}/api/sq-calendar/staff`).then(r => r.json());
-      const members = data.team_members || data.teamMembers || data.staff || [];
+    if (stData) {
+      staffList = stData.team_members || stData.teamMembers || stData.staff || [];
       staffMap = {};
-      const bar = document.getElementById('staff-filter-bar');
-      members.forEach(m => {
-        const id = m.id || m.teamMemberId;
+      const bar = document.getElementById('staff-tabs');
+      // Nettoyer les anciens boutons (garder "Tout le monde")
+      [...bar.children].forEach(b => { if (b.id !== 'tab-all') b.remove(); });
+      staffList.forEach(m => {
+        const id   = m.id || m.teamMemberId;
         const name = m.display_name || m.displayName || m.given_name || 'Coiffeur';
-        staffMap[id] = name;
+        const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+        staffMap[id] = { name, initials };
         const btn = document.createElement('button');
-        btn.id = `staff-${id}`;
+        btn.id = `tab-${id}`;
         btn.className = 'flex-shrink-0 text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-600 font-semibold';
         btn.textContent = name;
         btn.onclick = () => filterStaff(id);
         bar.appendChild(btn);
       });
-    } catch(_) {}
+    }
+
+    updateKPIs(allBookings);
+    renderGrid();
+  } catch(err) {
+    document.getElementById('planning-grid').innerHTML =
+      `<div class="text-red-400 text-sm text-center py-10">Erreur Railway: ${err.message}</div>`;
+    show('planning-grid');
   }
+  hide('loader');
+  document.getElementById('updated-at').textContent =
+    'Màj ' + new Date().toLocaleTimeString('fr-CA', {hour:'2-digit', minute:'2-digit'});
+}
 
-  // ── Render ──────────────────────────────────────────────────────────────────
-  function renderBookings() {
-    let bookings = allBookings;
-    if (activeStaff !== 'all') {
-      bookings = bookings.filter(b =>
-        (b.appointmentSegments || b.appointment_segments || [])
-          .some(s => (s.teamMemberId || s.team_member_id) === activeStaff)
-      );
-    }
+// ── KPIs ──────────────────────────────────────────────────────────────────────
+function updateKPIs(bks) {
+  const taken   = bks.filter(b => ['ACCEPTED','PENDING'].includes(b.status)).length;
+  const done    = bks.filter(b => b.status==='COMPLETED').length;
+  const noshow  = bks.filter(b => b.status==='NO_SHOW').length;
+  // Créneaux libres estimés : (heures_ouverture × staff) - rendez-vous pris
+  const hoursOpen = HOURS_END - HOURS_START;
+  const avgDurH   = 1; // 1h moyen par RDV
+  const totalSlots = Math.floor((hoursOpen / avgDurH) * (staffList.length || 1));
+  const free = Math.max(0, totalSlots - taken);
+  document.getElementById('k-taken').textContent  = taken;
+  document.getElementById('k-free').textContent   = free;
+  document.getElementById('k-done').textContent   = done;
+  document.getElementById('k-noshow').textContent = noshow;
+}
 
-    const el = document.getElementById('agenda-content');
-    if (!bookings.length) {
-      document.getElementById('empty-state').classList.remove('hidden');
-      return;
-    }
-    document.getElementById('agenda-content').classList.remove('hidden');
+// ── Render ────────────────────────────────────────────────────────────────────
+function renderGrid() {
+  const el = document.getElementById('planning-grid');
 
-    if (viewMode === 'day') {
-      el.innerHTML = renderDayView(bookings);
-    } else {
-      el.innerHTML = renderWeekView(bookings);
-    }
-  }
-
-  function renderDayView(bookings) {
-    const sorted = [...bookings].sort((a, b) =>
-      new Date(a.startAt || a.start_at) - new Date(b.startAt || b.start_at)
+  let bookings = allBookings;
+  if (staffFilt !== 'all') {
+    bookings = bookings.filter(b =>
+      (b.appointmentSegments || b.appointment_segments || [])
+        .some(s => (s.teamMemberId || s.team_member_id) === staffFilt)
     );
-    return sorted.map(b => renderCard(b)).join('');
   }
 
-  function renderWeekView(bookings) {
-    const days = {};
-    bookings.forEach(b => {
-      const dt = new Date(b.startAt || b.start_at);
-      const key = dt.toLocaleDateString('fr-CA');
-      if (!days[key]) days[key] = [];
-      days[key].push(b);
-    });
-    return Object.entries(days).sort(([a],[b]) => a.localeCompare(b)).map(([day, bks]) => `
-      <div class="mb-4">
-        <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2 px-1">
-          ${new Date(day + 'T12:00:00').toLocaleDateString('fr-CA', { weekday:'long', day:'numeric', month:'long' })}
-        </h3>
-        ${bks.sort((a,b) => new Date(a.startAt||a.start_at)-new Date(b.startAt||b.start_at)).map(renderCard).join('')}
-      </div>`).join('');
+  if (!bookings.length && !staffList.length) { hide('planning-grid'); show('empty'); return; }
+
+  if (viewMode === 'day') {
+    el.innerHTML = renderDayColumns(bookings, curDate);
+  } else {
+    el.innerHTML = renderWeekGrid(bookings);
   }
+  show('planning-grid');
 
-  function renderCard(b) {
-    const dt     = new Date(b.startAt || b.start_at);
-    const hour   = dt.toLocaleTimeString('fr-CA', { hour:'2-digit', minute:'2-digit', timeZone:'America/Toronto' });
-    const status = b.status || 'PENDING';
-    const segs   = b.appointmentSegments || b.appointment_segments || [];
-    const staff  = staffMap[segs[0]?.teamMemberId || segs[0]?.team_member_id] || 'Staff';
-    const client = b.customerName || b.customer_note?.split('—')[0]?.trim() || 'Client';
-    const svc    = b.serviceName || segs[0]?.serviceVariationId?.slice(-6) || '';
-    const dur    = segs[0]?.durationMinutes || Math.round((segs[0]?.duration_minutes || 60));
+  // Ligne "maintenant" (vue jour uniquement)
+  if (viewMode === 'day') injectNowLine();
+}
 
-    return `
-      <div class="slot-card bg-white border border-gray-200 rounded-xl p-4 mb-2 cursor-pointer flex items-start gap-4"
-           onclick='openModal(${JSON.stringify(b).replace(/'/g,"\\'")})'> 
-        <div class="text-center flex-shrink-0 w-14">
-          <div class="text-lg font-black text-gray-900">${hour}</div>
-          <div class="text-xs text-gray-400">${dur} min</div>
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="font-semibold text-gray-900 truncate">${client}</div>
-          <div class="text-xs text-gray-500 mt-0.5 truncate">${svc} · ${staff}</div>
-        </div>
-        <span class="text-[10px] font-bold px-2 py-1 rounded-full flex-shrink-0 status-${status}">
-          ${statusLabel(status)}
-        </span>
-      </div>`;
-  }
+// ── Vue Jour : colonnes par coiffeur ─────────────────────────────────────────
+function renderDayColumns(bookings, date) {
+  // Grouper par staff
+  const staffIds = staffFilt === 'all'
+    ? (staffList.length ? staffList.map(m => m.id || m.teamMemberId) : ['unknown'])
+    : [staffFilt];
 
-  function statusLabel(s) {
-    return { ACCEPTED:'Confirmé', PENDING:'En attente', CANCELLED:'Annulé', COMPLETED:'Terminé', NO_SHOW:'Absent' }[s] || s;
-  }
+  const byStaff = {};
+  staffIds.forEach(id => { byStaff[id] = []; });
+  bookings.forEach(b => {
+    const seg  = (b.appointmentSegments || b.appointment_segments || [])[0];
+    const sid  = seg?.teamMemberId || seg?.team_member_id || 'unknown';
+    if (!byStaff[sid]) byStaff[sid] = [];
+    byStaff[sid].push(b);
+  });
 
-  // ── Stats ───────────────────────────────────────────────────────────────────
-  function updateStats(bookings) {
-    document.getElementById('stat-total').textContent     = bookings.length;
-    document.getElementById('stat-accepted').textContent  = bookings.filter(b => b.status==='ACCEPTED').length;
-    document.getElementById('stat-pending').textContent   = bookings.filter(b => b.status==='PENDING').length;
-    document.getElementById('stat-cancelled').textContent = bookings.filter(b => b.status==='CANCELLED').length;
-  }
+  const hours = [];
+  for (let h = HOURS_START; h <= HOURS_END; h++) hours.push(h);
 
-  // ── Date label ──────────────────────────────────────────────────────────────
-  function updateDateLabel(start, end) {
-    const opts = { weekday:'long', day:'numeric', month:'long', timeZone:'America/Toronto' };
-    if (viewMode === 'day') {
-      document.getElementById('date-label').textContent =
-        start.toLocaleDateString('fr-CA', opts);
-    } else {
-      const s = start.toLocaleDateString('fr-CA', { day:'numeric', month:'short' });
-      const e = end.toLocaleDateString('fr-CA', { day:'numeric', month:'short' });
-      document.getElementById('date-label').textContent = `${s} – ${e}`;
-    }
-  }
+  const staffCols = staffIds.map(sid => {
+    const info = staffMap[sid] || { name: 'Staff', initials: 'ST' };
+    const bks  = byStaff[sid] || [];
 
-  // ── Modal ───────────────────────────────────────────────────────────────────
-  function openModal(booking) {
-    const b    = typeof booking === 'string' ? JSON.parse(booking) : booking;
-    const dt   = new Date(b.startAt || b.start_at);
-    const segs = b.appointmentSegments || b.appointment_segments || [];
-    const staff = staffMap[segs[0]?.teamMemberId || segs[0]?.team_member_id] || 'Staff';
-
-    document.getElementById('modal-title').textContent = b.customerName || 'Rendez-vous';
-    document.getElementById('modal-body').innerHTML = `
-      <div class="flex gap-3 items-center p-3 bg-gray-50 rounded-lg">
-        <span class="text-2xl">📅</span>
-        <div>
-          <div class="font-bold">${dt.toLocaleDateString('fr-CA', { weekday:'long', day:'numeric', month:'long', timeZone:'America/Toronto' })}</div>
-          <div class="text-gray-500">${dt.toLocaleTimeString('fr-CA', { hour:'2-digit', minute:'2-digit', timeZone:'America/Toronto' })}</div>
-        </div>
-      </div>
-      <div class="grid grid-cols-2 gap-2 text-xs">
-        <div class="bg-gray-50 rounded-lg p-3"><div class="text-gray-400 mb-1">Coiffeur·se</div><div class="font-semibold">${staff}</div></div>
-        <div class="bg-gray-50 rounded-lg p-3"><div class="text-gray-400 mb-1">Statut</div>
-          <span class="font-bold status-${b.status} px-2 py-0.5 rounded-full text-xs">${statusLabel(b.status)}</span>
-        </div>
-      </div>
-      ${b.customer_note ? `<div class="p-3 bg-amber-50 border border-amber-100 rounded-lg text-xs">${b.customer_note}</div>` : ''}
-      <div class="text-xs text-gray-400">ID: ${b.id || '—'}</div>`;
-
-    const actions = document.getElementById('modal-actions');
-    if (b.status === 'ACCEPTED' || b.status === 'PENDING') {
-      actions.innerHTML = `
-        <button onclick="cancelBooking('${b.id}','${b.version||0}')"
-          class="flex-1 border border-red-200 text-red-600 hover:bg-red-50 rounded-lg py-2 text-xs font-semibold transition">
-          Annuler le RDV
-        </button>`;
-    } else { actions.innerHTML = ''; }
-
-    document.getElementById('modal-overlay').classList.remove('hidden');
-    document.getElementById('modal').classList.remove('hidden');
-  }
-
-  function closeModal() {
-    document.getElementById('modal-overlay').classList.add('hidden');
-    document.getElementById('modal').classList.add('hidden');
-  }
-
-  async function cancelBooking(id, version) {
-    if (!confirm('Annuler ce rendez-vous ?')) return;
-    try {
-      const r = await fetch(`${API}/api/sq-calendar/appointments/${id}/cancel`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ version: parseInt(version) || 0 })
+    const rows = hours.map(h => {
+      const slotStart = new Date(date); slotStart.setHours(h, 0, 0, 0);
+      const slotEnd   = new Date(date); slotEnd.setHours(h, 59, 59, 999);
+      const match = bks.find(b => {
+        const bStart = new Date(b.startAt || b.start_at);
+        return bStart >= slotStart && bStart <= slotEnd;
       });
-      const d = await r.json();
-      if (d.ok || d.booking) { closeModal(); loadAgenda(); }
-      else alert(d.error || 'Erreur annulation');
-    } catch(e) { alert('Erreur: ' + e.message); }
-  }
 
-  // ── Init ────────────────────────────────────────────────────────────────────
-  loadAgenda();
-  setInterval(loadAgenda, 3 * 60 * 1000); // auto-refresh 3 min
+      if (match) {
+        const dur = (match.appointmentSegments||match.appointment_segments||[])[0]?.durationMinutes || 60;
+        const endT = new Date(match.startAt || match.start_at);
+        endT.setMinutes(endT.getMinutes() + (dur||60));
+        const hEnd = endT.toLocaleTimeString('fr-CA', {hour:'2-digit', minute:'2-digit', timeZone:'America/Toronto'});
+        const cls  = slotClass(match.status);
+        const client = match.customerName || 'Client';
+        const svc = (match.appointmentSegments||match.appointment_segments||[])[0]?.serviceVariationId ? '·' : '';
+        return `<div class="${cls} rounded-lg p-2 text-xs cursor-pointer mb-0.5"
+                     onclick='openMo(${escJ(match)})'>
+                  <div class="font-bold text-gray-800 truncate">${escH(client)}</div>
+                  <div class="text-gray-500">${fmtTime(match.startAt||match.start_at)} – ${hEnd} ${svc}</div>
+                  <div class="mt-0.5"><span class="text-[9px] font-bold uppercase tracking-wide ${statusColor(match.status)}">${statusLbl(match.status)}</span></div>
+                </div>`;
+      } else {
+        // Créneau libre (dans les heures d'ouverture)
+        if (h < HOURS_START || h >= HOURS_END) return '<div class="h-6"></div>';
+        return `<div class="slot-free rounded-lg px-2 py-1 text-[10px] text-emerald-600 font-semibold mb-0.5 opacity-50">Libre</div>`;
+      }
+    });
+
+    return `<div class="staff-col flex-1">
+      <div class="sticky top-0 bg-white border-b border-gray-100 pb-2 mb-2 z-10">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">${info.initials}</div>
+          <div class="text-xs font-bold text-gray-800 truncate">${escH(info.name)}</div>
+          <div class="ml-auto text-[10px] text-gray-400">${bks.filter(b=>['ACCEPTED','PENDING'].includes(b.status)).length} RDV</div>
+        </div>
+      </div>
+      ${rows.join('')}
+    </div>`;
+  }).join('');
+
+  const hourLabels = hours.map(h =>
+    `<div class="hour-label">${String(h).padStart(2,'0')}h</div>`
+  ).join('');
+
+  return `<div class="flex gap-0">
+    <div class="flex flex-col mr-2 mt-[52px]">${hourLabels}</div>
+    <div class="flex gap-3 flex-1 overflow-x-auto">${staffCols}</div>
+  </div>`;
+}
+
+// ── Vue Semaine : grille compacte ─────────────────────────────────────────────
+function renderWeekGrid(bookings) {
+  const days = {};
+  bookings.forEach(b => {
+    const dt  = new Date(b.startAt || b.start_at);
+    const key = dt.toLocaleDateString('fr-CA');
+    if (!days[key]) days[key] = [];
+    days[key].push(b);
+  });
+
+  if (!Object.keys(days).length) return '<div class="text-center py-10 text-gray-400 text-sm">Aucun RDV cette semaine</div>';
+
+  return Object.entries(days).sort(([a],[b])=>a.localeCompare(b)).map(([day, bks]) => {
+    const dt = new Date(day + 'T12:00:00');
+    const dayStr = dt.toLocaleDateString('fr-CA', { weekday:'long', day:'numeric', month:'long' });
+    const taken = bks.filter(b=>['ACCEPTED','PENDING'].includes(b.status)).length;
+    const done  = bks.filter(b=>b.status==='COMPLETED').length;
+
+    return `<div class="mb-4">
+      <div class="flex items-center gap-2 mb-2">
+        <h3 class="text-xs font-bold uppercase tracking-widest text-gray-500">${escH(dayStr)}</h3>
+        <span class="text-[10px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">${taken} pris</span>
+        ${done ? `<span class="text-[10px] font-bold bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded">${done} terminés</span>` : ''}
+      </div>
+      <div class="grid gap-1.5">
+        ${bks.sort((a,b)=>new Date(a.startAt||a.start_at)-new Date(b.startAt||b.start_at)).map(b => {
+          const seg  = (b.appointmentSegments||b.appointment_segments||[])[0];
+          const sid  = seg?.teamMemberId || seg?.team_member_id;
+          const staff = sid ? (staffMap[sid]?.name || 'Staff') : 'Staff';
+          return `<div class="${slotClass(b.status)} rounded-lg px-3 py-2 flex items-center gap-3 cursor-pointer"
+                       onclick='openMo(${escJ(b)})'>
+            <div class="text-xs font-bold text-gray-700 w-10 flex-shrink-0">${fmtTime(b.startAt||b.start_at)}</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-semibold text-gray-900 truncate">${escH(b.customerName||'Client')}</div>
+              <div class="text-[10px] text-gray-500">${escH(staff)}</div>
+            </div>
+            <span class="text-[9px] font-bold uppercase ${statusColor(b.status)} flex-shrink-0">${statusLbl(b.status)}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Ligne maintenant ──────────────────────────────────────────────────────────
+function injectNowLine() {
+  const now = new Date();
+  if (now.getHours() < HOURS_START || now.getHours() > HOURS_END) return;
+  const rows = document.querySelectorAll('.hour-label');
+  const hIdx = now.getHours() - HOURS_START;
+  if (rows[hIdx]) rows[hIdx].classList.add('now-line');
+}
+
+// ── Modal ──────────────────────────────────────────────────────────────────────
+function openMo(b) {
+  if (typeof b === 'string') b = JSON.parse(b);
+  const seg   = (b.appointmentSegments||b.appointment_segments||[])[0];
+  const sid   = seg?.teamMemberId || seg?.team_member_id;
+  const staff = sid ? (staffMap[sid]?.name || 'Staff') : 'Non assigné';
+  const dur   = seg?.durationMinutes || seg?.duration_minutes || 60;
+  const dt    = new Date(b.startAt || b.start_at);
+  const endDt = new Date(dt.getTime() + dur * 60000);
+
+  document.getElementById('md-title').textContent = b.customerName || 'Rendez-vous';
+  document.getElementById('md-body').innerHTML = `
+    <div class="grid grid-cols-2 gap-2 text-xs">
+      <div class="bg-gray-50 rounded-lg p-3">
+        <div class="text-gray-400 mb-0.5">Heure</div>
+        <div class="font-bold">${fmtTime(b.startAt||b.start_at)} – ${endDt.toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit',timeZone:'America/Toronto'})}</div>
+      </div>
+      <div class="bg-gray-50 rounded-lg p-3">
+        <div class="text-gray-400 mb-0.5">Durée</div>
+        <div class="font-bold">${dur} min</div>
+      </div>
+      <div class="bg-gray-50 rounded-lg p-3">
+        <div class="text-gray-400 mb-0.5">Coiffeur·se</div>
+        <div class="font-bold truncate">${escH(staff)}</div>
+      </div>
+      <div class="bg-gray-50 rounded-lg p-3">
+        <div class="text-gray-400 mb-0.5">Statut</div>
+        <div class="font-bold ${statusColor(b.status)}">${statusLbl(b.status)}</div>
+      </div>
+    </div>
+    ${b.customer_note ? `<div class="bg-amber-50 border border-amber-100 rounded-lg p-3 text-xs text-gray-600">${escH(b.customer_note)}</div>` : ''}
+    <div class="text-[10px] text-gray-300">ID Square: ${b.id||'—'}</div>`;
+
+  const acts = document.getElementById('md-actions');
+  acts.innerHTML = '';
+  if (['ACCEPTED','PENDING'].includes(b.status)) {
+    const btn = document.createElement('button');
+    btn.className = 'flex-1 border border-red-200 text-red-600 text-xs rounded-lg py-2 font-semibold hover:bg-red-50 transition';
+    btn.textContent = 'Annuler ce RDV';
+    btn.onclick = () => cancelBk(b.id, b.version||0);
+    acts.appendChild(btn);
+  }
+  show('mo'); show('md');
+}
+
+function closeMo() { hide('mo'); hide('md'); }
+
+async function cancelBk(id, v) {
+  if (!confirm('Annuler ce rendez-vous Square ?')) return;
+  try {
+    const r = await fetch(`${API}/api/sq-calendar/appointments/${id}/cancel`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ version: parseInt(v)||0 })
+    });
+    const d = await r.json();
+    if (d.ok || d.booking) { closeMo(); reload(); }
+    else alert(d.error || 'Erreur annulation');
+  } catch(e) { alert('Erreur: '+e.message); }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function slotClass(s) {
+  return { ACCEPTED:'slot-taken', PENDING:'slot-taken', COMPLETED:'slot-done', NO_SHOW:'slot-noshow', CANCELLED:'slot-cancelled' }[s] || 'slot-taken';
+}
+function statusLbl(s) {
+  return { ACCEPTED:'Confirmé', PENDING:'En attente', COMPLETED:'Terminé', NO_SHOW:'Absent', CANCELLED:'Annulé' }[s] || s;
+}
+function statusColor(s) {
+  return { ACCEPTED:'text-amber-600', PENDING:'text-orange-500', COMPLETED:'text-violet-600', NO_SHOW:'text-red-500', CANCELLED:'text-gray-400' }[s] || 'text-gray-500';
+}
+function fmtTime(iso) {
+  return new Date(iso).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit',timeZone:'America/Toronto'});
+}
+function updateLabel(s, e) {
+  document.getElementById('date-lbl').textContent = viewMode === 'day'
+    ? new Date(s).toLocaleDateString('fr-CA',{weekday:'long',day:'numeric',month:'long',timeZone:'America/Toronto'})
+    : `${s.toLocaleDateString('fr-CA',{day:'numeric',month:'short'})} – ${e.toLocaleDateString('fr-CA',{day:'numeric',month:'short'})}`;
+}
+function escH(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escJ(obj) { return JSON.stringify(obj).replace(/'/g,"\\'"); }
+function show(id) { document.getElementById(id).classList.remove('hidden'); }
+function hide(id) { document.getElementById(id).classList.add('hidden'); }
+
+reload();
+setInterval(reload, 3*60*1000); // auto-refresh 3 min
 </script>
 </body>
 </html>

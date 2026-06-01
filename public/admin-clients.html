@@ -1,279 +1,353 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Clients — Kadio Coiffure</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    .client-row { transition: background .1s; }
-    .client-row:hover { background: #fffbeb; }
-    .badge-square { background:#d1fae5; color:#065f46; }
-    .badge-sms    { background:#dbeafe; color:#1e40af; }
-    .badge-both   { background:#ede9fe; color:#4c1d95; }
-    .skeleton { animation: pulse 1.5s infinite; background:#e5e7eb; border-radius:4px; }
+    body { font-family:'Inter',sans-serif; }
+    .skeleton { animation:pulse 1.5s infinite; background:#e5e7eb; border-radius:4px; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    tr.client-row:hover td { background:#fffbeb; }
+    .tag { display:inline-flex; align-items:center; gap:3px; font-size:10px; font-weight:700;
+           padding:2px 7px; border-radius:99px; }
+    .tag-member  { background:#d1fae5; color:#065f46; }
+    .tag-square  { background:#dbeafe; color:#1e40af; }
+    .tag-sms     { background:#ede9fe; color:#4c1d95; }
+    .tag-wa      { background:#dcfce7; color:#166534; }
+    .tag-deposit { background:#fef3c7; color:#92400e; }
+    .tag-inactive{ background:#f3f4f6; color:#6b7280; }
+    .pill { display:inline-block; padding:1px 6px; border-radius:99px; font-size:10px; font-weight:700; }
+    .pill-active   { background:#d1fae5; color:#065f46; }
+    .pill-past_due { background:#fee2e2; color:#991b1b; }
+    .pill-canceled { background:#f3f4f6; color:#6b7280; }
+    .pill-trial    { background:#fef3c7; color:#92400e; }
+    .pill-none     { background:#f9fafb; color:#9ca3af; }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen">
+<body class="bg-gray-50 text-gray-900 min-h-screen" style="overflow:hidden;height:100vh;display:flex;flex-direction:column">
 
 <!-- TOPBAR -->
-<div class="bg-white border-b border-gray-100 px-5 py-3 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+<div class="bg-white border-b border-gray-100 px-4 py-2.5 flex items-center justify-between flex-shrink-0 shadow-sm">
   <div class="flex items-center gap-3">
-    <div class="font-black text-sm tracking-widest text-gray-900 uppercase">👥 Clients</div>
-    <span class="text-xs text-gray-400">Square + SMS Campaign</span>
+    <span class="font-black text-sm tracking-widest uppercase">👥 Clients</span>
+    <span class="text-xs text-gray-400 hidden sm:block">Square · SMS · WhatsApp · Stripe</span>
   </div>
-  <div class="flex items-center gap-2">
-    <input id="search-input" type="text" placeholder="Rechercher nom, téléphone, email…"
-      class="border border-gray-200 rounded-lg px-3 py-1.5 text-sm w-52 focus:outline-none focus:ring-2 focus:ring-amber-300"
-      oninput="filterClients(this.value)">
-    <button onclick="loadClients()" title="Actualiser"
-      class="text-xs px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 font-semibold">⟳</button>
+  <div class="flex items-center gap-1.5">
+    <input id="srch" type="text" placeholder="Nom, téléphone, email…"
+      class="border border-gray-200 rounded-lg px-3 py-1.5 text-sm w-44 focus:outline-none focus:ring-2 focus:ring-amber-300"
+      oninput="doFilter()">
+    <button onclick="loadAll()" title="Forcer sync Square+SMS"
+      class="text-xs px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 font-semibold flex items-center gap-1">
+      <span>⟳</span><span class="hidden sm:inline">Sync</span>
+    </button>
     <button onclick="exportCSV()"
-      class="text-xs px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-semibold transition">
-      ↓ Export CSV
+      class="text-xs px-3 py-1.5 bg-gray-900 hover:bg-gray-700 text-white rounded-lg font-semibold">
+      ↓ CSV
     </button>
   </div>
 </div>
 
-<!-- FILTRES SOURCE -->
-<div class="bg-white border-b border-gray-100 px-5 py-2 flex items-center gap-3">
-  <button id="filter-all" onclick="setSourceFilter('all')"
-    class="text-xs px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-semibold">Tous</button>
-  <button id="filter-square" onclick="setSourceFilter('square')"
-    class="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-600 font-semibold">Square uniquement</button>
-  <button id="filter-sms" onclick="setSourceFilter('sms')"
-    class="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-600 font-semibold">SMS Campaign</button>
-  <span class="ml-auto text-xs text-gray-400" id="count-label">—</span>
+<!-- FILTRES + STATS -->
+<div class="bg-white border-b border-gray-100 px-4 py-1.5 flex items-center gap-2 flex-shrink-0">
+  <button id="f-all"    onclick="setF('all')"    class="tag tag-member">Tous</button>
+  <button id="f-member" onclick="setF('member')" class="tag tag-inactive">⭐ Membres actifs</button>
+  <button id="f-square" onclick="setF('square')" class="tag tag-inactive">◼ Square</button>
+  <button id="f-sms"    onclick="setF('sms')"    class="tag tag-inactive">📱 SMS</button>
+  <button id="f-wa"     onclick="setF('wa')"     class="tag tag-inactive">💬 WhatsApp</button>
+  <div class="ml-auto flex items-center gap-3 text-xs text-gray-400">
+    <span>Total: <strong id="st-total" class="text-gray-700">—</strong></span>
+    <span class="text-emerald-600">Membres: <strong id="st-members">—</strong></span>
+    <span id="sync-ts"></span>
+  </div>
 </div>
 
 <!-- TABLEAU -->
-<main class="p-4">
-  <!-- Loader -->
-  <div id="loader" class="space-y-2">
-    <div class="skeleton h-10 rounded-lg w-full"></div>
-    <div class="skeleton h-10 rounded-lg w-full"></div>
+<div class="flex-1 overflow-auto">
+  <div id="loader" class="p-5 space-y-2">
+    <div class="skeleton h-10 rounded-lg"></div>
     <div class="skeleton h-10 rounded-lg w-4/5"></div>
-    <div class="skeleton h-10 rounded-lg w-full"></div>
+    <div class="skeleton h-10 rounded-lg"></div>
     <div class="skeleton h-10 rounded-lg w-3/4"></div>
   </div>
 
-  <div id="table-wrap" class="hidden bg-white border border-gray-200 rounded-xl overflow-hidden">
-    <table class="w-full text-sm">
-      <thead class="bg-gray-50 border-b border-gray-200">
-        <tr>
-          <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-500">Nom</th>
-          <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-500 hidden sm:table-cell">Téléphone</th>
-          <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-500 hidden md:table-cell">Email</th>
-          <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-500">Source</th>
-          <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-500 hidden lg:table-cell">Dernière visite</th>
-          <th class="px-4 py-3"></th>
-        </tr>
-      </thead>
-      <tbody id="client-tbody">
-        <!-- injecté par JS -->
-      </tbody>
-    </table>
-  </div>
+  <table class="w-full text-sm hidden" id="tbl">
+    <thead class="bg-white border-b border-gray-200 sticky top-0 z-10">
+      <tr>
+        <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400 w-8">#</th>
+        <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Client</th>
+        <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400 hidden sm:table-cell">Téléphone</th>
+        <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Abonnement</th>
+        <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400 hidden md:table-cell">Dépôt Stripe</th>
+        <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400 hidden lg:table-cell">Sources</th>
+        <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400 hidden lg:table-cell">Dernière activité</th>
+        <th class="px-4 py-3 w-10"></th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
 
-  <div id="empty-state" class="hidden flex flex-col items-center py-16 text-center">
-    <div class="text-5xl mb-4">👥</div>
+  <div id="empty" class="hidden flex flex-col items-center py-16 text-center">
+    <div class="text-4xl mb-3">👥</div>
     <p class="text-gray-500 font-semibold">Aucun client trouvé</p>
-    <p class="text-gray-400 text-sm mt-1">Essayez un autre terme de recherche.</p>
   </div>
-</main>
+</div>
 
 <!-- MODAL SMS rapide -->
-<div id="modal-overlay" class="fixed inset-0 bg-black/40 z-50 hidden" onclick="closeModal()"></div>
-<div id="modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50
-     bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 hidden">
+<div id="mo"  class="fixed inset-0 bg-black/40 z-50 hidden" onclick="closeMo()"></div>
+<div id="md"  class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50
+  bg-white rounded-2xl shadow-2xl w-full max-w-sm p-5 hidden">
   <div class="flex justify-between items-center mb-4">
-    <h3 class="font-bold text-base text-gray-900">Envoyer un SMS</h3>
-    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 font-bold text-xl">×</button>
+    <h3 class="font-bold text-gray-900">Envoyer un SMS</h3>
+    <button onclick="closeMo()" class="text-gray-400 font-bold text-xl leading-none hover:text-gray-600">×</button>
   </div>
-  <div class="mb-2 text-sm text-gray-600">Destinataire : <strong id="sms-to-name"></strong></div>
-  <div class="mb-2 text-xs text-gray-400" id="sms-to-phone"></div>
-  <textarea id="sms-body" rows="4"
-    class="w-full border border-gray-200 rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-300"
-    placeholder="Votre message…"></textarea>
+  <div class="text-sm text-gray-600 mb-1">À : <strong id="sms-name"></strong></div>
+  <div class="text-xs text-gray-400 mb-3" id="sms-phone"></div>
+  <textarea id="sms-txt" rows="4"
+    class="w-full border border-gray-200 rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-300"></textarea>
   <div class="flex gap-2 mt-3">
-    <button onclick="closeModal()"
-      class="flex-1 border border-gray-200 rounded-lg py-2 text-sm text-gray-600 hover:bg-gray-50 font-semibold">Annuler</button>
-    <button onclick="sendQuickSMS()"
-      class="flex-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg py-2 text-sm font-semibold transition">
-      Envoyer
-    </button>
+    <button onclick="closeMo()" class="flex-1 border border-gray-200 rounded-lg py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50">Annuler</button>
+    <button onclick="sendSMS()" class="flex-1 bg-gray-900 hover:bg-gray-700 text-white rounded-lg py-2 text-sm font-semibold transition">Envoyer</button>
   </div>
 </div>
 
 <script>
-  const API = 'https://daleba-api-production.up.railway.app';
-  let allClients = [];
-  let sourceFilter = 'all';
-  let searchText = '';
-  let smsTarget = null;
+const API = 'https://daleba-api-production.up.railway.app';
+let allClients = [];
+let fMode = 'all';
+let smsTarget = null;
 
-  async function loadClients() {
-    document.getElementById('loader').classList.remove('hidden');
-    document.getElementById('table-wrap').classList.add('hidden');
-    document.getElementById('empty-state').classList.add('hidden');
+// ── Chargement principal ───────────────────────────────────────────────────────
+async function loadAll() {
+  show('loader'); hide('tbl'); hide('empty');
+  document.getElementById('sync-ts').textContent = 'Sync en cours…';
 
+  try {
+    // 1. Clients fusionnés Square+SMS
+    const syncData = await fetch(`${API}/api/sq-calendar/clients-sync`).then(r=>r.json());
+    const baseClients = syncData.clients || [];
+
+    // 2. Abonnements Stripe actifs
+    let subs = [];
     try {
-      const data = await fetch(`${API}/api/sq-calendar/clients-sync`).then(r => r.json());
-      allClients = data.clients || [];
-      renderClients();
-    } catch(e) {
-      document.getElementById('loader').innerHTML =
-        `<div class="text-center py-10 text-red-400 text-sm">Erreur: ${e.message}</div>`;
-    }
-    document.getElementById('loader').classList.add('hidden');
-  }
+      const subData = await fetch(`${API}/api/payment/subscriptions`).then(r=>r.json());
+      subs = subData.subscriptions || [];
+    } catch(_) {}
 
-  function setSourceFilter(f) {
-    sourceFilter = f;
-    ['all','square','sms'].forEach(id => {
-      const b = document.getElementById(`filter-${id}`);
-      const active = id === f;
-      b.classList.toggle('bg-amber-100', active);
-      b.classList.toggle('text-amber-800', active);
-      b.classList.toggle('bg-gray-100', !active);
-      b.classList.toggle('text-gray-600', !active);
+    // 3. Sessions WhatsApp actives
+    let waSessions = [];
+    try {
+      const waData = await fetch(`${API}/api/whatsapp/sessions`).then(r=>r.json());
+      waSessions = Array.isArray(waData) ? waData : [];
+    } catch(_) {}
+
+    // 4. Fusion : enrichir chaque client
+    const subByEmail = {};
+    subs.forEach(s => { if (s.customerEmail) subByEmail[s.customerEmail.toLowerCase()] = s; });
+
+    const waByPhone = {};
+    waSessions.forEach(w => { if (w.phone) waByPhone[w.phone.replace(/\D/g,'')] = w; });
+
+    allClients = baseClients.map(c => {
+      const email = (c.email||'').toLowerCase();
+      const phone = (c.phone||'').replace(/\D/g,'');
+      const sub   = subByEmail[email] || null;
+      const wa    = waByPhone[phone] || null;
+      return { ...c, subscription: sub, waSession: wa };
     });
-    renderClients();
-  }
 
-  function filterClients(q) { searchText = q.toLowerCase(); renderClients(); }
-
-  function renderClients() {
-    let clients = allClients;
-
-    // Filtre source
-    if (sourceFilter === 'square') clients = clients.filter(c => c.squareId);
-    if (sourceFilter === 'sms')    clients = clients.filter(c => c.smsSource || c.source?.startsWith('sms'));
-
-    // Filtre texte
-    if (searchText) {
-      clients = clients.filter(c =>
-        (c.name  || '').toLowerCase().includes(searchText) ||
-        (c.phone || '').includes(searchText) ||
-        (c.email || '').toLowerCase().includes(searchText)
-      );
-    }
-
-    document.getElementById('count-label').textContent = `${clients.length} client${clients.length > 1 ? 's' : ''}`;
-
-    if (!clients.length) {
-      document.getElementById('table-wrap').classList.add('hidden');
-      document.getElementById('empty-state').classList.remove('hidden');
-      return;
-    }
-
-    document.getElementById('empty-state').classList.add('hidden');
-    document.getElementById('table-wrap').classList.remove('hidden');
-
-    document.getElementById('client-tbody').innerHTML = clients.map(c => {
-      const sourceBadge = c.squareId && c.smsSource ? 'badge-both' :
-                          c.squareId ? 'badge-square' : 'badge-sms';
-      const sourceLabel = c.squareId && c.smsSource ? '⚡ Square + SMS' :
-                          c.squareId ? '◼ Square' : '📱 SMS Campaign';
-      const dateStr = c.createdAt
-        ? new Date(c.createdAt).toLocaleDateString('fr-CA', { day:'numeric', month:'short', year:'numeric' })
-        : '—';
-
-      return `
-        <tr class="client-row border-b border-gray-100 last:border-0">
-          <td class="px-4 py-3">
-            <div class="font-semibold text-gray-900">${escHtml(c.name || 'Client')}</div>
-            ${c.lastService ? `<div class="text-xs text-gray-400">${escHtml(c.lastService)}</div>` : ''}
-          </td>
-          <td class="px-4 py-3 hidden sm:table-cell text-sm text-gray-600">
-            ${c.phone ? `<a href="tel:${c.phone}" class="hover:text-amber-600">${escHtml(c.phone)}</a>` : '—'}
-          </td>
-          <td class="px-4 py-3 hidden md:table-cell text-sm text-gray-500 max-w-[160px] truncate">
-            ${c.email ? escHtml(c.email) : '—'}
-          </td>
-          <td class="px-4 py-3">
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${sourceBadge}">${sourceLabel}</span>
-          </td>
-          <td class="px-4 py-3 hidden lg:table-cell text-xs text-gray-400">${dateStr}</td>
-          <td class="px-4 py-3 text-right">
-            ${c.phone ? `
-              <button onclick='openSMSModal(${JSON.stringify({ name: c.name, phone: c.phone })})'
-                class="text-xs border border-gray-200 hover:border-amber-300 hover:bg-amber-50 rounded-lg px-2 py-1 font-semibold text-gray-600 transition">
-                SMS
-              </button>` : ''}
-          </td>
-        </tr>`;
-    }).join('');
-  }
-
-  // ── SMS rapide ──────────────────────────────────────────────────────────────
-  function openSMSModal(client) {
-    smsTarget = client;
-    document.getElementById('sms-to-name').textContent = client.name;
-    document.getElementById('sms-to-phone').textContent = client.phone;
-    document.getElementById('sms-body').value =
-      `Bonjour ${client.name?.split(' ')[0] || ''} ! 💇 On vous attend chez Kadio Coiffure. Réservez en ligne : https://kadiocoiffure.vercel.app/hub`;
-    document.getElementById('modal-overlay').classList.remove('hidden');
-    document.getElementById('modal').classList.remove('hidden');
-    document.getElementById('sms-body').focus();
-  }
-
-  function closeModal() {
-    document.getElementById('modal-overlay').classList.add('hidden');
-    document.getElementById('modal').classList.add('hidden');
-    smsTarget = null;
-  }
-
-  async function sendQuickSMS() {
-    if (!smsTarget?.phone) return;
-    const body = document.getElementById('sms-body').value.trim();
-    if (!body) return;
-    try {
-      const r = await fetch(`${API}/api/sms/send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: smsTarget.phone, message: body })
-      });
-      const d = await r.json();
-      if (d.success || d.sid) {
-        closeModal();
-        showToast(`✅ SMS envoyé à ${smsTarget.name}`);
-      } else {
-        alert(d.error || 'Erreur envoi SMS');
+    // Ajouter les membres Stripe non présents dans Square/SMS
+    subs.forEach(s => {
+      const email = (s.customerEmail||'').toLowerCase();
+      const alreadyIn = allClients.some(c => (c.email||'').toLowerCase() === email);
+      if (!alreadyIn) {
+        allClients.push({
+          name: s.customerName || s.customerEmail,
+          email: s.customerEmail,
+          phone: '',
+          source: 'stripe_only',
+          squareId: null,
+          subscription: s,
+          waSession: null,
+        });
       }
-    } catch(e) { alert('Erreur: ' + e.message); }
-  }
-
-  // ── Export CSV ──────────────────────────────────────────────────────────────
-  function exportCSV() {
-    const rows = [['Nom','Téléphone','Email','Source','Date']];
-    allClients.forEach(c => {
-      const src = c.squareId && c.smsSource ? 'Square+SMS' : c.squareId ? 'Square' : 'SMS';
-      rows.push([c.name||'', c.phone||'', c.email||'', src,
-        c.createdAt ? new Date(c.createdAt).toLocaleDateString('fr-CA') : '']);
     });
-    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv], { type:'text/csv;charset=utf-8;' }));
-    a.download = `clients-kadio-${new Date().toISOString().slice(0,10)}.csv`;
-    a.click();
-  }
 
-  function escHtml(s) {
-    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+    // Tri : membres actifs en premier, puis par nom
+    allClients.sort((a,b) => {
+      const aActive = a.subscription?.status === 'active' ? 0 : 1;
+      const bActive = b.subscription?.status === 'active' ? 0 : 1;
+      if (aActive !== bActive) return aActive - bActive;
+      return (a.name||'').localeCompare(b.name||'', 'fr');
+    });
 
-  function showToast(msg) {
-    const t = document.createElement('div');
-    t.className = 'fixed bottom-4 right-4 bg-gray-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg z-50';
-    t.textContent = msg; document.body.appendChild(t);
-    setTimeout(() => t.remove(), 3500);
-  }
+    document.getElementById('st-total').textContent = allClients.length;
+    document.getElementById('st-members').textContent = allClients.filter(c=>c.subscription?.status==='active').length;
+    document.getElementById('sync-ts').textContent = 'Sync ' + new Date().toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
 
-  loadClients();
+    doFilter();
+  } catch(e) {
+    document.getElementById('loader').innerHTML =
+      `<div class="text-red-400 text-sm text-center py-10">Erreur: ${e.message}</div>`;
+    show('loader');
+  }
+  hide('loader');
+}
+
+// ── Filtre + render ───────────────────────────────────────────────────────────
+function setF(f) {
+  fMode = f;
+  ['all','member','square','sms','wa'].forEach(id => {
+    const b = document.getElementById(`f-${id}`);
+    const active = id === f;
+    b.className = `tag ${active ? (id==='member'?'tag-member':id==='wa'?'tag-wa':id==='sms'?'tag-sms':'tag-square') : 'tag-inactive'}`;
+  });
+  doFilter();
+}
+
+function doFilter() {
+  const q = document.getElementById('srch').value.toLowerCase();
+  let list = allClients;
+
+  if (fMode === 'member') list = list.filter(c => c.subscription?.status === 'active');
+  if (fMode === 'square') list = list.filter(c => c.squareId);
+  if (fMode === 'sms')    list = list.filter(c => c.smsSource || c.source?.startsWith('sms'));
+  if (fMode === 'wa')     list = list.filter(c => c.waSession);
+
+  if (q) list = list.filter(c =>
+    (c.name||'').toLowerCase().includes(q) ||
+    (c.phone||'').includes(q) ||
+    (c.email||'').toLowerCase().includes(q)
+  );
+
+  renderTable(list);
+}
+
+// ── Render tableau ────────────────────────────────────────────────────────────
+function renderTable(list) {
+  if (!list.length) { hide('tbl'); show('empty'); return; }
+  hide('empty'); show('tbl');
+
+  document.getElementById('tbody').innerHTML = list.map((c, i) => {
+    const sub    = c.subscription;
+    const wa     = c.waSession;
+    const subSt  = sub?.status || 'none';
+    const subPill = `<span class="pill pill-${subSt}">${subLabel(sub)}</span>`;
+
+    // Dépôt Stripe (depuis contexte WA ou abonnement)
+    const hasDeposit  = wa?.context?.bookingId || wa?.context?.depositLink;
+    const depositPaid = wa?.state === 'booking_confirmed';
+    const depositCell = hasDeposit
+      ? (depositPaid
+          ? '<span class="tag tag-deposit">💳 Dépôt payé</span>'
+          : '<span class="tag tag-inactive">⏳ En attente dépôt</span>')
+      : '<span class="text-gray-300 text-xs">—</span>';
+
+    // Sources badges
+    const tags = [];
+    if (c.squareId)  tags.push('<span class="tag tag-square">◼ Square</span>');
+    if (c.smsSource || c.source?.startsWith('sms')) tags.push('<span class="tag tag-sms">📱 SMS</span>');
+    if (wa)          tags.push('<span class="tag tag-wa">💬 WA</span>');
+
+    // Dernière activité
+    const lastAct = wa?.updated_at
+      ? new Date(wa.updated_at).toLocaleDateString('fr-CA',{day:'numeric',month:'short'})
+      : (c.createdAt ? new Date(c.createdAt).toLocaleDateString('fr-CA',{day:'numeric',month:'short'}) : '—');
+
+    // Alerte si abonné past_due
+    const rowAlert = subSt === 'past_due' ? 'bg-red-50' : '';
+
+    return `<tr class="client-row border-b border-gray-100 last:border-0 ${rowAlert}">
+      <td class="px-4 py-3 text-xs text-gray-400 tabular-nums">${i+1}</td>
+      <td class="px-4 py-3">
+        <div class="font-semibold text-gray-900">${escH(c.name||'Client inconnu')}</div>
+        ${c.email ? `<div class="text-xs text-gray-400 truncate max-w-[160px]">${escH(c.email)}</div>` : ''}
+      </td>
+      <td class="px-4 py-3 hidden sm:table-cell text-xs text-gray-600">
+        ${c.phone ? `<a href="tel:${escH(c.phone)}" class="hover:text-amber-600">${escH(c.phone)}</a>` : '—'}
+      </td>
+      <td class="px-4 py-3">
+        ${subPill}
+        ${sub ? `<div class="text-[10px] text-gray-400 mt-0.5">${sub.plan||''} ${sub.amount ? '· $'+(sub.amount/100).toFixed(0)+'/mo' : ''}</div>` : ''}
+      </td>
+      <td class="px-4 py-3 hidden md:table-cell">${depositCell}</td>
+      <td class="px-4 py-3 hidden lg:table-cell">${tags.join(' ')}</td>
+      <td class="px-4 py-3 hidden lg:table-cell text-xs text-gray-400">${lastAct}</td>
+      <td class="px-4 py-3 text-right">
+        ${c.phone ? `
+          <button onclick='openSMS(${JSON.stringify({name:c.name,phone:c.phone})})'
+            class="text-xs border border-gray-200 hover:border-amber-300 hover:bg-amber-50 text-gray-600 rounded-lg px-2 py-1 font-semibold transition">SMS</button>
+        ` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function subLabel(sub) {
+  if (!sub) return 'Aucun abonnement';
+  const lbls = { active:'⭐ Membre actif', past_due:'⚠️ Paiement en retard', canceled:'Annulé', trialing:'Essai', incomplete:'Incomplet' };
+  return lbls[sub.status] || sub.status;
+}
+
+// ── SMS rapide ────────────────────────────────────────────────────────────────
+function openSMS(c) {
+  smsTarget = c;
+  document.getElementById('sms-name').textContent  = c.name;
+  document.getElementById('sms-phone').textContent = c.phone;
+  const prenom = (c.name||'').split(' ')[0] || '';
+  document.getElementById('sms-txt').value =
+    `Bonjour ${prenom} ! 💇 On vous attend chez Kadio Coiffure. Réservez : https://kadiocoiffure.vercel.app/hub`;
+  show('mo'); show('md');
+  document.getElementById('sms-txt').focus();
+}
+function closeMo() { hide('mo'); hide('md'); smsTarget = null; }
+async function sendSMS() {
+  if (!smsTarget?.phone) return;
+  const body = document.getElementById('sms-txt').value.trim();
+  if (!body) return;
+  try {
+    const r = await fetch(`${API}/api/sms/send`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ to: smsTarget.phone, message: body })
+    });
+    const d = await r.json();
+    closeMo();
+    toast(d.success||d.sid ? `✅ SMS envoyé à ${smsTarget.name}` : `❌ ${d.error||'Erreur'}`);
+  } catch(e) { toast('❌ '+e.message); }
+}
+
+// ── Export CSV ────────────────────────────────────────────────────────────────
+function exportCSV() {
+  const rows = [['Nom','Téléphone','Email','Abonnement','Plan','Dépôt WA','Sources','Dernière activité']];
+  allClients.forEach(c => {
+    const sub = c.subscription;
+    const wa  = c.waSession;
+    const src = [c.squareId?'Square':'', c.smsSource?'SMS':'', wa?'WA':''].filter(Boolean).join('+');
+    const dep = wa?.state==='booking_confirmed' ? 'Payé' : (wa?.context?.depositLink ? 'En attente' : '');
+    rows.push([c.name||'', c.phone||'', c.email||'', sub?.status||'', sub?.plan||'', dep, src,
+      wa?.updated_at ? new Date(wa.updated_at).toLocaleDateString('fr-CA') : '']);
+  });
+  const csv = rows.map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
+  a.download = `clients-kadio-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ── Utils ─────────────────────────────────────────────────────────────────────
+function escH(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function show(id) { document.getElementById(id).classList.remove('hidden'); }
+function hide(id) { document.getElementById(id).classList.add('hidden'); }
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'fixed bottom-4 right-4 bg-gray-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg z-50';
+  t.textContent = msg; document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 3500);
+}
+
+loadAll();
 </script>
 </body>
 </html>
