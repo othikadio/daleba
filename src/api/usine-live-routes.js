@@ -198,7 +198,10 @@ async function runAutoCycle() {
   // GPT-4o: crédits épuisés 2026-06-01 → exclu du pool DARE (quotaExhausted)
   // Gemini: instable → fallback uniquement
   const sleep = ms => new Promise(r => setTimeout(r, ms));
-  const RL_DELAY_MS = 2500; // 1 call IA / 2.5s = 24 RPM max (safe pour DeepSeek)
+  // Rate limiter calibré pour Kimi (Moonshot AI) :
+  // Tier standard = 60 RPM. On vise 30 RPM (marge ×2) = 1 call / 2s.
+  // Identique à DeepSeek — les deux APIs supportent ce rythme confortablement.
+  const RL_DELAY_MS = 2000; // 1 call IA / 2s = 30 RPM max (Kimi + DeepSeek OK)
 
   // ÉTAPE 1 — SCANS SÉQUENTIELS avec pause (était parallèle — générait trop d'appels IA)
   // Americas → pause → Europe → pause → Global : scan propre sans bombardement API

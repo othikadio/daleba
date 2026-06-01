@@ -11,6 +11,7 @@ const locksExpert   = require('./locks-expert');
 const { getToneContext } = require('./auditor-agent');
 
 const DEEPSEEK_KEY = process.env.DEEPSEEK_API_KEY || process.env.DEEPSEEK_KEY;
+const KIMI_KEY     = process.env.KIMI_API_KEY;
 
 // ─── SALON INFO ────────────────────────────────────────────────────────────────
 const SALON = {
@@ -45,23 +46,32 @@ Comportement :
 }
 
 // ─── LLM CALL ─────────────────────────────────────────────────────────────────
+// Appel IA avec fallback automatique DeepSeek → Kimi
 async function callDeepSeek(messages, temp = 0.7) {
-  if (!DEEPSEEK_KEY) {
-    return 'Bonjour ! Je suis l\'assistante de Kadio Coiffure. Pour prendre rendez-vous, appelez-nous au +1 514-919-5970. 😊';
+  // Tentative 1 : DeepSeek (rapide, économique)
+  if (DEEPSEEK_KEY) {
+    try {
+      const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${DEEPSEEK_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'deepseek-chat', messages, max_tokens: 250, temperature: temp }),
+      });
+      const data = await res.json();
+      if (res.ok) return data.choices[0].message.content.trim();
+    } catch(_) {}
   }
-  const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${DEEPSEEK_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'deepseek-chat',
-      messages,
-      max_tokens: 250,
-      temperature: temp,
-    }),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error?.message || `DeepSeek [${res.status}]`);
-  return data.choices[0].message.content.trim();
+
+  // Fallback : Kimi (Moonshot AI) — même qualité que GPT-4o, ~10× moins cher
+  if (KIMI_KEY) {
+    try {
+      const { OpenAI } = require('openai');
+      const kimi = new (require('openai'))({ apiKey: KIMI_KEY, baseURL: 'https://api.moonshot.cn/v1' });
+      const r = await kimi.chat.completions.create({ model: 'moonshot-v1-8k', messages, max_tokens: 250, temperature: temp });
+      return r.choices[0].message.content.trim();
+    } catch(_) {}
+  }
+
+  return 'Bonjour ! Je suis l\'assistante de Kadio Coiffure. Pour prendre rendez-vous, appelez-nous au +1 514-919-5970. 😊';
 }
 
 // ─── DÉTECTION SERVICE ─────────────────────────────────────────────────────────

@@ -7,6 +7,7 @@
 const fetch = (...args) => import('node-fetch').then(m => m.default(...args)).catch(() => global.fetch(...args));
 
 const DEEPSEEK_KEY = process.env.DEEPSEEK_API_KEY || process.env.DEEPSEEK_KEY;
+const KIMI_KEY     = process.env.KIMI_API_KEY;
 const OPENAI_KEY   = process.env.OPENAI_API_KEY;
 
 const LOCKS_SYSTEM_PROMPT = `Tu es Amara, l'Experte Locks de Kadio Coiffure à Longueuil, Québec.
@@ -26,22 +27,27 @@ Langues : tu réponds en français par défaut, anglais si le client écrit en a
 Ton : chaleureux, expert, rassurant, jamais pressé de conclure une vente.
 Format : messages courts et conversationnels (max 3-4 lignes par réponse).`;
 
-// Appelle DeepSeek pour le dialogue texte
+// Appelle DeepSeek puis Kimi en fallback
 async function callDeepSeek(messages) {
-  if (!DEEPSEEK_KEY) throw new Error('DEEPSEEK_API_KEY manquant');
-  const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${DEEPSEEK_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'deepseek-chat',
-      messages,
-      max_tokens: 300,
-      temperature: 0.75,
-    }),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error?.message || `DeepSeek [${res.status}]`);
-  return data.choices[0].message.content.trim();
+  if (DEEPSEEK_KEY) {
+    try {
+      const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${DEEPSEEK_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'deepseek-chat', messages, max_tokens: 300, temperature: 0.75 }),
+      });
+      const data = await res.json();
+      if (res.ok) return data.choices[0].message.content.trim();
+    } catch(_) {}
+  }
+  // Fallback Kimi
+  if (KIMI_KEY) {
+    const OpenAI = require('openai');
+    const kimi = new OpenAI({ apiKey: KIMI_KEY, baseURL: 'https://api.moonshot.cn/v1' });
+    const r = await kimi.chat.completions.create({ model: 'moonshot-v1-8k', messages, max_tokens: 300, temperature: 0.75 });
+    return r.choices[0].message.content.trim();
+  }
+  throw new Error('Aucun provider IA disponible (DEEPSEEK_API_KEY ou KIMI_API_KEY requis)');
 }
 
 // Analyse une image via GPT-4o Vision (open-source Whisper pour audio, GPT-4o pour vision)

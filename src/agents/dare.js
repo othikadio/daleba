@@ -43,15 +43,16 @@ const PROVIDERS = {
     // [044] Documentation
     docs: { url: 'https://docs.anthropic.com', authScheme: 'Bearer', envKey: 'ANTHROPIC_API_KEY' },
   },
-  gpt4o: {
-    id: 'gpt4o', name: 'GPT-4o (OpenAI)',
-    module: path.resolve(__dirname, 'gpt4o'),
-    available: !!process.env.OPENAI_API_KEY,
-    contextWindow: 128000, costPer1MInput: 2.50, costPer1MOutput: 10.00,
-    strengths: { creative: 10, writing: 10, conversation: 10, vision: 10, code: 8, strategy: 7, analysis: 8, math: 7, bulk: 6 },
+  // gpt4o RETIRÉ — crédits billing épuisés 2026-06-01. Remplacé par Kimi (Moonshot AI).
+  kimi: {
+    id: 'kimi', name: 'Kimi (Moonshot AI)',
+    module: path.resolve(__dirname, 'kimi'),
+    available: !!process.env.KIMI_API_KEY,
+    contextWindow: 128000, costPer1MInput: 0.15, costPer1MOutput: 0.60, // tarifs Moonshot ~10× moins cher qu'OpenAI
+    strengths: { creative: 9, writing: 10, conversation: 10, vision: 7, code: 8, strategy: 9, analysis: 9, math: 7, bulk: 7 },
     health: { status: 'unknown', latencyMs: null, lastCheck: null, failures: 0 },
     addedAt: Date.now(), deprecated: false,
-    docs: { url: 'https://platform.openai.com/docs', authScheme: 'Bearer', envKey: 'OPENAI_API_KEY' },
+    docs: { url: 'https://platform.moonshot.cn/docs', authScheme: 'Bearer', envKey: 'KIMI_API_KEY' },
   },
   deepseek: {
     id: 'deepseek', name: 'DeepSeek-V3',
@@ -120,7 +121,7 @@ const usageStats = {
   costThisHour: {},       // [037] { [providerId]: { windowStart: ts, costUSD: 0 } }
   bridledProviders: new Set(), // [037] providers bridés
   // Providers avec quota épuisé (billing) — ne jamais retry, éviter les 429 en boucle
-  quotaExhausted: new Set(['gpt4o']), // GPT-4o crédits épuisés 2026-06-01 — réactiver quand compte rechargé
+  quotaExhausted: new Set(), // gpt4o retiré définitivement du pool 2026-06-01, quota check non applicable
   lastReset: Date.now(),
 };
 
@@ -300,37 +301,37 @@ const TASK_PROFILES = [
     keywords: ['bilan', "chiffre d'affaires", 'ca ', 'revenue', 'revenu', 'calcul',
       'math', 'statistique', 'données', 'tableau', 'excel', 'csv', 'optimis',
       'coût', 'budget', 'profit', 'perte', 'comptabilité'],
-    priorities: ['deepseek', 'claude', 'gpt4o', 'gemini'],
+    priorities: ['deepseek', 'claude', 'kimi', 'gemini'],
   },
   {
     type: 'code',
     keywords: ['code', 'programme', 'fonction', 'bug', 'erreur', 'script', 'api',
       'endpoint', 'javascript', 'node', 'python', 'sql', 'database', 'debug'],
-    priorities: ['claude', 'gpt4o', 'deepseek', 'gemini'],
+    priorities: ['claude', 'kimi', 'deepseek', 'gemini'],
   },
   {
     type: 'strategy',
     keywords: ['stratégie', 'architecture', 'vision', 'plan', 'objectif', 'analyse',
       'pourquoi', 'explique', 'décision', 'expansion', 'marché'],
-    priorities: ['claude', 'gemini', 'gpt4o', 'deepseek'],
+    priorities: ['claude', 'kimi', 'gemini', 'deepseek'],
   },
   {
     type: 'creative',
     keywords: ['écris', 'rédige', 'histoire', 'slogan', 'caption', 'description',
       'post', 'instagram', 'marketing', 'publicité', 'accroche', 'campagne'],
-    priorities: ['gpt4o', 'claude', 'gemini', 'deepseek'],
+    priorities: ['kimi', 'claude', 'gemini', 'deepseek'], // Kimi excelle en rédaction/créativité
   },
   {
     type: 'document',
     keywords: ['résumé', 'synthèse', 'document', 'pdf', 'rapport', 'analyse doc',
       'extrait', 'transcription', 'long texte'],
-    priorities: ['gemini', 'claude', 'gpt4o', 'deepseek'],
+    priorities: ['gemini', 'claude', 'kimi', 'deepseek'],
   },
   {
     type: 'conversation',
     keywords: ['bonjour', 'salut', 'comment', 'qui', 'quoi', 'aide', 'répondre',
       'rdv', 'rendez-vous', 'réservation', 'client'],
-    priorities: ['claude', 'gpt4o', 'gemini', 'deepseek'],
+    priorities: ['kimi', 'claude', 'gemini', 'deepseek'], // Kimi = conversation fluide, remplace GPT-4o ici
   },
 ];
 
