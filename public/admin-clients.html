@@ -1,311 +1,279 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DALEBA — Fiche Client CRM</title>
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #0d1117; --surface: #161b22; --surface2: #21262d;
-    --border: #30363d; --text: #e6edf3; --text-dim: #8b949e;
-    --gold: #c9a84c; --gold-dim: rgba(201,168,76,0.12);
-    --green: #2da44e; --red: #f85149; --blue: #58a6ff;
-    --radius: 8px;
-  }
-  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; min-height: 100vh; }
-  .topbar {
-    background: var(--surface); border-bottom: 1px solid var(--border);
-    height: 52px; display: flex; align-items: center; padding: 0 1.5rem;
-    justify-content: space-between; position: sticky; top: 0; z-index: 100;
-  }
-  .topbar-logo { font-weight: 900; font-size: 1rem; color: var(--gold); }
-  .topbar-back { color: var(--text-dim); font-size: 0.85rem; cursor: pointer; text-decoration: none; }
-  .topbar-back:hover { color: var(--text); }
-  .container { max-width: 1000px; margin: 0 auto; padding: 1.5rem; }
-  /* Search bar */
-  .search-bar { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
-  .search-bar input { flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 0.6rem 1rem; font-size: 0.9rem; outline: none; }
-  .search-bar input:focus { border-color: var(--gold); }
-  .btn { background: var(--gold); color: #000; border: none; border-radius: 6px; padding: 0.55rem 1.2rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
-  .btn:hover { opacity: 0.85; }
-  .btn.secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-  /* Profile card */
-  .profile-card {
-    display: grid; grid-template-columns: 280px 1fr; gap: 1.5rem;
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 1.5rem; margin-bottom: 1.5rem;
-  }
-  @media (max-width: 700px) { .profile-card { grid-template-columns: 1fr; } }
-  .profile-left { text-align: center; }
-  .avatar {
-    width: 80px; height: 80px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--gold), #7a5f2e);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 2rem; font-weight: 700; color: #000;
-    margin: 0 auto 1rem;
-  }
-  .profile-name { font-size: 1.3rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem; }
-  .profile-id { font-size: 0.7rem; color: var(--text-dim); font-family: monospace; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
-  .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
-  .badge.vip { background: rgba(255,215,0,0.15); color: #ffd700; }
-  .badge.membre { background: var(--gold-dim); color: var(--gold); }
-  .qr-box { margin-top: 1rem; }
-  .qr-box img { width: 120px; height: 120px; border-radius: 8px; border: 2px solid var(--border); }
-  .qr-links { display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.5rem; flex-wrap: wrap; }
-  .qr-links a { font-size: 0.72rem; color: var(--blue); text-decoration: none; }
-  .qr-links a:hover { text-decoration: underline; }
-  .profile-right { }
-  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
-  @media (max-width: 500px) { .info-grid { grid-template-columns: 1fr; } }
-  .info-item { }
-  .info-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.2rem; }
-  .info-value { font-size: 0.9rem; color: var(--text); font-weight: 500; }
-  .info-value.highlight { color: var(--gold); font-weight: 700; }
-  /* Points bar */
-  .points-bar-wrap { margin: 1rem 0; }
-  .points-bar-label { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.3rem; }
-  .points-bar { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
-  .points-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), #ffd700); border-radius: 3px; transition: width 1s ease; }
-  /* History */
-  .section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem; margin-bottom: 1.5rem; }
-  .section-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 1rem; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-  th { background: var(--surface2); color: var(--text-dim); text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.08em; padding: 0.5rem 0.75rem; text-align: left; }
-  td { padding: 0.55rem 0.75rem; border-top: 1px solid var(--border); }
-  tr:hover td { background: var(--surface2); }
-  /* Loading */
-  .loader { text-align: center; padding: 3rem; color: var(--text-dim); font-size: 0.9rem; }
-  .no-client { text-align: center; padding: 3rem; }
-  .no-client h2 { color: var(--text-dim); margin-bottom: 1rem; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clients — Kadio Coiffure</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .client-row { transition: background .1s; }
+    .client-row:hover { background: #fffbeb; }
+    .badge-square { background:#d1fae5; color:#065f46; }
+    .badge-sms    { background:#dbeafe; color:#1e40af; }
+    .badge-both   { background:#ede9fe; color:#4c1d95; }
+    .skeleton { animation: pulse 1.5s infinite; background:#e5e7eb; border-radius:4px; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  </style>
 </head>
-<body>
-<div class="topbar">
-  <span class="topbar-logo">📋 CRM — Fiche Client</span>
-  <div style="display:flex;gap:1rem;align-items:center">
-    <a href="/admin-wallet.html" class="topbar-back">💳 Wallet</a>
-    <a href="/admin-hub.html" class="topbar-back">← Hub</a>
+<body class="bg-gray-50 text-gray-900 min-h-screen">
+
+<!-- TOPBAR -->
+<div class="bg-white border-b border-gray-100 px-5 py-3 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+  <div class="flex items-center gap-3">
+    <div class="font-black text-sm tracking-widest text-gray-900 uppercase">👥 Clients</div>
+    <span class="text-xs text-gray-400">Square + SMS Campaign</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <input id="search-input" type="text" placeholder="Rechercher nom, téléphone, email…"
+      class="border border-gray-200 rounded-lg px-3 py-1.5 text-sm w-52 focus:outline-none focus:ring-2 focus:ring-amber-300"
+      oninput="filterClients(this.value)">
+    <button onclick="loadClients()" title="Actualiser"
+      class="text-xs px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 font-semibold">⟳</button>
+    <button onclick="exportCSV()"
+      class="text-xs px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-semibold transition">
+      ↓ Export CSV
+    </button>
   </div>
 </div>
 
-<div class="container">
-  <div class="search-bar">
-    <input type="text" id="search-input" placeholder="Rechercher un client (ID Square, nom, email...)" />
-    <button class="btn" onclick="searchClient()">Rechercher</button>
-    <button class="btn secondary" onclick="loadAllClients()">📋 Tous</button>
+<!-- FILTRES SOURCE -->
+<div class="bg-white border-b border-gray-100 px-5 py-2 flex items-center gap-3">
+  <button id="filter-all" onclick="setSourceFilter('all')"
+    class="text-xs px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-semibold">Tous</button>
+  <button id="filter-square" onclick="setSourceFilter('square')"
+    class="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-600 font-semibold">Square uniquement</button>
+  <button id="filter-sms" onclick="setSourceFilter('sms')"
+    class="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-600 font-semibold">SMS Campaign</button>
+  <span class="ml-auto text-xs text-gray-400" id="count-label">—</span>
+</div>
+
+<!-- TABLEAU -->
+<main class="p-4">
+  <!-- Loader -->
+  <div id="loader" class="space-y-2">
+    <div class="skeleton h-10 rounded-lg w-full"></div>
+    <div class="skeleton h-10 rounded-lg w-full"></div>
+    <div class="skeleton h-10 rounded-lg w-4/5"></div>
+    <div class="skeleton h-10 rounded-lg w-full"></div>
+    <div class="skeleton h-10 rounded-lg w-3/4"></div>
   </div>
 
-  <div id="client-content">
-    <div class="no-client">
-      <h2>🔍 Rechercher un client</h2>
-      <p style="color:var(--text-dim);font-size:0.85rem">Entrez un ID Square ou un nom dans la barre de recherche</p>
-    </div>
+  <div id="table-wrap" class="hidden bg-white border border-gray-200 rounded-xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 border-b border-gray-200">
+        <tr>
+          <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-500">Nom</th>
+          <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-500 hidden sm:table-cell">Téléphone</th>
+          <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-500 hidden md:table-cell">Email</th>
+          <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-500">Source</th>
+          <th class="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-500 hidden lg:table-cell">Dernière visite</th>
+          <th class="px-4 py-3"></th>
+        </tr>
+      </thead>
+      <tbody id="client-tbody">
+        <!-- injecté par JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <div id="empty-state" class="hidden flex flex-col items-center py-16 text-center">
+    <div class="text-5xl mb-4">👥</div>
+    <p class="text-gray-500 font-semibold">Aucun client trouvé</p>
+    <p class="text-gray-400 text-sm mt-1">Essayez un autre terme de recherche.</p>
+  </div>
+</main>
+
+<!-- MODAL SMS rapide -->
+<div id="modal-overlay" class="fixed inset-0 bg-black/40 z-50 hidden" onclick="closeModal()"></div>
+<div id="modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50
+     bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 hidden">
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="font-bold text-base text-gray-900">Envoyer un SMS</h3>
+    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 font-bold text-xl">×</button>
+  </div>
+  <div class="mb-2 text-sm text-gray-600">Destinataire : <strong id="sms-to-name"></strong></div>
+  <div class="mb-2 text-xs text-gray-400" id="sms-to-phone"></div>
+  <textarea id="sms-body" rows="4"
+    class="w-full border border-gray-200 rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-300"
+    placeholder="Votre message…"></textarea>
+  <div class="flex gap-2 mt-3">
+    <button onclick="closeModal()"
+      class="flex-1 border border-gray-200 rounded-lg py-2 text-sm text-gray-600 hover:bg-gray-50 font-semibold">Annuler</button>
+    <button onclick="sendQuickSMS()"
+      class="flex-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg py-2 text-sm font-semibold transition">
+      Envoyer
+    </button>
   </div>
 </div>
 
 <script>
-const API_BASE = '';
-const BACKEND = 'https://daleba-api-production.up.railway.app';
+  const API = 'https://daleba-api-production.up.railway.app';
+  let allClients = [];
+  let sourceFilter = 'all';
+  let searchText = '';
+  let smsTarget = null;
 
-// Check URL param ?client=ID
-window.addEventListener('DOMContentLoaded', () => {
-  const params = new URLSearchParams(window.location.search);
-  const clientId = params.get('client');
-  if (clientId) {
-    document.getElementById('search-input').value = clientId;
-    loadClientById(clientId);
+  async function loadClients() {
+    document.getElementById('loader').classList.remove('hidden');
+    document.getElementById('table-wrap').classList.add('hidden');
+    document.getElementById('empty-state').classList.add('hidden');
+
+    try {
+      const data = await fetch(`${API}/api/sq-calendar/clients-sync`).then(r => r.json());
+      allClients = data.clients || [];
+      renderClients();
+    } catch(e) {
+      document.getElementById('loader').innerHTML =
+        `<div class="text-center py-10 text-red-400 text-sm">Erreur: ${e.message}</div>`;
+    }
+    document.getElementById('loader').classList.add('hidden');
   }
-});
 
-async function searchClient() {
-  const query = document.getElementById('search-input').value.trim();
-  if (!query) return;
-  // Si ça ressemble à un ID Square (long string sans espaces)
-  if (query.length > 15 && !query.includes(' ')) {
-    loadClientById(query);
-  } else {
-    searchClientByName(query);
+  function setSourceFilter(f) {
+    sourceFilter = f;
+    ['all','square','sms'].forEach(id => {
+      const b = document.getElementById(`filter-${id}`);
+      const active = id === f;
+      b.classList.toggle('bg-amber-100', active);
+      b.classList.toggle('text-amber-800', active);
+      b.classList.toggle('bg-gray-100', !active);
+      b.classList.toggle('text-gray-600', !active);
+    });
+    renderClients();
   }
-}
 
-async function loadClientById(clientId) {
-  showLoader();
-  try {
-    const data = await fetch(`${API_BASE}/api/wallet/pass-data/${clientId}`).then(r => r.json());
-    if (data.error) throw new Error(data.error);
-    renderClient(clientId, data);
-  } catch (e) {
-    showError(`Impossible de charger le client: ${e.message}`);
-  }
-}
+  function filterClients(q) { searchText = q.toLowerCase(); renderClients(); }
 
-async function searchClientByName(query) {
-  showLoader();
-  try {
-    const resp = await fetch(`${API_BASE}/api/clients/search?q=${encodeURIComponent(query)}`).then(r => r.json()).catch(() => null);
-    const customers = resp?.customers || resp?.result?.customers || [];
-    if (!customers.length) {
-      showError('Aucun client trouvé pour cette recherche');
+  function renderClients() {
+    let clients = allClients;
+
+    // Filtre source
+    if (sourceFilter === 'square') clients = clients.filter(c => c.squareId);
+    if (sourceFilter === 'sms')    clients = clients.filter(c => c.smsSource || c.source?.startsWith('sms'));
+
+    // Filtre texte
+    if (searchText) {
+      clients = clients.filter(c =>
+        (c.name  || '').toLowerCase().includes(searchText) ||
+        (c.phone || '').includes(searchText) ||
+        (c.email || '').toLowerCase().includes(searchText)
+      );
+    }
+
+    document.getElementById('count-label').textContent = `${clients.length} client${clients.length > 1 ? 's' : ''}`;
+
+    if (!clients.length) {
+      document.getElementById('table-wrap').classList.add('hidden');
+      document.getElementById('empty-state').classList.remove('hidden');
       return;
     }
-    if (customers.length === 1) {
-      loadClientById(customers[0].id);
-    } else {
-      renderClientList(customers);
-    }
-  } catch (e) {
-    showError(`Erreur de recherche: ${e.message}`);
+
+    document.getElementById('empty-state').classList.add('hidden');
+    document.getElementById('table-wrap').classList.remove('hidden');
+
+    document.getElementById('client-tbody').innerHTML = clients.map(c => {
+      const sourceBadge = c.squareId && c.smsSource ? 'badge-both' :
+                          c.squareId ? 'badge-square' : 'badge-sms';
+      const sourceLabel = c.squareId && c.smsSource ? '⚡ Square + SMS' :
+                          c.squareId ? '◼ Square' : '📱 SMS Campaign';
+      const dateStr = c.createdAt
+        ? new Date(c.createdAt).toLocaleDateString('fr-CA', { day:'numeric', month:'short', year:'numeric' })
+        : '—';
+
+      return `
+        <tr class="client-row border-b border-gray-100 last:border-0">
+          <td class="px-4 py-3">
+            <div class="font-semibold text-gray-900">${escHtml(c.name || 'Client')}</div>
+            ${c.lastService ? `<div class="text-xs text-gray-400">${escHtml(c.lastService)}</div>` : ''}
+          </td>
+          <td class="px-4 py-3 hidden sm:table-cell text-sm text-gray-600">
+            ${c.phone ? `<a href="tel:${c.phone}" class="hover:text-amber-600">${escHtml(c.phone)}</a>` : '—'}
+          </td>
+          <td class="px-4 py-3 hidden md:table-cell text-sm text-gray-500 max-w-[160px] truncate">
+            ${c.email ? escHtml(c.email) : '—'}
+          </td>
+          <td class="px-4 py-3">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${sourceBadge}">${sourceLabel}</span>
+          </td>
+          <td class="px-4 py-3 hidden lg:table-cell text-xs text-gray-400">${dateStr}</td>
+          <td class="px-4 py-3 text-right">
+            ${c.phone ? `
+              <button onclick='openSMSModal(${JSON.stringify({ name: c.name, phone: c.phone })})'
+                class="text-xs border border-gray-200 hover:border-amber-300 hover:bg-amber-50 rounded-lg px-2 py-1 font-semibold text-gray-600 transition">
+                SMS
+              </button>` : ''}
+          </td>
+        </tr>`;
+    }).join('');
   }
-}
 
-async function loadAllClients() {
-  showLoader();
-  try {
-    const resp = await fetch(`${API_BASE}/api/clients/list?limit=50`).then(r => r.json()).catch(() => null);
-    const customers = resp?.customers || resp?.result?.customers || [];
-    if (!customers.length) {
-      showError('Aucun client trouvé dans Square');
-      return;
-    }
-    renderClientList(customers);
-  } catch (e) {
-    showError(`Erreur: ${e.message}`);
+  // ── SMS rapide ──────────────────────────────────────────────────────────────
+  function openSMSModal(client) {
+    smsTarget = client;
+    document.getElementById('sms-to-name').textContent = client.name;
+    document.getElementById('sms-to-phone').textContent = client.phone;
+    document.getElementById('sms-body').value =
+      `Bonjour ${client.name?.split(' ')[0] || ''} ! 💇 On vous attend chez Kadio Coiffure. Réservez en ligne : https://kadiocoiffure.vercel.app/hub`;
+    document.getElementById('modal-overlay').classList.remove('hidden');
+    document.getElementById('modal').classList.remove('hidden');
+    document.getElementById('sms-body').focus();
   }
-}
 
-function renderClient(clientId, data) {
-  const initials = (data.name || 'C').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-  const isVIP = data.status === 'VIP';
-  const pct = Math.min(100, (data.points / 500) * 100);
-  const joinDate = data.joinDate ? new Date(data.joinDate).toLocaleDateString('fr-CA') : '—';
-  const qrUrl = `${API_BASE}/api/wallet/qr/${clientId}`;
-  const previewUrl = `${BACKEND}/api/wallet/preview/${clientId}`;
-  const cardUrl = `${BACKEND}/wallet-card/${clientId}`;
-
-  document.getElementById('client-content').innerHTML = `
-    <div class="profile-card">
-      <div class="profile-left">
-        <div class="avatar">${initials}</div>
-        <div class="profile-name">${data.name}</div>
-        <div class="profile-id">${clientId}</div>
-        <span class="badge ${isVIP ? 'vip' : 'membre'}">${data.status}</span>
-        <div class="qr-box">
-          <img src="${qrUrl}" alt="QR Code" onerror="this.style.opacity=0.3" />
-          <div class="qr-links">
-            <a href="${previewUrl}" target="_blank">🃏 Carte</a>
-            <a href="${cardUrl}" target="_blank">📱 Mobile</a>
-            <a href="/api/wallet/pkpass/${clientId}" download>⬇ .pkpass</a>
-          </div>
-        </div>
-      </div>
-      <div class="profile-right">
-        <div class="info-grid">
-          <div class="info-item">
-            <div class="info-label">Email</div>
-            <div class="info-value">${data.email || '—'}</div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Téléphone</div>
-            <div class="info-value">${data.phone || '—'}</div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Points fidélité</div>
-            <div class="info-value highlight">${data.points} pts</div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Membre depuis</div>
-            <div class="info-value">${joinDate}</div>
-          </div>
-        </div>
-        <div class="points-bar-wrap">
-          <div class="points-bar-label">
-            <span>Progression vers VIP</span>
-            <span>${data.points}/500 pts</span>
-          </div>
-          <div class="points-bar">
-            <div class="points-bar-fill" style="width:${pct}%"></div>
-          </div>
-        </div>
-        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem">
-          <button class="btn" onclick="copyLink('${cardUrl}')">📋 Copier lien carte</button>
-          <button class="btn secondary" onclick="window.open('${previewUrl}','_blank')">👁 Voir carte</button>
-          <button class="btn secondary" onclick="window.open('/admin-wallet.html?client=${clientId}','_blank')">💳 Wallet admin</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">📡 Historique des scans QR</div>
-      <div id="scan-history">Chargement...</div>
-    </div>
-  `;
-
-  loadScanHistory(clientId);
-}
-
-async function loadScanHistory(clientId) {
-  try {
-    const data = await fetch(`${API_BASE}/api/wallet/scan-stats`).then(r => r.json());
-    const scans = (data.recentScans || []).filter(s => s.client_id === clientId);
-    const el = document.getElementById('scan-history');
-    if (!scans.length) {
-      el.innerHTML = '<div style="color:var(--text-dim);font-size:0.85rem">Aucun scan enregistré pour ce client</div>';
-      return;
-    }
-    el.innerHTML = `<table>
-      <thead><tr><th>#</th><th>Date/heure</th><th>IP</th></tr></thead>
-      <tbody>${scans.map((s,i) => `
-        <tr>
-          <td style="color:var(--text-dim)">${i+1}</td>
-          <td>${new Date(s.scanned_at).toLocaleString('fr-CA')}</td>
-          <td style="color:var(--text-dim);font-size:0.75rem">${s.ip || '—'}</td>
-        </tr>
-      `).join('')}</tbody>
-    </table>`;
-  } catch (e) {
-    document.getElementById('scan-history').innerHTML = '<div style="color:var(--text-dim)">Impossible de charger l\'historique</div>';
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.add('hidden');
+    document.getElementById('modal').classList.add('hidden');
+    smsTarget = null;
   }
-}
 
-function renderClientList(customers) {
-  const rows = customers.map(c => {
-    const id = c.id || c.customer_id;
-    const name = c.given_name ? `${c.given_name} ${c.family_name || ''}`.trim() : (c.name || 'Client');
-    const pts = c.loyaltyPoints || c.points || 0;
-    return `
-      <tr style="cursor:pointer" onclick="loadClientById('${id}')">
-        <td><b>${name}</b></td>
-        <td style="font-family:monospace;font-size:0.75rem;color:var(--text-dim)">${id}</td>
-        <td>${c.email_address || '—'}</td>
-        <td><span style="color:var(--gold)">${pts} pts</span></td>
-        <td><img src="/api/wallet/qr/${id}" style="width:40px;height:40px;border-radius:4px" loading="lazy" /></td>
-      </tr>
-    `;
-  }).join('');
+  async function sendQuickSMS() {
+    if (!smsTarget?.phone) return;
+    const body = document.getElementById('sms-body').value.trim();
+    if (!body) return;
+    try {
+      const r = await fetch(`${API}/api/sms/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: smsTarget.phone, message: body })
+      });
+      const d = await r.json();
+      if (d.success || d.sid) {
+        closeModal();
+        showToast(`✅ SMS envoyé à ${smsTarget.name}`);
+      } else {
+        alert(d.error || 'Erreur envoi SMS');
+      }
+    } catch(e) { alert('Erreur: ' + e.message); }
+  }
 
-  document.getElementById('client-content').innerHTML = `
-    <div class="section">
-      <div class="section-title">👥 ${customers.length} client(s) trouvé(s) — Cliquez pour ouvrir la fiche</div>
-      <div style="overflow-x:auto">
-        <table>
-          <thead><tr><th>Nom</th><th>ID Square</th><th>Email</th><th>Points</th><th>QR</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    </div>
-  `;
-}
+  // ── Export CSV ──────────────────────────────────────────────────────────────
+  function exportCSV() {
+    const rows = [['Nom','Téléphone','Email','Source','Date']];
+    allClients.forEach(c => {
+      const src = c.squareId && c.smsSource ? 'Square+SMS' : c.squareId ? 'Square' : 'SMS';
+      rows.push([c.name||'', c.phone||'', c.email||'', src,
+        c.createdAt ? new Date(c.createdAt).toLocaleDateString('fr-CA') : '']);
+    });
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv], { type:'text/csv;charset=utf-8;' }));
+    a.download = `clients-kadio-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+  }
 
-function showLoader() {
-  document.getElementById('client-content').innerHTML = '<div class="loader">⏳ Chargement...</div>';
-}
-function showError(msg) {
-  document.getElementById('client-content').innerHTML = `<div class="no-client"><h2 style="color:var(--red)">⚠️ ${msg}</h2></div>`;
-}
-function copyLink(url) {
-  navigator.clipboard.writeText(url).then(() => alert('✅ Lien copié !'));
-}
+  function escHtml(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function showToast(msg) {
+    const t = document.createElement('div');
+    t.className = 'fixed bottom-4 right-4 bg-gray-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg z-50';
+    t.textContent = msg; document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  loadClients();
 </script>
 </body>
 </html>

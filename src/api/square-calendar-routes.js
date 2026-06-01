@@ -341,4 +341,102 @@ router.get('/customers/search', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/sq-calendar/clients-sync
+ * Fusion clients Square + contacts SMS campaign (Twilio daleba_sms_ratings)
+ * Retourne une liste dédupliquée par numéro de téléphone
+ */
+router.get('/clients-sync', async (req, res) => {
+  const merged = new Map(); // clé = phone normalisé
+
+  // ── SOURCE 1 : Square Customers ────────────────────────────────────────
+  try {
+    let cursor = null;
+    let page = 0;
+    do {
+      const body = { limit: 100, ...(cursor ? { cursor } : {}) };
+      const data = await squarePost('/v2/customers/list', body);
+      const customers = data.customers || [];
+      for (const c of customers) {
+        const phone = (c.phone_number || '').replace(/\D/g, '');
+        const key   = phone || c.id;
+        merged.set(key, {
+          source:     'square',
+          squareId:   c.id,
+          name:       `${c.given_name || ''} ${c.family_name || ''}`.trim() || 'Client inconnu',
+          phone:      c.phone_number || '',
+          email:      c.email_address || '',
+          createdAt:  c.created_at || null,
+          visitCount: 0,
+        });
+      }
+      cursor = data.cursor || null;
+      page++;
+    } while (cursor && page < 20);
+  } catch (e) { console.warn('[clients-sync] Square:', e.message); }
+
+  // ── SOURCE 2 : Contacts SMS Campaign (daleba_sms_ratings) ──────────────
+  try {
+    const { pool } = require('../memory/db');
+    const r = await pool.query(
+      `SELECT DISTINCT ON (client_phone) client_phone, client_name, service_name, created_at
+       FROM daleba_sms_ratings
+       WHERE client_phone IS NOT NULL AND client_phone != ''
+       ORDER BY client_phone, created_at DESC
+       LIMIT 2000`
+    );
+    for (const row of r.rows) {
+      const phone = (row.client_phone || '').replace(/\D/g, '');
+      if (!phone) continue;
+      if (merged.has(phone)) {
+        // Enrichir le profil Square avec les données SMS
+        merged.get(phone).smsSource = true;
+        merged.get(phone).lastService = row.service_name || merged.get(phone).lastService;
+      } else {
+        merged.set(phone, {
+          source:      'sms_campaign',
+          squareId:    null,
+          name:        row.client_name || 'Contact SMS',
+          phone:       row.client_phone,
+          email:       '',
+          createdAt:   row.created_at,
+          lastService: row.service_name || '',
+          smsSource:   true,
+        });
+      }
+    }
+  } catch (e) { console.warn('[clients-sync] SMS ratings:', e.message); }
+
+  // ── SOURCE 3 : Historique confirmations SMS ─────────────────────────────
+  try {
+    const { pool } = require('../memory/db');
+    const r2 = await pool.query(
+      `SELECT DISTINCT ON (client_phone) client_phone, client_name, appointment_datetime
+       FROM daleba_sms_ratings
+       WHERE client_phone IS NOT NULL
+       ORDER BY client_phone, appointment_datetime DESC NULLS LAST
+       LIMIT 2000`
+    );
+    for (const row of r2.rows) {
+      const phone = (row.client_phone || '').replace(/\D/g, '');
+      if (phone && !merged.has(phone)) {
+        merged.set(phone, {
+          source:   'sms_confirmation',
+          squareId: null,
+          name:     row.client_name || 'Contact',
+          phone:    row.client_phone,
+          email:    '',
+          createdAt: row.appointment_datetime,
+        });
+      }
+    }
+  } catch (_) {}
+
+  const clients = Array.from(merged.values()).sort((a, b) =>
+    (a.name || '').localeCompare(b.name || '', 'fr')
+  );
+
+  res.json({ clients, total: clients.length, sources: { square: 0, sms: 0 } });
+});
+
 module.exports = router;
