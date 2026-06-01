@@ -11,6 +11,10 @@ const SQUARE_TOKEN   = process.env.SQUARE_ACCESS_TOKEN || 'EAAAl621sVKBGg0JYZaOI
 const SQUARE_HOST    = 'connect.squareup.com';
 const LOCATION_ID    = process.env.SQUARE_LOCATION_ID  || 'LTDE9RP9PSHX7';
 
+// Date de démarrage officielle DALEBA — seules les transactions depuis cette date
+// s'affichent dans le dashboard. Mettre à jour via REVENUE_START_DATE (ISO 8601).
+const REVENUE_START_DATE = process.env.REVENUE_START_DATE || '2026-06-01T00:00:00.000Z';
+
 function squareGET(path) {
   return new Promise((resolve, reject) => {
     const req = https.request({
@@ -53,6 +57,7 @@ async function getRevenueSummary() {
     const qs = [
       `limit=200`,
       `location_id=${LOCATION_ID}`,
+      `begin_time=${encodeURIComponent(REVENUE_START_DATE)}`,
       cursor ? `cursor=${cursor}` : '',
     ].filter(Boolean).join('&');
 
@@ -78,6 +83,7 @@ async function getRevenueSummary() {
     completed_count: completed,
     total_count:     count,
     location:        LOCATION_ID,
+    start_date:      REVENUE_START_DATE,
     fetched_at:      new Date().toISOString(),
   };
 }
