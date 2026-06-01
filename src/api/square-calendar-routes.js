@@ -432,6 +432,32 @@ router.get('/clients-sync', async (req, res) => {
     }
   } catch (_) {}
 
+  // ── SOURCE 4 : Contact Book (imports VCF) ───────────────────────────
+  try {
+    const { pool } = require('../memory/db');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS daleba_contact_book (
+        id SERIAL PRIMARY KEY, name VARCHAR(200), phone VARCHAR(50),
+        source VARCHAR(50) DEFAULT 'vcf_import', imported_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(phone)
+      )
+    `);
+    const r3 = await pool.query(`SELECT name, phone FROM daleba_contact_book LIMIT 3000`);
+    for (const row of r3.rows) {
+      const phone = (row.phone || '').replace(/\D/g, '');
+      if (!phone || merged.has(phone)) continue;
+      merged.set(phone, {
+        source:   'vcf_contact',
+        squareId: null,
+        name:     row.name || 'Contact',
+        phone:    row.phone,
+        email:    '',
+        createdAt: null,
+        vcfImport: true,
+      });
+    }
+  } catch (_) {}
+
   const clients = Array.from(merged.values()).sort((a, b) =>
     (a.name || '').localeCompare(b.name || '', 'fr')
   );
@@ -440,3 +466,58 @@ router.get('/clients-sync', async (req, res) => {
 });
 
 module.exports = router;
+
+/**
+ * POST /api/sq-calendar/contact-book/import
+ * Importe des contacts depuis un VCF parsé (JSON array [{name, phone}])
+ */
+router.post('/contact-book/import', async (req, res) => {
+  const { pool } = require('../memory/db');
+  const contacts = req.body.contacts || [];
+  if (!contacts.length) return res.status(400).json({ error: 'Aucun contact' });
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS daleba_contact_book (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(200),
+      phone VARCHAR(50),
+      source VARCHAR(50) DEFAULT 'vcf_import',
+      imported_at TIMESTAMP DEFAULT NOW(),
+      UNIQUE(phone)
+    )
+  `);
+
+  let inserted = 0, skipped = 0;
+  for (const c of contacts) {
+    if (!c.phone) continue;
+    try {
+      await pool.query(
+        `INSERT INTO daleba_contact_book (name, phone, source)
+         VALUES ($1, $2, 'vcf_import')
+         ON CONFLICT (phone) DO UPDATE SET name = EXCLUDED.name`,
+        [c.name || 'Contact', c.phone]
+      );
+      inserted++;
+    } catch (_) { skipped++; }
+  }
+  res.json({ ok: true, inserted, skipped, total: contacts.length });
+});
+
+/**
+ * GET /api/sq-calendar/contact-book
+ * Liste tous les contacts importés
+ */
+router.get('/contact-book', async (req, res) => {
+  const { pool } = require('../memory/db');
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS daleba_contact_book (
+        id SERIAL PRIMARY KEY, name VARCHAR(200), phone VARCHAR(50),
+        source VARCHAR(50) DEFAULT 'vcf_import', imported_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(phone)
+      )
+    `);
+    const r = await pool.query(`SELECT * FROM daleba_contact_book ORDER BY name ASC`);
+    res.json({ contacts: r.rows, total: r.rowCount });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
