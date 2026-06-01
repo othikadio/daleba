@@ -7,9 +7,25 @@ const fs = require('fs');
 const axios = require('axios');
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_hVMJtA4G_5BydQQv4noQx767KpL4xowMk';
+// Mode supervisé: Resend sandbox → envoie à l'adresse Ulrich avec les détails du lead
+// Basculer sur un vrai domaine Resend pour envois directs aux prospects
+const SUPERVISED_MODE = process.env.RESEND_DOMAIN ? false : true;
+const OWNER_EMAIL = process.env.OWNER_EMAIL || 'kadioothniel@yahoo.fr';
 
 async function sendEmail(data) {
-  const res = await axios.post('https://api.resend.com/emails', data, {
+  const payload = { ...data };
+  // En mode supervisé (pas de domaine vérifié), rediriger vers Ulrich
+  if (SUPERVISED_MODE) {
+    const originalTo = Array.isArray(data.to) ? data.to[0] : data.to;
+    payload.to = [OWNER_EMAIL];
+    payload.subject = `[USINE → ${originalTo}] ${data.subject}`;
+    payload.html = `<div style="background:#fff3cd;padding:12px;border-radius:6px;margin-bottom:16px;font-family:Arial">
+      <strong>📬 Email préparé pour : ${originalTo}</strong><br>
+      <small style="color:#856404">Mode supervisé actif — vérifiez un domaine Resend pour envoi direct</small>
+    </div>` + (data.html || '');
+    payload.from = 'DALEBA Usine <onboarding@resend.dev>';
+  }
+  const res = await axios.post('https://api.resend.com/emails', payload, {
     headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' }
   });
   return res.data;
