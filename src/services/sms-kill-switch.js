@@ -80,27 +80,36 @@ function recordSMSSent() {
 async function purgeStaleAlerts(pool) {
   if (!pool?.query) return;
   try {
-    const { rowCount } = await pool.query(`
-      DELETE FROM daleba_alert_cooldowns
-      WHERE last_sent < NOW() - INTERVAL '48 hours'
-         OR last_sent > NOW() + INTERVAL '1 hour'
+    // Créer la table si elle n'existe pas (migration idempotente)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS daleba_alert_cooldowns (
+        alert_type TEXT PRIMARY KEY,
+        last_sent  BIGINT NOT NULL DEFAULT 0
+      )
     `);
+
+    // last_sent est un BIGINT epoch-ms — comparaison en ms, pas en INTERVAL
+    const cutoff48h = Date.now() - 48 * 60 * 60 * 1000;
+    const cutoffFuture = Date.now() + 60 * 60 * 1000;
+    const { rowCount } = await pool.query(
+      `DELETE FROM daleba_alert_cooldowns
+       WHERE last_sent < $1 OR last_sent > $2`,
+      [cutoff48h, cutoffFuture]
+    );
     if (rowCount > 0) {
       bus.system(`[SMSKillSwitch] 🧹 Purge: ${rowCount} cooldowns corrompus supprimés`);
     }
 
     // Reset BAISSE_CA définitivement (ne doit JAMAIS envoyer de SMS)
-    await pool.query(`
-      DELETE FROM daleba_alert_cooldowns WHERE alert_type = 'BAISSE_CA'
-    `);
+    await pool.query(`DELETE FROM daleba_alert_cooldowns WHERE alert_type = 'BAISSE_CA'`);
 
-    const { rows } = await pool.query(`
-      SELECT alert_type, last_sent,
-             EXTRACT(EPOCH FROM (NOW() - last_sent))/3600 AS hours_ago
-      FROM daleba_alert_cooldowns ORDER BY last_sent DESC
-    `);
+    const { rows } = await pool.query(`SELECT alert_type, last_sent FROM daleba_alert_cooldowns ORDER BY last_sent DESC`);
     if (rows.length > 0) {
-      bus.system(`[SMSKillSwitch] 📋 Cooldowns actifs: ${rows.map(r => `${r.alert_type}(${Math.round(r.hours_ago)}h ago)`).join(', ')}`);
+      const fmt = rows.map(r => {
+        const hoursAgo = Math.round((Date.now() - parseInt(r.last_sent)) / 3600000);
+        return `${r.alert_type}(${hoursAgo}h ago)`;
+      });
+      bus.system(`[SMSKillSwitch] 📋 Cooldowns actifs: ${fmt.join(', ')}`);
     }
   } catch(e) {
     bus.system(`[SMSKillSwitch] ⚠️ Purge échouée: ${e.message}`);
