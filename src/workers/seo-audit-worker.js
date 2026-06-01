@@ -11,9 +11,8 @@ async function fetchWithTimeout(url, timeoutMs = 10000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const nodeFetch = require('node-fetch');
     const start = Date.now();
-    const res = await nodeFetch(url, {
+    const res = await fetch(url, {
       signal: controller.signal,
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; DALEBASEOBot/1.0; +https://daleba.app)',

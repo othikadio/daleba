@@ -3,7 +3,7 @@
  * Recherche de PME via Nominatim (données publiques OpenStreetMap)
  */
 
-const fetch = (...args) => import('node-fetch').then(({default: f}) => f(...args)).catch(() => require('https').get);
+// Node.js 18+ has native fetch
 const { addSeoAuditJob, markJobActive, markJobCompleted, markJobFailed } = require('./agent-queue');
 
 // Villes cibles par défaut
@@ -23,8 +23,7 @@ async function fetchWithTimeout(url, timeoutMs = 8000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const nodeFetch = require('node-fetch');
-    const res = await nodeFetch(url, {
+    const res = await fetch(url, {
       signal: controller.signal,
       headers: { 'User-Agent': 'DALEBA-LeadGen/1.0 (contact@daleba.app)' }
     });
