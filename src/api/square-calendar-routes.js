@@ -102,8 +102,14 @@ router.get('/staff', async (req, res) => {
 // GET /services
 router.get('/services', async (req, res) => {
   try {
-    const data = await squarePost('/v2/catalog/search', { object_types:['ITEM'], query:{ prefix_query:{ attribute_name:'category_id', attribute_prefix:'' } }, limit: 200 });
-    const svcs = (data.objects||[]).filter(o => o.type==='ITEM').map(o => ({ id:o.id, name:o.item_data?.name||'Service', variations:(o.item_data?.variations||[]).map(v=>({ id:v.id, name:v.item_variation_data?.name, durationMinutes:Math.round((v.item_variation_data?.service_duration||3600000)/60000), priceMoney:v.item_variation_data?.price_money })) }));
+    let cursor = null, allObjects = [];
+    do {
+      const qs = `types=ITEM&limit=100${cursor?'&cursor='+cursor:''}`;
+      const data = await squareGet(`/v2/catalog/list?${qs}`);
+      allObjects.push(...(data.objects||[]));
+      cursor = data.cursor || null;
+    } while (cursor);
+    const svcs = allObjects.filter(o=>o.type==='ITEM').map(o => ({ id:o.id, name:o.item_data?.name||'Service', variations:(o.item_data?.variations||[]).map(v=>({ id:v.id, name:v.item_variation_data?.name, durationMinutes:Math.round((v.item_variation_data?.service_duration||3600000)/60000), priceMoney:v.item_variation_data?.price_money })) }));
     res.json({ services: svcs });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
