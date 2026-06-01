@@ -7,7 +7,7 @@
 const fetch = (...args) => import('node-fetch').then(m => m.default(...args)).catch(() => global.fetch(...args));
 
 const DEEPSEEK_KEY = process.env.DEEPSEEK_API_KEY || process.env.DEEPSEEK_KEY;
-const KIMI_KEY     = process.env.KIMI_API_KEY;
+const MISTRAL_KEY  = process.env.MISTRAL_API_KEY;
 const OPENAI_KEY   = process.env.OPENAI_API_KEY;
 
 const LOCKS_SYSTEM_PROMPT = `Tu es Amara, l'Experte Locks de Kadio Coiffure à Longueuil, Québec.
@@ -40,14 +40,17 @@ async function callDeepSeek(messages) {
       if (res.ok) return data.choices[0].message.content.trim();
     } catch(_) {}
   }
-  // Fallback Kimi
-  if (KIMI_KEY) {
-    const OpenAI = require('openai');
-    const kimi = new OpenAI({ apiKey: KIMI_KEY, baseURL: 'https://api.moonshot.cn/v1' });
-    const r = await kimi.chat.completions.create({ model: 'moonshot-v1-8k', messages, max_tokens: 300, temperature: 0.75 });
-    return r.choices[0].message.content.trim();
+  // Fallback #1 : Mistral AI
+  if (MISTRAL_KEY) {
+    const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${MISTRAL_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'mistral-small-latest', messages, max_tokens: 300, temperature: 0.75 }),
+    });
+    const data = await res.json();
+    if (res.ok) return data.choices[0].message.content.trim();
   }
-  throw new Error('Aucun provider IA disponible (DEEPSEEK_API_KEY ou KIMI_API_KEY requis)');
+  throw new Error('Aucun provider IA disponible (DEEPSEEK_API_KEY ou MISTRAL_API_KEY requis)');
 }
 
 // Analyse une image via GPT-4o Vision (open-source Whisper pour audio, GPT-4o pour vision)

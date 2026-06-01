@@ -11,7 +11,8 @@ const locksExpert   = require('./locks-expert');
 const { getToneContext } = require('./auditor-agent');
 
 const DEEPSEEK_KEY = process.env.DEEPSEEK_API_KEY || process.env.DEEPSEEK_KEY;
-const KIMI_KEY     = process.env.KIMI_API_KEY;
+const MISTRAL_KEY  = process.env.MISTRAL_API_KEY;
+const KIMI_KEY     = process.env.KIMI_API_KEY; // suspendu — fallback ignoré si quota épuisé
 
 // ─── SALON INFO ────────────────────────────────────────────────────────────────
 const SALON = {
@@ -61,13 +62,16 @@ async function callDeepSeek(messages, temp = 0.7) {
     } catch(_) {}
   }
 
-  // Fallback : Kimi (Moonshot AI) — même qualité que GPT-4o, ~10× moins cher
-  if (KIMI_KEY) {
+  // Fallback #1 : Mistral AI (tier gratuit, 1 req/s, excellent français)
+  if (MISTRAL_KEY) {
     try {
-      const { OpenAI } = require('openai');
-      const kimi = new (require('openai'))({ apiKey: KIMI_KEY, baseURL: 'https://api.moonshot.cn/v1' });
-      const r = await kimi.chat.completions.create({ model: 'moonshot-v1-8k', messages, max_tokens: 250, temperature: temp });
-      return r.choices[0].message.content.trim();
+      const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${MISTRAL_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'mistral-small-latest', messages, max_tokens: 250, temperature: temp }),
+      });
+      const data = await res.json();
+      if (res.ok) return data.choices[0].message.content.trim();
     } catch(_) {}
   }
 

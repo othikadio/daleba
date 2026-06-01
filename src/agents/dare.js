@@ -64,6 +64,16 @@ const PROVIDERS = {
     addedAt: Date.now(), deprecated: false,
     docs: { url: 'https://api-docs.deepseek.com', authScheme: 'Bearer', envKey: 'DEEPSEEK_API_KEY' },
   },
+  mistral: {
+    id: 'mistral', name: 'Mistral AI (mistral-small)',
+    module: path.resolve(__dirname, 'mistral'),
+    available: !!process.env.MISTRAL_API_KEY,
+    contextWindow: 32000, costPer1MInput: 0.10, costPer1MOutput: 0.30, // tier gratuit disponible
+    strengths: { creative: 8, writing: 9, conversation: 9, code: 7, strategy: 8, analysis: 8, math: 6, bulk: 7 },
+    health: { status: 'unknown', latencyMs: null, lastCheck: null, failures: 0 },
+    addedAt: Date.now(), deprecated: false,
+    docs: { url: 'https://docs.mistral.ai', authScheme: 'Bearer', envKey: 'MISTRAL_API_KEY' },
+  },
   gemini: {
     id: 'gemini', name: 'Gemini 1.5 Pro (Google)',
     module: path.resolve(__dirname, 'connectors/gemini'),
@@ -121,7 +131,7 @@ const usageStats = {
   costThisHour: {},       // [037] { [providerId]: { windowStart: ts, costUSD: 0 } }
   bridledProviders: new Set(), // [037] providers bridés
   // Providers avec quota épuisé (billing) — ne jamais retry, éviter les 429 en boucle
-  quotaExhausted: new Set(), // gpt4o retiré définitivement du pool 2026-06-01, quota check non applicable
+  quotaExhausted: new Set(['kimi']), // kimi: solde insuffisant 2026-06-01 — retirer quand compte rechargé
   lastReset: Date.now(),
 };
 
@@ -301,37 +311,41 @@ const TASK_PROFILES = [
     keywords: ['bilan', "chiffre d'affaires", 'ca ', 'revenue', 'revenu', 'calcul',
       'math', 'statistique', 'données', 'tableau', 'excel', 'csv', 'optimis',
       'coût', 'budget', 'profit', 'perte', 'comptabilité'],
-    priorities: ['deepseek', 'claude', 'kimi', 'gemini'],
+    // financier : DeepSeek (chiffres) → Mistral (fallback) → Claude (stratégie)
+    priorities: ['deepseek', 'mistral', 'claude', 'gemini'],
   },
   {
     type: 'code',
     keywords: ['code', 'programme', 'fonction', 'bug', 'erreur', 'script', 'api',
       'endpoint', 'javascript', 'node', 'python', 'sql', 'database', 'debug'],
-    priorities: ['claude', 'kimi', 'deepseek', 'gemini'],
+    // code : Claude (meilleur) → Mistral (fallback #1) → DeepSeek
+    priorities: ['claude', 'mistral', 'deepseek', 'gemini'],
   },
   {
     type: 'strategy',
     keywords: ['stratégie', 'architecture', 'vision', 'plan', 'objectif', 'analyse',
       'pourquoi', 'explique', 'décision', 'expansion', 'marché'],
-    priorities: ['claude', 'kimi', 'gemini', 'deepseek'],
+    priorities: ['claude', 'mistral', 'gemini', 'deepseek'],
   },
   {
     type: 'creative',
     keywords: ['écris', 'rédige', 'histoire', 'slogan', 'caption', 'description',
       'post', 'instagram', 'marketing', 'publicité', 'accroche', 'campagne'],
-    priorities: ['kimi', 'claude', 'gemini', 'deepseek'], // Kimi excelle en rédaction/créativité
+    // créatif : Mistral excellent en rédaction FR, remplace GPT-4o
+    priorities: ['mistral', 'claude', 'deepseek', 'gemini'],
   },
   {
     type: 'document',
     keywords: ['résumé', 'synthèse', 'document', 'pdf', 'rapport', 'analyse doc',
       'extrait', 'transcription', 'long texte'],
-    priorities: ['gemini', 'claude', 'kimi', 'deepseek'],
+    priorities: ['gemini', 'claude', 'mistral', 'deepseek'],
   },
   {
     type: 'conversation',
     keywords: ['bonjour', 'salut', 'comment', 'qui', 'quoi', 'aide', 'répondre',
       'rdv', 'rendez-vous', 'réservation', 'client'],
-    priorities: ['kimi', 'claude', 'gemini', 'deepseek'], // Kimi = conversation fluide, remplace GPT-4o ici
+    // conversation : Mistral fluide en français (optimisé EU/FR), fallback Claude
+    priorities: ['mistral', 'claude', 'deepseek', 'gemini'],
   },
 ];
 
