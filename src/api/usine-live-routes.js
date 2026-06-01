@@ -70,9 +70,9 @@ router.get('/live-stats', async (req, res) => {
     if (pool) {
       const r = await safeCall(() => pool.query(`
         SELECT id, title, country, category, score, source_platform,
-               created_at, budget_estimated, budget_currency
+               detected_at as created_at, budget_estimated, budget_currency
         FROM daleba_opportunities
-        ORDER BY created_at DESC LIMIT 15
+        ORDER BY detected_at DESC LIMIT 15
       `), { rows: [] });
       recentOpps = r.rows || [];
     }
