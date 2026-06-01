@@ -104,23 +104,42 @@ async function sendViaResend(to, from, subject, html, text, attachments) {
 // ============== Provider 2: Nodemailer SMTP (Ethereal fallback) ==============
 
 let etherealTransporter = null;
+let etherealInitPromise = null;
 
 async function getEtherealTransporter() {
   if (etherealTransporter) return etherealTransporter;
+  if (etherealInitPromise) return etherealInitPromise;
   
-  const testAccount = await nodemailer.createTestAccount();
-  etherealTransporter = nodemailer.createTransport({
-    host: 'smtp.ethereal.email',
-    port: 587,
-    secure: false,
-    auth: {
-      user: testAccount.user,
-      pass: testAccount.pass
+  etherealInitPromise = (async () => {
+    try {
+      // Timeout 10s pour l'init Ethereal
+      const testAccount = await Promise.race([
+        nodemailer.createTestAccount(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Ethereal init timeout')), 10000)
+        )
+      ]);
+      
+      etherealTransporter = nodemailer.createTransport({
+        host: 'smtp.ethereal.email',
+        port: 587,
+        secure: false,
+        auth: {
+          user: testAccount.user,
+          pass: testAccount.pass
+        }
+      });
+      
+      console.log('[email-queue] ℹ️  Ethereal SMTP configuré (fallback test)');
+      return etherealTransporter;
+    } catch (error) {
+      console.warn('[email-queue] Ethereal init failed:', error.message);
+      etherealInitPromise = null;
+      throw error;
     }
-  });
+  })();
   
-  console.log('[email-queue] ℹ️  Ethereal SMTP configuré (fallback test)');
-  return etherealTransporter;
+  return etherealInitPromise;
 }
 
 async function sendViaSMTP(to, from, subject, html, text, attachments) {
@@ -138,7 +157,9 @@ async function sendViaSMTP(to, from, subject, html, text, attachments) {
   const info = await transporter.sendMail(mailOptions);
   const previewUrl = nodemailer.getTestMessageUrl(info);
   
-  console.log(`[email-queue] 📧 Ethereal preview: ${previewUrl}`);
+  if (previewUrl) {
+    console.log(`[email-queue] 📧 Ethereal preview: ${previewUrl}`);
+  }
   
   return {
     provider: 'smtp-ethereal',
@@ -246,7 +267,9 @@ async function processQueue(pool, limit = MAX_EMAILS_PER_HOUR) {
       
       if (email.attachments_json) {
         try {
-          attachments = JSON.parse(email.attachments_json);
+          attachments = typeof email.attachments_json === 'string' 
+            ? JSON.parse(email.attachments_json) 
+            : email.attachments_json;
         } catch (e) {
           console.warn(`[email-queue] Attachments parse error for email ${email.id}`);
         }
@@ -265,16 +288,21 @@ async function processQueue(pool, limit = MAX_EMAILS_PER_HOUR) {
       } catch (resendError) {
         console.warn(`[email-queue] Resend failed for email ${email.id}: ${resendError.message}`);
         
-        // Fallback sur SMTP
+        // Fallback sur SMTP avec timeout
         try {
-          result = await sendViaSMTP(
-            email.to_address,
-            email.from_address,
-            email.subject,
-            email.html,
-            email.text,
-            attachments
-          );
+          result = await Promise.race([
+            sendViaSMTP(
+              email.to_address,
+              email.from_address,
+              email.subject,
+              email.html,
+              email.text,
+              attachments
+            ),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('SMTP timeout (30s)')), 30000)
+            )
+          ]);
         } catch (smtpError) {
           console.warn(`[email-queue] SMTP failed for email ${email.id}: ${smtpError.message}`);
           
