@@ -1,290 +1,305 @@
+'use strict';
 /**
- * social-calendar-routes.js — Rituel du Lundi: Calendrier éditorial Social Media
- * POST /api/social/generate-week   — génère 7 posts IA par plateforme
- * POST /api/social/schedule-all    — programme les posts approuvés via Publora
- * GET  /api/social/week-status     — retourne le calendrier semaine en cours
+ * DALEBA — Routes Calendrier Social Media (Rituel du Lundi)
+ * POST /api/social/generate-week    — génère 21 posts via Claude
+ * GET  /api/social/week-status      — statut semaine courante
+ * POST /api/social/approve/:postId  — approuver un post
+ * POST /api/social/schedule-all     — programmer via Publora
  */
 const express = require('express');
 const router = express.Router();
-const axios = require('axios');
-const Anthropic = require('@anthropic-ai/sdk');
-const { pool } = require('../memory/db');
+
+let pool = null, DEMO_MODE = true;
+try { const db = require('../memory/db'); pool = db.pool; DEMO_MODE = db.DEMO_MODE; } catch(e) {}
 
 const PUBLORA_KEY = process.env.PUBLORA_API_KEY || 'sk_mpnctvim_42eefe4d.4f8f32fb9e08ab9a7fb29af54bec4ec596c16d91b8d6d522d037';
-const PUBLORA_BASE = 'https://api.publora.com/api/v1';
-
-const ACCOUNTS = {
+const PUBLORA_ACCOUNTS = {
   instagram: 'instagram-17841459218131579',
   facebook:  'facebook-255568957645612',
   tiktok:    'tiktok--000RfouGS0MJJ0gNbRlYGrMuY-jnNaX0Wpw'
 };
 
-const publoraHeaders = () => ({ 'x-publora-key': PUBLORA_KEY, 'Content-Type': 'application/json' });
-
-// ── Ensure table ─────────────────────────────────────────────────────────────
-async function ensureSocialCalendarTable() {
+// Migration table
+async function ensureSocialTable() {
+  if (!pool || DEMO_MODE) return;
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS social_calendar_posts (
+    CREATE TABLE IF NOT EXISTS daleba_social_calendar (
       id SERIAL PRIMARY KEY,
-      week_start DATE NOT NULL,
-      day_of_week INT NOT NULL,  -- 0=Lundi, 6=Dimanche
-      platform VARCHAR(32) NOT NULL,
-      caption TEXT NOT NULL,
-      image_url TEXT,
+      platform VARCHAR(20) NOT NULL,
+      account_id VARCHAR(100),
+      day_of_week INTEGER,
+      scheduled_at TIMESTAMPTZ,
+      caption TEXT,
       hashtags TEXT,
-      publish_at TIMESTAMPTZ,
-      status VARCHAR(32) DEFAULT 'draft',  -- draft, approved, scheduled, published, failed
-      publora_post_id TEXT,
-      created_at TIMESTAMPTZ DEFAULT NOW(),
-      updated_at TIMESTAMPTZ DEFAULT NOW()
-    );
-    CREATE INDEX IF NOT EXISTS idx_social_week ON social_calendar_posts(week_start);
+      image_prompt TEXT,
+      status VARCHAR(30) DEFAULT 'draft',
+      publora_post_id VARCHAR(100),
+      week_start DATE,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
   `);
 }
-ensureSocialCalendarTable().catch(e => console.warn('[social-calendar] table:', e.message));
+ensureSocialTable().catch(e => console.warn('[Social] Table init:', e.message));
 
-// ── Get current week start (Monday) ─────────────────────────────────────────
-function getWeekStart(date = new Date()) {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = (day === 0 ? -6 : 1 - day); // Monday
-  d.setDate(d.getDate() + diff);
-  d.setHours(0, 0, 0, 0);
-  return d;
+// Obtenir le lundi de la semaine courante
+function getWeekStart() {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(now);
+  monday.setDate(diff);
+  monday.setHours(0, 0, 0, 0);
+  return monday;
 }
 
-// ── POST /api/social/generate-week ──────────────────────────────────────────
+// HTTP helper générique (pas d'axios requis)
+function httpPost(url, headers, body) {
+  return new Promise((resolve, reject) => {
+    const https = require('https');
+    const http = require('http');
+    const parsed = new URL(url);
+    const isHttps = parsed.protocol === 'https:';
+    const lib = isHttps ? https : http;
+    const data = JSON.stringify(body);
+    const options = {
+      hostname: parsed.hostname,
+      port: parsed.port || (isHttps ? 443 : 80),
+      path: parsed.pathname + parsed.search,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data), ...headers }
+    };
+    const req = lib.request(options, (res) => {
+      let raw = '';
+      res.on('data', c => raw += c);
+      res.on('end', () => {
+        try { resolve({ status: res.statusCode, body: JSON.parse(raw) }); }
+        catch { resolve({ status: res.statusCode, body: raw }); }
+      });
+    });
+    req.on('error', reject);
+    req.write(data);
+    req.end();
+  });
+}
+
+// Générer posts via Claude
+async function generatePostsWithClaude(weekStart) {
+  const Anthropic = require('@anthropic-ai/sdk');
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+  const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+  const platforms = ['instagram', 'tiktok', 'facebook'];
+
+  const prompt = `Tu es le community manager de Kadio Coiffure, un salon afro-caribéen à Longueuil, Québec.
+Génère un calendrier éditorial de 7 jours × 3 plateformes = 21 posts.
+
+Contexte:
+- Spécialités: tresses, locks dreadlocks, coiffures naturelles afro, twists
+- Clientèle: communauté afro-caribéenne du Québec
+- Ton: chaleureux, authentique, professionnel
+- Langue: français québécois
+
+Réponds UNIQUEMENT en JSON valide, tableau de 21 objets:
+[{"platform":"instagram|tiktok|facebook","dayIndex":0,"dayName":"Lundi","hour":"12:00","caption":"...","hashtags":"#...","imagePrompt":"..."}]`;
+
+  const response = await client.messages.create({
+    model: 'claude-3-5-sonnet-20241022',
+    max_tokens: 4000,
+    messages: [{ role: 'user', content: prompt }]
+  });
+
+  const text = response.content[0].text;
+  const jsonMatch = text.match(/\[[\s\S]*\]/);
+  if (!jsonMatch) throw new Error('Claude n\'a pas retourné de JSON valide');
+
+  const posts = JSON.parse(jsonMatch[0]);
+
+  return posts.map(p => {
+    const date = new Date(weekStart);
+    date.setDate(date.getDate() + (p.dayIndex || 0));
+    const [h, m] = (p.hour || '12:00').split(':');
+    date.setHours(parseInt(h), parseInt(m), 0, 0);
+
+    return {
+      platform: p.platform || 'instagram',
+      account_id: PUBLORA_ACCOUNTS[p.platform] || PUBLORA_ACCOUNTS.instagram,
+      day_of_week: p.dayIndex || 0,
+      day_name: p.dayName || days[p.dayIndex || 0],
+      scheduled_at: date.toISOString(),
+      caption: p.caption || '',
+      hashtags: p.hashtags || '',
+      image_prompt: p.imagePrompt || '',
+      status: 'draft',
+      week_start: weekStart.toISOString().split('T')[0]
+    };
+  });
+}
+
+/**
+ * POST /api/social/generate-week
+ */
 router.post('/generate-week', async (req, res) => {
   try {
     const weekStart = getWeekStart();
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+    const platforms = ['instagram', 'tiktok', 'facebook'];
 
-    const platforms = ['instagram', 'facebook', 'tiktok'];
-    const dayNames = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-    const posts = [];
-
-    // Delete existing drafts for this week
-    await pool.query(
-      `DELETE FROM social_calendar_posts WHERE week_start = $1 AND status = 'draft'`,
-      [weekStart.toISOString().split('T')[0]]
-    );
-
-    // Generate 7 posts per platform via Claude
-    for (const platform of platforms) {
-      const platformCtx = {
-        instagram: 'visuels élégants, tresses afro, bobwigs, tendances capillaires québécoises. Ton inspirant et beau. Max 2200 chars, 5-8 hashtags.',
-        facebook: 'contenu communautaire, promos, témoignages clients. Ton chaleureux et proche. Max 500 mots.',
-        tiktok: 'contenu accrocheur et viral, challenges, avant/après, tendances. Ton dynamique et jeune. Max 300 chars + 3-5 hashtags.'
-      };
-
-      const prompt = `Tu es le responsable social media de Kadio Coiffure, salon afro à Longueuil, Québec.
-
-Génère 7 posts (un pour chaque jour de la semaine, lundi à dimanche) pour ${platform.toUpperCase()}.
-Chaque post doit être unique et pertinent.
-
-Contexte plateforme: ${platformCtx[platform]}
-
-Pour chaque jour, retourne un objet JSON avec:
-- day: 0-6 (0=lundi)
-- caption: le texte du post
-- hashtags: string de hashtags (ex: "#tresses #afro #montreal")
-- imageDescription: description courte de l'image idéale à utiliser
-
-Thèmes suggérés (1 par jour): 
-- Lundi: Transformation/Avant-Après
-- Mardi: Conseil capillaire
-- Mercredi: Mise en avant d'une coiffure du portfolio
-- Jeudi: Témoignage client
-- Vendredi: Promo weekend / RDV disponibles
-- Samedi: Derrière les coulisses du salon
-- Dimanche: Inspiration tendance
-
-Réponds UNIQUEMENT avec un tableau JSON valide de 7 objets. Pas de markdown, pas de texte avant/après.`;
-
-      const response = await anthropic.messages.create({
-        model: 'claude-opus-4-5',
-        max_tokens: 3000,
-        messages: [{ role: 'user', content: prompt }]
-      });
-
-      let generated;
-      try {
-        const text = response.content[0].text.trim();
-        // Extract JSON from response
-        const match = text.match(/\[[\s\S]*\]/);
-        generated = JSON.parse(match ? match[0] : text);
-      } catch (e) {
-        console.warn('[social/gen] JSON parse error:', e.message);
-        // Fallback posts
-        generated = Array.from({length:7}, (_,i) => ({
-          day: i,
-          caption: `Post ${dayNames[i]} — ${platform} — Kadio Coiffure ✂️`,
-          hashtags: '#kadiocoiffure #longueuil #coiffureafro',
-          imageDescription: 'Photo de coiffure du salon'
-        }));
-      }
-
-      // Insert posts
-      for (const post of generated) {
-        const dayIndex = typeof post.day === 'number' ? post.day : 0;
-        const publishDate = new Date(weekStart);
-        publishDate.setDate(publishDate.getDate() + dayIndex);
-        publishDate.setHours(platform === 'tiktok' ? 18 : platform === 'instagram' ? 12 : 15, 0, 0, 0);
-
-        const res2 = await pool.query(`
-          INSERT INTO social_calendar_posts (week_start, day_of_week, platform, caption, hashtags, publish_at, status)
-          VALUES ($1, $2, $3, $4, $5, $6, 'draft')
-          RETURNING id
-        `, [
-          weekStart.toISOString().split('T')[0],
-          dayIndex,
-          platform,
-          post.caption || '',
-          post.hashtags || '#kadiocoiffure',
-          publishDate.toISOString()
-        ]);
-        posts.push({
-          id: res2.rows[0].id,
-          day: dayIndex,
-          dayName: dayNames[dayIndex],
-          platform,
-          caption: post.caption,
-          hashtags: post.hashtags,
-          imageDescription: post.imageDescription,
-          publishAt: publishDate.toISOString(),
-          status: 'draft'
-        });
+    let posts;
+    try {
+      posts = await generatePostsWithClaude(weekStart);
+    } catch(e) {
+      console.warn('[Social] Claude error, using fallback:', e.message);
+      posts = [];
+      for (let d = 0; d < 7; d++) {
+        for (const platform of platforms) {
+          const date = new Date(weekStart);
+          date.setDate(date.getDate() + d);
+          date.setHours(12, 0, 0, 0);
+          posts.push({
+            platform,
+            account_id: PUBLORA_ACCOUNTS[platform],
+            day_of_week: d,
+            day_name: days[d],
+            scheduled_at: date.toISOString(),
+            caption: `✨ ${days[d]} beauté! Venez sublimer vos cheveux chez Kadio Coiffure. Prenez RDV en ligne! 🌺`,
+            hashtags: '#kadiocoiffure #coiffureafro #tresses #locks #longueuil #quebec',
+            image_prompt: `Coiffure afro professionnelle en salon, ${days[d]}`,
+            status: 'draft',
+            week_start: weekStart.toISOString().split('T')[0]
+          });
+        }
       }
     }
 
-    res.json({ success: true, weekStart: weekStart.toISOString(), postsGenerated: posts.length, posts });
-  } catch (e) {
-    console.error('[social/generate-week]', e.message);
+    if (pool && !DEMO_MODE) {
+      await pool.query(`
+        DELETE FROM daleba_social_calendar WHERE week_start = $1 AND status = 'draft'
+      `, [weekStart.toISOString().split('T')[0]]);
+
+      for (const p of posts) {
+        await pool.query(`
+          INSERT INTO daleba_social_calendar
+            (platform, account_id, day_of_week, scheduled_at, caption, hashtags, image_prompt, status, week_start)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        `, [p.platform, p.account_id, p.day_of_week, p.scheduled_at, p.caption, p.hashtags, p.image_prompt, p.status, p.week_start]);
+      }
+    }
+
+    res.json({ success: true, count: posts.length, weekStart: weekStart.toISOString(), posts });
+  } catch(e) {
+    console.error('[Social] generate-week:', e);
     res.status(500).json({ error: e.message });
   }
 });
 
-// ── POST /api/social/schedule-all ────────────────────────────────────────────
-router.post('/schedule-all', async (req, res) => {
-  try {
-    const weekStart = getWeekStart();
-    const { postIds } = req.body || {}; // optionnel: IDs spécifiques à programmer
-
-    let query = `
-      SELECT * FROM social_calendar_posts
-      WHERE week_start = $1 AND status = 'approved'
-    `;
-    const params = [weekStart.toISOString().split('T')[0]];
-
-    if (postIds?.length) {
-      query += ` AND id = ANY($2)`;
-      params.push(postIds);
-    }
-
-    const result = await pool.query(query, params);
-    const approvedPosts = result.rows;
-
-    if (!approvedPosts.length) {
-      return res.json({ success: true, scheduled: 0, message: 'Aucun post approuvé à programmer.' });
-    }
-
-    const scheduled = [];
-    const failed = [];
-
-    for (const post of approvedPosts) {
-      try {
-        const accountId = ACCOUNTS[post.platform];
-        if (!accountId) { failed.push({ id: post.id, error: 'Plateforme inconnue' }); continue; }
-
-        const caption = post.hashtags
-          ? `${post.caption}\n\n${post.hashtags}`
-          : post.caption;
-
-        const publoraPayload = {
-          account_ids: [accountId],
-          content: caption,
-          scheduled_at: post.publish_at
-        };
-
-        const pubRes = await axios.post(`${PUBLORA_BASE}/posts`, publoraPayload, {
-          headers: publoraHeaders(),
-          timeout: 15000
-        });
-
-        const pubData = pubRes.data;
-        const publoraId = pubData?.id || pubData?.post_id || null;
-
-        await pool.query(
-          `UPDATE social_calendar_posts SET status='scheduled', publora_post_id=$1, updated_at=NOW() WHERE id=$2`,
-          [String(publoraId || ''), post.id]
-        );
-
-        scheduled.push({ id: post.id, platform: post.platform, publoraId, publishAt: post.publish_at });
-      } catch (e) {
-        console.warn('[social/schedule]', post.id, e.message);
-        await pool.query(`UPDATE social_calendar_posts SET status='failed', updated_at=NOW() WHERE id=$1`, [post.id]);
-        failed.push({ id: post.id, error: e.message });
-      }
-    }
-
-    res.json({ success: true, scheduled: scheduled.length, failed: failed.length, details: { scheduled, failed } });
-  } catch (e) {
-    console.error('[social/schedule-all]', e.message);
-    res.status(500).json({ error: e.message });
-  }
-});
-
-// ── GET /api/social/week-status ──────────────────────────────────────────────
+/**
+ * GET /api/social/week-status
+ */
 router.get('/week-status', async (req, res) => {
   try {
     const weekStart = getWeekStart();
+
+    if (!pool || DEMO_MODE) {
+      const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+      const platforms = ['instagram', 'tiktok', 'facebook'];
+      const demoData = [];
+      for (let d = 0; d < 7; d++) {
+        for (const platform of platforms) {
+          const date = new Date(weekStart);
+          date.setDate(date.getDate() + d);
+          date.setHours(12, 0, 0, 0);
+          demoData.push({
+            id: d * 3 + platforms.indexOf(platform) + 1,
+            platform, account_id: PUBLORA_ACCOUNTS[platform],
+            day_of_week: d, day_name: days[d],
+            scheduled_at: date.toISOString(),
+            caption: `Post ${platform} du ${days[d]} — Spécialiste coiffures afro à Longueuil 🌺`,
+            hashtags: '#kadiocoiffure #coiffureafro #tresses #longueuil',
+            image_prompt: `Coiffure ${d % 2 === 0 ? 'tresses' : 'locks'} en salon`,
+            status: d === 0 ? 'approved' : 'draft'
+          });
+        }
+      }
+      return res.json({ weekStart: weekStart.toISOString(), posts: demoData, isDemo: true });
+    }
+
     const result = await pool.query(`
-      SELECT id, day_of_week, platform, caption, hashtags, publish_at, status, publora_post_id, image_url
-      FROM social_calendar_posts
-      WHERE week_start = $1
-      ORDER BY day_of_week, platform
+      SELECT * FROM daleba_social_calendar
+      WHERE week_start = $1 ORDER BY day_of_week, platform
     `, [weekStart.toISOString().split('T')[0]]);
 
-    const dayNames = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-    const posts = result.rows.map(p => ({
-      ...p,
-      dayName: dayNames[p.day_of_week]
-    }));
-
-    const stats = {
-      total: posts.length,
-      draft: posts.filter(p=>p.status==='draft').length,
-      approved: posts.filter(p=>p.status==='approved').length,
-      scheduled: posts.filter(p=>p.status==='scheduled').length,
-      published: posts.filter(p=>p.status==='published').length,
-    };
-
-    res.json({ success: true, weekStart: weekStart.toISOString(), posts, stats });
-  } catch (e) {
+    res.json({ weekStart: weekStart.toISOString(), posts: result.rows });
+  } catch(e) {
     res.status(500).json({ error: e.message });
   }
 });
 
-// ── PATCH /api/social/posts/:id — Approuver/Modifier un post ────────────────
-router.patch('/posts/:id', async (req, res) => {
+/**
+ * POST /api/social/approve/:postId
+ */
+router.post('/approve/:postId', async (req, res) => {
   try {
-    const { id } = req.params;
-    const { status, caption, hashtags, publish_at } = req.body;
+    const { postId } = req.params;
+    if (pool && !DEMO_MODE) {
+      await pool.query(`UPDATE daleba_social_calendar SET status = 'approved' WHERE id = $1`, [postId]);
+    }
+    res.json({ success: true, postId, status: 'approved' });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
-    const updates = [];
-    const vals = [];
-    let i = 1;
+/**
+ * POST /api/social/schedule-all
+ */
+router.post('/schedule-all', async (req, res) => {
+  try {
+    const weekStart = getWeekStart();
+    let approvedPosts = [];
 
-    if (status)     { updates.push(`status=$${i++}`);     vals.push(status); }
-    if (caption)    { updates.push(`caption=$${i++}`);    vals.push(caption); }
-    if (hashtags)   { updates.push(`hashtags=$${i++}`);   vals.push(hashtags); }
-    if (publish_at) { updates.push(`publish_at=$${i++}`); vals.push(publish_at); }
-    updates.push(`updated_at=NOW()`);
-    vals.push(id);
+    if (pool && !DEMO_MODE) {
+      const result = await pool.query(`
+        SELECT * FROM daleba_social_calendar
+        WHERE week_start = $1 AND status = 'approved'
+      `, [weekStart.toISOString().split('T')[0]]);
+      approvedPosts = result.rows;
+    }
 
-    await pool.query(`UPDATE social_calendar_posts SET ${updates.join(',')} WHERE id=$${i}`, vals);
-    res.json({ success: true });
-  } catch (e) {
+    if (!approvedPosts.length) {
+      return res.json({ success: true, message: 'Aucun post approuvé à programmer', scheduled: 0 });
+    }
+
+    const results = [];
+    for (const post of approvedPosts) {
+      try {
+        const resp = await httpPost(
+          'https://api.publora.com/api/v1/posts',
+          { 'x-publora-key': PUBLORA_KEY },
+          {
+            accountId: post.account_id,
+            content: `${post.caption}\n\n${post.hashtags}`,
+            scheduledAt: post.scheduled_at,
+            mediaUrls: []
+          }
+        );
+
+        const publoraId = resp.body?.id || resp.body?.postId || null;
+        if (pool && !DEMO_MODE && publoraId) {
+          await pool.query(
+            `UPDATE daleba_social_calendar SET status = 'scheduled', publora_post_id = $1 WHERE id = $2`,
+            [publoraId, post.id]
+          );
+        }
+        results.push({ postId: post.id, platform: post.platform, status: 'scheduled', publoraId });
+      } catch(e) {
+        results.push({ postId: post.id, platform: post.platform, status: 'error', error: e.message });
+      }
+    }
+
+    const scheduled = results.filter(r => r.status === 'scheduled').length;
+    res.json({ success: true, scheduled, total: approvedPosts.length, results });
+  } catch(e) {
+    console.error('[Social] schedule-all:', e);
     res.status(500).json({ error: e.message });
   }
 });
