@@ -91,7 +91,7 @@ function startAutonomousMode() {
   // Cycle toutes les 4 heures
   autonomousTimer = setInterval(runAutoCycle, 4 * 60 * 60 * 1000);
   // Premier cycle dans 30s
-  setTimeout(runAutoCycle, 30 * 1000);
+  setTimeout(runAutoCycle, 2000); // Premier cycle immédiatement
 }
 
 function stopAutonomousMode() {
