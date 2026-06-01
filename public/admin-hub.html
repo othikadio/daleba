@@ -4,459 +4,445 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>KADIO OS — Hub Central</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:        #0d1117;
-      --surface:   #161b22;
-      --surface2:  #21262d;
-      --border:    #30363d;
-      --text:      #e6edf3;
-      --text-dim:  #8b949e;
-      --gold:      #c9a84c;
-      --gold-dim:  rgba(201,168,76,0.12);
-      --cyan:      #39d0d8;
-      --cyan-dim:  rgba(57,208,216,0.12);
-      --violet:    #bc8cff;
-      --violet-dim:rgba(188,140,255,0.12);
-      --green:     #3fb950;
-      --red:       #f85149;
-      --blue:      #58a6ff;
-      --radius:    8px;
-    }
-
-    html, body { height: 100%; overflow: hidden; }
-    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; display: flex; flex-direction: column; }
-
-    /* ── Topbar ── */
-    .topbar {
-      background: var(--surface); border-bottom: 1px solid var(--border);
-      height: 52px; display: flex; align-items: center; padding: 0 1.5rem;
-      justify-content: space-between; flex-shrink: 0; z-index: 300;
-    }
-    .topbar-logo { font-weight: 900; font-size: 1.15rem; color: var(--gold); letter-spacing: 0.06em; display: flex; align-items: center; gap: 0.75rem; }
-    .topbar-logo .badge { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; background: var(--gold-dim); color: var(--gold); padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; }
-    .topbar-right { display: flex; align-items: center; gap: 1rem; }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); }
-    .topbar-right span { font-size: 0.75rem; color: var(--text-dim); }
-    .hamburger { display: none; background: none; border: none; color: var(--text); font-size: 1.4rem; cursor: pointer; padding: 0 0.5rem; }
-
-    /* ── Layout ── */
-    .app { display: flex; flex: 1; overflow: hidden; }
-
-    /* ── Sidebar ── */
-    .sidebar {
-      width: 232px; background: var(--surface); border-right: 1px solid var(--border);
-      display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;
-      transition: transform 0.25s;
-    }
-    .sidebar-inner { padding-bottom: 1.5rem; }
-
-    /* Section headers */
-    .section-header {
-      display: flex; align-items: center; gap: 0.5rem;
-      padding: 1.1rem 1rem 0.4rem;
-    }
-    .section-line { flex: 1; height: 1px; }
-    .section-badge {
-      font-size: 0.63rem; font-weight: 800; letter-spacing: 0.1em;
-      text-transform: uppercase; padding: 0.2rem 0.55rem; border-radius: 4px;
-      white-space: nowrap;
-    }
-    /* Kadio Coiffure — or */
-    .section-coiffure .section-line { background: linear-gradient(to right, var(--gold), transparent); }
-    .section-coiffure .section-badge { background: var(--gold-dim); color: var(--gold); }
-    /* L'Usine IA — cyan */
-    .section-usine .section-line { background: linear-gradient(to right, var(--cyan), transparent); }
-    .section-usine .section-badge { background: var(--cyan-dim); color: var(--cyan); }
-    /* DALEBA SaaS — violet */
-    .section-saas .section-line { background: linear-gradient(to right, var(--violet), transparent); }
-    .section-saas .section-badge { background: var(--violet-dim); color: var(--violet); }
-
-    .section-separator {
-      border: none; border-top: 1px solid var(--border);
-      margin: 0.75rem 0.75rem 0;
-    }
-
-    /* Nav items */
-    .nav-items { padding: 0 0.5rem 0.5rem; }
-    .nav-item {
-      display: flex; align-items: center; gap: 0.55rem;
-      padding: 0.48rem 0.65rem; border-radius: 6px; cursor: pointer;
-      font-size: 0.82rem; font-weight: 500; color: var(--text-dim);
-      transition: all 0.14s; user-select: none; text-decoration: none;
-    }
-    .nav-item:hover { background: var(--surface2); color: var(--text); }
-    .nav-item.active-gold  { background: var(--gold-dim); color: var(--gold); font-weight: 700; }
-    .nav-item.active-cyan  { background: var(--cyan-dim); color: var(--cyan); font-weight: 700; }
-    .nav-item.active-violet{ background: var(--violet-dim); color: var(--violet); font-weight: 700; }
-    .nav-item .icon { font-size: 0.95rem; flex-shrink: 0; width: 18px; text-align: center; }
-    .nav-badge {
-      margin-left: auto; font-size: 0.62rem; font-weight: 800;
-      padding: 0.1rem 0.4rem; border-radius: 10px; min-width: 18px; text-align: center;
-    }
-    .badge-gold   { background: var(--gold-dim); color: var(--gold); }
-    .badge-cyan   { background: var(--cyan-dim); color: var(--cyan); }
-    .badge-violet { background: var(--violet-dim); color: var(--violet); }
-    .badge-green  { background: rgba(63,185,80,0.12); color: var(--green); }
-
-    /* ── Main ── */
-    .main { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-
-    /* Panels */
-    .panel { display: none; flex: 1; overflow: hidden; }
-    .panel.active { display: flex; flex-direction: column; }
-
-    /* Iframe panels */
-    .panel-iframe { flex: 1; border: none; background: var(--bg); width: 100%; height: 100%; }
-    .panel-bar {
-      padding: 0.6rem 1rem; background: var(--surface); border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
-    }
-    .panel-bar-title { font-size: 0.82rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
-    .panel-bar a { font-size: 0.72rem; color: var(--text-dim); text-decoration: none; }
-    .panel-bar a:hover { color: var(--text); }
-
-    /* ── Dashboard Hub ── */
-    .hub-body { flex: 1; overflow-y: auto; padding: 1.5rem; }
-    .hub-heading { margin-bottom: 1.25rem; }
-    .hub-heading h1 { font-size: 1.3rem; font-weight: 800; }
-    .hub-heading p { font-size: 0.82rem; color: var(--text-dim); margin-top: 0.25rem; }
-
-    /* KPI sections */
-    .kpi-section { margin-bottom: 1.5rem; }
-    .kpi-section-title {
-      font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
-      margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;
-    }
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.85rem; }
-    .kpi-card {
-      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 1rem 1.1rem; cursor: pointer; transition: all 0.15s;
-    }
-    .kpi-card:hover { transform: translateY(-2px); }
-    .kpi-card.c-gold  { border-top: 3px solid var(--gold); }
-    .kpi-card.c-cyan  { border-top: 3px solid var(--cyan); }
-    .kpi-card.c-violet{ border-top: 3px solid var(--violet); }
-    .kpi-card:hover.c-gold   { border-color: var(--gold); }
-    .kpi-card:hover.c-cyan   { border-color: var(--cyan); }
-    .kpi-card:hover.c-violet { border-color: var(--violet); }
-    .kpi-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.5rem; }
-    .kpi-val { font-size: 2rem; font-weight: 900; line-height: 1; }
-    .kpi-sub { font-size: 0.72rem; color: var(--text-dim); margin-top: 0.35rem; }
-    .c-gold .kpi-val  { color: var(--gold); }
-    .c-cyan .kpi-val  { color: var(--cyan); }
-    .c-violet .kpi-val{ color: var(--violet); }
-
-    /* Dot loader */
-    .dot-load { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: currentColor; animation: dp 1.2s infinite; margin: 0 1.5px; }
-    @keyframes dp { 0%,100%{opacity:1} 50%{opacity:0.2} }
-
-    /* Toast */
-    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.8rem 1.1rem; font-size: 0.82rem; max-width: 340px; opacity: 0; pointer-events: none; transition: opacity 0.25s; z-index: 999; }
-    .toast.show { opacity: 1; }
-
-    /* ── Mobile ── */
-    @media (max-width: 768px) {
-      .hamburger { display: block; }
-      .sidebar {
-        position: fixed; top: 52px; left: 0; bottom: 0; z-index: 200;
-        transform: translateX(-100%);
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+          colors: {
+            brand: { DEFAULT: '#111827', light: '#374151' },
+            accent: { amber: '#d97706', sky: '#0284c7', indigo: '#4f46e5' }
+          }
+        }
       }
-      .sidebar.open { transform: translateX(0); }
-      .sidebar-overlay { display: none; position: fixed; inset: 0; z-index: 150; background: rgba(0,0,0,0.5); }
-      .sidebar-overlay.show { display: block; }
     }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    html, body { height: 100%; overflow: hidden; }
+    /* Sidebar scrollbar */
+    #sidebar::-webkit-scrollbar { width: 4px; }
+    #sidebar::-webkit-scrollbar-track { background: transparent; }
+    #sidebar::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+    /* Panel */
+    .panel { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+    .panel.active { display: flex; }
+    /* Iframe */
+    #main-iframe { width: 100%; flex: 1; border: none; background: #f9fafb; }
+    /* Nav item active states */
+    .nav-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.85rem;
+      border-radius: 0.5rem; cursor: pointer; font-size: 0.82rem; font-weight: 500;
+      color: #4b5563; transition: all 0.15s; user-select: none; margin: 1px 0; }
+    .nav-item:hover { background: #f3f4f6; color: #111827; }
+    .nav-item.active-amber { background: #fffbeb; color: #92400e; font-weight: 600; }
+    .nav-item.active-sky { background: #f0f9ff; color: #0c4a6e; font-weight: 600; }
+    .nav-item.active-indigo { background: #eef2ff; color: #312e81; font-weight: 600; }
+    /* KPI card hover */
+    .kpi-card { cursor: pointer; transition: box-shadow 0.15s, transform 0.15s; }
+    .kpi-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.10); transform: translateY(-1px); }
+    /* Toast */
+    #toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: #111827; color: white;
+      padding: 0.6rem 1.1rem; border-radius: 8px; font-size: 0.82rem; font-weight: 500;
+      opacity: 0; transform: translateY(8px); transition: all 0.25s; pointer-events: none; z-index: 999; }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    /* Mobile overlay */
+    #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; }
+    #overlay.show { display: block; }
+    @media (max-width: 768px) {
+      #sidebar { position: fixed; top: 56px; left: 0; bottom: 0; z-index: 300;
+        transform: translateX(-100%); transition: transform 0.25s; }
+      #sidebar.open { transform: translateX(0); }
+      #hamburger { display: flex !important; }
+    }
+    /* Skeleton loading pulse */
+    .skeleton { animation: pulse 1.5s infinite; background: #e5e7eb; border-radius: 4px; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    /* Nav badge */
+    .nav-badge { margin-left: auto; font-size: 0.68rem; font-weight: 700;
+      background: #f3f4f6; color: #6b7280; padding: 0.1rem 0.4rem; border-radius: 10px; min-width: 18px; text-align: center; }
+    /* Hub scrollable body */
+    #hub-scroll { flex: 1; overflow-y: auto; padding: 1.75rem 2rem; }
+    #hub-scroll::-webkit-scrollbar { width: 5px; }
+    #hub-scroll::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 3px; }
+    /* Panel header bar */
+    .panel-bar { display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.25rem; height: 48px; border-bottom: 1px solid #e5e7eb;
+      background: white; flex-shrink: 0; font-weight: 600; font-size: 0.9rem; color: #111827; }
   </style>
 </head>
-<body>
+<body class="bg-gray-50 font-sans text-gray-900" style="height:100%;overflow:hidden">
 
-<!-- Topbar -->
-<div class="topbar">
-  <div style="display:flex;align-items:center;gap:0.5rem">
-    <button class="hamburger" onclick="toggleSidebar()">☰</button>
-    <div class="topbar-logo">KADIO OS <span class="badge">V2</span></div>
+<!-- ── TOPBAR ──────────────────────────────────────────────────── -->
+<header class="bg-white border-b border-gray-100 h-14 flex items-center px-5 justify-between fixed top-0 left-0 right-0 z-40 shadow-sm">
+  <div class="flex items-center gap-3">
+    <button id="hamburger" onclick="toggleSidebar()"
+      class="hidden items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <div class="font-black text-sm tracking-widest text-gray-900 uppercase">KADIO OS</div>
+    <span class="text-xs font-semibold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded">Hub</span>
   </div>
-  <div class="topbar-right">
-    <div class="status-dot"></div>
-    <span id="live-time">--:--</span>
-    <span id="live-mrr" style="color:var(--violet);font-weight:700">MRR: …</span>
+  <div class="flex items-center gap-4">
+    <div class="flex items-center gap-1.5">
+      <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+      <span class="text-xs text-gray-400 font-medium">Système actif</span>
+    </div>
+    <span class="text-xs text-gray-400 tabular-nums" id="live-time">--:--</span>
+    <span class="text-xs text-gray-400 font-medium" id="live-mrr"></span>
   </div>
-</div>
+</header>
 
-<div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
-<div class="app">
+<div id="overlay" onclick="toggleSidebar()"></div>
 
-  <!-- ── SIDEBAR ── -->
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-inner">
+<!-- ── LAYOUT ─────────────────────────────────────────────────── -->
+<div class="flex" style="height:100%;padding-top:56px">
 
-      <!-- Dashboard global -->
-      <div class="nav-items" style="padding-top:0.75rem">
-        <div class="nav-item active-gold" id="nav-hub" onclick="showPanel('hub','gold')">
-          <span class="icon">🏠</span> Accueil · KPIs
+  <!-- ── SIDEBAR ───────────────────────────────────────────────── -->
+  <aside id="sidebar"
+    class="w-56 bg-white border-r border-gray-100 flex-shrink-0 overflow-y-auto"
+    style="height:100%">
+    <nav class="p-3 pb-8">
+
+      <!-- Accueil -->
+      <div class="mb-3">
+        <div class="nav-item active-amber" id="nav-hub" onclick="showPanel('hub','amber')">
+          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><path d="M10 2L2 8v10h5v-5h6v5h5V8L10 2z" stroke="currentColor" stroke-width="1.6"/></svg>
+          Accueil · KPIs
         </div>
       </div>
 
-      <hr class="section-separator">
+      <div class="border-t border-gray-100 my-2"></div>
 
       <!-- ✂️ Kadio Coiffure -->
-      <div class="section-header section-coiffure">
-        <div class="section-line"></div>
-        <div class="section-badge">✂️ Kadio Coiffure</div>
+      <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-2 pt-2 pb-1">✂️ Kadio Coiffure</p>
+      <div class="nav-item" id="nav-cockpit" onclick="showIframe('cockpit','/admin-dashboard.html','✂️ Cockpit Salon','amber')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.6"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Cockpit
       </div>
-      <div class="nav-items">
-        <div class="nav-item" id="nav-cockpit" onclick="showIframe('cockpit','/admin-dashboard.html','✂️ Cockpit Salon','gold')">
-          <span class="icon">🎛️</span> Cockpit
-        </div>
-        <div class="nav-item" onclick="window.open('/agenda.html','_blank')">
-          <span class="icon">📅</span> Agenda
-          <span class="nav-badge badge-gold">↗</span>
-        </div>
-        <div class="nav-item" onclick="window.open('/admin-loyalty.html','_blank')">
-          <span class="icon">👥</span> Clients
-          <span class="nav-badge badge-gold">↗</span>
-        </div>
-        <div class="nav-item" onclick="window.open('/admin-subscriptions.html','_blank')">
-          <span class="icon">💳</span> Abonnés
-          <span class="nav-badge badge-gold" id="badge-subs">…</span>
-        </div>
-        <div class="nav-item" onclick="window.open('/noter-service.html','_blank')">
-          <span class="icon">⭐</span> Notation
-          <span class="nav-badge badge-gold">↗</span>
-        </div>
-        <div class="nav-item" id="nav-qr" onclick="showIframe('qr','/qr-checkin.html','📱 QR Check-in Kiosque','gold')">
-          <span class="icon">📱</span> QR Check-in
-        </div>
-        <div class="nav-item" id="nav-wallet" onclick="showPanel('wallet','gold')">
-          <span class="icon">💰</span> Wallet
-        </div>
-        <div class="nav-item" onclick="window.open('/jarvis.html','_blank')">
-          <span class="icon">🎙️</span> Vocal · Jarvis
-          <span class="nav-badge badge-gold">↗</span>
-        </div>
-        <div class="nav-item" id="nav-social" onclick="showIframe('social','/admin-social-calendar.html','📅 Social Calendar','gold')">
-          <span class="icon">📅</span> Social Calendar
-        </div>
-        <div class="nav-item" onclick="window.open('/admin-campaigns.html','_blank')">
-          <span class="icon">📣</span> Campagnes
-          <span class="nav-badge badge-gold">↗</span>
-        </div>
+      <div class="nav-item" onclick="window.open('/agenda.html','_blank')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M7 2v4M13 2v4M3 9h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Agenda
+        <span class="nav-badge ml-auto">↗</span>
+      </div>
+      <div class="nav-item" onclick="window.open('/admin-loyalty.html','_blank')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Clients
+        <span class="nav-badge ml-auto">↗</span>
+      </div>
+      <div class="nav-item" onclick="window.open('/admin-subscriptions.html','_blank')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><rect x="2" y="5" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M2 9h16" stroke="currentColor" stroke-width="1.6"/></svg>
+        Abonnés
+        <span class="nav-badge" id="badge-subs">…</span>
+      </div>
+      <div class="nav-item" onclick="window.open('/noter-service.html','_blank')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><path d="M10 2l2.4 5 5.6.8-4 3.9.9 5.5L10 14.5l-4.9 2.7.9-5.5L2 7.8l5.6-.8L10 2z" stroke="currentColor" stroke-width="1.6"/></svg>
+        Notation
+        <span class="nav-badge ml-auto">↗</span>
+      </div>
+      <div class="nav-item" id="nav-wallet" onclick="showPanel('wallet','amber')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><rect x="2" y="5" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="14" cy="11" r="1.5" fill="currentColor"/></svg>
+        Wallet
+      </div>
+      <div class="nav-item" id="nav-social" onclick="showIframe('social','/admin-social-calendar.html','📅 Social Calendar','amber')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><path d="M18 4H2v2l8 6 8-6V4z" stroke="currentColor" stroke-width="1.6"/><path d="M2 6v10h16V6" stroke="currentColor" stroke-width="1.6"/></svg>
+        Social Calendar
+      </div>
+      <div class="nav-item" onclick="window.open('/admin-campaigns.html','_blank')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><path d="M17 3L3 9l5 2 2 5 7-13z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        Campagnes
+        <span class="nav-badge ml-auto">↗</span>
       </div>
 
-      <hr class="section-separator">
+      <div class="border-t border-gray-100 my-2"></div>
 
       <!-- 🏭 L'Usine IA -->
-      <div class="section-header section-usine">
-        <div class="section-line"></div>
-        <div class="section-badge">🏭 L'Usine IA</div>
+      <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-2 pt-2 pb-1">🏭 L'Usine IA</p>
+      <div class="nav-item" id="nav-radar" onclick="showIframe('radar','/admin-radar.html','🌍 Radar Opportunités','sky')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="4" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="1.5" fill="currentColor"/></svg>
+        Radar Opportunités
+        <span class="nav-badge" id="badge-opps">…</span>
       </div>
-      <div class="nav-items">
-        <div class="nav-item" id="nav-radar" onclick="showIframe('radar','/admin-radar.html','🌍 Radar Opportunités','cyan')">
-          <span class="icon">🌍</span> Radar Opportunités
-          <span class="nav-badge badge-cyan" id="badge-opps">…</span>
-        </div>
-        <div class="nav-item" id="nav-proposals" onclick="showPanel('proposals','cyan')">
-          <span class="icon">✍️</span> Propositions
-          <span class="nav-badge badge-cyan" id="badge-props">…</span>
-        </div>
-        <div class="nav-item" id="nav-commercial" onclick="showIframe('commercial','/admin-commercial.html','📬 Prospection Salons','cyan')">
-          <span class="icon">📬</span> Prospection Salons
-        </div>
-        <div class="nav-item" id="nav-production" onclick="showIframe('production','/admin-production.html','⚡ Revenue Tracker','cyan')">
-          <span class="icon">⚡</span> Revenue Tracker
-          <span class="nav-badge badge-cyan" id="badge-tasks">…</span>
-        </div>
-        <div class="nav-item" id="nav-agents" onclick="showIframe('agents','/admin-usine.html','🏭 L\'Usine IA','cyan')">
-          <span class="icon">🏭</span> L'Usine IA
-        </div>
+      <div class="nav-item" id="nav-proposals" onclick="showPanel('proposals','sky')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><path d="M4 4h12v12H4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M7 8h6M7 11h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Propositions
+        <span class="nav-badge" id="badge-props">…</span>
+      </div>
+      <div class="nav-item" id="nav-commercial" onclick="showIframe('commercial','/admin-commercial.html','📬 Prospection Salons','sky')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><path d="M3 8l7-5 7 5v9H3V8z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        Prospection Salons
+      </div>
+      <div class="nav-item" id="nav-production" onclick="showIframe('production','/admin-production.html','⚡ Revenue Tracker','sky')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><path d="M11 2L4 12h6l-1 6 7-10h-6l1-6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        Revenue Tracker
+      </div>
+      <div class="nav-item" id="nav-agents" onclick="showIframe('agents','/admin-usine.html','🏭 L\'Usine IA','sky')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><rect x="5" y="3" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M10 11v6M7 17h6M3 7H1M19 7h-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        L'Usine IA
       </div>
 
-      <hr class="section-separator">
+      <div class="border-t border-gray-100 my-2"></div>
 
       <!-- 🚀 DALEBA SaaS -->
-      <div class="section-header section-saas">
-        <div class="section-line"></div>
-        <div class="section-badge">🚀 DALEBA SaaS</div>
+      <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-2 pt-2 pb-1">🚀 DALEBA SaaS</p>
+      <div class="nav-item" id="nav-saas" onclick="showIframe('saas','/admin-saas.html','🚀 DALEBA SaaS','indigo')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><path d="M2 15l5-8 4 5 3-4 4 7H2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        Clients SaaS
+        <span class="nav-badge" id="badge-saas-clients">…</span>
       </div>
-      <div class="nav-items">
-        <div class="nav-item" id="nav-saas" onclick="showIframe('saas','/admin-saas.html','🚀 DALEBA SaaS Dashboard','violet')">
-          <span class="icon">📊</span> Clients SaaS
-          <span class="nav-badge badge-violet" id="badge-saas-clients">…</span>
-        </div>
-        <div class="nav-item" id="nav-mrr" onclick="showPanel('mrr','violet')">
-          <span class="icon">💵</span> MRR Dashboard
-          <span class="nav-badge badge-violet" id="badge-mrr">…</span>
-        </div>
-        <div class="nav-item" id="nav-pipeline" onclick="showIframe('pipeline','/admin-saas.html','📋 Pipeline Commercial','violet')">
-          <span class="icon">📋</span> Pipeline
-        </div>
-        <div class="nav-item" onclick="window.open('/admin-onboarding.html','_blank')">
-          <span class="icon">🚢</span> Onboarding
-          <span class="nav-badge badge-violet">↗</span>
-        </div>
-        <div class="nav-item" onclick="window.open('/admin-tenants.html','_blank')">
-          <span class="icon">🏢</span> Tenants
-          <span class="nav-badge badge-violet">↗</span>
-        </div>
-        <div class="nav-item" onclick="window.open('/admin-accounting.html','_blank')">
-          <span class="icon">🎧</span> Support
-          <span class="nav-badge badge-violet">↗</span>
-        </div>
+      <div class="nav-item" id="nav-mrr" onclick="showPanel('mrr','indigo')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 4v4l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        MRR Dashboard
+        <span class="nav-badge" id="badge-mrr">…</span>
+      </div>
+      <div class="nav-item" id="nav-pipeline" onclick="showIframe('pipeline','/admin-saas.html','📋 Pipeline Commercial','indigo')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><path d="M3 5h14M3 10h10M3 15h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Pipeline
+      </div>
+      <div class="nav-item" onclick="window.open('/admin-onboarding.html','_blank')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><path d="M10 3v11M5 9l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 17h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Onboarding
+        <span class="nav-badge ml-auto">↗</span>
+      </div>
+      <div class="nav-item" onclick="window.open('/admin-tenants.html','_blank')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><rect x="2" y="7" width="16" height="11" rx="1" stroke="currentColor" stroke-width="1.6"/><path d="M6 7V5a4 4 0 018 0v2" stroke="currentColor" stroke-width="1.6"/></svg>
+        Tenants
+        <span class="nav-badge ml-auto">↗</span>
       </div>
 
-    </div>
-  </div>
+      <div class="border-t border-gray-100 my-2"></div>
 
-  <!-- ── MAIN ── -->
-  <div class="main">
+      <!-- Images / Email Queue -->
+      <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-2 pt-2 pb-1">Outils</p>
+      <div class="nav-item" onclick="window.open('/admin-images.html','_blank')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="7" cy="9" r="1.5" fill="currentColor"/><path d="M2 14l4-4 3 3 3-3 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Studio Images
+        <span class="nav-badge ml-auto">↗</span>
+      </div>
+      <div class="nav-item" onclick="window.open('/admin-subscriptions.html','_blank')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><path d="M16 4H4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2z" stroke="currentColor" stroke-width="1.6"/><path d="M4 8h12" stroke="currentColor" stroke-width="1.6"/></svg>
+        Abonnements Stripe
+        <span class="nav-badge ml-auto">↗</span>
+      </div>
+      <div class="nav-item" onclick="window.open('/jarvis.html','_blank')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><circle cx="10" cy="10" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Vocal · Jarvis
+        <span class="nav-badge ml-auto">↗</span>
+      </div>
 
-    <!-- ─── Hub Dashboard ─── -->
+    </nav>
+  </aside>
+
+  <!-- ── MAIN CONTENT ───────────────────────────────────────────── -->
+  <main class="flex-1 overflow-hidden flex flex-col" style="min-width:0">
+
+    <!-- ─── HUB DASHBOARD ─── -->
     <div class="panel active" id="panel-hub">
-      <div class="hub-body">
-        <div class="hub-heading">
-          <h1>Centre de Commandement</h1>
-          <p>Vue agrégée de l'écosystème KADIO OS — Salon · Usine IA · SaaS</p>
+      <div id="hub-scroll">
+
+        <!-- Heading -->
+        <div class="mb-6">
+          <h1 class="text-2xl font-black text-gray-900 tracking-tight">Centre de Commandement</h1>
+          <p class="text-sm text-gray-400 mt-0.5">Vue agrégée — Salon · Usine IA · SaaS DALEBA</p>
         </div>
 
-        <!-- KPIs Kadio Coiffure -->
-        <div class="kpi-section">
-          <div class="kpi-section-title" style="color:var(--gold)">✂️ Kadio Coiffure</div>
-          <div class="kpi-grid">
-            <div class="kpi-card c-gold" onclick="showIframe('cockpit','/admin-dashboard.html','✂️ Cockpit','gold')">
-              <div class="kpi-label">CA Salon · Square</div>
-              <div class="kpi-val" id="kpi-ca">…</div>
-              <div class="kpi-sub" id="kpi-ca-sub">Revenus Kadio Coiffure</div>
-            </div>
-            <div class="kpi-card c-gold" onclick="window.open('/admin-subscriptions.html','_blank')">
-              <div class="kpi-label">Abonnés Actifs</div>
-              <div class="kpi-val" id="kpi-subs">…</div>
-              <div class="kpi-sub">Forfaits Stripe</div>
-            </div>
-            <div class="kpi-card c-gold" onclick="showIframe('social','/admin-social-calendar.html','📅 Social','gold')">
-              <div class="kpi-label">Posts Semaine</div>
-              <div class="kpi-val" id="kpi-posts">—</div>
-              <div class="kpi-sub">Calendrier éditorial</div>
-            </div>
+        <!-- ── KPIs Kadio Coiffure ── -->
+        <div class="mb-2 flex items-center gap-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-amber-600">✂️ Kadio Coiffure</span>
+          <div class="flex-1 h-px bg-amber-100"></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-7">
+          <!-- CA Salon -->
+          <div class="kpi-card bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-t-4 border-t-amber-500"
+               onclick="showIframe('cockpit','/admin-dashboard.html','✂️ Cockpit','amber')">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">CA Salon · Square</p>
+            <p class="text-4xl font-black text-gray-900 leading-none tabular-nums" id="kpi-ca">
+              <span class="skeleton inline-block w-24 h-9 align-bottom"></span>
+            </p>
+            <p class="text-xs text-gray-400 mt-2" id="kpi-ca-sub">Revenus Kadio Coiffure</p>
+          </div>
+          <!-- Abonnés -->
+          <div class="kpi-card bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-t-4 border-t-amber-400"
+               onclick="window.open('/admin-subscriptions.html','_blank')">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Abonnés Actifs</p>
+            <p class="text-4xl font-black text-gray-900 leading-none tabular-nums" id="kpi-subs">
+              <span class="skeleton inline-block w-12 h-9 align-bottom"></span>
+            </p>
+            <p class="text-xs text-gray-400 mt-2">Forfaits Stripe</p>
+          </div>
+          <!-- Posts semaine -->
+          <div class="kpi-card bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-t-4 border-t-amber-300"
+               onclick="showIframe('social','/admin-social-calendar.html','📅 Social','amber')">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Posts Semaine</p>
+            <p class="text-4xl font-black text-gray-900 leading-none tabular-nums" id="kpi-posts">—</p>
+            <p class="text-xs text-gray-400 mt-2">Calendrier éditorial</p>
           </div>
         </div>
 
-        <!-- KPIs L'Usine IA -->
-        <div class="kpi-section">
-          <div class="kpi-section-title" style="color:var(--cyan)">🏭 L'Usine IA</div>
-          <div class="kpi-grid">
-            <div class="kpi-card c-cyan" onclick="showIframe('radar','/admin-radar.html','🌍 Radar','cyan')">
-              <div class="kpi-label">Opportunités Radar</div>
-              <div class="kpi-val" id="kpi-opps">…</div>
-              <div class="kpi-sub">Projets scannés</div>
-            </div>
-            <div class="kpi-card c-cyan" onclick="showPanel('proposals','cyan')">
-              <div class="kpi-label">Propositions Générées</div>
-              <div class="kpi-val" id="kpi-props">…</div>
-              <div class="kpi-sub">Prêtes à envoyer</div>
-            </div>
-            <div class="kpi-card c-cyan" onclick="showIframe('production','/admin-production.html','⚡ Pipeline','cyan')">
-              <div class="kpi-label">Revenus DALEBA OS</div>
-              <div class="kpi-val" id="kpi-daleba">$0</div>
-              <div class="kpi-sub" id="kpi-daleba-sub">0 contrats livrés</div>
-            </div>
+        <!-- ── KPIs L'Usine IA ── -->
+        <div class="mb-2 flex items-center gap-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-sky-600">🏭 L'Usine IA</span>
+          <div class="flex-1 h-px bg-sky-100"></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-7">
+          <!-- Opportunités -->
+          <div class="kpi-card bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-t-4 border-t-sky-500"
+               onclick="showIframe('radar','/admin-radar.html','🌍 Radar','sky')">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Opportunités Radar</p>
+            <p class="text-4xl font-black text-gray-900 leading-none tabular-nums" id="kpi-opps">
+              <span class="skeleton inline-block w-12 h-9 align-bottom"></span>
+            </p>
+            <p class="text-xs text-gray-400 mt-2">Projets scannés</p>
+          </div>
+          <!-- Propositions -->
+          <div class="kpi-card bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-t-4 border-t-sky-400"
+               onclick="showPanel('proposals','sky')">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Propositions Générées</p>
+            <p class="text-4xl font-black text-gray-900 leading-none tabular-nums" id="kpi-props">
+              <span class="skeleton inline-block w-12 h-9 align-bottom"></span>
+            </p>
+            <p class="text-xs text-gray-400 mt-2">Prêtes à envoyer</p>
+          </div>
+          <!-- Revenus DALEBA -->
+          <div class="kpi-card bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-t-4 border-t-sky-300"
+               onclick="showIframe('production','/admin-production.html','⚡ Pipeline','sky')">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Revenus DALEBA OS</p>
+            <p class="text-4xl font-black text-gray-900 leading-none tabular-nums" id="kpi-daleba">$0</p>
+            <p class="text-xs text-gray-400 mt-2" id="kpi-daleba-sub">0 contrats livrés</p>
           </div>
         </div>
 
-        <!-- KPIs DALEBA SaaS -->
-        <div class="kpi-section">
-          <div class="kpi-section-title" style="color:var(--violet)">🚀 DALEBA SaaS</div>
-          <div class="kpi-grid">
-            <div class="kpi-card c-violet" onclick="showIframe('saas','/admin-saas.html','🚀 SaaS','violet')">
-              <div class="kpi-label">Clients SaaS Actifs</div>
-              <div class="kpi-val" id="kpi-saas-clients">…</div>
-              <div class="kpi-sub">Tenants DALEBA</div>
-            </div>
-            <div class="kpi-card c-violet" onclick="showPanel('mrr','violet')">
-              <div class="kpi-label">MRR Total</div>
-              <div class="kpi-val" id="kpi-mrr">…</div>
-              <div class="kpi-sub">Revenus mensuels récurrents</div>
-            </div>
-            <div class="kpi-card c-violet" onclick="showIframe('saas','/admin-saas.html','📋 Pipeline','violet')">
-              <div class="kpi-label">Prospects Pipeline</div>
-              <div class="kpi-val" id="kpi-prospects">…</div>
-              <div class="kpi-sub">Leads actifs</div>
-            </div>
+        <!-- ── KPIs DALEBA SaaS ── -->
+        <div class="mb-2 flex items-center gap-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-indigo-600">🚀 DALEBA SaaS</span>
+          <div class="flex-1 h-px bg-indigo-100"></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+          <!-- Clients SaaS -->
+          <div class="kpi-card bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-t-4 border-t-indigo-500"
+               onclick="showIframe('saas','/admin-saas.html','🚀 SaaS','indigo')">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Clients SaaS Actifs</p>
+            <p class="text-4xl font-black text-gray-900 leading-none tabular-nums" id="kpi-saas-clients">
+              <span class="skeleton inline-block w-12 h-9 align-bottom"></span>
+            </p>
+            <p class="text-xs text-gray-400 mt-2">Tenants DALEBA</p>
+          </div>
+          <!-- MRR -->
+          <div class="kpi-card bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-t-4 border-t-indigo-400"
+               onclick="showPanel('mrr','indigo')">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">MRR Total</p>
+            <p class="text-4xl font-black text-gray-900 leading-none tabular-nums" id="kpi-mrr">
+              <span class="skeleton inline-block w-20 h-9 align-bottom"></span>
+            </p>
+            <p class="text-xs text-gray-400 mt-2">Revenus mensuels récurrents</p>
+          </div>
+          <!-- Pipeline -->
+          <div class="kpi-card bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-t-4 border-t-indigo-300"
+               onclick="showIframe('saas','/admin-saas.html','📋 Pipeline','indigo')">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Prospects Pipeline</p>
+            <p class="text-4xl font-black text-gray-900 leading-none tabular-nums" id="kpi-prospects">
+              <span class="skeleton inline-block w-12 h-9 align-bottom"></span>
+            </p>
+            <p class="text-xs text-gray-400 mt-2">Leads actifs</p>
           </div>
         </div>
+
+        <!-- Refresh hint -->
+        <p class="text-xs text-gray-300 text-center pb-4">Actualisation automatique toutes les 5 min · <button onclick="loadKPIs()" class="text-gray-400 underline hover:text-gray-600">Forcer</button></p>
+
       </div>
     </div>
 
-    <!-- ─── Wallet Panel ─── -->
+    <!-- ─── WALLET PANEL ─── -->
     <div class="panel" id="panel-wallet">
       <div class="panel-bar">
-        <div class="panel-bar-title" style="color:var(--gold)">💰 Cartes de Membre Wallet</div>
+        <span>💰 Cartes de Membre Wallet</span>
       </div>
-      <div style="flex:1;overflow-y:auto;padding:1.5rem">
-        <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem">Générez des cartes Apple Wallet et Google Wallet pour vos clients fidèles.</p>
-        <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem">
-          <input id="wallet-customer-id" type="number" placeholder="ID Client (ex: 1)" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.9rem;color:var(--text);font-size:0.85rem;width:180px">
-          <button onclick="generateWallet()" style="background:var(--gold);color:#0d1117;border:none;border-radius:6px;padding:0.6rem 1.2rem;font-weight:800;cursor:pointer;font-size:0.85rem">✨ Générer</button>
-          <button onclick="sendWalletSMS()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:0.6rem 1.2rem;font-weight:600;cursor:pointer;font-size:0.85rem">📱 Envoyer par SMS</button>
+      <div class="flex-1 overflow-y-auto p-6 bg-white">
+        <p class="text-sm text-gray-500 mb-5">Générez des cartes Apple Wallet et Google Wallet pour vos clients fidèles.</p>
+        <div class="flex gap-3 flex-wrap mb-5">
+          <input id="wallet-customer-id" type="number" placeholder="ID Client (ex: 1)"
+            class="border border-gray-200 rounded-lg px-3 py-2 text-sm w-44 focus:outline-none focus:ring-2 focus:ring-amber-300 bg-gray-50">
+          <button onclick="generateWallet()"
+            class="bg-amber-500 hover:bg-amber-600 text-white border-none rounded-lg px-5 py-2 font-bold text-sm cursor-pointer transition">
+            ✨ Générer
+          </button>
+          <button onclick="sendWalletSMS()"
+            class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-lg px-5 py-2 font-semibold text-sm cursor-pointer transition">
+            📱 Envoyer par SMS
+          </button>
         </div>
-        <div id="wallet-result" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem;display:none"></div>
+        <div id="wallet-result" class="bg-gray-50 border border-gray-200 rounded-xl p-5 hidden text-sm text-gray-700"></div>
       </div>
     </div>
 
-    <!-- ─── Propositions Panel ─── -->
+    <!-- ─── PROPOSITIONS PANEL ─── -->
     <div class="panel" id="panel-proposals">
       <div class="panel-bar">
-        <div class="panel-bar-title" style="color:var(--cyan)">✍️ Propositions B2B</div>
-        <a href="/admin-radar.html" target="_blank">↗ Ouvrir Radar</a>
+        <span>✍️ Propositions B2B</span>
+        <a href="/admin-radar.html" target="_blank" class="text-xs text-sky-600 hover:underline">↗ Ouvrir Radar</a>
       </div>
-      <div id="proposals-content" style="flex:1;overflow-y:auto;padding:1.5rem">
-        <div style="color:var(--text-dim);text-align:center;padding:2rem">Chargement…</div>
+      <div id="proposals-content" class="flex-1 overflow-y-auto p-6 bg-white">
+        <div class="text-gray-400 text-center py-10 text-sm">Chargement…</div>
       </div>
     </div>
 
-    <!-- ─── MRR Panel ─── -->
+    <!-- ─── MRR PANEL ─── -->
     <div class="panel" id="panel-mrr">
       <div class="panel-bar">
-        <div class="panel-bar-title" style="color:var(--violet)">💵 MRR Dashboard</div>
+        <span>💵 MRR Dashboard</span>
       </div>
-      <div style="flex:1;overflow-y:auto;padding:1.5rem">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem">
-          <div style="background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--violet);border-radius:8px;padding:1.1rem">
-            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-dim);margin-bottom:0.5rem">MRR Stripe</div>
-            <div style="font-size:1.8rem;font-weight:900;color:var(--violet)" id="mrr-stripe">…</div>
+      <div class="flex-1 overflow-y-auto p-6 bg-white">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+          <div class="bg-gray-50 border border-gray-100 border-t-4 border-t-indigo-500 rounded-xl p-5">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">MRR Stripe</p>
+            <p class="text-3xl font-black text-gray-900 tabular-nums" id="mrr-stripe">
+              <span class="skeleton inline-block w-20 h-8"></span>
+            </p>
           </div>
-          <div style="background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--violet);border-radius:8px;padding:1.1rem">
-            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-dim);margin-bottom:0.5rem">MRR SaaS Clients</div>
-            <div style="font-size:1.8rem;font-weight:900;color:var(--violet)" id="mrr-saas">…</div>
+          <div class="bg-gray-50 border border-gray-100 border-t-4 border-t-indigo-400 rounded-xl p-5">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">MRR SaaS Clients</p>
+            <p class="text-3xl font-black text-gray-900 tabular-nums" id="mrr-saas">
+              <span class="skeleton inline-block w-20 h-8"></span>
+            </p>
           </div>
-          <div style="background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--violet);border-radius:8px;padding:1.1rem">
-            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-dim);margin-bottom:0.5rem">MRR Total</div>
-            <div style="font-size:1.8rem;font-weight:900;color:var(--violet)" id="mrr-total">…</div>
+          <div class="bg-indigo-50 border border-indigo-100 border-t-4 border-t-indigo-600 rounded-xl p-5">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-2">MRR Total</p>
+            <p class="text-3xl font-black text-indigo-700 tabular-nums" id="mrr-total">
+              <span class="skeleton inline-block w-20 h-8 bg-indigo-200"></span>
+            </p>
           </div>
         </div>
-        <button onclick="loadMRR()" style="background:var(--violet);color:#0d1117;border:none;border-radius:6px;padding:0.6rem 1.2rem;font-weight:800;cursor:pointer;font-size:0.85rem">🔄 Actualiser MRR</button>
+        <button onclick="loadMRR()"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg px-5 py-2 font-bold text-sm cursor-pointer transition">
+          🔄 Actualiser MRR
+        </button>
       </div>
     </div>
 
-    <!-- ─── Iframe panels (dynamic) ─── -->
+    <!-- ─── IFRAME PANELS ─── -->
     <div class="panel" id="panel-iframe">
-      <div class="panel-bar" id="iframe-bar">
-        <div class="panel-bar-title" id="iframe-title">…</div>
-        <a id="iframe-external" href="#" target="_blank">↗ Plein écran</a>
+      <div class="panel-bar">
+        <span id="iframe-title">…</span>
+        <a id="iframe-external" href="#" target="_blank" class="text-xs text-sky-600 hover:underline">↗ Plein écran</a>
       </div>
-      <iframe id="main-iframe" class="panel-iframe" src="about:blank"></iframe>
+      <iframe id="main-iframe" src="about:blank" class="flex-1 w-full border-0 bg-gray-50"></iframe>
     </div>
 
-  </div>
+  </main>
 </div>
 
-<div class="toast" id="toast"></div>
+<div id="toast"></div>
 
 <script>
   // ── State ──────────────────────────────────────────────────────────────────
-  let currentColor = 'gold';
-  const colorMap = { gold: 'active-gold', cyan: 'active-cyan', violet: 'active-violet' };
+  const colorMap = {
+    amber:  'active-amber',
+    sky:    'active-sky',
+    indigo: 'active-indigo'
+  };
 
   // ── Sidebar Mobile ─────────────────────────────────────────────────────────
   function toggleSidebar() {
@@ -467,7 +453,7 @@
   // ── Navigation ─────────────────────────────────────────────────────────────
   function clearActiveNav() {
     document.querySelectorAll('.nav-item').forEach(n => {
-      n.classList.remove('active-gold','active-cyan','active-violet');
+      n.classList.remove('active-amber', 'active-sky', 'active-indigo');
     });
   }
 
@@ -476,8 +462,7 @@
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     document.getElementById('panel-' + id)?.classList.add('active');
     const navEl = document.getElementById('nav-' + id);
-    if (navEl) navEl.classList.add(colorMap[color] || 'active-gold');
-    currentColor = color;
+    if (navEl) navEl.classList.add(colorMap[color] || 'active-amber');
     if (id === 'proposals') loadProposals();
     if (id === 'mrr') loadMRR();
     if (window.innerWidth <= 768) toggleSidebar();
@@ -491,8 +476,7 @@
     document.getElementById('iframe-title').textContent = title;
     document.getElementById('iframe-external').href = url;
     const navEl = document.getElementById('nav-' + navId);
-    if (navEl) navEl.classList.add(colorMap[color] || 'active-gold');
-    currentColor = color;
+    if (navEl) navEl.classList.add(colorMap[color] || 'active-amber');
     if (window.innerWidth <= 768) toggleSidebar();
   }
 
@@ -503,6 +487,12 @@
   }
   updateClock(); setInterval(updateClock, 30000);
 
+  // ── Helper: clear skeleton ─────────────────────────────────────────────────
+  function setKpi(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
+
   // ── KPIs Hub ───────────────────────────────────────────────────────────────
   async function loadKPIs() {
     // CA Salon
@@ -511,8 +501,8 @@
       if (rv) {
         const ca = parseFloat(rv.revenue?.total || rv.total_revenue_cad || 0);
         const cnt = rv.revenue?.completed || rv.total_payments || 0;
-        document.getElementById('kpi-ca').textContent = '$' + Math.round(ca).toLocaleString('fr-CA');
-        document.getElementById('kpi-ca-sub').textContent = `${cnt} paiement${cnt !== 1 ? 's' : ''} · Square`;
+        setKpi('kpi-ca', '$' + Math.round(ca).toLocaleString('fr-CA'));
+        setKpi('kpi-ca-sub', `${cnt} paiement${cnt !== 1 ? 's' : ''} · Square`);
       }
     } catch(_) {}
 
@@ -521,8 +511,8 @@
       const sb = await fetch('/api/payment/subscriptions').then(r => r.json()).catch(() => null);
       if (sb?.success) {
         const cnt = (sb.subscriptions || []).filter(s => s.status === 'active').length;
-        document.getElementById('kpi-subs').textContent = cnt;
-        document.getElementById('badge-subs').textContent = cnt;
+        setKpi('kpi-subs', cnt);
+        setKpi('badge-subs', cnt);
       }
     } catch(_) {}
 
@@ -530,8 +520,8 @@
     try {
       const op = await fetch('/api/opportunities?limit=1').then(r => r.json()).catch(() => null);
       if (op) {
-        document.getElementById('kpi-opps').textContent = op.total || 0;
-        document.getElementById('badge-opps').textContent = op.total || 0;
+        setKpi('kpi-opps', op.total || 0);
+        setKpi('badge-opps', op.total || 0);
       }
     } catch(_) {}
 
@@ -539,8 +529,8 @@
     try {
       const pr = await fetch('/api/proposals?limit=1').then(r => r.json()).catch(() => null);
       if (pr) {
-        document.getElementById('kpi-props').textContent = pr.total || 0;
-        document.getElementById('badge-props').textContent = pr.total || 0;
+        setKpi('kpi-props', pr.total || 0);
+        setKpi('badge-props', pr.total || 0);
       }
     } catch(_) {}
 
@@ -550,8 +540,8 @@
       if (dal) {
         const dca = dal.total_revenue_cad || 0;
         const dct = dal.total_contracts || 0;
-        document.getElementById('kpi-daleba').textContent = '$' + Math.round(dca).toLocaleString('fr-CA');
-        document.getElementById('kpi-daleba-sub').textContent = `${dct} contrat${dct > 1 ? 's' : ''} livré${dct > 1 ? 's' : ''}`;
+        setKpi('kpi-daleba', '$' + Math.round(dca).toLocaleString('fr-CA'));
+        setKpi('kpi-daleba-sub', `${dct} contrat${dct > 1 ? 's' : ''} livré${dct > 1 ? 's' : ''}`);
       }
     } catch(_) {}
 
@@ -559,13 +549,13 @@
     try {
       const saas = await fetch('/api/saas/dashboard').then(r => r.json()).catch(() => null);
       if (saas) {
-        document.getElementById('kpi-saas-clients').textContent = saas.activeClients ?? '0';
-        document.getElementById('badge-saas-clients').textContent = saas.activeClients ?? '0';
+        setKpi('kpi-saas-clients', saas.activeClients ?? '0');
+        setKpi('badge-saas-clients', saas.activeClients ?? '0');
         const mrr = saas.mrr || 0;
-        document.getElementById('kpi-mrr').textContent = '$' + Math.round(mrr).toLocaleString('fr-CA');
-        document.getElementById('badge-mrr').textContent = mrr > 0 ? '$' + Math.round(mrr) : '0';
-        document.getElementById('live-mrr').textContent = 'MRR: $' + Math.round(mrr).toLocaleString('fr-CA');
-        document.getElementById('kpi-prospects').textContent = saas.pipeline?.prospects ?? '0';
+        setKpi('kpi-mrr', '$' + Math.round(mrr).toLocaleString('fr-CA'));
+        setKpi('badge-mrr', mrr > 0 ? '$' + Math.round(mrr) : '0');
+        document.getElementById('live-mrr').textContent = mrr > 0 ? 'MRR: $' + Math.round(mrr).toLocaleString('fr-CA') : '';
+        setKpi('kpi-prospects', saas.pipeline?.prospects ?? '0');
       }
     } catch(_) {}
 
@@ -573,7 +563,7 @@
     try {
       const social = await fetch('/api/social/week-status').then(r => r.json()).catch(() => null);
       if (social?.posts) {
-        document.getElementById('kpi-posts').textContent = social.posts.length;
+        setKpi('kpi-posts', social.posts.length);
       }
     } catch(_) {}
   }
@@ -583,24 +573,22 @@
     const cid = document.getElementById('wallet-customer-id').value;
     if (!cid) return showToast('Entrez un ID client');
     const el = document.getElementById('wallet-result');
-    el.style.display = 'block';
-    el.innerHTML = 'Génération en cours…';
+    el.classList.remove('hidden');
+    el.innerHTML = '<span class="text-gray-400">Génération en cours…</span>';
     try {
       const r = await fetch(`/api/wallet/generate/${cid}`, { method: 'POST' });
       const d = await r.json();
       if (d.success) {
         el.innerHTML = `
-          <div style="font-size:0.85rem">
-            <div style="color:var(--gold);font-weight:700;margin-bottom:0.75rem">✅ Cartes générées pour le client #${d.customerId}</div>
-            <div style="margin-bottom:0.5rem">🍎 <strong>Apple Wallet:</strong> <a href="${d.apple.downloadUrl}" target="_blank" style="color:var(--gold)">${d.apple.downloadUrl}</a></div>
-            <div>🔵 <strong>Google Wallet:</strong> <a href="${d.google.saveUrl}" target="_blank" style="color:var(--cyan)">Ajouter à Google Wallet →</a></div>
-            <div style="margin-top:0.75rem;color:var(--text-dim);font-size:0.75rem">Numéro de série: ${d.apple.serialNumber}</div>
-          </div>`;
+          <div class="font-semibold text-emerald-600 mb-3">✅ Cartes générées pour le client #${d.customerId}</div>
+          <div class="mb-2">🍎 <strong>Apple Wallet:</strong> <a href="${d.apple.downloadUrl}" target="_blank" class="text-amber-600 underline">${d.apple.downloadUrl}</a></div>
+          <div class="mb-2">🔵 <strong>Google Wallet:</strong> <a href="${d.google.saveUrl}" target="_blank" class="text-sky-600 underline">Ajouter à Google Wallet →</a></div>
+          <div class="text-xs text-gray-400 mt-2">N° de série: ${d.apple.serialNumber}</div>`;
       } else {
-        el.innerHTML = `<div style="color:var(--red)">${d.error || 'Erreur inconnue'}</div>`;
+        el.innerHTML = `<div class="text-red-500">${d.error || 'Erreur inconnue'}</div>`;
       }
     } catch(e) {
-      el.innerHTML = `<div style="color:var(--red)">Erreur: ${e.message}</div>`;
+      el.innerHTML = `<div class="text-red-500">Erreur: ${e.message}</div>`;
     }
   }
 
@@ -624,32 +612,34 @@
       const d = await r.json();
       const items = d.proposals || d.items || [];
       if (!items.length) {
-        el.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem">Aucune proposition générée.</div>';
+        el.innerHTML = '<div class="text-gray-400 text-center py-10 text-sm">Aucune proposition générée.</div>';
         return;
       }
       el.innerHTML = items.map(p => `
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem">
-          <div style="font-size:0.73rem;color:var(--text-dim);margin-bottom:0.35rem">#${p.id} · ${new Date(p.created_at).toLocaleDateString('fr-CA')}</div>
-          <div style="font-size:0.83rem;margin-bottom:0.5rem">${(p.generated_text || '').slice(0,200)}…</div>
-          <span style="font-size:0.68rem;background:rgba(63,185,80,0.12);color:var(--green);padding:0.12rem 0.4rem;border-radius:4px">${p.status || 'generated'}</span>
+        <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 mb-3">
+          <div class="text-xs text-gray-400 mb-1">#${p.id} · ${new Date(p.created_at).toLocaleDateString('fr-CA')}</div>
+          <div class="text-sm text-gray-700 mb-2">${(p.generated_text || '').slice(0, 200)}…</div>
+          <span class="text-xs bg-emerald-50 text-emerald-700 font-semibold px-2 py-0.5 rounded-full">${p.status || 'generated'}</span>
         </div>`).join('');
     } catch(e) {
-      el.innerHTML = `<div style="color:var(--red);font-size:0.8rem">Erreur: ${e.message}</div>`;
+      el.innerHTML = `<div class="text-red-400 text-sm">Erreur: ${e.message}</div>`;
     }
   }
 
   // ── MRR ────────────────────────────────────────────────────────────────────
   async function loadMRR() {
-    document.getElementById('mrr-stripe').innerHTML = '<span class="dot-load" style="color:var(--violet)"></span>';
-    document.getElementById('mrr-saas').innerHTML = '<span class="dot-load" style="color:var(--violet)"></span>';
-    document.getElementById('mrr-total').innerHTML = '<span class="dot-load" style="color:var(--violet)"></span>';
+    ['mrr-stripe','mrr-saas','mrr-total'].forEach(id => {
+      document.getElementById(id).innerHTML =
+        '<span class="skeleton inline-block w-20 h-8"></span>';
+    });
     try {
       const r = await fetch('/api/saas/mrr');
       const d = await r.json();
-      document.getElementById('mrr-stripe').textContent = '$' + (d.stripeMrr || 0).toFixed(2);
-      document.getElementById('mrr-saas').textContent = '$' + (d.saasMrr || 0).toFixed(2);
-      document.getElementById('mrr-total').textContent = '$' + (d.totalMrr || 0).toFixed(2);
-      document.getElementById('live-mrr').textContent = 'MRR: $' + Math.round(d.totalMrr || 0).toLocaleString('fr-CA');
+      setKpi('mrr-stripe', '$' + (d.stripeMrr || 0).toFixed(2));
+      setKpi('mrr-saas', '$' + (d.saasMrr || 0).toFixed(2));
+      setKpi('mrr-total', '$' + (d.totalMrr || 0).toFixed(2));
+      document.getElementById('live-mrr').textContent =
+        d.totalMrr > 0 ? 'MRR: $' + Math.round(d.totalMrr).toLocaleString('fr-CA') : '';
     } catch(e) {
       showToast('Erreur MRR: ' + e.message);
     }
