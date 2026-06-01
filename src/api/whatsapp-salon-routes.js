@@ -142,6 +142,40 @@ router.post('/start', async (req, res) => {
   }
 });
 
+// POST /api/whatsapp/reset — purge session + génère nouveau QR
+router.post('/reset', async (req, res) => {
+  try {
+    const { pool } = require('../../memory/db');
+    const fs = require('fs');
+    const path = require('path');
+
+    // 1. Supprimer la session en DB
+    await pool.query(`DELETE FROM daleba_wa_auth`).catch(() => {});
+    console.log('[WA-Reset] ✅ daleba_wa_auth purgée');
+
+    // 2. Supprimer les fichiers temporaires /tmp
+    const SESSION_DIR = '/tmp/daleba-wa-session';
+    if (fs.existsSync(SESSION_DIR)) {
+      fs.readdirSync(SESSION_DIR).forEach(f => {
+        try { fs.unlinkSync(path.join(SESSION_DIR, f)); } catch(_) {}
+      });
+    }
+    console.log('[WA-Reset] ✅ /tmp/daleba-wa-session nettoyé');
+
+    // 3. Réinitialiser l'état
+    waStarted = false;
+
+    // 4. Redémarrer Baileys (génère un nouveau QR)
+    setTimeout(() => {
+      startWhatsApp().catch(e => console.error('[WA-Reset-Start]', e.message));
+    }, 1000);
+
+    res.json({ ok: true, message: 'Session purgée, Baileys redémarre — GET /api/whatsapp/qr dans 6 secondes' });
+  } catch(e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
 // Test envoi manuel
 router.post('/send', async (req, res) => {
   const { phone, message } = req.body;
