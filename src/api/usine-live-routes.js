@@ -9,12 +9,12 @@ const router  = express.Router();
 
 // ── État global ────────────────────────────────────────────────────────────────
 let productionModeEnabled = process.env.USINE_PRODUCTION_MODE !== 'false';
-let autonomousMode        = false;
+let autonomousMode        = false; // restauré au boot
 let cycleRunning          = false;
 let autoCycleCount        = 0;
 let lastAutoCycleAt       = null;
-let EMAIL_BATCH_PER_CYCLE = 15;
-let CYCLE_COOLDOWN_MS     = 8000;
+let EMAIL_BATCH_PER_CYCLE = 20; // plus agressif
+let CYCLE_COOLDOWN_MS     = 4 * 60 * 60 * 1000; // 4h entre cycles
 
 // ── Escouades géographiques/sectorielles ──────────────────────────────────────
 const SQUADS_DEF = {
@@ -518,3 +518,35 @@ router.post('/autonomous-mode',async(req,res)=>{
 });
 
 module.exports = router;
+
+// ── DÉMARRAGE AUTONOME GARANTI — restaure l'état depuis DB + env var ──────────
+(async () => {
+  try {
+    // Attendre que la DB soit prête (max 10s)
+    await new Promise(r => setTimeout(r, 3000));
+
+    // Priorité 1 : variable d'environnement Railway
+    const envAuto = process.env.USINE_AUTO_MODE;
+    if (envAuto === 'true') {
+      console.log('[USINE] 🔥 USINE_AUTO_MODE=true → démarrage autonome forcé');
+      productionModeEnabled = true;
+      autonomousMode = true;
+      await persistAutoMode(true);
+      startAutonomousMode();
+      return;
+    }
+
+    // Priorité 2 : état persisté en DB
+    const wasAuto = await restoreAutoModeFromDB();
+    if (wasAuto) {
+      console.log('[USINE] 🔄 Mode autonome restauré depuis DB → redémarrage');
+      productionModeEnabled = true;
+      autonomousMode = true;
+      startAutonomousMode();
+    } else {
+      console.log('[USINE] ⏸ Mode autonome OFF (non persisté) — en attente activation manuelle');
+    }
+  } catch (err) {
+    console.error('[USINE] Erreur boot init:', err.message);
+  }
+})();
