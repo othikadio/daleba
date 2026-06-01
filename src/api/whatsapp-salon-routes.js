@@ -145,7 +145,7 @@ router.post('/start', async (req, res) => {
 // POST /api/whatsapp/reset — purge session + génère nouveau QR
 router.post('/reset', async (req, res) => {
   try {
-    const { pool } = require('../../memory/db');
+    const { pool } = require('../memory/db');
     const fs = require('fs');
     const path = require('path');
 
