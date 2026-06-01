@@ -14,12 +14,10 @@ const path = require('path');
 const { runSeoAuditJob, analyzeSEO } = require('../workers/seo-audit-worker');
 const { startEmailSequence, processEmailSequences } = require('../workers/email-sequence-worker');
 const { getQueueStats, addSeoAuditJob } = require('../workers/agent-queue');
-
-function getPool(req) {
-  return req.app.locals.pool || req.app.get('pool');
-}
+const { pool } = require('../memory/db');
 
 async function ensureAuditTables(pool) {
+  if (!pool) return;
   await pool.query(`
     CREATE TABLE IF NOT EXISTS daleba_seo_audits (
       id SERIAL PRIMARY KEY,
@@ -46,7 +44,6 @@ async function ensureAuditTables(pool) {
 
 // POST /api/usine/seo/audit/:leadId
 router.post('/seo/audit/:leadId', async (req, res) => {
-  const pool = getPool(req);
   const { leadId } = req.params;
 
   try {
@@ -86,7 +83,6 @@ router.post('/seo/audit-url', async (req, res) => {
 
 // GET /api/usine/seo/report/:leadId — Télécharger le PDF
 router.get('/seo/report/:leadId', async (req, res) => {
-  const pool = getPool(req);
   try {
     const audit = await pool.query(
       'SELECT * FROM daleba_seo_audits WHERE lead_id = $1 ORDER BY created_at DESC LIMIT 1',
@@ -112,7 +108,7 @@ router.get('/seo/report/:leadId', async (req, res) => {
 
 // GET /api/usine/seo/stats
 router.get('/seo/stats', async (req, res) => {
-  const pool = getPool(req);
+  if (!pool) return res.json({ ok: true, audits: { total_audits: 0, avg_score: null, critical: 0, warning: 0, good: 0, today: 0 }, sequences: { total: 0, active: 0, completed: 0, emails_sent: 0 }, mode: 'demo' });
   await ensureAuditTables(pool);
 
   try {
@@ -144,7 +140,6 @@ router.get('/seo/stats', async (req, res) => {
 
 // POST /api/usine/sequences/start — Lancer les séquences email pour tous les leads avec audit
 router.post('/sequences/start', async (req, res) => {
-  const pool = getPool(req);
   await ensureAuditTables(pool);
 
   try {
@@ -181,7 +176,6 @@ router.post('/sequences/start', async (req, res) => {
 
 // POST /api/usine/sequences/process — Avancer les séquences en attente (cron/manuel)
 router.post('/sequences/process', async (req, res) => {
-  const pool = getPool(req);
   try {
     const result = await processEmailSequences(pool);
     res.json({ ok: true, ...result });
@@ -192,7 +186,7 @@ router.post('/sequences/process', async (req, res) => {
 
 // GET /api/usine/stats — KPIs globaux de l'Usine
 router.get('/stats', async (req, res) => {
-  const pool = getPool(req);
+  if (!pool) return res.json({ ok: true, queues: {}, leads: { total: 0 }, audits: { total: 0 }, emails: { sent: 0 }, revenue: { total: 0 }, mode: 'demo' });
   await ensureAuditTables(pool);
 
   try {

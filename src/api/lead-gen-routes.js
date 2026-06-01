@@ -10,13 +10,11 @@ const express = require('express');
 const router = express.Router();
 const { runLeadGenJob, DEFAULT_CITIES } = require('../workers/lead-gen-worker');
 const { addLeadGenJob } = require('../workers/agent-queue');
-
-function getPool(req) {
-  return req.app.locals.pool || req.app.get('pool');
-}
+const { pool } = require('../memory/db');
 
 // ============= MIGRATIONS =============
 async function ensureLeadsTables(pool) {
+  if (!pool) return;
   await pool.query(`
     CREATE TABLE IF NOT EXISTS daleba_leads (
       id SERIAL PRIMARY KEY,
@@ -48,7 +46,7 @@ router.post('/start', async (req, res) => {
     return res.json({ ok: false, message: 'Un cycle est déjà en cours', progress: cycleProgress });
   }
 
-  const pool = getPool(req);
+  
   await ensureLeadsTables(pool);
 
   const cities = req.body.cities || DEFAULT_CITIES;
@@ -76,7 +74,7 @@ router.post('/start', async (req, res) => {
 
 // GET /api/usine/lead-gen/stats
 router.get('/stats', async (req, res) => {
-  const pool = getPool(req);
+  if (!pool) return res.json({ ok: true, stats: { total: 0, new: 0, qualified: 0, converted: 0, revenue_generated: 0, audited: 0, with_email: 0, with_website: 0 }, cycleProgress, mode: 'demo' });
   await ensureLeadsTables(pool);
 
   try {
@@ -100,7 +98,7 @@ router.get('/stats', async (req, res) => {
 
 // GET /api/usine/leads — Liste paginée
 router.get('/', async (req, res) => {
-  const pool = getPool(req);
+  
   await ensureLeadsTables(pool);
 
   const page = parseInt(req.query.page) || 1;
@@ -129,7 +127,7 @@ router.get('/', async (req, res) => {
 
 // DELETE /api/usine/leads/:id
 router.delete('/:id', async (req, res) => {
-  const pool = getPool(req);
+  
   try {
     await pool.query('DELETE FROM daleba_leads WHERE id = $1', [req.params.id]);
     res.json({ ok: true });
@@ -140,7 +138,7 @@ router.delete('/:id', async (req, res) => {
 
 // PUT /api/usine/leads/:id/status
 router.put('/:id/status', async (req, res) => {
-  const pool = getPool(req);
+  
   const { status } = req.body;
   try {
     await pool.query('UPDATE daleba_leads SET status = $1 WHERE id = $2', [status, req.params.id]);
