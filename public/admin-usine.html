@@ -622,7 +622,9 @@ async function openOpp(id) {
     // SEO flaws
     const fw=$('m-flaws');
     if(d.seoFlaws?.length){
-      fw.innerHTML=d.seoFlaws.map(f=>`<div class="flex items-start gap-2 p-2.5 rounded-lg bg-white border border-gray-100"><span class="sev-bar mt-1 ${f.severity==='high'?'sev-high h-8':'f.severity==='medium'?'sev-medium h-6':'sev-low h-4'}"></span><div><p class="text-xs font-bold text-gray-800">${esc(f.label)}</p><p class="text-[10px] text-gray-500 mt-0.5">${esc(f.detail)}</p></div><span class="ml-auto shrink-0 text-[10px] font-bold px-2 py-0.5 rounded sev-${f.severity}">${f.severity==='high'?'CRITIQUE':f.severity==='medium'?'MOYEN':'FAIBLE'}</span></div>`).join('');
+      const sevCls = f => f.severity==='high'?'sev-high h-8':f.severity==='medium'?'sev-medium h-6':'sev-low h-4';
+    const sevLbl = f => f.severity==='high'?'CRITIQUE':f.severity==='medium'?'MOYEN':'FAIBLE';
+    fw.innerHTML=d.seoFlaws.map(f=>`<div class="flex items-start gap-2 p-2.5 rounded-lg bg-white border border-gray-100"><span class="sev-bar mt-1 ${sevCls(f)}"></span><div><p class="text-xs font-bold text-gray-800">${esc(f.label)}</p><p class="text-[10px] text-gray-500 mt-0.5">${esc(f.detail)}</p></div><span class="ml-auto shrink-0 text-[10px] font-bold px-2 py-0.5 rounded sev-${f.severity}">${sevLbl(f)}</span></div>`).join('');
     } else fw.innerHTML='<p class="text-xs text-gray-400">Aucune faille identifiée</p>';
     // Description
     st('m-desc', (d.description_fr||d.description_orig||'Pas de description').slice(0,500)+'…');
@@ -687,9 +689,12 @@ function showTab(id) {
 // ─── SSE ──────────────────────────────────────────────────────────────────────
 function setSse(s){ const dot=$('sse-dot'),lbl=$('sse-lbl'); if(s==='on'){dot.className='dot dot-on';if(lbl)lbl.textContent='Flux actif';}else if(s==='off'){dot.className='dot dot-off';if(lbl)lbl.textContent='Déconnecté';}else{dot.className='dot dot-warn';if(lbl)lbl.textContent='Reconnexion…';} }
 
+// SSE direct Railway — le proxy Vercel coupe les streams longs
+const RAILWAY = 'https://daleba-api-production.up.railway.app';
 function connectSSE() {
   if(sseConn){ try{sseConn.close();}catch(_){} }
-  sseConn = new EventSource('/api/usine/live-stream');
+  // On bypass le proxy Vercel pour le SSE uniquement (il bufferise et coupe)
+  sseConn = new EventSource(RAILWAY + '/api/usine/live-stream');
   sseConn.onopen = ()=>setSse('on');
   sseConn.onmessage = e=>{
     try{

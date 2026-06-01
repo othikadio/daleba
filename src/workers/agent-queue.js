@@ -44,6 +44,56 @@ async function initQueues() {
 
     redisAvailable = true;
     console.log('[USINE] Queues BullMQ initialisées avec Redis');
+
+    // ── BullMQ Workers — consomment les jobs de la file ──────────────────────
+    // Connexion séparée pour les workers (requis par BullMQ)
+    const workerConn = new IORedis(redisUrl, { maxRetriesPerRequest: null });
+
+    // Worker Lead Gen
+    const lgWorker = new Worker('lead-gen-queue', async (job) => {
+      console.log(`[USINE-LG] Job ${job.id} démarré — trigger:${job.data.trigger}`);
+      try {
+        const { runLeadGenJob, DEFAULT_CITIES } = require('./lead-gen-worker');
+        await runLeadGenJob(DEFAULT_CITIES);
+        console.log(`[USINE-LG] Job ${job.id} terminé`);
+      } catch (e) {
+        console.warn(`[USINE-LG] Job ${job.id} erreur:`, e.message);
+        throw e;
+      }
+    }, { connection: workerConn, concurrency: 1 });
+    lgWorker.on('failed', (job, err) => console.warn(`[USINE-LG] Failed ${job?.id}:`, err.message));
+
+    // Worker SEO Audit
+    const seoConn = new IORedis(redisUrl, { maxRetriesPerRequest: null });
+    const seoWorker = new Worker('seo-audit-queue', async (job) => {
+      console.log(`[USINE-SEO] Job ${job.id} démarré`);
+      try {
+        const { runSeoAuditJob } = require('./seo-audit-worker');
+        await runSeoAuditJob(job.data);
+        console.log(`[USINE-SEO] Job ${job.id} terminé`);
+      } catch (e) {
+        console.warn(`[USINE-SEO] Job ${job.id} erreur:`, e.message);
+        throw e;
+      }
+    }, { connection: seoConn, concurrency: 1 });
+    seoWorker.on('failed', (job, err) => console.warn(`[USINE-SEO] Failed ${job?.id}:`, err.message));
+
+    // Worker Email Sequence
+    const emConn = new IORedis(redisUrl, { maxRetriesPerRequest: null });
+    const emWorker = new Worker('email-sequence-queue', async (job) => {
+      console.log(`[USINE-EM] Job ${job.id} démarré`);
+      try {
+        const { processEmailSequences } = require('./email-sequence-worker');
+        await processEmailSequences();
+        console.log(`[USINE-EM] Job ${job.id} terminé`);
+      } catch (e) {
+        console.warn(`[USINE-EM] Job ${job.id} erreur:`, e.message);
+        throw e;
+      }
+    }, { connection: emConn, concurrency: 1 });
+    emWorker.on('failed', (job, err) => console.warn(`[USINE-EM] Failed ${job?.id}:`, err.message));
+
+    console.log('[USINE] Workers BullMQ démarrés — Lead Gen + SEO + Email');
     return true;
   } catch (e) {
     console.warn('[USINE] Redis indisponible, fallback mémoire:', e.message);
