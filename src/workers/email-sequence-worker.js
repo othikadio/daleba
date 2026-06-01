@@ -209,14 +209,22 @@ async function startEmailSequence(lead, auditResult, reportPath, paymentLink, po
 
   const score = auditResult?.score || lead.audit_score || 0;
 
-  // Étape 1: J+0 — Rapport PDF
+  // Étape 1: J+0 — Rapport SEO (avec PDF si dispo, sans si absent)
   try {
     const { subject, html } = getEmailStep1(lead, score, paymentLink);
-    await sendEmailWithPDF(lead.email, subject, html, reportPath);
+    await sendEmailWithPDF(lead.email, subject, html, reportPath); // PDF optionnel
     console.log(`[EmailSeq] Step 1 envoyé à ${lead.email}`);
   } catch (e) {
-    console.warn(`[EmailSeq] Step 1 failed for ${lead.email}:`, e.message);
-    return null;
+    // Retry sans PDF si l'échec vient du PDF manquant
+    console.warn(`[EmailSeq] Step 1 retry sans PDF pour ${lead.email}:`, e.message);
+    try {
+      const { subject, html } = getEmailStep1(lead, score, paymentLink);
+      await sendEmailWithPDF(lead.email, subject, html, null);
+      console.log(`[EmailSeq] Step 1 envoyé (sans PDF) à ${lead.email}`);
+    } catch (e2) {
+      console.error(`[EmailSeq] Step 1 définitivement échoué pour ${lead.email}:`, e2.message);
+      return null;
+    }
   }
 
   const now = new Date();
