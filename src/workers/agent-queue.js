@@ -60,7 +60,7 @@ async function initQueues() {
         console.warn(`[USINE-LG] Job ${job.id} erreur:`, e.message);
         throw e;
       }
-    }, { connection: workerConn, concurrency: 1 });
+    }, { connection: workerConn, concurrency: 5 });
     lgWorker.on('failed', (job, err) => console.warn(`[USINE-LG] Failed ${job?.id}:`, err.message));
 
     // Worker SEO Audit
@@ -75,7 +75,7 @@ async function initQueues() {
         console.warn(`[USINE-SEO] Job ${job.id} erreur:`, e.message);
         throw e;
       }
-    }, { connection: seoConn, concurrency: 1 });
+    }, { connection: seoConn, concurrency: 5 });
     seoWorker.on('failed', (job, err) => console.warn(`[USINE-SEO] Failed ${job?.id}:`, err.message));
 
     // Worker Email Sequence
@@ -90,7 +90,7 @@ async function initQueues() {
         console.warn(`[USINE-EM] Job ${job.id} erreur:`, e.message);
         throw e;
       }
-    }, { connection: emConn, concurrency: 1 });
+    }, { connection: emConn, concurrency: 5 });
     emWorker.on('failed', (job, err) => console.warn(`[USINE-EM] Failed ${job?.id}:`, err.message));
 
     console.log('[USINE] Workers BullMQ démarrés — Lead Gen + SEO + Email');

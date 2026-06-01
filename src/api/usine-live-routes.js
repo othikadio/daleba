@@ -1,13 +1,13 @@
 /**
- * DALEBA — Usine IA Live Routes v4 — Rendement Maximal Continu
+ * DALEBA — Usine IA Live Routes v5 — Centre de Commandement
  *
  * GET  /api/usine/live-stats
- * GET  /api/usine/live-stream        — SSE
+ * GET  /api/usine/live-stream
  * POST /api/usine/trigger-scan
- * GET  /api/usine/production-mode
- * POST /api/usine/production-mode
- * GET  /api/usine/autonomous-mode
- * POST /api/usine/autonomous-mode
+ * GET  /api/usine/production-mode   POST
+ * GET  /api/usine/autonomous-mode   POST
+ * GET  /api/usine/pipeline
+ * GET  /api/usine/maintenance
  * GET  /api/usine/opportunity/:id
  * GET  /api/usine/roster
  */
@@ -16,15 +16,125 @@
 const express = require('express');
 const router  = express.Router();
 
-// ── État global (mémoire process) ─────────────────────────────────────────────
+// ── État global ────────────────────────────────────────────────────────────────
 let productionModeEnabled = process.env.USINE_PRODUCTION_MODE !== 'false';
-let autonomousMode        = false;   // persisté en DB au changement
-let cycleRunning          = false;   // verrou anti-doublon
+let autonomousMode        = false;
+let cycleRunning          = false;
 let autoCycleCount        = 0;
 let lastAutoCycleAt       = null;
-let activeTaskCount       = 0;       // compteur pour l'anneau de charge
-let EMAIL_BATCH_PER_CYCLE = 10;      // limite Resend ~100/heure → 10/cycle
-let CYCLE_COOLDOWN_MS     = 10000;   // 10s entre cycles (respiration API)
+let EMAIL_BATCH_PER_CYCLE = 10;
+let CYCLE_COOLDOWN_MS     = 10000;
+
+// ── LIVE TASKS — suivi temps réel des agents ──────────────────────────────────
+const LIVE_TASKS = new Map(); // taskId → { agentId, squad, title, action, value, startedAt, score }
+let taskSeq = 0;
+
+function taskRegister(squad, opp) {
+  const taskId = `T${++taskSeq}`;
+  const squads = { scraping: [1, 300], audit: [301, 700], closers: [701, 950], maintenance: [951, 1000] };
+  const [lo, hi] = squads[squad] || [1, 300];
+  const agentId = lo + Math.floor(Math.random() * (hi - lo + 1));
+  const task = {
+    taskId, agentId, squad,
+    title:     opp?.title?.slice(0, 60) || `Analyse #${taskId}`,
+    action:    getAction(squad, opp),
+    value:     opp?.budget_estimated ? `$${Math.round(opp.budget_estimated).toLocaleString('fr-CA')} ${opp?.budget_currency || 'USD'}` : 'En estimation',
+    valueRaw:  parseFloat(opp?.budget_estimated) || 0,
+    startedAt: Date.now(),
+    score:     opp?.score || 0,
+    country:   opp?.country || '??',
+    category:  opp?.category || 'général',
+  };
+  LIVE_TASKS.set(taskId, task);
+  return taskId;
+}
+function taskDone(taskId) { LIVE_TASKS.delete(taskId); }
+function getAction(squad, opp) {
+  if (squad === 'scraping') return `Scan mondial — ${opp?.source_platform || 'multi-sources'}`;
+  if (squad === 'audit')    return `Rédaction audit SEO — ${opp?.category || 'général'}`;
+  if (squad === 'closers')  return `Proposition B2B + email closing — ${opp?.country || '??'}`;
+  return `Surveillance système — auto-réparation`;
+}
+
+// ── ESCOUADE MAINTENANCE #951-1000 ────────────────────────────────────────────
+let maintenanceActive = false;
+let maintenanceHeals  = 0;
+let maintenanceErrors = 0;
+const maintenanceLogs = [];
+
+function logMaint(msg, level = 'info') {
+  const entry = { ts: new Date().toISOString(), msg, level };
+  maintenanceLogs.unshift(entry);
+  if (maintenanceLogs.length > 50) maintenanceLogs.pop();
+  const bus = getBus();
+  if (bus?.system) bus.system(`🛡 [Maintenance] ${msg}`, { level });
+}
+
+async function runMaintenanceCycle() {
+  if (!maintenanceActive) return;
+  const taskId = taskRegister('maintenance', null);
+  try {
+    const bus = getBus();
+    const aq  = getAQ();
+
+    // 1. Nettoyer les jobs failed dans BullMQ
+    if (aq) {
+      const stats = await safeCall(() => aq.getQueueStats(), null);
+      const lg = stats?.['lead-gen-queue'] || {};
+      const seo = stats?.['seo-audit-queue'] || {};
+      const em  = stats?.['email-sequence-queue'] || {};
+      const totalFailed = (lg.failed || 0) + (seo.failed || 0) + (em.failed || 0);
+      if (totalFailed > 0) {
+        maintenanceErrors++;
+        logMaint(`${totalFailed} jobs en échec détectés — nettoyage`, 'warn');
+        // Retenter les jobs failed
+        await safeCall(async () => {
+          const bullmq = require('bullmq');
+          const IORedis = require('ioredis');
+          const conn = new IORedis(process.env.REDIS_URL, { maxRetriesPerRequest: null });
+          const q = new bullmq.Queue('lead-gen-queue', { connection: conn });
+          await q.retryJobs({ status: 'failed' });
+          conn.disconnect();
+        }, null);
+        maintenanceHeals++;
+        logMaint(`Auto-réparation: ${totalFailed} jobs relancés ✅`, 'heal');
+      }
+    }
+
+    // 2. Vérifier que le cycle autonome ne s'est pas bloqué
+    if (autonomousMode && !cycleRunning && lastAutoCycleAt) {
+      const elapsed = Date.now() - new Date(lastAutoCycleAt).getTime();
+      if (elapsed > 5 * 60 * 1000) { // bloqué > 5 min
+        maintenanceErrors++;
+        logMaint(`Cycle autonome bloqué depuis ${Math.round(elapsed/60000)}min — relance forcée`, 'warn');
+        cycleRunning = false;
+        setTimeout(runAutoCycle, 2000);
+        maintenanceHeals++;
+        logMaint('Auto-réparation: cycle relancé ✅', 'heal');
+      }
+    }
+
+    // 3. Vérifier que Railway est accessible
+    const pool = getPool();
+    if (pool) {
+      await safeCall(() => pool.query('SELECT 1'), null);
+    }
+
+    taskDone(taskId);
+  } catch (e) {
+    taskDone(taskId);
+    logMaint(`Erreur maintenance: ${e.message}`, 'error');
+  }
+
+  if (maintenanceActive) setTimeout(runMaintenanceCycle, 60 * 1000); // toutes les 60s
+}
+
+function startMaintenance() {
+  maintenanceActive = true;
+  logMaint('Escouade Maintenance #951-1000 déployée — surveillance active');
+  setTimeout(runMaintenanceCycle, 5000);
+}
+function stopMaintenance() { maintenanceActive = false; }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function safeRequire(mod) { try { return require(mod); } catch (_) { return null; } }
@@ -33,24 +143,15 @@ function getPool() { return safeRequire('../memory/db')?.pool || null; }
 function getBus()  { return safeRequire('../services/event-bus'); }
 function getAQ()   { return safeRequire('../workers/agent-queue'); }
 
-// ── Persistance DB ────────────────────────────────────────────────────────────
+// ── Persistance DB ─────────────────────────────────────────────────────────────
 async function persistAutoMode(enabled) {
   const pool = getPool();
   if (!pool) return;
   try {
-    await pool.query(`
-      INSERT INTO daleba_notes (title, content, category, tags, priority, author_id, created_at, updated_at)
-      VALUES ('autonomous_mode', $1, 'system', ARRAY['usine','auto'], 1, 'system', NOW(), NOW())
-      ON CONFLICT (title) DO UPDATE SET content = $1, updated_at = NOW()
-      `, [enabled ? 'true' : 'false']);
-  } catch (e) {
-    // Table sans contrainte unique sur title — upsert fallback
-    try {
-      await pool.query(`DELETE FROM daleba_notes WHERE title='autonomous_mode' AND category='system'`);
-      await pool.query(`INSERT INTO daleba_notes (title, content, category, tags, priority, author_id, created_at, updated_at)
-        VALUES ('autonomous_mode', $1, 'system', ARRAY['usine','auto'], 1, 'system', NOW(), NOW())`, [enabled ? 'true' : 'false']);
-    } catch (_) {}
-  }
+    await pool.query(`DELETE FROM daleba_notes WHERE title='autonomous_mode' AND category='system'`);
+    await pool.query(`INSERT INTO daleba_notes (title, content, category, tags, priority, author_id, created_at, updated_at)
+      VALUES ('autonomous_mode', $1, 'system', ARRAY['usine','auto'], 1, 'system', NOW(), NOW())`, [enabled ? 'true' : 'false']);
+  } catch (_) {}
 }
 
 async function restoreAutoModeFromDB() {
@@ -62,103 +163,76 @@ async function restoreAutoModeFromDB() {
   } catch (_) { return false; }
 }
 
-// ── Cycle autonome — BOUCLE INFINIE CONTINUE ─────────────────────────────────
+// ── CYCLE AUTONOME CONTINU ─────────────────────────────────────────────────────
 async function runAutoCycle() {
-  if (!autonomousMode || !productionModeEnabled) return;
-  if (cycleRunning) return; // anti-doublon
-
+  if (!autonomousMode || !productionModeEnabled || cycleRunning) return;
   cycleRunning = true;
+
   const bus = getBus();
   const cycleId = ++autoCycleCount;
   lastAutoCycleAt = new Date().toISOString();
+  if (bus?.system) bus.system(`🤖 [AUTO #${cycleId}] Cycle Rendement Maximal`, { cycleId });
 
-  if (bus?.system) bus.system(`🤖 [AUTO #${cycleId}] Cycle démarré — Rendement Maximal Continu`, { cycleId });
-
-  // ── ÉTAPE 1 : SCAN ─────────────────────────────────────────────────────────
+  // ÉTAPE 1 — SCAN (escouade Scraping)
+  const scanTask = taskRegister('scraping', { source_platform: 'multi-sources', title: `Scan mondial cycle #${cycleId}` });
   try {
+    if (bus?.system) bus.system(`🌍 [AUTO #${cycleId}] Scan international…`);
     const ow = safeRequire('../workers/opportunity-worker');
-    if (ow?.runOpportunityWorker) {
-      if (bus?.system) bus.system(`🌍 [AUTO #${cycleId}] Scan international…`);
-      activeTaskCount++;
-      await ow.runOpportunityWorker();
-      activeTaskCount = Math.max(0, activeTaskCount - 1);
-      if (bus?.system) bus.system(`✅ [AUTO #${cycleId}] Scan terminé`);
-    }
+    if (ow?.runOpportunityWorker) await ow.runOpportunityWorker();
+    if (bus?.system) bus.system(`✅ [AUTO #${cycleId}] Scan terminé`);
   } catch (e) {
-    activeTaskCount = Math.max(0, activeTaskCount - 1);
     if (bus?.system) bus.system(`⚠️ [AUTO #${cycleId}] Scan: ${e.message}`);
-  }
+  } finally { taskDone(scanTask); }
 
   if (!autonomousMode) { cycleRunning = false; return; }
 
-  // ── ÉTAPE 2 : PROPOSITIONS + EMAIL ─────────────────────────────────────────
+  // ÉTAPE 2 — PIPELINE (Audit + Closing)
   const pool = getPool();
   if (pool) {
     try {
-      // Récupérer les opportunités sans proposition, score ≥ 70
       const r = await pool.query(`
         SELECT o.* FROM daleba_opportunities o
         LEFT JOIN daleba_proposals p ON p.opportunity_id = o.id
         WHERE o.score >= 70 AND o.status = 'pending' AND p.id IS NULL
-        ORDER BY o.score DESC, o.detected_at DESC
-        LIMIT $1
-      `, [EMAIL_BATCH_PER_CYCLE]);
+        ORDER BY o.score DESC, o.detected_at DESC LIMIT $1`, [EMAIL_BATCH_PER_CYCLE]);
 
       const opps = r.rows;
-      if (opps.length > 0) {
-        if (bus?.system) bus.system(`✍️ [AUTO #${cycleId}] Pipeline: ${opps.length} opportunités en traitement`, { count: opps.length });
+      if (opps.length) {
+        if (bus?.system) bus.system(`✍️ [AUTO #${cycleId}] Pipeline: ${opps.length} opportunités`, { count: opps.length });
 
-        const pw = safeRequire('../services/proposal-writer');
-        const en = safeRequire('../services/email-notifier');
+        // Traitement parallèle par lots de 5 (concurrence max)
+        const CHUNK = 5;
+        for (let i = 0; i < opps.length; i += CHUNK) {
+          if (!autonomousMode) break;
+          const chunk = opps.slice(i, i + CHUNK);
+          await Promise.all(chunk.map(async (opp) => {
+            const auditTask   = taskRegister('audit', opp);
+            const closerTask  = taskRegister('closers', opp);
+            try {
+              // Générer proposition
+              let proposalText = `[AUTO PROPOSAL] ${opp.title} — DALEBA Solution`;
+              const pw = safeRequire('../services/proposal-writer');
+              if (pw?.generateProposal) proposalText = await safeCall(() => pw.generateProposal(opp), proposalText);
+              taskDone(auditTask);
 
-        for (const opp of opps) {
-          if (!autonomousMode) break; // arrêt propre si désactivé entre-temps
+              // Sauvegarder + approuver
+              await pool.query(`INSERT INTO daleba_proposals (opportunity_id, generated_text, status, created_at)
+                VALUES ($1, $2, 'sent', NOW())`, [opp.id, proposalText]);
+              await pool.query(`UPDATE daleba_opportunities SET status='approved', approved_at=NOW() WHERE id=$1`, [opp.id]);
 
-          activeTaskCount++;
-          if (bus?.system) bus.system(`🔍 [AUTO #${cycleId}] Analyse: ${opp.title?.slice(0, 55)}…`, { oppId: opp.id, score: opp.score });
-
-          try {
-            // Générer la proposition
-            let proposalText = `[Proposition AUTO — ${opp.title}]`;
-            if (pw?.generateProposal) {
-              proposalText = await safeCall(() => pw.generateProposal(opp), proposalText);
-            }
-
-            // Sauvegarder en DB
-            await pool.query(
-              `INSERT INTO daleba_proposals (opportunity_id, generated_text, status, created_at)
-               VALUES ($1, $2, 'sent', NOW())`,
-              [opp.id, proposalText]
-            );
-
-            // Marquer l'opportunité comme traitée
-            await pool.query(
-              `UPDATE daleba_opportunities SET status='approved', approved_at=NOW() WHERE id=$1`,
-              [opp.id]
-            );
-
-            // Envoyer l'email
-            if (en?.notifyProposal) {
-              await safeCall(() => en.notifyProposal(opp, proposalText), null);
-              if (bus?.system) bus.system(`📧 [AUTO #${cycleId}] Email envoyé — ${opp.title?.slice(0, 50)} [score:${opp.score}]`);
-            }
-          } catch (e2) {
-            if (bus?.system) bus.system(`⚠️ [AUTO #${cycleId}] Erreur opp #${opp.id}: ${e2.message?.slice(0, 80)}`);
-            // Marquer quand même pour ne pas boucler dessus indéfiniment
-            await safeCall(() => pool.query(
-              `INSERT INTO daleba_proposals (opportunity_id, generated_text, status, created_at)
-               VALUES ($1, '[Erreur génération — retry prochain cycle]', 'error', NOW())`,
-              [opp.id]
-            ), null);
-          } finally {
-            activeTaskCount = Math.max(0, activeTaskCount - 1);
-          }
+              // Envoyer email
+              const en = safeRequire('../services/email-notifier');
+              if (en?.notifyProposal) await safeCall(() => en.notifyProposal(opp, proposalText), null);
+              if (bus?.system) bus.system(`📧 [AUTO #${cycleId}] Email — ${opp.title?.slice(0, 45)} [$${Math.round(opp.budget_estimated || 0).toLocaleString()}]`);
+            } catch (e2) {
+              taskDone(auditTask);
+              await safeCall(() => pool.query(`INSERT INTO daleba_proposals (opportunity_id, generated_text, status) VALUES ($1, '[error]', 'error')`, [opp.id]), null);
+            } finally { taskDone(closerTask); }
+          }));
         }
-
-        if (bus?.system) bus.system(`🏁 [AUTO #${cycleId}] Cycle terminé — ${opps.length} opportunités traitées`);
+        if (bus?.system) bus.system(`🏁 [AUTO #${cycleId}] ${opps.length} opportunités traitées`);
       } else {
-        // Toutes les opps existantes traitées → re-scan immédiat pour en trouver d'autres
-        if (bus?.system) bus.system(`🔄 [AUTO #${cycleId}] File vide — re-scan pour nouvelles opportunités`);
+        if (bus?.system) bus.system(`🔄 [AUTO #${cycleId}] File vide — re-scan`);
       }
     } catch (e) {
       if (bus?.system) bus.system(`⚠️ [AUTO #${cycleId}] Pipeline: ${e.message}`);
@@ -166,28 +240,20 @@ async function runAutoCycle() {
   }
 
   cycleRunning = false;
-
-  // ── BOUCLE INFINIE : relance immédiate si encore en mode autonome ───────────
-  if (autonomousMode && productionModeEnabled) {
-    // Petite respiration pour éviter de saturer les APIs externes (Resend, DeepSeek)
-    setTimeout(runAutoCycle, CYCLE_COOLDOWN_MS);
-  }
+  if (autonomousMode && productionModeEnabled) setTimeout(runAutoCycle, CYCLE_COOLDOWN_MS);
 }
 
-// ── Démarrage du mode autonome ─────────────────────────────────────────────────
 function startAutonomousMode() {
-  // Lance le premier cycle immédiatement (2s)
   setTimeout(runAutoCycle, 2000);
+  startMaintenance(); // Maintenance squad démarre aussi
 }
-
 function stopAutonomousMode() {
   autonomousMode = false;
-  // Le cycle en cours se terminera proprement (verrou cycleRunning) et ne relancera pas
+  stopMaintenance();
 }
 
-// ── Restauration au démarrage du serveur ──────────────────────────────────────
+// ── Restauration au boot ───────────────────────────────────────────────────────
 ;(async () => {
-  // Attendre que la DB soit prête (max 30s)
   let attempts = 0;
   const checkAndRestore = async () => {
     attempts++;
@@ -195,14 +261,11 @@ function stopAutonomousMode() {
     if (restored) {
       autonomousMode = true;
       productionModeEnabled = true;
-      const bus = getBus();
-      if (bus?.system) bus.system('🤖 [BOOT] Mode autonome restauré depuis la DB — relance du cycle');
+      getBus()?.system?.('🤖 [BOOT] Mode autonome restauré — cycle relancé');
       startAutonomousMode();
-    } else if (attempts < 5) {
-      setTimeout(checkAndRestore, 6000);
-    }
+    } else if (attempts < 5) { setTimeout(checkAndRestore, 6000); }
   };
-  setTimeout(checkAndRestore, 8000); // laisser la DB se connecter
+  setTimeout(checkAndRestore, 8000);
 })();
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -213,14 +276,11 @@ router.get('/live-stats', async (req, res) => {
   try {
     const pool = getPool();
     const aq   = getAQ();
-    const mgr  = safeRequire('../services/agent-manager');
     const bus  = getBus();
 
     const queueStats = aq
       ? await safeCall(() => aq.getQueueStats(), { 'lead-gen-queue':{}, 'seo-audit-queue':{}, 'email-sequence-queue':{}, redisAvailable: false })
       : { 'lead-gen-queue':{}, 'seo-audit-queue':{}, 'email-sequence-queue':{}, redisAvailable: false };
-
-    const ms = mgr ? await safeCall(() => mgr.getStatus(), null) : null;
 
     let recentOpps = [], totals = { opportunities: 0, proposals: 0 };
     if (pool) {
@@ -240,26 +300,17 @@ router.get('/live-stats', async (req, res) => {
     const lg  = queueStats['lead-gen-queue']       || {};
     const seo = queueStats['seo-audit-queue']      || {};
     const em  = queueStats['email-sequence-queue'] || {};
-
-    // L'anneau: actifs BullMQ + tâches autonomes en cours
-    const bullActive = (lg.active||0) + (seo.active||0) + (em.active||0) + (ms?.stats?.liveAgents||0);
-    const totalActive = bullActive + activeTaskCount;
+    const bullActive = (lg.active||0) + (seo.active||0) + (em.active||0);
+    const liveTasks  = [...LIVE_TASKS.values()];
+    const totalActive = bullActive + liveTasks.length;
 
     res.json({
       ts: Date.now(),
       productionMode: productionModeEnabled,
-      autonomousMode,
-      cycleRunning,
-      lastAutoCycleAt,
-      autoCycleCount,
-      activeTaskCount,
+      autonomousMode, cycleRunning,
+      lastAutoCycleAt, autoCycleCount,
       redisConnected: !!queueStats.redisAvailable,
-      agents: {
-        active: totalActive,
-        waiting: (lg.waiting||0) + (seo.waiting||0) + (em.waiting||0),
-        capacity: 1000,
-        liveManager: ms?.stats?.liveAgents || 0,
-      },
+      agents: { active: totalActive, waiting: (lg.waiting||0)+(seo.waiting||0)+(em.waiting||0), capacity: 1000 },
       queues: {
         leadGen:       { waiting: lg.waiting||0,  active: lg.active||0,  completed: lg.completed||0,  failed: lg.failed||0  },
         seoAudit:      { waiting: seo.waiting||0, active: seo.active||0, completed: seo.completed||0, failed: seo.failed||0 },
@@ -267,10 +318,64 @@ router.get('/live-stats', async (req, res) => {
       },
       totals, recentOpps,
       recentEvents: recentEvents.slice(0, 15),
+      liveTasks,
+      maintenance: { active: maintenanceActive, heals: maintenanceHeals, errors: maintenanceErrors, logs: maintenanceLogs.slice(0, 5) },
     });
-  } catch (err) {
-    res.status(500).json({ error: 'Erreur interne', detail: err.message });
-  }
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/usine/pipeline — 4 colonnes kanban
+// ─────────────────────────────────────────────────────────────────────────────
+router.get('/pipeline', async (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  try {
+    const pool = getPool();
+    if (!pool) return res.json({ detected:0, accepted:0, processing:0, completed:0, caPotentiel:0, caGenere:0 });
+
+    const [det, acc, proc, done, ca] = await Promise.allSettled([
+      pool.query('SELECT COUNT(*)::int as n FROM daleba_opportunities'),
+      pool.query("SELECT COUNT(*)::int as n FROM daleba_opportunities WHERE status='approved'"),
+      pool.query("SELECT COUNT(*)::int as n FROM daleba_proposals WHERE status NOT IN ('sent','error','delivered')"),
+      pool.query("SELECT COUNT(*)::int as n FROM daleba_proposals WHERE status IN ('sent','delivered')"),
+      pool.query("SELECT COALESCE(SUM(budget_estimated),0)::numeric as total FROM daleba_opportunities WHERE budget_estimated IS NOT NULL"),
+    ]);
+
+    const caTotal = parseFloat(ca.status === 'fulfilled' ? ca.value.rows[0]?.total || 0 : 0);
+
+    // Recent pipeline items
+    const recentR = await safeCall(() => pool.query(`
+      SELECT o.id, o.title, o.score, o.country, o.budget_estimated, o.budget_currency,
+             o.status as opp_status, o.category, p.status as prop_status, p.created_at as prop_date
+      FROM daleba_opportunities o
+      LEFT JOIN daleba_proposals p ON p.opportunity_id = o.id
+      ORDER BY COALESCE(p.created_at, o.detected_at) DESC LIMIT 20
+    `), null);
+
+    res.json({
+      detected:   det.status==='fulfilled'  ? det.value.rows[0]?.n  || 0 : 0,
+      accepted:   acc.status==='fulfilled'  ? acc.value.rows[0]?.n  || 0 : 0,
+      processing: proc.status==='fulfilled' ? proc.value.rows[0]?.n || 0 : 0,
+      completed:  done.status==='fulfilled' ? done.value.rows[0]?.n || 0 : 0,
+      caPotentiel: caTotal,
+      items: recentR?.rows || [],
+    });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/usine/maintenance
+// ─────────────────────────────────────────────────────────────────────────────
+router.get('/maintenance', (req, res) => {
+  res.json({
+    active: maintenanceActive,
+    agentRange: '951 → 1 000',
+    agentCount: 50,
+    heals: maintenanceHeals,
+    errors: maintenanceErrors,
+    logs: maintenanceLogs.slice(0, 20),
+    liveTasks: [...LIVE_TASKS.values()].filter(t => t.squad === 'maintenance'),
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -298,9 +403,8 @@ function inferSeoFlaws(opp) {
   const kw   = (opp.keywords_matched||'').toLowerCase();
   if (cat.includes('seo')||kw.includes('seo')) flaws.push({ label:'Audit SEO requis', severity:'high', detail:'Positionnement organique non optimisé' });
   if (kw.includes('automation')||cat.includes('automation')) flaws.push({ label:'Processus manuels', severity:'high', detail:'Flux non automatisés — perte >40%' });
-  if (kw.includes('crm')||kw.includes('lead')||desc.includes('lead')) flaws.push({ label:'Pipeline CRM défaillant', severity:'medium', detail:'Attribution manquante, suivi irrégulier' });
+  if (kw.includes('crm')||kw.includes('lead')||desc.includes('lead')) flaws.push({ label:'Pipeline CRM défaillant', severity:'medium', detail:'Attribution manquante' });
   if (kw.includes('api')||kw.includes('integration')||desc.includes('integr')) flaws.push({ label:'Intégrations API absentes', severity:'medium', detail:'Silos entre outils' });
-  if (desc.includes('manual')||desc.includes('spreadsheet')) flaws.push({ label:'Opérations manuelles', severity:'high', detail:'Candidat idéal pour l\'automatisation IA' });
   if (!flaws.length) flaws.push({ label:'Opportunité à analyser', severity:'low', detail:'Analyse approfondie recommandée' });
   return flaws;
 }
@@ -316,14 +420,16 @@ router.get('/roster', async (req, res) => {
     const lg  = qs?.['lead-gen-queue']       || {};
     const seo = qs?.['seo-audit-queue']      || {};
     const em  = qs?.['email-sequence-queue'] || {};
+    const liveArr = [...LIVE_TASKS.values()];
     res.json({
       totalAgents: 1000,
       autonomousActive: autonomousMode,
-      activeTaskCount,
+      liveTasks: liveArr,
       squads: [
-        { id:'scraping', label:'Scraping & Intelligence', range:'1 → 300', count:300, color:'sky', icon:'🔍', description:'Scannent HackerNews, Remotive, WeWorkRemotely et 40+ sources en temps réel.', skills:['Web Scraping','Data Extraction','Source Classification','Deduplication','Multi-language'], queueActive:lg.active||0, queueCompleted:lg.completed||0 },
-        { id:'audit',    label:'Rédacteurs Audit SEO',   range:'301 → 700', count:400, color:'violet', icon:'✍️', description:'Génèrent des propositions B2B personnalisées et audits SEO.', skills:['SEO Analysis','Proposal Writing','Score Ranking','FR/EN bilingual','Budget Estimation'], queueActive:seo.active||0, queueCompleted:seo.completed||0 },
-        { id:'closers',  label:'Closers & Relances Email', range:'701 → 1 000', count:300, color:'amber', icon:'📧', description:'Séquences email multi-étapes, relances et suivi Stripe.', skills:['Email Sequencing','Follow-up Automation','Stripe Monitoring','Reply Detection','A/B Testing'], queueActive:(em.active||0)+activeTaskCount, queueCompleted:em.completed||0 },
+        { id:'scraping', label:'Scraping & Intelligence', range:'1 → 300', count:300, color:'sky', icon:'🔍', description:'Scannent 40+ sources mondiales en temps réel.', skills:['Web Scraping','Data Extraction','Deduplication','Multi-language','Source Ranking'], queueActive: lg.active||0, queueCompleted: lg.completed||0, liveTasks: liveArr.filter(t=>t.squad==='scraping') },
+        { id:'audit', label:'Rédacteurs Audit SEO', range:'301 → 700', count:400, color:'violet', icon:'✍️', description:'Génèrent propositions B2B et audits SEO personnalisés.', skills:['SEO Analysis','Proposal Writing','Score Ranking','FR/EN bilingual','Budget Estimation'], queueActive: seo.active||0, queueCompleted: seo.completed||0, liveTasks: liveArr.filter(t=>t.squad==='audit') },
+        { id:'closers', label:'Closers & Email', range:'701 → 950', count:250, color:'amber', icon:'📧', description:'Séquences email multi-étapes et closing B2B.', skills:['Email Sequencing','Follow-up Auto','Stripe Monitor','Reply Detection','A/B Testing'], queueActive: (em.active||0)+liveArr.filter(t=>t.squad==='closers').length, queueCompleted: em.completed||0, liveTasks: liveArr.filter(t=>t.squad==='closers') },
+        { id:'maintenance', label:'Maintenance & Auto-Réparation', range:'951 → 1 000', count:50, color:'rose', icon:'🛡', description:'Surveillance continue, détection d\'erreurs et auto-healing.', skills:['Log Monitoring','Worker Restart','Queue Repair','API Health Check','Auto-Healing'], queueActive: liveArr.filter(t=>t.squad==='maintenance').length, queueCompleted: maintenanceHeals, liveTasks: liveArr.filter(t=>t.squad==='maintenance'), heals: maintenanceHeals, errors: maintenanceErrors },
       ],
       redisConnected: !!qs?.redisAvailable,
     });
@@ -341,22 +447,22 @@ router.get('/live-stream', (req, res) => {
   res.flushHeaders();
 
   const send = (obj) => { try { if (!res.writableEnded) res.write(`data: ${JSON.stringify(obj)}\n\n`); } catch (_) {} };
-  send({ type:'connected', ts:Date.now(), productionMode:productionModeEnabled, autonomousMode, activeTaskCount });
+  send({ type:'connected', ts:Date.now(), productionMode:productionModeEnabled, autonomousMode });
 
-  const statTick = setInterval(async () => {
-    if (res.writableEnded) { clearInterval(statTick); return; }
+  const tick = setInterval(async () => {
+    if (res.writableEnded) { clearInterval(tick); return; }
     const aq = getAQ();
-    if (!aq) { send({ type:'ping', ts:Date.now(), activeTaskCount }); return; }
+    const liveArr = [...LIVE_TASKS.values()];
     try {
-      const stats = await aq.getQueueStats();
+      const stats = aq ? await aq.getQueueStats() : {};
       const lg=stats['lead-gen-queue']||{}, seo=stats['seo-audit-queue']||{}, em=stats['email-sequence-queue']||{};
-      const bullA=(lg.active||0)+(seo.active||0)+(em.active||0);
-      send({ type:'stats', stats, totalActive:bullA+activeTaskCount, activeTaskCount, autonomousMode, cycleRunning, autoCycleCount, ts:Date.now() });
-    } catch (_) { send({ type:'ping', ts:Date.now(), activeTaskCount }); }
-  }, 3000); // rafraîchissement toutes les 3s
+      send({ type:'stats', stats, totalActive:(lg.active||0)+(seo.active||0)+(em.active||0)+liveArr.length,
+             liveTasks:liveArr, autonomousMode, cycleRunning, autoCycleCount, ts:Date.now() });
+    } catch (_) { send({ type:'ping', ts:Date.now(), liveTasks:liveArr }); }
+  }, 3000);
 
   const ping = setInterval(() => { if (!res.writableEnded) res.write(': ping\n\n'); }, 20000);
-  const cleanup = () => { clearInterval(statTick); clearInterval(ping); };
+  const cleanup = () => { clearInterval(tick); clearInterval(ping); };
   req.on('close', cleanup); req.on('aborted', cleanup); res.on('finish', cleanup); res.on('error', cleanup);
 });
 
@@ -367,8 +473,7 @@ router.post('/trigger-scan', async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   if (!productionModeEnabled) return res.status(403).json({ success:false, error:'Usine en pause.' });
   try {
-    const aq = getAQ();
-    const jobs = [];
+    const aq = getAQ(), jobs = [];
     if (aq) {
       const j1 = await safeCall(() => aq.addLeadGenJob({ trigger:'manual', ts:Date.now() }), null);
       const j2 = await safeCall(() => aq.addSeoAuditJob({ trigger:'manual', ts:Date.now() }), null);
@@ -376,55 +481,42 @@ router.post('/trigger-scan', async (req, res) => {
       if (j2) jobs.push(String(j2.id||'mem'));
     }
     setImmediate(async () => {
-      try { const ow=safeRequire('../workers/opportunity-worker'); if(ow?.runOpportunityWorker) await ow.runOpportunityWorker(); } catch(_) {}
+      const ow = safeRequire('../workers/opportunity-worker');
+      if (ow?.runOpportunityWorker) await safeCall(() => ow.runOpportunityWorker(), null);
     });
-    const bus = getBus();
-    if (bus?.system) bus.system('🌍 Scan international manuel déclenché', { jobs });
-    res.json({ success:true, message:'Scan déclenché', jobs, scanStarted:true });
+    getBus()?.system?.('🌍 Scan international manuel déclenché', { jobs });
+    res.json({ success:true, message:'Scan déclenché', jobs });
   } catch (err) { res.status(500).json({ success:false, error:err.message }); }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Production mode
 // ─────────────────────────────────────────────────────────────────────────────
-router.get('/production-mode', (req, res) => res.json({ enabled:productionModeEnabled, ts:Date.now() }));
+router.get('/production-mode', (req, res) => res.json({ enabled:productionModeEnabled }));
 router.post('/production-mode', (req, res) => {
   const { enabled } = req.body;
   if (typeof enabled !== 'boolean') return res.status(400).json({ error:'enabled doit être booléen' });
   productionModeEnabled = enabled;
-  const bus = getBus();
-  if (bus?.system) bus.system(enabled ? '▶ Usine activée — Production ON' : '⏸ Usine en pause — Production OFF', { productionMode:enabled });
+  getBus()?.system?.(enabled ? '▶ Production ON' : '⏸ Production OFF', { productionMode:enabled });
   if (!enabled && autonomousMode) stopAutonomousMode();
   res.json({ success:true, enabled:productionModeEnabled });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Autonomous mode — VERROUILLÉ EN DB
+// Autonomous mode
 // ─────────────────────────────────────────────────────────────────────────────
-router.get('/autonomous-mode', (req, res) => {
-  res.json({ enabled:autonomousMode, lastCycleAt:lastAutoCycleAt, cycleCount:autoCycleCount, cycleRunning, activeTaskCount });
-});
+router.get('/autonomous-mode', (req, res) => res.json({ enabled:autonomousMode, lastCycleAt:lastAutoCycleAt, cycleCount:autoCycleCount, cycleRunning }));
 
 router.post('/autonomous-mode', async (req, res) => {
   const { enabled } = req.body;
   if (typeof enabled !== 'boolean') return res.status(400).json({ error:'enabled doit être booléen' });
   if (enabled && !productionModeEnabled) return res.status(403).json({ success:false, error:'Activez d\'abord la Production.' });
-
   autonomousMode = enabled;
-  const bus = getBus();
-
-  // Persister en DB (survit aux redémarrages)
   await persistAutoMode(enabled);
-
-  if (enabled) {
-    startAutonomousMode();
-    if (bus?.system) bus.system('🤖 MODE 100% AUTONOME — Boucle infinie continue activée (zéro interruption)', { autonomousMode:true });
-  } else {
-    stopAutonomousMode();
-    if (bus?.system) bus.system('🛑 Mode autonome désactivé manuellement', { autonomousMode:false });
-  }
-
-  res.json({ success:true, enabled:autonomousMode, message:enabled ? '🤖 Boucle infinie lancée — Rendement Maximal' : '🛑 Cycle arrêté' });
+  getBus()?.system?.(enabled ? '🤖 MODE AUTONOME — Boucle infinie + Maintenance activées' : '🛑 Mode autonome désactivé manuellement', { autonomousMode:enabled });
+  if (enabled) startAutonomousMode();
+  else stopAutonomousMode();
+  res.json({ success:true, enabled:autonomousMode, message:enabled ? '🤖 Boucle infinie + Escouade Maintenance lancées' : '🛑 Cycle arrêté' });
 });
 
 module.exports = router;

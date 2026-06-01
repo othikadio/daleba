@@ -3,35 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>L'Usine IA — DALEBA OS</title>
+  <title>L'Usine IA — Centre de Commandement DALEBA</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','ui-sans-serif','system-ui']}}}}</script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','ui-sans-serif']}}}}</script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box}body{font-family:'Inter',system-ui}
-    /* Feeds */
-    #activity-feed,#discovery-feed{height:380px;overflow-y:auto;scroll-behavior:smooth}
-    #activity-feed::-webkit-scrollbar,#discovery-feed::-webkit-scrollbar{width:4px}
-    #activity-feed::-webkit-scrollbar-thumb,#discovery-feed::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:2px}
+    #activity-feed{height:320px;overflow-y:auto;scroll-behavior:smooth}
+    #activity-feed::-webkit-scrollbar{width:4px}#activity-feed::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:2px}
     .feed-item{animation:sIn .22s ease}
-    @keyframes sIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes sIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
     /* Ring */
     .ring-svg{transform:rotate(-90deg)}
     .ring-track{fill:none;stroke:#f3f4f6;stroke-width:10}
     .ring-fill{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .8s,stroke .4s}
     /* Prog */
-    .prog{height:5px;border-radius:3px;background:#f3f4f6;overflow:hidden}
+    .prog{height:5px;border-radius:3px;background:#f3f4f6}
     .prog-fill{height:100%;border-radius:3px;transition:width .5s}
     /* Skeleton */
-    .skel{background:linear-gradient(90deg,#f3f4f6 25%,#e9ecef 50%,#f3f4f6 75%);background-size:200% 100%;animation:shim 1.4s infinite;border-radius:4px}
-    @keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
-    /* Live dot */
+    .skel{background:linear-gradient(90deg,#f3f4f6 25%,#e9ecef 50%,#f3f4f6 75%);background-size:200%;animation:shim 1.4s infinite;border-radius:4px}
+    @keyframes shim{0%{background-position:200%}100%{background-position:-200%}}
+    /* Dots */
     .dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
     .dot-on{background:#10b981;animation:dp 1.2s ease-in-out infinite}
-    .dot-off{background:#d1d5db}
-    .dot-auto{background:#8b5cf6;animation:dp 1.2s ease-in-out infinite}
+    .dot-off{background:#d1d5db}.dot-auto{background:#8b5cf6;animation:dp 1.2s ease-in-out infinite}
     .dot-warn{background:#f59e0b;animation:dp 1.2s ease-in-out infinite}
+    .dot-maint{background:#f43f5e;animation:dp 1.2s ease-in-out infinite}
     @keyframes dp{0%,100%{box-shadow:0 0 0 0 currentColor}50%{box-shadow:0 0 0 5px transparent}}
     /* Toggle */
     .tog{position:relative;display:inline-block;width:44px;height:24px;cursor:pointer;flex-shrink:0}
@@ -42,112 +39,98 @@
     input:checked+.slider::before{transform:translateX(20px)}
     .tog.auto input:checked+.slider{background:#8b5cf6}
     /* Tags */
-    .t-sky{background:#e0f2fe;color:#0369a1}
-    .t-violet{background:#ede9fe;color:#5b21b6}
-    .t-amber{background:#fef3c7;color:#92400e}
-    .t-green{background:#d1fae5;color:#065f46}
-    .t-gray{background:#f3f4f6;color:#4b5563}
-    .t-red{background:#fee2e2;color:#991b1b}
-    .t-indigo{background:#eef2ff;color:#3730a3}
-    .t-rose{background:#fff1f2;color:#be123c}
+    .t-sky{background:#e0f2fe;color:#0369a1}.t-violet{background:#ede9fe;color:#5b21b6}
+    .t-amber{background:#fef3c7;color:#92400e}.t-green{background:#d1fae5;color:#065f46}
+    .t-gray{background:#f3f4f6;color:#4b5563}.t-red{background:#fee2e2;color:#991b1b}
+    .t-rose{background:#fff1f2;color:#be123c}.t-indigo{background:#eef2ff;color:#3730a3}
     /* Tabs */
-    .tab-btn{padding:.5rem 1.1rem;font-size:.8rem;font-weight:600;border-bottom:2px solid transparent;color:#6b7280;transition:all .15s;cursor:pointer;white-space:nowrap}
+    .tab-btn{padding:.5rem 1rem;font-size:.8rem;font-weight:600;border-bottom:2px solid transparent;color:#6b7280;transition:all .15s;cursor:pointer;white-space:nowrap}
     .tab-btn.active{color:#0284c7;border-bottom-color:#0284c7}
     .tab-panel{display:none}.tab-panel.active{display:block}
     /* Modal */
     #modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:flex-end;justify-content:center}
     #modal-bg.open{display:flex}
-    #modal-box{background:white;border-radius:20px 20px 0 0;width:100%;max-width:720px;max-height:90vh;overflow-y:auto;padding:2rem;animation:mUp .3s ease}
+    #modal-box{background:white;border-radius:20px 20px 0 0;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;padding:1.75rem;animation:mUp .3s ease}
+    @media(min-width:768px){#modal-bg{align-items:center}#modal-box{border-radius:20px}}
     @keyframes mUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
-    @media(min-width:768px){#modal-bg{align-items:center}#modal-box{border-radius:20px;max-height:85vh}}
-    /* Severity */
-    .sev-high{background:#fee2e2;color:#991b1b}
-    .sev-medium{background:#fef3c7;color:#92400e}
-    .sev-low{background:#d1fae5;color:#065f46}
+    /* Pipeline kanban */
+    .pipe-col{flex:1;min-width:0}
+    .pipe-hd{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:.4rem .75rem;border-radius:.5rem .5rem 0 0}
+    .pipe-body{min-height:60px;border:1.5px solid #f3f4f6;border-top:none;border-radius:0 0 .5rem .5rem;padding:.5rem}
+    .pipe-item{background:white;border:1px solid #e5e7eb;border-radius:.5rem;padding:.5rem .6rem;margin-bottom:.4rem;font-size:.7rem;cursor:pointer;transition:all .15s}
+    .pipe-item:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    /* CA counter */
+    .ca-counter{font-variant-numeric:tabular-nums;letter-spacing:-0.03em}
+    /* Agent task card */
+    .task-card{border:1px solid #e5e7eb;border-radius:.75rem;padding:.75rem;transition:all .2s;cursor:pointer}
+    .task-card:hover{border-color:#93c5fd;background:#f8faff;transform:translateY(-1px)}
+    .task-card.active-task{border-color:#3b82f6;background:#eff6ff}
     /* Toast */
-    #toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#111827;color:white;padding:.6rem 1.1rem;border-radius:10px;font-size:.82rem;font-weight:500;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;z-index:999;max-width:300px}
-    #toast.show{opacity:1;transform:translateY(0)}
-    #toast.err{background:#dc2626}
-    /* Severity bar */
-    .sev-bar{width:10px;border-radius:3px;flex-shrink:0}
-    .roster-card:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.09)}
-    .roster-card{transition:all .2s}
+    #toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#111827;color:white;padding:.6rem 1.1rem;border-radius:10px;font-size:.82rem;font-weight:500;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;z-index:999}
+    #toast.show{opacity:1;transform:translateY(0)}#toast.err{background:#dc2626}
+    /* Sev */
+    .sev-high{background:#fee2e2;color:#991b1b}.sev-medium{background:#fef3c7;color:#92400e}.sev-low{background:#d1fae5;color:#065f46}
+    /* Timer */
+    .timer-badge{font-variant-numeric:tabular-nums;font-size:.7rem;font-weight:700;color:#6b7280}
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
 
 <!-- ── HEADER ── -->
 <header class="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
-  <div class="max-w-7xl mx-auto px-5 h-14 flex items-center justify-between gap-3">
-    <div class="flex items-center gap-3 min-w-0">
+  <div class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-2">
+    <div class="flex items-center gap-2.5 min-w-0">
       <a href="/admin-hub.html" class="text-gray-400 hover:text-gray-600 text-sm shrink-0">← Hub</a>
       <div class="h-4 w-px bg-gray-200 shrink-0"></div>
-      <h1 class="font-black text-sm tracking-widest uppercase text-gray-900 truncate">L'Usine IA</h1>
-      <span class="hidden sm:inline text-[10px] font-bold uppercase tracking-wider bg-sky-50 text-sky-700 px-2 py-0.5 rounded shrink-0">DALEBA OS</span>
+      <h1 class="font-black text-sm tracking-widest uppercase text-gray-900">Centre de Commandement</h1>
     </div>
-    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-
-      <!-- Production -->
+    <div class="flex items-center gap-2 shrink-0">
+      <!-- Prod -->
       <div class="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-xl px-2.5 py-1.5">
         <span class="text-[10px] font-bold uppercase text-gray-400 hidden sm:inline">Prod</span>
         <label class="tog"><input type="checkbox" id="prod-chk" onchange="toggleProd(this.checked)" checked><span class="slider"></span></label>
-        <span class="text-xs font-bold" id="prod-lbl" style="color:#10b981;min-width:20px">ON</span>
+        <span class="text-xs font-bold" id="prod-lbl" style="color:#10b981">ON</span>
       </div>
-
-      <!-- Autonome -->
+      <!-- Auto -->
       <div class="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-xl px-2.5 py-1.5">
         <span class="dot dot-off" id="auto-dot"></span>
         <span class="text-[10px] font-bold uppercase text-gray-400 hidden sm:inline">Auto</span>
         <label class="tog auto"><input type="checkbox" id="auto-chk" onchange="toggleAuto(this.checked)"><span class="slider"></span></label>
-        <span class="text-xs font-bold" id="auto-lbl" style="color:#9ca3af;min-width:20px">OFF</span>
+        <span class="text-xs font-bold" id="auto-lbl" style="color:#9ca3af">OFF</span>
       </div>
-
       <!-- SSE -->
       <div class="flex items-center gap-1.5">
         <span class="dot dot-warn" id="sse-dot"></span>
-        <span class="text-[10px] font-medium text-gray-400 hidden md:inline" id="sse-lbl">Connexion…</span>
+        <span class="text-[10px] text-gray-400 hidden md:inline" id="sse-lbl">Connexion…</span>
       </div>
-
-      <!-- Redis -->
-      <div class="flex items-center gap-1 bg-gray-100 rounded-full px-2.5 py-1">
-        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block" id="redis-dot"></span>
-        <span class="text-[10px] font-bold uppercase text-gray-500" id="redis-lbl">Redis</span>
-      </div>
-
-      <button id="scan-btn" onclick="triggerScan()"
-        class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
-        🌍 <span class="hidden sm:inline">Scan</span>
-      </button>
-      <span class="text-xs text-gray-400 tabular-nums font-mono hidden md:inline" id="clock">--:--</span>
+      <button onclick="triggerScan()" id="scan-btn" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition">🌍 Scan</button>
+      <span class="text-xs text-gray-400 font-mono tabular-nums hidden lg:inline" id="clock"></span>
     </div>
   </div>
 </header>
 
 <!-- ── BANNERS ── -->
-<div class="max-w-7xl mx-auto px-5 pt-4">
-  <div id="pause-banner" class="hidden mb-3 bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-3">
-    <span class="shrink-0">⏸</span>
-    <div class="flex-1 min-w-0">
-      <p class="text-sm font-bold text-amber-800">Usine en PAUSE</p>
-      <p class="text-xs text-amber-600">Aucun agent actif. Activez l'interrupteur pour reprendre.</p>
-    </div>
-    <button onclick="toggleProd(true)" class="shrink-0 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">▶ Activer</button>
+<div class="max-w-7xl mx-auto px-4 pt-3">
+  <div id="pause-banner" class="hidden mb-2 bg-amber-50 border border-amber-200 rounded-xl p-2.5 flex items-center gap-2 text-sm">
+    <span>⏸</span><span class="font-bold text-amber-800 flex-1">Usine en PAUSE</span>
+    <button onclick="toggleProd(true)" class="bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-lg">▶ Activer</button>
   </div>
-  <div id="auto-banner" class="hidden mb-3 bg-violet-50 border border-violet-200 rounded-xl p-3 flex items-center gap-3">
-    <span class="shrink-0 text-lg">🤖</span>
-    <div class="flex-1 min-w-0">
-      <p class="text-sm font-bold text-violet-800">MODE 100% AUTONOME — ACTIF</p>
-      <p class="text-xs text-violet-600">L'Usine scanne, audite, rédige et envoie sans intervention. Cycle toutes les 4h.</p>
+  <div id="auto-banner" class="hidden mb-2 bg-violet-50 border border-violet-200 rounded-xl p-2.5 flex items-center gap-2">
+    <span>🤖</span>
+    <div class="flex-1">
+      <p class="text-xs font-bold text-violet-800">MODE 100% AUTONOME — Boucle infinie active</p>
+      <p class="text-[10px] text-violet-500">Scan→Audit→Email en continu · Maintenance #951-1000 déployée</p>
     </div>
-    <span class="text-xs text-violet-500 font-mono" id="last-cycle-lbl"></span>
+    <span class="text-[10px] text-violet-500 font-mono tabular-nums" id="cycle-lbl"></span>
   </div>
 </div>
 
-<div class="max-w-7xl mx-auto px-5 pb-8">
+<div class="max-w-7xl mx-auto px-4 pb-8">
 
-  <!-- ── KPIs ── -->
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center gap-3 col-span-2 lg:col-span-1">
+  <!-- ── ROW 1: KPIs + Anneau ── -->
+  <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-3">
+    <!-- Anneau -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center gap-3 col-span-2 md:col-span-1 lg:col-span-1">
       <div class="relative shrink-0" style="width:68px;height:68px">
         <svg viewBox="0 0 80 80" class="ring-svg w-full h-full">
           <circle class="ring-track" cx="40" cy="40" r="34"/>
@@ -158,610 +141,525 @@
         </div>
       </div>
       <div>
-        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Agents Actifs</p>
-        <p class="text-3xl font-black text-gray-900 leading-none tabular-nums mt-0.5" id="kpi-active">0</p>
-        <p class="text-[10px] text-gray-400 mt-0.5">/ <span id="kpi-cap" class="font-semibold text-gray-600">1 000</span></p>
+        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Agents</p>
+        <p class="text-3xl font-black text-gray-900 tabular-nums" id="kpi-active">0</p>
+        <p class="text-[10px] text-gray-400">actifs / 1 000</p>
       </div>
     </div>
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-      <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">File d'attente</p>
-      <p class="text-3xl font-black text-gray-900 tabular-nums" id="kpi-wait"><span class="skel inline-block w-10 h-8 align-bottom"></span></p>
-      <p class="text-[10px] text-gray-400 mt-1">Jobs BullMQ Redis</p>
+
+    <!-- CA POTENTIEL — grand compteur -->
+    <div class="bg-white rounded-2xl shadow-sm border border-emerald-100 p-4 col-span-2 md:col-span-2 lg:col-span-2 flex flex-col justify-between">
+      <div class="flex items-center justify-between mb-1">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-500">💰 CA Potentiel Total</p>
+        <span class="text-[10px] t-green px-1.5 py-0.5 rounded font-semibold">Pipe actif</span>
+      </div>
+      <p class="ca-counter text-3xl md:text-4xl font-black text-emerald-700 leading-none" id="ca-total">$0</p>
+      <div class="flex gap-3 mt-2">
+        <span class="text-[10px] text-gray-500">Opps: <span class="font-bold text-gray-800" id="ca-opps">…</span></span>
+        <span class="text-[10px] text-gray-500">Proposals: <span class="font-bold text-gray-800" id="ca-props">…</span></span>
+        <span class="text-[10px] text-gray-500">Cycles: <span class="font-bold text-violet-700" id="ca-cycles">…</span></span>
+      </div>
     </div>
+
+    <!-- Queue -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-      <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Découvertes</p>
-      <p class="text-3xl font-black text-gray-900 tabular-nums" id="kpi-opps"><span class="skel inline-block w-12 h-8 align-bottom"></span></p>
-      <p class="text-[10px] text-gray-400 mt-1">Opportunités mondiales</p>
+      <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">File Jobs</p>
+      <p class="text-3xl font-black text-gray-900 tabular-nums" id="kpi-wait">0</p>
+      <p class="text-[10px] text-gray-400 mt-1">BullMQ concurrence×5</p>
     </div>
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-      <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Propositions B2B</p>
-      <p class="text-3xl font-black text-gray-900 tabular-nums" id="kpi-props"><span class="skel inline-block w-8 h-8 align-bottom"></span></p>
-      <p class="text-[10px] text-gray-400 mt-1">Générées par l'IA</p>
+
+    <!-- Maintenance -->
+    <div class="bg-white rounded-2xl shadow-sm border border-rose-100 p-4">
+      <div class="flex items-center gap-1.5 mb-1">
+        <span class="dot dot-off" id="maint-dot"></span>
+        <p class="text-[10px] font-bold uppercase tracking-widest text-rose-500">Maintenance</p>
+      </div>
+      <p class="text-3xl font-black text-rose-700 tabular-nums" id="kpi-heals">0</p>
+      <p class="text-[10px] text-gray-400 mt-1">Auto-réparations</p>
     </div>
   </div>
 
-  <!-- ── QUEUE BARS ── -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-4">
+  <!-- ── ROW 2: Pipeline Kanban ── -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
     <div class="flex items-center justify-between mb-3">
-      <h2 class="text-sm font-bold text-gray-900">Files BullMQ</h2>
-      <span class="text-[10px] font-medium text-gray-400" id="redis-status">…</span>
+      <h2 class="text-sm font-bold text-gray-900">📊 Pipeline de Production</h2>
+      <button onclick="loadPipeline()" class="text-[10px] text-sky-600 hover:underline font-medium">↻ Rafraîchir</button>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div>
-        <div class="flex justify-between mb-1.5">
-          <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-sky-500 shrink-0"></span><span class="text-xs font-semibold text-gray-700">Lead Gen</span></div>
-          <span class="text-[10px] text-gray-500 tabular-nums"><span id="lg-a">0</span>A · <span id="lg-w">0</span>Q</span>
+    <div class="flex gap-2" id="pipe-cols">
+      <!-- Dynamique -->
+      <div class="pipe-col"><div class="pipe-hd bg-sky-50 text-sky-700">🔍 Détectés</div><div class="pipe-body"><p class="text-2xl font-black text-sky-700 tabular-nums" id="pipe-det">…</p><p class="text-[10px] text-gray-400 mt-1">Opportunités scannées</p></div></div>
+      <div class="pipe-col"><div class="pipe-hd bg-violet-50 text-violet-700">✅ Acceptés (Auto)</div><div class="pipe-body"><p class="text-2xl font-black text-violet-700 tabular-nums" id="pipe-acc">…</p><p class="text-[10px] text-gray-400 mt-1">Score ≥ 70, approuvés</p></div></div>
+      <div class="pipe-col"><div class="pipe-hd bg-amber-50 text-amber-700">⚡ En Traitement</div><div class="pipe-body"><p class="text-2xl font-black text-amber-700 tabular-nums" id="pipe-proc">…</p><p class="text-[10px] text-gray-400 mt-1">Propositions en cours</p></div></div>
+      <div class="pipe-col"><div class="pipe-hd bg-emerald-50 text-emerald-700">📬 Terminés / Livrés</div><div class="pipe-body"><p class="text-2xl font-black text-emerald-700 tabular-nums" id="pipe-done">…</p><p class="text-[10px] text-gray-400 mt-1">Emails envoyés</p></div></div>
+    </div>
+    <!-- Items pipeline récents -->
+    <div id="pipe-items" class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-1.5 max-h-40 overflow-y-auto"></div>
+  </div>
+
+  <!-- ── ROW 3: Queues + Flux ── -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-3">
+    <!-- Queues -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+      <h3 class="text-xs font-bold text-gray-800 mb-3">Files BullMQ (concurrence ×5)</h3>
+      <div class="space-y-3">
+        <div>
+          <div class="flex justify-between text-xs mb-1"><div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-sky-500"></span><span class="font-semibold text-gray-700">Lead Gen</span></div><span class="text-gray-400 tabular-nums"><span id="lg-a">0</span>A·<span id="lg-w">0</span>Q</span></div>
+          <div class="prog"><div class="prog-fill bg-sky-500" id="lg-bar" style="width:0%"></div></div>
+          <div class="flex justify-between mt-1"><span class="text-[10px] text-emerald-600">✓<span id="lg-d">0</span></span><span class="text-[10px] text-red-400">✗<span id="lg-f">0</span></span></div>
         </div>
-        <div class="prog"><div class="prog-fill bg-sky-500" id="lg-bar" style="width:0%"></div></div>
-        <div class="flex justify-between mt-1"><span class="text-[10px] text-emerald-600">✓ <span id="lg-d">0</span></span><span class="text-[10px] text-red-400">✗ <span id="lg-f">0</span></span></div>
+        <div>
+          <div class="flex justify-between text-xs mb-1"><div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-violet-500"></span><span class="font-semibold text-gray-700">SEO Audit</span></div><span class="text-gray-400 tabular-nums"><span id="seo-a">0</span>A·<span id="seo-w">0</span>Q</span></div>
+          <div class="prog"><div class="prog-fill bg-violet-500" id="seo-bar" style="width:0%"></div></div>
+          <div class="flex justify-between mt-1"><span class="text-[10px] text-emerald-600">✓<span id="seo-d">0</span></span><span class="text-[10px] text-red-400">✗<span id="seo-f">0</span></span></div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1"><div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span><span class="font-semibold text-gray-700">Email</span></div><span class="text-gray-400 tabular-nums"><span id="em-a">0</span>A·<span id="em-w">0</span>Q</span></div>
+          <div class="prog"><div class="prog-fill bg-amber-500" id="em-bar" style="width:0%"></div></div>
+          <div class="flex justify-between mt-1"><span class="text-[10px] text-emerald-600">✓<span id="em-d">0</span></span><span class="text-[10px] text-red-400">✗<span id="em-f">0</span></span></div>
+        </div>
       </div>
-      <div>
-        <div class="flex justify-between mb-1.5">
-          <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-violet-500 shrink-0"></span><span class="text-xs font-semibold text-gray-700">SEO Audit</span></div>
-          <span class="text-[10px] text-gray-500 tabular-nums"><span id="seo-a">0</span>A · <span id="seo-w">0</span>Q</span>
-        </div>
-        <div class="prog"><div class="prog-fill bg-violet-500" id="seo-bar" style="width:0%"></div></div>
-        <div class="flex justify-between mt-1"><span class="text-[10px] text-emerald-600">✓ <span id="seo-d">0</span></span><span class="text-[10px] text-red-400">✗ <span id="seo-f">0</span></span></div>
+    </div>
+
+    <!-- Flux live -->
+    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-gray-50">
+        <div class="flex items-center gap-2"><span class="dot dot-on"></span><span class="text-xs font-bold text-gray-900">Flux Production Temps Réel</span></div>
+        <div class="flex items-center gap-3"><span class="text-[10px] text-gray-400 tabular-nums" id="evt-count">0 évts</span><button onclick="clearFeed()" class="text-[10px] text-gray-400 hover:text-gray-600 underline">Vider</button></div>
       </div>
-      <div>
-        <div class="flex justify-between mb-1.5">
-          <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span><span class="text-xs font-semibold text-gray-700">Séquences Email</span></div>
-          <span class="text-[10px] text-gray-500 tabular-nums"><span id="em-a">0</span>A · <span id="em-w">0</span>Q</span>
-        </div>
-        <div class="prog"><div class="prog-fill bg-amber-500" id="em-bar" style="width:0%"></div></div>
-        <div class="flex justify-between mt-1"><span class="text-[10px] text-emerald-600">✓ <span id="em-d">0</span></span><span class="text-[10px] text-red-400">✗ <span id="em-f">0</span></span></div>
+      <div id="activity-feed" class="p-3 space-y-1.5">
+        <p class="text-center text-gray-300 text-xs py-12">En attente de l'armée…</p>
       </div>
     </div>
   </div>
 
-  <!-- ── TABS ── -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4">
+  <!-- ── TABS: Roster + Agents Live + Maintenance ── -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100">
     <div class="flex border-b border-gray-100 overflow-x-auto px-4">
-      <button class="tab-btn active" onclick="showTab('flux')" id="tab-flux">⚡ Flux Live</button>
-      <button class="tab-btn" onclick="showTab('opps')" id="tab-opps">🌍 Découvertes <span id="opps-count" class="text-[10px] font-bold bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded ml-1">…</span></button>
-      <button class="tab-btn" onclick="showTab('roster')" id="tab-roster">🤖 Roster des Agents</button>
+      <button class="tab-btn active" onclick="showTab('roster')" id="tab-roster">🤖 Roster Agents</button>
+      <button class="tab-btn" onclick="showTab('live')" id="tab-live">⚡ Agents en Mission <span class="ml-1 text-[10px] font-bold bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded" id="live-badge">0</span></button>
+      <button class="tab-btn" onclick="showTab('maint')" id="tab-maint">🛡 Maintenance <span class="ml-1 text-[10px] font-bold bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded" id="maint-badge">0</span></button>
+      <button class="tab-btn" onclick="showTab('opps')" id="tab-opps">🌍 Découvertes <span class="ml-1 text-[10px] font-bold bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded" id="opps-count">…</span></button>
     </div>
 
-    <!-- TAB: Flux -->
-    <div class="tab-panel active p-0" id="panel-flux">
-      <div class="grid grid-cols-1 md:grid-cols-2">
-        <!-- Activité -->
-        <div class="border-r border-gray-50">
-          <div class="flex items-center justify-between px-4 py-3 border-b border-gray-50">
-            <div class="flex items-center gap-2">
-              <span class="dot dot-on" id="feed-dot"></span>
-              <span class="text-xs font-bold text-gray-900">Production en direct</span>
-            </div>
-            <div class="flex gap-2 items-center">
-              <span class="text-[10px] text-gray-400 font-mono" id="evt-count">0 évts</span>
-              <button onclick="clearFeed()" class="text-[10px] text-gray-400 hover:text-gray-600 underline">Vider</button>
-            </div>
-          </div>
-          <div id="activity-feed" class="p-3 space-y-1.5">
-            <p class="text-center text-gray-300 text-xs py-16 select-none">En attente d'activité…</p>
-          </div>
-        </div>
-        <!-- Découvertes recentes -->
-        <div>
-          <div class="flex items-center justify-between px-4 py-3 border-b border-gray-50">
-            <div class="flex items-center gap-2">
-              <span class="dot dot-on" style="background:#8b5cf6"></span>
-              <span class="text-xs font-bold text-gray-900">Dernières découvertes</span>
-            </div>
-            <button onclick="showTab('opps')" class="text-[10px] text-sky-600 hover:underline font-medium">Voir toutes →</button>
-          </div>
-          <div id="discovery-feed" class="p-3 space-y-1.5">
-            <p class="text-center text-gray-300 text-xs py-16 select-none">Chargement…</p>
-          </div>
+    <!-- Roster -->
+    <div class="tab-panel active p-4" id="panel-roster">
+      <div id="roster-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <p class="text-center text-gray-300 text-xs py-8 col-span-4">Chargement…</p>
+      </div>
+    </div>
+
+    <!-- Agents en mission -->
+    <div class="tab-panel" id="panel-live">
+      <div class="p-4">
+        <p class="text-xs text-gray-500 mb-3">Cliquez sur un agent pour voir sa fiche en temps réel.</p>
+        <div id="live-tasks-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+          <p class="text-center text-gray-300 text-xs py-8 col-span-3">Aucun agent actif — activez le mode autonome.</p>
         </div>
       </div>
     </div>
 
-    <!-- TAB: Opportunités -->
-    <div class="tab-panel" id="panel-opps">
-      <div class="px-4 py-3 border-b border-gray-50 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <span class="text-xs font-semibold text-gray-700">Filtre :</span>
-          <select id="opp-filter" onchange="filterOpps()" class="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-gray-50 focus:outline-none">
-            <option value="">Toutes</option>
-            <option value="automation">Automation</option>
-            <option value="api-integration">API Integration</option>
-            <option value="seo">SEO</option>
-          </select>
-          <select id="opp-sort" onchange="filterOpps()" class="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-gray-50 focus:outline-none">
-            <option value="score">Score décroissant</option>
-            <option value="recent">Plus récentes</option>
-          </select>
+    <!-- Maintenance -->
+    <div class="tab-panel" id="panel-maint">
+      <div class="p-4">
+        <div class="flex items-center gap-3 mb-4 p-3 bg-rose-50 border border-rose-100 rounded-xl">
+          <span class="text-2xl">🛡</span>
+          <div>
+            <p class="text-sm font-bold text-rose-800">Escouade Maintenance #951 → #1 000</p>
+            <p class="text-xs text-rose-500">50 agents spécialisés · Surveillance continue · Auto-healing actif</p>
+          </div>
+          <div class="ml-auto text-right">
+            <p class="text-2xl font-black text-rose-700" id="maint-heals-big">0</p>
+            <p class="text-[10px] text-rose-500">auto-réparations</p>
+          </div>
         </div>
+        <div id="maint-logs" class="space-y-1.5 max-h-64 overflow-y-auto">
+          <p class="text-center text-gray-300 text-xs py-6">En attente de la maintenance…</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Découvertes -->
+    <div class="tab-panel" id="panel-opps">
+      <div class="px-4 py-3 border-b border-gray-50 flex items-center gap-3">
+        <select id="opp-sort" onchange="renderOppList()" class="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-gray-50">
+          <option value="score">Score ↓</option><option value="recent">Plus récentes</option>
+        </select>
         <span class="text-xs text-gray-400"><span id="opp-shown">…</span> opportunités</span>
       </div>
-      <div id="opp-list" class="divide-y divide-gray-50 max-h-96 overflow-y-auto">
-        <p class="text-center text-gray-300 text-xs py-12 select-none">Chargement…</p>
+      <div id="opp-list" class="divide-y divide-gray-50 max-h-80 overflow-y-auto">
+        <p class="text-center text-gray-300 text-xs py-10">Chargement…</p>
       </div>
-    </div>
-
-    <!-- TAB: Roster -->
-    <div class="tab-panel" id="panel-roster">
-      <div class="p-4">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <p class="text-sm font-bold text-gray-900">Roster des 1 000 Agents IA</p>
-            <p class="text-xs text-gray-400 mt-0.5">Armée organisée en 3 escouades spécialisées — connectées à Redis BullMQ</p>
-          </div>
-          <span class="text-xs font-bold bg-sky-50 text-sky-700 px-3 py-1.5 rounded-xl">1 000 agents total</span>
-        </div>
-        <div id="roster-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <p class="text-center text-gray-300 text-xs py-8 col-span-3 select-none">Chargement du roster…</p>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ── ACTIONS ── -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-    <h2 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Actions Manuelles</h2>
-    <div class="flex flex-wrap gap-2">
-      <button onclick="triggerScan()" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition">🌍 Scan international</button>
-      <button onclick="addLeadJob()" class="bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition">➕ Job Lead Gen</button>
-      <button onclick="addSeoJob()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition">🔍 Job SEO Audit</button>
-      <a href="/admin-commercial.html" class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-bold px-4 py-2 rounded-xl transition">📬 Prospection</a>
-      <a href="/admin-production.html" class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-bold px-4 py-2 rounded-xl transition">⚡ Revenue</a>
     </div>
   </div>
 
 </div>
 
-<!-- ── OPPORTUNITY MODAL ── -->
+<!-- ── MODAL AGENT / OPPORTUNITÉ ── -->
 <div id="modal-bg" onclick="closeModal(event)">
   <div id="modal-box">
-    <div class="flex items-start justify-between mb-5">
+    <div class="flex items-start justify-between mb-4">
       <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 mb-1 flex-wrap">
-          <span class="text-[10px] font-bold uppercase tracking-widest t-sky px-2 py-0.5 rounded" id="m-platform">…</span>
-          <span class="text-[10px] font-bold uppercase tracking-widest t-gray px-2 py-0.5 rounded" id="m-country">…</span>
-          <span class="text-[10px] font-bold uppercase tracking-widest t-violet px-2 py-0.5 rounded" id="m-category">…</span>
-        </div>
+        <div class="flex items-center gap-2 mb-1 flex-wrap" id="m-tags"></div>
         <h2 class="text-lg font-black text-gray-900 leading-snug" id="m-title">Chargement…</h2>
+        <p class="text-sm text-gray-500 mt-0.5" id="m-subtitle"></p>
       </div>
       <button onclick="closeModal()" class="ml-3 shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 text-xl">×</button>
     </div>
-
-    <!-- Score + budget -->
-    <div class="flex items-center gap-3 mb-5 flex-wrap">
-      <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5">
-        <span class="text-2xl font-black" id="m-score-val">—</span>
-        <div>
-          <p class="text-[10px] font-bold uppercase text-gray-400 leading-none">Score IA</p>
-          <div class="w-20 h-1.5 bg-gray-200 rounded mt-1"><div class="h-full rounded bg-sky-500 transition-all" id="m-score-bar"></div></div>
-        </div>
-      </div>
-      <div class="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-2.5">
-        <p class="text-[10px] font-bold uppercase text-emerald-500">Budget estimé</p>
-        <p class="text-xl font-black text-emerald-700" id="m-budget">—</p>
-      </div>
-      <div id="m-status-badge" class="rounded-xl px-4 py-2.5">
-        <p class="text-[10px] font-bold uppercase text-gray-400">Statut</p>
-        <p class="text-sm font-bold" id="m-status">—</p>
-      </div>
-    </div>
-
-    <!-- Failles SEO -->
-    <div class="mb-5">
-      <h3 class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">🔍 Failles & Opportunités détectées</h3>
-      <div id="m-flaws" class="space-y-2"></div>
-    </div>
-
-    <!-- Description -->
-    <div class="mb-5">
-      <h3 class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">📋 Analyse</h3>
-      <p class="text-sm text-gray-700 leading-relaxed bg-gray-50 rounded-xl p-3 border border-gray-100" id="m-desc"></p>
-    </div>
-
-    <!-- Keywords -->
-    <div class="mb-5">
-      <h3 class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">🏷️ Mots-clés détectés</h3>
-      <div id="m-kw" class="flex flex-wrap gap-1.5"></div>
-    </div>
-
-    <!-- Proposition -->
-    <div class="mb-5" id="m-prop-section">
-      <h3 class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">✍️ Proposition B2B</h3>
-      <div id="m-prop-content"></div>
-    </div>
-
-    <!-- Actions -->
-    <div class="flex flex-wrap gap-2 pt-3 border-t border-gray-100">
-      <a id="m-source-link" href="#" target="_blank" rel="noopener noreferrer"
-        class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition">
-        🔗 Voir la source
-      </a>
-      <button onclick="approveOpp()" id="m-approve-btn"
-        class="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition">
-        ✅ Approuver
-      </button>
-      <button onclick="generateProp()" id="m-prop-btn"
-        class="bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition">
-        ✍️ Générer proposition
-      </button>
-    </div>
-
+    <div id="m-body"></div>
+    <div class="flex flex-wrap gap-2 pt-3 border-t border-gray-100 mt-4" id="m-actions"></div>
   </div>
 </div>
 
 <div id="toast"></div>
 
-<!-- ═══════════════════════════ SCRIPT ═══════════════════════════ -->
 <script>
 // ─── Config ───────────────────────────────────────────────────────────────────
-const CIRC = 2 * Math.PI * 34; // 213.6
+const CIRC = 2 * Math.PI * 34;
+const RAILWAY = 'https://daleba-api-production.up.railway.app';
 let prodMode = true, autoMode = false;
-let sseConn = null, statsTimer = null;
-let evtCount = 0, feedReady = false, discReady = false;
-let allOpps = [], currentOppId = null;
+let sseConn = null;
+let evtCount = 0, feedReady = false;
+let allOpps = [], liveTasks = [], currentModal = null;
+let timerInterval = null;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const $  = id => document.getElementById(id);
 const st = (id, v) => { const e=$(id); if(e) e.textContent=v; };
 const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function fmt(n){ return Number(n||0).toLocaleString('fr-CA'); }
+function fmtCa(v){ return '$'+Number(v||0).toLocaleString('fr-CA',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function fmtTimer(ms){ const s=Math.floor(ms/1000),m=Math.floor(s/60),h=Math.floor(m/60); if(h>0)return`${h}h ${m%60}m`; if(m>0)return`${m}m ${s%60}s`; return`${s}s`; }
 
-function toast(msg, err=false) {
-  const t=$('toast'); t.textContent=msg;
-  t.className='show'+(err?' err':'');
-  clearTimeout(t._t); t._t=setTimeout(()=>t.className='',4000);
-}
-
-async function api(url, opts={}) {
-  const r = await fetch(url, opts);
-  const ct = r.headers.get('content-type')||'';
-  if (!ct.includes('json')) {
-    const tx = await r.text();
-    throw new Error(`HTTP ${r.status} non-JSON: ${tx.slice(0,100)}`);
-  }
-  const j = await r.json();
-  if (!r.ok) throw new Error(j.error||`HTTP ${r.status}`);
+async function api(url, opts={}){
+  const r=await fetch(url,opts);
+  const ct=r.headers.get('content-type')||'';
+  if(!ct.includes('json')) throw new Error(`HTTP ${r.status} non-JSON`);
+  const j=await r.json();
+  if(!r.ok) throw new Error(j.error||`HTTP ${r.status}`);
   return j;
 }
 
-// ─── Clock ────────────────────────────────────────────────────────────────────
-setInterval(()=>{ const e=$('clock'); if(e) e.textContent=new Date().toLocaleTimeString('fr-CA',{timeZone:'America/Toronto',hour:'2-digit',minute:'2-digit',second:'2-digit'}); },1000);
+function toast(msg,err=false){ const t=$('toast');t.textContent=msg;t.className='show'+(err?' err':'');clearTimeout(t._t);t._t=setTimeout(()=>t.className='',4000); }
 
-// ─── Ring ─────────────────────────────────────────────────────────────────────
-function updateRing(a) {
-  const p=Math.min(a/1000,1), ring=$('ring-c');
-  if(ring){ ring.style.strokeDashoffset=(CIRC-p*CIRC).toFixed(2); ring.setAttribute('stroke',p>.8?'#ef4444':p>.5?'#f59e0b':'#0284c7'); }
-  st('ring-lbl',a); st('kpi-active',a.toLocaleString('fr-CA'));
-}
-function updateBar(id,a,w){ const b=$(id); if(b) b.style.width=(a+w>0?Math.min(a/(a+w+1)*100,100):0).toFixed(1)+'%'; }
+// ─── Clock ─────────────────────────────────────────────────────────────────────
+setInterval(()=>{ const e=$('clock');if(e)e.textContent=new Date().toLocaleTimeString('fr-CA',{timeZone:'America/Toronto',hour:'2-digit',minute:'2-digit',second:'2-digit'}); },1000);
 
-// ─── Apply prod/auto modes ────────────────────────────────────────────────────
-function applyProd(v) {
-  prodMode=v;
-  const inp=$('prod-chk'); if(inp) inp.checked=v;
-  const lbl=$('prod-lbl'); if(lbl){lbl.textContent=v?'ON':'OFF';lbl.style.color=v?'#10b981':'#9ca3af';}
-  const banner=$('pause-banner'); if(banner) banner.classList.toggle('hidden',v);
+// ─── Ring ──────────────────────────────────────────────────────────────────────
+function updateRing(a){
+  const p=Math.min(a/1000,1),ring=$('ring-c');
+  if(ring){ring.style.strokeDashoffset=(CIRC-p*CIRC).toFixed(2);ring.setAttribute('stroke',p>.8?'#ef4444':p>.5?'#f59e0b':'#0284c7');}
+  st('ring-lbl',a);st('kpi-active',fmt(a));
 }
-function applyAuto(v) {
-  autoMode=v;
-  const inp=$('auto-chk'); if(inp) inp.checked=v;
-  const lbl=$('auto-lbl'); if(lbl){lbl.textContent=v?'ON':'OFF';lbl.style.color=v?'#8b5cf6':'#9ca3af';}
-  const dot=$('auto-dot'); if(dot) dot.className='dot '+(v?'dot-auto':'dot-off');
-  const banner=$('auto-banner'); if(banner) banner.classList.toggle('hidden',!v);
-}
+function updateBar(id,a,w){const b=$(id);if(b)b.style.width=(a+w>0?Math.min(a/(a+w+1)*100,100):0).toFixed(1)+'%';}
 
-// ─── Render stats ─────────────────────────────────────────────────────────────
-function renderStats(d) {
+// ─── Apply modes ───────────────────────────────────────────────────────────────
+function applyProd(v){ prodMode=v; const inp=$('prod-chk');if(inp)inp.checked=v; const lbl=$('prod-lbl');if(lbl){lbl.textContent=v?'ON':'OFF';lbl.style.color=v?'#10b981':'#9ca3af';} $('pause-banner')?.classList.toggle('hidden',v); }
+function applyAuto(v){ autoMode=v; const inp=$('auto-chk');if(inp)inp.checked=v; const lbl=$('auto-lbl');if(lbl){lbl.textContent=v?'ON':'OFF';lbl.style.color=v?'#8b5cf6':'#9ca3af';} $('auto-dot').className='dot '+(v?'dot-auto':'dot-off'); $('auto-banner')?.classList.toggle('hidden',!v); }
+function applyMaint(active, heals){ const dot=$('maint-dot');if(dot)dot.className='dot '+(active?'dot-maint':'dot-off'); st('kpi-heals',heals||0); st('maint-heals-big',heals||0); st('maint-badge',heals||0); }
+
+// ─── Render stats ──────────────────────────────────────────────────────────────
+function renderStats(d){
   if(typeof d.productionMode==='boolean') applyProd(d.productionMode);
   if(typeof d.autonomousMode==='boolean') applyAuto(d.autonomousMode);
-  if(d.lastAutoCycleAt){ const e=$('last-cycle-lbl'); if(e) e.textContent='Dernier: '+new Date(d.lastAutoCycleAt).toLocaleTimeString('fr-CA'); }
+  if(d.autoCycleCount!==undefined){ st('ca-cycles',d.autoCycleCount); const cl=$('cycle-lbl');if(cl)cl.textContent=`Cycle #${d.autoCycleCount}`; }
+  if(d.maintenance){ applyMaint(d.maintenance.active, d.maintenance.heals); renderMaintLogs(d.maintenance.logs); }
 
-  // Redis
-  const ok=!!d.redisConnected;
-  const rd=$('redis-dot'),rl=$('redis-lbl'),rs=$('redis-status');
-  if(rd) rd.className=`w-1.5 h-1.5 rounded-full inline-block ${ok?'bg-emerald-500':'bg-amber-400'}`;
-  if(rl) rl.textContent=ok?'Redis ✓':'Mémoire';
-  if(rs) rs.textContent=ok?'BullMQ · Redis persistant':'Mode mémoire · Redis en init';
-
-  // Agents
+  // KPIs
   const ag=d.agents||{}; updateRing(ag.active||0);
-  st('kpi-wait',(ag.waiting||0).toLocaleString('fr-CA'));
-  st('kpi-cap',(ag.capacity||1000).toLocaleString('fr-CA'));
-  if(d.totals){ st('kpi-opps',(d.totals.opportunities||0).toLocaleString('fr-CA')); st('kpi-props',(d.totals.proposals||0).toLocaleString('fr-CA')); }
+  st('kpi-wait',fmt(ag.waiting||0));
+  if(d.totals){ st('ca-opps',fmt(d.totals.opportunities)); st('ca-props',fmt(d.totals.proposals)); }
 
   // Queues
   const q=d.queues||{},lg=q.leadGen||{},seo=q.seoAudit||{},em=q.emailSequence||{};
-  st('lg-a',lg.active||0); st('lg-w',lg.waiting||0); st('lg-d',(lg.completed||0).toLocaleString('fr-CA')); st('lg-f',lg.failed||0); updateBar('lg-bar',lg.active||0,lg.waiting||0);
-  st('seo-a',seo.active||0); st('seo-w',seo.waiting||0); st('seo-d',(seo.completed||0).toLocaleString('fr-CA')); st('seo-f',seo.failed||0); updateBar('seo-bar',seo.active||0,seo.waiting||0);
-  st('em-a',em.active||0); st('em-w',em.waiting||0); st('em-d',(em.completed||0).toLocaleString('fr-CA')); st('em-f',em.failed||0); updateBar('em-bar',em.active||0,em.waiting||0);
+  st('lg-a',lg.active||0);st('lg-w',lg.waiting||0);st('lg-d',fmt(lg.completed||0));st('lg-f',lg.failed||0);updateBar('lg-bar',lg.active||0,lg.waiting||0);
+  st('seo-a',seo.active||0);st('seo-w',seo.waiting||0);st('seo-d',fmt(seo.completed||0));st('seo-f',seo.failed||0);updateBar('seo-bar',seo.active||0,seo.waiting||0);
+  st('em-a',em.active||0);st('em-w',em.waiting||0);st('em-d',fmt(em.completed||0));st('em-f',em.failed||0);updateBar('em-bar',em.active||0,em.waiting||0);
 
-  // Feed events
-  if(d.recentEvents?.length) d.recentEvents.slice(0,4).forEach(e=>pushFeed(e.type||'system',e.msg||''));
-  // Discovery
-  if(d.recentOpps?.length){ allOpps=d.recentOpps; renderDiscoveries(d.recentOpps.slice(0,6)); renderOppList(); }
-  st('opps-count',(d.totals?.opportunities||0));
+  // Events
+  if(d.recentEvents?.length) d.recentEvents.slice(0,5).forEach(e=>pushFeed(e.type||'system',e.msg||''));
+
+  // Opps
+  if(d.recentOpps?.length){ allOpps=d.recentOpps; st('opps-count',d.totals?.opportunities||0); }
+
+  // Live tasks
+  if(d.liveTasks!==undefined){ liveTasks=d.liveTasks; renderLiveTasks(); st('live-badge',liveTasks.length); }
 }
 
-// ─── Load stats ───────────────────────────────────────────────────────────────
-async function loadStats() {
-  try { renderStats(await api('/api/usine/live-stats')); }
-  catch(e){ console.warn('[usine]',e.message); }
+async function loadStats(){
+  try{ renderStats(await api('/api/usine/live-stats')); } catch(e){ console.warn('[stats]',e.message); }
 }
 
-// ─── Feed ─────────────────────────────────────────────────────────────────────
-function pushFeed(type, msg) {
-  if(!msg) return;
-  const feed=$('activity-feed'); if(!feed) return;
-  if(!feedReady){ feed.innerHTML=''; feedReady=true; }
-  evtCount++; st('evt-count',`${evtCount} évts`);
+// ─── Pipeline ──────────────────────────────────────────────────────────────────
+async function loadPipeline(){
+  try{
+    const d=await api('/api/usine/pipeline');
+    st('pipe-det',fmt(d.detected)); st('pipe-acc',fmt(d.accepted));
+    st('pipe-proc',fmt(d.processing)); st('pipe-done',fmt(d.completed));
+    // CA potentiel
+    const ca=d.caPotentiel||0;
+    const caEl=$('ca-total');
+    if(caEl) caEl.textContent=fmtCa(ca)+' CAD';
+    // Items récents
+    const cont=$('pipe-items');
+    if(cont&&d.items?.length){
+      const stMap={'approved':'t-green','pending':'t-amber','sent':'t-sky','error':'t-red'};
+      cont.innerHTML=d.items.slice(0,8).map(it=>{
+        const st2=it.prop_status||it.opp_status||'pending';
+        const cls=stMap[st2]||'t-gray';
+        const bud=it.budget_estimated?fmtCa(it.budget_estimated):'';
+        return`<div class="pipe-item flex items-center gap-2 cursor-pointer" onclick="openOpp(${it.id})">
+          <span class="text-xs font-black ${it.score>=70?'text-emerald-600':it.score>=40?'text-amber-600':'text-gray-400'} w-7 shrink-0">${it.score}</span>
+          <span class="flex-1 text-[10px] text-gray-700 truncate">${esc(it.title||'')}</span>
+          ${bud?`<span class="text-[10px] font-bold text-emerald-600 shrink-0">${bud}</span>`:''}
+          <span class="${cls} text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0">${esc(st2)}</span>
+        </div>`;
+      }).join('');
+    }
+  }catch(e){console.warn('[pipeline]',e.message);}
+}
+
+// ─── Feed ──────────────────────────────────────────────────────────────────────
+function pushFeed(type,msg){
+  if(!msg)return;
+  const feed=$('activity-feed');if(!feed)return;
+  if(!feedReady){feed.innerHTML='';feedReady=true;}
+  evtCount++;st('evt-count',`${evtCount} évts`);
   const t=new Date().toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  const cl=/error|fail/i.test(type)?'t-red':/pay|book/i.test(type)?'t-green':/agent/i.test(type)?'t-sky':/chat|sms/i.test(type)?'t-violet':/system|boot/i.test(type)?'t-indigo':'t-gray';
+  const cl=/error|fail/i.test(type)?'t-red':/pay|book/i.test(type)?'t-green':/auto|agent/i.test(type)?'t-sky':/chat|sms/i.test(type)?'t-violet':/maint|heal/i.test(type)?'t-rose':/system|boot/i.test(type)?'t-indigo':'t-gray';
   const div=document.createElement('div');
   div.className='feed-item flex items-start gap-2 p-2.5 rounded-lg bg-gray-50 border border-gray-100 text-xs';
   div.innerHTML=`<span class="shrink-0 text-gray-300 tabular-nums font-mono text-[10px] mt-0.5">${t}</span><span class="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${cl}">${esc(type)}</span><span class="text-gray-700 break-words leading-relaxed">${esc(msg)}</span>`;
   feed.insertBefore(div,feed.firstChild);
-  const kids=feed.querySelectorAll('.feed-item'); if(kids.length>80) kids[kids.length-1].remove();
+  const kids=feed.querySelectorAll('.feed-item');if(kids.length>80)kids[kids.length-1].remove();
 }
-function clearFeed(){ const f=$('activity-feed'); if(f){f.innerHTML='<p class="text-center text-gray-300 text-xs py-16 select-none">Vidé…</p>';feedReady=false;evtCount=0;st('evt-count','0 évts');} }
+function clearFeed(){const f=$('activity-feed');if(f){f.innerHTML='<p class="text-center text-gray-300 text-xs py-10">Vidé…</p>';feedReady=false;evtCount=0;st('evt-count','0 évts');}}
 
-// ─── Discoveries mini-feed ────────────────────────────────────────────────────
-let discIds=new Set();
-function renderDiscoveries(opps) {
-  const feed=$('discovery-feed'); if(!feed) return;
-  const newO=opps.filter(o=>!discIds.has(o.id));
-  if(!newO.length) return;
-  if(!discReady){ feed.innerHTML=''; discReady=true; }
-  newO.forEach(opp=>{
-    discIds.add(opp.id);
-    const s=opp.score||0, bg=s>=70?'bg-emerald-50 text-emerald-700':s>=40?'bg-amber-50 text-amber-700':'bg-gray-100 text-gray-500';
-    const bud=opp.budget_estimated?`$${Math.round(opp.budget_estimated).toLocaleString('fr-CA')}`:null;
-    const div=document.createElement('div');
-    div.className='feed-item p-2.5 rounded-xl bg-gray-50 border border-gray-100 cursor-pointer hover:bg-white hover:shadow-sm transition text-xs';
-    div.onclick=()=>openOpp(opp.id);
-    div.innerHTML=`<div class="flex items-start justify-between gap-2 mb-1"><span class="font-semibold text-gray-800 leading-snug flex-1 line-clamp-2">${esc(opp.title||'Sans titre')}</span><span class="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded ${bg}">${s}/100</span></div><div class="flex gap-1.5 flex-wrap"><span class="t-sky px-1.5 py-0.5 rounded text-[10px] font-semibold">${esc(opp.country||'??')}</span><span class="t-violet px-1.5 py-0.5 rounded text-[10px] font-semibold">${esc(opp.category||'Général')}</span>${bud?`<span class="t-green px-1.5 py-0.5 rounded text-[10px] font-semibold">${bud}</span>`:''}</div>`;
-    feed.insertBefore(div,feed.firstChild);
-  });
-  const kids=feed.querySelectorAll('.feed-item'); if(kids.length>15) for(let i=15;i<kids.length;i++) kids[i].remove();
+// ─── Live Tasks ────────────────────────────────────────────────────────────────
+function renderLiveTasks(){
+  const grid=$('live-tasks-grid');if(!grid)return;
+  if(!liveTasks.length){
+    grid.innerHTML='<p class="text-center text-gray-300 text-xs py-8 col-span-3">Aucun agent actif en ce moment.</p>';
+    return;
+  }
+  const colorMap={scraping:['t-sky','🔍'],audit:['t-violet','✍️'],closers:['t-amber','📧'],maintenance:['t-rose','🛡']};
+  grid.innerHTML=liveTasks.map(t=>{
+    const[cls,icon]=colorMap[t.squad]||['t-gray','⚡'];
+    const elapsed=Date.now()-t.startedAt;
+    return`<div class="task-card active-task" onclick="openAgentModal('${t.taskId}')" data-task-id="${t.taskId}">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-1.5">
+          <span class="${cls} text-[10px] font-bold px-2 py-0.5 rounded">#${t.agentId} ${icon}</span>
+          <span class="timer-badge" data-started="${t.startedAt}">${fmtTimer(elapsed)}</span>
+        </div>
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+      </div>
+      <p class="text-xs font-semibold text-gray-800 leading-snug truncate">${esc(t.title)}</p>
+      <p class="text-[10px] text-gray-500 mt-1">${esc(t.action)}</p>
+      <p class="text-[10px] font-bold text-emerald-600 mt-1">${esc(t.value)}</p>
+    </div>`;
+  }).join('');
+  // Timers live
+  if(timerInterval)clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    document.querySelectorAll('[data-started]').forEach(el=>{
+      const ms=Date.now()-Number(el.dataset.started);
+      el.textContent=fmtTimer(ms);
+    });
+  },1000);
 }
 
-// ─── Opp full list ────────────────────────────────────────────────────────────
-function renderOppList() {
-  const list=$('opp-list'); if(!list) return;
-  const filt=($('opp-filter')||{}).value||'';
+// ─── Agent Modal ───────────────────────────────────────────────────────────────
+function openAgentModal(taskId){
+  const task=liveTasks.find(t=>t.taskId===taskId);
+  if(!task)return;
+  currentModal={type:'agent',task};
+  $('modal-bg').classList.add('open');
+  const colorMap={scraping:'t-sky',audit:'t-violet',closers:'t-amber',maintenance:'t-rose'};
+  const cls=colorMap[task.squad]||'t-gray';
+  $('m-tags').innerHTML=`<span class="${cls} text-[10px] font-bold uppercase px-2 py-0.5 rounded">Agent #${task.agentId}</span><span class="t-gray text-[10px] px-2 py-0.5 rounded">${esc(task.squad)}</span>`;
+  $('m-title').textContent=task.title;
+  $('m-subtitle').textContent=task.action;
+  const elapsed=Date.now()-task.startedAt;
+  $('m-body').innerHTML=`
+    <div class="grid grid-cols-3 gap-3 mb-4">
+      <div class="bg-sky-50 border border-sky-100 rounded-xl p-3 text-center">
+        <p class="text-[10px] font-bold uppercase text-sky-500 mb-1">Mission</p>
+        <p class="text-xs font-bold text-sky-800">${esc(task.action)}</p>
+      </div>
+      <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-center">
+        <p class="text-[10px] font-bold uppercase text-emerald-500 mb-1">Contrat</p>
+        <p class="text-sm font-black text-emerald-700">${esc(task.value)}</p>
+      </div>
+      <div class="bg-violet-50 border border-violet-100 rounded-xl p-3 text-center">
+        <p class="text-[10px] font-bold uppercase text-violet-500 mb-1">Actif depuis</p>
+        <p class="text-sm font-black text-violet-700 timer-badge" data-started="${task.startedAt}">${fmtTimer(elapsed)}</p>
+      </div>
+    </div>
+    <div class="bg-gray-50 rounded-xl p-3 text-xs text-gray-600">
+      <p><span class="font-semibold">Pays :</span> ${esc(task.country)}</p>
+      <p><span class="font-semibold">Catégorie :</span> ${esc(task.category)}</p>
+      <p><span class="font-semibold">Score IA :</span> ${task.score}/100</p>
+      <p><span class="font-semibold">ID Tâche :</span> ${task.taskId}</p>
+    </div>`;
+  $('m-actions').innerHTML='';
+}
+
+// ─── Maintenance logs ──────────────────────────────────────────────────────────
+function renderMaintLogs(logs){
+  const cont=$('maint-logs');if(!cont||!logs?.length)return;
+  const lvlCls={info:'t-gray',warn:'t-amber',heal:'t-green',error:'t-red'};
+  cont.innerHTML=logs.map(l=>`<div class="flex items-start gap-2 text-xs p-2 rounded-lg bg-gray-50">
+    <span class="shrink-0 ${lvlCls[l.level]||'t-gray'} text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">${l.level}</span>
+    <span class="text-gray-700 flex-1">${esc(l.msg)}</span>
+    <span class="shrink-0 text-gray-300 tabular-nums text-[9px]">${new Date(l.ts).toLocaleTimeString('fr-CA')}</span>
+  </div>`).join('');
+}
+
+// ─── Roster ────────────────────────────────────────────────────────────────────
+async function loadRoster(){
+  try{
+    const d=await api('/api/usine/roster');
+    const grid=$('roster-grid');if(!grid)return;
+    const colorMap={sky:['bg-sky-50','border-sky-200','bg-sky-500','text-sky-700'],violet:['bg-violet-50','border-violet-200','bg-violet-500','text-violet-700'],amber:['bg-amber-50','border-amber-200','bg-amber-500','text-amber-700'],rose:['bg-rose-50','border-rose-200','bg-rose-500','text-rose-700']};
+    grid.innerHTML=d.squads.map(sq=>{
+      const[bg,border,dot,tc]=colorMap[sq.color]||colorMap.sky;
+      const live=sq.liveTasks?.length||0;
+      return`<div class="${bg} border ${border} rounded-2xl p-4 cursor-pointer hover:shadow-md transition" onclick="showTab('live')">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xl">${sq.icon}</span>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-black text-gray-900 truncate">${esc(sq.label)}</p>
+            <p class="text-[10px] font-bold ${tc}">${esc(sq.range)}</p>
+          </div>
+          <div class="text-right">
+            <p class="text-xl font-black ${tc}">${fmt(sq.count)}</p>
+            ${live>0?`<span class="text-[9px] font-bold text-emerald-600">●${live} actifs</span>`:''}
+          </div>
+        </div>
+        <p class="text-[10px] text-gray-600 leading-relaxed mb-2">${esc(sq.description)}</p>
+        <div class="flex flex-wrap gap-1 mb-2">${sq.skills.map(s=>`<span class="text-[9px] font-semibold ${tc} px-1.5 py-0.5 rounded-full border ${border}">${esc(s)}</span>`).join('')}</div>
+        ${sq.id==='maintenance'?`<div class="flex gap-2 mt-1"><span class="t-green text-[9px] font-bold px-1.5 py-0.5 rounded">${sq.heals||0} réparations</span><span class="t-red text-[9px] font-bold px-1.5 py-0.5 rounded">${sq.errors||0} erreurs</span></div>`:''}
+        <div class="mt-2"><div class="flex justify-between text-[9px] text-gray-400 mb-0.5"><span>Charge</span><span>${sq.queueActive}A·${sq.queueCompleted}✓</span></div><div class="prog"><div class="prog-fill ${dot}" style="width:${sq.queueActive>0?Math.min(sq.queueActive/sq.count*100*20,100).toFixed(0):0}%"></div></div></div>
+      </div>`;
+    }).join('');
+  }catch(e){console.warn('[roster]',e.message);}
+}
+
+// ─── Opp list ──────────────────────────────────────────────────────────────────
+function renderOppList(){
+  const list=$('opp-list');if(!list)return;
   const sort=($('opp-sort')||{}).value||'score';
   let opps=[...allOpps];
-  if(filt) opps=opps.filter(o=>(o.category||'').toLowerCase().includes(filt));
   if(sort==='score') opps.sort((a,b)=>(b.score||0)-(a.score||0));
   else opps.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
   st('opp-shown',opps.length);
-  if(!opps.length){ list.innerHTML='<p class="text-center text-gray-300 text-xs py-10">Aucune opportunité</p>'; return; }
+  if(!opps.length){list.innerHTML='<p class="text-center text-gray-300 text-xs py-10">Aucune</p>';return;}
   list.innerHTML=opps.map(o=>{
-    const s=o.score||0;
-    const bg=s>=70?'text-emerald-600 font-black':s>=40?'text-amber-600 font-bold':'text-gray-400';
-    const bud=o.budget_estimated?`$${Math.round(o.budget_estimated).toLocaleString('fr-CA')} ${o.budget_currency||''}`:'-';
-    const dt=new Date(o.created_at).toLocaleDateString('fr-CA',{month:'short',day:'numeric'});
-    return `<div class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer transition" onclick="openOpp(${o.id})">
-      <span class="text-base font-black ${bg} w-10 text-right shrink-0">${s}</span>
-      <div class="flex-1 min-w-0">
-        <p class="text-xs font-semibold text-gray-800 truncate">${esc(o.title||'Sans titre')}</p>
-        <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
-          <span class="t-sky px-1.5 py-0.5 rounded text-[10px] font-semibold">${esc(o.country||'??')}</span>
-          <span class="t-violet px-1.5 py-0.5 rounded text-[10px]">${esc(o.category||'Général')}</span>
-          <span class="t-gray px-1.5 py-0.5 rounded text-[10px]">${esc(o.source_platform||'scan')}</span>
-        </div>
-      </div>
-      <div class="text-right shrink-0">
-        <p class="text-xs font-bold text-emerald-600">${bud}</p>
-        <p class="text-[10px] text-gray-400">${dt}</p>
-      </div>
+    const s=o.score||0,bg=s>=70?'text-emerald-600 font-black':s>=40?'text-amber-600 font-bold':'text-gray-400';
+    const bud=o.budget_estimated?fmtCa(o.budget_estimated):'-';
+    return`<div class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer" onclick="openOpp(${o.id})">
+      <span class="text-sm font-black ${bg} w-9 text-right shrink-0">${s}</span>
+      <div class="flex-1 min-w-0"><p class="text-xs font-semibold text-gray-800 truncate">${esc(o.title)}</p><div class="flex gap-1 mt-0.5"><span class="t-sky text-[9px] font-semibold px-1.5 py-0.5 rounded">${esc(o.country||'??')}</span><span class="t-violet text-[9px] px-1.5 py-0.5 rounded">${esc(o.category||'')}</span></div></div>
+      <div class="text-right shrink-0"><p class="text-xs font-bold text-emerald-600">${bud}</p></div>
       <svg class="w-4 h-4 text-gray-300 shrink-0" fill="none" viewBox="0 0 20 20"><path d="M7 4l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>`;
   }).join('');
 }
-function filterOpps(){ renderOppList(); }
 
-// ─── Roster ───────────────────────────────────────────────────────────────────
-async function loadRoster() {
-  try {
-    const d = await api('/api/usine/roster');
-    const grid=$('roster-grid'); if(!grid) return;
-    const colorMap = { sky:['bg-sky-50','border-sky-200','bg-sky-500','text-sky-700'], violet:['bg-violet-50','border-violet-200','bg-violet-500','text-violet-700'], amber:['bg-amber-50','border-amber-200','bg-amber-500','text-amber-700'] };
-    grid.innerHTML = d.squads.map(sq=>{
-      const [bg,border,dot,tc] = colorMap[sq.color]||colorMap.sky;
-      const pct = sq.queueActive>0?Math.min(sq.queueActive/sq.count*100*20,100):0;
-      return `<div class="roster-card ${bg} border ${border} rounded-2xl p-5 cursor-default">
-        <div class="flex items-center gap-2 mb-3">
-          <span class="text-2xl">${sq.icon}</span>
-          <div>
-            <p class="text-sm font-black text-gray-900">${esc(sq.label)}</p>
-            <p class="text-[10px] font-bold ${tc}">Agents ${esc(sq.range)}</p>
-          </div>
-          <span class="ml-auto text-2xl font-black ${tc}">${sq.count}</span>
-        </div>
-        <p class="text-xs text-gray-600 leading-relaxed mb-3">${esc(sq.description)}</p>
-        <div class="mb-3">
-          <div class="flex justify-between text-[10px] text-gray-400 mb-1"><span>Charge actuelle</span><span>${sq.queueActive} actifs · ${sq.queueCompleted} complétés</span></div>
-          <div class="prog"><div class="prog-fill ${dot}" style="width:${pct.toFixed(1)}%"></div></div>
-        </div>
-        <div class="flex flex-wrap gap-1">
-          ${sq.skills.map(s=>`<span class="text-[10px] font-semibold ${bg.replace('50','100')} ${tc} px-2 py-0.5 rounded-full border ${border}">${esc(s)}</span>`).join('')}
-        </div>
-      </div>`;
-    }).join('');
-  } catch(e) { console.warn('[roster]',e.message); }
-}
-
-// ─── Opportunity modal ────────────────────────────────────────────────────────
-async function openOpp(id) {
-  currentOppId=id;
+// ─── Opportunity modal ─────────────────────────────────────────────────────────
+async function openOpp(id){
+  currentModal={type:'opp',id};
   $('modal-bg').classList.add('open');
-  // Reset
-  st('m-title','Chargement…'); st('m-platform',''); st('m-country',''); st('m-category','');
-  $('m-flaws').innerHTML='<span class="skel inline-block w-full h-6"></span>';
-  $('m-desc').textContent=''; $('m-kw').innerHTML=''; $('m-prop-content').innerHTML='';
-  try {
-    const d = await api(`/api/usine/opportunity/${id}`);
-    // Header
-    st('m-title', d.title||'Sans titre');
-    st('m-platform', d.source_platform||'Scan');
-    st('m-country', d.country||'??');
-    st('m-category', d.category||'Général');
-    // Score
-    const s=d.score||0;
-    st('m-score-val',`${s}/100`);
-    $('m-score-bar').style.width=`${s}%`;
-    $('m-score-bar').className=`h-full rounded transition-all ${s>=70?'bg-emerald-500':s>=40?'bg-amber-500':'bg-gray-400'}`;
-    // Budget
-    st('m-budget', d.budget_estimated?`$${Math.round(d.budget_estimated).toLocaleString('fr-CA')} ${d.budget_currency||''}`:'-');
-    // Status
-    const stMap = { pending:{label:'En attente',cls:'t-amber'}, approved:{label:'Approuvée',cls:'t-green'}, rejected:{label:'Rejetée',cls:'t-red'}, auto_generated:{label:'Auto-généré',cls:'t-violet'} };
-    const sm=stMap[d.status]||{label:d.status||'Inconnu',cls:'t-gray'};
-    st('m-status',sm.label);
-    const mb=$('m-status-badge'); if(mb) mb.className=`${sm.cls} rounded-xl px-4 py-2.5`;
-    // Source link
-    const sl=$('m-source-link'); if(sl&&d.source_url) sl.href=d.source_url;
-    // SEO flaws
-    const fw=$('m-flaws');
-    if(d.seoFlaws?.length){
-      const sevCls = f => f.severity==='high'?'sev-high h-8':f.severity==='medium'?'sev-medium h-6':'sev-low h-4';
-    const sevLbl = f => f.severity==='high'?'CRITIQUE':f.severity==='medium'?'MOYEN':'FAIBLE';
-    fw.innerHTML=d.seoFlaws.map(f=>`<div class="flex items-start gap-2 p-2.5 rounded-lg bg-white border border-gray-100"><span class="sev-bar mt-1 ${sevCls(f)}"></span><div><p class="text-xs font-bold text-gray-800">${esc(f.label)}</p><p class="text-[10px] text-gray-500 mt-0.5">${esc(f.detail)}</p></div><span class="ml-auto shrink-0 text-[10px] font-bold px-2 py-0.5 rounded sev-${f.severity}">${sevLbl(f)}</span></div>`).join('');
-    } else fw.innerHTML='<p class="text-xs text-gray-400">Aucune faille identifiée</p>';
-    // Description
-    st('m-desc', (d.description_fr||d.description_orig||'Pas de description').slice(0,500)+'…');
-    // Keywords
-    const kw=$('m-kw');
-    if(d.keywords?.length) kw.innerHTML=d.keywords.slice(0,12).map(k=>`<span class="t-sky text-[10px] font-semibold px-2 py-0.5 rounded-full">${esc(k)}</span>`).join('');
-    else kw.innerHTML='<span class="t-gray text-[10px] px-2 py-0.5 rounded-full">—</span>';
-    // Proposals
-    const pc=$('m-prop-content');
-    if(d.proposals?.length){
-      pc.innerHTML=d.proposals.map(p=>`<div class="bg-gray-50 border border-gray-100 rounded-xl p-3 mb-2"><div class="flex justify-between mb-2 flex-wrap gap-1"><span class="text-[10px] font-bold t-violet px-2 py-0.5 rounded">${esc(p.status)}</span><span class="text-[10px] text-gray-400">${new Date(p.created_at).toLocaleDateString('fr-CA')}</span></div><p class="text-xs text-gray-700 leading-relaxed">${esc((p.generated_text||'').slice(0,300))}…</p>${p.sent_at?`<p class="text-[10px] t-green mt-2 px-2 py-0.5 rounded inline-block">✅ Envoyé ${new Date(p.sent_at).toLocaleDateString('fr-CA')}</p>`:''}</div>`).join('');
-      $('m-prop-btn').textContent='🔄 Re-générer';
-    } else {
-      pc.innerHTML='<p class="text-xs text-gray-400 py-2">Aucune proposition générée. Cliquez "Générer proposition".</p>';
-    }
-    // Approve button visibility
-    $('m-approve-btn').style.display = d.status==='approved' ? 'none' : '';
-  } catch(e) {
-    st('m-title','Erreur: '+e.message);
-    toast('Erreur chargement fiche: '+e.message, true);
-  }
+  $('m-tags').innerHTML='';$('m-title').textContent='Chargement…';$('m-subtitle').textContent='';$('m-body').innerHTML='<p class="text-center text-gray-300 py-6">…</p>';$('m-actions').innerHTML='';
+  try{
+    const d=await api(`/api/usine/opportunity/${id}`);
+    $('m-tags').innerHTML=`<span class="t-sky text-[10px] font-bold px-2 py-0.5 rounded">${esc(d.source_platform||'Scan')}</span><span class="t-gray text-[10px] px-2 py-0.5 rounded">${esc(d.country||'??')}</span><span class="t-violet text-[10px] px-2 py-0.5 rounded">${esc(d.category||'')}</span>`;
+    $('m-title').textContent=d.title||'Sans titre';
+    $('m-subtitle').textContent='';
+    const sevCls=f=>f.severity==='high'?'sev-high':f.severity==='medium'?'sev-medium':'sev-low';
+    const sevLbl=f=>f.severity==='high'?'CRITIQUE':f.severity==='medium'?'MOYEN':'FAIBLE';
+    $('m-body').innerHTML=`
+      <div class="flex gap-3 mb-4 flex-wrap">
+        <div class="bg-sky-50 border border-sky-100 rounded-xl px-4 py-2.5 text-center"><p class="text-[10px] font-bold uppercase text-sky-500">Score</p><p class="text-2xl font-black text-sky-700">${d.score}/100</p></div>
+        <div class="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-2.5 text-center"><p class="text-[10px] font-bold uppercase text-emerald-500">Budget</p><p class="text-xl font-black text-emerald-700">${d.budget_estimated?fmtCa(d.budget_estimated)+' '+(d.budget_currency||''):'-'}</p></div>
+        <div class="bg-amber-50 border border-amber-100 rounded-xl px-4 py-2.5 text-center"><p class="text-[10px] font-bold uppercase text-amber-500">Statut</p><p class="text-sm font-bold text-amber-700">${esc(d.status||'pending')}</p></div>
+      </div>
+      <div class="mb-3"><h3 class="text-[10px] font-bold uppercase text-gray-500 mb-1.5">🔍 Failles détectées</h3><div class="space-y-1.5">${(d.seoFlaws||[]).map(f=>`<div class="flex items-center gap-2 p-2 rounded-lg bg-white border border-gray-100 text-xs"><span class="${sevCls(f)} text-[9px] font-bold px-1.5 py-0.5 rounded">${sevLbl(f)}</span><span class="font-semibold text-gray-800">${esc(f.label)}</span><span class="text-gray-500 flex-1">${esc(f.detail)}</span></div>`).join('')}</div></div>
+      <div class="mb-3"><h3 class="text-[10px] font-bold uppercase text-gray-500 mb-1.5">📋 Analyse</h3><p class="text-xs text-gray-700 leading-relaxed bg-gray-50 rounded-xl p-3">${esc((d.description_fr||d.description_orig||'').slice(0,400))}…</p></div>
+      ${d.proposals?.length?`<div><h3 class="text-[10px] font-bold uppercase text-gray-500 mb-1.5">✍️ Proposition (${d.proposalCount})</h3><div class="bg-gray-50 rounded-xl p-3 text-xs text-gray-700 max-h-32 overflow-y-auto">${esc(d.proposals[0].generated_text?.slice(0,400)||'')}…</div></div>`:''}`;
+    $('m-actions').innerHTML=`<a href="${esc(d.source_url||'#')}" target="_blank" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl">🔗 Source</a>
+      ${d.status!=='approved'?`<button onclick="approveOpp(${d.id})" class="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl">✅ Approuver</button>`:''}`;
+  }catch(e){$('m-title').textContent='Erreur: '+e.message;}
 }
 
-function closeModal(e) {
-  if(e&&e.target!==$('modal-bg')) return;
-  $('modal-bg').classList.remove('open');
-  currentOppId=null;
+async function approveOpp(id){
+  try{await api(`/api/opportunities/${id}/approve`,{method:'PUT',headers:{'Content-Type':'application/json'},body:'{}'});toast('✅ Approuvée !');pushFeed('agent',`✅ Opp #${id} approuvée`);}
+  catch(e){toast('Erreur: '+e.message,true);}
 }
 
-async function approveOpp() {
-  if(!currentOppId) return;
-  try {
-    await api(`/api/opportunities/${currentOppId}/approve`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:'{}' });
-    toast('✅ Opportunité approuvée !');
-    pushFeed('agent',`✅ Opportunité #${currentOppId} approuvée — séquence déclenchée`);
-    $('m-approve-btn').style.display='none';
-  } catch(e){ toast('Erreur: '+e.message,true); }
-}
+function closeModal(e){ if(e&&e.target!==$('modal-bg'))return; $('modal-bg').classList.remove('open'); currentModal=null; if(timerInterval){clearInterval(timerInterval);timerInterval=null;} }
 
-async function generateProp() {
-  if(!currentOppId) return;
-  const btn=$('m-prop-btn'); btn.disabled=true; btn.textContent='⏳ Génération…';
-  try {
-    await api(`/api/opportunities/${currentOppId}/approve`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:'{}' });
-    toast('✍️ Proposition générée — consultez l\'onglet Découvertes');
-    pushFeed('agent',`✍️ Proposition générée pour opp #${currentOppId}`);
-    setTimeout(()=>openOpp(currentOppId),1500);
-  } catch(e){ toast('Erreur: '+e.message,true); }
-  finally { btn.disabled=false; btn.textContent='✍️ Générer proposition'; }
-}
-
-// ─── Tabs ─────────────────────────────────────────────────────────────────────
-function showTab(id) {
+// ─── Tabs ──────────────────────────────────────────────────────────────────────
+function showTab(id){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  $('tab-'+id)?.classList.add('active');
-  $('panel-'+id)?.classList.add('active');
+  $('tab-'+id)?.classList.add('active');$('panel-'+id)?.classList.add('active');
   if(id==='roster') loadRoster();
   if(id==='opps') renderOppList();
+  if(id==='live') renderLiveTasks();
 }
 
-// ─── SSE ──────────────────────────────────────────────────────────────────────
-function setSse(s){ const dot=$('sse-dot'),lbl=$('sse-lbl'); if(s==='on'){dot.className='dot dot-on';if(lbl)lbl.textContent='Flux actif';}else if(s==='off'){dot.className='dot dot-off';if(lbl)lbl.textContent='Déconnecté';}else{dot.className='dot dot-warn';if(lbl)lbl.textContent='Reconnexion…';} }
-
-// SSE direct Railway — le proxy Vercel coupe les streams longs
-const RAILWAY = 'https://daleba-api-production.up.railway.app';
-function connectSSE() {
-  if(sseConn){ try{sseConn.close();}catch(_){} }
-  // On bypass le proxy Vercel pour le SSE uniquement (il bufferise et coupe)
-  sseConn = new EventSource(RAILWAY + '/api/usine/live-stream');
-  sseConn.onopen = ()=>setSse('on');
-  sseConn.onmessage = e=>{
+// ─── SSE ───────────────────────────────────────────────────────────────────────
+function setSse(s){ const dot=$('sse-dot'),lbl=$('sse-lbl');if(s==='on'){dot.className='dot dot-on';if(lbl)lbl.textContent='Flux actif';}else if(s==='off'){dot.className='dot dot-off';if(lbl)lbl.textContent='Déconnecté';}else{dot.className='dot dot-warn';if(lbl)lbl.textContent='Reconnexion…';} }
+function connectSSE(){
+  if(sseConn){try{sseConn.close();}catch(_){}}
+  sseConn=new EventSource(RAILWAY+'/api/usine/live-stream');
+  sseConn.onopen=()=>setSse('on');
+  sseConn.onmessage=e=>{
     try{
       const d=JSON.parse(e.data);
-      if(d.type==='connected'){ setSse('on'); if(typeof d.productionMode==='boolean') applyProd(d.productionMode); if(typeof d.autonomousMode==='boolean') applyAuto(d.autonomousMode); pushFeed('system','🔌 Flux SSE connecté — surveillance temps réel active'); }
-      else if(d.type==='stats'){ const s=d.stats||{},lg=s['lead-gen-queue']||{},seo=s['seo-audit-queue']||{},em=s['email-sequence-queue']||{}; st('lg-a',lg.active||0);st('lg-w',lg.waiting||0);st('seo-a',seo.active||0);st('seo-w',seo.waiting||0);st('em-a',em.active||0);st('em-w',em.waiting||0); updateBar('lg-bar',lg.active||0,lg.waiting||0);updateBar('seo-bar',seo.active||0,seo.waiting||0);updateBar('em-bar',em.active||0,em.waiting||0); const tot=(lg.active||0)+(seo.active||0)+(em.active||0)+(d.liveAgents||0); updateRing(tot); if(typeof d.autonomousMode==='boolean') applyAuto(d.autonomousMode); }
-      else if(d.type==='agent_state'||d.type==='agent_done'){ const id=(d.agentId||d.id||'').slice(-6); pushFeed('agent',`Agent #${id} → ${d.state||d.type}${d.scope?' · '+d.scope:''}`); }
-      else if(d.type==='bus'){ pushFeed(d.kind||'system',d.msg||d.message||''); }
+      if(d.type==='connected'){setSse('on');if(typeof d.productionMode==='boolean')applyProd(d.productionMode);if(typeof d.autonomousMode==='boolean')applyAuto(d.autonomousMode);pushFeed('system','🔌 Flux SSE connecté');}
+      else if(d.type==='stats'){
+        const s=d.stats||{},lg=s['lead-gen-queue']||{},seo=s['seo-audit-queue']||{},em=s['email-sequence-queue']||{};
+        st('lg-a',lg.active||0);st('lg-w',lg.waiting||0);st('seo-a',seo.active||0);st('seo-w',seo.waiting||0);st('em-a',em.active||0);st('em-w',em.waiting||0);
+        updateBar('lg-bar',lg.active||0,lg.waiting||0);updateBar('seo-bar',seo.active||0,seo.waiting||0);updateBar('em-bar',em.active||0,em.waiting||0);
+        updateRing(d.totalActive||0);
+        if(typeof d.autonomousMode==='boolean') applyAuto(d.autonomousMode);
+        if(d.autoCycleCount!==undefined) st('ca-cycles',d.autoCycleCount);
+        if(d.liveTasks){liveTasks=d.liveTasks;renderLiveTasks();st('live-badge',liveTasks.length);}
+      }
+      else if(d.type==='bus'){pushFeed(d.kind||'system',d.msg||d.message||'');}
     }catch(_){}
   };
-  sseConn.onerror=()=>{ setSse('warn'); try{sseConn.close();}catch(_){} setTimeout(connectSSE,5000); };
+  sseConn.onerror=()=>{setSse('warn');try{sseConn.close();}catch(_){}setTimeout(connectSSE,5000);};
 }
 
-// ─── Toggles ──────────────────────────────────────────────────────────────────
-async function toggleProd(v) {
-  try {
-    const d=await api('/api/usine/production-mode',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:v})});
-    applyProd(d.enabled);
-    pushFeed('system',d.label||'');
-    toast(v?'▶ Production ON':'⏸ Production OFF');
-  } catch(e){ toast('Erreur: '+e.message,true); }
+// ─── Toggles ───────────────────────────────────────────────────────────────────
+async function toggleProd(v){
+  try{const d=await api('/api/usine/production-mode',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:v})});applyProd(d.enabled);pushFeed('system',v?'▶ Production ON':'⏸ Production OFF');toast(v?'▶ ON':'⏸ OFF');}
+  catch(e){toast('Erreur: '+e.message,true);}
+}
+async function toggleAuto(v){
+  try{const d=await api('/api/usine/autonomous-mode',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:v})});applyAuto(d.enabled);pushFeed('system',d.message||'');toast(d.message||'');loadPipeline();}
+  catch(e){toast('Erreur: '+e.message,true);const inp=$('auto-chk');if(inp)inp.checked=!v;}
+}
+async function triggerScan(){
+  if(!prodMode){toast('⏸ Activez la production',true);return;}
+  const btn=$('scan-btn');btn.disabled=true;btn.textContent='⏳';
+  pushFeed('system','🌍 Scan lancé…');
+  try{const d=await api('/api/usine/trigger-scan',{method:'POST'});pushFeed('agent',`✅ ${d.message}`);toast('🚀 Scan en cours !');setTimeout(loadStats,4000);}
+  catch(e){pushFeed('error','❌ '+e.message);toast('Erreur',true);}
+  finally{setTimeout(()=>{btn.disabled=false;btn.textContent='🌍 Scan';},12000);}
 }
 
-async function toggleAuto(v) {
-  try {
-    const d=await api('/api/usine/autonomous-mode',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:v})});
-    applyAuto(d.enabled);
-    pushFeed(d.enabled?'system':'system', d.message||'');
-    toast(d.message||'');
-  } catch(e){
-    toast('Erreur: '+e.message,true);
-    const inp=$('auto-chk'); if(inp) inp.checked=!v;
-  }
-}
-
-// ─── Scan & jobs ──────────────────────────────────────────────────────────────
-async function triggerScan() {
-  if(!prodMode){ toast('⏸ Activez la production',true); return; }
-  const btn=$('scan-btn'); btn.disabled=true;
-  const orig=btn.innerHTML; btn.innerHTML='⏳';
-  pushFeed('system','🌍 Scan international lancé…');
-  try {
-    const d=await api('/api/usine/trigger-scan',{method:'POST'});
-    pushFeed('agent',`✅ ${d.message} · Jobs [${(d.jobs||[]).join(', ')}]`);
-    toast('🚀 Agents en déploiement !');
-    setTimeout(loadStats,3000);
-  } catch(e){ pushFeed('error','❌ '+e.message); toast('Erreur: '+e.message,true); }
-  finally { setTimeout(()=>{ btn.disabled=false; btn.innerHTML=orig; },10000); }
-}
-
-async function addLeadJob() {
-  if(!prodMode){ toast('⏸ Activez la production',true); return; }
-  try { await api('/api/usine/lead-gen/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({source:'manual'})}); toast('Job Lead Gen ajouté !'); setTimeout(loadStats,1500); }
-  catch(e){ toast('Erreur Lead Gen: '+e.message,true); }
-}
-
-async function addSeoJob() {
-  if(!prodMode){ toast('⏸ Activez la production',true); return; }
-  try { await api('/api/usine/seo/audit/1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({source:'manual'})}); toast('Job SEO Audit ajouté !'); setTimeout(loadStats,1500); }
-  catch(e){ toast('Erreur SEO: '+e.message,true); }
-}
-
-// ─── Init ─────────────────────────────────────────────────────────────────────
+// ─── Init ──────────────────────────────────────────────────────────────────────
 loadStats();
-statsTimer=setInterval(loadStats,9000);
+loadPipeline();
+loadRoster();
+setInterval(loadStats,9000);
+setInterval(loadPipeline,30000);
 connectSSE();
-setTimeout(()=>{ if(!feedReady) pushFeed('system','🟢 Système opérationnel — Cliquez "Scan" pour démarrer l\'Usine'); },5000);
+setTimeout(()=>{if(!feedReady)pushFeed('system','🟢 Centre de commandement opérationnel');},4000);
 </script>
 </body>
 </html>
