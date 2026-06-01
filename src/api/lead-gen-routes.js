@@ -149,3 +149,20 @@ router.put('/:id/status', async (req, res) => {
 });
 
 module.exports = router;
+
+// POST /api/usine/lead-gen — create a lead manually
+router.post('/', async (req, res) => {
+  await ensureLeadsTables(pool);
+  const { company_name, city, country = 'CA', website, email, phone, address, source = 'manual' } = req.body;
+  if (!company_name) return res.status(400).json({ ok: false, error: 'company_name requis' });
+  try {
+    const r = await pool.query(
+      `INSERT INTO daleba_leads (company_name, city, country, website, email, phone, address, source, status, created_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'new',NOW()) RETURNING *`,
+      [company_name, city, country, website||null, email||null, phone||null, address||null, source]
+    );
+    res.json({ ok: true, lead: r.rows[0] });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});

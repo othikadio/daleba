@@ -245,7 +245,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f8f8f8;margin:0;padding
 
     // Send via Resend
     const emailRes = await axios.post('https://api.resend.com/emails', {
-      from: 'DALEBA OS <noreply@daleba.ai>',
+      from: 'DALEBA OS <onboarding@resend.dev>',
       to: [toEmail],
       subject: `${client.name} — Découvrez DALEBA OS, la plateforme IA pour votre salon`,
       html: emailHtml
