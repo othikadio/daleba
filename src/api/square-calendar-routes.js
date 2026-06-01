@@ -15,6 +15,66 @@ const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('./auth-staff-routes');
 
+/**
+ * GET /api/sq-calendar/clients-sync  (PUBLIC — avant requireAuth)
+ * Utilisé par admin-clients.html (Vercel → Railway, pas de session JWT)
+ */
+async function clientsSyncHandler(req, res) {
+  const merged = new Map();
+
+  // SOURCE 1 : Square Customers
+  try {
+    const squareFetch = require('node-fetch');
+    const SQUARE_TOKEN = process.env.SQUARE_ACCESS_TOKEN;
+    const SQUARE_BASE  = 'https://connect.squareup.com';
+    let cursor = null, page = 0;
+    do {
+      const body = { limit: 100, ...(cursor ? { cursor } : {}) };
+      const resp = await squareFetch(`${SQUARE_BASE}/v2/customers/list`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${SQUARE_TOKEN}`, 'Content-Type': 'application/json', 'Square-Version': '2024-02-22' },
+        body: JSON.stringify(body)
+      });
+      const data = await resp.json();
+      for (const c of (data.customers || [])) {
+        const phone = (c.phone_number || '').replace(/\D/g, '');
+        const key   = phone || c.id;
+        merged.set(key, { source:'square', squareId:c.id, name:`${c.given_name||''} ${c.family_name||''}`.trim()||'Client', phone:c.phone_number||'', email:c.email_address||'', createdAt:c.created_at||null });
+      }
+      cursor = data.cursor || null; page++;
+    } while (cursor && page < 20);
+  } catch(e) { console.warn('[sync] Square:', e.message); }
+
+  // SOURCE 2 : SMS Campaign
+  try {
+    const { pool } = require('../memory/db');
+    const r = await pool.query(`SELECT DISTINCT ON (client_phone) client_phone, client_name, service_name, created_at FROM daleba_sms_ratings WHERE client_phone IS NOT NULL AND client_phone != '' ORDER BY client_phone, created_at DESC LIMIT 2000`);
+    for (const row of r.rows) {
+      const phone = (row.client_phone||'').replace(/\D/g,'');
+      if (!phone) continue;
+      if (merged.has(phone)) { merged.get(phone).smsSource = true; }
+      else merged.set(phone, { source:'sms_campaign', squareId:null, name:row.client_name||'Contact SMS', phone:row.client_phone, email:'', createdAt:row.created_at, smsSource:true });
+    }
+  } catch(_) {}
+
+  // SOURCE 3 : Contact Book VCF
+  try {
+    const { pool } = require('../memory/db');
+    await pool.query(`CREATE TABLE IF NOT EXISTS daleba_contact_book (id SERIAL PRIMARY KEY, name VARCHAR(200), phone VARCHAR(50), source VARCHAR(50) DEFAULT 'vcf_import', imported_at TIMESTAMP DEFAULT NOW(), UNIQUE(phone))`);
+    const r3 = await pool.query(`SELECT name, phone FROM daleba_contact_book LIMIT 3000`);
+    for (const row of r3.rows) {
+      const phone = (row.phone||'').replace(/\D/g,'');
+      if (!phone || merged.has(phone)) continue;
+      merged.set(phone, { source:'vcf_contact', squareId:null, name:row.name||'Contact', phone:row.phone, email:'', createdAt:null, vcfImport:true });
+    }
+  } catch(_) {}
+
+  const clients = Array.from(merged.values()).sort((a,b) => (a.name||'').localeCompare(b.name||'','fr'));
+  res.json({ clients, total: clients.length });
+}
+
+router.get('/clients-sync', clientsSyncHandler);
+
 // Route d'import VCF publique (pin requis) — AVANT requireAuth
 router.post('/contact-book/vcf-import', async (req, res) => {
   const pin = req.headers['x-import-pin'] || req.body?.pin;
