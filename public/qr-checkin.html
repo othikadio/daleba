@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kadio Coiffure — Check-in Kiosque</title>
+  <!-- html5-qrcode via CDN -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117; --surface: #161b22; --surface2: #21262d;
+      --border: #30363d; --text: #e6edf3; --text-dim: #8b949e;
+      --gold: #c9a84c; --gold-dim: rgba(201,168,76,0.12);
+      --green: #3fb950; --red: #f85149;
+    }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; }
+    body { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 1.5rem 1rem; min-height: 100vh; }
+
+    /* Header */
+    .header { text-align: center; margin-bottom: 1.5rem; }
+    .header .logo { font-size: 1.6rem; font-weight: 900; color: var(--gold); letter-spacing: 0.04em; }
+    .header .subtitle { font-size: 1rem; color: var(--text-dim); margin-top: 0.3rem; }
+
+    /* Scanner zone */
+    .scanner-container {
+      width: 100%; max-width: 400px;
+      background: var(--surface); border: 2px solid var(--border); border-radius: 16px;
+      padding: 1.25rem; margin-bottom: 1.5rem;
+    }
+    .scanner-title {
+      font-size: 1.1rem; font-weight: 700; text-align: center;
+      margin-bottom: 1rem; color: var(--text);
+    }
+    #qr-reader {
+      width: 100%; border-radius: 8px; overflow: hidden;
+      background: #000; min-height: 250px;
+    }
+    #qr-reader video { width: 100% !important; border-radius: 8px; }
+    .scanner-hint { font-size: 0.8rem; color: var(--text-dim); text-align: center; margin-top: 0.75rem; }
+
+    /* Client card */
+    .client-card {
+      width: 100%; max-width: 400px;
+      background: var(--surface); border: 2px solid var(--gold); border-radius: 16px;
+      padding: 1.5rem; display: none; animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .client-card.show { display: block; }
+
+    .client-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
+    .avatar {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--gold-dim); border: 2px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; font-weight: 900; color: var(--gold); flex-shrink: 0;
+    }
+    .client-name { font-size: 1.4rem; font-weight: 800; line-height: 1.2; }
+    .client-badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      background: var(--gold-dim); color: var(--gold);
+      font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem;
+      border-radius: 8px; margin-top: 0.3rem;
+    }
+
+    .info-row {
+      background: var(--surface2); border-radius: 8px; padding: 0.85rem 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .info-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.3rem; }
+    .info-value { font-size: 0.95rem; font-weight: 600; }
+
+    /* CTA Button */
+    .btn-start {
+      width: 100%; padding: 1rem; background: var(--green);
+      color: #fff; border: none; border-radius: 12px;
+      font-size: 1.1rem; font-weight: 800; cursor: pointer;
+      margin-top: 1rem; transition: background 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .btn-start:hover { background: #2d9944; }
+
+    .btn-reset {
+      width: 100%; padding: 0.7rem; background: transparent;
+      color: var(--text-dim); border: 1px solid var(--border);
+      border-radius: 10px; font-size: 0.9rem; cursor: pointer;
+      margin-top: 0.75rem; transition: all 0.15s;
+    }
+    .btn-reset:hover { color: var(--text); border-color: var(--text-dim); }
+
+    /* Status */
+    .status-msg { text-align: center; font-size: 0.9rem; color: var(--text-dim); padding: 1rem; }
+    .error-msg { text-align: center; font-size: 0.9rem; color: var(--red); padding: 1rem; }
+
+    /* Manual input */
+    .manual-section {
+      width: 100%; max-width: 400px; margin-top: 0.5rem;
+    }
+    .manual-toggle { font-size: 0.78rem; color: var(--text-dim); text-align: center; cursor: pointer; text-decoration: underline; margin-bottom: 0.75rem; }
+    .manual-input-row { display: flex; gap: 0.5rem; display: none; }
+    .manual-input-row.show { display: flex; }
+    .manual-input-row input {
+      flex: 1; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.6rem 0.9rem; color: var(--text); font-size: 0.9rem;
+    }
+    .manual-input-row button {
+      background: var(--gold); color: #0d1117; border: none;
+      border-radius: 8px; padding: 0.6rem 1rem; font-weight: 800; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">✂️ Kadio Coiffure</div>
+    <div class="subtitle">Kiosque d'accueil — Scannez votre QR code</div>
+  </div>
+
+  <!-- Scanner -->
+  <div class="scanner-container" id="scanner-section">
+    <div class="scanner-title">📱 Présentez votre QR code</div>
+    <div id="qr-reader"></div>
+    <div class="scanner-hint">Tenez votre téléphone face à la caméra · 30 cm de distance</div>
+    <div id="scan-status" class="status-msg"></div>
+  </div>
+
+  <!-- Client Card (hidden until scan) -->
+  <div class="client-card" id="client-card">
+    <div class="client-header">
+      <div class="avatar" id="client-avatar">?</div>
+      <div>
+        <div class="client-name" id="client-name">…</div>
+        <div class="client-badge">
+          ⭐ <span id="client-points">0</span> points fidélité
+        </div>
+      </div>
+    </div>
+
+    <div class="info-row" id="last-visit-row">
+      <div class="info-label">Dernière visite</div>
+      <div class="info-value" id="client-last-visit">—</div>
+    </div>
+
+    <div class="info-row" id="hair-notes-row">
+      <div class="info-label">Notes capillaires</div>
+      <div class="info-value" id="client-hair-notes" style="font-size:0.88rem;line-height:1.4">—</div>
+    </div>
+
+    <button class="btn-start" id="btn-start-service">
+      ▶ Commencer la prestation
+    </button>
+    <button class="btn-reset" onclick="resetScanner()">
+      🔄 Scanner un autre client
+    </button>
+  </div>
+
+  <!-- Manual input fallback -->
+  <div class="manual-section">
+    <div class="manual-toggle" onclick="toggleManual()">Entrer un code manuellement</div>
+    <div class="manual-input-row" id="manual-row">
+      <input id="manual-code" type="text" placeholder="Code ou ID client (ex: 1 ou KADIO:1:abc)" />
+      <button onclick="manualCheckin()">OK</button>
+    </div>
+  </div>
+
+<script>
+  let html5QrCode = null;
+  let scanning = true;
+
+  // ── Démarrer le scanner ────────────────────────────────────────────────────
+  function startScanner() {
+    html5QrCode = new Html5Qrcode('qr-reader');
+    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+    html5QrCode.start(
+      { facingMode: 'environment' },
+      config,
+      (decodedText) => {
+        if (!scanning) return;
+        scanning = false;
+        document.getElementById('scan-status').textContent = '✅ QR détecté — chargement…';
+        handleQRCode(decodedText);
+      },
+      (err) => { /* scan error silencieux */ }
+    ).catch(err => {
+      document.getElementById('scan-status').textContent = '⚠️ Caméra non disponible. Utilisez la saisie manuelle.';
+      document.getElementById('manual-row').classList.add('show');
+    });
+  }
+
+  // ── Traiter le QR code scanné ──────────────────────────────────────────────
+  async function handleQRCode(code) {
+    try {
+      // Extraire le customerId
+      let lookupCode = code;
+      try {
+        // Si JSON
+        const json = JSON.parse(code);
+        lookupCode = json.phone || json.customerId || code;
+      } catch(_) {}
+
+      const response = await fetch(`/api/qr/checkin/${encodeURIComponent(lookupCode)}`);
+      const data = await response.json();
+
+      if (data.found && data.customer) {
+        displayClient(data.customer);
+      } else {
+        document.getElementById('scan-status').innerHTML = `<span style="color:var(--red)">❌ QR non reconnu. Réessayez.</span>`;
+        setTimeout(() => { scanning = true; document.getElementById('scan-status').textContent = ''; }, 2500);
+      }
+    } catch(e) {
+      document.getElementById('scan-status').innerHTML = `<span style="color:var(--red)">Erreur: ${e.message}</span>`;
+      setTimeout(() => { scanning = true; }, 2500);
+    }
+  }
+
+  // ── Afficher la fiche client ───────────────────────────────────────────────
+  function displayClient(customer) {
+    // Arrêter le scanner
+    if (html5QrCode) {
+      html5QrCode.stop().catch(() => {});
+    }
+    document.getElementById('scanner-section').style.display = 'none';
+
+    // Remplir la carte
+    document.getElementById('client-avatar').textContent = customer.initials || customer.name?.slice(0,2).toUpperCase() || '?';
+    document.getElementById('client-name').textContent = customer.name || 'Client';
+    document.getElementById('client-points').textContent = (customer.loyaltyPoints || 0).toLocaleString('fr-CA');
+
+    // Dernière visite
+    if (customer.lastVisit) {
+      const lv = customer.lastVisit;
+      const dateStr = typeof lv === 'object' ? lv.date : lv;
+      const serviceStr = typeof lv === 'object' ? ` — ${lv.service || ''}` : '';
+      document.getElementById('client-last-visit').textContent = dateStr + serviceStr;
+    } else {
+      document.getElementById('client-last-visit').textContent = 'Première visite 🎉';
+    }
+
+    // Notes capillaires
+    if (customer.hairNotes) {
+      document.getElementById('client-hair-notes').textContent = customer.hairNotes;
+    } else {
+      document.getElementById('hair-notes-row').style.display = 'none';
+    }
+
+    // Bouton démarrer
+    document.getElementById('btn-start-service').onclick = () => {
+      window.open(`/noter-service.html?customerId=${customer.id}`, '_blank');
+    };
+
+    document.getElementById('client-card').classList.add('show');
+  }
+
+  // ── Reset ──────────────────────────────────────────────────────────────────
+  function resetScanner() {
+    document.getElementById('client-card').classList.remove('show');
+    document.getElementById('scanner-section').style.display = '';
+    document.getElementById('hair-notes-row').style.display = '';
+    document.getElementById('scan-status').textContent = '';
+    scanning = true;
+    startScanner();
+  }
+
+  // ── Saisie manuelle ────────────────────────────────────────────────────────
+  function toggleManual() {
+    document.getElementById('manual-row').classList.toggle('show');
+  }
+
+  async function manualCheckin() {
+    const code = document.getElementById('manual-code').value.trim();
+    if (!code) return;
+    scanning = false;
+    await handleQRCode(code);
+  }
+
+  document.getElementById('manual-code').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') manualCheckin();
+  });
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  startScanner();
+</script>
+</body>
+</html>

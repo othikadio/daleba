@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DALEBA — Calendrier Social Media</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117; --surface: #161b22; --surface2: #21262d;
+      --border: #30363d; --text: #e6edf3; --text-dim: #8b949e;
+      --gold: #c9a84c; --gold-dim: rgba(201,168,76,0.12);
+      --green: #3fb950; --red: #f85149; --blue: #58a6ff;
+      --instagram: #e1306c; --tiktok: #69c9d0; --facebook: #1877f2;
+      --radius: 8px;
+    }
+    html, body { min-height: 100%; background: var(--bg); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; }
+    body { padding: 0; }
+
+    /* Header */
+    .topbar {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 0.85rem 1.5rem; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; position: sticky; top: 0; z-index: 100;
+    }
+    .topbar h1 { font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; }
+    .topbar-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .btn { padding: 0.55rem 1rem; border: none; border-radius: 6px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
+    .btn:hover { opacity: 0.85; }
+    .btn-generate { background: var(--gold); color: #0d1117; }
+    .btn-schedule { background: var(--green); color: #fff; }
+    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Week header */
+    .week-bar {
+      padding: 0.75rem 1.5rem; background: var(--surface);
+      border-bottom: 1px solid var(--border); display: flex;
+      align-items: center; justify-content: space-between;
+      font-size: 0.82rem; color: var(--text-dim);
+    }
+    .week-bar strong { color: var(--text); }
+
+    /* Status legend */
+    .legend { display: flex; gap: 0.75rem; padding: 0.6rem 1.5rem; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; }
+    .status-dot-sm { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Platform columns */
+    .calendar-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--border); min-height: calc(100vh - 160px);
+    }
+    .platform-col { background: var(--bg); }
+    .platform-header {
+      padding: 0.85rem 1rem; background: var(--surface);
+      font-size: 0.85rem; font-weight: 800; text-align: center;
+      position: sticky; top: 52px; z-index: 10; border-bottom: 1px solid var(--border);
+    }
+    .platform-posts { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.65rem; }
+
+    /* Post card */
+    .post-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 0.85rem;
+      transition: border-color 0.15s;
+    }
+    .post-card:hover { border-color: var(--gold); }
+    .post-day { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.3rem; }
+    .post-time { font-size: 0.72rem; color: var(--text-dim); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.3rem; }
+    .post-caption { font-size: 0.82rem; line-height: 1.5; margin-bottom: 0.5rem; color: var(--text); }
+    .post-hashtags { font-size: 0.72rem; color: var(--blue); margin-bottom: 0.65rem; line-height: 1.4; }
+    .post-status { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 10px; }
+    .status-draft     { background: rgba(139,148,158,0.15); color: var(--text-dim); }
+    .status-approved  { background: rgba(88,166,255,0.15); color: var(--blue); }
+    .status-scheduled { background: rgba(63,185,80,0.15); color: var(--green); }
+    .status-published { background: rgba(201,168,76,0.12); color: var(--gold); }
+    .post-actions { margin-top: 0.65rem; display: flex; gap: 0.4rem; }
+    .btn-approve { background: rgba(88,166,255,0.15); color: var(--blue); border: 1px solid rgba(88,166,255,0.3); border-radius: 5px; padding: 0.3rem 0.65rem; font-size: 0.72rem; font-weight: 700; cursor: pointer; }
+    .btn-approve:hover { background: rgba(88,166,255,0.25); }
+
+    /* Image prompt */
+    .image-prompt { font-size: 0.7rem; color: var(--text-dim); font-style: italic; margin-bottom: 0.5rem; background: var(--surface2); border-radius: 4px; padding: 0.35rem 0.5rem; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center; padding: 3rem 1rem; color: var(--text-dim); font-size: 0.85rem;
+    }
+    .empty-state h3 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--text); }
+
+    /* Loading */
+    .loading { text-align: center; padding: 2rem; color: var(--text-dim); }
+    .dot-load { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: dp 1.2s infinite; margin: 0 2px; }
+    @keyframes dp { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.8rem 1.1rem; font-size: 0.82rem; max-width: 340px; opacity: 0; pointer-events: none; transition: opacity 0.25s; z-index: 999; }
+    .toast.show { opacity: 1; }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .calendar-grid { grid-template-columns: 1fr; }
+      .platform-header { position: static; }
+      .topbar { padding: 0.75rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <h1>📅 Calendrier Social Media</h1>
+  <div class="topbar-actions">
+    <button class="btn btn-generate" id="btn-generate" onclick="generateWeek()">✨ Générer la semaine</button>
+    <button class="btn btn-schedule" id="btn-schedule" onclick="scheduleAll()" disabled>🚀 Tout programmer</button>
+    <button class="btn btn-secondary" onclick="loadWeekStatus()">🔄 Actualiser</button>
+  </div>
+</div>
+
+<!-- Week bar -->
+<div class="week-bar">
+  <span>Semaine du <strong id="week-start-label">…</strong></span>
+  <div class="legend">
+    <div class="legend-item"><div class="status-dot-sm" style="background:var(--text-dim)"></div> Brouillon</div>
+    <div class="legend-item"><div class="status-dot-sm" style="background:var(--blue)"></div> Approuvé</div>
+    <div class="legend-item"><div class="status-dot-sm" style="background:var(--green)"></div> Programmé</div>
+    <div class="legend-item"><div class="status-dot-sm" style="background:var(--gold)"></div> Publié</div>
+  </div>
+</div>
+
+<!-- Calendar Grid -->
+<div class="calendar-grid" id="calendar-grid">
+  <div class="platform-col">
+    <div class="platform-header" style="color:var(--instagram)">📸 Instagram</div>
+    <div class="platform-posts" id="posts-instagram">
+      <div class="loading"><div class="dot-load"></div><div class="dot-load" style="animation-delay:0.2s"></div><div class="dot-load" style="animation-delay:0.4s"></div></div>
+    </div>
+  </div>
+  <div class="platform-col">
+    <div class="platform-header" style="color:var(--tiktok)">🎵 TikTok</div>
+    <div class="platform-posts" id="posts-tiktok">
+      <div class="loading"><div class="dot-load"></div></div>
+    </div>
+  </div>
+  <div class="platform-col">
+    <div class="platform-header" style="color:var(--facebook)">👥 Facebook</div>
+    <div class="platform-posts" id="posts-facebook">
+      <div class="loading"><div class="dot-load"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const DAYS = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+
+  function showToast(msg, isError) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.borderColor = isError ? 'var(--red)' : 'var(--border)';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 4000);
+  }
+
+  function statusClass(status) {
+    return 'status-' + (status || 'draft');
+  }
+  function statusLabel(status) {
+    const map = { draft: '⬜ Brouillon', approved: '✅ Approuvé', scheduled: '🕐 Programmé', published: '✅ Publié' };
+    return map[status] || '⬜ Brouillon';
+  }
+  function platformColor(p) {
+    return { instagram: 'var(--instagram)', tiktok: 'var(--tiktok)', facebook: 'var(--facebook)' }[p] || 'var(--text)';
+  }
+
+  function renderPost(post) {
+    const date = post.scheduled_at ? new Date(post.scheduled_at) : null;
+    const day = DAYS[post.day_of_week ?? 0] || '—';
+    const time = date ? date.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' }) : '--:--';
+    const isApproved = ['approved', 'scheduled', 'published'].includes(post.status);
+
+    return `<div class="post-card" id="post-${post.id}">
+      <div class="post-day">${day}</div>
+      <div class="post-time">🕐 ${time}</div>
+      <div class="post-caption">${escHtml(post.caption || '')}</div>
+      ${post.hashtags ? `<div class="post-hashtags">${escHtml(post.hashtags)}</div>` : ''}
+      ${post.image_prompt ? `<div class="image-prompt">🎨 ${escHtml(post.image_prompt)}</div>` : ''}
+      <div>
+        <span class="post-status ${statusClass(post.status)}">${statusLabel(post.status)}</span>
+      </div>
+      ${!isApproved ? `<div class="post-actions"><button class="btn-approve" onclick="approvePost(${post.id})">✓ Approuver</button></div>` : ''}
+    </div>`;
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  async function loadWeekStatus() {
+    try {
+      const r = await fetch('/api/social/week-status');
+      const d = await r.json();
+
+      if (d.weekStart) {
+        const ws = new Date(d.weekStart);
+        document.getElementById('week-start-label').textContent = ws.toLocaleDateString('fr-CA', { weekday:'long', day:'numeric', month:'long' });
+      }
+
+      const platforms = ['instagram', 'tiktok', 'facebook'];
+      platforms.forEach(p => {
+        const posts = (d.posts || []).filter(post => post.platform === p);
+        const el = document.getElementById('posts-' + p);
+        if (!posts.length) {
+          el.innerHTML = '<div class="empty-state"><h3>Aucun post</h3><p>Cliquez sur "Générer la semaine" pour créer du contenu.</p></div>';
+        } else {
+          el.innerHTML = posts.map(renderPost).join('');
+        }
+      });
+
+      // Enable schedule button if there are approved posts
+      const hasApproved = (d.posts || []).some(p => p.status === 'approved');
+      document.getElementById('btn-schedule').disabled = !hasApproved;
+    } catch(e) {
+      showToast('Erreur chargement: ' + e.message, true);
+    }
+  }
+
+  async function generateWeek() {
+    const btn = document.getElementById('btn-generate');
+    btn.disabled = true;
+    btn.textContent = '⏳ Génération en cours…';
+    ['instagram','tiktok','facebook'].forEach(p => {
+      document.getElementById('posts-' + p).innerHTML = '<div class="loading"><div class="dot-load"></div><div class="dot-load" style="animation-delay:0.2s"></div><div class="dot-load" style="animation-delay:0.4s"></div><p style="margin-top:0.75rem;font-size:0.78rem">Claude génère vos posts…</p></div>';
+    });
+    try {
+      const r = await fetch('/api/social/generate-week', { method: 'POST' });
+      const d = await r.json();
+      if (d.success) {
+        showToast(`✅ ${d.count} posts générés pour la semaine!`);
+        await loadWeekStatus();
+      } else {
+        throw new Error(d.error || 'Erreur inconnue');
+      }
+    } catch(e) {
+      showToast('Erreur: ' + e.message, true);
+      loadWeekStatus();
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '✨ Générer la semaine';
+    }
+  }
+
+  async function approvePost(postId) {
+    try {
+      const r = await fetch(`/api/social/approve/${postId}`, { method: 'POST' });
+      const d = await r.json();
+      if (d.success) {
+        showToast('✅ Post approuvé');
+        await loadWeekStatus();
+      }
+    } catch(e) {
+      showToast('Erreur: ' + e.message, true);
+    }
+  }
+
+  async function scheduleAll() {
+    const btn = document.getElementById('btn-schedule');
+    btn.disabled = true;
+    btn.textContent = '⏳ Programmation…';
+    try {
+      const r = await fetch('/api/social/schedule-all', { method: 'POST' });
+      const d = await r.json();
+      if (d.success) {
+        showToast(`🚀 ${d.scheduled}/${d.total} posts programmés via Publora!`);
+        await loadWeekStatus();
+      } else {
+        throw new Error(d.error || d.message || 'Erreur inconnue');
+      }
+    } catch(e) {
+      showToast('Erreur: ' + e.message, true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🚀 Tout programmer';
+    }
+  }
+
+  // Init
+  loadWeekStatus();
+</script>
+</body>
+</html>

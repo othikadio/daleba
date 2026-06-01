@@ -121,8 +121,11 @@ app.use('/api/staff-auth', require('./api/auth-staff-routes')); // Authentificat
 app.use('/api/staff-portal', require('./api/staff-portal-routes')); // Portail staff — dashboard, notes, agenda
 app.use('/api/notifications', require('./api/notification-routes')); // Chantier A — SMS auto RDV
 app.use('/api/airtable', require('./api/airtable-routes')); // V47 — Airtable sync + dashboard temps réel
-app.use(require('./routes/wallet-routes')); // V47 — Wallet & QR Code cartes membres
-app.use('/api/crm', require('./api/crm-routes')); // V47 — CRM Clients Square
+app.use('/api/wallet', require('./api/wallet-routes'));           // KADIO OS — Cartes membre Apple/Google Wallet
+app.use('/api/social', require('./api/social-calendar-routes')); // KADIO OS — Calendrier Social Media
+app.use('/api/saas', require('./api/saas-routes'));               // KADIO OS — Pipeline SaaS Commercial
+// V47 — CRM Clients Square (si dispo)
+try { app.use('/api/crm', require('./api/crm-routes')); } catch(_) {}
 
 // Middleware erreurs (Point 12)
 app.use(errorMiddleware);
@@ -225,6 +228,21 @@ app.get('/admin/onboarding', (req, res) => {
 
 app.get('/admin/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-dashboard.html'));
+});
+
+// QR Check-in kiosque salon
+app.get('/qr-checkin', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/qr-checkin.html'));
+});
+
+// Social Media Calendrier éditorial
+app.get('/admin/social-calendar', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin-social-calendar.html'));
+});
+
+// DALEBA SaaS
+app.get('/admin/saas', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin-saas.html'));
 });
 
 // JARVIS — Interface vocale Ulrich (route étanche, priorité absolue)

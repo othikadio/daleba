@@ -140,5 +140,97 @@ router.get('/generate', requireJWT, async (req, res) => {
   });
 });
 
+/**
+ * GET /api/qr/checkin/:code — QR Check-in Kiosque
+ * Retourne les infos client pour l'accueil en salon
+ */
+router.get('/checkin/:code', async (req, res) => {
+  const { code } = req.params;
+
+  // Mode démo ou DB non disponible
+  if (!pool || DEMO_MODE) {
+    return res.json({
+      found: true,
+      customer: {
+        id: 1,
+        name: 'Marie Dubois',
+        initials: 'MD',
+        loyaltyPoints: 250,
+        lastVisit: { date: '2024-11-15', service: 'Tresses box braids' },
+        hairNotes: 'Cheveux fins, sensibles à la chaleur. Aime les tresses longues.',
+        nextVisit: '2024-12-20',
+        isDemo: true
+      }
+    });
+  }
+
+  try {
+    // Chercher le client par QR code (customerId ou token wallet)
+    let customerId = null;
+
+    // Format KADIO:ID:TOKEN
+    if (code.startsWith('KADIO:')) {
+      const parts = code.split(':');
+      customerId = parseInt(parts[1]);
+    } else {
+      customerId = parseInt(code);
+    }
+
+    if (!customerId || isNaN(customerId)) {
+      return res.status(404).json({ found: false, error: 'QR invalide' });
+    }
+
+    const r = await pool.query(`
+      SELECT c.id, c.name, c.email, c.phone,
+        COALESCE(lp.points_balance, 0) AS loyalty_points,
+        (
+          SELECT JSON_BUILD_OBJECT(
+            'date', TO_CHAR(a.start_at, 'YYYY-MM-DD'),
+            'service', COALESCE(s.name, 'Prestation'),
+            'stylist', COALESCE(st.name, 'Équipe')
+          )
+          FROM appointments a
+          LEFT JOIN services s ON s.id = a.service_id
+          LEFT JOIN staff st ON st.id = a.staff_id
+          WHERE a.client_id = c.id AND a.start_at < NOW()
+          ORDER BY a.start_at DESC LIMIT 1
+        ) AS last_visit,
+        (
+          SELECT TO_CHAR(a.start_at, 'YYYY-MM-DD') FROM appointments a
+          WHERE a.client_id = c.id AND a.start_at > NOW()
+          ORDER BY a.start_at LIMIT 1
+        ) AS next_visit,
+        (
+          SELECT STRING_AGG(note, ' | ' ORDER BY created_at DESC)
+          FROM client_notes WHERE client_id = c.id LIMIT 3
+        ) AS hair_notes
+      FROM clients c
+      LEFT JOIN loyalty_points lp ON lp.client_id = c.id
+      WHERE c.id = $1
+    `, [customerId]);
+
+    if (!r.rows[0]) return res.status(404).json({ found: false, error: 'Client introuvable' });
+    const row = r.rows[0];
+    const nameParts = (row.name || 'Inconnu').split(' ');
+    const initials = nameParts.map(p => p[0]).join('').slice(0, 2).toUpperCase();
+
+    res.json({
+      found: true,
+      customer: {
+        id: row.id,
+        name: row.name,
+        initials,
+        loyaltyPoints: parseInt(row.loyalty_points) || 0,
+        lastVisit: row.last_visit || null,
+        hairNotes: row.hair_notes || null,
+        nextVisit: row.next_visit || null
+      }
+    });
+  } catch(e) {
+    console.error('[QR] checkin:', e);
+    res.status(500).json({ found: false, error: e.message });
+  }
+});
+
 module.exports = router;
 module.exports.verifyRotatingHMAC = verifyRotatingHMAC;

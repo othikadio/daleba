@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DALEBA — Plateforme Unifiée</title>
+  <title>KADIO OS — Hub Central</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -16,381 +16,436 @@
       --text-dim:  #8b949e;
       --gold:      #c9a84c;
       --gold-dim:  rgba(201,168,76,0.12);
-      --green:     #2da44e;
+      --cyan:      #39d0d8;
+      --cyan-dim:  rgba(57,208,216,0.12);
+      --violet:    #bc8cff;
+      --violet-dim:rgba(188,140,255,0.12);
+      --green:     #3fb950;
       --red:       #f85149;
       --blue:      #58a6ff;
-      --purple:    #bc8cff;
-      --cyan:      #39d0d8;
-      --orange:    #f0883e;
-      --emerald:   #3fb950;
       --radius:    8px;
     }
 
-    html, body { height: 100%; }
+    html, body { height: 100%; overflow: hidden; }
     body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; display: flex; flex-direction: column; }
 
     /* ── Topbar ── */
     .topbar {
       background: var(--surface); border-bottom: 1px solid var(--border);
       height: 52px; display: flex; align-items: center; padding: 0 1.5rem;
-      justify-content: space-between; flex-shrink: 0; position: sticky; top: 0; z-index: 200;
+      justify-content: space-between; flex-shrink: 0; z-index: 300;
     }
-    .topbar-logo { font-weight: 900; font-size: 1.1rem; color: var(--gold); letter-spacing: 0.06em; }
-    .topbar-logo span { color: var(--text-dim); font-weight: 400; font-size: 0.75rem; margin-left: 0.5rem; }
+    .topbar-logo { font-weight: 900; font-size: 1.15rem; color: var(--gold); letter-spacing: 0.06em; display: flex; align-items: center; gap: 0.75rem; }
+    .topbar-logo .badge { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; background: var(--gold-dim); color: var(--gold); padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; }
     .topbar-right { display: flex; align-items: center; gap: 1rem; }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); box-shadow: 0 0 6px var(--emerald); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); }
     .topbar-right span { font-size: 0.75rem; color: var(--text-dim); }
+    .hamburger { display: none; background: none; border: none; color: var(--text); font-size: 1.4rem; cursor: pointer; padding: 0 0.5rem; }
 
-    /* ── Layout principal ── */
+    /* ── Layout ── */
     .app { display: flex; flex: 1; overflow: hidden; }
 
     /* ── Sidebar ── */
     .sidebar {
-      width: 220px; background: var(--surface); border-right: 1px solid var(--border);
+      width: 232px; background: var(--surface); border-right: 1px solid var(--border);
       display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;
+      transition: transform 0.25s;
     }
-    .sidebar-section { padding: 1rem 0.75rem 0.5rem; }
-    .sidebar-section-label {
-      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em;
-      text-transform: uppercase; color: var(--text-dim); padding: 0 0.5rem; margin-bottom: 0.4rem;
+    .sidebar-inner { padding-bottom: 1.5rem; }
+
+    /* Section headers */
+    .section-header {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 1.1rem 1rem 0.4rem;
     }
+    .section-line { flex: 1; height: 1px; }
+    .section-badge {
+      font-size: 0.63rem; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 0.2rem 0.55rem; border-radius: 4px;
+      white-space: nowrap;
+    }
+    /* Kadio Coiffure — or */
+    .section-coiffure .section-line { background: linear-gradient(to right, var(--gold), transparent); }
+    .section-coiffure .section-badge { background: var(--gold-dim); color: var(--gold); }
+    /* L'Usine IA — cyan */
+    .section-usine .section-line { background: linear-gradient(to right, var(--cyan), transparent); }
+    .section-usine .section-badge { background: var(--cyan-dim); color: var(--cyan); }
+    /* DALEBA SaaS — violet */
+    .section-saas .section-line { background: linear-gradient(to right, var(--violet), transparent); }
+    .section-saas .section-badge { background: var(--violet-dim); color: var(--violet); }
+
+    .section-separator {
+      border: none; border-top: 1px solid var(--border);
+      margin: 0.75rem 0.75rem 0;
+    }
+
+    /* Nav items */
+    .nav-items { padding: 0 0.5rem 0.5rem; }
     .nav-item {
-      display: flex; align-items: center; gap: 0.6rem;
-      padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer;
+      display: flex; align-items: center; gap: 0.55rem;
+      padding: 0.48rem 0.65rem; border-radius: 6px; cursor: pointer;
       font-size: 0.82rem; font-weight: 500; color: var(--text-dim);
-      transition: all 0.15s; user-select: none;
+      transition: all 0.14s; user-select: none; text-decoration: none;
     }
     .nav-item:hover { background: var(--surface2); color: var(--text); }
-    .nav-item.active { background: var(--gold-dim); color: var(--gold); font-weight: 700; }
-    .nav-item .icon { font-size: 1rem; flex-shrink: 0; width: 20px; text-align: center; }
+    .nav-item.active-gold  { background: var(--gold-dim); color: var(--gold); font-weight: 700; }
+    .nav-item.active-cyan  { background: var(--cyan-dim); color: var(--cyan); font-weight: 700; }
+    .nav-item.active-violet{ background: var(--violet-dim); color: var(--violet); font-weight: 700; }
+    .nav-item .icon { font-size: 0.95rem; flex-shrink: 0; width: 18px; text-align: center; }
     .nav-badge {
-      margin-left: auto; font-size: 0.65rem; font-weight: 800;
-      background: var(--gold-dim); color: var(--gold);
-      padding: 0.1rem 0.45rem; border-radius: 10px; min-width: 20px; text-align: center;
+      margin-left: auto; font-size: 0.62rem; font-weight: 800;
+      padding: 0.1rem 0.4rem; border-radius: 10px; min-width: 18px; text-align: center;
     }
-    .sidebar-divider { border: none; border-top: 1px solid var(--border); margin: 0.5rem 0.75rem; }
+    .badge-gold   { background: var(--gold-dim); color: var(--gold); }
+    .badge-cyan   { background: var(--cyan-dim); color: var(--cyan); }
+    .badge-violet { background: var(--violet-dim); color: var(--violet); }
+    .badge-green  { background: rgba(63,185,80,0.12); color: var(--green); }
 
-    /* ── Main content ── */
+    /* ── Main ── */
     .main { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
 
-    /* ── Panneau (iframe-like via sections) ── */
-    .panel { display: none; flex: 1; overflow: auto; }
+    /* Panels */
+    .panel { display: none; flex: 1; overflow: hidden; }
     .panel.active { display: flex; flex-direction: column; }
 
-    /* ── Dashboard Hub ── */
-    .hub-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.25rem; padding: 2rem 1.5rem;
+    /* Iframe panels */
+    .panel-iframe { flex: 1; border: none; background: var(--bg); width: 100%; height: 100%; }
+    .panel-bar {
+      padding: 0.6rem 1rem; background: var(--surface); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
     }
+    .panel-bar-title { font-size: 0.82rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+    .panel-bar a { font-size: 0.72rem; color: var(--text-dim); text-decoration: none; }
+    .panel-bar a:hover { color: var(--text); }
+
+    /* ── Dashboard Hub ── */
+    .hub-body { flex: 1; overflow-y: auto; padding: 1.5rem; }
+    .hub-heading { margin-bottom: 1.25rem; }
+    .hub-heading h1 { font-size: 1.3rem; font-weight: 800; }
+    .hub-heading p { font-size: 0.82rem; color: var(--text-dim); margin-top: 0.25rem; }
+
+    /* KPI sections */
+    .kpi-section { margin-bottom: 1.5rem; }
+    .kpi-section-title {
+      font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+      margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.85rem; }
     .kpi-card {
       background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 1.25rem; cursor: pointer; transition: all 0.18s;
+      padding: 1rem 1.1rem; cursor: pointer; transition: all 0.15s;
     }
-    .kpi-card:hover { border-color: var(--gold); transform: translateY(-1px); }
-    .kpi-card h3 { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.6rem; }
-    .kpi-card .kpi-val { font-size: 2.2rem; font-weight: 900; letter-spacing: -0.03em; line-height: 1; }
-    .kpi-card .kpi-sub { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.4rem; }
-    .kpi-card .kpi-trend { font-size: 0.72rem; margin-top: 0.5rem; }
-    .trend-up   { color: var(--emerald); }
-    .trend-down { color: var(--red); }
+    .kpi-card:hover { transform: translateY(-2px); }
+    .kpi-card.c-gold  { border-top: 3px solid var(--gold); }
+    .kpi-card.c-cyan  { border-top: 3px solid var(--cyan); }
+    .kpi-card.c-violet{ border-top: 3px solid var(--violet); }
+    .kpi-card:hover.c-gold   { border-color: var(--gold); }
+    .kpi-card:hover.c-cyan   { border-color: var(--cyan); }
+    .kpi-card:hover.c-violet { border-color: var(--violet); }
+    .kpi-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.5rem; }
+    .kpi-val { font-size: 2rem; font-weight: 900; line-height: 1; }
+    .kpi-sub { font-size: 0.72rem; color: var(--text-dim); margin-top: 0.35rem; }
+    .c-gold .kpi-val  { color: var(--gold); }
+    .c-cyan .kpi-val  { color: var(--cyan); }
+    .c-violet .kpi-val{ color: var(--violet); }
 
-    .hub-header { padding: 1.5rem 1.5rem 0; }
-    .hub-header h1 { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; }
-    .hub-header p  { color: var(--text-dim); font-size: 0.85rem; margin-top: 0.3rem; }
-
-    .pipeline-overview {
-      margin: 0 1.5rem 1.5rem;
-      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 1.25rem;
-    }
-    .pipeline-overview h2 { font-size: 0.85rem; font-weight: 700; margin-bottom: 1rem; }
-    .pipeline-row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
-    .pipe-step {
-      flex: 1; min-width: 120px; padding: 0.65rem 0.75rem;
-      background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
-      text-align: center; font-size: 0.75rem;
-    }
-    .pipe-step .step-icon { font-size: 1.2rem; display: block; margin-bottom: 0.2rem; }
-    .pipe-step .step-label { font-weight: 700; display: block; }
-    .pipe-step .step-engine { font-size: 0.65rem; color: var(--text-dim); }
-    .pipe-step.done { border-color: rgba(63,185,80,0.4); background: rgba(63,185,80,0.05); }
-    .pipe-arrow { color: var(--text-dim); font-size: 0.9rem; flex-shrink: 0; }
-
-    /* ── Section Embedded (iframe en div) ── */
-    .embed-frame {
-      flex: 1; border: none; background: var(--bg);
-    }
-    .embed-notice {
-      padding: 1.5rem; text-align: center; color: var(--text-dim); font-size: 0.85rem;
-    }
-    .embed-notice a { color: var(--gold); text-decoration: none; }
-    .embed-notice a:hover { text-decoration: underline; }
-
-    /* ── Square Section ── */
-    .square-panel { padding: 2rem 1.5rem; }
-    .square-panel h2 { font-size: 1rem; font-weight: 800; margin-bottom: 1.5rem; }
-    .metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-    .metric-box {
-      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 1rem 1.25rem;
-    }
-    .metric-box .m-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.4rem; }
-    .metric-box .m-val { font-size: 1.6rem; font-weight: 900; color: var(--gold); }
-    .metric-box .m-sub { font-size: 0.72rem; color: var(--text-dim); margin-top: 0.2rem; }
-    .btn-primary { padding: 0.6rem 1.25rem; background: var(--gold); color: #0d1117; border: none; border-radius: 6px; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: background 0.15s; }
-    .btn-primary:hover { background: #e6c96a; }
-    .loading-state { text-align: center; padding: 2rem; color: var(--text-dim); font-size: 0.85rem; }
-    .dot-load { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: dp 1.2s infinite; margin: 0 2px; }
+    /* Dot loader */
+    .dot-load { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: currentColor; animation: dp 1.2s infinite; margin: 0 1.5px; }
     @keyframes dp { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
-    /* ── Toast ── */
-    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.85rem 1.25rem; font-size: 0.83rem; max-width: 360px; opacity: 0; pointer-events: none; transition: opacity 0.25s; z-index: 999; }
+    /* Toast */
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.8rem 1.1rem; font-size: 0.82rem; max-width: 340px; opacity: 0; pointer-events: none; transition: opacity 0.25s; z-index: 999; }
     .toast.show { opacity: 1; }
+
+    /* ── Mobile ── */
+    @media (max-width: 768px) {
+      .hamburger { display: block; }
+      .sidebar {
+        position: fixed; top: 52px; left: 0; bottom: 0; z-index: 200;
+        transform: translateX(-100%);
+      }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay { display: none; position: fixed; inset: 0; z-index: 150; background: rgba(0,0,0,0.5); }
+      .sidebar-overlay.show { display: block; }
+    }
   </style>
 </head>
 <body>
 
-<!-- ── Topbar ── -->
+<!-- Topbar -->
 <div class="topbar">
-  <div class="topbar-logo">DALEBA <span>Plateforme Unifiée V41</span></div>
+  <div style="display:flex;align-items:center;gap:0.5rem">
+    <button class="hamburger" onclick="toggleSidebar()">☰</button>
+    <div class="topbar-logo">KADIO OS <span class="badge">V2</span></div>
+  </div>
   <div class="topbar-right">
     <div class="status-dot"></div>
     <span id="live-time">--:--</span>
-    <span id="live-revenue" style="color:var(--gold);font-weight:700">CA: …</span>
+    <span id="live-mrr" style="color:var(--violet);font-weight:700">MRR: …</span>
   </div>
 </div>
 
+<div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
 <div class="app">
 
-  <!-- ── Sidebar ── -->
-  <div class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Vue d'ensemble</div>
-      <div class="nav-item active" onclick="switchPanel('hub')">
-        <span class="icon">🏠</span> Dashboard
-      </div>
-    </div>
+  <!-- ── SIDEBAR ── -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-inner">
 
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Usine Prospection</div>
-      <div class="nav-item" onclick="switchPanel('radar')">
-        <span class="icon">🌍</span> Radar Planétaire
-        <span class="nav-badge" id="badge-opps">…</span>
+      <!-- Dashboard global -->
+      <div class="nav-items" style="padding-top:0.75rem">
+        <div class="nav-item active-gold" id="nav-hub" onclick="showPanel('hub','gold')">
+          <span class="icon">🏠</span> Accueil · KPIs
+        </div>
       </div>
-      <div class="nav-item" onclick="switchPanel('proposals')">
-        <span class="icon">✍️</span> Agent Rédacteur
-        <span class="nav-badge" id="badge-props">…</span>
-      </div>
-    </div>
 
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Usine Production</div>
-      <div class="nav-item" onclick="switchPanel('production')">
-        <span class="icon">⚡</span> Pipeline Agents
-        <span class="nav-badge" id="badge-tasks">…</span>
-      </div>
-      <div class="nav-item" onclick="window.open('/admin-commercial.html','_blank')">
-        <span class="icon">📬</span> Agent Commercial
-        <span class="nav-badge" id="badge-emails" style="background:rgba(88,166,255,0.15);color:var(--blue)">…</span>
-      </div>
-    </div>
+      <hr class="section-separator">
 
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Salon</div>
-      <div class="nav-item" onclick="window.open('/admin-clients.html','_blank')">
-        <span class="icon">👥</span> CRM Clients
+      <!-- ✂️ Kadio Coiffure -->
+      <div class="section-header section-coiffure">
+        <div class="section-line"></div>
+        <div class="section-badge">✂️ Kadio Coiffure</div>
       </div>
-      <div class="nav-item" onclick="switchPanel('daleba-revenue')">
-        <span class="icon">🤖</span> Revenus DALEBA OS
-        <span class="nav-badge" id="badge-daleba" style="background:rgba(63,185,80,0.15);color:var(--emerald)">$0</span>
+      <div class="nav-items">
+        <div class="nav-item" id="nav-cockpit" onclick="showIframe('cockpit','/admin-dashboard.html','✂️ Cockpit Salon','gold')">
+          <span class="icon">🎛️</span> Cockpit
+        </div>
+        <div class="nav-item" onclick="window.open('/agenda.html','_blank')">
+          <span class="icon">📅</span> Agenda
+          <span class="nav-badge badge-gold">↗</span>
+        </div>
+        <div class="nav-item" onclick="window.open('/admin-loyalty.html','_blank')">
+          <span class="icon">👥</span> Clients
+          <span class="nav-badge badge-gold">↗</span>
+        </div>
+        <div class="nav-item" onclick="window.open('/admin-subscriptions.html','_blank')">
+          <span class="icon">💳</span> Abonnés
+          <span class="nav-badge badge-gold" id="badge-subs">…</span>
+        </div>
+        <div class="nav-item" onclick="window.open('/noter-service.html','_blank')">
+          <span class="icon">⭐</span> Notation
+          <span class="nav-badge badge-gold">↗</span>
+        </div>
+        <div class="nav-item" id="nav-qr" onclick="showIframe('qr','/qr-checkin.html','📱 QR Check-in Kiosque','gold')">
+          <span class="icon">📱</span> QR Check-in
+        </div>
+        <div class="nav-item" id="nav-wallet" onclick="showPanel('wallet','gold')">
+          <span class="icon">💰</span> Wallet
+        </div>
+        <div class="nav-item" onclick="window.open('/jarvis.html','_blank')">
+          <span class="icon">🎙️</span> Vocal · Jarvis
+          <span class="nav-badge badge-gold">↗</span>
+        </div>
+        <div class="nav-item" id="nav-social" onclick="showIframe('social','/admin-social-calendar.html','📅 Social Calendar','gold')">
+          <span class="icon">📅</span> Social Calendar
+        </div>
+        <div class="nav-item" onclick="window.open('/admin-campaigns.html','_blank')">
+          <span class="icon">📣</span> Campagnes
+          <span class="nav-badge badge-gold">↗</span>
+        </div>
       </div>
-      <div class="nav-item" onclick="switchPanel('square')">
-        <span class="icon">💈</span> CA Salon · Square
-      </div>
-      <div class="nav-item" onclick="switchPanel('staff')">
-        <span class="icon">💇</span> Équipe
-      </div>
-      <div class="nav-item" onclick="window.open('/admin-wallet.html','_blank')">
-        <span class="icon">💳</span> Cartes Membres
-      </div>
-      <div class="nav-item" onclick="window.open('/admin-clients.html','_blank')">
-        <span class="icon">👥</span> Fiche CRM
-      </div>
-      <div class="nav-item" onclick="window.open('/admin-subscriptions.html','_blank')">
-        <span class="icon">💎</span> Abonnés Stripe
-        <span class="nav-badge" id="badge-subs" style="background:rgba(201,168,76,0.12);color:#c9a84c">—</span>
-      </div>
-    </div>
 
-    <hr class="sidebar-divider" />
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Accès direct</div>
-      <div class="nav-item" onclick="window.open('/admin-radar.html','_blank')">
-        <span class="icon">↗</span> <span style="font-size:0.78rem">Radar (standalone)</span>
+      <hr class="section-separator">
+
+      <!-- 🏭 L'Usine IA -->
+      <div class="section-header section-usine">
+        <div class="section-line"></div>
+        <div class="section-badge">🏭 L'Usine IA</div>
       </div>
-      <div class="nav-item" onclick="window.open('/admin-production.html','_blank')">
-        <span class="icon">↗</span> <span style="font-size:0.78rem">Production (standalone)</span>
+      <div class="nav-items">
+        <div class="nav-item" id="nav-radar" onclick="showIframe('radar','/admin-radar.html','🌍 Radar Opportunités','cyan')">
+          <span class="icon">🌍</span> Radar Opportunités
+          <span class="nav-badge badge-cyan" id="badge-opps">…</span>
+        </div>
+        <div class="nav-item" id="nav-proposals" onclick="showPanel('proposals','cyan')">
+          <span class="icon">✍️</span> Propositions
+          <span class="nav-badge badge-cyan" id="badge-props">…</span>
+        </div>
+        <div class="nav-item" id="nav-commercial" onclick="showIframe('commercial','/admin-commercial.html','📬 Prospection Salons','cyan')">
+          <span class="icon">📬</span> Prospection Salons
+        </div>
+        <div class="nav-item" id="nav-production" onclick="showIframe('production','/admin-production.html','⚡ Revenue Tracker','cyan')">
+          <span class="icon">⚡</span> Revenue Tracker
+          <span class="nav-badge badge-cyan" id="badge-tasks">…</span>
+        </div>
+        <div class="nav-item" id="nav-agents" onclick="showIframe('agents','/admin-production.html','🤖 Agents Commerciaux','cyan')">
+          <span class="icon">🤖</span> Agents Commerciaux
+        </div>
       </div>
+
+      <hr class="section-separator">
+
+      <!-- 🚀 DALEBA SaaS -->
+      <div class="section-header section-saas">
+        <div class="section-line"></div>
+        <div class="section-badge">🚀 DALEBA SaaS</div>
+      </div>
+      <div class="nav-items">
+        <div class="nav-item" id="nav-saas" onclick="showIframe('saas','/admin-saas.html','🚀 DALEBA SaaS Dashboard','violet')">
+          <span class="icon">📊</span> Clients SaaS
+          <span class="nav-badge badge-violet" id="badge-saas-clients">…</span>
+        </div>
+        <div class="nav-item" id="nav-mrr" onclick="showPanel('mrr','violet')">
+          <span class="icon">💵</span> MRR Dashboard
+          <span class="nav-badge badge-violet" id="badge-mrr">…</span>
+        </div>
+        <div class="nav-item" id="nav-pipeline" onclick="showIframe('pipeline','/admin-saas.html','📋 Pipeline Commercial','violet')">
+          <span class="icon">📋</span> Pipeline
+        </div>
+        <div class="nav-item" onclick="window.open('/admin-onboarding.html','_blank')">
+          <span class="icon">🚢</span> Onboarding
+          <span class="nav-badge badge-violet">↗</span>
+        </div>
+        <div class="nav-item" onclick="window.open('/admin-tenants.html','_blank')">
+          <span class="icon">🏢</span> Tenants
+          <span class="nav-badge badge-violet">↗</span>
+        </div>
+        <div class="nav-item" onclick="window.open('/admin-accounting.html','_blank')">
+          <span class="icon">🎧</span> Support
+          <span class="nav-badge badge-violet">↗</span>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <!-- ── Main ── -->
+  <!-- ── MAIN ── -->
   <div class="main">
 
-    <!-- Hub Dashboard -->
+    <!-- ─── Hub Dashboard ─── -->
     <div class="panel active" id="panel-hub">
-      <div class="hub-header">
-        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem">
-          <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);background:var(--gold-dim);padding:0.2rem 0.6rem;border-radius:4px">DALEBA V41</div>
+      <div class="hub-body">
+        <div class="hub-heading">
+          <h1>Centre de Commandement</h1>
+          <p>Vue agrégée de l'écosystème KADIO OS — Salon · Usine IA · SaaS</p>
         </div>
-        <h1>Centre de Commandement</h1>
-        <p>Prospection · Production · Salon — tout en un.</p>
-      </div>
 
-      <div class="hub-grid">
-        <div class="kpi-card" onclick="switchPanel('square')" style="border-top: 3px solid var(--gold);">
-          <h3>💈 CA Salon — Square</h3>
-          <div class="kpi-val" id="kpi-revenue" style="color:var(--gold)">…</div>
-          <div class="kpi-sub" id="kpi-revenue-sub">Revenus Kadio Coiffure</div>
+        <!-- KPIs Kadio Coiffure -->
+        <div class="kpi-section">
+          <div class="kpi-section-title" style="color:var(--gold)">✂️ Kadio Coiffure</div>
+          <div class="kpi-grid">
+            <div class="kpi-card c-gold" onclick="showIframe('cockpit','/admin-dashboard.html','✂️ Cockpit','gold')">
+              <div class="kpi-label">CA Salon · Square</div>
+              <div class="kpi-val" id="kpi-ca">…</div>
+              <div class="kpi-sub" id="kpi-ca-sub">Revenus Kadio Coiffure</div>
+            </div>
+            <div class="kpi-card c-gold" onclick="window.open('/admin-subscriptions.html','_blank')">
+              <div class="kpi-label">Abonnés Actifs</div>
+              <div class="kpi-val" id="kpi-subs">…</div>
+              <div class="kpi-sub">Forfaits Stripe</div>
+            </div>
+            <div class="kpi-card c-gold" onclick="showIframe('social','/admin-social-calendar.html','📅 Social','gold')">
+              <div class="kpi-label">Posts Semaine</div>
+              <div class="kpi-val" id="kpi-posts">—</div>
+              <div class="kpi-sub">Calendrier éditorial</div>
+            </div>
+          </div>
         </div>
-        <div class="kpi-card" onclick="switchPanel('daleba-revenue')" style="border-top: 3px solid var(--emerald);">
-          <h3>🤖 Revenus DALEBA OS</h3>
-          <div class="kpi-val" id="kpi-daleba-revenue" style="color:var(--emerald)">$0</div>
-          <div class="kpi-sub" id="kpi-daleba-sub">0 contrats livrés</div>
-          <div class="kpi-trend trend-up" id="kpi-daleba-last" style="font-size:0.68rem;margin-top:0.3rem"></div>
-        </div>
-        <div class="kpi-card" onclick="switchPanel('radar')">
-          <h3>🌍 Opportunités Radar</h3>
-          <div class="kpi-val" id="kpi-opps" style="color:var(--blue)">…</div>
-          <div class="kpi-sub">Projets scannés aujourd'hui</div>
-        </div>
-        <div class="kpi-card" onclick="switchPanel('proposals')">
-          <h3>✍️ Propositions Générées</h3>
-          <div class="kpi-val" id="kpi-props" style="color:var(--purple)">…</div>
-          <div class="kpi-sub">Prêtes à envoyer</div>
-        </div>
-        <div class="kpi-card" onclick="switchPanel('production')">
-          <h3>⚡ Projets en Pipeline</h3>
-          <div class="kpi-val" id="kpi-tasks" style="color:var(--orange)">…</div>
-          <div class="kpi-sub">Étapes 1→4 actives</div>
-        </div>
-        <div class="kpi-card" onclick="window.open('/admin-commercial.html','_blank')" style="border-top: 3px solid var(--blue);">
-          <h3>📬 Emails Prospects</h3>
-          <div class="kpi-val" id="kpi-emails" style="color:var(--blue)">…</div>
-          <div class="kpi-sub" id="kpi-emails-sub">Non analysés</div>
-        </div>
-      </div>
 
-      <div class="pipeline-overview">
-        <h2>Pipeline Production Multi-Agents — V41</h2>
-        <div class="pipeline-row">
-          <div class="pipe-step done">
-            <span class="step-icon">✅</span>
-            <span class="step-label">PO</span>
-            <span class="step-engine">Claude Opus</span>
+        <!-- KPIs L'Usine IA -->
+        <div class="kpi-section">
+          <div class="kpi-section-title" style="color:var(--cyan)">🏭 L'Usine IA</div>
+          <div class="kpi-grid">
+            <div class="kpi-card c-cyan" onclick="showIframe('radar','/admin-radar.html','🌍 Radar','cyan')">
+              <div class="kpi-label">Opportunités Radar</div>
+              <div class="kpi-val" id="kpi-opps">…</div>
+              <div class="kpi-sub">Projets scannés</div>
+            </div>
+            <div class="kpi-card c-cyan" onclick="showPanel('proposals','cyan')">
+              <div class="kpi-label">Propositions Générées</div>
+              <div class="kpi-val" id="kpi-props">…</div>
+              <div class="kpi-sub">Prêtes à envoyer</div>
+            </div>
+            <div class="kpi-card c-cyan" onclick="showIframe('production','/admin-production.html','⚡ Pipeline','cyan')">
+              <div class="kpi-label">Revenus DALEBA OS</div>
+              <div class="kpi-val" id="kpi-daleba">$0</div>
+              <div class="kpi-sub" id="kpi-daleba-sub">0 contrats livrés</div>
+            </div>
           </div>
-          <div class="pipe-arrow">→</div>
-          <div class="pipe-step done">
-            <span class="step-icon">📐</span>
-            <span class="step-label">Architecte</span>
-            <span class="step-engine">Claude Opus</span>
-          </div>
-          <div class="pipe-arrow">→</div>
-          <div class="pipe-step done">
-            <span class="step-icon">💻</span>
-            <span class="step-label">Dev</span>
-            <span class="step-engine">DeepSeek-Coder</span>
-          </div>
-          <div class="pipe-arrow">→</div>
-          <div class="pipe-step done">
-            <span class="step-icon">🛡️</span>
-            <span class="step-label">QA</span>
-            <span class="step-engine">DeepSeek</span>
-          </div>
-          <div class="pipe-arrow">→</div>
-          <div class="pipe-step done">
-            <span class="step-icon">🔧</span>
-            <span class="step-label">Correcteur</span>
-            <span class="step-engine">DeepSeek-Coder</span>
-          </div>
-          <div class="pipe-arrow">→</div>
-          <div class="pipe-step done" style="border-color:rgba(201,168,76,0.4);background:var(--gold-dim)">
-            <span class="step-icon">🚀</span>
-            <span class="step-label">Livraison</span>
-            <span class="step-engine">ready_for_delivery</span>
+        </div>
+
+        <!-- KPIs DALEBA SaaS -->
+        <div class="kpi-section">
+          <div class="kpi-section-title" style="color:var(--violet)">🚀 DALEBA SaaS</div>
+          <div class="kpi-grid">
+            <div class="kpi-card c-violet" onclick="showIframe('saas','/admin-saas.html','🚀 SaaS','violet')">
+              <div class="kpi-label">Clients SaaS Actifs</div>
+              <div class="kpi-val" id="kpi-saas-clients">…</div>
+              <div class="kpi-sub">Tenants DALEBA</div>
+            </div>
+            <div class="kpi-card c-violet" onclick="showPanel('mrr','violet')">
+              <div class="kpi-label">MRR Total</div>
+              <div class="kpi-val" id="kpi-mrr">…</div>
+              <div class="kpi-sub">Revenus mensuels récurrents</div>
+            </div>
+            <div class="kpi-card c-violet" onclick="showIframe('saas','/admin-saas.html','📋 Pipeline','violet')">
+              <div class="kpi-label">Prospects Pipeline</div>
+              <div class="kpi-val" id="kpi-prospects">…</div>
+              <div class="kpi-sub">Leads actifs</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Radar -->
-    <div class="panel" id="panel-radar">
-      <div class="embed-notice" style="padding:1rem 1.5rem;text-align:left;border-bottom:1px solid var(--border);background:var(--surface)">
-        🌍 <strong>Radar Planétaire</strong> — Scanner d'opportunités mondiales
-        <a href="/admin-radar.html" target="_blank" style="margin-left:0.5rem;font-size:0.75rem">↗ Ouvrir en plein écran</a>
+    <!-- ─── Wallet Panel ─── -->
+    <div class="panel" id="panel-wallet">
+      <div class="panel-bar">
+        <div class="panel-bar-title" style="color:var(--gold)">💰 Cartes de Membre Wallet</div>
       </div>
-      <iframe src="/admin-radar.html" class="embed-frame" style="flex:1;border:none" id="iframe-radar"></iframe>
+      <div style="flex:1;overflow-y:auto;padding:1.5rem">
+        <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem">Générez des cartes Apple Wallet et Google Wallet pour vos clients fidèles.</p>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem">
+          <input id="wallet-customer-id" type="number" placeholder="ID Client (ex: 1)" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.9rem;color:var(--text);font-size:0.85rem;width:180px">
+          <button onclick="generateWallet()" style="background:var(--gold);color:#0d1117;border:none;border-radius:6px;padding:0.6rem 1.2rem;font-weight:800;cursor:pointer;font-size:0.85rem">✨ Générer</button>
+          <button onclick="sendWalletSMS()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:0.6rem 1.2rem;font-weight:600;cursor:pointer;font-size:0.85rem">📱 Envoyer par SMS</button>
+        </div>
+        <div id="wallet-result" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem;display:none"></div>
+      </div>
     </div>
 
-    <!-- Propositions -->
+    <!-- ─── Propositions Panel ─── -->
     <div class="panel" id="panel-proposals">
-      <div class="embed-notice" style="padding:1rem 1.5rem;text-align:left;border-bottom:1px solid var(--border);background:var(--surface)">
-        ✍️ <strong>Agent Rédacteur</strong> — Propositions B2B générées par IA
-        <a href="/admin-radar.html" target="_blank" style="margin-left:0.5rem;font-size:0.75rem">↗ Ouvrir Radar</a>
+      <div class="panel-bar">
+        <div class="panel-bar-title" style="color:var(--cyan)">✍️ Propositions B2B</div>
+        <a href="/admin-radar.html" target="_blank">↗ Ouvrir Radar</a>
       </div>
-      <div id="proposals-content" style="padding:1.5rem;flex:1;overflow:auto">
-        <div class="loading-state"><div class="dot-load"></div><div class="dot-load" style="animation-delay:0.2s"></div><div class="dot-load" style="animation-delay:0.4s"></div></div>
+      <div id="proposals-content" style="flex:1;overflow-y:auto;padding:1.5rem">
+        <div style="color:var(--text-dim);text-align:center;padding:2rem">Chargement…</div>
       </div>
     </div>
 
-    <!-- Production -->
-    <div class="panel" id="panel-production">
-      <div class="embed-notice" style="padding:1rem 1.5rem;text-align:left;border-bottom:1px solid var(--border);background:var(--surface)">
-        ⚡ <strong>Pipeline Multi-Agents</strong> — PO → Arch → Dev → QA → Correcteur
-        <a href="/admin-production.html" target="_blank" style="margin-left:0.5rem;font-size:0.75rem">↗ Ouvrir en plein écran</a>
+    <!-- ─── MRR Panel ─── -->
+    <div class="panel" id="panel-mrr">
+      <div class="panel-bar">
+        <div class="panel-bar-title" style="color:var(--violet)">💵 MRR Dashboard</div>
       </div>
-      <iframe src="/admin-production.html" class="embed-frame" style="flex:1;border:none" id="iframe-prod"></iframe>
-    </div>
-
-    <!-- Revenus DALEBA OS -->
-    <div class="panel" id="panel-daleba-revenue">
-      <div class="square-panel">
-        <h2>🤖 Revenus DALEBA OS — Contrats Livrés</h2>
-        <div class="metric-row">
-          <div class="metric-box"><div class="m-label">Total Revenus</div><div class="m-val" id="dal-total" style="color:var(--emerald)">$0,00</div><div class="m-sub">Contrats facturés · CAD</div></div>
-          <div class="metric-box"><div class="m-label">Nb Contrats</div><div class="m-val" id="dal-count" style="color:var(--blue)">0</div><div class="m-sub">Projets livrés</div></div>
-          <div class="metric-box"><div class="m-label">Panier Moyen</div><div class="m-val" id="dal-avg" style="color:var(--purple)">$0</div><div class="m-sub">Par contrat</div></div>
-        </div>
-        <div id="dal-contracts" style="margin-top:1.5rem">
-          <div style="font-size:0.8rem;color:var(--text-dim);text-align:center;padding:2rem">
-            Aucun contrat livré pour l'instant.<br>
-            <span style="font-size:0.72rem">Les projets livrés via l'Usine de Production apparaîtront ici.</span>
+      <div style="flex:1;overflow-y:auto;padding:1.5rem">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem">
+          <div style="background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--violet);border-radius:8px;padding:1.1rem">
+            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-dim);margin-bottom:0.5rem">MRR Stripe</div>
+            <div style="font-size:1.8rem;font-weight:900;color:var(--violet)" id="mrr-stripe">…</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--violet);border-radius:8px;padding:1.1rem">
+            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-dim);margin-bottom:0.5rem">MRR SaaS Clients</div>
+            <div style="font-size:1.8rem;font-weight:900;color:var(--violet)" id="mrr-saas">…</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--violet);border-radius:8px;padding:1.1rem">
+            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-dim);margin-bottom:0.5rem">MRR Total</div>
+            <div style="font-size:1.8rem;font-weight:900;color:var(--violet)" id="mrr-total">…</div>
           </div>
         </div>
+        <button onclick="loadMRR()" style="background:var(--violet);color:#0d1117;border:none;border-radius:6px;padding:0.6rem 1.2rem;font-weight:800;cursor:pointer;font-size:0.85rem">🔄 Actualiser MRR</button>
       </div>
     </div>
 
-    <!-- Square & CA -->
-    <div class="panel" id="panel-square">
-      <div class="square-panel">
-        <h2>💰 Square — Tableau de bord financier</h2>
-        <div class="metric-row" id="square-metrics">
-          <div class="metric-box"><div class="m-label">Chiffre d'Affaires</div><div class="m-val" id="sq-ca">…</div><div class="m-sub">Paiements complétés</div></div>
-          <div class="metric-box"><div class="m-label">Nb Transactions</div><div class="m-val" id="sq-tx" style="color:var(--blue)">…</div><div class="m-sub">Total historique</div></div>
-          <div class="metric-box"><div class="m-label">Panier Moyen</div><div class="m-val" id="sq-avg" style="color:var(--purple)">…</div><div class="m-sub">Par transaction</div></div>
-        </div>
-        <button class="btn-primary" onclick="loadSquare()">🔄 Actualiser</button>
-        <div id="square-detail" style="margin-top:1.5rem"></div>
+    <!-- ─── Iframe panels (dynamic) ─── -->
+    <div class="panel" id="panel-iframe">
+      <div class="panel-bar" id="iframe-bar">
+        <div class="panel-bar-title" id="iframe-title">…</div>
+        <a id="iframe-external" href="#" target="_blank">↗ Plein écran</a>
       </div>
-    </div>
-
-    <!-- Staff -->
-    <div class="panel" id="panel-staff">
-      <div class="embed-notice" style="padding:1rem 1.5rem;text-align:left;border-bottom:1px solid var(--border);background:var(--surface)">
-        💇 <strong>Équipe Kadio Coiffure</strong>
-        <a href="/admin-staff.html" target="_blank" style="margin-left:0.5rem;font-size:0.75rem">↗ Ouvrir</a>
-      </div>
-      <iframe src="/admin-staff.html" class="embed-frame" style="flex:1;border:none"></iframe>
+      <iframe id="main-iframe" class="panel-iframe" src="about:blank"></iframe>
     </div>
 
   </div>
@@ -399,175 +454,216 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── Navigation ────────────────────────────────────────────────────────────────
-  function switchPanel(id) {
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('panel-' + id)?.classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(n => {
-      if (n.getAttribute('onclick')?.includes(`'${id}'`)) n.classList.add('active');
-    });
-    if (id === 'square') loadSquare();
-    if (id === 'daleba-revenue') loadDalebaRevenue();
-    if (id === 'proposals') loadProposals();
+  // ── State ──────────────────────────────────────────────────────────────────
+  let currentColor = 'gold';
+  const colorMap = { gold: 'active-gold', cyan: 'active-cyan', violet: 'active-violet' };
+
+  // ── Sidebar Mobile ─────────────────────────────────────────────────────────
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('show');
   }
 
-  // ── Horloge ───────────────────────────────────────────────────────────────────
+  // ── Navigation ─────────────────────────────────────────────────────────────
+  function clearActiveNav() {
+    document.querySelectorAll('.nav-item').forEach(n => {
+      n.classList.remove('active-gold','active-cyan','active-violet');
+    });
+  }
+
+  function showPanel(id, color) {
+    clearActiveNav();
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + id)?.classList.add('active');
+    const navEl = document.getElementById('nav-' + id);
+    if (navEl) navEl.classList.add(colorMap[color] || 'active-gold');
+    currentColor = color;
+    if (id === 'proposals') loadProposals();
+    if (id === 'mrr') loadMRR();
+    if (window.innerWidth <= 768) toggleSidebar();
+  }
+
+  function showIframe(navId, url, title, color) {
+    clearActiveNav();
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-iframe').classList.add('active');
+    document.getElementById('main-iframe').src = url;
+    document.getElementById('iframe-title').textContent = title;
+    document.getElementById('iframe-external').href = url;
+    const navEl = document.getElementById('nav-' + navId);
+    if (navEl) navEl.classList.add(colorMap[color] || 'active-gold');
+    currentColor = color;
+    if (window.innerWidth <= 768) toggleSidebar();
+  }
+
+  // ── Clock ──────────────────────────────────────────────────────────────────
   function updateClock() {
     document.getElementById('live-time').textContent =
       new Date().toLocaleTimeString('fr-CA', { timeZone: 'America/Toronto', hour: '2-digit', minute: '2-digit' });
   }
   updateClock(); setInterval(updateClock, 30000);
 
-  // ── KPIs Hub ─────────────────────────────────────────────────────────────────
-  async function loadHubKPIs() {
+  // ── KPIs Hub ───────────────────────────────────────────────────────────────
+  async function loadKPIs() {
+    // CA Salon
     try {
-      // Revenue
       const rv = await fetch('/api/revenue/summary').then(r => r.json()).catch(() => null);
       if (rv) {
         const ca = rv.total_revenue_cad || 0;
-        document.getElementById('kpi-revenue').textContent = '$' + Math.round(ca).toLocaleString('fr-CA');
-        document.getElementById('kpi-revenue-sub').textContent = `${rv.total_payments || 0} paiements · Square`;
-        document.getElementById('live-revenue').textContent = 'Salon: $' + Math.round(ca / 1000) + 'k';
-        document.getElementById('sq-ca').textContent = '$' + ca.toLocaleString('fr-CA', {minimumFractionDigits:2, maximumFractionDigits:2});
-        document.getElementById('sq-tx').textContent = (rv.total_payments || 0).toLocaleString('fr-CA');
-        const avg = ca / (rv.total_payments || 1);
-        document.getElementById('sq-avg').textContent = '$' + avg.toFixed(2);
+        document.getElementById('kpi-ca').textContent = '$' + Math.round(ca).toLocaleString('fr-CA');
+        document.getElementById('kpi-ca-sub').textContent = `${rv.total_payments || 0} paiements · Square`;
       }
-      // Revenus DALEBA OS
-      const dal = await fetch('/api/production/revenue/daleba').then(r => r.json()).catch(() => null);
-      if (dal) {
-        const dca = dal.total_revenue_cad || 0;
-        const dct = dal.total_contracts || 0;
-        document.getElementById('kpi-daleba-revenue').textContent = '$' + dca.toLocaleString('fr-CA', {minimumFractionDigits:2, maximumFractionDigits:2});
-        document.getElementById('kpi-daleba-sub').textContent = `${dct} contrat${dct > 1 ? 's' : ''} livré${dct > 1 ? 's' : ''}`;
-        document.getElementById('badge-daleba').textContent = dct > 0 ? dct : '$0';
-        if (dal.last_contract_at) {
-          document.getElementById('kpi-daleba-last').textContent = 'Dernier: ' + new Date(dal.last_contract_at).toLocaleDateString('fr-CA');
-        }
-        document.getElementById('dal-total').textContent = '$' + dca.toLocaleString('fr-CA', {minimumFractionDigits:2, maximumFractionDigits:2});
-        document.getElementById('dal-count').textContent = dct;
-        document.getElementById('dal-avg').textContent = dct > 0 ? '$' + (dca / dct).toFixed(2) : '$0';
-      }
-    } catch (e) {}
+    } catch(_) {}
 
+    // Abonnés Stripe
     try {
-      // Abonnés Stripe (badge sidebar)
       const sb = await fetch('/api/payment/subscriptions').then(r => r.json()).catch(() => null);
-      if (sb && sb.success) {
-        const activeCount = (sb.subscriptions || []).filter(s => s.status === 'active').length;
-        const el = document.getElementById('badge-subs');
-        if (el) el.textContent = activeCount > 0 ? activeCount : '0';
+      if (sb?.success) {
+        const cnt = (sb.subscriptions || []).filter(s => s.status === 'active').length;
+        document.getElementById('kpi-subs').textContent = cnt;
+        document.getElementById('badge-subs').textContent = cnt;
       }
-    } catch (e) {}
+    } catch(_) {}
 
+    // Opportunités
     try {
-      // Opportunités
       const op = await fetch('/api/opportunities?limit=1').then(r => r.json()).catch(() => null);
       if (op) {
         document.getElementById('kpi-opps').textContent = op.total || 0;
         document.getElementById('badge-opps').textContent = op.total || 0;
       }
-    } catch (e) {}
+    } catch(_) {}
 
+    // Propositions
     try {
-      // Propositions
       const pr = await fetch('/api/proposals?limit=1').then(r => r.json()).catch(() => null);
       if (pr) {
         document.getElementById('kpi-props').textContent = pr.total || 0;
         document.getElementById('badge-props').textContent = pr.total || 0;
       }
-    } catch (e) {}
+    } catch(_) {}
 
+    // Revenus DALEBA
     try {
-      // Tâches production
-      const tk = await fetch('/api/production/tasks?limit=1').then(r => r.json()).catch(() => null);
-      if (tk) {
-        document.getElementById('kpi-tasks').textContent = tk.total || 0;
-        document.getElementById('badge-tasks').textContent = tk.total || 0;
+      const dal = await fetch('/api/production/revenue/daleba').then(r => r.json()).catch(() => null);
+      if (dal) {
+        const dca = dal.total_revenue_cad || 0;
+        const dct = dal.total_contracts || 0;
+        document.getElementById('kpi-daleba').textContent = '$' + Math.round(dca).toLocaleString('fr-CA');
+        document.getElementById('kpi-daleba-sub').textContent = `${dct} contrat${dct > 1 ? 's' : ''} livré${dct > 1 ? 's' : ''}`;
       }
-      // Emails commerciaux
-      const em = await fetch('/api/commercial/emails?limit=1&status=unread').then(r => r.json()).catch(() => null);
-      if (em) {
-        const cnt = em.total || 0;
-        document.getElementById('kpi-emails').textContent = cnt;
-        document.getElementById('kpi-emails-sub').textContent = cnt > 0 ? `${cnt} non analysé${cnt>1?'s':''}` : 'Boîte synchronisée';
-        document.getElementById('badge-emails').textContent = cnt || '✓';
+    } catch(_) {}
+
+    // SaaS Dashboard
+    try {
+      const saas = await fetch('/api/saas/dashboard').then(r => r.json()).catch(() => null);
+      if (saas) {
+        document.getElementById('kpi-saas-clients').textContent = saas.activeClients ?? '0';
+        document.getElementById('badge-saas-clients').textContent = saas.activeClients ?? '0';
+        const mrr = saas.mrr || 0;
+        document.getElementById('kpi-mrr').textContent = '$' + Math.round(mrr).toLocaleString('fr-CA');
+        document.getElementById('badge-mrr').textContent = mrr > 0 ? '$' + Math.round(mrr) : '0';
+        document.getElementById('live-mrr').textContent = 'MRR: $' + Math.round(mrr).toLocaleString('fr-CA');
+        document.getElementById('kpi-prospects').textContent = saas.pipeline?.prospects ?? '0';
       }
-    } catch (e) {}
+    } catch(_) {}
+
+    // Posts semaine
+    try {
+      const social = await fetch('/api/social/week-status').then(r => r.json()).catch(() => null);
+      if (social?.posts) {
+        document.getElementById('kpi-posts').textContent = social.posts.length;
+      }
+    } catch(_) {}
   }
 
-  // ── Square ────────────────────────────────────────────────────────────────────
-  async function loadDalebaRevenue() {
-    const el = document.getElementById('dal-contracts');
+  // ── Wallet ─────────────────────────────────────────────────────────────────
+  async function generateWallet() {
+    const cid = document.getElementById('wallet-customer-id').value;
+    if (!cid) return showToast('Entrez un ID client');
+    const el = document.getElementById('wallet-result');
+    el.style.display = 'block';
+    el.innerHTML = 'Génération en cours…';
     try {
-      const r = await fetch('/api/production/revenue/daleba');
+      const r = await fetch(`/api/wallet/generate/${cid}`, { method: 'POST' });
       const d = await r.json();
-      const dca = d.total_revenue_cad || 0;
-      const dct = d.total_contracts || 0;
-      document.getElementById('dal-total').textContent = '$' + dca.toLocaleString('fr-CA', {minimumFractionDigits:2,maximumFractionDigits:2});
-      document.getElementById('dal-count').textContent = dct;
-      document.getElementById('dal-avg').textContent = dct > 0 ? '$' + (dca/dct).toFixed(2) : '$0';
-      if (dct === 0) {
-        el.innerHTML = `<div style="font-size:0.8rem;color:var(--text-dim);text-align:center;padding:2rem">
-          Aucun contrat livré pour l'instant.<br>
-          <span style="font-size:0.72rem">Livrez un projet via l'Usine de Production pour le voir apparaître ici.</span>
-        </div>`;
+      if (d.success) {
+        el.innerHTML = `
+          <div style="font-size:0.85rem">
+            <div style="color:var(--gold);font-weight:700;margin-bottom:0.75rem">✅ Cartes générées pour le client #${d.customerId}</div>
+            <div style="margin-bottom:0.5rem">🍎 <strong>Apple Wallet:</strong> <a href="${d.apple.downloadUrl}" target="_blank" style="color:var(--gold)">${d.apple.downloadUrl}</a></div>
+            <div>🔵 <strong>Google Wallet:</strong> <a href="${d.google.saveUrl}" target="_blank" style="color:var(--cyan)">Ajouter à Google Wallet →</a></div>
+            <div style="margin-top:0.75rem;color:var(--text-dim);font-size:0.75rem">Numéro de série: ${d.apple.serialNumber}</div>
+          </div>`;
+      } else {
+        el.innerHTML = `<div style="color:var(--red)">${d.error || 'Erreur inconnue'}</div>`;
       }
-      // Rafraîchir KPI badge
-      document.getElementById('badge-daleba').textContent = dct > 0 ? dct : '$0';
     } catch(e) {
-      if (el) el.innerHTML = `<div style="color:var(--red);font-size:0.8rem">Erreur: ${e.message}</div>`;
+      el.innerHTML = `<div style="color:var(--red)">Erreur: ${e.message}</div>`;
     }
   }
 
-  async function loadSquare() {
-    const el = document.getElementById('square-detail');
-    el.innerHTML = '<div class="loading-state"><div class="dot-load"></div></div>';
+  async function sendWalletSMS() {
+    const cid = document.getElementById('wallet-customer-id').value;
+    if (!cid) return showToast('Entrez un ID client');
     try {
-      const r = await fetch('/api/revenue/summary');
+      const r = await fetch(`/api/wallet/send/${cid}`, { method: 'POST' });
       const d = await r.json();
-      const ca  = d.total_revenue_cad || 0;
-      const tx  = d.total_payments || 0;
-      document.getElementById('sq-ca').textContent = '$' + ca.toLocaleString('fr-CA', {minimumFractionDigits:2,maximumFractionDigits:2});
-      document.getElementById('sq-tx').textContent = tx.toLocaleString('fr-CA');
-      document.getElementById('sq-avg').textContent = '$' + (ca / (tx || 1)).toFixed(2);
-      el.innerHTML = `<div style="font-size:0.8rem;color:var(--text-dim);margin-top:0.5rem">
-        Dernière mise à jour : ${new Date().toLocaleTimeString('fr-CA')} · Cache 5min
-      </div>`;
-    } catch (e) {
-      el.innerHTML = `<div style="color:var(--red);font-size:0.8rem">Erreur: ${e.message}</div>`;
+      showToast(d.success ? `📱 SMS envoyé à ${d.sentTo}` : `Erreur: ${d.error}`);
+    } catch(e) {
+      showToast('Erreur: ' + e.message);
     }
   }
 
-  // ── Propositions ──────────────────────────────────────────────────────────────
+  // ── Propositions ───────────────────────────────────────────────────────────
   async function loadProposals() {
     const el = document.getElementById('proposals-content');
     try {
-      const r = await fetch('/api/proposals?limit=10');
+      const r = await fetch('/api/proposals?limit=20');
       const d = await r.json();
       const items = d.proposals || d.items || [];
-      if (!items.length) { el.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem">Aucune proposition générée.</div>'; return; }
+      if (!items.length) {
+        el.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem">Aucune proposition générée.</div>';
+        return;
+      }
       el.innerHTML = items.map(p => `
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem">
-          <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.4rem">#${p.id} · ${new Date(p.created_at).toLocaleDateString('fr-CA')}</div>
-          <div style="font-size:0.85rem;font-weight:600;margin-bottom:0.5rem">${(p.generated_text || '').slice(0,200)}…</div>
-          <span style="font-size:0.7rem;background:rgba(63,185,80,0.12);color:var(--emerald);padding:0.15rem 0.5rem;border-radius:4px">${p.status || 'generated'}</span>
+          <div style="font-size:0.73rem;color:var(--text-dim);margin-bottom:0.35rem">#${p.id} · ${new Date(p.created_at).toLocaleDateString('fr-CA')}</div>
+          <div style="font-size:0.83rem;margin-bottom:0.5rem">${(p.generated_text || '').slice(0,200)}…</div>
+          <span style="font-size:0.68rem;background:rgba(63,185,80,0.12);color:var(--green);padding:0.12rem 0.4rem;border-radius:4px">${p.status || 'generated'}</span>
         </div>`).join('');
-    } catch (e) {
+    } catch(e) {
       el.innerHTML = `<div style="color:var(--red);font-size:0.8rem">Erreur: ${e.message}</div>`;
     }
   }
 
+  // ── MRR ────────────────────────────────────────────────────────────────────
+  async function loadMRR() {
+    document.getElementById('mrr-stripe').innerHTML = '<span class="dot-load" style="color:var(--violet)"></span>';
+    document.getElementById('mrr-saas').innerHTML = '<span class="dot-load" style="color:var(--violet)"></span>';
+    document.getElementById('mrr-total').innerHTML = '<span class="dot-load" style="color:var(--violet)"></span>';
+    try {
+      const r = await fetch('/api/saas/mrr');
+      const d = await r.json();
+      document.getElementById('mrr-stripe').textContent = '$' + (d.stripeMrr || 0).toFixed(2);
+      document.getElementById('mrr-saas').textContent = '$' + (d.saasMrr || 0).toFixed(2);
+      document.getElementById('mrr-total').textContent = '$' + (d.totalMrr || 0).toFixed(2);
+      document.getElementById('live-mrr').textContent = 'MRR: $' + Math.round(d.totalMrr || 0).toLocaleString('fr-CA');
+    } catch(e) {
+      showToast('Erreur MRR: ' + e.message);
+    }
+  }
+
+  // ── Toast ──────────────────────────────────────────────────────────────────
   function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg; t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 4000);
   }
 
-  // ── Init ──────────────────────────────────────────────────────────────────────
-  loadHubKPIs();
-  setInterval(loadHubKPIs, 300000); // refresh KPIs toutes les 5min
+  // ── Init ───────────────────────────────────────────────────────────────────
+  loadKPIs();
+  setInterval(loadKPIs, 300000);
 </script>
 </body>
 </html>

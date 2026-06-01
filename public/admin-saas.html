@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DALEBA SaaS — Pipeline Commercial</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117; --surface: #161b22; --surface2: #21262d; --border: #30363d;
+      --text: #e6edf3; --dim: #8b949e; --gold: #c9a84c; --gold-dim: rgba(201,168,76,0.12);
+      --green: #3fb950; --red: #f85149; --blue: #58a6ff; --purple: #bc8cff; --orange: #f0883e;
+      --saas: #bc8cff; --saas-dim: rgba(188,140,255,0.12);
+    }
+    html, body { min-height: 100%; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; }
+
+    /* Header */
+    .header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 0.85rem 1.5rem; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 0.75rem;
+    }
+    .header-title { font-size: 1rem; font-weight: 900; color: var(--saas); }
+    .header-title span { color: var(--dim); font-weight: 400; font-size: 0.72rem; margin-left: 0.4rem; }
+    .header-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .btn { padding: 0.5rem 1rem; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.15s; }
+    .btn-purple { background: var(--saas-dim); color: var(--saas); border: 1px solid rgba(188,140,255,0.3); }
+    .btn-purple:hover { background: rgba(188,140,255,0.2); }
+    .btn-gold { background: var(--gold); color: #0d1117; }
+    .btn-gold:hover { background: #dbb85a; }
+    .btn-green { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+    .btn-green:hover { background: rgba(63,185,80,0.25); }
+    .btn-blue  { background: rgba(88,166,255,0.12); color: var(--blue); border: 1px solid rgba(88,166,255,0.25); }
+    .btn-outline { background: transparent; color: var(--dim); border: 1px solid var(--border); }
+    .btn-outline:hover { color: var(--text); }
+    .btn-xs { padding: 0.22rem 0.55rem; font-size: 0.68rem; border-radius: 4px; cursor: pointer; border: none; font-weight: 700; transition: 0.15s; }
+
+    /* KPI grid */
+    .kpi-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; padding: 1.25rem 1.5rem; }
+    .kpi-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem; border-top: 3px solid var(--saas); }
+    .kpi-box .kpi-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); margin-bottom: 0.45rem; }
+    .kpi-box .kpi-val { font-size: 1.9rem; font-weight: 900; color: var(--saas); letter-spacing: -0.02em; }
+    .kpi-box .kpi-sub { font-size: 0.7rem; color: var(--dim); margin-top: 0.25rem; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); padding: 0 1.5rem; overflow-x: auto; }
+    .tab { padding: 0.75rem 1.1rem; cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--dim); border-bottom: 2px solid transparent; transition: 0.15s; white-space: nowrap; }
+    .tab.active { color: var(--saas); border-bottom-color: var(--saas); }
+    .tab:hover { color: var(--text); }
+    .tab-panel { display: none; padding: 1.25rem 1.5rem; }
+    .tab-panel.active { display: block; }
+
+    /* Pipeline stages */
+    .pipeline-row { display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
+    .stage-badge {
+      flex-shrink: 0; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.72rem; font-weight: 700; cursor: pointer;
+      border: 1px solid transparent; transition: 0.15s;
+    }
+    .stage-badge:hover { opacity: 0.8; }
+    .stage-badge.active { border-color: currentColor; }
+    .sb-prospect     { background: rgba(139,148,158,0.1); color: var(--dim); }
+    .sb-demo_sent    { background: rgba(88,166,255,0.1); color: var(--blue); }
+    .sb-demo_done    { background: rgba(201,168,76,0.1); color: var(--gold); }
+    .sb-negotiation  { background: rgba(240,136,62,0.1); color: var(--orange); }
+    .sb-active       { background: rgba(63,185,80,0.1); color: var(--green); }
+    .sb-trial        { background: rgba(188,140,255,0.1); color: var(--saas); }
+    .sb-churned      { background: rgba(248,81,73,0.1); color: var(--red); }
+    .sb-all          { background: var(--surface2); color: var(--text); }
+
+    /* Client list */
+    .client-list { display: flex; flex-direction: column; gap: 0.65rem; }
+    .client-row {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .client-row:hover { border-color: var(--saas); }
+    .client-logo {
+      width: 42px; height: 42px; border-radius: 10px; background: var(--saas-dim);
+      display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;
+    }
+    .client-info { flex: 1; min-width: 140px; }
+    .client-name { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.15rem; }
+    .client-meta { font-size: 0.72rem; color: var(--dim); }
+    .client-plan { font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; }
+    .plan-starter  { background: rgba(88,166,255,0.12); color: var(--blue); }
+    .plan-pro      { background: var(--saas-dim); color: var(--saas); }
+    .plan-enterprise{ background: var(--gold-dim); color: var(--gold); }
+    .plan-trial    { background: rgba(139,148,158,0.12); color: var(--dim); }
+    .stage-pill {
+      font-size: 0.68rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 20px;
+    }
+    .client-actions { display: flex; gap: 0.4rem; }
+
+    /* MRR chart placeholder */
+    .mrr-visual {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      padding: 1.5rem; margin-bottom: 1.25rem; text-align: center; min-height: 160px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem;
+    }
+    .mrr-big { font-size: 3rem; font-weight: 900; color: var(--saas); letter-spacing: -0.03em; }
+    .mrr-label { font-size: 0.75rem; color: var(--dim); text-transform: uppercase; font-weight: 700; letter-spacing: 0.08em; }
+
+    /* Add modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 500; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
+    .modal h3 { font-size: 0.95rem; font-weight: 800; margin-bottom: 1.25rem; color: var(--saas); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .form-group { margin-bottom: 0; }
+    .form-group.full { grid-column: 1/-1; }
+    .form-group label { display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--dim); margin-bottom: 0.3rem; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text); padding: 0.55rem 0.7rem; font-size: 0.82rem; outline: none; font-family: inherit;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--saas); }
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.25rem; }
+
+    /* Loading */
+    .loading-overlay { position: fixed; inset: 0; background: rgba(13,17,23,0.85); display: none; align-items: center; justify-content: center; flex-direction: column; z-index: 600; }
+    .loading-overlay.show { display: flex; }
+    .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--saas); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { color: var(--saas); font-size: 0.85rem; font-weight: 700; margin-top: 0.75rem; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.8rem 1.1rem; font-size: 0.82rem; max-width: 340px; opacity: 0; pointer-events: none; transition: opacity 0.25s; z-index: 700; }
+    .toast.show { opacity: 1; }
+    .toast.success { border-color: var(--green); }
+    .toast.error { border-color: var(--red); }
+
+    .empty-state { text-align: center; padding: 3rem; color: var(--dim); }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">🚀 DALEBA SaaS <span>Pipeline Commercial</span></div>
+  <div class="header-actions">
+    <button class="btn btn-outline" onclick="loadAll()">🔄</button>
+    <button class="btn btn-purple" onclick="prospectSalons()">🔎 Prospecter</button>
+    <button class="btn btn-blue" onclick="openAddModal()">+ Ajouter</button>
+  </div>
+</div>
+
+<!-- KPIs -->
+<div class="kpi-row">
+  <div class="kpi-box">
+    <div class="kpi-label">Clients Actifs</div>
+    <div class="kpi-val" id="kpi-active">—</div>
+    <div class="kpi-sub">Salons sur DALEBA</div>
+  </div>
+  <div class="kpi-box">
+    <div class="kpi-label">MRR</div>
+    <div class="kpi-val" id="kpi-mrr">—</div>
+    <div class="kpi-sub">Monthly Recurring Revenue</div>
+  </div>
+  <div class="kpi-box" style="border-top-color:var(--orange)">
+    <div class="kpi-label">Prospects</div>
+    <div class="kpi-val" id="kpi-prospects" style="color:var(--orange)">—</div>
+    <div class="kpi-sub">Dans le pipeline</div>
+  </div>
+  <div class="kpi-box" style="border-top-color:var(--red)">
+    <div class="kpi-label">Churn Rate</div>
+    <div class="kpi-val" id="kpi-churn" style="color:var(--red)">—</div>
+    <div class="kpi-sub">Ce mois</div>
+  </div>
+  <div class="kpi-box" style="border-top-color:var(--blue)">
+    <div class="kpi-label">ARR Projeté</div>
+    <div class="kpi-val" id="kpi-arr" style="color:var(--blue)">—</div>
+    <div class="kpi-sub">Annual Recurring Revenue</div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('pipeline')">🔄 Pipeline</div>
+  <div class="tab" onclick="switchTab('clients')">🏢 Clients</div>
+  <div class="tab" onclick="switchTab('mrr')">📊 MRR</div>
+  <div class="tab" onclick="switchTab('prospects')">🔎 Prospects</div>
+</div>
+
+<!-- Tab: Pipeline -->
+<div class="tab-panel active" id="tab-pipeline">
+  <div class="pipeline-row" id="pipeline-stages">
+    <div class="stage-badge sb-all active" onclick="filterStage('all')">Tous</div>
+    <div class="stage-badge sb-prospect" onclick="filterStage('prospect')">🔍 Prospect</div>
+    <div class="stage-badge sb-demo_sent" onclick="filterStage('demo_sent')">📧 Démo envoyée</div>
+    <div class="stage-badge sb-demo_done" onclick="filterStage('demo_done')">✅ Démo faite</div>
+    <div class="stage-badge sb-negotiation" onclick="filterStage('negotiation')">🤝 Négociation</div>
+    <div class="stage-badge sb-trial" onclick="filterStage('trial')">🚦 Trial</div>
+    <div class="stage-badge sb-active" onclick="filterStage('active')">✔️ Actif</div>
+    <div class="stage-badge sb-churned" onclick="filterStage('churned')">❌ Churned</div>
+  </div>
+  <div class="client-list" id="pipeline-list">
+    <div class="empty-state"><div class="icon">🔍</div><p>Chargement…</p></div>
+  </div>
+</div>
+
+<!-- Tab: Clients Actifs -->
+<div class="tab-panel" id="tab-clients">
+  <div class="client-list" id="clients-list">
+    <div class="empty-state"><div class="icon">🏢</div><p>Aucun client actif pour l'instant.</p></div>
+  </div>
+</div>
+
+<!-- Tab: MRR -->
+<div class="tab-panel" id="tab-mrr">
+  <div class="mrr-visual">
+    <div class="mrr-label">Monthly Recurring Revenue</div>
+    <div class="mrr-big" id="mrr-big">$0</div>
+    <div style="font-size:0.8rem;color:var(--dim)" id="mrr-arr">ARR: $0</div>
+  </div>
+  <div id="mrr-pipeline-breakdown" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.75rem;margin-bottom:1.25rem"></div>
+  <div style="text-align:center">
+    <button class="btn btn-purple" onclick="loadMRR()">🔄 Actualiser MRR</button>
+  </div>
+</div>
+
+<!-- Tab: Prospects -->
+<div class="tab-panel" id="tab-prospects">
+  <div style="display:flex;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center">
+    <select id="prospect-city" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0.5rem 0.75rem;border-radius:6px;font-size:0.82rem">
+      <option>Montréal</option>
+      <option>Longueuil</option>
+      <option>Laval</option>
+      <option>Québec City</option>
+      <option>Gatineau</option>
+      <option>Brossard</option>
+      <option>Verdun</option>
+    </select>
+    <button class="btn btn-purple" onclick="prospectSalons()">🔎 Scanner cette ville</button>
+  </div>
+  <div class="client-list" id="prospects-list">
+    <div class="empty-state"><div class="icon">🔍</div><p>Cliquez "Scanner" pour trouver des salons à prospecter.</p></div>
+  </div>
+</div>
+
+<!-- Add Client Modal -->
+<div class="modal-overlay" id="modal-add">
+  <div class="modal">
+    <h3>🏢 Ajouter un client / prospect</h3>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Nom du salon *</label>
+        <input id="add-name" placeholder="Ex: Salon Afro Beauté" />
+      </div>
+      <div class="form-group">
+        <label>Ville</label>
+        <input id="add-city" placeholder="Montréal" />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input id="add-email" type="email" placeholder="contact@salon.ca" />
+      </div>
+      <div class="form-group">
+        <label>Téléphone</label>
+        <input id="add-phone" placeholder="(514) 000-0000" />
+      </div>
+      <div class="form-group">
+        <label>Contact</label>
+        <input id="add-contact" placeholder="Prénom Nom" />
+      </div>
+      <div class="form-group">
+        <label>Étape pipeline</label>
+        <select id="add-stage">
+          <option value="prospect">Prospect</option>
+          <option value="demo_sent">Démo envoyée</option>
+          <option value="demo_done">Démo faite</option>
+          <option value="negotiation">Négociation</option>
+          <option value="trial">Trial</option>
+          <option value="active">Actif</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeAdd()">Annuler</button>
+      <button class="btn btn-gold" onclick="addClient()">✅ Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">Chargement…</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let allClients = [];
+let currentStage = 'all';
+let currentTab = 'pipeline';
+
+const STAGE_LABELS = {
+  prospect:'🔍 Prospect', demo_sent:'📧 Démo envoyée', demo_done:'✅ Démo faite',
+  negotiation:'🤝 Négociation', trial:'🚦 Trial', active:'✔️ Actif', churned:'❌ Churned'
+};
+const STAGE_COLORS = {
+  prospect:'var(--dim)', demo_sent:'var(--blue)', demo_done:'var(--gold)',
+  negotiation:'var(--orange)', active:'var(--green)', trial:'var(--saas)', churned:'var(--red)'
+};
+
+// ── Tab switch ────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.tab[onclick*="${tab}"]`).classList.add('active');
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  currentTab = tab;
+  if (tab === 'mrr') loadMRR();
+  if (tab === 'clients') renderClients(allClients.filter(c=>c.status==='active'));
+  if (tab === 'prospects') renderProspects(allClients.filter(c=>c.pipeline_stage==='prospect'));
+}
+
+// ── Filter stage ─────────────────────────────────────────────────────────────
+function filterStage(stage) {
+  currentStage = stage;
+  document.querySelectorAll('.stage-badge').forEach(b => b.classList.remove('active'));
+  event?.target?.classList.add('active');
+  const filtered = stage === 'all' ? allClients : allClients.filter(c=>c.pipeline_stage===stage);
+  renderPipeline(filtered);
+}
+
+// ── Load all ──────────────────────────────────────────────────────────────────
+async function loadAll() {
+  try {
+    const [cr, mr] = await Promise.all([
+      fetch('/api/saas/clients').then(r=>r.json()),
+      fetch('/api/saas/mrr').then(r=>r.json())
+    ]);
+    allClients = cr.clients || [];
+    updateKPIs(cr, mr);
+    renderPipeline(currentStage==='all'?allClients:allClients.filter(c=>c.pipeline_stage===currentStage));
+    if (currentTab==='clients') renderClients(allClients.filter(c=>c.status==='active'));
+    if (currentTab==='prospects') renderProspects(allClients.filter(c=>c.pipeline_stage==='prospect'));
+    if (currentTab==='mrr') renderMRR(mr);
+  } catch(e) { showToast('Erreur: '+e.message,'error'); }
+}
+
+function updateKPIs(cr, mr) {
+  const clients = cr.clients || [];
+  const active = clients.filter(c=>c.status==='active').length;
+  const prospects = clients.filter(c=>c.pipeline_stage==='prospect').length;
+  const churned = clients.filter(c=>c.status==='churned').length;
+  const churnRate = clients.length > 0 ? Math.round(churned/clients.length*100) : 0;
+  document.getElementById('kpi-active').textContent = active;
+  document.getElementById('kpi-prospects').textContent = prospects;
+  document.getElementById('kpi-churn').textContent = churnRate+'%';
+  if (mr.mrr !== undefined) {
+    document.getElementById('kpi-mrr').textContent = '$'+mr.mrr.toLocaleString('fr-CA');
+    document.getElementById('kpi-arr').textContent = '$'+mr.arr.toLocaleString('fr-CA');
+  }
+}
+
+// ── Render pipeline ────────────────────────────────────────────────────────────
+function renderPipeline(clients) {
+  const el = document.getElementById('pipeline-list');
+  if (!clients.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>Aucun client dans cette étape.</p></div>';
+    return;
+  }
+  el.innerHTML = clients.map(c => clientRow(c)).join('');
+}
+
+function renderClients(clients) {
+  const el = document.getElementById('clients-list');
+  if (!clients.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">🏢</div><p>Aucun client actif.</p></div>';
+    return;
+  }
+  el.innerHTML = clients.map(c => clientRow(c)).join('');
+}
+
+function renderProspects(clients) {
+  const el = document.getElementById('prospects-list');
+  if (!clients.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>Aucun prospect. Cliquez "Scanner" pour en trouver.</p></div>';
+    return;
+  }
+  el.innerHTML = clients.map(c => clientRow(c)).join('');
+}
+
+function clientRow(c) {
+  const initials = (c.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const stage = c.pipeline_stage||'prospect';
+  const stageColor = STAGE_COLORS[stage]||'var(--dim)';
+  const planClass = {starter:'plan-starter',pro:'plan-pro',enterprise:'plan-enterprise',trial:'plan-trial'}[c.subscription_plan]||'plan-trial';
+  return `
+  <div class="client-row" id="client-${c.id}">
+    <div class="client-logo">${initials}</div>
+    <div class="client-info">
+      <div class="client-name">${escHtml(c.name)}</div>
+      <div class="client-meta">${[c.city,c.email,c.phone].filter(Boolean).join(' · ')}</div>
+    </div>
+    <span class="client-plan ${planClass}">${c.subscription_plan||'trial'}</span>
+    <span class="stage-pill" style="background:rgba(0,0,0,0);border:1px solid ${stageColor};color:${stageColor}">${STAGE_LABELS[stage]||stage}</span>
+    <div class="client-actions">
+      ${!c.demo_sent_at && c.email ? `<button class="btn-xs btn-purple" style="background:var(--saas-dim);color:var(--saas)" onclick="sendDemo(${c.id})">📧 Démo</button>` : ''}
+      ${stage!=='active' ? `<button class="btn-xs btn-green" onclick="onboardClient(${c.id})">🚀 Onboard</button>` : ''}
+      ${c.email ? '' : `<button class="btn-xs btn-outline" onclick="setEmail(${c.id})" style="background:transparent;color:var(--dim);border:1px solid var(--border)">+ Email</button>`}
+    </div>
+  </div>`;
+}
+
+// ── MRR ───────────────────────────────────────────────────────────────────────
+async function loadMRR() {
+  try {
+    const mr = await fetch('/api/saas/mrr').then(r=>r.json());
+    renderMRR(mr);
+  } catch(e) { showToast('Erreur MRR: '+e.message,'error'); }
+}
+
+function renderMRR(mr) {
+  document.getElementById('mrr-big').textContent = '$'+(mr.mrr||0).toLocaleString('fr-CA');
+  document.getElementById('mrr-arr').textContent = 'ARR: $'+(mr.arr||0).toLocaleString('fr-CA');
+  document.getElementById('kpi-mrr').textContent = '$'+(mr.mrr||0).toLocaleString('fr-CA');
+  document.getElementById('kpi-arr').textContent = '$'+(mr.arr||0).toLocaleString('fr-CA');
+
+  const pipe = mr.pipeline || {};
+  const breakdown = document.getElementById('mrr-pipeline-breakdown');
+  const stageColors = { prospect:'var(--dim)',demo_sent:'var(--blue)',active:'var(--green)',trial:'var(--saas)',churned:'var(--red)' };
+  breakdown.innerHTML = Object.entries(pipe).map(([stage,cnt])=>`
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.85rem;text-align:center;border-top:2px solid ${stageColors[stage]||'var(--border)'}">
+      <div style="font-size:1.5rem;font-weight:900;color:${stageColors[stage]||'var(--dim)'}">${cnt}</div>
+      <div style="font-size:0.68rem;color:var(--dim);text-transform:uppercase;font-weight:700">${STAGE_LABELS[stage]||stage}</div>
+    </div>
+  `).join('');
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+async function prospectSalons() {
+  const city = document.getElementById('prospect-city')?.value || 'Montréal';
+  showLoading(`🔎 Recherche de salons à ${city}…`);
+  try {
+    const r = await fetch('/api/saas/prospect', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ city })
+    });
+    const d = await r.json();
+    hideLoading();
+    if (d.error) { showToast('Erreur: '+d.error,'error'); return; }
+    showToast(`✅ ${d.found} salons trouvés, ${d.inserted} ajoutés en pipeline`, 'success');
+    loadAll();
+    if (currentTab !== 'prospects') switchTab('prospects');
+  } catch(e) { hideLoading(); showToast('Erreur: '+e.message,'error'); }
+}
+
+async function sendDemo(id) {
+  const client = allClients.find(c=>c.id===id);
+  if (!client?.email) { showToast('Ajoutez d\'abord un email pour ce prospect'); return; }
+  if (!confirm(`Envoyer email de démo à ${client.email} ?`)) return;
+  showLoading('📧 Envoi en cours…');
+  try {
+    const r = await fetch(`/api/saas/send-demo/${id}`, {method:'POST'});
+    const d = await r.json();
+    hideLoading();
+    if (d.error) { showToast('Erreur: '+d.error,'error'); return; }
+    showToast('✅ Email de démo envoyé!','success');
+    loadAll();
+  } catch(e) { hideLoading(); showToast('Erreur: '+e.message,'error'); }
+}
+
+async function onboardClient(id) {
+  if (!confirm('Créer un tenant DALEBA pour ce client ?')) return;
+  showLoading('🚀 Création du tenant…');
+  try {
+    const r = await fetch(`/api/saas/onboard/${id}`, {method:'POST'});
+    const d = await r.json();
+    hideLoading();
+    if (d.error) { showToast('Erreur: '+d.error,'error'); return; }
+    showToast('✅ Client onboardé: '+d.tenantId,'success');
+    loadAll();
+  } catch(e) { hideLoading(); showToast('Erreur: '+e.message,'error'); }
+}
+
+async function setEmail(id) {
+  const email = prompt('Email du prospect:');
+  if (!email) return;
+  try {
+    await fetch(`/api/saas/clients/${id}`, {
+      method:'PATCH', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({email})
+    });
+    showToast('✅ Email mis à jour','success');
+    loadAll();
+  } catch(e) { showToast('Erreur: '+e.message,'error'); }
+}
+
+// ── Add modal ─────────────────────────────────────────────────────────────────
+function openAddModal() { document.getElementById('modal-add').classList.add('open'); }
+function closeAdd() { document.getElementById('modal-add').classList.remove('open'); }
+
+async function addClient() {
+  const name = document.getElementById('add-name').value.trim();
+  if (!name) { showToast('Nom requis'); return; }
+  try {
+    const r = await fetch('/api/saas/clients', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        name,
+        city: document.getElementById('add-city').value,
+        email: document.getElementById('add-email').value||undefined,
+        phone: document.getElementById('add-phone').value||undefined,
+        contact_name: document.getElementById('add-contact').value||undefined,
+        pipeline_stage: document.getElementById('add-stage').value
+      })
+    });
+    const d = await r.json();
+    closeAdd();
+    if (d.error) { showToast('Erreur: '+d.error,'error'); return; }
+    showToast('✅ Client ajouté','success');
+    loadAll();
+  } catch(e) { showToast('Erreur: '+e.message,'error'); }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function escHtml(t) { return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function showLoading(t) { document.getElementById('loading-text').textContent=t; document.getElementById('loading').classList.add('show'); }
+function hideLoading() { document.getElementById('loading').classList.remove('show'); }
+function showToast(msg,type='') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show'+(type?' '+type:'');
+  setTimeout(()=>t.classList.remove('show'),4500);
+}
+
+document.getElementById('modal-add').addEventListener('click', e => { if(e.target===document.getElementById('modal-add')) closeAdd(); });
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadAll();
+</script>
+</body>
+</html>
