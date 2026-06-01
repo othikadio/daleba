@@ -3,109 +3,167 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Planning Interne — Kadio Coiffure</title>
+  <title>Agenda — Kadio Coiffure</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; background: #f9fafb; }
-    .slot-taken    { background:#fff7ed; border-left:3px solid #f59e0b; }
-    .slot-free     { background:#f0fdf4; border-left:3px solid #22c55e; }
-    .slot-noshow   { background:#fef2f2; border-left:3px solid #ef4444; }
+    body { font-family:'Inter',sans-serif; background:#f9fafb; }
+    .slot-accepted { background:#fff7ed; border-left:3px solid #f59e0b; }
+    .slot-pending  { background:#fefce8; border-left:3px solid #eab308; }
     .slot-done     { background:#f5f3ff; border-left:3px solid #8b5cf6; }
-    .slot-cancelled{ background:#f9fafb; border-left:3px solid #d1d5db; opacity:.6; }
-    .staff-col { min-width: 180px; }
-    .hour-label { color:#9ca3af; font-size:0.65rem; font-weight:700; letter-spacing:.05em; width:3rem; flex-shrink:0; padding-top:2px; }
+    .slot-noshow   { background:#fef2f2; border-left:3px solid #ef4444; }
+    .slot-cancelled{ background:#f9fafb; border-left:3px solid #d1d5db; opacity:.55; }
+    .hour-cell { min-height:52px; border-bottom:1px solid #f3f4f6; position:relative; }
+    .hour-cell:hover .add-btn { opacity:1; }
+    .add-btn { opacity:0; transition:.15s; }
+    .now-bar { position:absolute; left:0; right:0; height:2px; background:#ef4444; z-index:5; pointer-events:none; }
+    .now-bar::before { content:''; position:absolute; left:-4px; top:-3px; width:8px; height:8px; background:#ef4444; border-radius:50%; }
     .skeleton { animation:pulse 1.5s infinite; background:#e5e7eb; border-radius:4px; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-    .now-line { border-top:2px solid #ef4444; position:relative; }
-    .now-line::before { content:'▶'; color:#ef4444; font-size:0.6rem; position:absolute; left:-1rem; top:-0.45rem; }
-    #view-day.active, #view-week.active { background:#1f2937; color:#fff; }
+    .staff-col { min-width:160px; flex:1; }
+    .modal-enter { animation:fadeIn .15s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
   </style>
 </head>
-<body class="text-gray-900 min-h-screen" style="overflow:hidden;height:100vh;display:flex;flex-direction:column">
+<body class="text-gray-900" style="height:100vh;display:flex;flex-direction:column;overflow:hidden">
 
 <!-- TOPBAR -->
-<div class="bg-white border-b border-gray-100 px-4 py-2.5 flex items-center justify-between flex-shrink-0 shadow-sm">
-  <div class="flex items-center gap-3">
-    <span class="font-black text-sm tracking-widest uppercase">📋 Planning</span>
-    <span class="text-xs text-gray-400 hidden sm:block">Gestion interne · Kadio Coiffure</span>
-    <span class="flex items-center gap-1 text-xs text-emerald-600 font-semibold">
-      <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full inline-block"></span>Square Live
-    </span>
+<div class="bg-white border-b px-4 py-2 flex items-center gap-2 flex-shrink-0 shadow-sm z-20">
+  <span class="font-black text-sm tracking-widest uppercase mr-1">📋 Agenda</span>
+  <span class="flex items-center gap-1 text-xs text-emerald-600 font-semibold">
+    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse inline-block"></span>Square Live
+  </span>
+  <div class="flex items-center gap-1 ml-2">
+    <button id="v-day"  onclick="setView('day')"  class="text-xs px-2.5 py-1.5 rounded-lg border font-semibold bg-gray-900 text-white">Jour</button>
+    <button id="v-week" onclick="setView('week')" class="text-xs px-2.5 py-1.5 rounded-lg border font-semibold text-gray-500">Semaine</button>
   </div>
-  <div class="flex items-center gap-1.5">
-    <button id="view-day" onclick="setView('day')"
-      class="active text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 font-semibold transition">Jour</button>
-    <button id="view-week" onclick="setView('week')"
-      class="text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 font-semibold transition text-gray-500">Semaine</button>
-    <div class="w-px h-5 bg-gray-200 mx-1"></div>
-    <button onclick="nav(-1)" class="text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 font-bold">‹</button>
-    <span id="date-lbl" class="text-sm font-bold text-gray-800 min-w-[160px] text-center tabular-nums">—</span>
-    <button onclick="nav(1)"  class="text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 font-bold">›</button>
-    <button onclick="goToday()" class="text-xs px-3 py-1.5 rounded-lg bg-gray-900 hover:bg-gray-700 text-white font-semibold transition ml-1">Aujourd'hui</button>
-    <button onclick="reload()" title="Actualiser" class="text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 ml-1">⟳</button>
+  <div class="flex items-center gap-1 ml-2">
+    <button onclick="nav(-1)" class="text-xs px-2.5 py-1.5 rounded-lg border hover:bg-gray-50 font-bold">‹</button>
+    <span id="date-lbl" class="text-sm font-bold text-gray-800 min-w-[180px] text-center">—</span>
+    <button onclick="nav(1)"  class="text-xs px-2.5 py-1.5 rounded-lg border hover:bg-gray-50 font-bold">›</button>
+    <button onclick="goToday()" class="text-xs px-3 py-1.5 rounded-lg bg-gray-900 text-white font-semibold ml-1">Aujourd'hui</button>
+  </div>
+  <div class="ml-auto flex items-center gap-2">
+    <span class="text-xs text-gray-400" id="sync-ts"></span>
+    <button onclick="reload()" class="text-xs px-2.5 py-1.5 rounded-lg border hover:bg-gray-50">⟳</button>
+    <button onclick="openNewRdv()" class="text-xs px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold">+ Nouveau RDV</button>
   </div>
 </div>
 
 <!-- KPI BAR -->
-<div class="bg-white border-b border-gray-100 px-4 py-1.5 flex items-center gap-5 text-xs flex-shrink-0" id="kpi-bar">
-  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-amber-400"></span><span class="text-gray-500">Pris : <strong id="k-taken" class="text-gray-800">—</strong></span></div>
-  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-400"></span><span class="text-gray-500">Libres estimés : <strong id="k-free" class="text-gray-800">—</strong></span></div>
-  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-violet-400"></span><span class="text-gray-500">Terminés : <strong id="k-done" class="text-gray-800">—</strong></span></div>
-  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-red-300"></span><span class="text-gray-500">No-show : <strong id="k-noshow" class="text-gray-800">—</strong></span></div>
-  <div class="ml-auto text-gray-400" id="updated-at"></div>
+<div class="bg-white border-b px-4 py-1.5 flex items-center gap-5 text-xs flex-shrink-0" id="kpi-bar">
+  <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-sm bg-amber-400"></span>Confirmés : <strong id="k-acc">—</strong></div>
+  <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-sm bg-yellow-300"></span>En attente : <strong id="k-pend">—</strong></div>
+  <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-sm bg-violet-400"></span>Terminés : <strong id="k-done">—</strong></div>
+  <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-sm bg-red-300"></span>No-show : <strong id="k-ns">—</strong></div>
+  <div class="ml-auto text-gray-400" id="total-lbl"></div>
 </div>
 
 <!-- STAFF TABS -->
-<div class="bg-white border-b border-gray-100 px-4 py-1.5 flex items-center gap-1.5 overflow-x-auto flex-shrink-0" id="staff-tabs">
+<div class="bg-white border-b px-4 py-1.5 flex items-center gap-1.5 overflow-x-auto flex-shrink-0" id="staff-tabs">
   <button id="tab-all" onclick="filterStaff('all')"
     class="flex-shrink-0 text-xs px-3 py-1 rounded-full bg-gray-900 text-white font-semibold">Tout le monde</button>
 </div>
 
-<!-- PLANNING GRID -->
-<div class="flex-1 overflow-auto" id="planning-outer">
-  <div id="loader" class="p-6 space-y-3">
+<!-- GRID -->
+<div class="flex-1 overflow-auto" id="outer">
+  <div id="loader" class="p-6 space-y-2">
     <div class="skeleton h-12 rounded-xl"></div>
     <div class="skeleton h-12 rounded-xl w-4/5"></div>
     <div class="skeleton h-12 rounded-xl"></div>
   </div>
-  <div id="planning-grid" class="hidden p-4"></div>
-  <div id="empty" class="hidden flex-col items-center py-16 text-center">
-    <div class="text-5xl mb-3">📋</div>
-    <p class="text-gray-500 font-semibold">Aucun créneau pour cette période</p>
-  </div>
+  <div id="grid" class="hidden"></div>
 </div>
 
-<!-- MODAL DÉTAIL RDV -->
-<div id="mo" class="fixed inset-0 bg-black/40 z-50 hidden" onclick="closeMo()"></div>
+<!-- ─── MODAL DÉTAIL / MODIFIER RDV ─────────────────────────────────────────── -->
+<div id="mo" class="fixed inset-0 bg-black/40 z-50 hidden" onclick="if(event.target===this)closeMo()"></div>
 <div id="md" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50
-  bg-white rounded-2xl shadow-2xl w-full max-w-sm p-5 hidden">
-  <div class="flex justify-between items-center mb-4">
-    <h3 class="font-bold text-gray-900" id="md-title">Rendez-vous</h3>
+  bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 hidden modal-enter">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="font-black text-gray-900" id="md-title">Rendez-vous</h3>
     <button onclick="closeMo()" class="text-gray-400 hover:text-gray-600 font-bold text-xl leading-none">×</button>
   </div>
-  <div id="md-body" class="space-y-2 text-sm"></div>
-  <div class="mt-4 flex gap-2" id="md-actions"></div>
+  <div id="md-body"></div>
+  <div id="md-actions" class="flex gap-2 mt-4 flex-wrap"></div>
+</div>
+
+<!-- ─── MODAL NOUVEAU / RESCHEDULE RDV ──────────────────────────────────────── -->
+<div id="fo" class="fixed inset-0 bg-black/40 z-50 hidden" onclick="if(event.target===this)closeFo()"></div>
+<div id="fd" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50
+  bg-white rounded-2xl shadow-2xl w-full max-w-sm p-5 hidden modal-enter">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="font-black text-gray-900" id="fd-title">Nouveau RDV</h3>
+    <button onclick="closeFo()" class="text-gray-400 hover:text-gray-600 font-bold text-xl leading-none">×</button>
+  </div>
+  <div class="space-y-3 text-sm">
+    <!-- Client search -->
+    <div>
+      <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Client</label>
+      <input id="f-client-q" type="text" placeholder="Rechercher un client…"
+        class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300"
+        oninput="searchClients(this.value)">
+      <div id="f-client-list" class="mt-1 border border-gray-100 rounded-lg overflow-hidden hidden max-h-36 overflow-y-auto text-xs"></div>
+      <input id="f-customer-id" type="hidden">
+      <div id="f-customer-name" class="text-xs text-emerald-600 font-semibold mt-1 hidden"></div>
+    </div>
+    <!-- Note client -->
+    <div>
+      <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Note client</label>
+      <input id="f-note" type="text" placeholder="(optionnel)"
+        class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300">
+    </div>
+    <!-- Coiffeur -->
+    <div>
+      <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Coiffeur·se</label>
+      <select id="f-staff" class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300">
+        <option value="">Choisir…</option>
+      </select>
+    </div>
+    <!-- Service -->
+    <div>
+      <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Service</label>
+      <select id="f-service" class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300">
+        <option value="">Choisir…</option>
+      </select>
+    </div>
+    <!-- Date/Heure -->
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Date</label>
+        <input id="f-date" type="date" class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300">
+      </div>
+      <div>
+        <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Heure</label>
+        <input id="f-time" type="time" class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300">
+      </div>
+    </div>
+    <div id="fd-err" class="text-xs text-red-500 font-semibold hidden"></div>
+  </div>
+  <div class="flex gap-2 mt-4">
+    <button onclick="closeFo()" class="flex-1 border border-gray-200 rounded-lg py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50">Annuler</button>
+    <button id="fd-save" onclick="saveRdv()"
+      class="flex-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg py-2 text-sm font-bold transition">Créer le RDV</button>
+  </div>
 </div>
 
 <script>
-const API = 'https://daleba-api-production.up.railway.app';
-const HOURS_START = 8;  // 08:00
-const HOURS_END   = 21; // 21:00
-const SLOT_H      = 60; // minutes par créneau affiché
-
+const API   = 'https://daleba-api-production.up.railway.app';
+const HOURS = Array.from({length:13}, (_,i) => i + 8); // 8h → 20h
+const TZ    = 'America/Toronto';
 let curDate   = new Date();
 let viewMode  = 'day';
 let staffFilt = 'all';
 let staffMap  = {};
-let allBookings = [];
-let staffList   = [];
+let staffList = [];
+let servicesCache = [];
+let allBookings   = [];
+let editingId     = null; // id du booking en cours de reschedule
 
-// ── Navigation ──────────────────────────────────────────────────────────────
+// ── Navigation ────────────────────────────────────────────────────────────────
 function setView(v) {
   viewMode = v;
-  document.getElementById('view-day').classList.toggle('active', v==='day');
-  document.getElementById('view-week').classList.toggle('active', v==='week');
+  document.getElementById('v-day').className  = `text-xs px-2.5 py-1.5 rounded-lg border font-semibold ${v==='day'?'bg-gray-900 text-white':'text-gray-500'}`;
+  document.getElementById('v-week').className = `text-xs px-2.5 py-1.5 rounded-lg border font-semibold ${v==='week'?'bg-gray-900 text-white':'text-gray-500'}`;
   reload();
 }
 function nav(d) {
@@ -118,318 +176,426 @@ function filterStaff(id) {
   staffFilt = id;
   document.querySelectorAll('[id^="tab-"]').forEach(b => {
     const active = b.id === `tab-${id}`;
-    b.className = `flex-shrink-0 text-xs px-3 py-1 rounded-full font-semibold ${active ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600'}`;
+    b.className = `flex-shrink-0 text-xs px-3 py-1 rounded-full font-semibold ${active?'bg-gray-900 text-white':'bg-gray-100 text-gray-600 hover:bg-gray-200'}`;
   });
-  renderGrid();
+  renderView();
 }
 
-// ── Load ──────────────────────────────────────────────────────────────────────
+// ── Chargement données ────────────────────────────────────────────────────────
 async function reload() {
-  show('loader'); hide('planning-grid'); hide('empty');
+  show('loader'); hide('grid');
 
   const s = new Date(curDate), e = new Date(curDate);
-  if (viewMode === 'day') { s.setHours(0,0,0,0); e.setHours(23,59,59,999); }
+  if (viewMode==='day') { s.setHours(0,0,0,0); e.setHours(23,59,59,999); }
   else {
     const dow = s.getDay();
-    s.setDate(s.getDate() - dow + (dow===0 ? -6 : 1)); s.setHours(0,0,0,0);
+    s.setDate(s.getDate() - (dow===0?6:dow-1)); s.setHours(0,0,0,0);
     e.setDate(s.getDate()+6); e.setHours(23,59,59,999);
   }
   updateLabel(s, e);
 
   try {
-    const [bkData, stData] = await Promise.all([
-      fetch(`${API}/api/sq-calendar/appointments?startAt=${s.toISOString()}&endAt=${e.toISOString()}&limit=100`).then(r=>r.json()),
-      Object.keys(staffMap).length ? Promise.resolve(null) :
-        fetch(`${API}/api/sq-calendar/staff`).then(r=>r.json()),
+    const url = `${API}/api/sq-calendar/appointments?startAt=${s.toISOString()}&endAt=${e.toISOString()}&limit=100`;
+    const [bkData, stData, svData] = await Promise.all([
+      fetch(url).then(r=>r.json()),
+      Object.keys(staffMap).length ? Promise.resolve(null) : fetch(`${API}/api/sq-calendar/staff`).then(r=>r.json()),
+      servicesCache.length ? Promise.resolve(null) : fetch(`${API}/api/sq-calendar/services`).then(r=>r.json()),
     ]);
 
     allBookings = bkData.bookings || [];
 
     if (stData) {
-      staffList = stData.team_members || stData.teamMembers || stData.staff || [];
-      staffMap = {};
+      staffList = stData.team_members || [];
+      staffMap  = {};
       const bar = document.getElementById('staff-tabs');
-      // Nettoyer les anciens boutons (garder "Tout le monde")
-      [...bar.children].forEach(b => { if (b.id !== 'tab-all') b.remove(); });
+      [...bar.children].forEach(b => { if (b.id!=='tab-all') b.remove(); });
       staffList.forEach(m => {
-        const id   = m.id || m.teamMemberId;
-        const name = m.display_name || m.displayName || m.given_name || 'Coiffeur';
-        const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-        staffMap[id] = { name, initials };
+        staffMap[m.id] = m;
         const btn = document.createElement('button');
-        btn.id = `tab-${id}`;
-        btn.className = 'flex-shrink-0 text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-600 font-semibold';
-        btn.textContent = name;
-        btn.onclick = () => filterStaff(id);
+        btn.id = `tab-${m.id}`;
+        btn.className = 'flex-shrink-0 text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 font-semibold';
+        btn.textContent = m.display_name || m.given_name || 'Staff';
+        btn.onclick = () => filterStaff(m.id);
         bar.appendChild(btn);
+        // Peupler le select du formulaire
+        const opt = document.createElement('option');
+        opt.value = m.id; opt.textContent = m.display_name || m.given_name;
+        document.getElementById('f-staff').appendChild(opt);
+      });
+    }
+
+    if (svData) {
+      servicesCache = svData.services || [];
+      const sel = document.getElementById('f-service');
+      sel.innerHTML = '<option value="">Choisir…</option>';
+      servicesCache.forEach(svc => {
+        (svc.variations||[]).forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v.id;
+          opt.dataset.duration = v.durationMinutes || 60;
+          opt.textContent = `${svc.name}${v.name&&v.name!=='Regular'?' – '+v.name:''} (${v.durationMinutes||60}min)`;
+          sel.appendChild(opt);
+        });
       });
     }
 
     updateKPIs(allBookings);
-    renderGrid();
+    renderView();
   } catch(err) {
-    document.getElementById('planning-grid').innerHTML =
-      `<div class="text-red-400 text-sm text-center py-10">Erreur Railway: ${err.message}</div>`;
-    show('planning-grid');
+    document.getElementById('grid').innerHTML = `<div class="text-red-400 text-sm text-center py-10">Erreur: ${err.message}</div>`;
+    show('grid');
   }
   hide('loader');
-  document.getElementById('updated-at').textContent =
-    'Màj ' + new Date().toLocaleTimeString('fr-CA', {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('sync-ts').textContent = 'Sync ' + new Date().toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
 }
 
-// ── KPIs ──────────────────────────────────────────────────────────────────────
+// ── KPIs ───────────────────────────────────────────────────────────────────────
 function updateKPIs(bks) {
-  const taken   = bks.filter(b => ['ACCEPTED','PENDING'].includes(b.status)).length;
-  const done    = bks.filter(b => b.status==='COMPLETED').length;
-  const noshow  = bks.filter(b => b.status==='NO_SHOW').length;
-  // Créneaux libres estimés : (heures_ouverture × staff) - rendez-vous pris
-  const hoursOpen = HOURS_END - HOURS_START;
-  const avgDurH   = 1; // 1h moyen par RDV
-  const totalSlots = Math.floor((hoursOpen / avgDurH) * (staffList.length || 1));
-  const free = Math.max(0, totalSlots - taken);
-  document.getElementById('k-taken').textContent  = taken;
-  document.getElementById('k-free').textContent   = free;
-  document.getElementById('k-done').textContent   = done;
-  document.getElementById('k-noshow').textContent = noshow;
+  document.getElementById('k-acc').textContent  = bks.filter(b=>b.status==='ACCEPTED').length;
+  document.getElementById('k-pend').textContent = bks.filter(b=>b.status==='PENDING').length;
+  document.getElementById('k-done').textContent = bks.filter(b=>b.status==='COMPLETED').length;
+  document.getElementById('k-ns').textContent   = bks.filter(b=>b.status==='NO_SHOW').length;
+  document.getElementById('total-lbl').textContent = `${bks.length} RDV au total`;
 }
 
-// ── Render ────────────────────────────────────────────────────────────────────
-function renderGrid() {
-  const el = document.getElementById('planning-grid');
-
-  let bookings = allBookings;
-  if (staffFilt !== 'all') {
-    bookings = bookings.filter(b =>
-      (b.appointmentSegments || b.appointment_segments || [])
-        .some(s => (s.teamMemberId || s.team_member_id) === staffFilt)
-    );
-  }
-
-  if (!bookings.length && !staffList.length) { hide('planning-grid'); show('empty'); return; }
-
-  if (viewMode === 'day') {
-    el.innerHTML = renderDayColumns(bookings, curDate);
-  } else {
-    el.innerHTML = renderWeekGrid(bookings);
-  }
-  show('planning-grid');
-
-  // Ligne "maintenant" (vue jour uniquement)
-  if (viewMode === 'day') injectNowLine();
+// ── Render ─────────────────────────────────────────────────────────────────────
+function renderView() {
+  if (viewMode==='day') renderDay();
+  else renderWeek();
+  show('grid');
+  injectNowBar();
 }
 
-// ── Vue Jour : colonnes par coiffeur ─────────────────────────────────────────
-function renderDayColumns(bookings, date) {
-  // Grouper par staff
-  const staffIds = staffFilt === 'all'
-    ? (staffList.length ? staffList.map(m => m.id || m.teamMemberId) : ['unknown'])
-    : [staffFilt];
+// ── Vue Jour — colonnes par coiffeur ───────────────────────────────────────────
+function renderDay() {
+  const el = document.getElementById('grid');
+  const members = staffFilt==='all' ? staffList : staffList.filter(m=>m.id===staffFilt);
+  const date    = curDate;
 
   const byStaff = {};
-  staffIds.forEach(id => { byStaff[id] = []; });
-  bookings.forEach(b => {
-    const seg  = (b.appointmentSegments || b.appointment_segments || [])[0];
-    const sid  = seg?.teamMemberId || seg?.team_member_id || 'unknown';
+  members.forEach(m => { byStaff[m.id] = []; });
+  allBookings.forEach(b => {
+    const sid = (b.appointmentSegments||[])[0]?.team_member_id || (b.appointmentSegments||[])[0]?.teamMemberId;
     if (!byStaff[sid]) byStaff[sid] = [];
     byStaff[sid].push(b);
   });
 
-  const hours = [];
-  for (let h = HOURS_START; h <= HOURS_END; h++) hours.push(h);
+  const hourLabels = HOURS.map(h => `
+    <div class="hour-cell flex items-start pt-1 pr-2 text-[10px] text-gray-400 font-bold w-10 flex-shrink-0">
+      ${String(h).padStart(2,'0')}h
+    </div>`).join('');
 
-  const staffCols = staffIds.map(sid => {
-    const info = staffMap[sid] || { name: 'Staff', initials: 'ST' };
-    const bks  = byStaff[sid] || [];
-
-    const rows = hours.map(h => {
-      const slotStart = new Date(date); slotStart.setHours(h, 0, 0, 0);
-      const slotEnd   = new Date(date); slotEnd.setHours(h, 59, 59, 999);
+  const cols = members.map(m => {
+    const bks = byStaff[m.id] || [];
+    const cells = HOURS.map(h => {
+      const slotStart = new Date(date); slotStart.setHours(h,0,0,0);
+      const slotEnd   = new Date(date); slotEnd.setHours(h,59,59,999);
       const match = bks.find(b => {
-        const bStart = new Date(b.startAt || b.start_at);
-        return bStart >= slotStart && bStart <= slotEnd;
+        const t = new Date(b.startAt);
+        return t >= slotStart && t <= slotEnd;
       });
-
       if (match) {
-        const dur = (match.appointmentSegments||match.appointment_segments||[])[0]?.durationMinutes || 60;
-        const endT = new Date(match.startAt || match.start_at);
-        endT.setMinutes(endT.getMinutes() + (dur||60));
-        const hEnd = endT.toLocaleTimeString('fr-CA', {hour:'2-digit', minute:'2-digit', timeZone:'America/Toronto'});
-        const cls  = slotClass(match.status);
-        const client = match.customerName || 'Client';
-        const svc = (match.appointmentSegments||match.appointment_segments||[])[0]?.serviceVariationId ? '·' : '';
-        return `<div class="${cls} rounded-lg p-2 text-xs cursor-pointer mb-0.5"
-                     onclick='openMo(${escJ(match)})'>
-                  <div class="font-bold text-gray-800 truncate">${escH(client)}</div>
-                  <div class="text-gray-500">${fmtTime(match.startAt||match.start_at)} – ${hEnd} ${svc}</div>
-                  <div class="mt-0.5"><span class="text-[9px] font-bold uppercase tracking-wide ${statusColor(match.status)}">${statusLbl(match.status)}</span></div>
-                </div>`;
-      } else {
-        // Créneau libre (dans les heures d'ouverture)
-        if (h < HOURS_START || h >= HOURS_END) return '<div class="h-6"></div>';
-        return `<div class="slot-free rounded-lg px-2 py-1 text-[10px] text-emerald-600 font-semibold mb-0.5 opacity-50">Libre</div>`;
+        const dur  = (match.appointmentSegments||[])[0]?.duration_minutes || 60;
+        const endT = new Date(new Date(match.startAt).getTime() + dur*60000);
+        return `<div class="hour-cell ${slotClass(match.status)} rounded-lg mx-0.5 px-2 py-1 cursor-pointer text-xs"
+                     onclick='openDetail(${escJ(match)})'>
+          <div class="font-bold text-gray-800 truncate">${escH(match.customerName||'Client')}</div>
+          <div class="text-gray-500">${fmtTime(match.startAt)} – ${fmtTime(endT.toISOString())}</div>
+          <span class="text-[9px] font-bold uppercase ${statusClr(match.status)}">${statusLbl(match.status)}</span>
+        </div>`;
       }
-    });
+      const dateStr = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+      const timeStr = `${String(h).padStart(2,'0')}:00`;
+      return `<div class="hour-cell rounded-lg mx-0.5 hover:bg-green-50 group cursor-pointer"
+                   onclick="openNewRdv('${dateStr}','${timeStr}','${m.id}')">
+        <div class="add-btn text-[10px] text-emerald-600 font-semibold px-2 pt-1 opacity-0 group-hover:opacity-100">+ RDV</div>
+      </div>`;
+    }).join('');
 
-    return `<div class="staff-col flex-1">
-      <div class="sticky top-0 bg-white border-b border-gray-100 pb-2 mb-2 z-10">
-        <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">${info.initials}</div>
-          <div class="text-xs font-bold text-gray-800 truncate">${escH(info.name)}</div>
-          <div class="ml-auto text-[10px] text-gray-400">${bks.filter(b=>['ACCEPTED','PENDING'].includes(b.status)).length} RDV</div>
-        </div>
+    const initials = (m.display_name||m.given_name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    return `<div class="staff-col">
+      <div class="sticky top-0 bg-white z-10 border-b border-gray-100 px-1 py-2 flex items-center gap-2 mb-1">
+        <div class="w-7 h-7 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center">${initials}</div>
+        <span class="text-xs font-bold text-gray-800 truncate">${escH(m.display_name||m.given_name||'Staff')}</span>
+        <span class="ml-auto text-[10px] text-gray-400">${bks.filter(b=>['ACCEPTED','PENDING'].includes(b.status)).length} RDV</span>
       </div>
-      ${rows.join('')}
+      ${cells}
     </div>`;
   }).join('');
 
-  const hourLabels = hours.map(h =>
-    `<div class="hour-label">${String(h).padStart(2,'0')}h</div>`
-  ).join('');
-
-  return `<div class="flex gap-0">
-    <div class="flex flex-col mr-2 mt-[52px]">${hourLabels}</div>
-    <div class="flex gap-3 flex-1 overflow-x-auto">${staffCols}</div>
-  </div>`;
+  el.innerHTML = !members.length
+    ? '<div class="text-center py-16 text-gray-400 text-sm">Aucun coiffeur trouvé</div>'
+    : `<div class="flex" id="day-inner">
+        <div class="flex flex-col mt-[52px] flex-shrink-0">${hourLabels}</div>
+        <div class="flex gap-1 flex-1 overflow-x-auto">${cols}</div>
+       </div>`;
 }
 
-// ── Vue Semaine : grille compacte ─────────────────────────────────────────────
-function renderWeekGrid(bookings) {
+// ── Vue Semaine ────────────────────────────────────────────────────────────────
+function renderWeek() {
+  const el = document.getElementById('grid');
   const days = {};
-  bookings.forEach(b => {
-    const dt  = new Date(b.startAt || b.start_at);
-    const key = dt.toLocaleDateString('fr-CA');
+  allBookings.forEach(b => {
+    const key = new Date(b.startAt).toLocaleDateString('fr-CA');
     if (!days[key]) days[key] = [];
     days[key].push(b);
   });
 
-  if (!Object.keys(days).length) return '<div class="text-center py-10 text-gray-400 text-sm">Aucun RDV cette semaine</div>';
+  if (!Object.keys(days).length) {
+    el.innerHTML = '<div class="text-center py-16 text-gray-400 text-sm">Aucun RDV cette semaine</div>';
+    return;
+  }
 
-  return Object.entries(days).sort(([a],[b])=>a.localeCompare(b)).map(([day, bks]) => {
-    const dt = new Date(day + 'T12:00:00');
-    const dayStr = dt.toLocaleDateString('fr-CA', { weekday:'long', day:'numeric', month:'long' });
-    const taken = bks.filter(b=>['ACCEPTED','PENDING'].includes(b.status)).length;
-    const done  = bks.filter(b=>b.status==='COMPLETED').length;
-
-    return `<div class="mb-4">
-      <div class="flex items-center gap-2 mb-2">
-        <h3 class="text-xs font-bold uppercase tracking-widest text-gray-500">${escH(dayStr)}</h3>
-        <span class="text-[10px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">${taken} pris</span>
-        ${done ? `<span class="text-[10px] font-bold bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded">${done} terminés</span>` : ''}
-      </div>
-      <div class="grid gap-1.5">
-        ${bks.sort((a,b)=>new Date(a.startAt||a.start_at)-new Date(b.startAt||b.start_at)).map(b => {
-          const seg  = (b.appointmentSegments||b.appointment_segments||[])[0];
-          const sid  = seg?.teamMemberId || seg?.team_member_id;
-          const staff = sid ? (staffMap[sid]?.name || 'Staff') : 'Staff';
-          return `<div class="${slotClass(b.status)} rounded-lg px-3 py-2 flex items-center gap-3 cursor-pointer"
-                       onclick='openMo(${escJ(b)})'>
-            <div class="text-xs font-bold text-gray-700 w-10 flex-shrink-0">${fmtTime(b.startAt||b.start_at)}</div>
-            <div class="flex-1 min-w-0">
-              <div class="text-xs font-semibold text-gray-900 truncate">${escH(b.customerName||'Client')}</div>
-              <div class="text-[10px] text-gray-500">${escH(staff)}</div>
-            </div>
-            <span class="text-[9px] font-bold uppercase ${statusColor(b.status)} flex-shrink-0">${statusLbl(b.status)}</span>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`;
-  }).join('');
+  el.innerHTML = `<div class="p-4 space-y-4">`
+    + Object.entries(days).sort(([a],[b])=>a.localeCompare(b)).map(([day, bks]) => {
+      const dt = new Date(day+'T12:00:00');
+      const label = dt.toLocaleDateString('fr-CA',{weekday:'long',day:'numeric',month:'long'});
+      return `<div>
+        <div class="flex items-center gap-2 mb-2">
+          <h3 class="text-xs font-bold uppercase tracking-widest text-gray-500">${escH(label)}</h3>
+          <span class="text-[10px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">${bks.filter(b=>['ACCEPTED','PENDING'].includes(b.status)).length} pris</span>
+        </div>
+        <div class="grid gap-1.5">
+          ${bks.sort((a,b)=>new Date(a.startAt)-new Date(b.startAt)).map(b => {
+            const seg  = (b.appointmentSegments||[])[0];
+            const sid  = seg?.team_member_id || seg?.teamMemberId;
+            const sn   = sid ? (staffMap[sid]?.display_name||staffMap[sid]?.given_name||'Staff') : '—';
+            return `<div class="${slotClass(b.status)} rounded-lg px-3 py-2 flex items-center gap-3 cursor-pointer"
+                         onclick='openDetail(${escJ(b)})'>
+              <div class="text-xs font-bold text-gray-700 w-10">${fmtTime(b.startAt)}</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold text-gray-900 truncate">${escH(b.customerName||'Client')}</div>
+                <div class="text-[10px] text-gray-500">${escH(sn)}</div>
+              </div>
+              <span class="text-[9px] font-bold uppercase ${statusClr(b.status)}">${statusLbl(b.status)}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }).join('')
+    + '</div>';
 }
 
-// ── Ligne maintenant ──────────────────────────────────────────────────────────
-function injectNowLine() {
+// ── Ligne "maintenant" ────────────────────────────────────────────────────────
+function injectNowBar() {
   const now = new Date();
-  if (now.getHours() < HOURS_START || now.getHours() > HOURS_END) return;
-  const rows = document.querySelectorAll('.hour-label');
-  const hIdx = now.getHours() - HOURS_START;
-  if (rows[hIdx]) rows[hIdx].classList.add('now-line');
+  if (viewMode!=='day') return;
+  const h = now.getHours(), m = now.getMinutes();
+  if (h < 8 || h >= 21) return;
+  setTimeout(() => {
+    const cells = document.querySelectorAll('.hour-cell');
+    const idx   = (h - 8);
+    if (cells[idx]) {
+      const bar = document.createElement('div');
+      bar.className = 'now-bar';
+      bar.style.top = `${Math.round((m/60)*100)}%`;
+      cells[idx].style.position = 'relative';
+      cells[idx].appendChild(bar);
+    }
+  }, 100);
 }
 
-// ── Modal ──────────────────────────────────────────────────────────────────────
-function openMo(b) {
-  if (typeof b === 'string') b = JSON.parse(b);
-  const seg   = (b.appointmentSegments||b.appointment_segments||[])[0];
-  const sid   = seg?.teamMemberId || seg?.team_member_id;
-  const staff = sid ? (staffMap[sid]?.name || 'Staff') : 'Non assigné';
-  const dur   = seg?.durationMinutes || seg?.duration_minutes || 60;
-  const dt    = new Date(b.startAt || b.start_at);
-  const endDt = new Date(dt.getTime() + dur * 60000);
+// ── Modal Détail RDV ──────────────────────────────────────────────────────────
+function openDetail(b) {
+  if (typeof b==='string') b = JSON.parse(b);
+  const seg = (b.appointmentSegments||[])[0];
+  const sid = seg?.team_member_id || seg?.teamMemberId;
+  const sn  = sid ? (staffMap[sid]?.display_name||staffMap[sid]?.given_name||'Staff') : '—';
+  const dur = seg?.duration_minutes || seg?.durationMinutes || 60;
+  const end = new Date(new Date(b.startAt).getTime() + dur*60000);
 
   document.getElementById('md-title').textContent = b.customerName || 'Rendez-vous';
   document.getElementById('md-body').innerHTML = `
-    <div class="grid grid-cols-2 gap-2 text-xs">
-      <div class="bg-gray-50 rounded-lg p-3">
-        <div class="text-gray-400 mb-0.5">Heure</div>
-        <div class="font-bold">${fmtTime(b.startAt||b.start_at)} – ${endDt.toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit',timeZone:'America/Toronto'})}</div>
+    <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+      <div class="bg-gray-50 rounded-xl p-3"><div class="text-gray-400 mb-0.5">Date & heure</div>
+        <div class="font-bold">${new Date(b.startAt).toLocaleDateString('fr-CA',{weekday:'short',day:'numeric',month:'short',timeZone:TZ})}</div>
+        <div class="text-gray-600">${fmtTime(b.startAt)} → ${fmtTime(end.toISOString())}</div>
       </div>
-      <div class="bg-gray-50 rounded-lg p-3">
-        <div class="text-gray-400 mb-0.5">Durée</div>
-        <div class="font-bold">${dur} min</div>
-      </div>
-      <div class="bg-gray-50 rounded-lg p-3">
-        <div class="text-gray-400 mb-0.5">Coiffeur·se</div>
-        <div class="font-bold truncate">${escH(staff)}</div>
-      </div>
-      <div class="bg-gray-50 rounded-lg p-3">
-        <div class="text-gray-400 mb-0.5">Statut</div>
-        <div class="font-bold ${statusColor(b.status)}">${statusLbl(b.status)}</div>
-      </div>
+      <div class="bg-gray-50 rounded-xl p-3"><div class="text-gray-400 mb-0.5">Durée</div><div class="font-bold">${dur} min</div></div>
+      <div class="bg-gray-50 rounded-xl p-3"><div class="text-gray-400 mb-0.5">Coiffeur·se</div><div class="font-bold truncate">${escH(sn)}</div></div>
+      <div class="bg-gray-50 rounded-xl p-3"><div class="text-gray-400 mb-0.5">Statut</div><div class="font-bold ${statusClr(b.status)}">${statusLbl(b.status)}</div></div>
     </div>
-    ${b.customer_note ? `<div class="bg-amber-50 border border-amber-100 rounded-lg p-3 text-xs text-gray-600">${escH(b.customer_note)}</div>` : ''}
-    <div class="text-[10px] text-gray-300">ID Square: ${b.id||'—'}</div>`;
+    ${b.customerNote ? `<div class="bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs text-gray-700 mb-2">📝 ${escH(b.customerNote)}</div>` : ''}
+    <div class="text-[10px] text-gray-300">ID: ${b.id}</div>`;
 
   const acts = document.getElementById('md-actions');
   acts.innerHTML = '';
+
   if (['ACCEPTED','PENDING'].includes(b.status)) {
-    const btn = document.createElement('button');
-    btn.className = 'flex-1 border border-red-200 text-red-600 text-xs rounded-lg py-2 font-semibold hover:bg-red-50 transition';
-    btn.textContent = 'Annuler ce RDV';
-    btn.onclick = () => cancelBk(b.id, b.version||0);
-    acts.appendChild(btn);
+    // Bouton Reprogrammer
+    const rBtn = btn('Reprogrammer', 'border border-blue-200 text-blue-600 hover:bg-blue-50', () => openReschedule(b));
+    // Bouton Annuler
+    const cBtn = btn('Annuler le RDV', 'border border-red-200 text-red-600 hover:bg-red-50', () => cancelRdv(b.id, b.version||1));
+    acts.append(rBtn, cBtn);
   }
+
   show('mo'); show('md');
 }
-
 function closeMo() { hide('mo'); hide('md'); }
 
-async function cancelBk(id, v) {
+// ── Reprogrammer ──────────────────────────────────────────────────────────────
+function openReschedule(b) {
+  editingId = b.id;
+  closeMo();
+  const dt = new Date(b.startAt);
+  document.getElementById('fd-title').textContent = 'Reprogrammer';
+  document.getElementById('fd-save').textContent  = 'Enregistrer';
+  document.getElementById('f-date').value = dt.toLocaleDateString('fr-CA').split('/').reverse().join('-') || dt.toISOString().slice(0,10);
+  document.getElementById('f-time').value = fmtTime(b.startAt);
+  document.getElementById('f-client-q').value   = b.customerName || '';
+  document.getElementById('f-customer-name').textContent = b.customerName || '';
+  document.getElementById('f-customer-name').classList.remove('hidden');
+  document.getElementById('f-customer-id').value = b.customerId || '';
+  // Pré-sélectionner le staff
+  const sid = (b.appointmentSegments||[])[0]?.team_member_id;
+  if (sid) document.getElementById('f-staff').value = sid;
+  show('fo'); show('fd');
+}
+
+// ── Nouveau RDV ───────────────────────────────────────────────────────────────
+function openNewRdv(date, time, staffId) {
+  editingId = null;
+  document.getElementById('fd-title').textContent = 'Nouveau RDV';
+  document.getElementById('fd-save').textContent  = 'Créer le RDV';
+  document.getElementById('f-client-q').value   = '';
+  document.getElementById('f-customer-id').value = '';
+  document.getElementById('f-customer-name').classList.add('hidden');
+  document.getElementById('f-note').value = '';
+  document.getElementById('f-date').value = date || new Date().toISOString().slice(0,10);
+  document.getElementById('f-time').value = time || '09:00';
+  if (staffId) document.getElementById('f-staff').value = staffId;
+  document.getElementById('fd-err').classList.add('hidden');
+  show('fo'); show('fd');
+}
+function closeFo() { hide('fo'); hide('fd'); editingId = null; }
+
+// ── Recherche client ──────────────────────────────────────────────────────────
+let searchTimer;
+function searchClients(q) {
+  clearTimeout(searchTimer);
+  const list = document.getElementById('f-client-list');
+  if (!q || q.length < 2) { list.classList.add('hidden'); return; }
+  searchTimer = setTimeout(async () => {
+    try {
+      const d = await fetch(`${API}/api/sq-calendar/customers/search?q=${encodeURIComponent(q)}`).then(r=>r.json());
+      if (!d.customers?.length) { list.classList.add('hidden'); return; }
+      list.innerHTML = d.customers.map(c =>
+        `<div class="px-3 py-2 hover:bg-amber-50 cursor-pointer border-b border-gray-100 last:border-0"
+              onclick="selectClient('${c.id}','${escAttr(c.name)}')">
+           <div class="font-semibold">${escH(c.name)}</div>
+           ${c.phone?`<div class="text-gray-400">${c.phone}</div>`:''}
+         </div>`
+      ).join('');
+      list.classList.remove('hidden');
+    } catch(_) {}
+  }, 400);
+}
+function selectClient(id, name) {
+  document.getElementById('f-customer-id').value = id;
+  document.getElementById('f-client-q').value   = name;
+  document.getElementById('f-customer-name').textContent = '✓ ' + name;
+  document.getElementById('f-customer-name').classList.remove('hidden');
+  document.getElementById('f-client-list').classList.add('hidden');
+}
+
+// ── Sauvegarder RDV ──────────────────────────────────────────────────────────
+async function saveRdv() {
+  const errEl = document.getElementById('fd-err');
+  errEl.classList.add('hidden');
+  const dateVal = document.getElementById('f-date').value;
+  const timeVal = document.getElementById('f-time').value;
+  if (!dateVal || !timeVal) { errEl.textContent='Date et heure requis'; errEl.classList.remove('hidden'); return; }
+
+  const startAt = new Date(`${dateVal}T${timeVal}:00`).toISOString();
+
+  if (editingId) {
+    // RESCHEDULE
+    try {
+      document.getElementById('fd-save').textContent = '…';
+      const r = await fetch(`${API}/api/sq-calendar/appointments/${editingId}/reschedule`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ startAt })
+      });
+      const d = await r.json();
+      if (!d.ok) throw new Error(d.error||'Erreur');
+      closeFo(); toast('✅ RDV reprogrammé'); reload();
+    } catch(e) { errEl.textContent = e.message; errEl.classList.remove('hidden'); document.getElementById('fd-save').textContent='Enregistrer'; }
+  } else {
+    // CRÉATION
+    const svcSel = document.getElementById('f-service');
+    const svcId  = svcSel.value;
+    const staffId = document.getElementById('f-staff').value;
+    const customerId = document.getElementById('f-customer-id').value;
+    const note = document.getElementById('f-note').value;
+    const dur  = parseInt(svcSel.selectedOptions[0]?.dataset?.duration || '60');
+    if (!svcId)   { errEl.textContent='Choisir un service'; errEl.classList.remove('hidden'); return; }
+    if (!staffId) { errEl.textContent='Choisir un coiffeur'; errEl.classList.remove('hidden'); return; }
+    try {
+      document.getElementById('fd-save').textContent = '…';
+      const r = await fetch(`${API}/api/sq-calendar/appointments`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ serviceVariationId:svcId, staffId, customerId:customerId||undefined, startAt, durationMinutes:dur, customerNote:note })
+      });
+      const d = await r.json();
+      if (!d.ok) throw new Error(d.error||'Erreur création');
+      closeFo(); toast('✅ RDV créé'); reload();
+    } catch(e) { errEl.textContent = e.message; errEl.classList.remove('hidden'); document.getElementById('fd-save').textContent='Créer le RDV'; }
+  }
+}
+
+// ── Annuler RDV ───────────────────────────────────────────────────────────────
+async function cancelRdv(id, version) {
   if (!confirm('Annuler ce rendez-vous Square ?')) return;
   try {
     const r = await fetch(`${API}/api/sq-calendar/appointments/${id}/cancel`, {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ version: parseInt(v)||0 })
+      body: JSON.stringify({ version: parseInt(version)||1 })
     });
     const d = await r.json();
-    if (d.ok || d.booking) { closeMo(); reload(); }
-    else alert(d.error || 'Erreur annulation');
+    if (!d.ok) throw new Error(d.error||'Erreur');
+    closeMo(); toast('✅ RDV annulé'); reload();
   } catch(e) { alert('Erreur: '+e.message); }
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Utils ─────────────────────────────────────────────────────────────────────
 function slotClass(s) {
-  return { ACCEPTED:'slot-taken', PENDING:'slot-taken', COMPLETED:'slot-done', NO_SHOW:'slot-noshow', CANCELLED:'slot-cancelled' }[s] || 'slot-taken';
+  return { ACCEPTED:'slot-accepted', PENDING:'slot-pending', COMPLETED:'slot-done', NO_SHOW:'slot-noshow', CANCELLED:'slot-cancelled' }[s] || 'slot-accepted';
 }
 function statusLbl(s) {
-  return { ACCEPTED:'Confirmé', PENDING:'En attente', COMPLETED:'Terminé', NO_SHOW:'Absent', CANCELLED:'Annulé' }[s] || s;
+  return { ACCEPTED:'Confirmé', PENDING:'En attente', COMPLETED:'Terminé', NO_SHOW:'No-show', CANCELLED:'Annulé' }[s] || s;
 }
-function statusColor(s) {
-  return { ACCEPTED:'text-amber-600', PENDING:'text-orange-500', COMPLETED:'text-violet-600', NO_SHOW:'text-red-500', CANCELLED:'text-gray-400' }[s] || 'text-gray-500';
+function statusClr(s) {
+  return { ACCEPTED:'text-amber-600', PENDING:'text-yellow-600', COMPLETED:'text-violet-600', NO_SHOW:'text-red-500', CANCELLED:'text-gray-400' }[s]||'text-gray-500';
 }
 function fmtTime(iso) {
-  return new Date(iso).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit',timeZone:'America/Toronto'});
+  try { return new Date(iso).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit',timeZone:TZ}); } catch(_) { return iso; }
 }
 function updateLabel(s, e) {
-  document.getElementById('date-lbl').textContent = viewMode === 'day'
-    ? new Date(s).toLocaleDateString('fr-CA',{weekday:'long',day:'numeric',month:'long',timeZone:'America/Toronto'})
-    : `${s.toLocaleDateString('fr-CA',{day:'numeric',month:'short'})} – ${e.toLocaleDateString('fr-CA',{day:'numeric',month:'short'})}`;
+  document.getElementById('date-lbl').textContent = viewMode==='day'
+    ? new Date(s).toLocaleDateString('fr-CA',{weekday:'long',day:'numeric',month:'long',timeZone:TZ})
+    : `${s.toLocaleDateString('fr-CA',{day:'numeric',month:'short',timeZone:TZ})} – ${e.toLocaleDateString('fr-CA',{day:'numeric',month:'short',timeZone:TZ})}`;
 }
 function escH(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function escJ(obj) { return JSON.stringify(obj).replace(/'/g,"\\'"); }
+function escAttr(s) { return String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+function escJ(obj) { try { return JSON.stringify(obj).replace(/'/g,"\\'"); } catch(_) { return '{}'; } }
 function show(id) { document.getElementById(id).classList.remove('hidden'); }
 function hide(id) { document.getElementById(id).classList.add('hidden'); }
+function btn(label, cls, fn) {
+  const b = document.createElement('button');
+  b.textContent = label;
+  b.className   = `flex-1 rounded-lg py-2 text-xs font-semibold transition ${cls}`;
+  b.onclick     = fn;
+  return b;
+}
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'fixed bottom-4 right-4 bg-gray-900 text-white text-sm px-4 py-2 rounded-xl shadow-xl z-50';
+  t.textContent = msg; document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 3000);
+}
 
 reload();
-setInterval(reload, 3*60*1000); // auto-refresh 3 min
+setInterval(reload, 3*60*1000);
 </script>
 </body>
 </html>

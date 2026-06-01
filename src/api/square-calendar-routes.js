@@ -67,6 +67,95 @@ async function clientsSyncHandler(req, res) {
 
 router.get('/clients-sync', clientsSyncHandler);
 
+// ── ENDPOINTS AGENDA PUBLICS (utilisés par admin-agenda.html sur Vercel) ──
+
+// GET /appointments
+router.get('/appointments', async (req, res) => {
+  try {
+    const { startAt, endAt, staffId, limit = '100' } = req.query;
+    const s = startAt || new Date().toISOString().slice(0,10) + 'T00:00:00Z';
+    const e = endAt   || new Date(Date.now() + 7*86400000).toISOString().slice(0,10) + 'T23:59:59Z';
+    const params = new URLSearchParams({ location_id: LOCATION_ID||'', start_at_min: s, start_at_max: e, limit });
+    if (staffId) params.set('team_member_id', staffId);
+    const data = await squareGet(`/v2/bookings?${params}`);
+    // Enrichir avec nom client
+    const bookings = await Promise.all((data.bookings||[]).map(async b => {
+      let customerName = 'Client';
+      if (b.customer_id) {
+        try { const cd = await squareGet(`/v2/customers/${b.customer_id}`); customerName = `${cd.customer?.given_name||''} ${cd.customer?.family_name||''}`.trim() || 'Client'; } catch(_) {}
+      }
+      return { id:b.id, status:b.status, startAt:b.start_at, customerName, customerId:b.customer_id, customerNote:b.customer_note||'', version:b.version, appointmentSegments:b.appointment_segments||[] };
+    }));
+    res.json({ bookings, total: bookings.length });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /staff
+router.get('/staff', async (req, res) => {
+  try {
+    const data = await squarePost('/v2/team-members/search', { query:{ filter:{ location_ids: LOCATION_ID?[LOCATION_ID]:[], status:'ACTIVE' } } });
+    const team_members = (data.team_members||[]).map(m => ({ id:m.id, display_name:`${m.given_name||''} ${m.family_name||''}`.trim(), given_name:m.given_name, family_name:m.family_name, status:m.status }));
+    res.json({ team_members, count: team_members.length });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /services
+router.get('/services', async (req, res) => {
+  try {
+    const data = await squarePost('/v2/catalog/search', { object_types:['ITEM'], query:{ prefix_query:{ attribute_name:'category_id', attribute_prefix:'' } }, limit: 200 });
+    const svcs = (data.objects||[]).filter(o => o.type==='ITEM').map(o => ({ id:o.id, name:o.item_data?.name||'Service', variations:(o.item_data?.variations||[]).map(v=>({ id:v.id, name:v.item_variation_data?.name, durationMinutes:Math.round((v.item_variation_data?.service_duration||3600000)/60000), priceMoney:v.item_variation_data?.price_money })) }));
+    res.json({ services: svcs });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /customers/search?q=
+router.get('/customers/search', async (req, res) => {
+  try {
+    const { q = '' } = req.query;
+    const body = { query:{ filter:{ text_filter:{ query: q } } }, limit: 20 };
+    const data = await squarePost('/v2/customers/search', body);
+    const customers = (data.customers||[]).map(c => ({ id:c.id, name:`${c.given_name||''} ${c.family_name||''}`.trim(), phone:c.phone_number, email:c.email_address }));
+    res.json({ customers });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /appointments (création)
+router.post('/appointments', async (req, res) => {
+  try {
+    const { serviceVariationId, staffId, customerId, startAt, durationMinutes=60, customerNote='' } = req.body;
+    if (!serviceVariationId || !staffId || !startAt) return res.status(400).json({ error:'serviceVariationId, staffId, startAt requis' });
+    const body = { idempotency_key:`daleba-${Date.now()}`, booking:{ location_id:LOCATION_ID, customer_id:customerId||undefined, customer_note:customerNote, start_at:startAt, appointment_segments:[{ duration_minutes:durationMinutes, service_variation_id:serviceVariationId, team_member_id:staffId, service_variation_version:1 }] } };
+    const data = await squarePost('/v2/bookings', body);
+    res.status(201).json({ ok:true, booking:data.booking });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /appointments/:id/cancel
+router.post('/appointments/:id/cancel', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { version=1 } = req.body;
+    const data = await squarePost(`/v2/bookings/${id}/cancel`, { idempotency_key:`cancel-${id}-${Date.now()}`, booking_version:parseInt(version)||1 });
+    res.json({ ok:true, booking:data.booking });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /appointments/:id/reschedule (déplacer un RDV)
+router.post('/appointments/:id/reschedule', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { startAt, version=1 } = req.body;
+    if (!startAt) return res.status(400).json({ error:'startAt requis' });
+    const body = { idempotency_key:`reschedule-${id}-${Date.now()}`, booking:{ start_at:startAt, version:parseInt(version)||1 } };
+    const data = await squarePost(`/v2/bookings/${id}`, { ...body, method:'PUT' });
+    // Square utilise PUT pour mettre à jour
+    const putRes = await fetch(`https://connect.squareup.com/v2/bookings/${id}`, { method:'PUT', headers:{ 'Authorization':`Bearer ${process.env.SQUARE_ACCESS_TOKEN}`, 'Content-Type':'application/json', 'Square-Version':'2024-02-22' }, body: JSON.stringify({ idempotency_key:`rsch-${id}-${Date.now()}`, booking:{ start_at:startAt, version:parseInt(version)||1 } }) });
+    const d = await putRes.json();
+    if (!putRes.ok) throw new Error(d.errors?.[0]?.detail || `HTTP ${putRes.status}`);
+    res.json({ ok:true, booking:d.booking });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 // Route d'import VCF publique (pin requis) — AVANT requireAuth
 router.post('/contact-book/vcf-import', async (req, res) => {
   const pin = req.headers['x-import-pin'] || req.body?.pin;
