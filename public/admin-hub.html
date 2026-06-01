@@ -509,9 +509,10 @@
     try {
       const rv = await fetch('/api/revenue/summary').then(r => r.json()).catch(() => null);
       if (rv) {
-        const ca = rv.total_revenue_cad || 0;
+        const ca = parseFloat(rv.revenue?.total || rv.total_revenue_cad || 0);
+        const cnt = rv.revenue?.completed || rv.total_payments || 0;
         document.getElementById('kpi-ca').textContent = '$' + Math.round(ca).toLocaleString('fr-CA');
-        document.getElementById('kpi-ca-sub').textContent = `${rv.total_payments || 0} paiements · Square`;
+        document.getElementById('kpi-ca-sub').textContent = `${cnt} paiement${cnt !== 1 ? 's' : ''} · Square`;
       }
     } catch(_) {}
 
