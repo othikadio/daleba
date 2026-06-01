@@ -305,29 +305,124 @@ async function scanFreelancer() {
 
 // ── Export principal ────────────────────────────────────────────────────────
 
+
+// ── Source : GitHub — dépôts cherchant API/automation ──────────────────────
+async function scanGitHub() {
+  const results = [];
+  const queries = ['automation saas api', 'ai automation freelance', 'api integration consulting'];
+  for (const q of queries) {
+    try {
+      const url = `https://api.github.com/search/issues?q=${encodeURIComponent(q+' is:open label:help-wanted')}&sort=created&per_page=15`;
+      const { status, body } = await fetchUrl(url, { headers: { 'User-Agent': 'DALEBA-Scanner/1.0', 'Accept': 'application/vnd.github.v3+json' } });
+      if (status !== 200) continue;
+      const json = safeJSON(body);
+      for (const issue of (json?.items || []).slice(0, 10)) {
+        results.push({ platform: 'GitHub', url: issue.html_url, title: issue.title, description: (issue.body||'').slice(0,1000), budget_raw: null, country: null, language: 'en', detected_at: new Date() });
+      }
+    } catch(e) { console.warn('[scanner] GitHub:', e.message); }
+  }
+  return results;
+}
+
+// ── Source : Ask HN / YC — freelance & consulting ──────────────────────────
+async function scanYCFreelance() {
+  const results = [];
+  try {
+    const queries = ['consulting automation', 'hire freelance ai', 'looking for developer api'];
+    for (const q of queries.slice(0, 2)) {
+      const url = `https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(q)}&tags=ask_hn&hitsPerPage=10&dateRange=last_7days`;
+      const { status, body } = await fetchUrl(url);
+      if (status !== 200) continue;
+      const json = safeJSON(body);
+      for (const hit of (json?.hits || [])) {
+        if (!hit.title || hit.title.length < 10) continue;
+        results.push({ platform: 'Ask HN', url: hit.url || `https://news.ycombinator.com/item?id=${hit.objectID}`, title: hit.title, description: (hit.story_text||hit.comment_text||'').slice(0,800), budget_raw: null, country: null, language: 'en', detected_at: new Date() });
+      }
+    }
+  } catch(e) { console.warn('[scanner] YCFreelance:', e.message); }
+  return results;
+}
+
+// ── Source : Guru.com RSS ───────────────────────────────────────────────────
+async function scanGuru() {
+  const results = [];
+  try {
+    const url = 'https://www.guru.com/d/jobs/q/automation/pg/1/?format=rss';
+    const { status, body } = await fetchUrl(url);
+    if (status !== 200) return results;
+    const items = body.match(/<item>([\s\S]*?)<\/item>/g) || [];
+    for (const item of items.slice(0, 15)) {
+      const title = (item.match(/<title><!\[CDATA\[([^\]]+)\]\]><\/title>/) || item.match(/<title>([^<]+)<\/title>/))?.[1] || '';
+      const link  = (item.match(/<link>([^<]+)<\/link>/))?.[1] || '';
+      const desc  = (item.match(/<description><!\[CDATA\[([^\]]+)\]\]><\/description>/) || item.match(/<description>([^<]+)<\/description>/))?.[1] || '';
+      if (title) results.push({ platform: 'Guru', url: link, title, description: desc.slice(0, 800), budget_raw: null, country: null, language: 'en', detected_at: new Date() });
+    }
+  } catch(e) { console.warn('[scanner] Guru:', e.message); }
+  return results;
+}
+
+// ── Source : Toptal blog / jobs (RSS) ──────────────────────────────────────
+async function scanToptal() {
+  const results = [];
+  try {
+    const url = 'https://www.toptal.com/blog/rss.xml';
+    const { status, body } = await fetchUrl(url);
+    if (status !== 200) return results;
+    const items = body.match(/<item>([\s\S]*?)<\/item>/g) || [];
+    for (const item of items.slice(0, 10)) {
+      const title = (item.match(/<title><!\[CDATA\[([^\]]+)\]\]><\/title>/) || item.match(/<title>([^<]+)<\/title>/))?.[1] || '';
+      const link  = (item.match(/<link>([^<]+)<\/link>/))?.[1] || '';
+      if (title && (title.toLowerCase().includes('automat') || title.toLowerCase().includes('api') || title.toLowerCase().includes('freelan')))
+        results.push({ platform: 'Toptal', url: link, title, description: '', budget_raw: null, country: null, language: 'en', detected_at: new Date() });
+    }
+  } catch(e) { console.warn('[scanner] Toptal:', e.message); }
+  return results;
+}
+
 async function scanAll() {
-  console.log('[scanner] Démarrage scan toutes sources...');
+  console.log('[scanner] Démarrage scan — 11 sources mondiales...');
   const settled = await Promise.allSettled([
     scanHackerNews(),
     scanRemotive(),
     scanWeWorkRemotely(),
     scanUpwork(),
     scanFreelancer(),
+    scanPeoplePerHour(),
+    scanReddit(),
+    scanGitHub(),
+    scanYCFreelance(),
+    scanGuru(),
+    scanToptal(),
   ]);
 
   const all = [];
-  const names = ['HackerNews', 'Remotive', 'WeWorkRemotely', 'Upwork', 'Freelancer'];
+  const names = ['HackerNews','Remotive','WeWorkRemotely','Upwork','Freelancer','PeoplePerHour','Reddit','GitHub','AskHN','Guru','Toptal'];
   settled.forEach((result, i) => {
     if (result.status === 'fulfilled') {
       console.log(`[scanner] ${names[i]}: ${result.value.length} résultats`);
       all.push(...result.value);
     } else {
-      console.warn(`[scanner] ${names[i]} échoué: ${result.reason?.message}`);
+      console.warn(`[scanner] ${names[i]} échoué:`, result.reason?.message);
     }
   });
 
-  console.log(`[scanner] Total brut: ${all.length} opportunités`);
+  console.log(`[scanner] Total brut: ${all.length} opportunités — scan terminé`);
   return all;
 }
 
-module.exports = { scanAll, scanHackerNews, scanRemotive, scanWeWorkRemotely, scanUpwork, scanFreelancer };
+// Scan segmenté par escouade géographique
+async function scanBySquad(squadId) {
+  const squads = {
+    americas:   [scanHackerNews, scanRemotive, scanUpwork],
+    europe:     [scanWeWorkRemotely, scanFreelancer, scanPeoplePerHour],
+    global:     [scanGitHub, scanYCFreelance, scanGuru, scanToptal],
+    freelance:  [scanUpwork, scanFreelancer, scanGuru, scanPeoplePerHour],
+  };
+  const fns = squads[squadId] || squads.global;
+  const settled = await Promise.allSettled(fns.map(f => f()));
+  const results = [];
+  settled.forEach(r => { if(r.status==='fulfilled') results.push(...r.value); });
+  return results;
+}
+
+module.exports = { scanAll, scanBySquad, scanHackerNews, scanRemotive, scanWeWorkRemotely, scanUpwork, scanFreelancer, scanPeoplePerHour, scanReddit, scanGitHub, scanYCFreelance, scanGuru, scanToptal };

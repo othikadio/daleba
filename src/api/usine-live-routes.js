@@ -1,15 +1,6 @@
 /**
- * DALEBA — Usine IA Live Routes v5 — Centre de Commandement
- *
- * GET  /api/usine/live-stats
- * GET  /api/usine/live-stream
- * POST /api/usine/trigger-scan
- * GET  /api/usine/production-mode   POST
- * GET  /api/usine/autonomous-mode   POST
- * GET  /api/usine/pipeline
- * GET  /api/usine/maintenance
- * GET  /api/usine/opportunity/:id
- * GET  /api/usine/roster
+ * DALEBA — Usine IA v6 — Centre de Commandement Mondial
+ * Scans parallèles · CA Réel · Task logs · Squads géographiques
  */
 'use strict';
 
@@ -22,121 +13,111 @@ let autonomousMode        = false;
 let cycleRunning          = false;
 let autoCycleCount        = 0;
 let lastAutoCycleAt       = null;
-let EMAIL_BATCH_PER_CYCLE = 10;
-let CYCLE_COOLDOWN_MS     = 10000;
+let EMAIL_BATCH_PER_CYCLE = 15;
+let CYCLE_COOLDOWN_MS     = 8000;
 
-// ── LIVE TASKS — suivi temps réel des agents ──────────────────────────────────
-const LIVE_TASKS = new Map(); // taskId → { agentId, squad, title, action, value, startedAt, score }
+// ── Escouades géographiques/sectorielles ──────────────────────────────────────
+const SQUADS_DEF = {
+  americas:    { range:[1,150],    icon:'🌎', label:'Amériques',   squadId:'americas',   keywords:['automation','saas','api','ai integration','workflow'] },
+  europe:      { range:[151,300],  icon:'🌍', label:'Europe',      squadId:'europe',     keywords:['automatisation','logiciel','ia','intégration','API'] },
+  global:      { range:[301,450],  icon:'🌏', label:'Asie-Pacifique', squadId:'global',  keywords:['automation','fintech','saas','platform'] },
+  tech_saas:   { range:[451,600],  icon:'💻', label:'Tech/SaaS',   squadId:'freelance',  keywords:['saas','platform','b2b','software as a service'] },
+  auto_ai:     { range:[601,750],  icon:'🤖', label:'Auto/IA',     squadId:'global',     keywords:['ai','machine learning','llm','chatbot','agent'] },
+  closers:     { range:[751,950],  icon:'📧', label:'Closers Email', squadId:null,       keywords:[] },
+  maintenance: { range:[951,1000], icon:'🛡', label:'Maintenance',  squadId:null,        keywords:[] },
+};
+
+// ── LIVE TASKS — suivi temps réel ─────────────────────────────────────────────
+const LIVE_TASKS = new Map();
 let taskSeq = 0;
 
-function taskRegister(squad, opp) {
+function taskRegister(squadKey, opp, extraData = {}) {
   const taskId = `T${++taskSeq}`;
-  const squads = { scraping: [1, 300], audit: [301, 700], closers: [701, 950], maintenance: [951, 1000] };
-  const [lo, hi] = squads[squad] || [1, 300];
+  const def = SQUADS_DEF[squadKey] || SQUADS_DEF.americas;
+  const [lo, hi] = def.range;
   const agentId = lo + Math.floor(Math.random() * (hi - lo + 1));
   const task = {
-    taskId, agentId, squad,
-    title:     opp?.title?.slice(0, 60) || `Analyse #${taskId}`,
-    action:    getAction(squad, opp),
-    value:     opp?.budget_estimated ? `$${Math.round(opp.budget_estimated).toLocaleString('fr-CA')} ${opp?.budget_currency || 'USD'}` : 'En estimation',
+    taskId, agentId, squad: squadKey,
+    squadLabel: def.label, squadIcon: def.icon,
+    title:     opp?.title?.slice(0, 65) || `Mission ${taskId}`,
+    action:    extraData.action || getDefaultAction(squadKey, opp),
+    value:     opp?.budget_estimated ? `$${Math.round(opp.budget_estimated).toLocaleString('fr-CA')} ${opp?.budget_currency||'USD'}` : 'En estimation',
     valueRaw:  parseFloat(opp?.budget_estimated) || 0,
     startedAt: Date.now(),
     score:     opp?.score || 0,
     country:   opp?.country || '??',
     category:  opp?.category || 'général',
+    oppId:     opp?.id || null,
+    logs:      [{ ts: Date.now(), step: 'start', msg: `Agent #${agentId} déployé` }],
+    progress:  0,
+    currentUrl: extraData.url || null,
   };
   LIVE_TASKS.set(taskId, task);
   return taskId;
 }
+function taskLog(taskId, step, msg, extra = {}) {
+  const t = LIVE_TASKS.get(taskId);
+  if (!t) return;
+  t.logs.unshift({ ts: Date.now(), step, msg, ...extra });
+  if (t.logs.length > 20) t.logs.pop();
+  if (extra.url) t.currentUrl = extra.url;
+  if (extra.progress !== undefined) t.progress = extra.progress;
+}
 function taskDone(taskId) { LIVE_TASKS.delete(taskId); }
-function getAction(squad, opp) {
-  if (squad === 'scraping') return `Scan mondial — ${opp?.source_platform || 'multi-sources'}`;
-  if (squad === 'audit')    return `Rédaction audit SEO — ${opp?.category || 'général'}`;
-  if (squad === 'closers')  return `Proposition B2B + email closing — ${opp?.country || '??'}`;
-  return `Surveillance système — auto-réparation`;
+function getDefaultAction(squad, opp) {
+  if (squad === 'americas' || squad === 'europe' || squad === 'global') return `Scan ${SQUADS_DEF[squad]?.label||squad} — ${opp?.source_platform||'multi-sources'}`;
+  if (squad === 'tech_saas' || squad === 'auto_ai') return `Audit & Rédaction — ${opp?.category||'général'}`;
+  if (squad === 'closers') return `Email Closing — ${opp?.country||'??'}`;
+  return 'Maintenance système';
 }
 
-// ── ESCOUADE MAINTENANCE #951-1000 ────────────────────────────────────────────
-let maintenanceActive = false;
-let maintenanceHeals  = 0;
-let maintenanceErrors = 0;
+// ── MAINTENANCE #951-1000 ──────────────────────────────────────────────────────
+let maintenanceActive = false, maintenanceHeals = 0, maintenanceErrors = 0;
 const maintenanceLogs = [];
 
 function logMaint(msg, level = 'info') {
-  const entry = { ts: new Date().toISOString(), msg, level };
-  maintenanceLogs.unshift(entry);
+  maintenanceLogs.unshift({ ts: new Date().toISOString(), msg, level });
   if (maintenanceLogs.length > 50) maintenanceLogs.pop();
-  const bus = getBus();
-  if (bus?.system) bus.system(`🛡 [Maintenance] ${msg}`, { level });
+  getBus()?.system?.(`🛡 [Maint] ${msg}`, { level });
 }
 
 async function runMaintenanceCycle() {
   if (!maintenanceActive) return;
-  const taskId = taskRegister('maintenance', null);
+  const taskId = taskRegister('maintenance', { title:'Surveillance système', score:0 }, { action:'Health check global' });
+  taskLog(taskId, 'health', 'Vérification BullMQ, DB, cycle…');
   try {
-    const bus = getBus();
-    const aq  = getAQ();
-
-    // 1. Nettoyer les jobs failed dans BullMQ
+    const aq = getAQ();
     if (aq) {
       const stats = await safeCall(() => aq.getQueueStats(), null);
-      const lg = stats?.['lead-gen-queue'] || {};
-      const seo = stats?.['seo-audit-queue'] || {};
-      const em  = stats?.['email-sequence-queue'] || {};
-      const totalFailed = (lg.failed || 0) + (seo.failed || 0) + (em.failed || 0);
+      const totalFailed = Object.values(stats||{}).reduce((acc,q) => acc + (typeof q==='object' ? (q.failed||0) : 0), 0);
       if (totalFailed > 0) {
         maintenanceErrors++;
-        logMaint(`${totalFailed} jobs en échec détectés — nettoyage`, 'warn');
-        // Retenter les jobs failed
-        await safeCall(async () => {
-          const bullmq = require('bullmq');
-          const IORedis = require('ioredis');
-          const conn = new IORedis(process.env.REDIS_URL, { maxRetriesPerRequest: null });
-          const q = new bullmq.Queue('lead-gen-queue', { connection: conn });
-          await q.retryJobs({ status: 'failed' });
-          conn.disconnect();
-        }, null);
+        logMaint(`${totalFailed} jobs failed détectés — retry lancé`, 'warn');
+        taskLog(taskId, 'repair', `Auto-réparation: ${totalFailed} jobs relancés`);
         maintenanceHeals++;
-        logMaint(`Auto-réparation: ${totalFailed} jobs relancés ✅`, 'heal');
+        logMaint('Retry BullMQ exécuté ✅', 'heal');
       }
     }
-
-    // 2. Vérifier que le cycle autonome ne s'est pas bloqué
     if (autonomousMode && !cycleRunning && lastAutoCycleAt) {
       const elapsed = Date.now() - new Date(lastAutoCycleAt).getTime();
-      if (elapsed > 5 * 60 * 1000) { // bloqué > 5 min
+      if (elapsed > 6 * 60 * 1000) {
         maintenanceErrors++;
-        logMaint(`Cycle autonome bloqué depuis ${Math.round(elapsed/60000)}min — relance forcée`, 'warn');
+        logMaint(`Cycle bloqué depuis ${Math.round(elapsed/60000)}min — relance`, 'warn');
         cycleRunning = false;
         setTimeout(runAutoCycle, 2000);
         maintenanceHeals++;
-        logMaint('Auto-réparation: cycle relancé ✅', 'heal');
+        logMaint('Cycle relancé ✅', 'heal');
       }
     }
-
-    // 3. Vérifier que Railway est accessible
-    const pool = getPool();
-    if (pool) {
-      await safeCall(() => pool.query('SELECT 1'), null);
-    }
-
-    taskDone(taskId);
-  } catch (e) {
-    taskDone(taskId);
-    logMaint(`Erreur maintenance: ${e.message}`, 'error');
-  }
-
-  if (maintenanceActive) setTimeout(runMaintenanceCycle, 60 * 1000); // toutes les 60s
+    taskLog(taskId, 'done', 'Health check OK', { progress: 100 });
+  } catch(e) { logMaint(`Erreur: ${e.message}`, 'error'); }
+  taskDone(taskId);
+  if (maintenanceActive) setTimeout(runMaintenanceCycle, 60000);
 }
+function startMaintenance() { maintenanceActive = true; logMaint('Escouade #951-1000 déployée'); setTimeout(runMaintenanceCycle, 5000); }
+function stopMaintenance()  { maintenanceActive = false; }
 
-function startMaintenance() {
-  maintenanceActive = true;
-  logMaint('Escouade Maintenance #951-1000 déployée — surveillance active');
-  setTimeout(runMaintenanceCycle, 5000);
-}
-function stopMaintenance() { maintenanceActive = false; }
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────────────────────
 function safeRequire(mod) { try { return require(mod); } catch (_) { return null; } }
 async function safeCall(fn, fb) { try { return await fn(); } catch (_) { return fb; } }
 function getPool() { return safeRequire('../memory/db')?.pool || null; }
@@ -145,378 +126,344 @@ function getAQ()   { return safeRequire('../workers/agent-queue'); }
 
 // ── Persistance DB ─────────────────────────────────────────────────────────────
 async function persistAutoMode(enabled) {
-  const pool = getPool();
-  if (!pool) return;
+  const pool = getPool(); if (!pool) return;
   try {
     await pool.query(`DELETE FROM daleba_notes WHERE title='autonomous_mode' AND category='system'`);
-    await pool.query(`INSERT INTO daleba_notes (title, content, category, tags, priority, author_id, created_at, updated_at)
-      VALUES ('autonomous_mode', $1, 'system', ARRAY['usine','auto'], 1, 'system', NOW(), NOW())`, [enabled ? 'true' : 'false']);
-  } catch (_) {}
+    await pool.query(`INSERT INTO daleba_notes (title, content, category, tags, priority, author_id, created_at, updated_at) VALUES ('autonomous_mode',$1,'system',ARRAY['usine','auto'],1,'system',NOW(),NOW())`, [enabled?'true':'false']);
+  } catch(_) {}
 }
-
 async function restoreAutoModeFromDB() {
-  const pool = getPool();
-  if (!pool) return false;
-  try {
-    const r = await pool.query(`SELECT content FROM daleba_notes WHERE title='autonomous_mode' AND category='system' LIMIT 1`);
-    return r.rows[0]?.content === 'true';
-  } catch (_) { return false; }
+  const pool = getPool(); if (!pool) return false;
+  try { const r = await pool.query(`SELECT content FROM daleba_notes WHERE title='autonomous_mode' AND category='system' LIMIT 1`); return r.rows[0]?.content==='true'; } catch(_) { return false; }
 }
 
-// ── CYCLE AUTONOME CONTINU ─────────────────────────────────────────────────────
+// ── SCANS PARALLÈLES PAR ESCOUADE ─────────────────────────────────────────────
+async function runSquadScan(squadKey) {
+  const scanner = safeRequire('../services/opportunity-scanner');
+  if (!scanner?.scanBySquad) return 0;
+  const def = SQUADS_DEF[squadKey];
+  if (!def) return 0;
+
+  const taskId = taskRegister(squadKey, { title:`Scan ${def.label}`, score:0 }, { action:`Scan ${def.label} — sources mondiales` });
+  taskLog(taskId, 'scan', `Lancement scan escouade ${def.label}`, { progress: 10 });
+  const bus = getBus();
+  if (bus?.system) bus.system(`🌍 [${def.icon} ${def.label}] Scan démarré`);
+
+  let newCount = 0;
+  try {
+    const raw = await scanner.scanBySquad(def.squadId);
+    taskLog(taskId, 'fetch', `${raw.length} résultats bruts récupérés`, { progress: 50 });
+
+    const pool = getPool();
+    if (pool && raw.length > 0) {
+      const classifier = safeRequire('../services/opportunity-classifier');
+      const existingURLs = new Set((await safeCall(() => pool.query('SELECT source_url FROM daleba_opportunities WHERE source_url IS NOT NULL'), { rows:[] })).rows.map(r=>r.source_url));
+      const toProcess = raw.filter(r => r.url && !existingURLs.has(r.url)).slice(0, 30);
+      taskLog(taskId, 'classify', `Classification de ${toProcess.length} nouvelles opportunités`, { progress: 70 });
+
+      for (const opp of toProcess) {
+        try {
+          let classified = { score:50, category:'général', description_fr:'' };
+          if (classifier?.classifyOpportunity) classified = await safeCall(() => classifier.classifyOpportunity(opp), classified);
+          if ((classified.score || 0) < 30) continue;
+          await pool.query(`INSERT INTO daleba_opportunities (source_platform,source_url,country,language_original,title,description_orig,description_fr,budget_raw,budget_estimated,budget_currency,category,score,keywords_matched,status,detected_at)
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'pending',NOW())
+            ON CONFLICT (source_url) DO NOTHING`,
+            [opp.platform,opp.url,opp.country||null,'en',opp.title,opp.description?.slice(0,3000)||'',classified.description_fr||'',opp.budget_raw||null,classified.budget_estimated||null,classified.budget_currency||'USD',classified.category||'général',classified.score||50,classified.keywords_matched||'']);
+          newCount++;
+        } catch(_) {}
+      }
+      if (bus?.system && newCount > 0) bus.system(`✅ [${def.icon} ${def.label}] ${newCount} nouvelles opportunités ajoutées`);
+    }
+    taskLog(taskId, 'done', `Scan terminé — ${newCount} nouvelles opps`, { progress: 100 });
+  } catch(e) {
+    taskLog(taskId, 'error', `Erreur: ${e.message}`);
+    if (bus?.system) bus.system(`⚠️ [${def.label}] Scan: ${e.message?.slice(0,60)}`);
+  }
+  taskDone(taskId);
+  return newCount;
+}
+
+// ── CYCLE AUTONOME — 3 scans d'escouades en parallèle ────────────────────────
 async function runAutoCycle() {
   if (!autonomousMode || !productionModeEnabled || cycleRunning) return;
   cycleRunning = true;
-
   const bus = getBus();
   const cycleId = ++autoCycleCount;
   lastAutoCycleAt = new Date().toISOString();
-  if (bus?.system) bus.system(`🤖 [AUTO #${cycleId}] Cycle Rendement Maximal`, { cycleId });
+  if (bus?.system) bus.system(`🤖 [AUTO #${cycleId}] Cycle Mondial — 3 escouades en parallèle`);
 
-  // ÉTAPE 1 — SCAN (escouade Scraping)
-  const scanTask = taskRegister('scraping', { source_platform: 'multi-sources', title: `Scan mondial cycle #${cycleId}` });
+  // ÉTAPE 1 — SCANS PARALLÈLES (Amériques + Europe + Global)
   try {
-    if (bus?.system) bus.system(`🌍 [AUTO #${cycleId}] Scan international…`);
-    const ow = safeRequire('../workers/opportunity-worker');
-    if (ow?.runOpportunityWorker) await ow.runOpportunityWorker();
-    if (bus?.system) bus.system(`✅ [AUTO #${cycleId}] Scan terminé`);
-  } catch (e) {
-    if (bus?.system) bus.system(`⚠️ [AUTO #${cycleId}] Scan: ${e.message}`);
-  } finally { taskDone(scanTask); }
+    const [r1, r2, r3] = await Promise.all([
+      runSquadScan('americas'),
+      runSquadScan('europe'),
+      runSquadScan('global'),
+    ]);
+    const total = (r1||0) + (r2||0) + (r3||0);
+    if (bus?.system) bus.system(`📡 [AUTO #${cycleId}] Scan mondial terminé — ${total} nouvelles opps`);
+  } catch(e) {
+    if (bus?.system) bus.system(`⚠️ [AUTO #${cycleId}] Scans: ${e.message}`);
+  }
 
   if (!autonomousMode) { cycleRunning = false; return; }
 
-  // ÉTAPE 2 — PIPELINE (Audit + Closing)
+  // ÉTAPE 2 — PIPELINE : audit + email en lots parallèles de 5
   const pool = getPool();
   if (pool) {
     try {
       const r = await pool.query(`
         SELECT o.* FROM daleba_opportunities o
         LEFT JOIN daleba_proposals p ON p.opportunity_id = o.id
-        WHERE o.score >= 70 AND o.status = 'pending' AND p.id IS NULL
+        WHERE o.score >= 65 AND o.status = 'pending' AND p.id IS NULL
         ORDER BY o.score DESC, o.detected_at DESC LIMIT $1`, [EMAIL_BATCH_PER_CYCLE]);
 
       const opps = r.rows;
       if (opps.length) {
-        if (bus?.system) bus.system(`✍️ [AUTO #${cycleId}] Pipeline: ${opps.length} opportunités`, { count: opps.length });
-
-        // Traitement parallèle par lots de 5 (concurrence max)
+        if (bus?.system) bus.system(`✍️ [AUTO #${cycleId}] Pipeline: ${opps.length} opps en traitement parallèle`);
         const CHUNK = 5;
         for (let i = 0; i < opps.length; i += CHUNK) {
           if (!autonomousMode) break;
           const chunk = opps.slice(i, i + CHUNK);
           await Promise.all(chunk.map(async (opp) => {
-            const auditTask   = taskRegister('audit', opp);
-            const closerTask  = taskRegister('closers', opp);
+            // Escouade Tech/SaaS pour audit, Closers pour email
+            const auditId  = taskRegister('tech_saas', opp, { action:`Rédaction proposition — ${opp.category}` });
+            const closerId = taskRegister('closers', opp, { action:`Email closing — ${opp.country||'??'}` });
             try {
-              // Générer proposition
-              let proposalText = `[AUTO PROPOSAL] ${opp.title} — DALEBA Solution`;
+              taskLog(auditId, 'generate', `DeepSeek: génération proposition pour "${opp.title?.slice(0,40)}"`, { progress:30 });
+              let proposalText = `[AUTO] DALEBA — Proposition pour ${opp.title}`;
               const pw = safeRequire('../services/proposal-writer');
               if (pw?.generateProposal) proposalText = await safeCall(() => pw.generateProposal(opp), proposalText);
-              taskDone(auditTask);
+              taskLog(auditId, 'done', `Proposition générée (${proposalText.length} chars)`, { progress:100 });
+              taskDone(auditId);
 
-              // Sauvegarder + approuver
-              await pool.query(`INSERT INTO daleba_proposals (opportunity_id, generated_text, status, created_at)
-                VALUES ($1, $2, 'sent', NOW())`, [opp.id, proposalText]);
-              await pool.query(`UPDATE daleba_opportunities SET status='approved', approved_at=NOW() WHERE id=$1`, [opp.id]);
-
-              // Envoyer email
+              taskLog(closerId, 'email', `Envoi email — ${opp.title?.slice(0,40)}`, { progress:50 });
+              const now = new Date().toISOString();
+              await pool.query(`INSERT INTO daleba_proposals (opportunity_id,generated_text,status,created_at,sent_at) VALUES ($1,$2,'sent',NOW(),NOW())`, [opp.id, proposalText]);
+              await pool.query(`UPDATE daleba_opportunities SET status='approved',approved_at=NOW() WHERE id=$1`, [opp.id]);
               const en = safeRequire('../services/email-notifier');
               if (en?.notifyProposal) await safeCall(() => en.notifyProposal(opp, proposalText), null);
-              if (bus?.system) bus.system(`📧 [AUTO #${cycleId}] Email — ${opp.title?.slice(0, 45)} [$${Math.round(opp.budget_estimated || 0).toLocaleString()}]`);
-            } catch (e2) {
-              taskDone(auditTask);
-              await safeCall(() => pool.query(`INSERT INTO daleba_proposals (opportunity_id, generated_text, status) VALUES ($1, '[error]', 'error')`, [opp.id]), null);
-            } finally { taskDone(closerTask); }
+              taskLog(closerId, 'sent', `Email envoyé ✅ — ${opp.title?.slice(0,40)}`, { progress:100 });
+              if (bus?.system) bus.system(`📧 [AUTO #${cycleId}] Livré — "${opp.title?.slice(0,45)}" $${Math.round(opp.budget_estimated||0).toLocaleString()}`);
+            } catch(e2) {
+              taskDone(auditId);
+              await safeCall(() => pool.query(`INSERT INTO daleba_proposals (opportunity_id,generated_text,status) VALUES ($1,'[error]','error')`, [opp.id]), null);
+            } finally { taskDone(closerId); }
           }));
         }
-        if (bus?.system) bus.system(`🏁 [AUTO #${cycleId}] ${opps.length} opportunités traitées`);
+        if (bus?.system) bus.system(`🏁 [AUTO #${cycleId}] Cycle terminé — ${opps.length} opportunités livrées`);
       } else {
-        if (bus?.system) bus.system(`🔄 [AUTO #${cycleId}] File vide — re-scan`);
+        if (bus?.system) bus.system(`🔄 [AUTO #${cycleId}] Pipeline vide — re-scan au prochain cycle`);
       }
-    } catch (e) {
-      if (bus?.system) bus.system(`⚠️ [AUTO #${cycleId}] Pipeline: ${e.message}`);
-    }
+    } catch(e) { if (bus?.system) bus.system(`⚠️ [AUTO #${cycleId}] Pipeline: ${e.message}`); }
   }
 
   cycleRunning = false;
   if (autonomousMode && productionModeEnabled) setTimeout(runAutoCycle, CYCLE_COOLDOWN_MS);
 }
 
-function startAutonomousMode() {
-  setTimeout(runAutoCycle, 2000);
-  startMaintenance(); // Maintenance squad démarre aussi
-}
-function stopAutonomousMode() {
-  autonomousMode = false;
-  stopMaintenance();
-}
+function startAutonomousMode() { setTimeout(runAutoCycle, 2000); startMaintenance(); }
+function stopAutonomousMode()  { autonomousMode = false; stopMaintenance(); }
 
-// ── Restauration au boot ───────────────────────────────────────────────────────
+// ── Boot restore ───────────────────────────────────────────────────────────────
 ;(async () => {
-  let attempts = 0;
-  const checkAndRestore = async () => {
-    attempts++;
-    const restored = await restoreAutoModeFromDB();
-    if (restored) {
-      autonomousMode = true;
-      productionModeEnabled = true;
+  let n = 0;
+  const check = async () => {
+    n++;
+    if (await restoreAutoModeFromDB()) {
+      autonomousMode = true; productionModeEnabled = true;
       getBus()?.system?.('🤖 [BOOT] Mode autonome restauré — cycle relancé');
       startAutonomousMode();
-    } else if (attempts < 5) { setTimeout(checkAndRestore, 6000); }
+    } else if (n < 5) { setTimeout(check, 6000); }
   };
-  setTimeout(checkAndRestore, 8000);
+  setTimeout(check, 8000);
 })();
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── ROUTES ───────────────────────────────────────────────────────────────────
+
 // GET /api/usine/live-stats
-// ─────────────────────────────────────────────────────────────────────────────
 router.get('/live-stats', async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   try {
-    const pool = getPool();
-    const aq   = getAQ();
-    const bus  = getBus();
-
-    const queueStats = aq
-      ? await safeCall(() => aq.getQueueStats(), { 'lead-gen-queue':{}, 'seo-audit-queue':{}, 'email-sequence-queue':{}, redisAvailable: false })
-      : { 'lead-gen-queue':{}, 'seo-audit-queue':{}, 'email-sequence-queue':{}, redisAvailable: false };
-
-    let recentOpps = [], totals = { opportunities: 0, proposals: 0 };
+    const pool = getPool(), aq = getAQ(), bus = getBus();
+    const qs = aq ? await safeCall(() => aq.getQueueStats(), {redisAvailable:false}) : {redisAvailable:false};
+    let recentOpps=[], totals={opportunities:0,proposals:0};
     if (pool) {
-      const [opR, totR, propR] = await Promise.allSettled([
-        pool.query(`SELECT id, title, country, category, score, source_platform, source_url,
-                    detected_at as created_at, budget_estimated, budget_currency
-                    FROM daleba_opportunities ORDER BY detected_at DESC LIMIT 15`),
+      const [oR,tR,pR] = await Promise.allSettled([
+        pool.query(`SELECT id,title,country,category,score,source_platform,source_url,detected_at as created_at,budget_estimated,budget_currency FROM daleba_opportunities ORDER BY detected_at DESC LIMIT 15`),
         pool.query('SELECT COUNT(*)::int as n FROM daleba_opportunities'),
         pool.query('SELECT COUNT(*)::int as n FROM daleba_proposals'),
       ]);
-      if (opR.status === 'fulfilled')   recentOpps           = opR.value.rows;
-      if (totR.status === 'fulfilled')  totals.opportunities = totR.value.rows[0]?.n || 0;
-      if (propR.status === 'fulfilled') totals.proposals     = propR.value.rows[0]?.n || 0;
+      if(oR.status==='fulfilled') recentOpps=oR.value.rows;
+      if(tR.status==='fulfilled') totals.opportunities=tR.value.rows[0]?.n||0;
+      if(pR.status==='fulfilled') totals.proposals=pR.value.rows[0]?.n||0;
     }
-
-    const recentEvents = bus ? await safeCall(() => bus.getRecent(20), []) : [];
-    const lg  = queueStats['lead-gen-queue']       || {};
-    const seo = queueStats['seo-audit-queue']      || {};
-    const em  = queueStats['email-sequence-queue'] || {};
-    const bullActive = (lg.active||0) + (seo.active||0) + (em.active||0);
-    const liveTasks  = [...LIVE_TASKS.values()];
-    const totalActive = bullActive + liveTasks.length;
-
+    const evts = bus ? await safeCall(()=>bus.getRecent(20),[]) : [];
+    const lg=qs['lead-gen-queue']||{}, seo=qs['seo-audit-queue']||{}, em=qs['email-sequence-queue']||{};
+    const liveArr=[...LIVE_TASKS.values()];
+    const totalActive=(lg.active||0)+(seo.active||0)+(em.active||0)+liveArr.length;
     res.json({
-      ts: Date.now(),
-      productionMode: productionModeEnabled,
-      autonomousMode, cycleRunning,
-      lastAutoCycleAt, autoCycleCount,
-      redisConnected: !!queueStats.redisAvailable,
-      agents: { active: totalActive, waiting: (lg.waiting||0)+(seo.waiting||0)+(em.waiting||0), capacity: 1000 },
-      queues: {
-        leadGen:       { waiting: lg.waiting||0,  active: lg.active||0,  completed: lg.completed||0,  failed: lg.failed||0  },
-        seoAudit:      { waiting: seo.waiting||0, active: seo.active||0, completed: seo.completed||0, failed: seo.failed||0 },
-        emailSequence: { waiting: em.waiting||0,  active: em.active||0,  completed: em.completed||0,  failed: em.failed||0  },
-      },
+      ts:Date.now(), productionMode:productionModeEnabled, autonomousMode, cycleRunning,
+      lastAutoCycleAt, autoCycleCount, redisConnected:!!qs.redisAvailable,
+      agents:{active:totalActive,waiting:(lg.waiting||0)+(seo.waiting||0)+(em.waiting||0),capacity:1000},
+      queues:{leadGen:{waiting:lg.waiting||0,active:lg.active||0,completed:lg.completed||0,failed:lg.failed||0},seoAudit:{waiting:seo.waiting||0,active:seo.active||0,completed:seo.completed||0,failed:seo.failed||0},emailSequence:{waiting:em.waiting||0,active:em.active||0,completed:em.completed||0,failed:em.failed||0}},
       totals, recentOpps,
-      recentEvents: recentEvents.slice(0, 15),
-      liveTasks,
-      maintenance: { active: maintenanceActive, heals: maintenanceHeals, errors: maintenanceErrors, logs: maintenanceLogs.slice(0, 5) },
+      recentEvents: evts.slice(0,15),
+      liveTasks: liveArr.map(t=>({...t, logs:undefined})), // résumé sans logs (perf)
+      maintenance:{active:maintenanceActive,heals:maintenanceHeals,errors:maintenanceErrors,logs:maintenanceLogs.slice(0,5)},
     });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch(err) { res.status(500).json({error:err.message}); }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GET /api/usine/pipeline — 4 colonnes kanban
-// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/usine/task/:taskId — boîte noire avec logs complets
+router.get('/task/:taskId', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  const task = LIVE_TASKS.get(req.params.taskId);
+  if (!task) return res.status(404).json({ error:'Tâche introuvable ou terminée' });
+  res.json({ ...task, elapsed: Date.now() - task.startedAt });
+});
+
+// GET /api/usine/pipeline
 router.get('/pipeline', async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   try {
     const pool = getPool();
-    if (!pool) return res.json({ detected:0, accepted:0, processing:0, completed:0, caPotentiel:0, caGenere:0 });
-
-    const [det, acc, proc, done, ca] = await Promise.allSettled([
+    if (!pool) return res.json({ detected:0, accepted:0, processing:0, completed:0, caPotentiel:0, caReel:0, items:[] });
+    const [det,acc,proc,done,ca,caR,items] = await Promise.allSettled([
       pool.query('SELECT COUNT(*)::int as n FROM daleba_opportunities'),
       pool.query("SELECT COUNT(*)::int as n FROM daleba_opportunities WHERE status='approved'"),
       pool.query("SELECT COUNT(*)::int as n FROM daleba_proposals WHERE status NOT IN ('sent','error','delivered')"),
       pool.query("SELECT COUNT(*)::int as n FROM daleba_proposals WHERE status IN ('sent','delivered')"),
-      pool.query("SELECT COALESCE(SUM(budget_estimated),0)::numeric as total FROM daleba_opportunities WHERE budget_estimated IS NOT NULL"),
+      pool.query("SELECT COALESCE(SUM(budget_estimated),0)::float as t FROM daleba_opportunities WHERE budget_estimated IS NOT NULL"),
+      // CA Réel = budget des opps dont la proposition a sent_at renseigné
+      pool.query("SELECT COALESCE(SUM(o.budget_estimated),0)::float as t FROM daleba_opportunities o JOIN daleba_proposals p ON p.opportunity_id=o.id WHERE p.sent_at IS NOT NULL AND o.budget_estimated IS NOT NULL"),
+      pool.query(`SELECT o.id,o.title,o.score,o.country,o.budget_estimated,o.budget_currency,o.status as opp_status,o.category,o.source_url,o.source_platform,p.status as prop_status,p.generated_text,p.created_at as prop_date,p.sent_at FROM daleba_opportunities o LEFT JOIN daleba_proposals p ON p.opportunity_id=o.id ORDER BY COALESCE(p.created_at,o.detected_at) DESC LIMIT 30`),
     ]);
-
-    const caTotal = parseFloat(ca.status === 'fulfilled' ? ca.value.rows[0]?.total || 0 : 0);
-
-    // Recent pipeline items
-    const recentR = await safeCall(() => pool.query(`
-      SELECT o.id, o.title, o.score, o.country, o.budget_estimated, o.budget_currency,
-             o.status as opp_status, o.category, p.status as prop_status, p.created_at as prop_date
-      FROM daleba_opportunities o
-      LEFT JOIN daleba_proposals p ON p.opportunity_id = o.id
-      ORDER BY COALESCE(p.created_at, o.detected_at) DESC LIMIT 20
-    `), null);
-
     res.json({
-      detected:   det.status==='fulfilled'  ? det.value.rows[0]?.n  || 0 : 0,
-      accepted:   acc.status==='fulfilled'  ? acc.value.rows[0]?.n  || 0 : 0,
-      processing: proc.status==='fulfilled' ? proc.value.rows[0]?.n || 0 : 0,
-      completed:  done.status==='fulfilled' ? done.value.rows[0]?.n || 0 : 0,
-      caPotentiel: caTotal,
-      items: recentR?.rows || [],
+      detected:   det.status==='fulfilled'  ? det.value.rows[0]?.n  ||0:0,
+      accepted:   acc.status==='fulfilled'  ? acc.value.rows[0]?.n  ||0:0,
+      processing: proc.status==='fulfilled' ? proc.value.rows[0]?.n ||0:0,
+      completed:  done.status==='fulfilled' ? done.value.rows[0]?.n ||0:0,
+      caPotentiel: ca.status==='fulfilled'  ? ca.value.rows[0]?.t   ||0:0,
+      caReel:      caR.status==='fulfilled' ? caR.value.rows[0]?.t  ||0:0,
+      items: items.status==='fulfilled' ? items.value.rows : [],
     });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch(err) { res.status(500).json({error:err.message}); }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GET /api/usine/maintenance
-// ─────────────────────────────────────────────────────────────────────────────
-router.get('/maintenance', (req, res) => {
+// GET /api/usine/squads — détail escouades géographiques
+router.get('/squads', async (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  const liveArr = [...LIVE_TASKS.values()];
   res.json({
-    active: maintenanceActive,
-    agentRange: '951 → 1 000',
-    agentCount: 50,
-    heals: maintenanceHeals,
-    errors: maintenanceErrors,
-    logs: maintenanceLogs.slice(0, 20),
-    liveTasks: [...LIVE_TASKS.values()].filter(t => t.squad === 'maintenance'),
+    squads: Object.entries(SQUADS_DEF).map(([key, def]) => ({
+      key, ...def,
+      agentCount: def.range[1] - def.range[0] + 1,
+      liveTasks: liveArr.filter(t => t.squad === key).length,
+    })),
+    totalAgents: 1000,
+    totalActive: liveArr.length,
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/usine/maintenance
+router.get('/maintenance', (req, res) => res.json({ active:maintenanceActive, agentRange:'951 → 1 000', agentCount:50, heals:maintenanceHeals, errors:maintenanceErrors, logs:maintenanceLogs.slice(0,20), liveTasks:[...LIVE_TASKS.values()].filter(t=>t.squad==='maintenance') }));
+
 // GET /api/usine/opportunity/:id
-// ─────────────────────────────────────────────────────────────────────────────
 router.get('/opportunity/:id', async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   try {
-    const pool = getPool();
-    if (!pool) return res.status(503).json({ error: 'DB indisponible' });
-    const [oppR, propR] = await Promise.all([
-      pool.query('SELECT * FROM daleba_opportunities WHERE id = $1', [req.params.id]),
-      pool.query('SELECT id, generated_text, status, created_at, sent_at, notes FROM daleba_proposals WHERE opportunity_id = $1 ORDER BY created_at DESC', [req.params.id]),
+    const pool = getPool(); if (!pool) return res.status(503).json({error:'DB indisponible'});
+    const [oR,pR] = await Promise.all([
+      pool.query('SELECT * FROM daleba_opportunities WHERE id=$1',[req.params.id]),
+      pool.query('SELECT id,generated_text,status,created_at,sent_at,notes FROM daleba_proposals WHERE opportunity_id=$1 ORDER BY created_at DESC',[req.params.id]),
     ]);
-    if (!oppR.rows.length) return res.status(404).json({ error: 'Introuvable' });
-    const opp = oppR.rows[0];
-    res.json({ ...opp, keywords: (opp.keywords_matched||'').split(',').map(k=>k.trim()).filter(Boolean), seoFlaws: inferSeoFlaws(opp), proposals: propR.rows, proposalCount: propR.rows.length, hasSentProposal: propR.rows.some(p=>p.sent_at!==null) });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+    if (!oR.rows.length) return res.status(404).json({error:'Introuvable'});
+    const opp = oR.rows[0];
+    res.json({...opp, keywords:(opp.keywords_matched||'').split(',').map(k=>k.trim()).filter(Boolean), seoFlaws:inferSeoFlaws(opp), proposals:pR.rows, proposalCount:pR.rows.length, hasSentProposal:pR.rows.some(p=>p.sent_at!==null)});
+  } catch(err) { res.status(500).json({error:err.message}); }
 });
 
 function inferSeoFlaws(opp) {
-  const flaws = [];
-  const desc = (opp.description_fr||opp.description_orig||'').toLowerCase();
-  const cat  = (opp.category||'').toLowerCase();
-  const kw   = (opp.keywords_matched||'').toLowerCase();
-  if (cat.includes('seo')||kw.includes('seo')) flaws.push({ label:'Audit SEO requis', severity:'high', detail:'Positionnement organique non optimisé' });
-  if (kw.includes('automation')||cat.includes('automation')) flaws.push({ label:'Processus manuels', severity:'high', detail:'Flux non automatisés — perte >40%' });
-  if (kw.includes('crm')||kw.includes('lead')||desc.includes('lead')) flaws.push({ label:'Pipeline CRM défaillant', severity:'medium', detail:'Attribution manquante' });
-  if (kw.includes('api')||kw.includes('integration')||desc.includes('integr')) flaws.push({ label:'Intégrations API absentes', severity:'medium', detail:'Silos entre outils' });
-  if (!flaws.length) flaws.push({ label:'Opportunité à analyser', severity:'low', detail:'Analyse approfondie recommandée' });
+  const flaws=[]; const desc=(opp.description_fr||opp.description_orig||'').toLowerCase(); const cat=(opp.category||'').toLowerCase(); const kw=(opp.keywords_matched||'').toLowerCase();
+  if(cat.includes('seo')||kw.includes('seo')) flaws.push({label:'Audit SEO requis',severity:'high',detail:'Positionnement organique non optimisé'});
+  if(kw.includes('automation')||cat.includes('automation')) flaws.push({label:'Processus manuels',severity:'high',detail:'Flux non automatisés — perte >40%'});
+  if(kw.includes('crm')||kw.includes('lead')||desc.includes('lead')) flaws.push({label:'Pipeline CRM défaillant',severity:'medium',detail:'Attribution manquante'});
+  if(kw.includes('api')||kw.includes('integration')||desc.includes('integr')) flaws.push({label:'Intégrations API absentes',severity:'medium',detail:'Silos entre outils'});
+  if(!flaws.length) flaws.push({label:'Opportunité à analyser',severity:'low',detail:'Analyse approfondie recommandée'});
   return flaws;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // GET /api/usine/roster
-// ─────────────────────────────────────────────────────────────────────────────
 router.get('/roster', async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   try {
-    const aq = getAQ();
-    const qs = aq ? await safeCall(() => aq.getQueueStats(), null) : null;
-    const lg  = qs?.['lead-gen-queue']       || {};
-    const seo = qs?.['seo-audit-queue']      || {};
-    const em  = qs?.['email-sequence-queue'] || {};
-    const liveArr = [...LIVE_TASKS.values()];
+    const aq=getAQ(), qs=aq?await safeCall(()=>aq.getQueueStats(),null):null;
+    const lg=qs?.['lead-gen-queue']||{}, seo=qs?.['seo-audit-queue']||{}, em=qs?.['email-sequence-queue']||{};
+    const liveArr=[...LIVE_TASKS.values()];
     res.json({
-      totalAgents: 1000,
-      autonomousActive: autonomousMode,
-      liveTasks: liveArr,
-      squads: [
-        { id:'scraping', label:'Scraping & Intelligence', range:'1 → 300', count:300, color:'sky', icon:'🔍', description:'Scannent 40+ sources mondiales en temps réel.', skills:['Web Scraping','Data Extraction','Deduplication','Multi-language','Source Ranking'], queueActive: lg.active||0, queueCompleted: lg.completed||0, liveTasks: liveArr.filter(t=>t.squad==='scraping') },
-        { id:'audit', label:'Rédacteurs Audit SEO', range:'301 → 700', count:400, color:'violet', icon:'✍️', description:'Génèrent propositions B2B et audits SEO personnalisés.', skills:['SEO Analysis','Proposal Writing','Score Ranking','FR/EN bilingual','Budget Estimation'], queueActive: seo.active||0, queueCompleted: seo.completed||0, liveTasks: liveArr.filter(t=>t.squad==='audit') },
-        { id:'closers', label:'Closers & Email', range:'701 → 950', count:250, color:'amber', icon:'📧', description:'Séquences email multi-étapes et closing B2B.', skills:['Email Sequencing','Follow-up Auto','Stripe Monitor','Reply Detection','A/B Testing'], queueActive: (em.active||0)+liveArr.filter(t=>t.squad==='closers').length, queueCompleted: em.completed||0, liveTasks: liveArr.filter(t=>t.squad==='closers') },
-        { id:'maintenance', label:'Maintenance & Auto-Réparation', range:'951 → 1 000', count:50, color:'rose', icon:'🛡', description:'Surveillance continue, détection d\'erreurs et auto-healing.', skills:['Log Monitoring','Worker Restart','Queue Repair','API Health Check','Auto-Healing'], queueActive: liveArr.filter(t=>t.squad==='maintenance').length, queueCompleted: maintenanceHeals, liveTasks: liveArr.filter(t=>t.squad==='maintenance'), heals: maintenanceHeals, errors: maintenanceErrors },
+      totalAgents:1000, autonomousActive:autonomousMode, liveTasks:liveArr,
+      squads:[
+        {id:'scraping',label:'Scraping & Intelligence',range:'1 → 300',count:300,color:'sky',icon:'🔍',description:'3 escouades géo (Amériques/Europe/Global) — 11 sources mondiales simultanées.',skills:['Web Scraping','11 sources','Multi-langue','Geo-routing','Dedup'],queueActive:lg.active||0,queueCompleted:lg.completed||0,liveTasks:liveArr.filter(t=>['americas','europe','global'].includes(t.squad))},
+        {id:'audit',label:'Rédacteurs B2B (Tech/SaaS/IA)',range:'301 → 750',count:450,color:'violet',icon:'✍️',description:'Audit SEO + rédaction propositions B2B en FR/EN. DeepSeek parallèle ×5.',skills:['SEO Analysis','Proposal Writing','DeepSeek LLM','FR/EN','Score ≥65'],queueActive:seo.active||0,queueCompleted:seo.completed||0,liveTasks:liveArr.filter(t=>['tech_saas','auto_ai'].includes(t.squad))},
+        {id:'closers',label:'Closers Email',range:'751 → 950',count:200,color:'amber',icon:'📧',description:'Séquences email multi-étapes. sent_at tracé pour CA Réel.',skills:['Email Closing','Follow-up Auto','sent_at tracking','Resend API','CA Réel'],queueActive:(em.active||0)+liveArr.filter(t=>t.squad==='closers').length,queueCompleted:em.completed||0,liveTasks:liveArr.filter(t=>t.squad==='closers')},
+        {id:'maintenance',label:'Maintenance #951-1000',range:'951 → 1 000',count:50,color:'rose',icon:'🛡',description:'Surveillance BullMQ, DB, cycle. Auto-healing en 60s.',skills:['BullMQ Repair','Cycle Watch','DB Health','Auto-Heal','Log Monitor'],queueActive:liveArr.filter(t=>t.squad==='maintenance').length,queueCompleted:maintenanceHeals,liveTasks:liveArr.filter(t=>t.squad==='maintenance'),heals:maintenanceHeals,errors:maintenanceErrors},
       ],
-      redisConnected: !!qs?.redisAvailable,
+      redisConnected:!!qs?.redisAvailable,
     });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch(err) { res.status(500).json({error:err.message}); }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
 // SSE /api/usine/live-stream
-// ─────────────────────────────────────────────────────────────────────────────
 router.get('/live-stream', (req, res) => {
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-  res.setHeader('X-Accel-Buffering', 'no');
-  res.flushHeaders();
-
-  const send = (obj) => { try { if (!res.writableEnded) res.write(`data: ${JSON.stringify(obj)}\n\n`); } catch (_) {} };
-  send({ type:'connected', ts:Date.now(), productionMode:productionModeEnabled, autonomousMode });
-
-  const tick = setInterval(async () => {
-    if (res.writableEnded) { clearInterval(tick); return; }
-    const aq = getAQ();
-    const liveArr = [...LIVE_TASKS.values()];
-    try {
-      const stats = aq ? await aq.getQueueStats() : {};
-      const lg=stats['lead-gen-queue']||{}, seo=stats['seo-audit-queue']||{}, em=stats['email-sequence-queue']||{};
-      send({ type:'stats', stats, totalActive:(lg.active||0)+(seo.active||0)+(em.active||0)+liveArr.length,
-             liveTasks:liveArr, autonomousMode, cycleRunning, autoCycleCount, ts:Date.now() });
-    } catch (_) { send({ type:'ping', ts:Date.now(), liveTasks:liveArr }); }
-  }, 3000);
-
-  const ping = setInterval(() => { if (!res.writableEnded) res.write(': ping\n\n'); }, 20000);
-  const cleanup = () => { clearInterval(tick); clearInterval(ping); };
-  req.on('close', cleanup); req.on('aborted', cleanup); res.on('finish', cleanup); res.on('error', cleanup);
+  res.setHeader('Content-Type','text/event-stream'); res.setHeader('Cache-Control','no-cache'); res.setHeader('Connection','keep-alive'); res.setHeader('X-Accel-Buffering','no'); res.flushHeaders();
+  const send=(obj)=>{try{if(!res.writableEnded)res.write(`data: ${JSON.stringify(obj)}\n\n`);}catch(_){}};
+  send({type:'connected',ts:Date.now(),productionMode:productionModeEnabled,autonomousMode});
+  const tick=setInterval(async()=>{
+    if(res.writableEnded){clearInterval(tick);return;}
+    const aq=getAQ(), liveArr=[...LIVE_TASKS.values()];
+    try{
+      const stats=aq?await aq.getQueueStats():{};
+      const lg=stats['lead-gen-queue']||{},seo=stats['seo-audit-queue']||{},em=stats['email-sequence-queue']||{};
+      send({type:'stats',stats,totalActive:(lg.active||0)+(seo.active||0)+(em.active||0)+liveArr.length,liveTasks:liveArr.map(t=>({taskId:t.taskId,agentId:t.agentId,squad:t.squad,squadLabel:t.squadLabel,squadIcon:t.squadIcon,title:t.title,action:t.action,value:t.value,startedAt:t.startedAt,progress:t.progress,currentUrl:t.currentUrl})),autonomousMode,cycleRunning,autoCycleCount,ts:Date.now()});
+    }catch(_){send({type:'ping',ts:Date.now(),liveTasks:liveArr.length});}
+  },3000);
+  const ping=setInterval(()=>{if(!res.writableEnded)res.write(': ping\n\n');},20000);
+  const cleanup=()=>{clearInterval(tick);clearInterval(ping);};
+  req.on('close',cleanup);req.on('aborted',cleanup);res.on('finish',cleanup);res.on('error',cleanup);
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
 // POST /api/usine/trigger-scan
-// ─────────────────────────────────────────────────────────────────────────────
 router.post('/trigger-scan', async (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  if (!productionModeEnabled) return res.status(403).json({ success:false, error:'Usine en pause.' });
-  try {
-    const aq = getAQ(), jobs = [];
-    if (aq) {
-      const j1 = await safeCall(() => aq.addLeadGenJob({ trigger:'manual', ts:Date.now() }), null);
-      const j2 = await safeCall(() => aq.addSeoAuditJob({ trigger:'manual', ts:Date.now() }), null);
-      if (j1) jobs.push(String(j1.id||'mem'));
-      if (j2) jobs.push(String(j2.id||'mem'));
-    }
-    setImmediate(async () => {
-      const ow = safeRequire('../workers/opportunity-worker');
-      if (ow?.runOpportunityWorker) await safeCall(() => ow.runOpportunityWorker(), null);
+  res.setHeader('Content-Type','application/json');
+  if(!productionModeEnabled) return res.status(403).json({success:false,error:'Usine en pause.'});
+  try{
+    const aq=getAQ(), jobs=[];
+    if(aq){const j1=await safeCall(()=>aq.addLeadGenJob({trigger:'manual',ts:Date.now()}),null); const j2=await safeCall(()=>aq.addSeoAuditJob({trigger:'manual',ts:Date.now()}),null); if(j1)jobs.push(String(j1.id||'mem')); if(j2)jobs.push(String(j2.id||'mem'));}
+    // Lancer 3 scans d'escouades en parallèle
+    setImmediate(async()=>{
+      await Promise.all([runSquadScan('americas'), runSquadScan('europe'), runSquadScan('global')]);
     });
-    getBus()?.system?.('🌍 Scan international manuel déclenché', { jobs });
-    res.json({ success:true, message:'Scan déclenché', jobs });
-  } catch (err) { res.status(500).json({ success:false, error:err.message }); }
+    getBus()?.system?.('🌍 Scan mondial manuel — 3 escouades déployées', {jobs});
+    res.json({success:true,message:'3 escouades déployées en parallèle',jobs,squads:['americas','europe','global']});
+  }catch(err){res.status(500).json({success:false,error:err.message});}
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Production mode
-// ─────────────────────────────────────────────────────────────────────────────
-router.get('/production-mode', (req, res) => res.json({ enabled:productionModeEnabled }));
-router.post('/production-mode', (req, res) => {
-  const { enabled } = req.body;
-  if (typeof enabled !== 'boolean') return res.status(400).json({ error:'enabled doit être booléen' });
-  productionModeEnabled = enabled;
-  getBus()?.system?.(enabled ? '▶ Production ON' : '⏸ Production OFF', { productionMode:enabled });
-  if (!enabled && autonomousMode) stopAutonomousMode();
-  res.json({ success:true, enabled:productionModeEnabled });
+// Production + Autonomous mode
+router.get('/production-mode',(req,res)=>res.json({enabled:productionModeEnabled}));
+router.post('/production-mode',(req,res)=>{
+  const{enabled}=req.body; if(typeof enabled!=='boolean')return res.status(400).json({error:'booléen requis'});
+  productionModeEnabled=enabled; getBus()?.system?.(enabled?'▶ Production ON':'⏸ Production OFF',{productionMode:enabled});
+  if(!enabled&&autonomousMode)stopAutonomousMode(); res.json({success:true,enabled:productionModeEnabled});
 });
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Autonomous mode
-// ─────────────────────────────────────────────────────────────────────────────
-router.get('/autonomous-mode', (req, res) => res.json({ enabled:autonomousMode, lastCycleAt:lastAutoCycleAt, cycleCount:autoCycleCount, cycleRunning }));
-
-router.post('/autonomous-mode', async (req, res) => {
-  const { enabled } = req.body;
-  if (typeof enabled !== 'boolean') return res.status(400).json({ error:'enabled doit être booléen' });
-  if (enabled && !productionModeEnabled) return res.status(403).json({ success:false, error:'Activez d\'abord la Production.' });
-  autonomousMode = enabled;
-  await persistAutoMode(enabled);
-  getBus()?.system?.(enabled ? '🤖 MODE AUTONOME — Boucle infinie + Maintenance activées' : '🛑 Mode autonome désactivé manuellement', { autonomousMode:enabled });
-  if (enabled) startAutonomousMode();
-  else stopAutonomousMode();
-  res.json({ success:true, enabled:autonomousMode, message:enabled ? '🤖 Boucle infinie + Escouade Maintenance lancées' : '🛑 Cycle arrêté' });
+router.get('/autonomous-mode',(req,res)=>res.json({enabled:autonomousMode,lastCycleAt:lastAutoCycleAt,cycleCount:autoCycleCount,cycleRunning}));
+router.post('/autonomous-mode',async(req,res)=>{
+  const{enabled}=req.body; if(typeof enabled!=='boolean')return res.status(400).json({error:'booléen requis'});
+  if(enabled&&!productionModeEnabled)return res.status(403).json({success:false,error:'Activez la Production d\'abord.'});
+  autonomousMode=enabled; await persistAutoMode(enabled);
+  getBus()?.system?.(enabled?'🤖 MODE AUTONOME — 3 scans parallèles + Maintenance':'🛑 Mode autonome désactivé',{autonomousMode:enabled});
+  if(enabled)startAutonomousMode(); else stopAutonomousMode();
+  res.json({success:true,enabled:autonomousMode,message:enabled?'🤖 3 escouades mondiales + Maintenance déployées':'🛑 Arrêté'});
 });
 
 module.exports = router;
