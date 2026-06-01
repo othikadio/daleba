@@ -122,10 +122,10 @@
         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.6"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
         Cockpit
       </div>
-      <div class="nav-item" onclick="window.open('/agenda.html','_blank')">
+      <div class="nav-item" id="nav-agenda" onclick="showIframe('agenda','/sq-calendar/cockpit','📅 Agenda Square','amber')">
         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M7 2v4M13 2v4M3 9h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
         Agenda
-        <span class="nav-badge ml-auto">↗</span>
+        <span class="w-2 h-2 rounded-full bg-emerald-400 ml-auto flex-shrink-0"></span>
       </div>
       <div class="nav-item" onclick="window.open('/admin-loyalty.html','_blank')">
         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
@@ -145,6 +145,11 @@
       <div class="nav-item" id="nav-wallet" onclick="showPanel('wallet','amber')">
         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><rect x="2" y="5" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="14" cy="11" r="1.5" fill="currentColor"/></svg>
         Wallet
+      </div>
+      <div class="nav-item" id="nav-contenu" onclick="showPanel('contenu','amber')">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><path d="M2 4a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V4z" stroke="currentColor" stroke-width="1.6"/><path d="M8 9l3 2-3 2V9z" fill="currentColor"/></svg>
+        Contenu &amp; Réseaux
+        <span class="w-2 h-2 rounded-full bg-amber-400 ml-auto flex-shrink-0"></span>
       </div>
       <div class="nav-item" id="nav-social" onclick="showIframe('social','/admin-social-calendar.html','📅 Social Calendar','amber')">
         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 20 20"><path d="M18 4H2v2l8 6 8-6V4z" stroke="currentColor" stroke-width="1.6"/><path d="M2 6v10h16V6" stroke="currentColor" stroke-width="1.6"/></svg>
@@ -422,6 +427,119 @@
       </div>
     </div>
 
+    <!-- ─── CONTENU & RÉSEAUX PANEL ─── -->
+    <div class="panel" id="panel-contenu">
+      <div class="panel-bar">
+        <span>🎬 Contenu &amp; Réseaux</span>
+        <button onclick="showIframe('social','/admin-social-calendar.html','📅 Social Calendar','amber')" class="text-xs text-amber-600 hover:underline font-semibold">Ouvrir Calendrier Social ↗</button>
+      </div>
+      <div class="flex-1 overflow-y-auto p-6 bg-white space-y-6">
+
+        <!-- Upload vidéos clients -->
+        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div class="px-5 py-3 border-b border-gray-100 flex items-center gap-2">
+            <svg class="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 20 20"><path d="M2 4a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V4z" stroke="currentColor" stroke-width="1.6"/><path d="M8 9l3 2-3 2V9z" fill="currentColor"/></svg>
+            <span class="text-sm font-bold text-gray-900">Upload vidéos clients</span>
+            <span class="ml-auto text-xs text-gray-400">MP4 · MOV · max 200 MB</span>
+          </div>
+          <div class="p-5">
+            <div id="drop-zone"
+              class="border-2 border-dashed border-gray-200 rounded-xl p-10 text-center cursor-pointer transition hover:border-amber-400 hover:bg-amber-50"
+              ondragover="event.preventDefault();this.classList.add('border-amber-400','bg-amber-50')"
+              ondragleave="this.classList.remove('border-amber-400','bg-amber-50')"
+              ondrop="handleVideoDrop(event)"
+              onclick="document.getElementById('video-input').click()">
+              <div class="text-4xl mb-2">🎬</div>
+              <p class="text-sm font-semibold text-gray-600">Glissez-déposez vos vidéos ici</p>
+              <p class="text-xs text-gray-400 mt-1">ou cliquez pour sélectionner</p>
+            </div>
+            <input id="video-input" type="file" accept="video/*" multiple class="hidden" onchange="handleVideoSelect(this)">
+            <div id="upload-queue" class="mt-4 space-y-2 hidden"></div>
+            <button id="btn-upload" onclick="uploadVideos()" class="hidden mt-3 bg-amber-500 hover:bg-amber-600 text-white rounded-lg px-5 py-2 font-bold text-sm cursor-pointer transition">
+              ⬆️ Envoyer les vidéos
+            </button>
+          </div>
+        </div>
+
+        <!-- Générateur d'idées IA -->
+        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div class="px-5 py-3 border-b border-gray-100 flex items-center gap-2">
+            <svg class="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.6"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <span class="text-sm font-bold text-gray-900">Générer idées de contenu IA</span>
+            <span class="ml-2 text-xs bg-emerald-100 text-emerald-700 font-semibold px-2 py-0.5 rounded-full">DeepSeek + Mistral</span>
+          </div>
+          <div class="p-5">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+              <button onclick="genContent('reels')" class="content-type-btn bg-gray-50 hover:bg-amber-50 border border-gray-200 hover:border-amber-300 text-gray-700 rounded-lg px-3 py-2 text-xs font-semibold transition">📱 Reels / TikTok</button>
+              <button onclick="genContent('post')" class="content-type-btn bg-gray-50 hover:bg-amber-50 border border-gray-200 hover:border-amber-300 text-gray-700 rounded-lg px-3 py-2 text-xs font-semibold transition">📷 Post Instagram</button>
+              <button onclick="genContent('promo')" class="content-type-btn bg-gray-50 hover:bg-amber-50 border border-gray-200 hover:border-amber-300 text-gray-700 rounded-lg px-3 py-2 text-xs font-semibold transition">🎤 Promo / Offre</button>
+              <button onclick="genContent('semaine')" class="content-type-btn bg-gray-50 hover:bg-amber-50 border border-gray-200 hover:border-amber-300 text-gray-700 rounded-lg px-3 py-2 text-xs font-semibold transition">📅 Plan semaine</button>
+            </div>
+            <div class="flex gap-2">
+              <input id="content-topic" type="text" placeholder="Ex: avant/après locks, soldes été, soin cheveux crépus…"
+                class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-gray-50"
+                onkeydown="if(event.key==='Enter')genContent('post')">
+              <button onclick="genContent(currentContentType||'post')"
+                class="bg-amber-500 hover:bg-amber-600 text-white rounded-lg px-5 py-2 font-bold text-sm cursor-pointer transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 20 20"><path d="M10 2l2 6h6l-5 3.5 2 6L10 14l-5 3.5 2-6L2 8h6L10 2z" fill="currentColor"/></svg>
+                Générer
+              </button>
+            </div>
+            <div id="content-result" class="mt-4 hidden">
+              <div id="content-loading" class="hidden text-sm text-gray-400 py-4 text-center">L’IA réfléchit… <span class="skeleton inline-block w-24 h-3 ml-2"></span></div>
+              <div id="content-output" class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-sm text-gray-800 leading-relaxed whitespace-pre-wrap font-mono hidden"></div>
+              <div class="flex gap-2 mt-3 hidden" id="content-actions">
+                <button onclick="copyContent()" class="text-xs bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg px-4 py-1.5 font-semibold transition">📋 Copier</button>
+                <button onclick="sendToSocialQueue()" class="text-xs bg-amber-500 hover:bg-amber-600 text-white rounded-lg px-4 py-1.5 font-semibold transition">🚀 Envoyer au calendrier</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Suivi post-RDV (verrouillé) -->
+        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div class="px-5 py-3 border-b border-gray-100 flex items-center gap-2">
+            <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 20 20"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.6"/></svg>
+            <span class="text-sm font-bold text-gray-900">Flux Suivi Post-RDV</span>
+            <span class="ml-2 text-xs bg-emerald-100 text-emerald-700 font-semibold px-2 py-0.5 rounded-full">🔒 Verrouillé sur COMPLETED</span>
+          </div>
+          <div class="p-5">
+            <div class="flex items-start gap-3 p-3 bg-emerald-50 border border-emerald-100 rounded-lg mb-4">
+              <svg class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              <p class="text-xs text-emerald-700 leading-relaxed">
+                Le SMS <em>« Comment s’est passée votre visite ?»</em> se déclenche uniquement quand Square marque le RDV
+                <strong>status = COMPLETED</strong> — jamais avant. Délai : +2h après la fin du RDV.
+              </p>
+            </div>
+            <div class="space-y-2 text-xs text-gray-600">
+              <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <span class="w-7 h-7 rounded-full bg-amber-100 text-amber-700 font-bold flex items-center justify-center flex-shrink-0">1</span>
+                <span>RDV <strong>COMPLETED</strong> dans Square → suivi +2h → SMS client + rapport coiffeur</span>
+              </div>
+              <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <span class="w-7 h-7 rounded-full bg-amber-100 text-amber-700 font-bold flex items-center justify-center flex-shrink-0">2</span>
+                <span>Relance automatique J+7 si pas de nouveau RDV prévu</span>
+              </div>
+              <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <span class="w-7 h-7 rounded-full bg-gray-200 text-gray-600 font-bold flex items-center justify-center flex-shrink-0">3</span>
+                <span>Réactivation J+30 pour clients inactifs</span>
+              </div>
+            </div>
+            <div class="mt-4 flex items-center gap-3">
+              <div class="flex-1">
+                <div class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Suivi envoyés (session)</div>
+                <div class="text-2xl font-black text-gray-900" id="followup-sent-count">—</div>
+              </div>
+              <button onclick="loadFollowupStats()" class="text-xs border border-gray-200 rounded-lg px-4 py-2 text-gray-600 hover:bg-gray-50 font-semibold transition">Actualiser</button>
+              <button onclick="triggerFollowupScan()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg px-4 py-2 font-semibold transition">🔄 Scan maintenant</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- FIN CONTENU & RÉSEAUX -->
+
     <!-- ─── IFRAME PANELS ─── -->
     <div class="panel" id="panel-iframe">
       <div class="panel-bar">
@@ -655,6 +773,162 @@
   // ── Init ───────────────────────────────────────────────────────────────────
   loadKPIs();
   setInterval(loadKPIs, 300000);
+
+  // ── CONTENU & RÉSEAUX ───────────────────────────────────────────
+
+  // Upload drag-and-drop
+  let pendingFiles = [];
+  let currentContentType = 'post';
+
+  function handleVideoDrop(e) {
+    e.preventDefault();
+    document.getElementById('drop-zone').classList.remove('border-amber-400','bg-amber-50');
+    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('video/'));
+    addFilesToQueue(files);
+  }
+
+  function handleVideoSelect(input) {
+    const files = Array.from(input.files);
+    addFilesToQueue(files);
+  }
+
+  function addFilesToQueue(files) {
+    if (!files.length) return;
+    pendingFiles = [...pendingFiles, ...files];
+    const qEl = document.getElementById('upload-queue');
+    const btn = document.getElementById('btn-upload');
+    qEl.classList.remove('hidden'); btn.classList.remove('hidden');
+    qEl.innerHTML = pendingFiles.map((f,i) => `
+      <div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+        <span class="text-base">🎬</span>
+        <span class="text-sm text-gray-700 flex-1 truncate">${f.name}</span>
+        <span class="text-xs text-gray-400">${(f.size/1024/1024).toFixed(1)} MB</span>
+        <button onclick="removeFile(${i})" class="text-gray-300 hover:text-red-400 text-sm font-bold">✕</button>
+      </div>`).join('');
+  }
+
+  function removeFile(idx) {
+    pendingFiles.splice(idx, 1);
+    addFilesToQueue([]);
+    if (!pendingFiles.length) {
+      document.getElementById('upload-queue').classList.add('hidden');
+      document.getElementById('btn-upload').classList.add('hidden');
+    }
+  }
+
+  async function uploadVideos() {
+    if (!pendingFiles.length) return;
+    const btn = document.getElementById('btn-upload');
+    btn.disabled = true; btn.textContent = '⏳ Envoi…';
+    const API = 'https://daleba-api-production.up.railway.app';
+    let ok = 0;
+    for (const file of pendingFiles) {
+      try {
+        const fd = new FormData();
+        fd.append('video', file);
+        fd.append('source', 'hub-upload');
+        const r = await fetch(`${API}/api/media/upload`, { method: 'POST', body: fd });
+        const d = await r.json();
+        if (d.success || d.url) ok++;
+      } catch(_) {}
+    }
+    showToast(ok + '/' + pendingFiles.length + ' vidéo(s) uploadée(s) ✅');
+    pendingFiles = [];
+    document.getElementById('upload-queue').classList.add('hidden');
+    btn.disabled = false; btn.classList.add('hidden');
+    btn.textContent = '⬆️ Envoyer les vidéos';
+  }
+
+  // Générateur contenu IA
+  function genContent(type) {
+    currentContentType = type;
+    document.querySelectorAll('.content-type-btn').forEach(b => b.classList.remove('bg-amber-100','border-amber-400','text-amber-700'));
+    event?.target?.classList.add('bg-amber-100','border-amber-400','text-amber-700');
+    _runContentGen(type);
+  }
+
+  async function _runContentGen(type) {
+    const topic = document.getElementById('content-topic').value.trim();
+    const labels = { reels:'Reels / TikTok', post:'Post Instagram', promo:'Promo / Offre', semaine:'Plan de contenu semaine' };
+    const resultEl = document.getElementById('content-result');
+    const loadEl  = document.getElementById('content-loading');
+    const outEl   = document.getElementById('content-output');
+    const actEl   = document.getElementById('content-actions');
+    resultEl.classList.remove('hidden');
+    loadEl.classList.remove('hidden'); outEl.classList.add('hidden'); actEl.classList.add('hidden');
+
+    const prompt = [
+      `Tu es l'assistant marketing de Kadio Coiffure (salon de coiffure à Longueuil, Québec).`,
+      `Génère 3 idées de contenu ${labels[type]} pour les réseaux sociaux du salon.`,
+      topic ? `Thème : ${topic}` : `Variété libre (locks, tresses, barbier, couleur, conseils)`,
+      `Format: pour chaque idée, donne : Titre \u25b6 Hook (1ère phrase) \u25b6 Contenu (3-5 lignes) \u25b6 Hashtags.`,
+      `Ton : chaleureux, authentique, francophone québécois.`
+    ].join(' ');
+
+    try {
+      const API = 'https://daleba-api-production.up.railway.app';
+      const r = await fetch(`${API}/api/ai/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: prompt, task: 'creative' })
+      });
+      const d = await r.json();
+      const text = d.content || d.response || d.message || (d.error ? '❌ ' + d.error : 'Aucune réponse');
+      loadEl.classList.add('hidden');
+      outEl.classList.remove('hidden'); outEl.textContent = text;
+      actEl.classList.remove('hidden');
+      window._lastContentText = text;
+    } catch(e) {
+      loadEl.classList.add('hidden');
+      outEl.classList.remove('hidden');
+      outEl.textContent = '❌ Erreur: ' + e.message;
+    }
+  }
+
+  function copyContent() {
+    const txt = window._lastContentText || '';
+    navigator.clipboard.writeText(txt).then(() => showToast('📋 Copié !')).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = txt; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      showToast('📋 Copié !');
+    });
+  }
+
+  async function sendToSocialQueue() {
+    const txt = window._lastContentText || '';
+    if (!txt) return;
+    try {
+      const API = 'https://daleba-api-production.up.railway.app';
+      await fetch(`${API}/api/social/queue`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: txt, type: currentContentType, status: 'draft', source: 'hub-ia' })
+      });
+      showToast('✅ Ajouté au calendrier social !');
+    } catch(_) { showToast('❌ Erreur envoi calendrier'); }
+  }
+
+  // Suivi post-RDV stats
+  async function loadFollowupStats() {
+    try {
+      const API = 'https://daleba-api-production.up.railway.app';
+      const d = await fetch(`${API}/api/notifications/followup/stats`).then(r => r.json());
+      const total = d.totalSent || d.post2h || 0;
+      document.getElementById('followup-sent-count').textContent = total;
+    } catch(_) {
+      document.getElementById('followup-sent-count').textContent = '—';
+    }
+  }
+
+  async function triggerFollowupScan() {
+    try {
+      const API = 'https://daleba-api-production.up.railway.app';
+      const d = await fetch(`${API}/api/notifications/followup/trigger`, { method: 'POST' }).then(r => r.json());
+      showToast('🔄 Scan déclenché — ' + (d.message || 'OK'));
+      setTimeout(loadFollowupStats, 3000);
+    } catch(_) { showToast('❌ Erreur scan'); }
+  }
 </script>
 </body>
 </html>
