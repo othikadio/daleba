@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>L'Usine IA — DALEBA</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg2: #161b22;
+      --bg3: #1c2330;
+      --cyan: #39d0d8;
+      --cyan-dim: rgba(57,208,216,0.12);
+      --gold: #c9a84c;
+      --red: #f85149;
+      --orange: #e3b341;
+      --green: #3fb950;
+      --text: #c9d1d9;
+      --muted: #8b949e;
+      --border: #30363d;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(135deg, var(--bg2) 0%, #0d2033 100%);
+      border-bottom: 2px solid var(--cyan);
+      padding: 18px 32px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .header .logo { font-size: 22px; font-weight: 800; color: var(--cyan); letter-spacing: 2px; }
+    .header .subtitle { font-size: 13px; color: var(--muted); }
+    .header .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; margin-left: auto; }
+    .header .status-label { font-size: 12px; color: var(--green); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    /* LAYOUT */
+    .main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+
+    /* KPIs */
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .kpi-card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; position: relative; overflow: hidden;
+    }
+    .kpi-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--cyan);
+    }
+    .kpi-card .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .kpi-card .kpi-value { font-size: 32px; font-weight: 700; color: var(--cyan); }
+    .kpi-card .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .kpi-card.gold::before { background: var(--gold); }
+    .kpi-card.gold .kpi-value { color: var(--gold); }
+    .kpi-card.green::before { background: var(--green); }
+    .kpi-card.green .kpi-value { color: var(--green); }
+    .kpi-card.red::before { background: var(--red); }
+    .kpi-card.red .kpi-value { color: var(--red); }
+
+    /* ACTIONS */
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+    .btn {
+      padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer;
+      font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;
+      transition: all .2s; text-decoration: none;
+    }
+    .btn-primary { background: var(--cyan); color: #0d1117; }
+    .btn-primary:hover { background: #4de8f0; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(57,208,216,.3); }
+    .btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--cyan); color: var(--cyan); }
+    .btn-gold { background: var(--gold); color: #0d1117; }
+    .btn-gold:hover { opacity: .9; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* PANELS */
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+    @media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px;
+    }
+    .panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    }
+    .panel-title { font-size: 14px; font-weight: 700; color: var(--cyan); display: flex; align-items: center; gap: 8px; }
+    .panel-badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; background: var(--cyan-dim); color: var(--cyan); }
+
+    /* TABLE */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid rgba(48,54,61,.5); vertical-align: middle; }
+    tr:hover td { background: rgba(57,208,216,.04); }
+
+    /* BADGES */
+    .badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; white-space: nowrap; display: inline-block; }
+    .badge-new { background: rgba(57,208,216,.15); color: var(--cyan); }
+    .badge-qualified { background: rgba(59,185,80,.15); color: var(--green); }
+    .badge-converted { background: rgba(201,168,76,.15); color: var(--gold); }
+    .badge-critical { background: rgba(248,81,73,.15); color: var(--red); }
+    .badge-warning { background: rgba(227,179,65,.15); color: var(--orange); }
+    .badge-good { background: rgba(59,185,80,.15); color: var(--green); }
+
+    /* SCORE BAR */
+    .score-bar { display: flex; align-items: center; gap: 8px; }
+    .score-bar .bar { flex: 1; height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+    .score-bar .fill { height: 100%; border-radius: 3px; transition: width .3s; }
+    .score-bar .val { font-size: 12px; font-weight: 700; min-width: 30px; }
+
+    /* QUEUE MONITORS */
+    .queue-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .queue-card {
+      background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+      padding: 14px; text-align: center;
+    }
+    .queue-card .q-name { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+    .queue-card .q-nums { display: flex; justify-content: center; gap: 16px; }
+    .queue-card .q-num { text-align: center; }
+    .queue-card .q-num .n { font-size: 22px; font-weight: 700; }
+    .queue-card .q-num .l { font-size: 10px; color: var(--muted); }
+    .active-num { color: var(--cyan); }
+    .waiting-num { color: var(--orange); }
+    .done-num { color: var(--green); }
+
+    /* TABS */
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--bg3); padding: 4px; border-radius: 8px; width: fit-content; }
+    .tab { padding: 8px 18px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--muted); transition: all .2s; }
+    .tab.active { background: var(--bg); color: var(--cyan); }
+
+    /* CHART */
+    .chart-container { height: 200px; position: relative; }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; background: var(--bg2);
+      border: 1px solid var(--cyan); border-radius: 8px; padding: 12px 20px;
+      font-size: 13px; z-index: 9999; transform: translateY(100px); transition: transform .3s;
+      max-width: 350px;
+    }
+    .toast.show { transform: translateY(0); }
+
+    /* LOADING */
+    .loading { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--cyan); border-radius: 50%; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty { text-align: center; color: var(--muted); padding: 40px; font-size: 14px; }
+
+    @media (max-width: 600px) {
+      .main { padding: 16px; }
+      .header { padding: 14px 16px; }
+      .kpis { grid-template-columns: repeat(2, 1fr); }
+      .actions { gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">🏭 L'USINE IA</div>
+  <div class="subtitle">Lead Gen · SEO Audit · Séquences Email</div>
+  <div class="status-dot" id="statusDot"></div>
+  <div class="status-label" id="statusLabel">Actif</div>
+</div>
+
+<div class="main">
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi-card">
+      <div class="kpi-label">Leads générés</div>
+      <div class="kpi-value" id="kpiLeads">—</div>
+      <div class="kpi-sub" id="kpiLeadsNew">dont <span>—</span> nouveaux</div>
+    </div>
+    <div class="kpi-card gold">
+      <div class="kpi-label">Audits complétés</div>
+      <div class="kpi-value" id="kpiAudits">—</div>
+      <div class="kpi-sub" id="kpiAuditsToday">— aujourd'hui</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Emails envoyés</div>
+      <div class="kpi-value" id="kpiEmails">—</div>
+      <div class="kpi-sub">séquences en 3 étapes</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Revenus générés</div>
+      <div class="kpi-value" id="kpiRevenue">—</div>
+      <div class="kpi-sub">via Stripe (30 jours)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Score SEO moyen</div>
+      <div class="kpi-value" id="kpiScore">—</div>
+      <div class="kpi-sub">/100 sur les sites audités</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Leads critiques</div>
+      <div class="kpi-value" id="kpiCritical">—</div>
+      <div class="kpi-sub">score < 40/100</div>
+    </div>
+  </div>
+
+  <!-- QUEUE MONITORS -->
+  <div class="panel" style="margin-bottom: 20px;">
+    <div class="panel-header">
+      <div class="panel-title">⚙️ Agents en cours <span class="panel-badge" id="queueMode">—</span></div>
+      <button class="btn btn-secondary" onclick="loadStats()" style="padding:6px 14px;font-size:12px;">↻ Rafraîchir</button>
+    </div>
+    <div class="queue-grid" id="queueGrid">
+      <div class="queue-card">
+        <div class="q-name">Lead Gen Queue</div>
+        <div class="q-nums">
+          <div class="q-num"><div class="n waiting-num" id="q-lg-wait">—</div><div class="l">En attente</div></div>
+          <div class="q-num"><div class="n active-num" id="q-lg-active">—</div><div class="l">Actifs</div></div>
+          <div class="q-num"><div class="n done-num" id="q-lg-done">—</div><div class="l">Complétés</div></div>
+        </div>
+      </div>
+      <div class="queue-card">
+        <div class="q-name">SEO Audit Queue</div>
+        <div class="q-nums">
+          <div class="q-num"><div class="n waiting-num" id="q-seo-wait">—</div><div class="l">En attente</div></div>
+          <div class="q-num"><div class="n active-num" id="q-seo-active">—</div><div class="l">Actifs</div></div>
+          <div class="q-num"><div class="n done-num" id="q-seo-done">—</div><div class="l">Complétés</div></div>
+        </div>
+      </div>
+      <div class="queue-card">
+        <div class="q-name">Email Sequence Queue</div>
+        <div class="q-nums">
+          <div class="q-num"><div class="n waiting-num" id="q-email-wait">—</div><div class="l">En attente</div></div>
+          <div class="q-num"><div class="n active-num" id="q-email-active">—</div><div class="l">Actifs</div></div>
+          <div class="q-num"><div class="n done-num" id="q-email-done">—</div><div class="l">Complétés</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actions">
+    <button class="btn btn-primary" id="btnLeadGen" onclick="launchLeadGen()">
+      🚀 Lancer un cycle Lead Gen
+    </button>
+    <button class="btn btn-gold" id="btnSequences" onclick="launchSequences()">
+      📧 Lancer les séquences email
+    </button>
+    <button class="btn btn-secondary" onclick="loadLeads()">
+      ↻ Actualiser les leads
+    </button>
+    <a href="/admin-hub.html" class="btn btn-secondary">← Hub</a>
+  </div>
+
+  <!-- PROGRESS BAR CYCLE -->
+  <div id="cycleStatus" style="display:none; background:var(--bg2); border:1px solid var(--cyan); border-radius:8px; padding:14px 20px; margin-bottom:20px; font-size:13px;">
+    <span class="loading" style="margin-right:8px;"></span>
+    <span id="cycleStatusText">Cycle en cours...</span>
+  </div>
+
+  <!-- TABS + TABLEAU -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('leads', this)">📋 Leads</div>
+    <div class="tab" onclick="switchTab('audits', this)">🔍 Audits SEO</div>
+    <div class="tab" onclick="switchTab('sequences', this)">📧 Séquences</div>
+  </div>
+
+  <!-- TAB: LEADS -->
+  <div id="tab-leads" class="panel">
+    <div class="panel-header">
+      <div class="panel-title">Leads générés <span class="panel-badge" id="leadsCount">—</span></div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <select id="filterStatus" onchange="loadLeads()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;font-size:12px;">
+          <option value="">Tous les statuts</option>
+          <option value="new">Nouveaux</option>
+          <option value="qualified">Qualifiés</option>
+          <option value="converted">Convertis</option>
+        </select>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Entreprise</th>
+            <th>Ville</th>
+            <th>Email</th>
+            <th>Site web</th>
+            <th>Score SEO</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="leadsTable">
+          <tr><td colspan="7" class="empty">Chargement...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="leadsPagination" style="display:flex;justify-content:center;gap:8px;margin-top:16px;"></div>
+  </div>
+
+  <!-- TAB: AUDITS -->
+  <div id="tab-audits" class="panel" style="display:none;">
+    <div class="panel-header">
+      <div class="panel-title">Audits SEO <span class="panel-badge" id="auditsCount">—</span></div>
+    </div>
+    <div id="auditsContent">
+      <div class="empty">Chargement des audits...</div>
+    </div>
+  </div>
+
+  <!-- TAB: SEQUENCES -->
+  <div id="tab-sequences" class="panel" style="display:none;">
+    <div class="panel-header">
+      <div class="panel-title">Séquences email <span class="panel-badge" id="seqCount">—</span></div>
+      <button class="btn btn-secondary" onclick="processSequences()" style="padding:6px 14px;font-size:12px;">⚙️ Traiter maintenant</button>
+    </div>
+    <div id="sequencesContent">
+      <div class="empty">Chargement des séquences...</div>
+    </div>
+  </div>
+
+  <!-- GRAPHE REVENUS -->
+  <div class="panel" style="margin-top: 20px;">
+    <div class="panel-header">
+      <div class="panel-title">📈 Performance (aperçu)</div>
+    </div>
+    <div class="chart-container">
+      <canvas id="revenueChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://daleba-api-production.up.railway.app';
+let currentPage = 1;
+let statsChart = null;
+let pollingInterval = null;
+
+// ============= INIT =============
+async function init() {
+  await loadStats();
+  await loadLeads();
+  initChart();
+  // Polling toutes les 30s
+  pollingInterval = setInterval(loadStats, 30000);
+}
+
+// ============= STATS =============
+async function loadStats() {
+  try {
+    const [usineStats, queueStats] = await Promise.all([
+      fetch(`${API}/api/usine/seo/stats`).then(r => r.json()).catch(() => ({})),
+      fetch(`${API}/api/usine/lead-gen/stats`).then(r => r.json()).catch(() => ({}))
+    ]);
+
+    // KPIs
+    if (queueStats.stats) {
+      document.getElementById('kpiLeads').textContent = queueStats.stats.total || 0;
+      document.getElementById('kpiLeadsNew').querySelector('span').textContent = queueStats.stats.new || 0;
+    }
+    if (usineStats.audits) {
+      document.getElementById('kpiAudits').textContent = usineStats.audits.total_audits || 0;
+      document.getElementById('kpiAuditsToday').textContent = `${usineStats.audits.today || 0} aujourd'hui`;
+      document.getElementById('kpiScore').textContent = usineStats.audits.avg_score || '—';
+      document.getElementById('kpiCritical').textContent = usineStats.audits.critical || 0;
+    }
+    if (usineStats.emails) {
+      document.getElementById('kpiEmails').textContent = usineStats.emails.sent || 0;
+    }
+    if (usineStats.revenue) {
+      const rev = (usineStats.revenue.total || 0) / 100;
+      document.getElementById('kpiRevenue').textContent = rev > 0 ? `${rev.toFixed(0)}$` : '—';
+    }
+
+    // Queues
+    const queues = queueStats.cycleProgress || {};
+    if (queues.running) {
+      document.getElementById('cycleStatus').style.display = 'block';
+      document.getElementById('cycleStatusText').textContent = `Cycle en cours: ${queues.citiesProcessed || 0}/${queues.cities || 0} villes · ${queues.totalSaved || 0} leads sauvegardés`;
+    } else {
+      document.getElementById('cycleStatus').style.display = 'none';
+    }
+
+    // Queue mode
+    document.getElementById('queueMode').textContent = queueStats.cycleProgress?.running ? '🟢 En cours' : '⚪ En attente';
+
+    // Update queue counters (mock si pas de Redis)
+    ['lg', 'seo', 'email'].forEach(k => {
+      document.getElementById(`q-${k}-wait`).textContent = 0;
+      document.getElementById(`q-${k}-active`).textContent = 0;
+      document.getElementById(`q-${k}-done`).textContent = 0;
+    });
+
+  } catch (e) {
+    console.error('loadStats error:', e);
+  }
+}
+
+// ============= LEADS =============
+async function loadLeads(page = 1) {
+  currentPage = page;
+  const status = document.getElementById('filterStatus').value;
+  let url = `${API}/api/usine/leads?page=${page}&limit=20`;
+  if (status) url += `&status=${status}`;
+
+  try {
+    const data = await fetch(url).then(r => r.json());
+    const tbody = document.getElementById('leadsTable');
+
+    if (!data.leads || data.leads.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="empty">Aucun lead pour l\'instant. Lancez un cycle Lead Gen.</td></tr>';
+      document.getElementById('leadsCount').textContent = '0';
+      return;
+    }
+
+    document.getElementById('leadsCount').textContent = data.total || data.leads.length;
+
+    tbody.innerHTML = data.leads.map(lead => {
+      const scoreColor = !lead.audit_score ? 'muted' :
+        lead.audit_score >= 70 ? 'good' : lead.audit_score >= 40 ? 'warning' : 'critical';
+      const statusBadge = `<span class="badge badge-${lead.status}">${lead.status}</span>`;
+      const scoreBadge = lead.audit_score ?
+        `<div class="score-bar"><div class="bar"><div class="fill" style="width:${lead.audit_score}%;background:${lead.audit_score>=70?'var(--green)':lead.audit_score>=40?'var(--orange)':'var(--red)'}"></div></div><span class="val" style="color:var(--${scoreColor})">${lead.audit_score}</span></div>`
+        : '<span style="color:var(--muted)">—</span>';
+
+      return `<tr>
+        <td style="font-weight:600;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${lead.company_name}">${lead.company_name || '—'}</td>
+        <td style="color:var(--muted)">${lead.city || '—'}</td>
+        <td style="font-size:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis">${lead.email || '<span style="color:var(--muted)">—</span>'}</td>
+        <td style="font-size:12px">${lead.website ? `<a href="${lead.website}" target="_blank" style="color:var(--cyan)">${lead.website.replace('https://','').slice(0,25)}…</a>` : '<span style="color:var(--muted)">—</span>'}</td>
+        <td>${scoreBadge}</td>
+        <td>${statusBadge}</td>
+        <td>
+          ${lead.website && !lead.audit_score ? `<button onclick="auditLead(${lead.id})" style="background:var(--cyan-dim);border:none;color:var(--cyan);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;">🔍 Auditer</button>` : ''}
+          ${lead.audit_score ? `<a href="${API}/api/usine/seo/report/${lead.id}" target="_blank" style="background:rgba(201,168,76,.15);color:var(--gold);padding:4px 10px;border-radius:4px;font-size:11px;text-decoration:none;">📄 PDF</a>` : ''}
+        </td>
+      </tr>`;
+    }).join('');
+
+    // Pagination
+    if (data.total > 20) {
+      const totalPages = Math.ceil(data.total / 20);
+      const pag = document.getElementById('leadsPagination');
+      pag.innerHTML = Array.from({length: Math.min(totalPages, 10)}, (_, i) =>
+        `<button onclick="loadLeads(${i+1})" style="background:${i+1===page?'var(--cyan)':'var(--bg3)'};color:${i+1===page?'#0d1117':'var(--text)'};border:1px solid var(--border);padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;">${i+1}</button>`
+      ).join('');
+    }
+  } catch (e) {
+    console.error('loadLeads error:', e);
+    document.getElementById('leadsTable').innerHTML = `<tr><td colspan="7" class="empty" style="color:var(--red)">Erreur: ${e.message}</td></tr>`;
+  }
+}
+
+// ============= ACTIONS =============
+async function launchLeadGen() {
+  const btn = document.getElementById('btnLeadGen');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span> Démarrage...';
+
+  try {
+    const res = await fetch(`${API}/api/usine/lead-gen/start`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({}) });
+    const data = await res.json();
+    showToast(data.ok ? `✅ ${data.message}` : `❌ ${data.error || data.message}`);
+    if (data.ok) {
+      document.getElementById('cycleStatus').style.display = 'block';
+      document.getElementById('cycleStatusText').textContent = 'Cycle démarré...';
+    }
+  } catch (e) {
+    showToast('❌ Erreur: ' + e.message);
+  }
+
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.innerHTML = '🚀 Lancer un cycle Lead Gen';
+  }, 3000);
+}
+
+async function launchSequences() {
+  const btn = document.getElementById('btnSequences');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span> Lancement...';
+
+  try {
+    const res = await fetch(`${API}/api/usine/sequences/start`, { method: 'POST' });
+    const data = await res.json();
+    showToast(data.ok ? `✅ ${data.started} séquence(s) démarrée(s) sur ${data.total} leads` : `❌ ${data.error}`);
+  } catch (e) {
+    showToast('❌ Erreur: ' + e.message);
+  }
+
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.innerHTML = '📧 Lancer les séquences email';
+  }, 3000);
+}
+
+async function auditLead(leadId) {
+  try {
+    const res = await fetch(`${API}/api/usine/seo/audit/${leadId}`, { method: 'POST' });
+    const data = await res.json();
+    showToast(data.ok ? `✅ Audit lancé pour le lead #${leadId}` : `❌ ${data.error}`);
+    setTimeout(loadLeads, 2000);
+  } catch (e) {
+    showToast('❌ Erreur: ' + e.message);
+  }
+}
+
+async function processSequences() {
+  try {
+    const res = await fetch(`${API}/api/usine/sequences/process`, { method: 'POST' });
+    const data = await res.json();
+    showToast(data.ok ? `✅ ${data.processed} email(s) traité(s)` : `❌ ${data.error}`);
+  } catch (e) {
+    showToast('❌ Erreur: ' + e.message);
+  }
+}
+
+// ============= TABS =============
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['leads','audits','sequences'].forEach(t => {
+    document.getElementById(`tab-${t}`).style.display = t === name ? 'block' : 'none';
+  });
+  if (name === 'audits') loadAudits();
+  if (name === 'sequences') loadSequences();
+}
+
+async function loadAudits() {
+  try {
+    const data = await fetch(`${API}/api/usine/seo/stats`).then(r => r.json());
+    const { audits } = data;
+    document.getElementById('auditsCount').textContent = audits?.total_audits || 0;
+
+    // Utiliser les leads avec audit_score comme proxy
+    const leadsData = await fetch(`${API}/api/usine/leads?limit=50`).then(r => r.json());
+    const audited = (leadsData.leads || []).filter(l => l.audit_score !== null);
+
+    if (audited.length === 0) {
+      document.getElementById('auditsContent').innerHTML = '<div class="empty">Aucun audit complété. Lancez un cycle Lead Gen pour démarrer.</div>';
+      return;
+    }
+
+    document.getElementById('auditsContent').innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Site</th><th>Score</th><th>Statut</th><th>Rapport</th></tr></thead>
+          <tbody>
+            ${audited.map(l => {
+              const sc = l.audit_score;
+              const cls = sc >= 70 ? 'good' : sc >= 40 ? 'warning' : 'critical';
+              const lbl = sc >= 70 ? 'Bon' : sc >= 40 ? 'Moyen' : 'Critique';
+              return `<tr>
+                <td>${l.company_name || l.website || '—'}<br><small style="color:var(--muted)">${l.website || ''}</small></td>
+                <td><div class="score-bar"><div class="bar"><div class="fill" style="width:${sc}%;background:${sc>=70?'var(--green)':sc>=40?'var(--orange)':'var(--red)'}"></div></div><span class="val" style="color:var(--${cls})">${sc}</span></div></td>
+                <td><span class="badge badge-${cls}">${lbl}</span></td>
+                <td><a href="${API}/api/usine/seo/report/${l.id}" target="_blank" style="color:var(--gold);font-size:12px">📄 PDF</a></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  } catch (e) {
+    document.getElementById('auditsContent').innerHTML = `<div class="empty" style="color:var(--red)">Erreur: ${e.message}</div>`;
+  }
+}
+
+async function loadSequences() {
+  document.getElementById('sequencesContent').innerHTML = `
+    <div style="padding:20px;text-align:center;color:var(--muted)">
+      <p>Séquences email automatiques en 3 étapes:</p>
+      <br>
+      <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-top:10px;">
+        <div style="background:var(--bg3);padding:16px 20px;border-radius:8px;text-align:center;min-width:130px">
+          <div style="font-size:22px;margin-bottom:8px">📎</div>
+          <div style="font-weight:700;color:var(--text)">J+0</div>
+          <div style="font-size:12px;color:var(--muted)">Rapport PDF gratuit</div>
+          <div style="font-size:11px;color:var(--cyan);margin-top:4px">"Votre audit SEO"</div>
+        </div>
+        <div style="background:var(--bg3);padding:16px 20px;border-radius:8px;text-align:center;min-width:130px">
+          <div style="font-size:22px;margin-bottom:8px">📬</div>
+          <div style="font-weight:700;color:var(--text)">J+3</div>
+          <div style="font-size:12px;color:var(--muted)">Email de suivi</div>
+          <div style="font-size:11px;color:var(--orange);margin-top:4px">"Avez-vous vu ?"</div>
+        </div>
+        <div style="background:var(--bg3);padding:16px 20px;border-radius:8px;text-align:center;min-width:130px">
+          <div style="font-size:22px;margin-bottom:8px">💳</div>
+          <div style="font-weight:700;color:var(--text)">J+7</div>
+          <div style="font-size:12px;color:var(--muted)">Offre Stripe 150$</div>
+          <div style="font-size:11px;color:var(--gold);margin-top:4px">"Correction SEO"</div>
+        </div>
+      </div>
+      <br>
+      <button class="btn btn-gold" onclick="launchSequences()" style="margin-top:10px">📧 Lancer les séquences pour tous les leads audités</button>
+    </div>`;
+}
+
+// ============= CHART =============
+function initChart() {
+  const ctx = document.getElementById('revenueChart').getContext('2d');
+  const labels = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  statsChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Leads générés',
+          data: [0,0,0,0,0,0,0],
+          borderColor: '#39d0d8',
+          backgroundColor: 'rgba(57,208,216,.08)',
+          tension: 0.4, fill: true, pointRadius: 4
+        },
+        {
+          label: 'Audits SEO',
+          data: [0,0,0,0,0,0,0],
+          borderColor: '#c9a84c',
+          backgroundColor: 'rgba(201,168,76,.08)',
+          tension: 0.4, fill: true, pointRadius: 4
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#8b949e', font: { size: 11 } } } },
+      scales: {
+        x: { grid: { color: 'rgba(48,54,61,.5)' }, ticks: { color: '#8b949e' } },
+        y: { grid: { color: 'rgba(48,54,61,.5)' }, ticks: { color: '#8b949e' }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+// ============= TOAST =============
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+init();
+</script>
+</body>
+</html>

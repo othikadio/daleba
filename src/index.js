@@ -124,6 +124,12 @@ app.use('/api/airtable', require('./api/airtable-routes')); // V47 — Airtable 
 app.use('/api/wallet', require('./api/wallet-routes'));           // KADIO OS — Cartes membre Apple/Google Wallet
 app.use('/api/social', require('./api/social-calendar-routes')); // KADIO OS — Calendrier Social Media
 app.use('/api/saas', require('./api/saas-routes'));               // KADIO OS — Pipeline SaaS Commercial
+// KADIO OS Axe 3 — L'Usine IA: Lead Gen + SEO Audit + Séquences Email
+try {
+  app.use('/api/usine/lead-gen', require('./api/lead-gen-routes'));
+  app.use('/api/usine', require('./api/seo-audit-routes'));
+  console.log('[USINE] Routes Lead Gen + SEO Audit montées');
+} catch(e) { console.warn('[USINE] Routes non montées:', e.message); }
 // V47 — CRM Clients Square (si dispo)
 try { app.use('/api/crm', require('./api/crm-routes')); } catch(_) {}
 
@@ -243,6 +249,14 @@ app.get('/admin/social-calendar', (req, res) => {
 // DALEBA SaaS
 app.get('/admin/saas', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-saas.html'));
+});
+
+// KADIO OS Axe 3 — L'Usine IA
+app.get('/admin/usine', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin-usine.html'));
+});
+app.get('/admin-usine', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin-usine.html'));
 });
 
 // JARVIS — Interface vocale Ulrich (route étanche, priorité absolue)
