@@ -324,30 +324,53 @@ router.get('/task/:taskId', (req, res) => {
 });
 
 // GET /api/usine/pipeline
+// Logique business réelle :
+// - Détectés    = toutes les opps scannées
+// - Qualifiés   = score >= 65 (IA a validé)
+// - Offres      = proposition email envoyée (prospection seulement, AUCUN livrable)
+// - Contrat Signé = status='signed' — action manuelle uniquement
+// CA Potentiel  = budget des opps qualifiées
+// CA Réel       = budget des opps signées uniquement
 router.get('/pipeline', async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   try {
     const pool = getPool();
-    if (!pool) return res.json({ detected:0, accepted:0, processing:0, completed:0, caPotentiel:0, caReel:0, items:[] });
-    const [det,acc,proc,done,ca,caR,items] = await Promise.allSettled([
+    if (!pool) return res.json({ detected:0, qualified:0, offersSent:0, signed:0, caPotentiel:0, caReel:0, items:[] });
+    const [det,qual,offers,signed,caPot,caReel,items] = await Promise.allSettled([
       pool.query('SELECT COUNT(*)::int as n FROM daleba_opportunities'),
-      pool.query("SELECT COUNT(*)::int as n FROM daleba_opportunities WHERE status='approved'"),
-      pool.query("SELECT COUNT(*)::int as n FROM daleba_proposals WHERE status NOT IN ('sent','error','delivered')"),
-      pool.query("SELECT COUNT(*)::int as n FROM daleba_proposals WHERE status IN ('sent','delivered')"),
-      pool.query("SELECT COALESCE(SUM(budget_estimated),0)::float as t FROM daleba_opportunities WHERE budget_estimated IS NOT NULL"),
-      // CA Réel = budget des opps dont la proposition a sent_at renseigné
-      pool.query("SELECT COALESCE(SUM(o.budget_estimated),0)::float as t FROM daleba_opportunities o JOIN daleba_proposals p ON p.opportunity_id=o.id WHERE p.sent_at IS NOT NULL AND o.budget_estimated IS NOT NULL"),
-      pool.query(`SELECT o.id,o.title,o.score,o.country,o.budget_estimated,o.budget_currency,o.status as opp_status,o.category,o.source_url,o.source_platform,p.status as prop_status,p.generated_text,p.created_at as prop_date,p.sent_at FROM daleba_opportunities o LEFT JOIN daleba_proposals p ON p.opportunity_id=o.id ORDER BY COALESCE(p.created_at,o.detected_at) DESC LIMIT 30`),
+      pool.query('SELECT COUNT(*)::int as n FROM daleba_opportunities WHERE score >= 65'),
+      // Offres = email de prospection envoyé (proposal.sent_at NOT NULL)
+      pool.query("SELECT COUNT(*)::int as n FROM daleba_proposals WHERE sent_at IS NOT NULL"),
+      // Contrat Signé = seul statut qui déclenche du CA Réel — action manuelle
+      pool.query("SELECT COUNT(*)::int as n FROM daleba_opportunities WHERE status='signed'"),
+      // CA Potentiel = budget des opps qualifiées (score >= 65)
+      pool.query('SELECT COALESCE(SUM(budget_estimated),0)::float as t FROM daleba_opportunities WHERE score >= 65 AND budget_estimated IS NOT NULL'),
+      // CA Réel = UNIQUEMENT les contrats signés manuellement
+      pool.query("SELECT COALESCE(SUM(budget_estimated),0)::float as t FROM daleba_opportunities WHERE status='signed' AND budget_estimated IS NOT NULL"),
+      pool.query(`SELECT o.id,o.title,o.score,o.country,o.budget_estimated,o.budget_currency,o.status as opp_status,o.category,o.source_url,o.source_platform,p.status as prop_status,p.generated_text,p.created_at as prop_date,p.sent_at FROM daleba_opportunities o LEFT JOIN daleba_proposals p ON p.opportunity_id=o.id ORDER BY COALESCE(p.created_at,o.detected_at) DESC LIMIT 40`),
     ]);
     res.json({
-      detected:   det.status==='fulfilled'  ? det.value.rows[0]?.n  ||0:0,
-      accepted:   acc.status==='fulfilled'  ? acc.value.rows[0]?.n  ||0:0,
-      processing: proc.status==='fulfilled' ? proc.value.rows[0]?.n ||0:0,
-      completed:  done.status==='fulfilled' ? done.value.rows[0]?.n ||0:0,
-      caPotentiel: ca.status==='fulfilled'  ? ca.value.rows[0]?.t   ||0:0,
-      caReel:      caR.status==='fulfilled' ? caR.value.rows[0]?.t  ||0:0,
-      items: items.status==='fulfilled' ? items.value.rows : [],
+      detected:    det.status==='fulfilled'     ? det.value.rows[0]?.n   ||0:0,
+      qualified:   qual.status==='fulfilled'    ? qual.value.rows[0]?.n  ||0:0,
+      offersSent:  offers.status==='fulfilled'  ? offers.value.rows[0]?.n||0:0,
+      signed:      signed.status==='fulfilled'  ? signed.value.rows[0]?.n||0:0,
+      caPotentiel: caPot.status==='fulfilled'   ? caPot.value.rows[0]?.t ||0:0,
+      caReel:      caReel.status==='fulfilled'  ? caReel.value.rows[0]?.t||0:0,
+      items:       items.status==='fulfilled'   ? items.value.rows        :[],
     });
+  } catch(err) { res.status(500).json({error:err.message}); }
+});
+
+// POST /api/usine/opportunity/:id/sign — action manuelle Ulrich uniquement
+router.post('/opportunity/:id/sign', async (req, res) => {
+  res.setHeader('Content-Type','application/json');
+  const pool = getPool(); if(!pool) return res.status(503).json({error:'DB indisponible'});
+  try {
+    await pool.query("UPDATE daleba_opportunities SET status='signed', approved_at=NOW() WHERE id=$1", [req.params.id]);
+    const r = await pool.query('SELECT title, budget_estimated, budget_currency FROM daleba_opportunities WHERE id=$1', [req.params.id]);
+    const opp = r.rows[0];
+    getBus()?.system?.('CONTRAT SIGNE — ' + (opp?.title||'').slice(0,50));
+    res.json({ success:true, signed:true, opp });
   } catch(err) { res.status(500).json({error:err.message}); }
 });
 
@@ -447,6 +470,19 @@ router.post('/trigger-scan', async (req, res) => {
     getBus()?.system?.('🌍 Scan mondial manuel — 3 escouades déployées', {jobs});
     res.json({success:true,message:'3 escouades déployées en parallèle',jobs,squads:['americas','europe','global']});
   }catch(err){res.status(500).json({success:false,error:err.message});}
+});
+
+// POST /api/usine/opportunity/:id/sign — action manuelle Ulrich uniquement
+router.post('/opportunity/:id/sign', async (req, res) => {
+  res.setHeader('Content-Type','application/json');
+  const pool = getPool(); if(!pool) return res.status(503).json({error:'DB indisponible'});
+  try {
+    await pool.query("UPDATE daleba_opportunities SET status='signed', approved_at=NOW() WHERE id=$1", [req.params.id]);
+    const r = await pool.query('SELECT title, budget_estimated, budget_currency FROM daleba_opportunities WHERE id=$1', [req.params.id]);
+    const opp = r.rows[0];
+    getBus()?.system?.(`💰 CONTRAT SIGNÉ — "${opp?.title?.slice(0,50)}" — ${opp?.budget_estimated?'$'+Math.round(opp.budget_estimated).toLocaleString('fr-CA')+' '+(opp.budget_currency||'USD'):'budget inconnu'}`);
+    res.json({ success:true, signed:true, opp });
+  } catch(err) { res.status(500).json({error:err.message}); }
 });
 
 // Production + Autonomous mode

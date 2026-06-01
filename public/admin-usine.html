@@ -125,9 +125,9 @@
     </div>
     <!-- CA Réel -->
     <div class="bg-white rounded-2xl shadow-sm border border-emerald-100 p-3 col-span-2 md:col-span-1">
-      <p class="text-[9px] font-bold uppercase tracking-widest text-emerald-500 mb-0.5">💰 CA Encaissé Réel</p>
+      <p class="text-[9px] font-bold uppercase tracking-widest text-emerald-500 mb-0.5">💰 CA Réel (Contrats Signés)</p>
       <p class="ca-num text-xl font-black text-emerald-700" id="ca-reel">$0</p>
-      <p class="text-[9px] text-gray-400 mt-0.5">Propositions livrées + sent_at</p>
+      <p class="text-[9px] text-gray-400 mt-0.5">Statut "Signé" uniquement — action manuelle</p>
     </div>
     <!-- Détectées -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
@@ -137,9 +137,9 @@
     </div>
     <!-- Terminées -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
-      <p class="text-[9px] font-bold uppercase text-emerald-500 mb-0.5">Livrées</p>
+      <p class="text-[9px] font-bold uppercase text-emerald-500 mb-0.5">Offres Envoyées</p>
       <p class="text-2xl font-black text-emerald-700 tabular-nums" id="pipe-done">…</p>
-      <p class="text-[9px] text-gray-400">Emails envoyés</p>
+      <p class="text-[9px] text-gray-400">Pitches envoyés</p>
     </div>
     <!-- Maintenance -->
     <div class="bg-white rounded-2xl shadow-sm border border-rose-50 p-3">
@@ -160,17 +160,17 @@
         <div class="pipe-hd bg-sky-50 text-sky-700">🔍 Détectés</div>
         <div class="pipe-body text-center"><p class="text-3xl font-black text-sky-700 tabular-nums mt-2" id="pipe-det2">…</p><p class="text-[9px] text-gray-400 mt-1">Cliquer pour voir →</p></div>
       </div>
-      <div class="pipe-col" onclick="openPipeModal('accepted')">
-        <div class="pipe-hd bg-violet-50 text-violet-700">✅ Acceptés Auto</div>
+      <div class="pipe-col" onclick="openPipeModal('qualified')">
+        <div class="pipe-hd bg-violet-50 text-violet-700">✅ Qualifiés (IA)</div>
         <div class="pipe-body text-center"><p class="text-3xl font-black text-violet-700 tabular-nums mt-2" id="pipe-acc">…</p><p class="text-[9px] text-gray-400 mt-1">Score ≥ 65 →</p></div>
       </div>
-      <div class="pipe-col" onclick="openPipeModal('processing')">
-        <div class="pipe-hd bg-amber-50 text-amber-700">⚡ En Traitement</div>
-        <div class="pipe-body text-center"><p class="text-3xl font-black text-amber-700 tabular-nums mt-2" id="pipe-proc">…</p><p class="text-[9px] text-gray-400 mt-1">Propositions →</p></div>
+      <div class="pipe-col" onclick="openPipeModal('offers')">
+        <div class="pipe-hd bg-amber-50 text-amber-700">📨 Offres Envoyées</div>
+        <div class="pipe-body text-center"><p class="text-3xl font-black text-amber-700 tabular-nums mt-2" id="pipe-proc">…</p><p class="text-[9px] text-gray-400 mt-1">Pitches commerciaux →</p></div>
       </div>
-      <div class="pipe-col" onclick="openPipeModal('completed')">
-        <div class="pipe-hd bg-emerald-50 text-emerald-700">📬 Terminés / Livrés</div>
-        <div class="pipe-body text-center"><p class="text-3xl font-black text-emerald-700 tabular-nums mt-2" id="pipe-done2">…</p><p class="text-[9px] text-gray-400 mt-1">sent_at renseigné →</p></div>
+      <div class="pipe-col" onclick="openPipeModal('signed')">
+        <div class="pipe-hd bg-emerald-50 text-emerald-700">💰 Contrats Signés</div>
+        <div class="pipe-body text-center"><p class="text-3xl font-black text-emerald-700 tabular-nums mt-2" id="pipe-done2">…</p><p class="text-[9px] text-gray-400 mt-1">Action manuelle Ulrich →</p></div>
       </div>
     </div>
   </div>
@@ -313,8 +313,8 @@ async function loadPipeline(){
     const d=await api('/api/usine/pipeline');
     pipelineData=d;
     st('pipe-det',fmt(d.detected));st('pipe-det2',fmt(d.detected));
-    st('pipe-acc',fmt(d.accepted));st('pipe-proc',fmt(d.processing));
-    st('pipe-done',fmt(d.completed));st('pipe-done2',fmt(d.completed));
+    st('pipe-acc',fmt(d.qualified));st('pipe-proc',fmt(d.offersSent));
+    st('pipe-done',fmt(d.offersSent));st('pipe-done2',fmt(d.signed));
     const caEl=$('ca-potentiel'); if(caEl) caEl.textContent=fmtCa(d.caPotentiel)+' CAD';
     const caREl=$('ca-reel'); if(caREl) caREl.textContent=fmtCa(d.caReel)+' CAD';
   }catch(e){console.warn('[pipeline]',e.message);}
@@ -322,12 +322,17 @@ async function loadPipeline(){
 
 // ─── Kanban cliquable ─────────────────────────────────────────────────────────
 function openPipeModal(col){
-  const labels={detected:'🔍 Opportunités Détectées',accepted:'✅ Acceptées (Auto)',processing:'⚡ En Traitement',completed:'📬 Terminées / Livrées'};
+  const labels={
+    detected:'🔍 Opportunités Détectées',
+    qualified:'✅ Qualifiées par l\'IA (score ≥ 65)',
+    offers:'📨 Offres Envoyées — Prospection',
+    signed:'💰 Contrats Signés — CA Réel'
+  };
   const filters={
-    detected: it=>true,
-    accepted: it=>it.opp_status==='approved',
-    processing: it=>it.prop_status&&!['sent','delivered','error'].includes(it.prop_status),
-    completed: it=>it.prop_status==='sent'||it.prop_status==='delivered'||it.sent_at,
+    detected:  it=>true,
+    qualified: it=>(it.score||0)>=65,
+    offers:    it=>!!(it.sent_at||it.prop_status==='sent'),
+    signed:    it=>it.opp_status==='signed',
   };
   const items=(pipelineData.items||[]).filter(filters[col]||(() => true));
   currentModal={type:'pipeline',col};
@@ -355,7 +360,7 @@ function openPipeModal(col){
         <span class="t-green text-[9px] font-bold px-1.5 py-0.5 rounded">${bud}</span>
         ${hasProposal?'<span class="t-indigo text-[9px] px-1.5 py-0.5 rounded">✍️ Proposal</span>':''}
       </div>
-      ${it.generated_text&&col==='completed'?`<p class="text-[9px] text-gray-500 mt-1.5 pl-10 line-clamp-2">${esc(it.generated_text.slice(0,150))}</p>`:''}
+      ${it.generated_text&&(col==='offers'||col==='signed')?`<p class="text-[9px] text-gray-500 mt-1.5 pl-10 line-clamp-2">${esc(it.generated_text.slice(0,150))}</p>`:''}      ${col==='signed'?'<p class="text-[9px] font-bold text-emerald-600 pl-10 mt-1">✅ Contrat signé — CA Réel</p>':''}
     </div>`;
   }).join('')}</div>`;
 }
@@ -517,10 +522,20 @@ async function openOpp(id){
       <div class="mb-3"><h3 class="text-[9px] font-bold uppercase text-gray-500 mb-1.5">🔍 Failles détectées</h3><div class="space-y-1">${(d.seoFlaws||[]).map(f=>`<div class="flex items-center gap-2 p-2 rounded-lg bg-white border border-gray-100 text-xs"><span class="${sevCls(f)} text-[9px] font-bold px-1.5 py-0.5 rounded">${sevLbl(f)}</span><span class="font-semibold text-gray-800">${esc(f.label)}</span><span class="text-gray-500 flex-1 text-[10px]">${esc(f.detail)}</span></div>`).join('')}</div></div>
       <div class="mb-3"><h3 class="text-[9px] font-bold uppercase text-gray-500 mb-1.5">📋 Analyse</h3><p class="text-xs text-gray-700 leading-relaxed bg-gray-50 rounded-xl p-3 border border-gray-100">${esc((d.description_fr||d.description_orig||'Pas de description').slice(0,500))}…</p></div>
       ${hasProposal?`<div><h3 class="text-[9px] font-bold uppercase text-gray-500 mb-1.5">✍️ Proposition B2B générée</h3><div class="bg-violet-50 border border-violet-100 rounded-xl p-3 text-xs text-gray-700 max-h-40 overflow-y-auto leading-relaxed">${esc(d.proposals[0].generated_text.slice(0,600))}…</div></div>`:''}`;
-    $('m-actions').innerHTML=`<a href="${esc(d.source_url||'#')}" target="_blank" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl">🔗 Source</a>${d.status!=='approved'?`<button onclick="approveOpp(${d.id})" class="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl">✅ Approuver</button>`:''}`;
+    const isSigned=d.status==='signed';
+    $('m-actions').innerHTML=`<a href="${esc(d.source_url||'#')}" target="_blank" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl">🔗 Source</a>${!isSigned?`<button onclick="signOpp(${d.id})" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl">💰 Marquer Contrat Signé</button>`:"<span class='t-green text-xs font-bold px-4 py-2.5 rounded-xl'>✅ Contrat Signé — CA Réel</span>"}`;
   }catch(e){$('m-title').textContent='Erreur: '+e.message;}
 }
 async function approveOpp(id){try{await api(`/api/opportunities/${id}/approve`,{method:'PUT',headers:{'Content-Type':'application/json'},body:'{}'});toast('✅ Approuvée!');pushFeed('agent',`✅ Opp #${id} approuvée`);}catch(e){toast(e.message,true);}}
+async function signOpp(id){
+  try{
+    const d=await api(`/api/usine/opportunity/${id}/sign`,{method:'POST',headers:{'Content-Type':'application/json'}});
+    toast('💰 Contrat marqué Signé — CA Réel mis à jour !');
+    pushFeed('agent',`💰 Contrat Signé — Opp #${id}`);
+    setTimeout(loadPipeline,2000);
+    closeModal();
+  }catch(e){toast(e.message,true);}
+}
 
 // ─── Modal close ──────────────────────────────────────────────────────────────
 function closeModal(e){ if(e&&e.target!==$('modal-bg'))return; $('modal-bg').classList.remove('open');currentModal=null;if(timerInterval){clearInterval(timerInterval);timerInterval=null;} }
