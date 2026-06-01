@@ -15,6 +15,22 @@ const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('./auth-staff-routes');
 
+// Route d'import VCF publique (pin requis) — AVANT requireAuth
+router.post('/contact-book/vcf-import', async (req, res) => {
+  const pin = req.headers['x-import-pin'] || req.body?.pin;
+  if (pin !== (process.env.ADMIN_PIN || '2024DALEBA')) return res.status(403).json({ error: 'Pin invalide' });
+  const { pool } = require('../memory/db');
+  const contacts = req.body.contacts || [];
+  if (!contacts.length) return res.status(400).json({ error: 'Vide' });
+  await pool.query(`CREATE TABLE IF NOT EXISTS daleba_contact_book (id SERIAL PRIMARY KEY, name VARCHAR(200), phone VARCHAR(50), source VARCHAR(50) DEFAULT 'vcf_import', imported_at TIMESTAMP DEFAULT NOW(), UNIQUE(phone))`);
+  let ins = 0;
+  for (const c of contacts) {
+    if (!c.phone) continue;
+    try { await pool.query(`INSERT INTO daleba_contact_book (name,phone,source) VALUES ($1,$2,'vcf_import') ON CONFLICT (phone) DO UPDATE SET name=EXCLUDED.name`, [c.name||'Contact', c.phone]); ins++; } catch(_) {}
+  }
+  res.json({ ok: true, inserted: ins, total: contacts.length });
+});
+
 // Protéger toutes les routes /api/sq-calendar/*
 router.use(requireAuth);
 
