@@ -22,11 +22,12 @@ const { requireAuth } = require('./auth-staff-routes');
 async function clientsSyncHandler(req, res) {
   const merged = new Map();
 
-  // SOURCE 1 : Square Customers (utilise squarePost défini en aval — hoisted OK car function declaration)
+  // SOURCE 1 : Square Customers (GET /v2/customers avec pagination)
   try {
     let cursor = null, page = 0;
     do {
-      const data = await squarePost('/v2/customers/list', { limit: 100, ...(cursor ? { cursor } : {}) });
+      const qs = `limit=100${cursor ? '&cursor='+cursor : ''}`;
+      const data = await squareGet(`/v2/customers?${qs}`);
       for (const c of (data.customers || [])) {
         const phone = (c.phone_number || '').replace(/\D/g, '');
         const key   = phone || c.id;
