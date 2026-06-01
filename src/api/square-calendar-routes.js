@@ -22,20 +22,11 @@ const { requireAuth } = require('./auth-staff-routes');
 async function clientsSyncHandler(req, res) {
   const merged = new Map();
 
-  // SOURCE 1 : Square Customers
+  // SOURCE 1 : Square Customers (utilise squarePost défini en aval — hoisted OK car function declaration)
   try {
-    const squareFetch = require('node-fetch');
-    const SQUARE_TOKEN = process.env.SQUARE_ACCESS_TOKEN;
-    const SQUARE_BASE  = 'https://connect.squareup.com';
     let cursor = null, page = 0;
     do {
-      const body = { limit: 100, ...(cursor ? { cursor } : {}) };
-      const resp = await squareFetch(`${SQUARE_BASE}/v2/customers/list`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${SQUARE_TOKEN}`, 'Content-Type': 'application/json', 'Square-Version': '2024-02-22' },
-        body: JSON.stringify(body)
-      });
-      const data = await resp.json();
+      const data = await squarePost('/v2/customers/list', { limit: 100, ...(cursor ? { cursor } : {}) });
       for (const c of (data.customers || [])) {
         const phone = (c.phone_number || '').replace(/\D/g, '');
         const key   = phone || c.id;
