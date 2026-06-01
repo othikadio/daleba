@@ -366,13 +366,20 @@ async function loadStats() {
       document.getElementById('kpiScore').textContent = usineStats.audits.avg_score || '—';
       document.getElementById('kpiCritical').textContent = usineStats.audits.critical || 0;
     }
-    if (usineStats.emails) {
-      document.getElementById('kpiEmails').textContent = usineStats.emails.sent || 0;
+    // sequences viennent du endpoint /seo/stats
+    const seq = usineStats.sequences;
+    if (seq) {
+      document.getElementById('kpiEmails').textContent = seq.emails_sent || seq.sent || 0;
     }
-    if (usineStats.revenue) {
-      const rev = (usineStats.revenue.total || 0) / 100;
-      document.getElementById('kpiRevenue').textContent = rev > 0 ? `${rev.toFixed(0)}$` : '—';
-    }
+    // Revenue via endpoint global
+    try {
+      const kpis = await fetch(`${API}/api/usine/stats`).then(r => r.json()).catch(() => ({}));
+      if (kpis.revenue) {
+        const rev = (kpis.revenue.total || 0) / 100;
+        document.getElementById('kpiRevenue').textContent = rev > 0 ? `${rev.toFixed(0)}$` : '—';
+      }
+    } catch {}
+
 
     // Queues
     const queues = queueStats.cycleProgress || {};
@@ -402,7 +409,7 @@ async function loadStats() {
 async function loadLeads(page = 1) {
   currentPage = page;
   const status = document.getElementById('filterStatus').value;
-  let url = `${API}/api/usine/leads?page=${page}&limit=20`;
+  let url = `${API}/api/usine/lead-gen?page=${page}&limit=20`;
   if (status) url += `&status=${status}`;
 
   try {
@@ -535,7 +542,7 @@ async function loadAudits() {
     document.getElementById('auditsCount').textContent = audits?.total_audits || 0;
 
     // Utiliser les leads avec audit_score comme proxy
-    const leadsData = await fetch(`${API}/api/usine/leads?limit=50`).then(r => r.json());
+    const leadsData = await fetch(`${API}/api/usine/lead-gen?limit=50`).then(r => r.json());
     const audited = (leadsData.leads || []).filter(l => l.audit_score !== null);
 
     if (audited.length === 0) {

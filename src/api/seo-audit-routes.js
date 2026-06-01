@@ -44,8 +44,8 @@ async function ensureAuditTables(pool) {
   `).catch(() => {});
 }
 
-// POST /api/usine/seo/audit/:leadId — Lancer un audit manuel
-router.post('/audit/:leadId', async (req, res) => {
+// POST /api/usine/seo/audit/:leadId
+router.post('/seo/audit/:leadId', async (req, res) => {
   const pool = getPool(req);
   const { leadId } = req.params;
 
@@ -72,7 +72,7 @@ router.post('/audit/:leadId', async (req, res) => {
 });
 
 // POST /api/usine/seo/audit-url — Audit direct par URL (sans lead)
-router.post('/audit-url', async (req, res) => {
+router.post('/seo/audit-url', async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ ok: false, error: 'URL requise' });
 
@@ -85,7 +85,7 @@ router.post('/audit-url', async (req, res) => {
 });
 
 // GET /api/usine/seo/report/:leadId — Télécharger le PDF
-router.get('/report/:leadId', async (req, res) => {
+router.get('/seo/report/:leadId', async (req, res) => {
   const pool = getPool(req);
   try {
     const audit = await pool.query(
@@ -111,7 +111,7 @@ router.get('/report/:leadId', async (req, res) => {
 });
 
 // GET /api/usine/seo/stats
-router.get('/stats', async (req, res) => {
+router.get('/seo/stats', async (req, res) => {
   const pool = getPool(req);
   await ensureAuditTables(pool);
 
@@ -125,7 +125,7 @@ router.get('/stats', async (req, res) => {
         COUNT(*) FILTER (WHERE score >= 70) as good,
         COUNT(*) FILTER (WHERE DATE(created_at) = CURRENT_DATE) as today
       FROM daleba_seo_audits
-    `);
+    `).catch(() => ({ rows: [{}] }));
 
     const seqStats = await pool.query(`
       SELECT
@@ -134,7 +134,7 @@ router.get('/stats', async (req, res) => {
         COUNT(*) FILTER (WHERE status = 'completed') as completed,
         COUNT(*) FILTER (WHERE step >= 1) as emails_sent
       FROM daleba_email_sequences
-    `);
+    `).catch(() => ({ rows: [{}] }));
 
     res.json({ ok: true, audits: stats.rows[0], sequences: seqStats.rows[0] });
   } catch (e) {
