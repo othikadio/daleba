@@ -230,3 +230,29 @@ router.get('/stats', async (req, res) => {
 });
 
 module.exports = router;
+
+// POST /api/usine/sequences/test-send/:leadId — Test envoi email direct (debug)
+router.post('/sequences/test-send/:leadId', async (req, res) => {
+  const { leadId } = req.params;
+  try {
+    const leadRow = await pool.query(`
+      SELECT l.*, a.score, a.report_path, a.issues
+      FROM daleba_leads l
+      LEFT JOIN daleba_seo_audits a ON a.lead_id = l.id
+      WHERE l.id = $1
+    `, [leadId]);
+    
+    if (!leadRow.rows[0]) return res.json({ ok: false, error: 'Lead introuvable' });
+    const lead = leadRow.rows[0];
+    
+    if (!lead.email) return res.json({ ok: false, error: 'Pas d email', lead_name: lead.company_name });
+    
+    const { startEmailSequence } = require('../workers/email-sequence-worker');
+    const auditResult = { score: lead.score || 50, issues: lead.issues || [], details: {} };
+    
+    const seq = await startEmailSequence(lead, auditResult, null, null, pool);
+    res.json({ ok: !!seq, seq, lead_name: lead.company_name, email: lead.email, score: lead.score });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message, stack: e.stack?.split('\n').slice(0,5) });
+  }
+});
