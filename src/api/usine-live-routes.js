@@ -193,22 +193,35 @@ async function runAutoCycle() {
   lastAutoCycleAt = new Date().toISOString();
   if (bus?.system) bus.system(`🤖 [AUTO #${cycleId}] Cycle Mondial — 3 escouades en parallèle`);
 
-  // ÉTAPE 1 — SCANS PARALLÈLES (Amériques + Europe + Global)
+  // ── Rate limiter global IA ────────────────────────────────────────────────────
+  // DeepSeek: ~60 RPM libre → on espace à 1 appel/2s max (30 RPM, marge large)
+  // GPT-4o: crédits épuisés 2026-06-01 → exclu du pool DARE (quotaExhausted)
+  // Gemini: instable → fallback uniquement
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const RL_DELAY_MS = 2500; // 1 call IA / 2.5s = 24 RPM max (safe pour DeepSeek)
+
+  // ÉTAPE 1 — SCANS SÉQUENTIELS avec pause (était parallèle — générait trop d'appels IA)
+  // Americas → pause → Europe → pause → Global : scan propre sans bombardement API
   try {
-    const [r1, r2, r3] = await Promise.all([
-      runSquadScan('americas'),
-      runSquadScan('europe'),
-      runSquadScan('global'),
-    ]);
+    const r1 = await runSquadScan('americas');
+    await sleep(RL_DELAY_MS);
+    const r2 = await runSquadScan('europe');
+    await sleep(RL_DELAY_MS);
+    const r3 = await runSquadScan('global');
     const total = (r1||0) + (r2||0) + (r3||0);
-    if (bus?.system) bus.system(`📡 [AUTO #${cycleId}] Scan mondial terminé — ${total} nouvelles opps`);
+    if (bus?.system) bus.system(`📡 [AUTO #${cycleId}] Scan séquentiel terminé — ${total} nouvelles opps`);
   } catch(e) {
     if (bus?.system) bus.system(`⚠️ [AUTO #${cycleId}] Scans: ${e.message}`);
   }
 
   if (!autonomousMode) { cycleRunning = false; return; }
 
-  // ÉTAPE 2 — PIPELINE : audit + email en lots parallèles de 5
+  // ÉTAPE 2 — PIPELINE avec rate limiting strict
+  // CHUNK réduit de 5 → 2 (2 appels IA en parallèle max) + pause 3s entre chunks
+  const THROTTLE_CHUNK  = 2;   // max 2 propositions en simultané
+  const THROTTLE_PAUSE  = 3000; // 3s entre chaque lot
+  const MAX_OPPS_CYCLE  = 8;   // max 8 offres par cycle (au lieu de 15)
+
   const pool = getPool();
   if (pool) {
     try {
@@ -216,17 +229,15 @@ async function runAutoCycle() {
         SELECT o.* FROM daleba_opportunities o
         LEFT JOIN daleba_proposals p ON p.opportunity_id = o.id
         WHERE o.score >= 65 AND o.status = 'pending' AND p.id IS NULL
-        ORDER BY o.score DESC, o.detected_at DESC LIMIT $1`, [EMAIL_BATCH_PER_CYCLE]);
+        ORDER BY o.score DESC, o.detected_at DESC LIMIT $1`, [MAX_OPPS_CYCLE]);
 
       const opps = r.rows;
       if (opps.length) {
-        if (bus?.system) bus.system(`✍️ [AUTO #${cycleId}] Pipeline: ${opps.length} opps en traitement parallèle`);
-        const CHUNK = 5;
-        for (let i = 0; i < opps.length; i += CHUNK) {
+        if (bus?.system) bus.system(`✍️ [AUTO #${cycleId}] Pipeline: ${opps.length} opps — lot×${THROTTLE_CHUNK} avec pause ${THROTTLE_PAUSE/1000}s`);
+        for (let i = 0; i < opps.length; i += THROTTLE_CHUNK) {
           if (!autonomousMode) break;
-          const chunk = opps.slice(i, i + CHUNK);
+          const chunk = opps.slice(i, i + THROTTLE_CHUNK);
           await Promise.all(chunk.map(async (opp) => {
-            // Escouade Tech/SaaS pour audit, Closers pour email
             const auditId  = taskRegister('tech_saas', opp, { action:`Rédaction proposition — ${opp.category}` });
             const closerId = taskRegister('closers', opp, { action:`Email closing — ${opp.country||'??'}` });
             try {
@@ -238,7 +249,6 @@ async function runAutoCycle() {
               taskDone(auditId);
 
               taskLog(closerId, 'email', `Envoi email — ${opp.title?.slice(0,40)}`, { progress:50 });
-              const now = new Date().toISOString();
               await pool.query(`INSERT INTO daleba_proposals (opportunity_id,generated_text,status,created_at,sent_at) VALUES ($1,$2,'sent',NOW(),NOW())`, [opp.id, proposalText]);
               await pool.query(`UPDATE daleba_opportunities SET status='approved',approved_at=NOW() WHERE id=$1`, [opp.id]);
               const en = safeRequire('../services/email-notifier');
@@ -250,6 +260,8 @@ async function runAutoCycle() {
               await safeCall(() => pool.query(`INSERT INTO daleba_proposals (opportunity_id,generated_text,status) VALUES ($1,'[error]','error')`, [opp.id]), null);
             } finally { taskDone(closerId); }
           }));
+          // Pause rate limiter entre chaque lot
+          if (i + THROTTLE_CHUNK < opps.length) await sleep(THROTTLE_PAUSE);
         }
         if (bus?.system) bus.system(`🏁 [AUTO #${cycleId}] Cycle terminé — ${opps.length} opportunités livrées`);
       } else {

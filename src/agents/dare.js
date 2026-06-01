@@ -119,6 +119,8 @@ const usageStats = {
   costByProvider: {},
   costThisHour: {},       // [037] { [providerId]: { windowStart: ts, costUSD: 0 } }
   bridledProviders: new Set(), // [037] providers bridés
+  // Providers avec quota épuisé (billing) — ne jamais retry, éviter les 429 en boucle
+  quotaExhausted: new Set(['gpt4o']), // GPT-4o crédits épuisés 2026-06-01 — réactiver quand compte rechargé
   lastReset: Date.now(),
 };
 
@@ -203,7 +205,15 @@ async function withExponentialBackoff(fn, providerId, options = {}) {
         throw err;
       }
 
-      // Rate limit → backoff [040]
+      // Quota billing épuisé (insufficient_quota) — NE PAS retry, blacklister immédiatement
+      const isQuotaExhausted = err.status === 429 &&
+        (err.message?.includes('insufficient_quota') || err.message?.includes('exceeded your current quota'));
+      if (isQuotaExhausted) {
+        markQuotaExhausted(providerId);
+        throw err; // pas de retry, pas de boucle
+      }
+
+      // Rate limit temporaire (RPM/TPM) → backoff exponentiel [040]
       const isRateLimit = err.status === 429 || err.message?.includes('rate') || err.message?.includes('limit');
 
       if (attempt === maxRetries) throw err;
@@ -341,11 +351,22 @@ function getAvailableHealthyProviders(priorityList) {
     if (!p || !p.available || p.deprecated) return false;
     if (p.health.status === 'down') return false;
     if (usageStats.bridledProviders.has(id)) return false;
+    // Quota billing épuisé — exclusion permanente jusqu'à recharge manuelle
+    if (usageStats.quotaExhausted.has(id)) return false;
     // [034] Exclure si rétrogradé aujourd'hui (mais ne pas bloquer complètement)
     const m = dailyMetrics[id];
     if (m?.demoted) return false;
     return true;
   });
+}
+
+// Marquer un provider comme quota épuisé (billing) — appelé depuis withExponentialBackoff
+function markQuotaExhausted(providerId) {
+  if (!usageStats.quotaExhausted.has(providerId)) {
+    usageStats.quotaExhausted.add(providerId);
+    console.warn(`[DARE] 🚫 ${providerId} marqué quota-exhausted (billing) — exclus du pool jusqu'à recharge`);
+    require('../services/event-bus').system?.(`[DARE] 🚫 ${providerId} quota billing épuisé — bascule sur DeepSeek/Claude`);
+  }
 }
 
 function selectProvider(message, options = {}) {
