@@ -332,3 +332,63 @@ if (process.env.WHATSAPP_AUTOSTART === 'true') {
 module.exports = router;
 module.exports.handleStripeDepositWebhook = handleStripeDepositWebhook;
 module.exports.startWhatsApp = startWhatsApp;
+
+// ── Meta Cloud API Setup ──────────────────────────────────────────────────────
+// POST /api/whatsapp/cloud-setup — sauvegarde Phone Number ID + Token
+router.post('/cloud-setup', async (req, res) => {
+  const { phoneNumberId, accessToken, wabaId } = req.body;
+  if (!phoneNumberId || !accessToken) {
+    return res.status(400).json({ error: 'phoneNumberId + accessToken requis' });
+  }
+  try {
+    // Vérifier le token en appelant Meta Graph
+    const testRes = await fetch(
+      `https://graph.facebook.com/v19.0/${phoneNumberId}?fields=display_phone_number,verified_name,status&access_token=${accessToken}`
+    );
+    const testData = await testRes.json();
+    if (testData.error) throw new Error(testData.error.message);
+
+    // Sauvegarder dans la DB (daleba_notes)
+    const { pool } = require('../memory/db');
+    await pool.query(`
+      INSERT INTO daleba_notes (title, content, category, tags, priority, author_id, created_at, updated_at)
+      VALUES ('whatsapp_cloud_config', $1, 'system', ARRAY['whatsapp','cloud','meta'], 1, 'system', NOW(), NOW())
+      ON CONFLICT (title) DO UPDATE SET content=$1, updated_at=NOW()
+    `, [JSON.stringify({ phoneNumberId, accessToken, wabaId: wabaId||null, phone: testData.display_phone_number, name: testData.verified_name })]).catch(async () => {
+      // Si conflict sur title pas géré, upsert alternatif
+      await pool.query(`DELETE FROM daleba_notes WHERE title='whatsapp_cloud_config' AND category='system'`);
+      await pool.query(`INSERT INTO daleba_notes (title, content, category, tags, priority, author_id, created_at, updated_at)
+        VALUES ('whatsapp_cloud_config', $1, 'system', ARRAY['whatsapp','cloud','meta'], 1, 'system', NOW(), NOW())`,
+        [JSON.stringify({ phoneNumberId, accessToken, wabaId: wabaId||null, phone: testData.display_phone_number, name: testData.verified_name })]);
+    });
+
+    // Enregistrer webhook sur Meta automatiquement
+    const subRes = await fetch(
+      `https://graph.facebook.com/v19.0/${wabaId||phoneNumberId}/subscribed_apps?access_token=${accessToken}`,
+      { method: 'POST' }
+    );
+
+    bus.system(`📱 WhatsApp Cloud API configuré — ${testData.display_phone_number} (${testData.verified_name})`);
+    res.json({
+      ok: true,
+      phone: testData.display_phone_number,
+      name: testData.verified_name,
+      status: testData.status,
+      webhookUrl: 'https://daleba-api-production.up.railway.app/api/webhook/whatsapp',
+      verifyToken: process.env.META_VERIFY_TOKEN || 'kadio-daleba-2026',
+    });
+  } catch(e) {
+    res.status(400).json({ ok: false, error: e.message });
+  }
+});
+
+// GET /api/whatsapp/cloud-status — état de la config Cloud API
+router.get('/cloud-status', async (req, res) => {
+  try {
+    const { pool } = require('../memory/db');
+    const r = await pool.query(`SELECT content FROM daleba_notes WHERE title='whatsapp_cloud_config' AND category='system' LIMIT 1`);
+    if (!r.rows[0]) return res.json({ configured: false });
+    const cfg = JSON.parse(r.rows[0].content);
+    res.json({ configured: true, phone: cfg.phone, name: cfg.name, phoneNumberId: cfg.phoneNumberId });
+  } catch(e) { res.json({ configured: false, error: e.message }); }
+});

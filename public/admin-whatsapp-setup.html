@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>WhatsApp Cloud API — Setup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>body{font-family:'Inter',sans-serif;}</style>
+</head>
+<body class="bg-gray-50 min-h-screen p-4">
+<div class="max-w-xl mx-auto pt-8">
+
+  <!-- Header -->
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center text-white text-xl">💬</div>
+    <div>
+      <h1 class="font-black text-gray-900 text-xl">WhatsApp Cloud API</h1>
+      <p class="text-sm text-gray-500">Connexion officielle Meta — Kadio Coiffure</p>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div id="status-card" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-4 hidden">
+    <div class="flex items-center gap-2">
+      <span class="text-green-500 text-xl">✅</span>
+      <div>
+        <div class="font-bold text-gray-900" id="s-name">—</div>
+        <div class="text-sm text-gray-500" id="s-phone">—</div>
+      </div>
+      <span class="ml-auto text-xs bg-green-100 text-green-700 font-bold px-2 py-1 rounded-full">Connecté</span>
+    </div>
+  </div>
+
+  <!-- Guide étapes -->
+  <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-4">
+    <h2 class="font-bold text-gray-900 mb-4">📋 Étapes Meta (5 min)</h2>
+    <ol class="space-y-3 text-sm text-gray-700">
+      <li class="flex gap-3">
+        <span class="flex-shrink-0 w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+        <span>Va sur <a href="https://developers.facebook.com/apps/1694870868184251/whatsapp-business/wa-dev-console/" target="_blank" class="text-blue-600 underline font-semibold">developers.facebook.com → ton App → WhatsApp</a></span>
+      </li>
+      <li class="flex gap-3">
+        <span class="flex-shrink-0 w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+        <span>Dans <strong>Numéros de téléphone</strong>, clique <strong>Ajouter un numéro</strong> → entre <code class="bg-gray-100 px-1 rounded">+1 514-919-5970</code></span>
+      </li>
+      <li class="flex gap-3">
+        <span class="flex-shrink-0 w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
+        <span>Meta envoie un <strong>code OTP</strong> sur ce numéro — entre-le pour vérifier</span>
+      </li>
+      <li class="flex gap-3">
+        <span class="flex-shrink-0 w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center text-xs font-bold">4</span>
+        <span>Copie le <strong>Phone Number ID</strong> et le <strong>Token d'accès temporaire</strong> affichés sur la page</span>
+      </li>
+      <li class="flex gap-3">
+        <span class="flex-shrink-0 w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center text-xs font-bold">5</span>
+        <span>Dans <strong>Configuration → Webhook</strong>, entre :<br>
+          <code class="bg-gray-100 px-1 rounded text-xs block mt-1">URL : https://daleba-api-production.up.railway.app/api/webhook/whatsapp</code>
+          <code class="bg-gray-100 px-1 rounded text-xs block mt-1">Token de vérification : kadio-daleba-2026</code>
+          <br>Abonne-toi à <strong>messages</strong>
+        </span>
+      </li>
+      <li class="flex gap-3">
+        <span class="flex-shrink-0 w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold">6</span>
+        <span>Colle le Phone Number ID et le Token ci-dessous → <strong>Connecter</strong></span>
+      </li>
+    </ol>
+  </div>
+
+  <!-- Formulaire -->
+  <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-4">
+    <h2 class="font-bold text-gray-900 mb-4">🔑 Coller les identifiants Meta</h2>
+    <div class="space-y-3">
+      <div>
+        <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Phone Number ID</label>
+        <input id="phoneNumberId" type="text" placeholder="ex: 123456789012345"
+          class="mt-1 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300">
+      </div>
+      <div>
+        <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Token d'accès</label>
+        <input id="accessToken" type="text" placeholder="EAAxxxxxxx…"
+          class="mt-1 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300">
+      </div>
+      <div>
+        <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">WABA ID <span class="text-gray-300">(optionnel)</span></label>
+        <input id="wabaId" type="text" placeholder="ex: 987654321098765"
+          class="mt-1 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300">
+      </div>
+      <div id="err" class="text-sm text-red-500 font-semibold hidden"></div>
+      <button onclick="connect()"
+        class="w-full bg-green-500 hover:bg-green-600 text-white rounded-xl py-3 font-bold text-sm transition">
+        🔗 Connecter WhatsApp Cloud API
+      </button>
+    </div>
+  </div>
+
+  <!-- Test envoi -->
+  <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5" id="test-section" style="display:none">
+    <h2 class="font-bold text-gray-900 mb-3">🧪 Test d'envoi</h2>
+    <div class="flex gap-2">
+      <input id="test-phone" type="text" placeholder="+15141234567"
+        class="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300">
+      <button onclick="testSend()"
+        class="bg-gray-900 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-gray-700">Envoyer</button>
+    </div>
+    <div id="test-result" class="mt-2 text-sm text-gray-500"></div>
+  </div>
+
+</div>
+
+<script>
+const API = 'https://daleba-api-production.up.railway.app';
+
+async function loadStatus() {
+  try {
+    const d = await fetch(`${API}/api/whatsapp/cloud-status`).then(r=>r.json());
+    if (d.configured) {
+      document.getElementById('s-name').textContent  = d.name || 'Kadio Coiffure';
+      document.getElementById('s-phone').textContent = d.phone || '';
+      document.getElementById('status-card').classList.remove('hidden');
+      document.getElementById('test-section').style.display = 'block';
+    }
+  } catch(_) {}
+}
+
+async function connect() {
+  const phoneNumberId = document.getElementById('phoneNumberId').value.trim();
+  const accessToken   = document.getElementById('accessToken').value.trim();
+  const wabaId        = document.getElementById('wabaId').value.trim();
+  const errEl = document.getElementById('err');
+  errEl.classList.add('hidden');
+
+  if (!phoneNumberId || !accessToken) {
+    errEl.textContent = 'Phone Number ID et Token requis'; errEl.classList.remove('hidden'); return;
+  }
+
+  try {
+    const btn = document.querySelector('button[onclick="connect()"]');
+    btn.textContent = '⏳ Vérification…'; btn.disabled = true;
+
+    const r = await fetch(`${API}/api/whatsapp/cloud-setup`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ phoneNumberId, accessToken, wabaId: wabaId||undefined })
+    });
+    const d = await r.json();
+
+    if (d.ok) {
+      document.getElementById('s-name').textContent  = d.name || 'Kadio Coiffure';
+      document.getElementById('s-phone').textContent = d.phone || '';
+      document.getElementById('status-card').classList.remove('hidden');
+      document.getElementById('test-section').style.display = 'block';
+      btn.textContent = '✅ Connecté !';
+      btn.className = 'w-full bg-gray-200 text-gray-500 rounded-xl py-3 font-bold text-sm cursor-default';
+    } else {
+      errEl.textContent = d.error || 'Erreur inconnue'; errEl.classList.remove('hidden');
+      btn.textContent = '🔗 Connecter WhatsApp Cloud API'; btn.disabled = false;
+    }
+  } catch(e) {
+    errEl.textContent = e.message; errEl.classList.remove('hidden');
+    document.querySelector('button[onclick="connect()"]').disabled = false;
+  }
+}
+
+async function testSend() {
+  const phone = document.getElementById('test-phone').value.trim();
+  const res = document.getElementById('test-result');
+  if (!phone) return;
+  res.textContent = 'Envoi…';
+  try {
+    const r = await fetch(`${API}/api/whatsapp/send`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ phone, message: '✅ DALEBA connecté ! WhatsApp Cloud API opérationnel pour Kadio Coiffure.' })
+    });
+    const d = await r.json();
+    res.textContent = d.sent ? '✅ Message envoyé !' : '❌ ' + (d.error||'Erreur');
+  } catch(e) { res.textContent = '❌ ' + e.message; }
+}
+
+loadStatus();
+</script>
+</body>
+</html>
