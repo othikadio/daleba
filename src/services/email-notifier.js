@@ -48,7 +48,8 @@ async function sendViaResend(subject, html, text) {
       res.on('data', c => { data += c; });
       res.on('end', () => {
         const json = JSON.parse(data);
-        if (res.statusCode >= 400) throw new Error(`Resend ${res.statusCode}: ${data}`);
+        if (res.statusCode === 429) { console.warn('[email-notifier] Resend quota journalier dépassé — email ignoré silencieusement'); return resolve({ provider: 'resend', skipped: true, reason: 'quota_exceeded' }); }
+        if (res.statusCode >= 400) { console.warn(`[email-notifier] Resend ${res.statusCode}: ${data} — email ignoré`); return resolve({ provider: 'resend', skipped: true, reason: data }); }
         resolve({ provider: 'resend', id: json.id });
       });
     });
