@@ -191,6 +191,28 @@ function markJobFailed(queueName, jobId) {
   }
 }
 
+// Purge des jobs failed dans toutes les queues BullMQ
+async function drainFailedJobs() {
+  if (!redisAvailable) return { skipped: true, reason: 'no redis' };
+  const queues = [leadGenQueue, seoAuditQueue, emailSequenceQueue];
+  const names  = ['lead-gen', 'seo-audit', 'email-sequence'];
+  let total = 0;
+  for (let i = 0; i < queues.length; i++) {
+    if (!queues[i]) continue;
+    try {
+      const failedJobs = await queues[i].getFailed();
+      for (const job of failedJobs) {
+        await job.remove().catch(() => {});
+        total++;
+      }
+      console.log(`[Queue] ✅ ${names[i]}: ${failedJobs.length} failed jobs purgés`);
+    } catch (e) {
+      console.warn(`[Queue] purge ${names[i]} erreur:`, e.message);
+    }
+  }
+  return { purged: total };
+}
+
 // Initialiser au démarrage
 initQueues().catch(console.warn);
 
@@ -205,5 +227,6 @@ module.exports = {
   get leadGenQueue() { return leadGenQueue; },
   get seoAuditQueue() { return seoAuditQueue; },
   get emailSequenceQueue() { return emailSequenceQueue; },
-  get redisAvailable() { return redisAvailable; }
+  get redisAvailable() { return redisAvailable; },
+  drainFailedJobs,
 };

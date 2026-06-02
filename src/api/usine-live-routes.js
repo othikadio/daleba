@@ -502,6 +502,18 @@ router.post('/opportunity/:id/sign', async (req, res) => {
 
 // Production + Autonomous mode
 router.get('/production-mode',(req,res)=>res.json({enabled:productionModeEnabled}));
+// POST /api/usine/drain-failed — purge BullMQ failed jobs
+router.post('/drain-failed', async (req, res) => {
+  try {
+    const agentQueue = require('../workers/agent-queue');
+    const result = await agentQueue.drainFailedJobs();
+    bus.system(`🧹 [USINE] BullMQ purge: ${result.purged ?? 0} failed jobs supprimés`);
+    res.json({ ok: true, ...result });
+  } catch(e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
 router.post('/production-mode',(req,res)=>{
   const{enabled}=req.body; if(typeof enabled!=='boolean')return res.status(400).json({error:'booléen requis'});
   productionModeEnabled=enabled; getBus()?.system?.(enabled?'▶ Production ON':'⏸ Production OFF',{productionMode:enabled});

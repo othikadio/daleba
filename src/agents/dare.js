@@ -60,7 +60,7 @@ const PROVIDERS = {
     contextWindow: 128000, costPer1MInput: 0.15, costPer1MOutput: 0.60, // tarifs Moonshot ~10× moins cher qu'OpenAI
     strengths: { creative: 9, writing: 10, conversation: 10, vision: 7, code: 8, strategy: 9, analysis: 9, math: 7, bulk: 7 },
     health: { status: 'unknown', latencyMs: null, lastCheck: null, failures: 0 },
-    addedAt: Date.now(), deprecated: false,
+    addedAt: Date.now(), deprecated: true, // quota épuisé + 404 — stop alertes
     docs: { url: 'https://platform.moonshot.cn/docs', authScheme: 'Bearer', envKey: 'KIMI_API_KEY' },
   },
   deepseek: {
