@@ -190,7 +190,7 @@ async function runSquadScan(squadKey) {
           await pool.query(`INSERT INTO daleba_opportunities (source_platform,source_url,country,language_original,title,description_orig,description_fr,budget_raw,budget_estimated,budget_currency,category,score,keywords_matched,status,detected_at)
             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'pending',NOW())
             ON CONFLICT (source_url) DO NOTHING`,
-            [opp.platform,opp.url,opp.country||null,'en',opp.title,opp.description?.slice(0,3000)||'',classified.description_fr||'',opp.budget_raw||null,classified.budget_estimated||null,classified.budget_currency||'USD',classified.category||'général',classified.score||50,classified.keywords_matched||'']);
+            [opp.platform,opp.url,opp.country||null,opp.language||'en',opp.title,opp.description?.slice(0,3000)||'',classified.description_fr||opp.title||'',opp.budget_raw||null,classified.budget_estimated||null,classified.budget_currency||'USD',classified.category||'général',classified.score||50,classified.keywords_matched||'']);
           newCount++;
         } catch(_) {}
       }
@@ -644,7 +644,7 @@ router.post('/insert-test', async (req, res) => {
         INSERT INTO daleba_opportunities
         (source_platform,source_url,country,language_original,title,description_orig,description_fr,budget_raw,budget_estimated,budget_currency,category,score,keywords_matched,status,detected_at)
         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'pending',NOW())
-        ON CONFLICT (source_url) DO UPDATE SET updated_at=NOW()
+        ON CONFLICT (source_url) DO NOTHING
         RETURNING id,title,source_platform`,
         [opp.platform, opp.url, opp.country||null, opp.language||'en', opp.title,
          (opp.description||'').slice(0,3000), opp.title, opp.budget_raw||null,
