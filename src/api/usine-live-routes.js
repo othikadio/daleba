@@ -316,7 +316,9 @@ async function runAutoCycle() {
       const r = await pool.query(`
         SELECT o.* FROM daleba_opportunities o
         LEFT JOIN daleba_proposals p ON p.opportunity_id = o.id
-        WHERE o.score >= 65 AND o.status = 'pending' AND p.id IS NULL
+        WHERE o.score >= 65
+          AND o.status IN ('pending','new')
+          AND p.id IS NULL
         ORDER BY o.score DESC, o.detected_at DESC LIMIT $1`, [MAX_OPPS_CYCLE]);
 
       const opps = r.rows;
@@ -329,23 +331,35 @@ async function runAutoCycle() {
             const auditId  = taskRegister('tech_saas', opp, { action:`Rédaction proposition — ${opp.category}` });
             const closerId = taskRegister('closers', opp, { action:`Email closing — ${opp.country||'??'}` });
             try {
+              // 🔒 Verrouiller immédiatement — évite double-pick si cycle suivant démarre avant fin
+              await safeCall(() => pool.query(`UPDATE daleba_opportunities SET status='processing' WHERE id=$1 AND status IN ('pending','new')`, [opp.id]), null);
+
               taskLog(auditId, 'generate', `DeepSeek: génération proposition pour "${opp.title?.slice(0,40)}"`, { progress:30 });
               let proposalText = `[AUTO] DALEBA — Proposition pour ${opp.title}`;
+              let proposalPricing = null;
               const pw = safeRequire('../services/proposal-writer');
-              if (pw?.generateProposal) proposalText = await safeCall(() => pw.generateProposal(opp), proposalText);
+              if (pw?.generateProposal) {
+                const pwResult = await safeCall(() => pw.generateProposal(opp), proposalText);
+                if (typeof pwResult === 'string') { proposalText = pwResult; }
+                else if (pwResult) { proposalText = pwResult.text || proposalText; proposalPricing = pwResult.pricing || null; }
+              }
               taskLog(auditId, 'done', `Proposition générée (${proposalText.length} chars)`, { progress:100 });
               taskDone(auditId);
 
               taskLog(closerId, 'email', `Envoi email — ${opp.title?.slice(0,40)}`, { progress:50 });
-              await pool.query(`INSERT INTO daleba_proposals (opportunity_id,generated_text,status,created_at,sent_at) VALUES ($1,$2,'sent',NOW(),NOW())`, [opp.id, proposalText]);
+              const pricingJson = proposalPricing ? JSON.stringify({ finalPrice: proposalPricing.finalPrice, marketRateUSD: proposalPricing.marketRateUSD, strategy: proposalPricing.strategy?.label }) : null;
+              await pool.query(`INSERT INTO daleba_proposals (opportunity_id,generated_text,status,notes,created_at,sent_at) VALUES ($1,$2,'sent',$3,NOW(),NOW()) ON CONFLICT (opportunity_id) DO UPDATE SET generated_text=EXCLUDED.generated_text,status='sent',sent_at=NOW()`, [opp.id, proposalText, pricingJson]);
               await pool.query(`UPDATE daleba_opportunities SET status='approved',approved_at=NOW() WHERE id=$1`, [opp.id]);
               const en = safeRequire('../services/email-notifier');
               if (en?.notifyProposal) await safeCall(() => en.notifyProposal(opp, proposalText), null);
               taskLog(closerId, 'sent', `Email envoyé ✅ — ${opp.title?.slice(0,40)}`, { progress:100 });
-              if (bus?.system) bus.system(`📧 [AUTO #${cycleId}] Livré — "${opp.title?.slice(0,45)}" $${Math.round(opp.budget_estimated||0).toLocaleString()}`);
+              const priceLbl = proposalPricing ? `${proposalPricing.finalPrice?.toLocaleString('fr-CA')} CAD` : (opp.budget_estimated ? `~$${Math.round(opp.budget_estimated).toLocaleString()} USD` : 'Tarif DALEBA');
+              if (bus?.system) bus.system(`📧 [AUTO #${cycleId}] Livré — "${opp.title?.slice(0,45)}" — ${priceLbl}`);
             } catch(e2) {
               taskDone(auditId);
-              await safeCall(() => pool.query(`INSERT INTO daleba_proposals (opportunity_id,generated_text,status) VALUES ($1,'[error]','error')`, [opp.id]), null);
+              // Marquer 'failed' dans opp + proposal pour ne pas re-looper
+              await safeCall(() => pool.query(`UPDATE daleba_opportunities SET status='failed' WHERE id=$1`, [opp.id]), null);
+              await safeCall(() => pool.query(`INSERT INTO daleba_proposals (opportunity_id,generated_text,status) VALUES ($1,'[auto-error]','error') ON CONFLICT (opportunity_id) DO NOTHING`, [opp.id]), null);
             } finally { taskDone(closerId); }
           }));
           // Pause rate limiter entre chaque lot
