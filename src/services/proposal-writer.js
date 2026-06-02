@@ -53,7 +53,7 @@ Your goal: land a first conversation. Not close immediately. Open the door.`;
 }
 
 // ── Prompt utilisateur ────────────────────────────────────────────────────────
-function buildUserPrompt(opp, lang) {
+function buildUserPrompt(opp, lang, pricing = null) {
   const isFr = lang === 'fr';
   const profile = DALEBA_PROFILE[isFr ? 'fr' : 'en'];
 
@@ -64,6 +64,7 @@ function buildUserPrompt(opp, lang) {
 **Titre :** ${opp.title}
 **Description (FR) :** ${opp.description_fr || opp.description_orig || '(non précisée)'}
 **Budget estimé :** ${budgetForPrompt(opp)}
+**Notre offre calculée :** ${pricing ? `${pricing.finalPrice.toLocaleString('fr-CA')} $CAD (stratégie ${pricing.strategy.emoji} ${pricing.strategy.label})` : 'Tarif standard DALEBA'}
 **Pays :** ${opp.country || 'International'}
 **Catégorie :** ${opp.category}
 **Score de pertinence :** ${opp.score}/100
@@ -81,6 +82,7 @@ Longueur : 300-450 mots maximum. Ton : directeur technique qui parle à un déci
 **Title:** ${opp.title}
 **Description:** ${opp.description_orig || opp.description_fr || '(not specified)'}
 **Estimated budget:** ${budgetForPrompt(opp)}
+**Our calculated offer:** ${pricing ? `${pricing.finalPrice.toLocaleString('en-CA')} CAD (strategy ${pricing.strategy.emoji} ${pricing.strategy.label})` : 'Standard DALEBA rate'}
 **Country:** ${opp.country || 'International'}
 **Category:** ${opp.category}
 **Relevance score:** ${opp.score}/100
@@ -142,18 +144,52 @@ function callDeepSeek(systemPrompt, userPrompt) {
 // ── Fonction principale ───────────────────────────────────────────────────────
 /**
  * Génère une proposition commerciale pour une opportunité approuvée.
+ * Intègre l'analyse marché (Squad #801) + négociation dynamique (#802) + Stripe (#803).
+ *
  * @param {Object} opportunity - Ligne complète de daleba_opportunities
- * @returns {Promise<string>} Texte de la proposition
+ * @param {Object} pool        - Pool PostgreSQL (optionnel, pour l'analyse historique)
+ * @returns {Promise<{text: string, pricing: Object|null, paymentUrl: string}>}
  */
-async function generateProposal(opportunity) {
-  const lang         = opportunity.language_original === 'fr' ? 'fr' : 'en';
+async function generateProposal(opportunity, pool = null) {
+  const lang = opportunity.language_original === 'fr' ? 'fr' : 'en';
+
+  // ── Squad #801 : Analyse prix du marché ───────────────────────────────────
+  let pricing    = null;
+  let paymentUrl = process.env.DALEBA_PAYMENT_URL || 'https://buy.stripe.com/fZu8wO78Vaq6eAe6F96wE0r';
+
+  try {
+    const { analyzeMarketRate } = require('./market-pricer');
+    const { calculatePrice }    = require('./negotiation-engine');
+    const { getPaymentLink }    = require('./dynamic-payment-link');
+
+    const marketData = await analyzeMarketRate(opportunity, pool);
+
+    // ── Squad #802 : Calcul du prix négocié ───────────────────────────────
+    pricing = calculatePrice(marketData, opportunity);
+
+    // ── Squad #803 : Génération lien Stripe dynamique ─────────────────────
+    const linkResult = await getPaymentLink(pricing.finalPrice, opportunity.title || 'Projet DALEBA');
+    paymentUrl = linkResult.url;
+
+    console.log(
+      `[proposal-writer] Squad #801-803 — Marché: ${pricing.marketRateUSD}$ USD ` +
+      `→ DALEBA: ${pricing.finalPrice}$ CAD (${pricing.strategy.emoji} ${pricing.strategy.label}) ` +
+      `| -${pricing.discountPct}% vs marché | Lien: ${paymentUrl.slice(0, 40)}...`
+    );
+  } catch (err) {
+    console.warn(`[proposal-writer] Pricing Squad KO: ${err.message} — fallback pricing-guard`);
+    pricing = null;
+  }
+
+  // ── Construire le prompt avec le prix calculé injecté ────────────────────
   const systemPrompt = buildSystemPrompt(lang);
-  const userPrompt   = buildUserPrompt(opportunity, lang);
+  const userPrompt   = buildUserPrompt(opportunity, lang, pricing);
 
   console.log(`[proposal-writer] Génération pour "${opportunity.title?.slice(0, 60)}" (lang: ${lang})`);
   const text = await callDeepSeek(systemPrompt, userPrompt);
   console.log(`[proposal-writer] Proposition générée (${text.length} chars)`);
-  return text;
+
+  return { text, pricing, paymentUrl };
 }
 
 module.exports = { generateProposal };

@@ -23,6 +23,7 @@ const SQUADS_DEF = {
   global:      { range:[301,450],  icon:'🌏', label:'Asie-Pacifique', squadId:'global',  keywords:['automation','fintech','saas','platform'] },
   tech_saas:   { range:[451,600],  icon:'💻', label:'Tech/SaaS',   squadId:'freelance',  keywords:['saas','platform','b2b','software as a service'] },
   auto_ai:     { range:[601,750],  icon:'🤖', label:'Auto/IA',     squadId:'global',     keywords:['ai','machine learning','llm','chatbot','agent'] },
+  pricing:     { range:[801,850],  icon:'📈', label:'Négociation & Pricing Market', squadId:'pricing', keywords:['pricing','budget','negotiation','market rate'] },
   closers:     { range:[751,950],  icon:'📧', label:'Closers Email', squadId:null,       keywords:[] },
   maintenance: { range:[951,1000], icon:'🛡', label:'Maintenance',  squadId:null,        keywords:[] },
 };
@@ -529,6 +530,7 @@ router.get('/roster', async (req, res) => {
         {id:'scraping',label:'Scraping & Intelligence',range:'1 → 300',count:300,color:'sky',icon:'🔍',description:'3 escouades géo (Amériques/Europe/Global) — 11 sources mondiales simultanées.',skills:['Web Scraping','11 sources','Multi-langue','Geo-routing','Dedup'],queueActive:lg.active||0,queueCompleted:lg.completed||0,liveTasks:liveArr.filter(t=>['americas','europe','global'].includes(t.squad))},
         {id:'audit',label:'Rédacteurs B2B (Tech/SaaS/IA)',range:'301 → 750',count:450,color:'violet',icon:'✍️',description:'Audit SEO + rédaction propositions B2B en FR/EN. DeepSeek parallèle ×5.',skills:['SEO Analysis','Proposal Writing','DeepSeek LLM','FR/EN','Score ≥65'],queueActive:seo.active||0,queueCompleted:seo.completed||0,liveTasks:liveArr.filter(t=>['tech_saas','auto_ai'].includes(t.squad))},
         {id:'closers',label:'Closers Email',range:'751 → 950',count:200,color:'amber',icon:'📧',description:'Séquences email multi-étapes. sent_at tracé pour CA Réel.',skills:['Email Closing','Follow-up Auto','sent_at tracking','Resend API','CA Réel'],queueActive:(em.active||0)+liveArr.filter(t=>t.squad==='closers').length,queueCompleted:em.completed||0,liveTasks:liveArr.filter(t=>t.squad==='closers')},
+        {id:'pricing',label:'📈 Escouade Négociation & Pricing Market',range:'801 → 850',count:50,color:'teal',icon:'📈',description:'Analyse prix marché mondial en temps réel. Negotiation Engine dynamique. Génération liens Stripe ajustés. Prix 150 CAD → marché réel.',skills:['Market Rate Analysis','Negotiation Engine','Dynamic Stripe Links','Budget Guard','LLM Pricing'],queueActive:liveArr.filter(t=>t.squad==='pricing').length,queueCompleted:0,liveTasks:liveArr.filter(t=>t.squad==='pricing')},
         {id:'maintenance',label:'Maintenance #951-1000',range:'951 → 1 000',count:50,color:'rose',icon:'🛡',description:'Surveillance BullMQ, DB, cycle. Auto-healing en 60s.',skills:['BullMQ Repair','Cycle Watch','DB Health','Auto-Heal','Log Monitor'],queueActive:liveArr.filter(t=>t.squad==='maintenance').length,queueCompleted:maintenanceHeals,liveTasks:liveArr.filter(t=>t.squad==='maintenance'),heals:maintenanceHeals,errors:maintenanceErrors},
       ],
       redisConnected:!!qs?.redisAvailable,

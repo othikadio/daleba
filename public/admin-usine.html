@@ -25,7 +25,7 @@
     input:checked+.slider{background:#10b981}input:checked+.slider::before{transform:translateX(20px)}.tog.auto input:checked+.slider{background:#8b5cf6}
     .t-sky{background:#e0f2fe;color:#0369a1}.t-violet{background:#ede9fe;color:#5b21b6}.t-amber{background:#fef3c7;color:#92400e}
     .t-green{background:#d1fae5;color:#065f46}.t-gray{background:#f3f4f6;color:#4b5563}.t-red{background:#fee2e2;color:#991b1b}
-    .t-rose{background:#fff1f2;color:#be123c}.t-indigo{background:#eef2ff;color:#3730a3}.t-emerald{background:#d1fae5;color:#065f46}
+    .t-rose{background:#fff1f2;color:#be123c}.t-indigo{background:#eef2ff;color:#3730a3}.t-emerald{background:#d1fae5;color:#065f46}.t-teal{background:#ccfbf1;color:#0f766e}
     .tab-btn{padding:.45rem .9rem;font-size:.78rem;font-weight:600;border-bottom:2px solid transparent;color:#6b7280;transition:all .15s;cursor:pointer;white-space:nowrap}
     .tab-btn.active{color:#0284c7;border-bottom-color:#0284c7}
     .tab-panel{display:none}.tab-panel.active{display:block}
@@ -89,7 +89,7 @@
   <div id="auto-banner" class="hidden mb-2 bg-violet-50 border border-violet-200 rounded-xl p-2.5 flex items-center gap-2">
     <span class="text-lg">🤖</span>
     <div class="flex-1 min-w-0">
-      <p class="text-xs font-black text-violet-800">MODE AUTONOME — 3 escouades mondiales · 11 sources · Boucle infinie</p>
+      <p class="text-xs font-black text-violet-800">MODE AUTONOME — 4 escouades mondiales · 11 sources + Pricing Squad #801-850 · Boucle infinie</p>
       <p class="text-[10px] text-violet-500">Amériques + Europe + Global en parallèle · Maintenance #951-1000 active</p>
     </div>
     <span class="text-[10px] text-violet-400 tabular-nums font-mono" id="cycle-lbl"></span>
@@ -423,7 +423,7 @@ function pushFeed(type,msg){
 function clearFeed(){const f=$('activity-feed');if(f){f.innerHTML='<p class="text-center text-gray-300 text-xs py-10">Vidé</p>';feedReady=false;evtCount=0;st('evt-count','0 évts');}}
 
 // ─── Live tasks — boîte noire ─────────────────────────────────────────────────
-const squadColors={americas:'t-sky',europe:'t-violet',global:'t-indigo',tech_saas:'t-violet',auto_ai:'t-indigo',closers:'t-amber',maintenance:'t-rose'};
+const squadColors={americas:'t-sky',europe:'t-violet',global:'t-indigo',tech_saas:'t-violet',auto_ai:'t-indigo',closers:'t-amber',pricing:'t-teal',maintenance:'t-rose'};
 function renderLiveTasks(){
   const grid=$('live-tasks-grid');if(!grid)return;
   if(!liveTasks.length){grid.innerHTML='<p class="text-center text-gray-300 text-xs py-8 col-span-3">Aucun agent actif.</p>';return;}
@@ -507,7 +507,7 @@ async function loadRoster(){
   try{
     const d=await api('/api/usine/roster');
     const grid=$('roster-grid');if(!grid)return;
-    const cm={sky:['bg-sky-50','border-sky-200','bg-sky-500','text-sky-700'],violet:['bg-violet-50','border-violet-200','bg-violet-500','text-violet-700'],amber:['bg-amber-50','border-amber-200','bg-amber-500','text-amber-700'],rose:['bg-rose-50','border-rose-200','bg-rose-500','text-rose-700']};
+    const cm={sky:['bg-sky-50','border-sky-200','bg-sky-500','text-sky-700'],violet:['bg-violet-50','border-violet-200','bg-violet-500','text-violet-700'],amber:['bg-amber-50','border-amber-200','bg-amber-500','text-amber-700'],rose:['bg-rose-50','border-rose-200','bg-rose-500','text-rose-700'],teal:['bg-teal-50','border-teal-200','bg-teal-500','text-teal-700'],indigo:['bg-indigo-50','border-indigo-200','bg-indigo-500','text-indigo-700'],emerald:['bg-emerald-50','border-emerald-200','bg-emerald-500','text-emerald-700']};
     grid.innerHTML=d.squads.map(sq=>{
       const[bg,border,dot,tc]=cm[sq.color]||cm.sky;
       const live=sq.liveTasks?.length||0;

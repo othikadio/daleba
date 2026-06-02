@@ -127,12 +127,15 @@ router.post('/generate/:oppId', async (req, res) => {
 
     const opp  = oppResult.rows[0];
     const { generateProposal } = require('../services/proposal-writer');
-    const text = await generateProposal(opp);
+    const result = await generateProposal(opp, pool);
+    const text = typeof result === 'string' ? result : result.text;
+    const pricing = result.pricing || null;
+    const paymentUrl = result.paymentUrl || null;
 
     await pool.query(`
-      INSERT INTO daleba_proposals (opportunity_id, generated_text, status)
-      VALUES ($1, $2, 'draft_pending_ulrich')
-    `, [opp.id, text]);
+      INSERT INTO daleba_proposals (opportunity_id, generated_text, status, notes)
+      VALUES ($1, $2, 'draft_pending_ulrich', $3)
+    `, [opp.id, text, pricing ? JSON.stringify({ finalPrice: pricing.finalPrice, marketRateUSD: pricing.marketRateUSD, strategy: pricing.strategy.label, paymentUrl }) : null]);
 
     console.log(`[proposals] Proposition enregistrée pour opp #${opp.id}`);
   } catch (err) {

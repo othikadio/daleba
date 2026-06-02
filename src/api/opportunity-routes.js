@@ -267,7 +267,10 @@ router.put('/:id/approve', async (req, res) => {
         );
         if (existing.rows.length > 0) return; // déjà générée
         const { generateProposal } = require('../services/proposal-writer');
-        const text = await generateProposal(opp);
+        const result = await generateProposal(opp, pool);
+        const text = typeof result === 'string' ? result : result.text;
+        const pricing = result.pricing || null;
+        const paymentUrl = result.paymentUrl || null;
         await pool.query(
           `INSERT INTO daleba_proposals (opportunity_id, generated_text, status)
            VALUES ($1, $2, 'draft_pending_ulrich')`,
