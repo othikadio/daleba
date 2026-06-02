@@ -216,28 +216,28 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f8f8f8;margin:0;padding
 <div class="container">
 <div class="header">
   <h1>DALEBA OS</h1>
-  <p>La plateforme IA pour salons de coiffure afro</p>
+  <p>La plateforme IA pour automatiser et développer votre entreprise</p>
 </div>
 <div class="body">
   <h2>Bonjour ${client.contact_name || client.name},</h2>
-  <p>Nous avons développé <strong>DALEBA OS</strong>, la première plateforme IA conçue spécifiquement pour les salons de coiffure afro au Québec.</p>
-  <p>Des salons comme <strong>Kadio Coiffure</strong> à Longueuil utilisent déjà notre système pour automatiser leurs réservations, fidéliser leurs clients et développer leur présence en ligne.</p>
+  <p>Nous avons développé <strong>DALEBA OS</strong>, une plateforme IA tout-en-un pour automatiser les processus métier, générer plus de clients et centraliser votre gestion.</p>
+  <p>Notre solution est déjà active chez plusieurs entreprises qui ont automatique leurs réservations, leur fidélisation client et leur présence en ligne.</p>
   <div class="features">
     <h3>Ce qu'on vous offre</h3>
-    <div class="feature">✂️ <span><strong>Réservations en ligne</strong> — Agenda multi-staff synchronisé avec Square</span></div>
+    <div class="feature">📅 <span><strong>Réservations en ligne</strong> — Agenda multi-staff, rappels automatiques</span></div>
     <div class="feature">💳 <span><strong>Programme de fidélité</strong> — Points, abonnements, cartes Wallet Apple/Google</span></div>
     <div class="feature">📲 <span><strong>Social Media IA</strong> — Calendrier éditorial généré automatiquement</span></div>
     <div class="feature">📊 <span><strong>Dashboard complet</strong> — CA, clients, rappels SMS automatiques</span></div>
-    <div class="feature">🤖 <span><strong>Jarvis vocal</strong> — Répondeur IA 24/7 pour les appels manqués</span></div>
+    <div class="feature">🤖 <span><strong>Agents IA autonomes</strong> — Communication, prospection, facturation</span></div>
   </div>
-  <p><strong>Offre de lancement : 97 CAD/mois</strong> — Installation incluse, support prioritaire.</p>
+  <p><strong>Offre de lancement : 150 CAD</strong> — Démarrage immédiat, support prioritaire.</p>
   <div class="cta">
-    <a href="https://kadiocoiffure.vercel.app?demo=true" target="_blank">📅 Planifier une démo gratuite</a>
+    <a href="https://buy.stripe.com/fZu8wO78Vaq6eAe6F96wE0r" target="_blank">💳 Activer ma solution DALEBA — 150 \$CAD</a>
   </div>
-  <p style="font-size:0.8rem;color:#888">Questions? Répondez directement à cet email ou appelez-nous au (450) 000-0000.</p>
+  <p style="font-size:0.8rem;color:#888">Pour activer votre solution DALEBA et corriger vos failles, cliquez ci-dessus pour finaliser votre abonnement. Questions ? Répondez directement à cet email.</p>
 </div>
 <div class="footer">
-  DALEBA OS · Plateforme SaaS pour salons afro · Longueuil, Québec<br>
+  DALEBA OS · Plateforme IA pour entreprises · daleba.vercel.app<br>
   <a href="#" style="color:#c9a84c">Se désabonner</a>
 </div>
 </div>
@@ -247,7 +247,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f8f8f8;margin:0;padding
     const emailRes = await axios.post('https://api.resend.com/emails', {
       from: 'DALEBA OS <onboarding@resend.dev>',
       to: [toEmail],
-      subject: `${client.name} — Découvrez DALEBA OS, la plateforme IA pour votre salon`,
+      subject: `${client.name} — Découvrez DALEBA OS, la plateforme IA pour votre entreprise`,
       html: emailHtml
     }, {
       headers: { Authorization: `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },

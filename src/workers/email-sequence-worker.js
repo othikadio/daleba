@@ -1,10 +1,18 @@
 /**
- * KADIO OS — Axe 3: Séquences email automatiques
+ * DALEBA — Séquences email automatiques B2B
  * 3 étapes: J+0 (rapport PDF), J+3 (suivi), J+7 (offre Stripe)
+ *
+ * ⚠️ AUCUN lien salon dans ces templates — ces emails vont à des prospects B2B internationaux
  */
 
 const fs = require('fs');
 const emailQueue = require('../services/email-queue');
+
+// ── Liens officiels DALEBA (ne JAMAIS mettre kadiocoiffure ici) ──────────────────
+const DALEBA_SITE         = process.env.DALEBA_SITE_URL    || 'https://daleba.vercel.app';
+const DALEBA_PRICING      = process.env.DALEBA_PRICING_URL || 'https://daleba.vercel.app/tarifs';
+const DALEBA_PAYMENT_150  = process.env.DALEBA_PAYMENT_URL || 'https://buy.stripe.com/fZu8wO78Vaq6eAe6F96wE0r';
+const DALEBA_CONTACT      = process.env.DALEBA_CONTACT_URL || 'https://daleba.vercel.app/contact';
 
 // Mode supervisé: Resend sandbox → envoie à l'adresse Ulrich avec les détails du lead
 // Basculer sur un vrai domaine Resend pour envois directs aux prospects
@@ -79,11 +87,11 @@ body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 
       <li>Les recommandations prioritaires</li>
       <li>Un plan d'action concret</li>
     </ul>
-    <a href="https://kadiocoiffure.vercel.app" class="cta">Voir nos solutions →</a>
-    <p style="color: #64748b; font-size: 14px;">Des questions ? Répondez directement à cet email ou appelez-nous.</p>
+    <a href="${DALEBA_PRICING}" class="cta">🔗 Voir nos solutions DALEBA →</a>
+    <p style="color: #64748b; font-size: 14px;">Des questions ? Répondez directement à cet email — nous répondons sous 24h.</p>
   </div>
   <div class="footer">
-    <p>DALEBA — Solutions numériques pour salons de coiffure | kadiocoiffure.vercel.app</p>
+    <p>DALEBA — Plateforme IA pour entreprises | ${DALEBA_SITE}</p>
     <p style="margin: 5px 0 0;">Pour vous désabonner, répondez avec "STOP".</p>
   </div>
 </div>
@@ -121,9 +129,9 @@ body { font-family: Arial, sans-serif; background: #f5f5f5; }
       <li>Chaque jour sans correction = des clients qui vont chez la concurrence</li>
     </ul>
     <p><strong>Bonne nouvelle :</strong> Tous ces problèmes sont 100% corrigeables — et notre équipe peut s'en occuper rapidement.</p>
-    <a href="https://kadiocoiffure.vercel.app" class="cta">Discutons de votre projet →</a>
+    <a href="${DALEBA_CONTACT}" class="cta">💬 Discutons de votre projet DALEBA →</a>
   </div>
-  <div class="footer"><p>DALEBA | Pour vous désabonner, répondez avec "STOP"</p></div>
+  <div class="footer"><p>DALEBA — ${DALEBA_SITE} | Pour vous désabonner, répondez avec "STOP"</p></div>
 </div>
 </body>
 </html>`
@@ -159,16 +167,16 @@ body { font-family: Arial, sans-serif; background: #f5f5f5; }
       <p style="color: #64748b;">Paiement unique — Premier mois offert</p>
       <ul style="text-align: left; margin: 15px 0; padding-left: 20px;">
         <li>✅ Correction de tous les problèmes identifiés</li>
-        <li>✅ Optimisation mots-clés coiffure + ville</li>
+        <li>✅ Optimisation mots-clés métier + référencement local</li>
         <li>✅ Configuration Google My Business</li>
         <li>✅ Rapport de suivi 30 jours</li>
         <li>✅ Support prioritaire par email</li>
       </ul>
     </div>
-    <a href="${paymentLink || 'https://kadiocoiffure.vercel.app'}" class="cta">💳 Profiter de l'offre maintenant →</a>
+    <a href="${paymentLink || DALEBA_PAYMENT_150}" class="cta">💳 Activer ma solution DALEBA — 150 $CAD →</a>
     <p style="color: #ef4444; font-size: 13px; text-align: center;"><strong>⏰ Offre valable 48h uniquement</strong></p>
   </div>
-  <div class="footer"><p>DALEBA | Pour vous désabonner, répondez avec "STOP"</p></div>
+  <div class="footer"><p>DALEBA — ${DALEBA_SITE} | Pour vous désabonner, répondez avec "STOP"</p></div>
 </div>
 </body>
 </html>`

@@ -163,7 +163,7 @@ async function generateSEOReport(lead, auditResult) {
 
   // Footer
   page1.drawRectangle({ x: 0, y: 0, width, height: 50, color: gold });
-  page1.drawText('kadiocoiffure.vercel.app  •  Rapport généré automatiquement par DALEBA', { x: 40, y: 18, size: 10, font, color: dark });
+  page1.drawText('daleba.vercel.app  •  Rapport généré automatiquement par DALEBA', { x: 40, y: 18, size: 10, font, color: dark });
 
   // =========== PAGE 2 — Résumé exécutif ===========
   const page2 = doc.addPage([595, 842]);
@@ -225,7 +225,7 @@ async function generateSEOReport(lead, auditResult) {
   }
 
   page2.drawRectangle({ x: 0, y: 0, width, height: 50, color: gold });
-  page2.drawText('kadiocoiffure.vercel.app  •  Rapport généré automatiquement par DALEBA', { x: 40, y: 18, size: 10, font, color: dark });
+  page2.drawText('daleba.vercel.app  •  Rapport généré automatiquement par DALEBA', { x: 40, y: 18, size: 10, font, color: dark });
 
   // =========== PAGE 3 — Recommandations + CTA ===========
   const page3 = doc.addPage([595, 842]);
@@ -267,11 +267,11 @@ async function generateSEOReport(lead, auditResult) {
   page3.drawText('OFFRE SPÉCIALE — CORRECTION SEO COMPLÈTE', { x: 65, y: y + 85, size: 11, font: fontBold, color: dark });
   page3.drawText('Notre équipe corrige TOUS les problèmes identifiés + optimisation avancée.', { x: 65, y: y + 50, size: 11, font, color: white });
   page3.drawText('✓ Correction de tous les problèmes techniques  ✓ Optimisation mots-clés  ✓ Rapport de suivi 30j', { x: 65, y: y + 28, size: 9, font, color: gold });
-  page3.drawText('→ kadiocoiffure.vercel.app  |  Réponse en 24h garantie', { x: 65, y: y + 8, size: 10, font: fontBold, color: cyan });
+  page3.drawText('→ daleba.vercel.app  |  Réponse en 24h garantie', { x: 65, y: y + 8, size: 10, font: fontBold, color: cyan });
   page3.drawText('150$/mois — Premier mois offert sur présentation de ce rapport', { x: 65, y: y - 8, size: 10, font: fontBold, color: white });
 
   page3.drawRectangle({ x: 0, y: 0, width, height: 50, color: gold });
-  page3.drawText('kadiocoiffure.vercel.app  •  contact@daleba.app  •  Rapport confidentiel', { x: 40, y: 18, size: 10, font, color: dark });
+  page3.drawText('daleba.vercel.app  •  contact@daleba.app  •  Rapport confidentiel', { x: 40, y: 18, size: 10, font, color: dark });
 
   // Sauvegarder PDF
   const pdfBytes = await doc.save();

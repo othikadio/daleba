@@ -13,6 +13,11 @@
 const https = require('https');
 const { assertPriceNotZero, normalizeBudget } = require('./pricing-guard');
 
+// ── Liens officiels DALEBA — ne JAMAIS utiliser kadiocoiffure ici ───────────────
+const DALEBA_SITE        = process.env.DALEBA_SITE_URL    || 'https://daleba.vercel.app';
+const DALEBA_PRICING     = process.env.DALEBA_PRICING_URL || 'https://daleba.vercel.app/tarifs';
+const DALEBA_PAYMENT_150 = process.env.DALEBA_PAYMENT_URL || 'https://buy.stripe.com/fZu8wO78Vaq6eAe6F96wE0r';
+
 const RESEND_KEY   = process.env.RESEND_API_KEY || 're_hVMJtA4G_5BydQQv4noQx767KpL4xowMk';
 const DALEBA_FROM  = 'onboarding@resend.dev';
 const DALEBA_NAME  = 'DALEBA — Services Tech';
@@ -51,13 +56,41 @@ function buildApplicationEmail(opportunity, proposalText, contactEmail) {
     .replace(/\n\n/g, '</p><p>')
     .replace(/\n/g, '<br>');
 
+  // ── CTA Stripe + footer DALEBA (aucun lien salon) ───────────────────────────────
+  const ctaLabel = isFr
+    ? `Pour activer votre solution DALEBA et corriger vos failles, cliquez ici pour finaliser votre abonnement.`
+    : `To activate your DALEBA solution and fix your gaps, click here to complete your subscription.`;
+
+  const ctaHtml = `
+<table width="100%" cellpadding="0" cellspacing="0" style="margin:32px 0;">
+  <tr>
+    <td align="center">
+      <a href="${DALEBA_PAYMENT_150}"
+         style="display:inline-block;background:linear-gradient(135deg,#c9a84c,#e8c86d);color:#0d1117;
+                text-decoration:none;font-size:15px;font-weight:700;padding:16px 36px;
+                border-radius:8px;letter-spacing:0.03em;">
+        💳 Activer ma solution DALEBA — 150 \$CAD
+      </a>
+      <p style="font-size:12px;color:#94a3b8;margin:10px 0 0;">
+        ${ctaLabel}
+      </p>
+      <p style="font-size:11px;color:#c4b5a0;margin:4px 0 0;">
+        ${isFr ? 'Ou consultez nos formules :' : 'Or view all plans:'}
+        <a href="${DALEBA_PRICING}" style="color:#c9a84c;">${DALEBA_PRICING}</a>
+      </p>
+    </td>
+  </tr>
+</table>`;
+
   const footer = isFr
-    ? `<hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0"><p style="font-size:12px;color:#94a3b8">Ce message a été envoyé via DALEBA · Agence Tech · Automatisation & IA<br>En réponse à l'annonce : <a href="${opportunity.source_url || '#'}">${source}</a></p>`
-    : `<hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0"><p style="font-size:12px;color:#94a3b8">This message was sent via DALEBA · Tech Agency · Automation & AI<br>In response to listing: <a href="${opportunity.source_url || '#'}">${source}</a></p>`;
+    ? `<hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0"><p style="font-size:12px;color:#94a3b8">Ce message a été envoyé via DALEBA · Agence Tech · Automatisation & IA<br>En réponse à l'annonce : <a href="${opportunity.source_url || '#'}">${source}</a><br><a href="${DALEBA_SITE}" style="color:#c9a84c;">${DALEBA_SITE}</a></p>`
+    : `<hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0"><p style="font-size:12px;color:#94a3b8">This message was sent via DALEBA · Tech Agency · Automation & AI<br>In response to listing: <a href="${opportunity.source_url || '#'}">${source}</a><br><a href="${DALEBA_SITE}" style="color:#c9a84c;">${DALEBA_SITE}</a></p>`;
 
   const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
 <body style="font-family:'Segoe UI',Arial,sans-serif;max-width:640px;margin:0 auto;padding:24px;color:#1e293b;line-height:1.7">
-<p>${proposalHtml}</p>${footer}</body></html>`;
+<p>${proposalHtml}</p>
+${ctaHtml}
+${footer}</body></html>`;
 
   return { subject, html, text: proposalText };
 }
