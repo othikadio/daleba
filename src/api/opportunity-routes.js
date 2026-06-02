@@ -65,7 +65,7 @@ initTable();
 // ── GET /api/opportunities — liste paginée ─────────────────────────────────
 router.get('/', async (req, res) => {
   try {
-    const { status = 'pending', category, limit = 50, offset = 0, min_score = 0 } = req.query;
+    const { status = 'all', category, limit = 500, offset = 0, min_score = 0 } = req.query;
 
     let where = ['score >= $1'];
     const params = [parseInt(min_score)];
