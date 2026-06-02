@@ -212,7 +212,7 @@ async function generateProposal(opportunity, pool = null) {
   const userPrompt   = buildUserPrompt(opportunity, lang, pricing);
 
   console.log(`[proposal-writer] Génération pour "${opportunity.title?.slice(0, 60)}" (lang: ${lang})`);
-  const text = await callDeepSeek(systemPrompt, userPrompt);
+  let text = await callDeepSeek(systemPrompt, userPrompt);
   // ── Nettoyage des placeholders laissés par le LLM ─────────────────────────
   text = text
     .replace(/\[Your Name\]/gi,    'Marc Beausoleil')
