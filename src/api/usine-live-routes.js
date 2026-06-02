@@ -13,8 +13,8 @@ let autonomousMode        = false; // restauré au boot
 let cycleRunning          = false;
 let autoCycleCount        = 0;
 let lastAutoCycleAt       = null;
-let EMAIL_BATCH_PER_CYCLE = 20; // plus agressif
-let CYCLE_COOLDOWN_MS     = 4 * 60 * 60 * 1000; // 4h entre cycles
+let EMAIL_BATCH_PER_CYCLE = 20; // 20 propositions/cycle
+let CYCLE_COOLDOWN_MS     = 45 * 60 * 1000; // 45 min — mode surrégime
 
 // ── Escouades géographiques/sectorielles ──────────────────────────────────────
 const SQUADS_DEF = {
@@ -221,9 +221,9 @@ async function runAutoCycle() {
 
   // ÉTAPE 2 — PIPELINE avec rate limiting strict
   // CHUNK réduit de 5 → 2 (2 appels IA en parallèle max) + pause 3s entre chunks
-  const THROTTLE_CHUNK  = 2;   // max 2 propositions en simultané
-  const THROTTLE_PAUSE  = 3000; // 3s entre chaque lot
-  const MAX_OPPS_CYCLE  = 8;   // max 8 offres par cycle (au lieu de 15)
+  const THROTTLE_CHUNK  = 4;   // 4 propositions en simultané (DeepSeek+GPT-4o)
+  const THROTTLE_PAUSE  = 2000; // 2s entre lots (rate limit OK)
+  const MAX_OPPS_CYCLE  = 20;  // 20 offres/cycle — mode agressif
 
   const pool = getPool();
   if (pool) {

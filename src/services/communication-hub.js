@@ -78,11 +78,9 @@ function detectIntent(text) {
 
 async function handleBookingIntent({ text, sessionId }) {
   try {
-    const claude = require('../agents/claude');
     const { DALEBA_SYSTEM_PROMPT } = require('../agents/persona');
-
-    // Appel LLM : poser des questions d'écoute active avant de proposer
-    const result = await claude.query(
+    // DARE — DeepSeek/GPT-4o priorisé pour conversation WA
+    const result = await dareQuery(
       `Message client : "${text}"
 
 La cliente demande un rendez-vous. Commence par lui poser UNE question pour cerner son besoin :
@@ -100,9 +98,8 @@ Sois chaleureuse, max 2 phrases. Ne liste PAS les services ni les tarifs.`,
 
 async function handleInfoIntent({ text, sessionId }) {
   try {
-    const claude = require('../agents/claude');
     const { DALEBA_SYSTEM_PROMPT } = require('../agents/persona');
-    const result = await claude.query(text, DALEBA_SYSTEM_PROMPT, []);
+    const result = await dareQuery(text, DALEBA_SYSTEM_PROMPT, []);
     return result.content;
   } catch {
     return `Bonjour ! Pour toute information sur nos services et tarifs, contactez-nous au 514-919-5970 ou visitez kadiocoiffure.vercel.app/hub 💇✨`;
@@ -117,12 +114,9 @@ async function handleModifyIntent({ from, text, intent }) {
 
 async function handleGeneralIntent({ text, sessionId }) {
   try {
-    const claude = require('../agents/claude');
     const { DALEBA_SYSTEM_PROMPT } = require('../agents/persona');
-    const result = await claude.query(
-      `Message client : "${text}"
-
-Réponds de façon naturelle et chaleureuse. Si le sujet n'est pas clair, pose une question ouverte pour comprendre leur besoin. Max 2-3 phrases. Pas de liste, pas de menu.`,
+    const result = await dareQuery(
+      `Message client : "${text}"\n\nRéponds de façon naturelle et chaleureuse. Si le sujet n'est pas clair, pose une question ouverte pour comprendre leur besoin. Max 2-3 phrases. Pas de liste, pas de menu.`,
       DALEBA_SYSTEM_PROMPT,
       []
     );

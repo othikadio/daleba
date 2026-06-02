@@ -317,6 +317,21 @@
             <p class="text-4xl font-black text-gray-900 leading-none tabular-nums" id="kpi-daleba">$0</p>
             <p class="text-xs text-gray-400 mt-2" id="kpi-daleba-sub">0 contrats livrés</p>
           </div>
+          <!-- Usine IA — Live -->
+          <div class="kpi-card bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-t-4 border-t-emerald-500 col-span-2"
+               onclick="showIframe('agents','/admin-usine.html','🏭 L'Usine IA','sky')">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">🤖 Usine IA — Pilote Auto</p>
+            <div class="flex items-center gap-4">
+              <div>
+                <p class="text-4xl font-black text-gray-900 leading-none tabular-nums" id="kpi-usine-cycle">—</p>
+                <p class="text-xs text-gray-400 mt-1">Cycles complétés</p>
+              </div>
+              <div class="flex-1 text-right">
+                <span class="text-sm font-bold" id="kpi-usine-auto">…</span>
+                <p class="text-xs text-gray-400 mt-1" id="usine-mode-lbl">Cycle 45 min</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- ── KPIs DALEBA SaaS ── -->
@@ -660,6 +675,18 @@
         const dct = dal.total_contracts || 0;
         setKpi('kpi-daleba', '$' + Math.round(dca).toLocaleString('fr-CA'));
         setKpi('kpi-daleba-sub', `${dct} contrat${dct > 1 ? 's' : ''} livré${dct > 1 ? 's' : ''}`);
+      }
+    } catch(_) {}
+
+    // Usine IA — stats live
+    try {
+      const usine = await fetch(`${RAILWAY}/api/usine/live-stats`).then(r => r.json()).catch(() => null);
+      if (usine) {
+        setKpi('kpi-usine-cycle', usine.autoCycleCount ?? usine.cycleCount ?? 0);
+        setKpi('kpi-usine-auto', usine.autonomousMode ? '🟢 ON' : '⏸ OFF');
+        const mode45 = usine.autonomousMode ? 'Cycle 45 min' : 'En pause';
+        const el = document.getElementById('usine-mode-lbl');
+        if (el) el.textContent = mode45;
       }
     } catch(_) {}
 
