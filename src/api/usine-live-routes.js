@@ -158,13 +158,34 @@ async function runSquadScan(squadKey) {
     if (pool && raw.length > 0) {
       const classifier = safeRequire('../services/opportunity-classifier');
       const existingURLs = new Set((await safeCall(() => pool.query('SELECT source_url FROM daleba_opportunities WHERE source_url IS NOT NULL'), { rows:[] })).rows.map(r=>r.source_url));
-      const toProcess = raw.filter(r => r.url && !existingURLs.has(r.url)).slice(0, 80); // v2: 80 opps/squad (était 30)
+      // Pré-filtre avant classifier : éliminer annonces produit HN + items sans contenu exploitable
+      const PRE_FILTER_NEGATIVE = ['show hn:', 'launch hn:', 'tell hn:', 'ask hn: what', 'ask hn: how', 'ask hn: why'];
+      const PRE_FILTER_POSITIVE = ['hire','freelance','contract','projet','project','bounty','automation','api','chatbot','saas','intégration','integration','bot','workflow','looking for'];
+      const toProcess = raw
+        .filter(r => r.url && !existingURLs.has(r.url))
+        .filter(r => {
+          const t = (r.title || '').toLowerCase();
+          const d = (r.description || '').toLowerCase();
+          // Toujours garder Freelancer, Codeur, GitHub Bounty, Replit (projets réels)
+          if (['Freelancer','Codeur','GitHub Bounty','Replit Bounty'].includes(r.platform)) return true;
+          // Rejeter les annonces HN qui ne sont pas des offres
+          if (PRE_FILTER_NEGATIVE.some(kw => t.startsWith(kw))) return false;
+          // Garder si au moins un mot-clé positif
+          return PRE_FILTER_POSITIVE.some(kw => t.includes(kw) || d.includes(kw));
+        })
+        .slice(0, 80); // max 80/squad
       taskLog(taskId, 'classify', `Classification de ${toProcess.length} nouvelles opportunités`, { progress: 70 });
 
       for (const opp of toProcess) {
         try {
-          let classified = { score:50, category:'général', description_fr:'' };
-          if (classifier?.classifyOpportunity) classified = await safeCall(() => classifier.classifyOpportunity(opp), classified);
+          // Plateformes freelance confirmées → score fixe 65 (bypass classifieur)
+          const FREELANCE_PLATFORMS = ['Freelancer','Codeur','GitHub Bounty','Replit Bounty'];
+          let classified = { score: 50, category: 'général', description_fr: '' };
+          if (FREELANCE_PLATFORMS.includes(opp.platform)) {
+            classified = { score: 65, category: 'automation', description_fr: opp.title, keywords_matched: 'freelance,project', budget_type: 'fixed' };
+          } else if (classifier?.classifyOpportunity) {
+            classified = await safeCall(() => classifier.classifyOpportunity(opp), classified);
+          }
           if ((classified.score || 0) < 30) continue;
           await pool.query(`INSERT INTO daleba_opportunities (source_platform,source_url,country,language_original,title,description_orig,description_fr,budget_raw,budget_estimated,budget_currency,category,score,keywords_matched,status,detected_at)
             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'pending',NOW())
