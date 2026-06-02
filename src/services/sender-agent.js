@@ -18,9 +18,10 @@ const DALEBA_SITE        = process.env.DALEBA_SITE_URL    || 'https://daleba.ver
 const DALEBA_PRICING     = process.env.DALEBA_PRICING_URL || 'https://daleba.vercel.app/tarifs';
 const DALEBA_PAYMENT_150 = process.env.DALEBA_PAYMENT_URL || 'https://buy.stripe.com/fZu8wO78Vaq6eAe6F96wE0r';
 
-const RESEND_KEY   = process.env.RESEND_API_KEY || 're_hVMJtA4G_5BydQQv4noQx767KpL4xowMk';
-const DALEBA_FROM  = 'onboarding@resend.dev';
-const DALEBA_NAME  = 'DALEBA — Services Tech';
+const RESEND_KEY   = process.env.RESEND_API_KEY  || 're_hVMJtA4G_5BydQQv4noQx767KpL4xowMk';
+const DALEBA_FROM  = process.env.DALEBA_FROM_EMAIL || 'onboarding@resend.dev';
+const DALEBA_NAME  = 'Marc Beausoleil — DALEBA';
+const DALEBA_REPLY = process.env.DALEBA_REPLY_TO   || 'kadioothniel@yahoo.fr';
 
 // ── Extraction email de contact depuis le texte ───────────────────────────────
 function extractContactEmail(text = '') {
@@ -57,26 +58,26 @@ function buildApplicationEmail(opportunity, proposalText, contactEmail, pricing 
     .replace(/\n/g, '<br>');
 
   // ── CTA Stripe + footer DALEBA (aucun lien salon) ───────────────────────────────
-  const ctaLabel = isFr
-    ? `Pour activer votre solution DALEBA et corriger vos failles, cliquez ici pour finaliser votre abonnement.`
-    : `To activate your DALEBA solution and fix your gaps, click here to complete your subscription.`;
+  // Prix affiché = prix du lien Stripe (identique, pas de décalage possible)
+  const displayPrice = pricing?.finalPrice
+    ? pricing.finalPrice.toLocaleString('fr-CA') + ' $CAD'
+    : '150 $CAD';
+  const stripeUrl = pricing?.paymentUrl || DALEBA_PAYMENT_150;
 
   const ctaHtml = `
-<table width="100%" cellpadding="0" cellspacing="0" style="margin:32px 0;">
+<table width="100%" cellpadding="0" cellspacing="0" style="margin:40px 0;">
   <tr>
     <td align="center">
-      <a href="${pricing?.paymentUrl || DALEBA_PAYMENT_150}"
+      <a href="${stripeUrl}"
          style="display:inline-block;background:linear-gradient(135deg,#c9a84c,#e8c86d);color:#0d1117;
-                text-decoration:none;font-size:15px;font-weight:700;padding:16px 36px;
-                border-radius:8px;letter-spacing:0.03em;">
-        💳 Démarrer avec DALEBA — ${pricing?.finalPrice ? pricing.finalPrice.toLocaleString('fr-CA') + ' $CAD' : '150 $CAD'}
+                text-decoration:none;font-size:16px;font-weight:800;padding:18px 40px;
+                border-radius:8px;letter-spacing:0.04em;box-shadow:0 4px 14px rgba(201,168,76,0.4);">
+        ✅ Accepter la proposition et démarrer — ${displayPrice}
       </a>
-      <p style="font-size:12px;color:#94a3b8;margin:10px 0 0;">
-        ${ctaLabel}
-      </p>
-      <p style="font-size:11px;color:#c4b5a0;margin:4px 0 0;">
-        ${isFr ? 'Ou consultez nos formules :' : 'Or view all plans:'}
-        <a href="${DALEBA_PRICING}" style="color:#c9a84c;">${DALEBA_PRICING}</a>
+      <p style="font-size:12px;color:#64748b;margin:12px 0 0;line-height:1.5;">
+        ${isFr
+          ? 'Paiement sécurisé par Stripe · Livraison activée immédiatement après confirmation.'
+          : 'Secured by Stripe · Delivery activated immediately after payment confirmation.'}
       </p>
     </td>
   </tr>

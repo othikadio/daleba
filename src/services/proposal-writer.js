@@ -31,13 +31,14 @@ Tu rédiges des propositions de services percutantes, personnalisées, et orient
 Ton style : professionnel, confiant, empathique, sans jargon inutile.
 Structure OBLIGATOIRE de chaque proposition (respecte exactement cet ordre) :
 
-1. **Accroche personnalisée** (2-3 phrases qui montrent qu'on a compris leur problème exact)
-2. **Notre solution** (description technique précise adaptée à leur besoin)
-3. **Ce que vous obtenez** (3-5 bénéfices concrets et mesurables)
-4. **Délai de réalisation** (estimation réaliste)
-5. **Prochaine étape** (appel à l'action clair et engageant)
+1. **Accroche personnalisée** (2-3 phrases qui montrent qu'on a compris leur problème exact — contexte 100% à distance)
+2. **Notre solution** (description technique précise, livraison 100% remote, zéro appel requis)
+3. **Livrables** (3-5 livrables concrets avec format de livraison — code, API, dashboard, docs, etc.)
+4. **Calendrier** (précis : "Semaine 1 : X / Semaine 2 : Y / Semaine 3 : livraison + passation")
+5. **Offre** (annonce le prix exact en CAD du contexte pricing, puis l'unique action pour démarrer)
 
-Ton but : décrocher un premier échange. Pas vendre immédiatement. Ouvrir la porte.
+Ton but : rendre la proposition tellement complète et claire que le client peut dire OUI immédiatement et cliquer pour payer.
+JAMAIS d'appel. JAMAIS de "planifions un échange". JAMAIS de "discutons". La proposition EST la conversation de vente entière.
 
 SIGNATURE : Termine toujours le courriel avec exactement ce bloc (sans crochets, sans placeholders) :
 ---
@@ -52,13 +53,14 @@ You write compelling, personalized, results-driven service proposals.
 Your style: professional, confident, empathetic, no unnecessary jargon.
 MANDATORY structure (follow this exact order):
 
-1. **Personalized hook** (2-3 sentences showing you understood their exact problem)
-2. **Our solution** (precise technical description tailored to their need)
-3. **What you get** (3-5 concrete, measurable benefits)
-4. **Timeline** (realistic estimate)
-5. **Next step** (clear, engaging call to action)
+1. **Personalized hook** (2-3 sentences showing you understood their exact problem — remote, async context only)
+2. **Our solution** (precise technical description, 100% remote delivery, no calls needed)
+3. **Deliverables** (3-5 specific, measurable outputs with delivery format — files, APIs, dashboards, etc.)
+4. **Timeline** (specific: "Week 1: X / Week 2: Y / Week 3: delivery + handoff")
+5. **Offer** (state the exact price in CAD from the pricing context, then the single action to start)
 
-Your goal: land a first conversation. Not close immediately. Open the door.
+Your goal: make it so clear and complete that the client can say YES immediately and click to pay.
+NO calls. NO "let's chat". NO "schedule a meeting". The proposal IS the entire sales conversation.
 
 SIGNATURE: Always close the email with this exact signature block (no brackets, no placeholders):
 ---
@@ -94,9 +96,11 @@ Rédige une proposition de service complète et sur-mesure en FRANÇAIS.
 Sois précis sur la solution technique. Montre qu'on a compris leur contexte.
 Longueur : 300-450 mots maximum. Ton : directeur technique qui parle à un décideur.
 
-CONSIGNE OBLIGATOIRE : Dans la section "Notre solution" ou "Ce que vous obtenez", intègre NATURELLEMENT cette phrase :
-"${pricing ? pricing.summary : 'Notre offre optimale pour ce projet est basée sur notre barème DALEBA à 150 $CAD minimum.'}"
-Intègre-la fluidement, jamais comme bloc isolé.`;
+CONSIGNES OBLIGATOIRES :
+1. Dans la section "Offre", écris le prix exact : "${pricing ? pricing.finalPrice.toLocaleString('fr-CA') + ' $CAD' : '150 $CAD'}" — forfait fixe tout inclus, non négociable.
+2. Termine la section "Offre" avec exactement cette phrase :
+   "Le bouton ci-dessous vous amène directement au paiement sécurisé — sans appel, sans aller-retour, juste des résultats."
+3. Ne dis PAS "répondez OUI", "je vous enverrai un lien" ou "contactez-moi". Le bouton de paiement est déjà intégré dans ce courriel.`;
   } else {
     return `Here is a business opportunity approved by our director:
 
@@ -116,9 +120,11 @@ Write a complete, tailored service proposal in ENGLISH.
 Be precise about the technical solution. Show you understood their context.
 Length: 300-450 words max. Tone: technical director speaking to a decision-maker.
 
-MANDATORY: In the "Our solution" or "What you get" section, naturally integrate this sentence:
-"${pricing ? pricing.summaryEn : 'Our optimal offer for this project is 150 CAD minimum — DALEBA standard rate.'}"
-Weave it naturally into the proposal, never as an isolated block.`;
+MANDATORY INSTRUCTIONS:
+1. In the "Offer" section, state the exact fixed price: ${pricing ? '**' + pricing.finalPrice.toLocaleString('en-CA') + ' CAD** — all-inclusive, no negotiation' : '**150 CAD** — DALEBA base rate'}.
+2. End the "Offer" section with this exact sentence: "The button below will take you directly to secure payment — no calls, no back-and-forth, just results."
+3. Do NOT say "reply with YES", "let me send you a link", or "contact me to start". The Stripe payment button is already embedded in this email.`
+  + ';'
   }
 }
 

@@ -224,8 +224,29 @@ async function runSquadScan(squadKey) {
       const classifier = safeRequire('../services/opportunity-classifier');
       const existingURLs = new Set((await safeCall(() => pool.query('SELECT source_url FROM daleba_opportunities WHERE source_url IS NOT NULL'), { rows:[] })).rows.map(r=>r.source_url));
       // Pré-filtre avant classifier : éliminer annonces produit HN + items sans contenu exploitable
-      const PRE_FILTER_NEGATIVE = ['show hn:', 'launch hn:', 'tell hn:', 'ask hn: what', 'ask hn: how', 'ask hn: why'];
-      const PRE_FILTER_POSITIVE = ['hire','freelance','contract','projet','project','bounty','automation','api','chatbot','saas','intégration','integration','bot','workflow','looking for'];
+      // Mots-clés qui indiquent présence physique / poste d'employé fixe → EXCLUS
+      const PRE_FILTER_NEGATIVE = [
+        // HackerNews non-offres
+        'show hn:', 'launch hn:', 'tell hn:', 'ask hn: what', 'ask hn: how', 'ask hn: why',
+        // Présence physique / emploi salarié
+        'on-site', 'onsite', 'on site', 'in-office', 'in office', 'in person', 'in-person',
+        'full-time employee', 'full time employee', 'permanent position', 'permanent role',
+        'must be located', 'must relocate', 'relocation required', 'office based',
+        'hybrid required', 'physical presence', 'on location', 'on-location',
+        'local candidate', 'local only', 'must be in', 'based in our office',
+        'salaried position', 'benefits package', 'health insurance included',
+        // FR
+        'présentiel', 'sur site', 'emploi permanent', 'poste permanent',
+        'relocalisation', 'présence physique', 'travail en bureau',
+      ];
+      // Mots-clés qui indiquent une mission freelance / prestation à distance → GARDÉS
+      const PRE_FILTER_POSITIVE = [
+        'remote','freelance','contract','projet','project','bounty',
+        'automation','api','chatbot','saas','intégration','integration',
+        'bot','workflow','looking for','async','async work','distributed',
+        'contractor','consultant','agency','outsource','offshore',
+        'part-time','part time','independent','1099',
+      ];
       const toProcess = raw
         .filter(r => r.url && !existingURLs.has(r.url))
         .filter(r => {
@@ -252,6 +273,16 @@ async function runSquadScan(squadKey) {
             classified = await safeCall(() => classifier.classifyOpportunity(opp), classified);
           }
           if ((classified.score || 0) < 30) continue;
+          // Filtre présentiel (double vérification post-classifier)
+          const titleLow = (opp.title || '').toLowerCase();
+          const descLow  = (opp.description || '').toLowerCase();
+          const ONSITE_KW = ['on-site','onsite','in-office','in person','in-person','présentiel',
+            'must relocate','relocation required','permanent employee','full-time employee',
+            'salaried','local candidate','local only','must be in','physical presence'];
+          if (ONSITE_KW.some(kw => titleLow.includes(kw) || descLow.includes(kw))) {
+            console.log(`[scanner] ⛔ Présentiel détecté — exclusion: "${opp.title?.slice(0,50)}"`);
+            continue;
+          }
           await pool.query(`INSERT INTO daleba_opportunities (source_platform,source_url,country,language_original,title,description_orig,description_fr,budget_raw,budget_estimated,budget_currency,category,score,keywords_matched,status,detected_at)
             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'pending',NOW())`,
             [opp.platform,opp.url,opp.country||null,opp.language||'en',opp.title,opp.description?.slice(0,3000)||'',classified.description_fr||opp.title||'',opp.budget_raw||null,classified.budget_estimated||null,classified.budget_currency||'USD',classified.category||'général',classified.score||50,classified.keywords_matched||'']);
