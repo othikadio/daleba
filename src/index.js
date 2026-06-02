@@ -156,6 +156,9 @@ try {
 // V47 — CRM Clients Square (si dispo)
 try { app.use('/api/crm', require('./api/crm-routes')); } catch(_) {}
 
+// Hub Souverain Multi-Agents — Flotte 8 modèles
+app.use('/api/sovereign', require('./routes/sovereign-hub-routes'));
+
 // Middleware erreurs (Point 12)
 app.use(errorMiddleware);
 app.use(errorWatcher.middleware); // V27 — surveillance 4xx/5xx + patch SMS Ulrich
@@ -280,6 +283,11 @@ app.get('/admin/usine', (req, res) => {
 });
 app.get('/admin-usine', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin-usine.html'));
+});
+
+// Hub Souverain IA — Flotte multi-agents
+app.get('/admin/sovereign-hub', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin-sovereign-hub.html'));
 });
 
 // JARVIS — Interface vocale Ulrich (route étanche, priorité absolue)

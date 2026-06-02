@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hub Souverain IA — DALEBA</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0d0d0d; color: #e0e0e0; font-family: 'Inter', -apple-system, sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* HEADER */
+    .header { padding: 14px 24px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .header-logo { font-size: 20px; }
+    .header-title { font-size: 16px; font-weight: 600; color: #fff; }
+    .header-sub { font-size: 12px; color: #666; margin-left: auto; }
+    .active-badge { display: flex; align-items: center; gap: 6px; background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); border-radius: 20px; padding: 4px 12px; font-size: 12px; color: #a5b4fc; transition: all 0.3s; }
+    .active-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #6366f1; box-shadow: 0 0 6px #6366f1; }
+    .active-badge.thinking { border-color: rgba(251,191,36,0.4); color: #fbbf24; background: rgba(251,191,36,0.1); }
+    .active-badge.thinking .dot { background: #fbbf24; box-shadow: 0 0 6px #fbbf24; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* LAYOUT */
+    .layout { display: flex; flex: 1; overflow: hidden; }
+
+    /* SIDEBAR */
+    .sidebar { width: 260px; background: rgba(255,255,255,0.02); border-right: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
+    .sidebar-title { padding: 16px; font-size: 11px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+    .model-card { margin: 4px 8px; padding: 10px 12px; border-radius: 10px; cursor: pointer; border: 1px solid transparent; transition: all 0.2s; position: relative; }
+    .model-card:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+    .model-card.forced { background: rgba(99,102,241,0.12); border-color: rgba(99,102,241,0.3); }
+    .model-card.active-now { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.25); }
+    .model-card-header { display: flex; align-items: center; gap: 8px; }
+    .model-icon { font-size: 16px; }
+    .model-name { font-size: 13px; font-weight: 500; color: #e0e0e0; flex: 1; }
+    .model-status { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .model-status.connected { background: #22c55e; box-shadow: 0 0 4px #22c55e; }
+    .model-status.missing { background: #f59e0b; }
+    .model-desc { font-size: 11px; color: #555; margin-top: 4px; line-height: 1.4; }
+    .model-key-hint { font-size: 10px; color: #f59e0b; margin-top: 3px; }
+    .forced-tag { position: absolute; top: 6px; right: 8px; font-size: 9px; background: #6366f1; color: white; padding: 1px 5px; border-radius: 4px; font-weight: 600; }
+
+    .sidebar-footer { margin-top: auto; padding: 12px; font-size: 11px; color: #444; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
+    .sidebar-footer a { color: #6366f1; text-decoration: none; }
+
+    /* CHAT */
+    .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+    .messages::-webkit-scrollbar { width: 4px; }
+    .messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+    .msg { max-width: 75%; }
+    .msg.user { align-self: flex-end; }
+    .msg.assistant { align-self: flex-start; }
+    .msg-bubble { padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.6; }
+    .msg.user .msg-bubble { background: #6366f1; color: white; border-bottom-right-radius: 4px; }
+    .msg.assistant .msg-bubble { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-bottom-left-radius: 4px; white-space: pre-wrap; }
+    .msg-meta { font-size: 11px; color: #444; margin-top: 4px; display: flex; align-items: center; gap: 6px; }
+    .msg.user .msg-meta { justify-content: flex-end; }
+    .msg-model-tag { background: rgba(99,102,241,0.15); color: #a5b4fc; padding: 1px 7px; border-radius: 10px; font-size: 10px; }
+
+    .thinking-indicator { align-self: flex-start; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; border-bottom-left-radius: 4px; font-size: 13px; color: #888; }
+    .thinking-dots { display: flex; gap: 4px; }
+    .thinking-dots span { width: 6px; height: 6px; border-radius: 50%; background: #6366f1; animation: bounce 1.2s infinite; }
+    .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+
+    /* INPUT */
+    .input-area { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.07); background: rgba(0,0,0,0.3); flex-shrink: 0; }
+    .input-row { display: flex; gap: 10px; align-items: flex-end; }
+    .input-box { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 12px 16px; color: #e0e0e0; font-size: 14px; font-family: inherit; resize: none; outline: none; max-height: 120px; transition: border-color 0.2s; line-height: 1.5; }
+    .input-box:focus { border-color: rgba(99,102,241,0.5); }
+    .input-box::placeholder { color: #555; }
+    .send-btn { background: #6366f1; border: none; border-radius: 12px; width: 44px; height: 44px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; color: white; }
+    .send-btn:hover { background: #4f46e5; transform: scale(1.05); }
+    .send-btn:disabled { background: #333; cursor: not-allowed; transform: none; }
+    .input-hint { font-size: 11px; color: #444; margin-top: 8px; text-align: center; }
+
+    /* WELCOME */
+    .welcome { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; padding: 40px; opacity: 0.5; }
+    .welcome-icon { font-size: 48px; margin-bottom: 16px; }
+    .welcome-title { font-size: 18px; font-weight: 600; color: #888; margin-bottom: 8px; }
+    .welcome-sub { font-size: 13px; color: #555; line-height: 1.6; max-width: 380px; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <span class="header-logo">⚡</span>
+  <span class="header-title">Hub Souverain IA</span>
+  <div class="active-badge" id="activeBadge">
+    <span class="dot"></span>
+    <span id="activeBadgeText">En attente...</span>
+  </div>
+  <span class="header-sub">DALEBA v1.0 — Flotte 8 modèles</span>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-title">🚀 Flotte Souveraine</div>
+    <div id="modelList">
+      <!-- Chargé dynamiquement -->
+    </div>
+    <div class="sidebar-footer">
+      Cliquer sur un modèle = forcer son utilisation<br>
+      <a href="#" onclick="clearForce()">Réinitialiser (auto)</a>
+    </div>
+  </div>
+
+  <div class="chat-area">
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcome">
+        <div class="welcome-icon">🧠</div>
+        <div class="welcome-title">Flotte Souveraine prête</div>
+        <div class="welcome-sub">Je délègue automatiquement chaque tâche au modèle le plus compétent. Tu peux aussi forcer un modèle en cliquant sur la liste à gauche.</div>
+      </div>
+    </div>
+    <div class="input-area">
+      <div class="input-row">
+        <textarea class="input-box" id="inputBox" placeholder="Envoie une commande à la flotte..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+      </div>
+      <div class="input-hint" id="inputHint">Auto-routing activé · 0 modèle(s) disponible(s)</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+let forcedModel = null;
+let isThinking = false;
+let chatHistory = [];
+let fleetData = [];
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+async function init() {
+  await loadFleet();
+}
+
+async function loadFleet() {
+  try {
+    const res = await fetch(`${API}/api/sovereign/status`);
+    const data = await res.json();
+    fleetData = data.fleet;
+    renderFleet();
+    const n = data.available.length;
+    document.getElementById('inputHint').textContent = `Auto-routing activé · ${n} modèle(s) disponible(s)`;
+  } catch(e) {
+    document.getElementById('inputHint').textContent = 'Impossible de contacter le hub';
+  }
+}
+
+function renderFleet() {
+  const list = document.getElementById('modelList');
+  list.innerHTML = fleetData.map(m => `
+    <div class="model-card ${forcedModel === m.id ? 'forced' : ''}" id="card-${m.id}" onclick="toggleForce('${m.id}')">
+      ${forcedModel === m.id ? '<span class="forced-tag">FORCÉ</span>' : ''}
+      <div class="model-card-header">
+        <span class="model-icon">${m.icon}</span>
+        <span class="model-name">${m.label}</span>
+        <span class="model-status ${m.connected ? 'connected' : 'missing'}"></span>
+      </div>
+      <div class="model-desc">${m.description}</div>
+      ${!m.connected ? `<div class="model-key-hint">🔑 ${m.envKey}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function toggleForce(modelId) {
+  if (forcedModel === modelId) {
+    forcedModel = null;
+    updateBadge(null);
+  } else {
+    const m = fleetData.find(x => x.id === modelId);
+    if (!m.connected) {
+      alert(`Modèle non disponible.\n\nAjoutez la variable ${m.envKey} dans Railway pour l'activer.`);
+      return;
+    }
+    forcedModel = modelId;
+    const m2 = fleetData.find(x => x.id === modelId);
+    updateBadge(m2);
+  }
+  renderFleet();
+}
+
+function clearForce() {
+  forcedModel = null;
+  updateBadge(null);
+  renderFleet();
+}
+
+function updateBadge(model, thinking = false) {
+  const badge = document.getElementById('activeBadge');
+  const text = document.getElementById('activeBadgeText');
+  badge.className = 'active-badge' + (thinking ? ' thinking' : '');
+  if (thinking) {
+    text.textContent = '🔄 Analyse en cours...';
+  } else if (model) {
+    text.textContent = `${model.icon || ''} ${model.label || model.modelLabel || ''}`;
+  } else if (forcedModel) {
+    const m = fleetData.find(x => x.id === forcedModel);
+    text.textContent = `${m?.icon || ''} ${m?.label || ''} (forcé)`;
+  } else {
+    text.textContent = 'Auto-routing';
+  }
+}
+
+// ── CHAT ──────────────────────────────────────────────────────────────────────
+async function sendMessage() {
+  if (isThinking) return;
+  const input = document.getElementById('inputBox');
+  const text = input.value.trim();
+  if (!text) return;
+
+  // Cacher le welcome
+  const welcome = document.getElementById('welcome');
+  if (welcome) welcome.remove();
+
+  input.value = '';
+  input.style.height = 'auto';
+  isThinking = true;
+  document.getElementById('sendBtn').disabled = true;
+
+  // Ajouter le message utilisateur
+  chatHistory.push({ role: 'user', content: text });
+  appendMessage('user', text);
+
+  // Indicateur thinking
+  const thinkingEl = appendThinking();
+  updateBadge(null, true);
+
+  try {
+    const res = await fetch(`${API}/api/sovereign/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: chatHistory,
+        forceModel: forcedModel || undefined,
+      }),
+    });
+    const data = await res.json();
+    thinkingEl.remove();
+
+    const modelInfo = fleetData.find(m => m.id === data.model) || { label: data.modelLabel || data.model, icon: data.modelIcon || '🤖' };
+    updateBadge(modelInfo);
+
+    // Mettre à jour la carte active
+    document.querySelectorAll('.model-card.active-now').forEach(c => c.classList.remove('active-now'));
+    if (data.model) {
+      document.getElementById(`card-${data.model}`)?.classList.add('active-now');
+    }
+
+    chatHistory.push({ role: 'assistant', content: data.text });
+    appendMessage('assistant', data.text, modelInfo, data.latencyMs);
+  } catch(e) {
+    thinkingEl.remove();
+    updateBadge(null);
+    appendMessage('assistant', '❌ Erreur de connexion au hub. Vérifiez que le backend DALEBA est en ligne.');
+  }
+
+  isThinking = false;
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function appendMessage(role, text, model, ms) {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  const metaHtml = (role === 'assistant' && model)
+    ? `<div class="msg-meta"><span class="msg-model-tag">${model.icon || '🤖'} ${model.label || ''}</span>${ms ? `· ${ms}ms` : ''}</div>`
+    : (role === 'user' ? '<div class="msg-meta">Toi</div>' : '');
+  div.innerHTML = `<div class="msg-bubble">${escHtml(text)}</div>${metaHtml}`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function appendThinking() {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'thinking-indicator';
+  div.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div><span id="thinkingText">Analyse de la tâche...</span>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  // Messages rotatifs
+  const hints = ['Détection du modèle optimal...', 'Délégation en cours...', 'Traitement IA...', 'Synthèse de la réponse...'];
+  let i = 0;
+  div._interval = setInterval(() => {
+    const el = document.getElementById('thinkingText');
+    if (el) el.textContent = hints[i++ % hints.length];
+  }, 1200);
+
+  const origRemove = div.remove.bind(div);
+  div.remove = () => { clearInterval(div._interval); origRemove(); };
+  return div;
+}
+
+function escHtml(text) {
+  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+init();
+</script>
+</body>
+</html>
