@@ -272,17 +272,17 @@ router.put('/:id/approve', async (req, res) => {
         const pricing = result.pricing || null;
         const paymentUrl = result.paymentUrl || null;
         await pool.query(
-          `INSERT INTO daleba_proposals (opportunity_id, generated_text, status)
-           VALUES ($1, $2, 'draft_pending_ulrich')`,
-          [opp.id, text]
+          `INSERT INTO daleba_proposals (opportunity_id, generated_text, status, notes)
+           VALUES ($1, $2, 'draft_pending_ulrich', $3)`,
+          [opp.id, text, pricing ? JSON.stringify({ finalPrice: pricing.finalPrice, marketRateUSD: pricing.marketRateUSD, strategy: pricing.strategy?.label, discountPct: pricing.discountPct, paymentUrl }) : null]
         );
-        console.log(`[approve] Proposition générée pour opp #${opp.id}`);
+        console.log(`[approve] Proposition générée pour opp #${opp.id} | prix: ${pricing?.finalPrice || '?'} CAD`);
 
-        // ── ÉTAPE 3 : Notification email à Ulrich ────────────────────────────
+        // ── ÉTAPE 3 : Notification email à Ulrich (avec lien Stripe calculé) ─
         try {
           const { notifyProposal } = require('../services/email-notifier');
-          const result = await notifyProposal(opp, text);
-          console.log(`[approve] Email envoyé via ${result.provider}`, result.previewUrl || result.messageId || '');
+          const emailResult = await notifyProposal(opp, text, { pricing, paymentUrl });
+          console.log(`[approve] Email envoyé via ${emailResult.provider}`, emailResult.previewUrl || emailResult.messageId || '');
         } catch (mailErr) {
           console.error(`[approve] Email notification échouée (non bloquant):`, mailErr.message);
         }

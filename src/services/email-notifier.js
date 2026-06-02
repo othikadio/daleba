@@ -111,7 +111,7 @@ async function sendViaEthereal(subject, html, text) {
 }
 
 // ── Constructeur HTML du courriel ─────────────────────────────────────────────
-function buildEmailContent(opportunity, proposalText) {
+function buildEmailContent(opportunity, proposalText, pricing = null, paymentUrl = null) {
   const score        = opportunity.score || '—';
   const title        = opportunity.title || '(sans titre)';
   const platform     = opportunity.source_platform || '—';
@@ -138,6 +138,9 @@ function buildEmailContent(opportunity, proposalText) {
     `Budget    : ${budget}`,
     `Détectée  : ${detectedAt}`,
     sourceUrl ? `Lien source: ${sourceUrl}` : '',
+    pricing ? `` : '',
+    pricing ? `Prix DALEBA calculé : ${pricing.finalPrice} CAD (${pricing.strategy?.label || '?'}) | Marché: ${pricing.marketRateUSD} USD | -${pricing.discountPct}%` : '',
+    paymentUrl ? `Lien de paiement Stripe : ${paymentUrl}` : '',
     ``,
     `━━ PROPOSITION DALEBA ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
     ``,
@@ -212,6 +215,34 @@ function buildEmailContent(opportunity, proposalText) {
           </table>
         </td></tr>
 
+        <!-- Pricing Squad Block -->
+        ${pricing ? `
+        <tr><td style="background:#0d1117;padding:16px 32px;border-bottom:1px solid #21262d;">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="padding:6px 0;width:33%;">
+                <span style="font-size:11px;color:#8b949e;text-transform:uppercase;letter-spacing:0.06em;">📈 Prix DALEBA Calculé</span><br>
+                <span style="font-size:20px;font-weight:800;color:#c9a84c;">${pricing.finalPrice.toLocaleString('fr-CA')} $CAD</span>
+              </td>
+              <td style="padding:6px 0;width:33%;">
+                <span style="font-size:11px;color:#8b949e;text-transform:uppercase;letter-spacing:0.06em;">Marché Détecté</span><br>
+                <span style="font-size:14px;font-weight:600;color:#58a6ff;">${pricing.marketRateUSD} USD</span>
+                <span style="font-size:11px;color:#8b949e;"> (${pricing.confidence || '?'})</span>
+              </td>
+              <td style="padding:6px 0;width:33%;">
+                <span style="font-size:11px;color:#8b949e;text-transform:uppercase;letter-spacing:0.06em;">Stratégie</span><br>
+                <span style="font-size:14px;font-weight:700;color:#2da44e;">${pricing.strategy?.emoji || ''} ${pricing.strategy?.label || '?'} (-${pricing.discountPct}%)</span>
+              </td>
+            </tr>
+            ${paymentUrl ? `<tr><td colspan="3" style="padding:12px 0 4px;">
+              <a href="${paymentUrl}" style="display:inline-block;background:linear-gradient(135deg,#c9a84c,#e8c86d);color:#0d1117;text-decoration:none;font-size:13px;font-weight:700;padding:10px 24px;border-radius:6px;letter-spacing:0.04em;">
+                💳 Lien Stripe Calculé — ${pricing.finalPrice} $CAD
+              </a>
+              <span style="font-size:10px;color:#484f58;margin-left:8px;">${paymentUrl}</span>
+            </td></tr>` : ''}
+          </table>
+        </td></tr>` : ''}
+
         <!-- Proposal -->
         <tr><td style="background:#0d1117;padding:0;">
           <div style="background:#161b22;border-left:3px solid #c9a84c;margin:0;padding:20px 32px;">
@@ -244,7 +275,7 @@ function buildEmailContent(opportunity, proposalText) {
  * @param {string} proposalText  - Texte brut de la proposition
  * @returns {Promise<Object>}    - { provider, ... }
  */
-async function notifyProposal(opportunity, proposalText) {
+async function notifyProposal(opportunity, proposalText, pricingContext = {}) {
   // ── Sécurité prix : alerte si budget toujours 0 après normalisation ───────
   const { normalizeBudget: norm } = require('./pricing-guard');
   const budgetCheck = norm(opportunity);
@@ -255,7 +286,11 @@ async function notifyProposal(opportunity, proposalText) {
     );
   }
 
-  const { subject, html, plainText } = buildEmailContent(opportunity, proposalText);
+  // ── Extraire les données de pricing du Squad #801-850 ───────────────────
+  const pricing    = pricingContext.pricing    || null;
+  const paymentUrl = pricingContext.paymentUrl || null;
+
+  const { subject, html, plainText } = buildEmailContent(opportunity, proposalText, pricing, paymentUrl);
 
   console.log(`[email-notifier] Envoi à ${ULRICH_EMAIL} — "${subject.slice(0, 80)}"`);
 
