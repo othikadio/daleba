@@ -98,6 +98,34 @@
 
 <div class="max-w-7xl mx-auto px-4 pb-8">
 
+  <!-- HERO CA -->
+  <div class="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 rounded-2xl p-6 mb-3 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10" style="background:radial-gradient(circle at 20% 50%, #0ea5e9 0%, transparent 60%), radial-gradient(circle at 80% 50%, #8b5cf6 0%, transparent 60%)"></div>
+    <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div>
+        <p class="text-[10px] font-bold uppercase tracking-widest text-sky-400 mb-1">🎯 CA Potentiel Cumulé — Pipeline Global</p>
+        <p class="text-5xl md:text-6xl font-black text-white ca-num tracking-tight" id="hero-ca">$0</p>
+        <p class="text-xs text-sky-300 mt-1" id="hero-ca-sub">calcul en cours…</p>
+      </div>
+      <div class="flex gap-4">
+        <div class="text-center">
+          <p class="text-3xl font-black text-emerald-400 tabular-nums" id="hero-signed">$0</p>
+          <p class="text-[10px] text-emerald-300 font-bold uppercase">CA Réel Signé</p>
+        </div>
+        <div class="w-px bg-white opacity-10"></div>
+        <div class="text-center">
+          <p class="text-3xl font-black text-violet-400 tabular-nums" id="hero-opps">0</p>
+          <p class="text-[10px] text-violet-300 font-bold uppercase">Opportunités DB</p>
+        </div>
+        <div class="w-px bg-white opacity-10"></div>
+        <div class="text-center">
+          <p class="text-3xl font-black text-amber-400 tabular-nums" id="hero-pitches">0</p>
+          <p class="text-[10px] text-amber-300 font-bold uppercase">Pitches Envoyés</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ROW 1: KPIs -->
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-3">
     <!-- Anneau -->
@@ -158,19 +186,19 @@
     <div class="flex gap-2">
       <div class="pipe-col" onclick="openPipeModal('detected')">
         <div class="pipe-hd bg-sky-50 text-sky-700">🔍 Détectés</div>
-        <div class="pipe-body text-center"><p class="text-3xl font-black text-sky-700 tabular-nums mt-2" id="pipe-det2">…</p><p class="text-[9px] text-gray-400 mt-1">Cliquer pour voir →</p></div>
+        <div class="pipe-body text-center"><p class="text-3xl font-black text-sky-700 tabular-nums mt-2" id="pipe-det2">…</p><p class="text-[9px] text-gray-400 mt-1">Cliquer pour voir →</p><p class="text-[9px] text-gray-400 mt-1" id="pipe-pct-det">100% base</p></div>
       </div>
       <div class="pipe-col" onclick="openPipeModal('qualified')">
-        <div class="pipe-hd bg-violet-50 text-violet-700">✅ Qualifiés (IA)</div>
-        <div class="pipe-body text-center"><p class="text-3xl font-black text-violet-700 tabular-nums mt-2" id="pipe-acc">…</p><p class="text-[9px] text-gray-400 mt-1">Score ≥ 65 →</p></div>
+        <div class="pipe-hd bg-violet-50 text-violet-700">✅ Acceptés (Auto)</div>
+        <div class="pipe-body text-center"><p class="text-3xl font-black text-violet-700 tabular-nums mt-2" id="pipe-acc">…</p><p class="text-[9px] text-gray-400 mt-1">Score ≥ 65 →</p><p class="text-[9px] text-gray-400 mt-1" id="pipe-pct-acc">0% qualif</p></div>
       </div>
       <div class="pipe-col" onclick="openPipeModal('offers')">
-        <div class="pipe-hd bg-amber-50 text-amber-700">📨 Offres Envoyées</div>
-        <div class="pipe-body text-center"><p class="text-3xl font-black text-amber-700 tabular-nums mt-2" id="pipe-proc">…</p><p class="text-[9px] text-gray-400 mt-1">Pitches commerciaux →</p></div>
+        <div class="pipe-hd bg-amber-50 text-amber-700">📨 En cours / Pitches</div>
+        <div class="pipe-body text-center"><p class="text-3xl font-black text-amber-700 tabular-nums mt-2" id="pipe-proc">…</p><p class="text-[9px] text-gray-400 mt-1">Pitches commerciaux →</p><p class="text-[9px] text-gray-400 mt-1" id="pipe-pct-proc">0% pitché</p></div>
       </div>
       <div class="pipe-col" onclick="openPipeModal('signed')">
-        <div class="pipe-hd bg-emerald-50 text-emerald-700">💰 Contrats Signés</div>
-        <div class="pipe-body text-center"><p class="text-3xl font-black text-emerald-700 tabular-nums mt-2" id="pipe-done2">…</p><p class="text-[9px] text-gray-400 mt-1">Action manuelle Ulrich →</p></div>
+        <div class="pipe-hd bg-emerald-50 text-emerald-700">💰 Terminés / Signés</div>
+        <div class="pipe-body text-center"><p class="text-3xl font-black text-emerald-700 tabular-nums mt-2" id="pipe-done2">…</p><p class="text-[9px] text-gray-400 mt-1">Action manuelle Ulrich →</p><p class="text-[9px] text-gray-400 mt-1" id="pipe-pct-sign">0% signé</p></div>
       </div>
     </div>
   </div>
@@ -264,6 +292,7 @@ const RAILWAY = 'https://daleba-api-production.up.railway.app';
 let sseConn=null, evtCount=0, feedReady=false;
 let allOpps=[], liveTasks=[], pipelineData={}, currentModal=null;
 let timerInterval=null;
+let maintenanceStats={heals:0};
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const $  = id => document.getElementById(id);
@@ -285,7 +314,7 @@ function updateBar(id,a,w){ const b=$(id);if(b)b.style.width=(a+w>0?Math.min(a/(
 // ─── Modes ────────────────────────────────────────────────────────────────────
 function applyProd(v){ const inp=$('prod-chk');if(inp)inp.checked=v; const lbl=$('prod-lbl');if(lbl){lbl.textContent=v?'ON':'OFF';lbl.style.color=v?'#10b981':'#9ca3af';} $('pause-banner')?.classList.toggle('hidden',v); }
 function applyAuto(v){ const inp=$('auto-chk');if(inp)inp.checked=v; const lbl=$('auto-lbl');if(lbl){lbl.textContent=v?'ON':'OFF';lbl.style.color=v?'#8b5cf6':'#9ca3af';} $('auto-dot').className='dot '+(v?'dot-auto':'dot-off'); $('auto-banner')?.classList.toggle('hidden',!v); }
-function applyMaint(active,heals){ const dot=$('maint-dot');if(dot)dot.className='dot '+(active?'dot-warn':'dot-off');st('kpi-heals',heals||0);st('maint-heals-big',heals||0); }
+function applyMaint(active,heals){ const dot=$('maint-dot');if(dot)dot.className='dot '+(active?'dot-warn':'dot-off');st('kpi-heals',heals||0);st('maint-heals-big',heals||0);maintenanceStats.heals=heals||0; }
 
 // ─── Stats ────────────────────────────────────────────────────────────────────
 function renderStats(d){
@@ -317,6 +346,19 @@ async function loadPipeline(){
     st('pipe-done',fmt(d.offersSent));st('pipe-done2',fmt(d.signed));
     const caEl=$('ca-potentiel'); if(caEl) caEl.textContent=fmtCa(d.caPotentiel)+' CAD';
     const caREl=$('ca-reel'); if(caREl) caREl.textContent=fmtCa(d.caReel)+' CAD';
+    // Hero CA
+    const heroCA=$('hero-ca'); if(heroCA) heroCA.textContent=fmtCa(d.caPotentiel)+' CAD';
+    const heroSub=$('hero-ca-sub'); if(heroSub) heroSub.textContent=`${fmt(d.detected)} opportunités détectées · ${fmt(d.qualified)} qualifiées · ${fmt(d.offersSent)} pitches`;
+    const heroSigned=$('hero-signed'); if(heroSigned) heroSigned.textContent=fmtCa(d.caReel)+' CAD';
+    const heroOpps=$('hero-opps'); if(heroOpps) heroOpps.textContent=fmt(d.detected);
+    const heroPitches=$('hero-pitches'); if(heroPitches) heroPitches.textContent=fmt(d.offersSent);
+    // Pourcentages pipeline
+    const pctAcc=d.detected>0?Math.round(d.qualified/d.detected*100):0;
+    const pctProc=d.detected>0?Math.round(d.offersSent/d.detected*100):0;
+    const pctSign=d.detected>0?Math.round((d.signed||0)/d.detected*100):0;
+    const ppa=$('pipe-pct-acc'); if(ppa) ppa.textContent=pctAcc+'% qualif';
+    const ppp=$('pipe-pct-proc'); if(ppp) ppp.textContent=pctProc+'% pitché';
+    const pps=$('pipe-pct-sign'); if(pps) pps.textContent=pctSign+'% signé';
   }catch(e){console.warn('[pipeline]',e.message);}
 }
 
@@ -455,6 +497,9 @@ function renderMaintLogs(logs){
   const cont=$('maint-logs');if(!cont||!logs?.length)return;
   const lc={info:'t-gray',warn:'t-amber',heal:'t-green',error:'t-red'};
   cont.innerHTML=logs.map(l=>`<div class="flex items-center gap-2 text-xs p-2 rounded-lg bg-gray-50"><span class="${lc[l.level]||'t-gray'} text-[9px] font-bold px-1.5 py-0.5 rounded">${l.level}</span><span class="text-gray-700 flex-1">${esc(l.msg)}</span><span class="text-gray-300 tabular-nums text-[9px]">${new Date(l.ts).toLocaleTimeString('fr-CA')}</span></div>`).join('');
+  // Mettre à jour le compteur maintenance si de nouvelles réparations dans les logs
+  const healCount=logs.filter(l=>l.level==='heal').length;
+  if(healCount>0&&healCount>maintenanceStats.heals){maintenanceStats.heals=healCount;st('maint-heals-big',healCount);}
 }
 
 // ─── Roster ───────────────────────────────────────────────────────────────────
@@ -466,7 +511,7 @@ async function loadRoster(){
     grid.innerHTML=d.squads.map(sq=>{
       const[bg,border,dot,tc]=cm[sq.color]||cm.sky;
       const live=sq.liveTasks?.length||0;
-      return`<div class="${bg} border ${border} rounded-2xl p-4 cursor-pointer hover:shadow-md transition" onclick="showTab('live')">
+      return`<div class="${bg} border ${border} rounded-2xl p-4 cursor-pointer hover:shadow-md transition" onclick="openSquadAgents('${sq.id}', ${JSON.stringify(sq).replace(/'/g, "\\'")})">
         <div class="flex items-center gap-2 mb-2">
           <span class="text-xl">${sq.icon}</span>
           <div class="flex-1 min-w-0"><p class="text-xs font-black text-gray-900 truncate">${esc(sq.label)}</p><p class="text-[9px] font-bold ${tc}">${esc(sq.range)}</p></div>
@@ -479,6 +524,53 @@ async function loadRoster(){
       </div>`;
     }).join('');
   }catch(e){console.warn('[roster]',e.message);}
+}
+
+// ─── Squad agents modal ──────────────────────────────────────────────────────
+function openSquadAgents(squadId, sq) {
+  currentModal = { type: 'squad', squadId };
+  document.getElementById('modal-bg').classList.add('open');
+  const cls = squadColors[squadId] || 't-gray';
+  document.getElementById('m-tags').innerHTML = `<span class="${cls} text-[10px] font-bold px-2 py-0.5 rounded">${sq.icon} ${sq.range}</span><span class="t-gray text-[10px] px-2 py-0.5 rounded">${sq.count} agents</span>`;
+  document.getElementById('m-title').textContent = sq.label + ' \u2014 Fiches d\'activit\u00e9';
+  document.getElementById('m-subtitle').textContent = sq.description || '';
+  document.getElementById('m-actions').innerHTML = `<button onclick="showTab('live');closeModal()" class="bg-sky-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl">⚡ Voir agents actifs</button>`;
+
+  const squadTasks = liveTasks.filter(t => t.squad === squadId);
+  const [rangeStart, rangeEnd] = sq.range ? sq.range.replace(/[^0-9\u2192\s]/g,'').split('\u2192').map(s=>parseInt(s.trim())||0) : [1, 150];
+  const totalAgents = rangeEnd - rangeStart + 1;
+
+  const activeIds = new Set(squadTasks.map(t => t.agentId));
+  const agentIds = [];
+  squadTasks.forEach(t => agentIds.push(t.agentId));
+  let shown = agentIds.length;
+  for (let i = rangeStart; i <= rangeEnd && shown < 30; i++) {
+    if (!activeIds.has(i)) { agentIds.push(i); shown++; }
+  }
+
+  document.getElementById('m-body').innerHTML = `
+    <div class="mb-3 flex items-center gap-2 text-xs text-gray-500">
+      <span class="inline-block w-3 h-3 rounded-full bg-emerald-400"></span> Actif (${squadTasks.length})
+      <span class="inline-block w-3 h-3 rounded-full bg-gray-200 ml-2"></span> En attente (${totalAgents - squadTasks.length})
+    </div>
+    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 max-h-80 overflow-y-auto">
+      ${agentIds.map(agId => {
+        const task = squadTasks.find(t => t.agentId === agId);
+        const isActive = !!task;
+        const elapsed = task ? fmtTimer(Date.now() - (task.startedAt || 0)) : null;
+        const budget = task?.value || '\u2013';
+        return `<div class="border ${isActive ? 'border-emerald-300 bg-emerald-50' : 'border-gray-100 bg-gray-50'} rounded-xl p-2 text-center cursor-pointer hover:shadow-md transition"
+          onclick="${isActive ? `openAgentBlackBox('${task.taskId}')` : 'void(0)'}">\n          <div class="w-8 h-8 rounded-full ${isActive ? 'bg-emerald-400' : 'bg-gray-200'} flex items-center justify-center mx-auto mb-1">\n            <span class="text-[10px] font-black ${isActive ? 'text-white' : 'text-gray-400'}">${isActive ? '\u26a1' : '\ud83d\udca4'}</span>\n          </div>\n          <p class="text-[9px] font-bold text-gray-700">#${agId}</p>\n          ${isActive ? `\n            <p class="text-[8px] text-emerald-600 font-bold truncate">${esc(task.action || task.title || '').slice(0,18)}</p>\n            <p class="text-[8px] text-gray-400 font-mono timer-lbl" data-started="${task.startedAt || 0}">${elapsed}</p>\n            <p class="text-[8px] font-bold text-amber-600">${esc(budget).slice(0,12)}</p>\n          ` : `<p class="text-[8px] text-gray-300">En attente</p>`}\n        </div>`;
+      }).join('')}
+      ${totalAgents > 30 ? `<div class="border border-dashed border-gray-200 rounded-xl p-2 text-center flex items-center justify-center"><p class="text-[9px] text-gray-300">+${totalAgents - 30} agents</p></div>` : ''}
+    </div>`;
+
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    document.querySelectorAll('[data-started]').forEach(el => {
+      el.textContent = fmtTimer(Date.now() - Number(el.dataset.started));
+    });
+  }, 1000);
 }
 
 // ─── Opp list ─────────────────────────────────────────────────────────────────
