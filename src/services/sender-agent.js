@@ -11,6 +11,7 @@
 'use strict';
 
 const https = require('https');
+const { assertPriceNotZero, normalizeBudget } = require('./pricing-guard');
 
 const RESEND_KEY   = process.env.RESEND_API_KEY || 're_hVMJtA4G_5BydQQv4noQx767KpL4xowMk';
 const DALEBA_FROM  = 'onboarding@resend.dev';
@@ -125,6 +126,22 @@ function getPlatformStrategy(platform = '', sourceUrl = '', description = '') {
  * @returns {Promise<Object>}   - { method, success, contactEmail?, resendId?, reason? }
  */
 async function sendProposal(opportunity, proposal) {
+  // ── Verrou de sécurité : JAMAIS envoyer si budget égal à zéro ────────────────────
+  const budgetNorm = normalizeBudget(opportunity);
+  if (budgetNorm.was_floored) {
+    // Budget était 0 — on l'a normalisé mais on bloque quand même l'envoi automatique
+    const alertMsg =
+      `[PRICE_GUARD] 🚨 ENVOI AUTOMATIQUE BLOQUÉ — budget 0 détecté pour "${(opportunity.title || '').slice(0, 60)}" ` +
+      `(plancher ${budgetNorm.budget_display}). Action manuelle requise sur le dashboard.`;
+    console.error(alertMsg);
+    return {
+      method:      'blocked_zero_budget',
+      success:     false,
+      reason:      alertMsg,
+      maintenance: true,
+    };
+  }
+
   const descText = [
     opportunity.description_orig || '',
     opportunity.description_fr   || '',

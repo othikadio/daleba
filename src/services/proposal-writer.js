@@ -8,7 +8,8 @@
  */
 'use strict';
 
-const https = require('https');
+const https        = require('https');
+const { budgetForPrompt } = require('./pricing-guard');
 
 const AI_KEY   = process.env.DEEPSEEK_API_KEY || 'sk-cca2191225a9417cb589dab3c7172015';
 const AI_HOST  = 'api.deepseek.com';
@@ -62,7 +63,7 @@ function buildUserPrompt(opp, lang) {
 **Plateforme :** ${opp.source_platform}
 **Titre :** ${opp.title}
 **Description (FR) :** ${opp.description_fr || opp.description_orig || '(non précisée)'}
-**Budget estimé :** ${opp.budget_estimated ? `${opp.budget_estimated} ${opp.budget_currency}` : opp.budget_raw || 'Non précisé'}
+**Budget estimé :** ${budgetForPrompt(opp)}
 **Pays :** ${opp.country || 'International'}
 **Catégorie :** ${opp.category}
 **Score de pertinence :** ${opp.score}/100
@@ -79,7 +80,7 @@ Longueur : 300-450 mots maximum. Ton : directeur technique qui parle à un déci
 **Platform:** ${opp.source_platform}
 **Title:** ${opp.title}
 **Description:** ${opp.description_orig || opp.description_fr || '(not specified)'}
-**Estimated budget:** ${opp.budget_estimated ? `${opp.budget_estimated} ${opp.budget_currency}` : opp.budget_raw || 'Not specified'}
+**Estimated budget:** ${budgetForPrompt(opp)}
 **Country:** ${opp.country || 'International'}
 **Category:** ${opp.category}
 **Relevance score:** ${opp.score}/100

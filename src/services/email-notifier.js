@@ -12,6 +12,7 @@
 
 const https       = require('https');
 const nodemailer  = require('nodemailer');
+const { normalizeBudget } = require('./pricing-guard');
 
 const RESEND_KEY   = process.env.RESEND_API_KEY || 're_hVMJtA4G_5BydQQv4noQx767KpL4xowMk';
 const ULRICH_EMAIL = process.env.NOTIFICATION_EMAIL || 'kadioothniel@yahoo.fr';
@@ -116,9 +117,12 @@ function buildEmailContent(opportunity, proposalText) {
   const platform     = opportunity.source_platform || '—';
   const country      = opportunity.country || 'International';
   const category     = opportunity.category || '—';
-  const budget       = opportunity.budget_estimated
-    ? `${Number(opportunity.budget_estimated).toLocaleString('fr-CA')} ${opportunity.budget_currency || 'USD'}`
-    : (opportunity.budget_raw || 'Non précisé');
+
+  // ── Prix plancher : jamais afficher 0$ dans les notifications ─────────────
+  const budgetNorm   = normalizeBudget(opportunity);
+  const budget       = budgetNorm.was_floored
+    ? `⚠️ ${budgetNorm.budget_display}`
+    : budgetNorm.budget_display;
   const sourceUrl    = opportunity.source_url || null;
   const detectedAt   = opportunity.detected_at
     ? new Date(opportunity.detected_at).toLocaleDateString('fr-CA', { dateStyle: 'long' })
@@ -241,6 +245,16 @@ function buildEmailContent(opportunity, proposalText) {
  * @returns {Promise<Object>}    - { provider, ... }
  */
 async function notifyProposal(opportunity, proposalText) {
+  // ── Sécurité prix : alerte si budget toujours 0 après normalisation ───────
+  const { normalizeBudget: norm } = require('./pricing-guard');
+  const budgetCheck = norm(opportunity);
+  if (budgetCheck.was_floored) {
+    console.warn(
+      `[email-notifier] ⚠️  ALERTE MAINTENANCE : budget à 0 sur "${(opportunity.title || '').slice(0, 60)}" ` +
+      `— plancher appliqué, notification envoyée avec tarif DALEBA.`
+    );
+  }
+
   const { subject, html, plainText } = buildEmailContent(opportunity, proposalText);
 
   console.log(`[email-notifier] Envoi à ${ULRICH_EMAIL} — "${subject.slice(0, 80)}"`);

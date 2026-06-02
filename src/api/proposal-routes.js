@@ -193,6 +193,19 @@ router.post('/:id/send', async (req, res) => {
       return res.status(409).json({ error: 'Déjà envoyée', sent_at: row.sent_at });
     }
 
+    // ── Filtre de sécurité prix ─────────────────────────────────────────
+    const { normalizeBudget } = require('../services/pricing-guard');
+    const budgetCheck = normalizeBudget(row);
+    if (budgetCheck.was_floored) {
+      // Budget était 0 — on bloque l'envoi et on informe
+      return res.status(422).json({
+        error:       'PRICE_GUARD_BLOCKED',
+        message:     `Budget à 0 détecté pour cette opportunité. Envoi bloqué — alerte maintenance levée.`,
+        floor_applied: budgetCheck.budget_display,
+        action_required: 'Mettez à jour le budget manuellement dans le dashboard avant de propulser.',
+      });
+    }
+
     const opportunity = {
       id:                 row.opportunity_id,
       title:              row.title,
