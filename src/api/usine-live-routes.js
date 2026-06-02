@@ -627,3 +627,32 @@ router.get('/scan-debug', async (req, res) => {
   }
   res.json(report);
 });
+
+// POST /api/usine/insert-test — insère une opportunité test pour vérifier la DB
+router.post('/insert-test', async (req, res) => {
+  const pool = getPool();
+  if (!pool) return res.status(503).json({ error: 'DB indisponible' });
+  try {
+    // Scanner europe + insérer le 1er Freelancer trouvé
+    const scanner = safeRequire('../services/opportunity-scanner');
+    const raw = await scanner.scanBySquad('europe');
+    const freelancerItems = raw.filter(r => r.platform === 'Freelancer' || r.platform === 'Codeur').slice(0, 3);
+
+    const inserted = [];
+    for (const opp of freelancerItems) {
+      const result = await pool.query(`
+        INSERT INTO daleba_opportunities
+        (source_platform,source_url,country,language_original,title,description_orig,description_fr,budget_raw,budget_estimated,budget_currency,category,score,keywords_matched,status,detected_at)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'pending',NOW())
+        ON CONFLICT (source_url) DO UPDATE SET updated_at=NOW()
+        RETURNING id,title,source_platform`,
+        [opp.platform, opp.url, opp.country||null, opp.language||'en', opp.title,
+         (opp.description||'').slice(0,3000), opp.title, opp.budget_raw||null,
+         null, 'USD', 'automation', 65, 'freelance,project', ]);
+      if (result.rows[0]) inserted.push({ id: result.rows[0].id, title: result.rows[0].title?.slice(0,50), platform: result.rows[0].source_platform });
+    }
+    res.json({ ok: true, scanned: raw.length, freelancerFound: freelancerItems.length, inserted });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message, stack: e.stack?.slice(0,300) });
+  }
+});
