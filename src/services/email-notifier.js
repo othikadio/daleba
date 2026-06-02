@@ -130,7 +130,7 @@ function buildEmailContent(opportunity, proposalText, pricing = null, paymentUrl
 
   // Texte plat
   const plainText = [
-    `[DALEBA RADAR] Nouvelle opportunité — Score ${score}/100`,
+    `[DALEBA USINE] Nouvelle opportunité — Score ${score}/100`,
     ``,
     `Titre     : ${title}`,
     `Plateforme: ${platform} · ${country}`,
@@ -148,7 +148,7 @@ function buildEmailContent(opportunity, proposalText, pricing = null, paymentUrl
     ``,
     `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
     ``,
-    `Dashboard : https://daleba.vercel.app/admin-radar.html`,
+    `Dashboard : https://daleba.vercel.app/admin-usine.html`,
   ].filter(l => l !== null).join('\n');
 
   // HTML
@@ -253,7 +253,8 @@ function buildEmailContent(opportunity, proposalText, pricing = null, paymentUrl
 
         <!-- CTA -->
         <tr><td style="background:#161b22;border-radius:0 0 12px 12px;padding:24px 32px;border-top:1px solid #21262d;text-align:center;">
-          <a href="https://daleba.vercel.app/admin-radar.html" style="display:inline-block;background:#c9a84c;color:#0d1117;text-decoration:none;font-size:13px;font-weight:700;padding:12px 28px;border-radius:8px;letter-spacing:0.04em;">Ouvrir le Dashboard Radar</a>
+          <a href="${paymentUrl || 'https://buy.stripe.com/fZu8wO78Vaq6eAe6F96wE0r'}" style="display:inline-block;background:#c9a84c;color:#0d1117;text-decoration:none;font-size:13px;font-weight:700;padding:12px 28px;border-radius:8px;letter-spacing:0.04em;">💳 Lien de paiement Stripe</a>
+              <a href="https://daleba.vercel.app/admin-usine.html" style="display:inline-block;background:#21262d;color:#c9a84c;border:1px solid #c9a84c;text-decoration:none;font-size:13px;font-weight:700;padding:12px 28px;border-radius:8px;letter-spacing:0.04em;margin-left:8px;">🤖 Dashboard Usine</a>
           <div style="margin-top:14px;font-size:11px;color:#484f58;">DALEBA · Usine d'Agents Autonomes · ${detectedAt}</div>
         </td></tr>
 
@@ -263,7 +264,7 @@ function buildEmailContent(opportunity, proposalText, pricing = null, paymentUrl
 </body>
 </html>`;
 
-  const subject = `[Daleba Radar] Nouvelle opportunité détectée (Score: ${score}/100) — ${title.slice(0, 60)}${title.length > 60 ? '…' : ''}`;
+  const subject = `[DALEBA USINE] Nouvelle opportunité détectée (Score: ${score}/100) — ${title.slice(0, 60)}${title.length > 60 ? '…' : ''}`;
 
   return { subject, html, plainText };
 }

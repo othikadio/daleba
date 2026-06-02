@@ -39,7 +39,7 @@ function extractContactEmail(text = '') {
 }
 
 // ── Construire l'objet du courriel de candidature ─────────────────────────────
-function buildApplicationEmail(opportunity, proposalText, contactEmail) {
+function buildApplicationEmail(opportunity, proposalText, contactEmail, pricing = null) {
   const lang   = (opportunity.language_original || 'en') === 'fr' ? 'fr' : 'en';
   const isFr   = lang === 'fr';
   const title  = opportunity.title || '(sans titre)';
@@ -65,11 +65,11 @@ function buildApplicationEmail(opportunity, proposalText, contactEmail) {
 <table width="100%" cellpadding="0" cellspacing="0" style="margin:32px 0;">
   <tr>
     <td align="center">
-      <a href="${DALEBA_PAYMENT_150}"
+      <a href="${pricing?.paymentUrl || DALEBA_PAYMENT_150}"
          style="display:inline-block;background:linear-gradient(135deg,#c9a84c,#e8c86d);color:#0d1117;
                 text-decoration:none;font-size:15px;font-weight:700;padding:16px 36px;
                 border-radius:8px;letter-spacing:0.03em;">
-        💳 Activer ma solution DALEBA — 150 \$CAD
+        💳 Démarrer avec DALEBA — ${pricing?.finalPrice ? pricing.finalPrice.toLocaleString('fr-CA') + ' $CAD' : '150 $CAD'}
       </a>
       <p style="font-size:12px;color:#94a3b8;margin:10px 0 0;">
         ${ctaLabel}
@@ -187,10 +187,12 @@ async function sendProposal(opportunity, proposal) {
   );
 
   if (strategy.method === 'email_direct') {
+    const proposalPricing = proposal.notes ? (() => { try { return JSON.parse(proposal.notes); } catch(_) { return null; } })() : null;
     const { subject, html, text } = buildApplicationEmail(
       opportunity,
       proposal.generated_text,
-      strategy.contactEmail
+      strategy.contactEmail,
+      proposalPricing
     );
     const result = await sendEmail(strategy.contactEmail, subject, html, text);
     console.log(`[sender] Email envoyé à ${strategy.contactEmail} — Resend ID: ${result.id}`);
@@ -199,6 +201,7 @@ async function sendProposal(opportunity, proposal) {
       success:      true,
       contactEmail: strategy.contactEmail,
       resendId:     result.id,
+      pitched:      true,
     };
   }
 

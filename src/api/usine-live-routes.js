@@ -351,7 +351,9 @@ async function runAutoCycle() {
               await pool.query(`INSERT INTO daleba_proposals (opportunity_id,generated_text,status,notes,created_at,sent_at) VALUES ($1,$2,'sent',$3,NOW(),NOW()) ON CONFLICT (opportunity_id) DO UPDATE SET generated_text=EXCLUDED.generated_text,status='sent',sent_at=NOW()`, [opp.id, proposalText, pricingJson]);
               await pool.query(`UPDATE daleba_opportunities SET status='approved',approved_at=NOW() WHERE id=$1`, [opp.id]);
               const en = safeRequire('../services/email-notifier');
-              if (en?.notifyProposal) await safeCall(() => en.notifyProposal(opp, proposalText), null);
+              if (en?.notifyProposal) await safeCall(() => en.notifyProposal(opp, proposalText, { pricing: proposalPricing, paymentUrl: proposalPricing?.paymentUrl || null }), null);
+              // 🔒 Marquer PITCHED immédiatement — bloque tout re-traitement futur
+              await safeCall(() => pool.query(`UPDATE daleba_opportunities SET status='pitched', pitched_at=NOW() WHERE id=$1`, [opp.id]), null);
               taskLog(closerId, 'sent', `Email envoyé ✅ — ${opp.title?.slice(0,40)}`, { progress:100 });
               const priceLbl = proposalPricing ? `${proposalPricing.finalPrice?.toLocaleString('fr-CA')} CAD` : (opp.budget_estimated ? `~$${Math.round(opp.budget_estimated).toLocaleString()} USD` : 'Tarif DALEBA');
               if (bus?.system) bus.system(`📧 [AUTO #${cycleId}] Livré — "${opp.title?.slice(0,45)}" — ${priceLbl}`);

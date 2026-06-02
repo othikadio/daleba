@@ -37,7 +37,16 @@ Structure OBLIGATOIRE de chaque proposition (respecte exactement cet ordre) :
 4. **Délai de réalisation** (estimation réaliste)
 5. **Prochaine étape** (appel à l'action clair et engageant)
 
-Ton but : décrocher un premier échange. Pas vendre immédiatement. Ouvrir la porte.`
+Ton but : décrocher un premier échange. Pas vendre immédiatement. Ouvrir la porte.
+
+SIGNATURE : Termine toujours le courriel avec exactement ce bloc (sans crochets, sans placeholders) :
+---
+Cordialement,
+
+Marc Beausoleil
+Directeur Technique — Agence DALEBA
+📧 contact@daleba.vercel.app | 🌐 daleba.vercel.app
+`
     : `You are a B2B sales and commercial closing expert for a premium tech agency.
 You write compelling, personalized, results-driven service proposals.
 Your style: professional, confident, empathetic, no unnecessary jargon.
@@ -49,7 +58,16 @@ MANDATORY structure (follow this exact order):
 4. **Timeline** (realistic estimate)
 5. **Next step** (clear, engaging call to action)
 
-Your goal: land a first conversation. Not close immediately. Open the door.`;
+Your goal: land a first conversation. Not close immediately. Open the door.
+
+SIGNATURE: Always close the email with this exact signature block (no brackets, no placeholders):
+---
+Best regards,
+
+Marc Beausoleil
+Technical Director — DALEBA Tech Agency
+📧 contact@daleba.vercel.app | 🌐 daleba.vercel.app
+`;
 }
 
 // ── Prompt utilisateur ────────────────────────────────────────────────────────
@@ -195,7 +213,18 @@ async function generateProposal(opportunity, pool = null) {
 
   console.log(`[proposal-writer] Génération pour "${opportunity.title?.slice(0, 60)}" (lang: ${lang})`);
   const text = await callDeepSeek(systemPrompt, userPrompt);
-  console.log(`[proposal-writer] Proposition générée (${text.length} chars)`);
+  // ── Nettoyage des placeholders laissés par le LLM ─────────────────────────
+  text = text
+    .replace(/\[Your Name\]/gi,    'Marc Beausoleil')
+    .replace(/\[Your Company\]/gi, 'DALEBA')
+    .replace(/\[Company Name\]/gi, 'DALEBA')
+    .replace(/\[Name\]/gi,         'Marc Beausoleil')
+    .replace(/\[Votre Nom\]/gi,    'Marc Beausoleil')
+    .replace(/\[Nom\]/gi,          'Marc Beausoleil')
+    .replace(/\[Your Title\]/gi,   'Technical Director, DALEBA')
+    .replace(/\[.*?\]/g,           '');  // Supprime tout crochet résiduel
+
+  console.log(`[proposal-writer] Proposition générée (${text.length} chars) — placeholders nettoyés`);
 
   return { text, pricing, paymentUrl };
 }
