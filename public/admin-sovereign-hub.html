@@ -6,547 +6,476 @@
   <title>Hub Souverain IA — DALEBA</title>
   <style>
     :root {
-      --bg:        #0a0a0f;
-      --bg2:       #111118;
-      --border:    rgba(255,255,255,0.07);
-      --text:      #e2e2e8;
-      --muted:     #52525e;
-      --accent:    #7c3aed;
-      --accent2:   #6d28d9;
-      --green:     #22c55e;
-      --amber:     #f59e0b;
-      --blue:      #3b82f6;
-      --radius:    14px;
+      --bg:     #0a0a0f;
+      --bg2:    #111118;
+      --border: rgba(255,255,255,0.07);
+      --text:   #e2e2e8;
+      --muted:  #52525e;
+      --accent: #7c3aed;
+      --accent2:#6d28d9;
+      --green:  #22c55e;
+      --amber:  #f59e0b;
+      --blue:   #3b82f6;
     }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { background:var(--bg); color:var(--text); font-family:'Inter',-apple-system,sans-serif; height:100vh; display:flex; flex-direction:column; overflow:hidden; font-size:14px; }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:14px;}
 
-    /* ── HEADER ── */
-    .header { height:52px; background:var(--bg2); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 20px; gap:14px; flex-shrink:0; z-index:10; }
-    .h-logo { font-size:18px; }
-    .h-title { font-weight:700; font-size:15px; color:#fff; }
-    .h-sep { width:1px; height:20px; background:var(--border); }
+    /* HEADER */
+    .header{height:52px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;z-index:10;}
+    .h-logo{font-size:18px;}
+    .h-title{font-weight:700;font-size:15px;color:#fff;}
+    .h-sep{width:1px;height:20px;background:var(--border);}
 
-    /* Mode toggle */
-    .mode-toggle { display:flex; align-items:center; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:30px; padding:3px; gap:2px; }
-    .mode-btn { padding:5px 14px; border-radius:24px; border:none; cursor:pointer; font-size:12px; font-weight:600; transition:all .2s; background:transparent; color:var(--muted); }
-    .mode-btn.active { background:var(--accent); color:#fff; box-shadow:0 0 12px rgba(124,58,237,.4); }
+    .mode-toggle{display:flex;align-items:center;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:30px;padding:3px;gap:2px;}
+    .mode-btn{padding:5px 14px;border-radius:24px;border:none;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;background:transparent;color:var(--muted);}
+    .mode-btn.active{background:var(--accent);color:#fff;box-shadow:0 0 12px rgba(124,58,237,.4);}
 
-    /* Fleet badge */
-    .fleet-badge { margin-left:auto; display:flex; align-items:center; gap:6px; background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.2); border-radius:20px; padding:4px 12px; font-size:11px; color:#86efac; }
-    .fleet-badge .dot { width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 5px var(--green); }
+    .fleet-badge{margin-left:auto;display:flex;align-items:center;gap:6px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:20px;padding:4px 12px;font-size:11px;color:#86efac;}
+    .fleet-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);}
+    .active-pill{display:flex;align-items:center;gap:6px;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.25);border-radius:20px;padding:4px 12px;font-size:11px;color:#c4b5fd;transition:all .3s;white-space:nowrap;}
+    .active-pill.thinking{border-color:rgba(245,158,11,.35);color:#fcd34d;background:rgba(245,158,11,.08);}
+    .active-pill.thinking .pill-dot{background:var(--amber);box-shadow:0 0 6px var(--amber);animation:pulse 1s infinite;}
+    .pill-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-    /* Active model pill */
-    .active-pill { display:flex; align-items:center; gap:6px; background:rgba(124,58,237,.12); border:1px solid rgba(124,58,237,.25); border-radius:20px; padding:4px 12px; font-size:11px; color:#c4b5fd; transition:all .3s; white-space:nowrap; }
-    .active-pill.thinking { border-color:rgba(245,158,11,.35); color:#fcd34d; background:rgba(245,158,11,.08); }
-    .active-pill.thinking .pill-dot { background:var(--amber); box-shadow:0 0 6px var(--amber); animation:pulse 1s infinite; }
-    .pill-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    /* LAYOUT */
+    .layout{display:flex;flex:1;overflow:hidden;}
 
-    /* ── LAYOUT ── */
-    .layout { display:flex; flex:1; overflow:hidden; }
+    /* SIDEBAR */
+    .sidebar{width:240px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;}
+    .sb-title{padding:14px 16px 8px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;}
+    .sb-models{flex:1;overflow-y:auto;padding:0 8px 8px;}
+    .sb-models::-webkit-scrollbar{width:3px;}
+    .sb-models::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px;}
 
-    /* ── SIDEBAR ── */
-    .sidebar { width:240px; background:var(--bg2); border-right:1px solid var(--border); display:flex; flex-direction:column; flex-shrink:0; overflow:hidden; }
-    .sb-title { padding:14px 16px 8px; font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:1.2px; }
-    .sb-models { flex:1; overflow-y:auto; padding:0 8px 8px; }
-    .sb-models::-webkit-scrollbar { width:3px; }
-    .sb-models::-webkit-scrollbar-thumb { background:rgba(255,255,255,.08); border-radius:2px; }
+    .model-card{padding:10px 11px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:all .18s;position:relative;margin-bottom:3px;}
+    .model-card:hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.09);}
+    .model-card.forced{background:rgba(124,58,237,.1);border-color:rgba(124,58,237,.3);}
+    .model-card.last-used{border-color:rgba(34,197,94,.25);background:rgba(34,197,94,.05);}
+    .model-card.unavailable{opacity:.45;cursor:default;}
+    .mc-row{display:flex;align-items:center;gap:8px;}
+    .mc-icon{font-size:15px;line-height:1;}
+    .mc-name{font-size:12px;font-weight:600;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .mc-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+    .mc-dot.on{background:var(--green);box-shadow:0 0 4px var(--green);}
+    .mc-dot.off{background:var(--amber);}
+    .mc-desc{font-size:10px;color:var(--muted);margin-top:3px;line-height:1.35;}
+    .mc-key{font-size:9.5px;color:var(--amber);margin-top:2px;}
+    .forced-tag{position:absolute;top:5px;right:7px;font-size:8.5px;background:var(--accent);color:#fff;padding:1px 5px;border-radius:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
 
-    .model-card { padding:10px 11px; border-radius:10px; cursor:pointer; border:1px solid transparent; transition:all .18s; position:relative; margin-bottom:3px; }
-    .model-card:hover { background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.09); }
-    .model-card.forced { background:rgba(124,58,237,.1); border-color:rgba(124,58,237,.3); }
-    .model-card.last-used { border-color:rgba(34,197,94,.25); background:rgba(34,197,94,.05); }
-    .model-card.unavailable { opacity:.45; cursor:default; }
-    .mc-row { display:flex; align-items:center; gap:8px; }
-    .mc-icon { font-size:15px; line-height:1; }
-    .mc-name { font-size:12px; font-weight:600; color:var(--text); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .mc-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-    .mc-dot.on  { background:var(--green); box-shadow:0 0 4px var(--green); }
-    .mc-dot.off { background:var(--amber); }
-    .mc-desc { font-size:10px; color:var(--muted); margin-top:3px; line-height:1.35; }
-    .mc-key  { font-size:9.5px; color:var(--amber); margin-top:2px; }
-    .forced-tag { position:absolute; top:5px; right:7px; font-size:8.5px; background:var(--accent); color:#fff; padding:1px 5px; border-radius:4px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+    .sb-footer{padding:10px 12px;font-size:10px;color:var(--muted);text-align:center;border-top:1px solid var(--border);line-height:1.5;}
+    .sb-reset{color:var(--accent);text-decoration:none;cursor:pointer;background:none;border:none;font-size:10px;font-family:inherit;}
 
-    .sb-hint { padding:10px 12px; font-size:10px; color:var(--muted); text-align:center; border-top:1px solid var(--border); line-height:1.5; }
-    .sb-hint a { color:var(--accent); text-decoration:none; cursor:pointer; }
+    /* CHAT */
+    .chat-area{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;}
+    .drop-overlay{position:absolute;inset:0;background:rgba(124,58,237,.15);border:2px dashed rgba(124,58,237,.5);z-index:20;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
+    .drop-overlay.active{display:flex;}
+    .drop-overlay-icon{font-size:48px;}
+    .drop-overlay-text{font-size:16px;font-weight:600;color:#c4b5fd;}
 
-    /* ── CHAT AREA ── */
-    .chat-area { flex:1; display:flex; flex-direction:column; overflow:hidden; position:relative; }
+    .messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:18px;}
+    .messages::-webkit-scrollbar{width:4px;}
+    .messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px;}
 
-    /* Drop overlay */
-    .drop-overlay { position:absolute; inset:0; background:rgba(124,58,237,.15); border:2px dashed rgba(124,58,237,.5); z-index:20; display:none; align-items:center; justify-content:center; border-radius:0; flex-direction:column; gap:12px; }
-    .drop-overlay.active { display:flex; }
-    .drop-overlay-icon { font-size:48px; }
-    .drop-overlay-text { font-size:16px; font-weight:600; color:#c4b5fd; }
+    .welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;min-height:300px;}
+    .welcome-icon{font-size:44px;margin-bottom:14px;}
+    .welcome-title{font-size:17px;font-weight:700;color:rgba(255,255,255,.7);margin-bottom:8px;}
+    .welcome-sub{font-size:12px;color:var(--muted);line-height:1.7;max-width:360px;}
+    .welcome-sub b{color:rgba(255,255,255,.5);}
 
-    /* Messages */
-    .messages { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:18px; }
-    .messages::-webkit-scrollbar { width:4px; }
-    .messages::-webkit-scrollbar-thumb { background:rgba(255,255,255,.08); border-radius:2px; }
+    .msg{max-width:80%;display:flex;flex-direction:column;}
+    .msg.user{align-self:flex-end;align-items:flex-end;}
+    .msg.assistant{align-self:flex-start;align-items:flex-start;}
+    .msg-bubble{padding:11px 15px;border-radius:16px;font-size:13.5px;line-height:1.65;word-break:break-word;}
+    .msg.user .msg-bubble{background:var(--accent);color:#fff;border-bottom-right-radius:4px;}
+    .msg.assistant .msg-bubble{background:rgba(255,255,255,.055);border:1px solid var(--border);border-bottom-left-radius:4px;white-space:pre-wrap;}
+    .msg-meta{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap;}
+    .meta-time{font-size:10px;color:var(--muted);}
 
-    /* Welcome */
-    .welcome { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; text-align:center; padding:40px; min-height:300px; }
-    .welcome-icon { font-size:44px; margin-bottom:14px; }
-    .welcome-title { font-size:17px; font-weight:700; color:rgba(255,255,255,.7); margin-bottom:8px; }
-    .welcome-sub { font-size:12px; color:var(--muted); line-height:1.7; max-width:360px; }
-    .welcome-sub b { color:rgba(255,255,255,.5); }
+    .delegation-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);border-radius:20px;padding:3px 10px;font-size:10.5px;color:#c4b5fd;}
+    .delegation-chip .dc-time{color:var(--muted);font-size:9.5px;margin-left:2px;}
+    .doc-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:3px 9px;font-size:10px;color:#93c5fd;margin-bottom:6px;}
 
-    /* Messages */
-    .msg { max-width:80%; display:flex; flex-direction:column; }
-    .msg.user { align-self:flex-end; align-items:flex-end; }
-    .msg.assistant { align-self:flex-start; align-items:flex-start; }
+    .thinking-row{align-self:flex-start;display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:14px;border-bottom-left-radius:4px;color:var(--muted);font-size:12.5px;}
+    .dots{display:flex;gap:4px;}
+    .dots span{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:bounce 1.2s infinite;}
+    .dots span:nth-child(2){animation-delay:.2s;}
+    .dots span:nth-child(3){animation-delay:.4s;}
+    @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
 
-    .msg-bubble { padding:11px 15px; border-radius:16px; font-size:13.5px; line-height:1.65; word-break:break-word; }
-    .msg.user .msg-bubble { background:var(--accent); color:#fff; border-bottom-right-radius:4px; }
-    .msg.assistant .msg-bubble { background:rgba(255,255,255,.055); border:1px solid var(--border); border-bottom-left-radius:4px; white-space:pre-wrap; }
-
-    .msg-meta { display:flex; align-items:center; gap:6px; margin-top:5px; flex-wrap:wrap; }
-    .meta-time { font-size:10px; color:var(--muted); }
-
-    /* Delegation chip — key feature */
-    .delegation-chip { display:inline-flex; align-items:center; gap:5px; background:rgba(124,58,237,.1); border:1px solid rgba(124,58,237,.2); border-radius:20px; padding:3px 10px; font-size:10.5px; color:#c4b5fd; }
-    .delegation-chip .dc-icon { font-size:12px; }
-    .delegation-chip .dc-time { color:var(--muted); font-size:9.5px; margin-left:2px; }
-
-    /* Doc chip on message */
-    .doc-chip { display:inline-flex; align-items:center; gap:5px; background:rgba(59,130,246,.1); border:1px solid rgba(59,130,246,.2); border-radius:8px; padding:3px 9px; font-size:10px; color:#93c5fd; margin-bottom:6px; }
-
-    /* Thinking indicator */
-    .thinking-row { align-self:flex-start; display:flex; align-items:center; gap:10px; padding:10px 14px; background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:14px; border-bottom-left-radius:4px; color:var(--muted); font-size:12.5px; }
-    .dots { display:flex; gap:4px; }
-    .dots span { width:5px; height:5px; border-radius:50%; background:var(--accent); animation:bounce 1.2s infinite; }
-    .dots span:nth-child(2) { animation-delay:.2s; }
-    .dots span:nth-child(3) { animation-delay:.4s; }
-    @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
-
-    /* ── INPUT AREA ── */
-    .input-area { padding:14px 18px; border-top:1px solid var(--border); background:rgba(0,0,0,.25); flex-shrink:0; }
-
-    /* Doc previews */
-    .doc-previews { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
-    .doc-preview { display:flex; align-items:center; gap:6px; background:rgba(59,130,246,.1); border:1px solid rgba(59,130,246,.2); border-radius:8px; padding:4px 10px; font-size:11px; color:#93c5fd; }
-    .doc-preview .dp-remove { cursor:pointer; color:var(--muted); margin-left:2px; font-size:13px; line-height:1; }
-    .doc-preview .dp-remove:hover { color:#f87171; }
-
-    .input-row { display:flex; gap:10px; align-items:flex-end; }
-    .input-wrap { flex:1; position:relative; }
-    .input-box { width:100%; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:13px; padding:11px 44px 11px 15px; color:var(--text); font-size:13.5px; font-family:inherit; resize:none; outline:none; max-height:130px; transition:border-color .2s; line-height:1.55; }
-    .input-box:focus { border-color:rgba(124,58,237,.45); }
-    .input-box::placeholder { color:var(--muted); }
-    .attach-btn { position:absolute; right:10px; bottom:10px; background:none; border:none; cursor:pointer; color:var(--muted); font-size:16px; transition:color .2s; padding:2px; }
-    .attach-btn:hover { color:var(--blue); }
-    .file-input-hidden { display:none; }
-
-    .send-btn { background:var(--accent); border:none; border-radius:11px; width:42px; height:42px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .2s; color:#fff; }
-    .send-btn:hover { background:var(--accent2); transform:scale(1.05); }
-    .send-btn:disabled { background:#2a2a3a; cursor:not-allowed; transform:none; }
-    .input-hint { font-size:10.5px; color:var(--muted); margin-top:7px; text-align:center; }
-    .input-hint kbd { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:4px; padding:1px 5px; font-size:9.5px; font-family:inherit; }
+    /* INPUT */
+    .input-area{padding:14px 18px;border-top:1px solid var(--border);background:rgba(0,0,0,.25);flex-shrink:0;}
+    .doc-previews{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+    .doc-preview{display:flex;align-items:center;gap:6px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:4px 10px;font-size:11px;color:#93c5fd;}
+    .dp-remove{cursor:pointer;color:var(--muted);margin-left:2px;font-size:13px;line-height:1;background:none;border:none;color:var(--muted);font-family:inherit;}
+    .dp-remove:hover{color:#f87171;}
+    .input-row{display:flex;gap:10px;align-items:flex-end;}
+    .input-wrap{flex:1;position:relative;}
+    .input-box{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:11px 44px 11px 15px;color:var(--text);font-size:13.5px;font-family:inherit;resize:none;outline:none;max-height:130px;transition:border-color .2s;line-height:1.55;}
+    .input-box:focus{border-color:rgba(124,58,237,.45);}
+    .input-box::placeholder{color:var(--muted);}
+    .attach-btn{position:absolute;right:10px;bottom:10px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;transition:color .2s;padding:2px;}
+    .attach-btn:hover{color:var(--blue);}
+    .send-btn{background:var(--accent);border:none;border-radius:11px;width:42px;height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;color:#fff;}
+    .send-btn:hover{background:var(--accent2);transform:scale(1.05);}
+    .send-btn:disabled{background:#2a2a3a;cursor:not-allowed;transform:none;}
+    .input-hint{font-size:10.5px;color:var(--muted);margin-top:7px;text-align:center;}
+    .input-hint kbd{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:1px 5px;font-size:9.5px;font-family:inherit;}
   </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
-  <span class="h-logo">⚡</span>
+  <span class="h-logo">&#x26A1;</span>
   <span class="h-title">Hub Souverain IA</span>
   <div class="h-sep"></div>
-
-  <!-- Mode toggle -->
-  <div class="mode-toggle" title="Basculer entre sélection manuelle et routage automatique DALEBA">
-    <button class="mode-btn" id="btnManual" onclick="setMode('manual')">⚙️ Manuel</button>
-    <button class="mode-btn active" id="btnAuto" onclick="setMode('auto')">🎯 Daleba Auto</button>
+  <div class="mode-toggle">
+    <button class="mode-btn" id="btnManual">&#x2699;&#xFE0F; Manuel</button>
+    <button class="mode-btn active" id="btnAuto">&#x1F3AF; Daleba Auto</button>
   </div>
-
-  <!-- Active model pill -->
   <div class="active-pill" id="activePill">
     <span class="pill-dot"></span>
     <span id="pillText">Auto-routing actif</span>
   </div>
-
-  <!-- Fleet badge -->
   <div class="fleet-badge" id="fleetBadge">
     <span class="dot"></span>
-    <span id="fleetCount">Flotte prête</span>
+    <span id="fleetCount">Chargement...</span>
   </div>
 </div>
 
-<!-- LAYOUT -->
 <div class="layout">
-
-  <!-- SIDEBAR -->
   <div class="sidebar">
-    <div class="sb-title">🚀 Flotte Souveraine</div>
+    <div class="sb-title">&#x1F680; Flotte Souveraine</div>
     <div class="sb-models" id="modelList"></div>
-    <div class="sb-hint">
-      En mode Manuel, cliquer = forcer le modèle<br>
-      <a onclick="clearForce()">↺ Réinitialiser</a>
+    <div class="sb-footer">
+      En mode Manuel, cliquer = forcer le mod&#232;le<br>
+      <button class="sb-reset" id="btnReset">&#x21BA; R&#233;initialiser</button>
     </div>
   </div>
 
-  <!-- CHAT -->
   <div class="chat-area" id="chatArea">
-
-    <!-- Drop overlay -->
     <div class="drop-overlay" id="dropOverlay">
-      <div class="drop-overlay-icon">📄</div>
-      <div class="drop-overlay-text">Déposer le document ici</div>
+      <div class="drop-overlay-icon">&#x1F4C4;</div>
+      <div class="drop-overlay-text">D&#233;poser le document ici</div>
     </div>
-
-    <!-- Messages -->
     <div class="messages" id="messages">
       <div class="welcome" id="welcome">
-        <div class="welcome-icon">🧠</div>
-        <div class="welcome-title">Flotte Souveraine — 8 modèles opérationnels</div>
+        <div class="welcome-icon">&#x1F9E0;</div>
+        <div class="welcome-title">Flotte Souveraine &#x2014; 8 mod&#232;les op&#233;rationnels</div>
         <div class="welcome-sub">
-          En mode <b>Daleba Auto</b>, j'analyse ta demande et je délègue au modèle le plus compétent.<br><br>
-          Tu peux aussi <b>glisser-déposer</b> un fichier (PDF, code, CSV…) dans la zone de saisie pour l'inclure dans le contexte.
+          En mode <b>Daleba Auto</b>, j'analyse ta demande et je d&#233;l&#232;gue au mod&#232;le le plus comp&#233;tent.<br><br>
+          Tu peux aussi <b>glisser-d&#233;poser</b> un fichier (PDF, code, CSV&#x2026;) pour l'inclure dans le contexte.
         </div>
       </div>
     </div>
-
-    <!-- Input area -->
     <div class="input-area">
       <div class="doc-previews" id="docPreviews"></div>
       <div class="input-row">
         <div class="input-wrap">
-          <textarea class="input-box" id="inputBox"
-            placeholder="Envoie une commande à la flotte…"
-            rows="1"
-            onkeydown="handleKey(event)"
-            oninput="autoResize(this)"></textarea>
-          <button class="attach-btn" onclick="document.getElementById('fileInput').click()" title="Joindre un fichier">📎</button>
-          <input type="file" id="fileInput" class="file-input-hidden" multiple accept=".pdf,.txt,.md,.js,.ts,.py,.json,.csv,.html,.css,.sql,.sh,.yaml,.yml,.env" onchange="handleFileSelect(event)">
+          <textarea class="input-box" id="inputBox" placeholder="Envoie une commande &#224; la flotte&#x2026;" rows="1"></textarea>
+          <button class="attach-btn" id="attachBtn" title="Joindre un fichier">&#x1F4CE;</button>
+          <input type="file" id="fileInput" style="display:none" multiple accept=".pdf,.txt,.md,.js,.ts,.py,.json,.csv,.html,.css,.sql,.sh,.yaml,.yml,.env">
         </div>
-        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+        <button class="send-btn" id="sendBtn">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         </button>
       </div>
-      <div class="input-hint" id="inputHint">
-        <kbd>Enter</kbd> pour envoyer · <kbd>Shift+Enter</kbd> nouvelle ligne · glisser-déposer un fichier pour le contexte RAG
+      <div class="input-hint">
+        <kbd>Enter</kbd> envoyer &nbsp;&#183;&nbsp; <kbd>Shift+Enter</kbd> nouvelle ligne &nbsp;&#183;&nbsp; glisser un fichier pour le contexte RAG
       </div>
     </div>
   </div>
 </div>
 
 <script>
-// ── STATE ─────────────────────────────────────────────────────────────────────
-let mode        = 'auto';       // 'auto' | 'manual'
-let forcedModel = null;
-let isThinking  = false;
-let chatHistory = [];
-let fleetData   = [];
-let attachedDocs = [];          // [{filename, text}]
+// ── STATE
+var mode        = 'auto';
+var forcedModel = null;
+var isThinking  = false;
+var chatHistory = [];
+var fleetData   = [];
+var attachedDocs= [];
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
-(async function init() {
-  setupDragDrop();
-  await loadFleet();
-})();
+// ── BOOT — tout via addEventListener, zéro inline handler
+document.addEventListener('DOMContentLoaded', function() {
+  // Mode buttons
+  document.getElementById('btnManual').addEventListener('click', function(){ setMode('manual'); });
+  document.getElementById('btnAuto').addEventListener('click',   function(){ setMode('auto');   });
+  document.getElementById('btnReset').addEventListener('click',  function(){ clearForce();       });
 
-async function loadFleet() {
-  try {
-    const res  = await fetch('/api/sovereign/status');
-    const data = await res.json();
-    fleetData  = data.fleet || [];
-    renderFleet();
-    const n = data.available.length;
-    document.getElementById('fleetCount').textContent = `${n}/8 modèles actifs`;
-    document.getElementById('inputHint').innerHTML =
-      `<kbd>Enter</kbd> pour envoyer · <kbd>Shift+Enter</kbd> nouvelle ligne · glisser-déposer un fichier pour le contexte RAG`;
-  } catch(e) {
-    document.getElementById('fleetCount').textContent = 'Erreur de connexion';
-  }
+  // Send button
+  document.getElementById('sendBtn').addEventListener('click', sendMessage);
+
+  // Textarea keyboard
+  document.getElementById('inputBox').addEventListener('keydown', function(e){
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+  document.getElementById('inputBox').addEventListener('input', function(){
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 130) + 'px';
+  });
+
+  // File attach
+  document.getElementById('attachBtn').addEventListener('click', function(){
+    document.getElementById('fileInput').click();
+  });
+  document.getElementById('fileInput').addEventListener('change', function(e){
+    Array.from(e.target.files).forEach(uploadFile);
+    e.target.value = '';
+  });
+
+  // Drag & drop
+  var area    = document.getElementById('chatArea');
+  var overlay = document.getElementById('dropOverlay');
+  area.addEventListener('dragover',  function(e){ e.preventDefault(); overlay.classList.add('active'); });
+  area.addEventListener('dragleave', function(e){ if (!area.contains(e.relatedTarget)) overlay.classList.remove('active'); });
+  area.addEventListener('drop',      function(e){
+    e.preventDefault();
+    overlay.classList.remove('active');
+    Array.from(e.dataTransfer.files).forEach(uploadFile);
+  });
+
+  // Load fleet
+  loadFleet();
+});
+
+// ── FLEET
+function loadFleet() {
+  fetch('/api/sovereign/status')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      fleetData = data.fleet || [];
+      renderFleet();
+      var n = data.available ? data.available.length : 0;
+      document.getElementById('fleetCount').textContent = n + '/8 mod\u00e8les actifs';
+    })
+    .catch(function(){
+      document.getElementById('fleetCount').textContent = 'Erreur de connexion';
+    });
 }
 
-// ── MODE ──────────────────────────────────────────────────────────────────────
+function renderFleet() {
+  var list = document.getElementById('modelList');
+  list.innerHTML = '';
+  fleetData.forEach(function(m) {
+    var card = document.createElement('div');
+    card.className = 'model-card' +
+      (!m.connected ? ' unavailable' : '') +
+      (forcedModel === m.id && mode === 'manual' ? ' forced' : '');
+    card.id = 'card-' + m.id;
+    card.innerHTML =
+      (forcedModel === m.id && mode === 'manual' ? '<span class="forced-tag">Forc\u00e9</span>' : '') +
+      '<div class="mc-row">' +
+        '<span class="mc-icon">' + m.icon + '</span>' +
+        '<span class="mc-name">' + esc(m.label) + '</span>' +
+        '<span class="mc-dot ' + (m.connected ? 'on' : 'off') + '"></span>' +
+      '</div>' +
+      '<div class="mc-desc">' + esc(m.description) + '</div>' +
+      (!m.connected ? '<div class="mc-key">&#x1F511; ' + esc(m.envKey) + '</div>' : '');
+    if (m.connected) {
+      (function(id){ card.addEventListener('click', function(){ selectModel(id); }); })(m.id);
+    } else {
+      (function(id){ card.addEventListener('click', function(){ showKeyHint(id); }); })(m.id);
+    }
+    list.appendChild(card);
+  });
+}
+
+// ── MODE
 function setMode(m) {
   mode = m;
   document.getElementById('btnManual').classList.toggle('active', m === 'manual');
-  document.getElementById('btnAuto').classList.toggle('active', m === 'auto');
-  if (m === 'auto') {
-    forcedModel = null;
-    setPill('auto');
-    renderFleet();
-  } else {
-    setPill('manual-idle');
-  }
-}
-
-// ── SIDEBAR ───────────────────────────────────────────────────────────────────
-function renderFleet() {
-  const list = document.getElementById('modelList');
-  list.innerHTML = fleetData.map(m => `
-    <div class="model-card ${!m.connected?'unavailable':''} ${forcedModel===m.id&&mode==='manual'?'forced':''}"
-         id="card-${m.id}"
-         onclick="${m.connected ? `selectModel('${m.id}')` : `showKeyHint('${m.id}')`}">
-      ${forcedModel===m.id&&mode==='manual' ? '<span class="forced-tag">Forcé</span>' : ''}
-      <div class="mc-row">
-        <span class="mc-icon">${m.icon}</span>
-        <span class="mc-name">${m.label}</span>
-        <span class="mc-dot ${m.connected?'on':'off'}"></span>
-      </div>
-      <div class="mc-desc">${m.description}</div>
-      ${!m.connected ? `<div class="mc-key">🔑 ${m.envKey}</div>` : ''}
-    </div>
-  `).join('');
+  document.getElementById('btnAuto').classList.toggle('active',   m === 'auto');
+  if (m === 'auto')   { forcedModel = null; setPill('auto'); renderFleet(); }
+  else                { setPill('manual-idle'); }
 }
 
 function selectModel(id) {
   if (mode !== 'manual') return;
-  forcedModel = forcedModel === id ? null : id;
+  forcedModel = (forcedModel === id) ? null : id;
   renderFleet();
-  if (forcedModel) {
-    const m = fleetData.find(x => x.id === id);
-    setPill('forced', m);
-  } else {
-    setPill('manual-idle');
-  }
+  if (forcedModel) { setPill('forced', fleetData.find(function(x){ return x.id===id; })); }
+  else             { setPill('manual-idle'); }
 }
 
 function clearForce() {
   forcedModel = null;
   renderFleet();
-  if (mode === 'auto') setPill('auto');
-  else setPill('manual-idle');
+  if (mode === 'auto') setPill('auto'); else setPill('manual-idle');
 }
 
 function showKeyHint(id) {
-  const m = fleetData.find(x => x.id === id);
-  if (m) alert(`Modèle non disponible.\n\nAjoutez ${m.envKey} dans Railway pour activer ${m.label}.`);
+  var m = fleetData.find(function(x){ return x.id===id; });
+  if (m) alert('Mod\u00e8le non disponible.\n\nAjoutez ' + m.envKey + ' dans Railway pour activer ' + m.label + '.');
 }
 
-// ── PILL ──────────────────────────────────────────────────────────────────────
+// ── PILL
 function setPill(state, model) {
-  const pill = document.getElementById('activePill');
-  const text = document.getElementById('pillText');
-  pill.className = 'active-pill';
-  switch(state) {
-    case 'auto':
-      text.textContent = '🎯 Auto-routing actif'; break;
-    case 'manual-idle':
-      text.textContent = '⚙️ Sélectionne un modèle'; break;
-    case 'forced':
-      text.textContent = `${model?.icon||''} ${model?.label||''} (forcé)`; break;
-    case 'thinking':
-      pill.classList.add('thinking');
-      text.textContent = '🔄 Analyse en cours…'; break;
-    case 'done':
-      text.textContent = `${model?.icon||'🤖'} ${model?.label||model?.modelLabel||''}`; break;
-  }
+  var pill = document.getElementById('activePill');
+  var text = document.getElementById('pillText');
+  pill.className = 'active-pill' + (state==='thinking' ? ' thinking' : '');
+  if      (state==='auto')        text.textContent = '\uD83C\uDFAF Auto-routing actif';
+  else if (state==='manual-idle') text.textContent = '\u2699\uFE0F S\u00e9lectionne un mod\u00e8le';
+  else if (state==='forced')      text.textContent = (model?model.icon:'') + ' ' + (model?model.label:'') + ' (forc\u00e9)';
+  else if (state==='thinking')    text.textContent = '\uD83D\uDD04 Analyse en cours\u2026';
+  else if (state==='done')        text.textContent = (model?model.icon:'\uD83E\uDD16') + ' ' + (model?model.label||model.modelLabel:'');
 }
 
-// ── DRAG & DROP ───────────────────────────────────────────────────────────────
-function setupDragDrop() {
-  const area = document.getElementById('chatArea');
-  const overlay = document.getElementById('dropOverlay');
-
-  area.addEventListener('dragover', e => { e.preventDefault(); overlay.classList.add('active'); });
-  area.addEventListener('dragleave', e => { if (!area.contains(e.relatedTarget)) overlay.classList.remove('active'); });
-  area.addEventListener('drop', e => {
-    e.preventDefault();
-    overlay.classList.remove('active');
-    const files = Array.from(e.dataTransfer.files);
-    files.forEach(uploadFile);
-  });
-}
-
-// ── FILE UPLOAD & RAG ─────────────────────────────────────────────────────────
-function handleFileSelect(e) {
-  Array.from(e.target.files).forEach(uploadFile);
-  e.target.value = '';
-}
-
-async function uploadFile(file) {
-  const toast = showToast(`📄 Chargement de ${file.name}…`);
-  try {
-    const fd = new FormData();
-    fd.append('file', file);
-    const res  = await fetch('/api/sovereign/upload', { method:'POST', body: fd });
-    const data = await res.json();
-    if (!data.ok) throw new Error(data.error);
-    attachedDocs.push({ filename: data.filename, text: data.text, chars: data.chars });
-    renderDocPreviews();
-    toast.update(`✅ ${file.name} — ${data.chars.toLocaleString()} caractères extraits`);
-    setTimeout(() => toast.remove(), 3000);
-  } catch(err) {
-    toast.update(`❌ Erreur: ${err.message}`);
-    setTimeout(() => toast.remove(), 4000);
-  }
-}
-
-function renderDocPreviews() {
-  const container = document.getElementById('docPreviews');
-  container.innerHTML = attachedDocs.map((d, i) => `
-    <div class="doc-preview">
-      📄 <span>${d.filename}</span>
-      <span style="color:var(--muted);font-size:9.5px">${(d.chars/1000).toFixed(1)}k chars</span>
-      <span class="dp-remove" onclick="removeDoc(${i})">×</span>
-    </div>
-  `).join('');
-}
-
-function removeDoc(i) {
-  attachedDocs.splice(i, 1);
-  renderDocPreviews();
-}
-
-// ── CHAT ──────────────────────────────────────────────────────────────────────
-async function sendMessage() {
+// ── SEND
+function sendMessage() {
   if (isThinking) return;
-  const input = document.getElementById('inputBox');
-  const text  = input.value.trim();
+  var input = document.getElementById('inputBox');
+  var text  = input.value.trim();
   if (!text) return;
 
-  // Clear welcome
-  document.getElementById('welcome')?.remove();
+  var welcome = document.getElementById('welcome');
+  if (welcome) welcome.parentNode.removeChild(welcome);
 
   input.value  = '';
   input.style.height = 'auto';
   isThinking   = true;
   document.getElementById('sendBtn').disabled = true;
 
-  // Compile doc context
-  const docContext = attachedDocs.map(d => `--- ${d.filename} ---\n${d.text}`).join('\n\n');
-  const docsForDisplay = [...attachedDocs];
-
-  // Add user message
-  chatHistory.push({ role: 'user', content: text });
-  appendUserMessage(text, docsForDisplay);
-
-  // Clear docs after sending
+  var docContext   = attachedDocs.map(function(d){ return '--- ' + d.filename + ' ---\n' + d.text; }).join('\n\n');
+  var docsSnapshot = attachedDocs.slice();
   attachedDocs = [];
   renderDocPreviews();
 
-  // Thinking indicator
-  const thinkingEl = appendThinking();
+  chatHistory.push({ role: 'user', content: text });
+  appendUserMessage(text, docsSnapshot);
+
+  var thinkEl = appendThinking();
   setPill('thinking');
 
-  try {
-    const body = {
-      messages: chatHistory,
-      docContext: docContext || undefined,
-    };
+  var body = { messages: chatHistory };
+  if (docContext)                          body.docContext  = docContext;
+  if (mode === 'manual' && forcedModel)    body.forceModel  = forcedModel;
 
-    if (mode === 'manual' && forcedModel) {
-      body.forceModel = forcedModel;
-    }
-
-    const res  = await fetch('/api/sovereign/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json();
-    thinkingEl.remove();
-
-    const modelInfo = fleetData.find(m => m.id === data.model) || {
-      label: data.modelLabel || data.model || '?',
-      icon:  data.modelIcon  || '🤖',
-      id:    data.model,
-    };
-
+  fetch('/api/sovereign/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    thinkEl.remove();
+    var modelInfo = fleetData.find(function(m){ return m.id===data.model; }) ||
+                    { label: data.modelLabel||data.model||'?', icon: data.modelIcon||'\uD83E\uDD16', id: data.model };
     setPill('done', modelInfo);
-
-    // Highlight last used in sidebar
-    document.querySelectorAll('.model-card.last-used').forEach(c => c.classList.remove('last-used'));
-    if (data.model) document.getElementById(`card-${data.model}`)?.classList.add('last-used');
-
+    document.querySelectorAll('.model-card.last-used').forEach(function(c){ c.classList.remove('last-used'); });
+    if (data.model) { var el=document.getElementById('card-'+data.model); if(el) el.classList.add('last-used'); }
     chatHistory.push({ role: 'assistant', content: data.text });
-    appendAssistantMessage(data.text, modelInfo, data.latencyMs, data.task, mode === 'auto');
-
-  } catch(err) {
-    thinkingEl.remove();
+    appendAssistantMessage(data.text, modelInfo, data.latencyMs, data.task, mode==='auto');
+  })
+  .catch(function(){
+    thinkEl.remove();
     setPill('auto');
-    appendAssistantMessage('❌ Erreur de connexion au hub. Vérifiez que le backend DALEBA est en ligne.');
-  }
-
-  isThinking = false;
-  document.getElementById('sendBtn').disabled = false;
+    appendAssistantMessage('\u274C Erreur de connexion au hub. V\u00e9rifiez que le backend DALEBA est en ligne.');
+  })
+  .finally(function(){
+    isThinking = false;
+    document.getElementById('sendBtn').disabled = false;
+  });
 }
 
+// ── MESSAGES
 function appendUserMessage(text, docs) {
-  const msgs = document.getElementById('messages');
-  const div  = document.createElement('div');
+  var msgs = document.getElementById('messages');
+  var div  = document.createElement('div');
   div.className = 'msg user';
-  const docChips = docs.map(d => `<div class="doc-chip">📄 ${esc(d.filename)}</div>`).join('');
-  div.innerHTML = `
-    ${docChips}
-    <div class="msg-bubble">${esc(text)}</div>
-    <div class="msg-meta"><span class="meta-time">${now()}</span></div>
-  `;
+  var chips = docs.map(function(d){ return '<div class="doc-chip">&#x1F4C4; ' + esc(d.filename) + '</div>'; }).join('');
+  div.innerHTML = chips + '<div class="msg-bubble">' + esc(text) + '</div>' +
+    '<div class="msg-meta"><span class="meta-time">' + nowStr() + '</span></div>';
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
 }
 
 function appendAssistantMessage(text, model, ms, task, showDelegation) {
-  const msgs = document.getElementById('messages');
-  const div  = document.createElement('div');
+  var msgs = document.getElementById('messages');
+  var div  = document.createElement('div');
   div.className = 'msg assistant';
-
-  let chipHtml = '';
+  var chipHtml = '';
   if (showDelegation && model && model.id) {
-    const taskLabel = task ? ` · tâche: <b>${task}</b>` : '';
-    chipHtml = `
-      <div class="msg-meta">
-        <div class="delegation-chip">
-          <span class="dc-icon">${model.icon||'🤖'}</span>
-          Daleba a délégué à <b>${esc(model.label||model.id)}</b>${taskLabel}
-          <span class="dc-time">${ms ? `· ${ms}ms` : ''}</span>
-        </div>
-      </div>`;
+    var taskStr = task ? ' \u00b7 t\u00e2che&nbsp;<b>' + esc(task) + '</b>' : '';
+    var msStr   = ms   ? ' <span class="dc-time">\u00b7 ' + ms + 'ms</span>' : '';
+    chipHtml = '<div class="msg-meta"><div class="delegation-chip">' +
+      (model.icon||'\uD83E\uDD16') + ' Daleba a d\u00e9l\u00e9gu\u00e9 \u00e0 <b>' + esc(model.label||model.id) + '</b>' +
+      taskStr + msStr + '</div></div>';
   } else if (model && model.id) {
-    chipHtml = `<div class="msg-meta"><span class="meta-time">${model.icon||''} ${esc(model.label||'')} · ${ms||''}ms</span></div>`;
+    chipHtml = '<div class="msg-meta"><span class="meta-time">' + (model.icon||'') + ' ' + esc(model.label||'') + (ms?' \u00b7 '+ms+'ms':'') + '</span></div>';
   }
-
-  div.innerHTML = `<div class="msg-bubble">${esc(text)}</div>${chipHtml}`;
+  div.innerHTML = '<div class="msg-bubble">' + esc(text) + '</div>' + chipHtml;
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
 }
 
 function appendThinking() {
-  const msgs = document.getElementById('messages');
-  const div  = document.createElement('div');
+  var msgs = document.getElementById('messages');
+  var div  = document.createElement('div');
   div.className = 'thinking-row';
-  div.innerHTML = `<div class="dots"><span></span><span></span><span></span></div><span id="thinkLabel">Analyse de la tâche…</span>`;
+  div.innerHTML = '<div class="dots"><span></span><span></span><span></span></div><span id="thinkLabel">Analyse de la t\u00e2che\u2026</span>';
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
-
-  const labels = ['Détection du modèle optimal…','Délégation en cours…','Traitement IA…','Synthèse…'];
-  let i = 0;
-  div._iv = setInterval(() => {
-    const el = document.getElementById('thinkLabel');
-    if (el) el.textContent = labels[i++ % labels.length];
+  var labels = ['D\u00e9tection du mod\u00e8le optimal\u2026','D\u00e9l\u00e9gation en cours\u2026','Traitement IA\u2026','Synth\u00e8se\u2026'];
+  var i = 0;
+  div._iv = setInterval(function(){
+    var el = document.getElementById('thinkLabel'); if(el) el.textContent = labels[i++ % labels.length];
   }, 1400);
-
-  const origRemove = div.remove.bind(div);
-  div.remove = () => { clearInterval(div._iv); origRemove(); };
+  var orig = div.remove.bind(div);
+  div.remove = function(){ clearInterval(div._iv); orig(); };
   return div;
 }
 
-// ── UTILS ─────────────────────────────────────────────────────────────────────
-function esc(t='') {
-  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-}
-function now() {
-  return new Date().toLocaleTimeString('fr-CA', { hour:'2-digit', minute:'2-digit' });
-}
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-}
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 130) + 'px';
+// ── FILE UPLOAD
+function uploadFile(file) {
+  var toast = showToast('\uD83D\uDCC4 Chargement de ' + file.name + '\u2026');
+  var fd = new FormData();
+  fd.append('file', file);
+  fetch('/api/sovereign/upload', { method: 'POST', body: fd })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (!data.ok) throw new Error(data.error);
+      attachedDocs.push({ filename: data.filename, text: data.text, chars: data.chars });
+      renderDocPreviews();
+      toast.update('\u2705 ' + file.name + ' \u2014 ' + data.chars.toLocaleString() + ' caract\u00e8res');
+      setTimeout(function(){ toast.remove(); }, 3000);
+    })
+    .catch(function(err){
+      toast.update('\u274C Erreur: ' + err.message);
+      setTimeout(function(){ toast.remove(); }, 4000);
+    });
 }
 
-// ── TOAST ─────────────────────────────────────────────────────────────────────
+function renderDocPreviews() {
+  var container = document.getElementById('docPreviews');
+  container.innerHTML = '';
+  attachedDocs.forEach(function(d, i){
+    var div = document.createElement('div');
+    div.className = 'doc-preview';
+    div.innerHTML = '\uD83D\uDCC4 <span>' + esc(d.filename) + '</span>' +
+      '<span style="color:var(--muted);font-size:9.5px">' + (d.chars/1000).toFixed(1) + 'k</span>';
+    var btn = document.createElement('button');
+    btn.className = 'dp-remove';
+    btn.textContent = '\u00d7';
+    (function(idx){ btn.addEventListener('click', function(){ attachedDocs.splice(idx,1); renderDocPreviews(); }); })(i);
+    div.appendChild(btn);
+    container.appendChild(div);
+  });
+}
+
+// ── UTILS
+function esc(t) {
+  return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+function nowStr() {
+  return new Date().toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
+}
 function showToast(msg) {
-  const el = document.createElement('div');
-  el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e1e2e;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:8px 16px;font-size:12px;color:#e2e2e8;z-index:100;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4);';
+  var el = document.createElement('div');
+  el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e1e2e;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:8px 16px;font-size:12px;color:#e2e2e8;z-index:100;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:opacity .3s;';
   el.textContent = msg;
   document.body.appendChild(el);
-  return { update: t => el.textContent = t, remove: () => el.remove() };
+  return { update: function(t){ el.textContent = t; }, remove: function(){ el.remove(); } };
 }
 </script>
 </body>
