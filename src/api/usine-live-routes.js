@@ -158,7 +158,7 @@ async function runSquadScan(squadKey) {
     if (pool && raw.length > 0) {
       const classifier = safeRequire('../services/opportunity-classifier');
       const existingURLs = new Set((await safeCall(() => pool.query('SELECT source_url FROM daleba_opportunities WHERE source_url IS NOT NULL'), { rows:[] })).rows.map(r=>r.source_url));
-      const toProcess = raw.filter(r => r.url && !existingURLs.has(r.url)).slice(0, 30);
+      const toProcess = raw.filter(r => r.url && !existingURLs.has(r.url)).slice(0, 80); // v2: 80 opps/squad (était 30)
       taskLog(taskId, 'classify', `Classification de ${toProcess.length} nouvelles opportunités`, { progress: 70 });
 
       for (const opp of toProcess) {
