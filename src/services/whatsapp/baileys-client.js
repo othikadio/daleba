@@ -86,28 +86,49 @@ async function dbAuthState() {
 }
 
 // ─── CONNEXION PRINCIPALE ─────────────────────────────────────────────────────
-async function connect(onMessage) {
+let _pairingCode = null;
+
+async function connect(onMessage, pairingPhone) {
   if (_reconnectTimer) { clearTimeout(_reconnectTimer); _reconnectTimer = null; }
 
   const { version } = await fetchLatestBaileysVersion();
   const { state, saveCreds } = await dbAuthState();
 
+  const usePairing = !!pairingPhone;
+
   _sock = makeWASocket({
     version,
     auth: state,
     logger: pino({ level: 'silent' }),
-    printQRInTerminal: true,
+    printQRInTerminal: !usePairing,
+    mobile: false,
     browser: ['Kadio Coiffure', 'Safari', '1.0.0'],
     generateHighQualityLinkPreview: false,
     syncFullHistory: false,
     markOnlineOnConnect: false,
   });
 
-  // ── QR Code ───────────────────────────────────────────────────────────────
+  // ── Pairing Code (prioritaire si numéro fourni) ─────────────────────────
+  if (usePairing) {
+    setTimeout(async () => {
+      try {
+        const cleanPhone = pairingPhone.replace(/\D/g, '');
+        const code = await _sock.requestPairingCode(cleanPhone);
+        _pairingCode = code;
+        emitter.emit('pairingCode', code);
+        console.log('[WA-Baileys] 🔗 Pairing Code:', code);
+      } catch (err) {
+        console.error('[WA-Baileys] Pairing code error:', err.message);
+        emitter.emit('pairingError', err.message);
+      }
+    }, 3000);
+  }
+
+  // ── QR Code (fallback) ─────────────────────────────────────────────────────
   _sock.ev.on('connection.update', (update) => {
     const { connection, lastDisconnect, qr } = update;
 
-    if (qr) {
+    if (qr && !usePairing) {
       _qrCode = qr;
       _connected = false;
       emitter.emit('qr', qr);
@@ -216,11 +237,21 @@ async function sendImage(phone, imageBuffer, caption = '') {
 // ─── STATUS ──────────────────────────────────────────────────────────────────
 function getStatus() {
   return {
-    connected:  _connected,
-    hasQR:      !!_qrCode,
-    qr:         _qrCode,
+    connected:   _connected,
+    hasQR:       !!_qrCode,
+    qr:          _qrCode,
+    pairingCode: _pairingCode,
     phoneNumber: _sock?.user?.id?.split(':')[0] || null,
   };
 }
 
-module.exports = { connect, sendText, sendAudio, sendImage, getStatus, emitter };
+async function requestPairingCode(phoneNumber) {
+  if (!_sock) throw new Error('Socket non initialisé');
+  const clean = phoneNumber.replace(/\D/g, '');
+  const code = await _sock.requestPairingCode(clean);
+  _pairingCode = code;
+  emitter.emit('pairingCode', code);
+  return code;
+}
+
+module.exports = { connect, sendText, sendAudio, sendImage, getStatus, requestPairingCode, emitter };

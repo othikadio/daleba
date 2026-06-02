@@ -142,6 +142,46 @@ router.post('/start', async (req, res) => {
   }
 });
 
+// POST /api/whatsapp/pair — Pairing Code Baileys (pas de QR)
+router.post('/pair', async (req, res) => {
+  try {
+    let { phone } = req.body;
+    if (!phone) return res.status(400).json({ error: 'phone requis (ex: +15141234567)' });
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length < 10) return res.status(400).json({ error: 'Numéro invalide' });
+
+    // Si Baileys n'est pas démarré, le lancer en mode pairing
+    if (!waStarted) {
+      waStarted = true;
+      let pairingCode = null;
+      let pairingError = null;
+
+      await new Promise((resolve) => {
+        baileysClient.emitter.once('pairingCode', (code) => { pairingCode = code; resolve(); });
+        baileysClient.emitter.once('pairingError', (err) => { pairingError = err; resolve(); });
+        baileysClient.connect(
+          async ({ phone: p, text }) => { /* handler messages */ },
+          cleanPhone
+        ).catch(e => { pairingError = e.message; resolve(); });
+        setTimeout(resolve, 15000); // timeout 15s
+      });
+
+      if (pairingCode) {
+        return res.json({ ok: true, pairingCode, phone: cleanPhone, instructions: 'WhatsApp → Appareils connectés → Connecter avec un numéro → tape ce code' });
+      } else {
+        waStarted = false;
+        return res.status(500).json({ ok: false, error: pairingError || 'Timeout — Baileys n\'a pas généré de code' });
+      }
+    } else {
+      // Baileys déjà démarré — demander un code directement sur le socket actif
+      const code = await baileysClient.requestPairingCode(cleanPhone);
+      return res.json({ ok: true, pairingCode: code, phone: cleanPhone });
+    }
+  } catch(e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
 // POST /api/whatsapp/reset — purge session + génère nouveau QR
 router.post('/reset', async (req, res) => {
   try {
