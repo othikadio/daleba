@@ -588,12 +588,13 @@ module.exports = router;
 // GET /api/usine/scan-debug — diagnostique le pipeline scan sur Railway
 router.get('/scan-debug', async (req, res) => {
   const report = { ts: new Date().toISOString(), steps: [] };
+  const squadId = req.query.squad || 'europe'; // europe pour tester Freelancer/Codeur
   try {
     // Étape 1 : scanner
     const scanner = safeRequire('../services/opportunity-scanner');
-    report.steps.push({ step: 'scanner_loaded', ok: !!scanner?.scanBySquad });
+    report.steps.push({ step: 'scanner_loaded', ok: !!scanner?.scanBySquad, squad: squadId });
 
-    const raw = await scanner.scanBySquad('americas').catch(e => { report.steps.push({ step: 'scan_error', err: e.message }); return []; });
+    const raw = await scanner.scanBySquad(squadId).catch(e => { report.steps.push({ step: 'scan_error', err: e.message }); return []; });
     report.steps.push({ step: 'scan_raw', count: raw.length, sample: raw.slice(0,2).map(r=>({platform:r.platform,title:r.title?.slice(0,50),url:r.url?.slice(0,60)})) });
 
     // Étape 2 : vérifier DB existingURLs
@@ -604,7 +605,9 @@ router.get('/scan-debug', async (req, res) => {
 
       const existingURLs = new Set((await pool.query('SELECT source_url FROM daleba_opportunities WHERE source_url IS NOT NULL').catch(() => ({ rows: [] }))).rows.map(r => r.source_url));
       const newOnes = raw.filter(r => r.url && !existingURLs.has(r.url));
-      report.steps.push({ step: 'new_after_dedup', count: newOnes.length, sample: newOnes.slice(0,2).map(r=>({platform:r.platform,title:r.title?.slice(0,50)})) });
+      const byPlatformDebug = {};
+        for(const x of newOnes) { byPlatformDebug[x.platform] = (byPlatformDebug[x.platform]||0)+1; }
+        report.steps.push({ step: 'new_after_dedup', count: newOnes.length, byPlatform: byPlatformDebug, sample: newOnes.filter(r=>['Freelancer','Codeur','GitHub Bounty'].includes(r.platform)).slice(0,2).map(r=>({platform:r.platform,title:r.title?.slice(0,50)})) });
 
       // Étape 3 : classifier sur le 1er nouveau
       if (newOnes.length > 0) {
