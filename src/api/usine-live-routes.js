@@ -507,7 +507,8 @@ router.post('/drain-failed', async (req, res) => {
   try {
     const agentQueue = require('../workers/agent-queue');
     const result = await agentQueue.drainFailedJobs();
-    bus.system(`🧹 [USINE] BullMQ purge: ${result.purged ?? 0} failed jobs supprimés`);
+    const eventBus = (() => { try { return require('../services/event-bus'); } catch(_) { return null; } })();
+    if (eventBus?.system) eventBus.system(`🧹 [USINE] BullMQ purge: ${result.purged ?? 0} failed jobs supprimés`);
     res.json({ ok: true, ...result });
   } catch(e) {
     res.status(500).json({ ok: false, error: e.message });
