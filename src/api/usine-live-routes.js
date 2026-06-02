@@ -563,3 +563,43 @@ module.exports = router;
     console.error('[USINE] Erreur boot init:', err.message);
   }
 })();
+
+// GET /api/usine/scan-debug — diagnostique le pipeline scan sur Railway
+router.get('/scan-debug', async (req, res) => {
+  const report = { ts: new Date().toISOString(), steps: [] };
+  try {
+    // Étape 1 : scanner
+    const scanner = safeRequire('../services/opportunity-scanner');
+    report.steps.push({ step: 'scanner_loaded', ok: !!scanner?.scanBySquad });
+
+    const raw = await scanner.scanBySquad('americas').catch(e => { report.steps.push({ step: 'scan_error', err: e.message }); return []; });
+    report.steps.push({ step: 'scan_raw', count: raw.length, sample: raw.slice(0,2).map(r=>({platform:r.platform,title:r.title?.slice(0,50),url:r.url?.slice(0,60)})) });
+
+    // Étape 2 : vérifier DB existingURLs
+    const pool = getPool();
+    if (pool) {
+      const existingResult = await pool.query('SELECT COUNT(*) as c FROM daleba_opportunities').catch(() => ({ rows: [{ c: '?' }] }));
+      report.steps.push({ step: 'db_existing', count: existingResult.rows[0].c });
+
+      const existingURLs = new Set((await pool.query('SELECT source_url FROM daleba_opportunities WHERE source_url IS NOT NULL').catch(() => ({ rows: [] }))).rows.map(r => r.source_url));
+      const newOnes = raw.filter(r => r.url && !existingURLs.has(r.url));
+      report.steps.push({ step: 'new_after_dedup', count: newOnes.length, sample: newOnes.slice(0,2).map(r=>({platform:r.platform,title:r.title?.slice(0,50)})) });
+
+      // Étape 3 : classifier sur le 1er nouveau
+      if (newOnes.length > 0) {
+        const classifier = safeRequire('../services/opportunity-classifier');
+        const testOpp = newOnes[0];
+        let classified = { score: 50, category: 'test', description_fr: '' };
+        if (classifier?.classifyOpportunity) {
+          classified = await safeCall(() => classifier.classifyOpportunity(testOpp), classified);
+        }
+        report.steps.push({ step: 'classifier_result', title: testOpp.title?.slice(0,50), score: classified.score, category: classified.category, would_insert: (classified.score || 0) >= 30 });
+      }
+    } else {
+      report.steps.push({ step: 'db_error', err: 'pool non disponible' });
+    }
+  } catch (e) {
+    report.steps.push({ step: 'fatal_error', err: e.message });
+  }
+  res.json(report);
+});
