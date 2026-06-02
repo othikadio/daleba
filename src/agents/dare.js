@@ -43,7 +43,16 @@ const PROVIDERS = {
     // [044] Documentation
     docs: { url: 'https://docs.anthropic.com', authScheme: 'Bearer', envKey: 'ANTHROPIC_API_KEY' },
   },
-  // gpt4o RETIRÉ — crédits billing épuisés 2026-06-01. Remplacé par Kimi (Moonshot AI).
+  gpt4o: {
+    id: 'gpt4o', name: 'GPT-4o (OpenAI)',
+    module: path.resolve(__dirname, 'gpt4o'),
+    available: !!process.env.OPENAI_API_KEY,
+    contextWindow: 128000, costPer1MInput: 2.50, costPer1MOutput: 10.00,
+    strengths: { code: 10, strategy: 10, analysis: 10, reasoning: 10, creative: 9, conversation: 10, math: 9, bulk: 6 },
+    health: { status: 'unknown', latencyMs: null, lastCheck: null, failures: 0 },
+    addedAt: Date.now(), deprecated: false,
+    docs: { url: 'https://platform.openai.com/docs', authScheme: 'Bearer', envKey: 'OPENAI_API_KEY' },
+  },
   kimi: {
     id: 'kimi', name: 'Kimi (Moonshot AI)',
     module: path.resolve(__dirname, 'kimi'),
@@ -131,7 +140,7 @@ const usageStats = {
   costThisHour: {},       // [037] { [providerId]: { windowStart: ts, costUSD: 0 } }
   bridledProviders: new Set(), // [037] providers bridés
   // Providers avec quota épuisé (billing) — ne jamais retry, éviter les 429 en boucle
-  quotaExhausted: new Set(['kimi']), // kimi: solde insuffisant 2026-06-01 — retirer quand compte rechargé
+  quotaExhausted: new Set(), // pool propre — gpt4o réactivé 2026-06-02 (solde rechargé)
   lastReset: Date.now(),
 };
 
@@ -312,27 +321,27 @@ const TASK_PROFILES = [
       'math', 'statistique', 'données', 'tableau', 'excel', 'csv', 'optimis',
       'coût', 'budget', 'profit', 'perte', 'comptabilité'],
     // financier : DeepSeek (chiffres) → Mistral (fallback) → Claude (stratégie)
-    priorities: ['deepseek', 'mistral', 'claude', 'gemini'],
+    priorities: ['deepseek', 'mistral', 'gpt4o', 'claude', 'gemini'],
   },
   {
     type: 'code',
     keywords: ['code', 'programme', 'fonction', 'bug', 'erreur', 'script', 'api',
       'endpoint', 'javascript', 'node', 'python', 'sql', 'database', 'debug'],
-    // code : Claude (meilleur) → Mistral (fallback #1) → DeepSeek
-    priorities: ['claude', 'mistral', 'deepseek', 'gemini'],
+    // code : Claude (meilleur) → GPT-4o (HP failover) → Mistral → DeepSeek
+    priorities: ['claude', 'gpt4o', 'mistral', 'deepseek', 'gemini'],
   },
   {
     type: 'strategy',
     keywords: ['stratégie', 'architecture', 'vision', 'plan', 'objectif', 'analyse',
       'pourquoi', 'explique', 'décision', 'expansion', 'marché'],
-    priorities: ['claude', 'mistral', 'gemini', 'deepseek'],
+    priorities: ['claude', 'gpt4o', 'mistral', 'gemini', 'deepseek'],
   },
   {
     type: 'creative',
     keywords: ['écris', 'rédige', 'histoire', 'slogan', 'caption', 'description',
       'post', 'instagram', 'marketing', 'publicité', 'accroche', 'campagne'],
-    // créatif : Mistral excellent en rédaction FR, remplace GPT-4o
-    priorities: ['mistral', 'claude', 'deepseek', 'gemini'],
+    // créatif : Mistral (FR natif) → GPT-4o (HP fallback) → Claude → DeepSeek
+    priorities: ['mistral', 'gpt4o', 'claude', 'deepseek', 'gemini'],
   },
   {
     type: 'document',
@@ -344,8 +353,8 @@ const TASK_PROFILES = [
     type: 'conversation',
     keywords: ['bonjour', 'salut', 'comment', 'qui', 'quoi', 'aide', 'répondre',
       'rdv', 'rendez-vous', 'réservation', 'client'],
-    // conversation : Mistral fluide en français (optimisé EU/FR), fallback Claude
-    priorities: ['mistral', 'claude', 'deepseek', 'gemini'],
+    // conversation : Mistral (FR) → GPT-4o (HP) → Claude → DeepSeek
+    priorities: ['mistral', 'gpt4o', 'claude', 'deepseek', 'gemini'],
   },
 ];
 
