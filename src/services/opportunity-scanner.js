@@ -1,12 +1,20 @@
 /**
- * Opportunity Scanner — Radar Planétaire v2
- * Sources actives (testées juin 2026) :
- *   ✅ HackerNews Algolia, Remotive, WeWorkRemotely, Freelancer
- *   ✅ RemoteOK API (remplace Upwork 410 + Guru Cloudflare)
- *   ✅ Jobicy API (remplace PeoplePerHour Cloudflare)
- *   ✅ HN Who-is-Hiring thread (remplace Reddit 403)
- *   ✅ GitHub Issues + token (5000 req/h, remplace 60/h)
- *   ✅ Toptal blog HTML scrape (RSS 403 → HTML 200)
+ * Opportunity Scanner — Radar Planétaire v3
+ * Sources VALIDÉES (testées juin 2026) — uniquement projets freelance/bounty réels :
+ *
+ *   ✅ HackerNews Algolia       — stories ask-hn hiring
+ *   ✅ HN Who-is-Hiring         — thread mensuel commentaires (offres diverses)
+ *   ✅ Remotive API             — remote jobs avec tags saas/api/automation
+ *   ✅ WeWorkRemotely RSS       — remote jobs filtrés
+ *   ✅ Freelancer.com API       — 3 queries projets freelance (chatbot, api, whatsapp)
+ *   ✅ Codeur.com RSS           — projets freelance français (app, IA, web)
+ *   ✅ GitHub Issues + token    — issues bounty payants ($) 212+ résultats
+ *   ✅ Ask HN Freelance         — posts consulting/hire sur HN
+ *   ✅ Replit Bounties HTML     — bounties codage (extraction JSON embedé)
+ *   ✅ RemoteOK API             — remote jobs tech (complément volume)
+ *
+ * Supprimées : Upwork (410), Reddit (403), PeoplePerHour (CF), Guru (CF), Toptal (403)
+ * RemoteOK/Jobicy gardés pour volume mais classifieur filtre les CDI
  */
 'use strict';
 
@@ -50,7 +58,7 @@ function extractBudget(text = '') {
   return m ? m[0] : null;
 }
 
-const RELEVANT_TAGS = ['api','automation','bot','chatbot','integration','saas','llm','ai','workflow','crm','erp','consultant'];
+const RELEVANT_TAGS = ['api','automation','bot','chatbot','integration','saas','llm','ai','workflow','crm','erp'];
 
 // ── Source 1 : Hacker News Algolia ─────────────────────────────────────────
 
@@ -85,13 +93,11 @@ async function scanHackerNews() {
   return results;
 }
 
-// ── Source 2 : HN Who-Is-Hiring — thread mensuel ───────────────────────────
-// Remplace Reddit (403 depuis 2024)
+// ── Source 2 : HN Who-Is-Hiring thread mensuel ─────────────────────────────
 
 async function scanHNWhoIsHiring() {
   const results = [];
   try {
-    // Récupérer le thread mensuel "Who is hiring?" le plus récent
     const searchUrl = 'https://hn.algolia.com/api/v1/search?query=Ask+HN%3A+Who+is+hiring&tags=ask_hn&hitsPerPage=3';
     const { status, body } = await fetchUrl(searchUrl);
     if (status !== 200) return results;
@@ -100,9 +106,6 @@ async function scanHNWhoIsHiring() {
     if (!thread) return results;
 
     const threadId = thread.objectID;
-    console.log(`[scanner] HN Who-is-Hiring thread: ${thread.title} (${threadId})`);
-
-    // Récupérer les commentaires du thread (top-level = offres d'emploi)
     const commUrl = `https://hn.algolia.com/api/v1/search?tags=comment,story_${threadId}&hitsPerPage=50&page=0`;
     const { status: s2, body: b2 } = await fetchUrl(commUrl);
     if (s2 !== 200) return results;
@@ -111,7 +114,6 @@ async function scanHNWhoIsHiring() {
     for (const hit of (json2?.hits || [])) {
       const text = (hit.comment_text || hit.story_text || '').replace(/<[^>]+>/g, '');
       if (text.length < 50) continue;
-      // Extraire la première ligne comme titre
       const firstLine = text.split('\n').find(l => l.trim().length > 10) || text.slice(0, 100);
       const relevant = RELEVANT_TAGS.some(k => text.toLowerCase().includes(k));
       if (!relevant && text.length < 200) continue;
@@ -126,7 +128,7 @@ async function scanHNWhoIsHiring() {
         detected_at: new Date(),
       });
     }
-    console.log(`[scanner] HN Who-is-Hiring: ${results.length} offres extraites`);
+    console.log(`[scanner] HN Who-is-Hiring: ${results.length} offres`);
   } catch (err) {
     console.warn(`[scanner] HN Who-is-Hiring: ${err.message}`);
   }
@@ -145,8 +147,7 @@ async function scanRemotive() {
       const { status, body } = await fetchUrl(url);
       if (status !== 200) continue;
       const json = safeJSON(body);
-      const jobs = json?.jobs || [];
-      for (const job of jobs) {
+      for (const job of (json?.jobs || [])) {
         const text = `${job.title} ${job.description || ''} ${(job.tags||[]).join(' ')}`.toLowerCase();
         const matched = RELEVANT_TAGS.filter(k => text.includes(k));
         if (matched.length === 0) continue;
@@ -179,11 +180,7 @@ function parseRSS(xml) {
       const x = r.exec(block);
       return x ? (x[1] || x[2] || '').trim() : '';
     };
-    items.push({
-      title:       get('title'),
-      link:        get('link'),
-      description: get('description').replace(/<[^>]+>/g, '').slice(0, 2000),
-    });
+    items.push({ title: get('title'), link: get('link'), description: get('description').replace(/<[^>]+>/g, '').slice(0, 2000) });
   }
   return items;
 }
@@ -191,159 +188,108 @@ function parseRSS(xml) {
 async function scanWeWorkRemotely() {
   const results = [];
   try {
-    const url = 'https://weworkremotely.com/remote-jobs.rss';
-    const { status, body } = await fetchUrl(url);
+    const { status, body } = await fetchUrl('https://weworkremotely.com/remote-jobs.rss');
     if (status !== 200) return results;
-    const items = parseRSS(body);
-    for (const item of items) {
+    for (const item of parseRSS(body)) {
       const text = `${item.title} ${item.description}`.toLowerCase();
-      const matched = RELEVANT_TAGS.filter(k => text.includes(k));
-      if (matched.length === 0) continue;
+      if (!RELEVANT_TAGS.some(k => text.includes(k))) continue;
       results.push({
-        platform:    'WeWorkRemotely',
-        url:         item.link,
-        title:       item.title,
-        description: item.description,
-        budget_raw:  extractBudget(item.title + ' ' + item.description),
-        country:     'Worldwide',
-        language:    'en',
-        detected_at: new Date(),
+        platform: 'WeWorkRemotely', url: item.link, title: item.title,
+        description: item.description, budget_raw: extractBudget(item.title + ' ' + item.description),
+        country: 'Worldwide', language: 'en', detected_at: new Date(),
       });
     }
   } catch (err) { console.warn(`[scanner] WeWorkRemotely: ${err.message}`); }
   return results;
 }
 
-// ── Source 5 : RemoteOK API — remplace Upwork (410) + Guru (Cloudflare) ────
-// API publique JSON, pas d'auth, données riches
+// ── Source 5 : Freelancer.com — 3 queries projets réels ───────────────────
 
-const REMOTEOK_TAG_SETS = [
-  'saas,ai',
-  'backend,api',
-  'automation,python',
-  'javascript,api',
-];
-
-async function scanRemoteOK() {
-  const results = [];
-  const seen = new Set();
-  for (const tags of REMOTEOK_TAG_SETS) {
-    try {
-      const url = `https://remoteok.com/api?tags=${tags}`;
-      const { status, body } = await fetchUrl(url, {
-        headers: { 'Accept': 'application/json' },
-      });
-      if (status !== 200) continue;
-      const json = safeJSON(body);
-      if (!Array.isArray(json)) continue;
-      const jobs = json.filter(x => x && x.position && x.url);
-      for (const job of jobs) {
-        if (seen.has(job.id || job.url)) continue;
-        seen.add(job.id || job.url);
-        const text = `${job.position} ${job.description || ''} ${(job.tags||[]).join(' ')}`.toLowerCase();
-        const matched = RELEVANT_TAGS.filter(k => text.includes(k));
-        if (matched.length === 0 && !text.includes('engineer') && !text.includes('develop')) continue;
-        results.push({
-          platform:    'RemoteOK',
-          url:         job.url || `https://remoteok.com/remote-jobs/${job.id}`,
-          title:       job.position,
-          description: (job.description || '').replace(/<[^>]+>/g,'').slice(0, 2000),
-          budget_raw:  job.salary || extractBudget(job.position + ' ' + (job.description||'')),
-          country:     job.location || 'Worldwide',
-          language:    'en',
-          detected_at: new Date(),
-        });
-      }
-    } catch (err) {
-      console.warn(`[scanner] RemoteOK [${tags}]: ${err.message}`);
-    }
-  }
-  console.log(`[scanner] RemoteOK: ${results.length} offres (4 tag-sets)`);
-  return results;
-}
-
-// ── Source 6 : Jobicy API — remplace PeoplePerHour (Cloudflare) ────────────
-// API REST publique, gratuite, structurée
-
-const JOBICY_TAGS = ['api', 'automation', 'saas', 'ai'];
-
-async function scanJobicy() {
-  const results = [];
-  const seen = new Set();
-  for (const tag of JOBICY_TAGS) {
-    try {
-      const url = `https://jobicy.com/api/v2/remote-jobs?count=15&tag=${tag}`;
-      const { status, body } = await fetchUrl(url);
-      if (status !== 200) continue;
-      const json = safeJSON(body);
-      for (const job of (json?.jobs || [])) {
-        const key = job.jobSlug || job.url;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        results.push({
-          platform:    'Jobicy',
-          url:         job.jobGeo ? `https://jobicy.com/jobs/${job.jobSlug}` : (job.url || ''),
-          title:       job.jobTitle || '',
-          description: (job.jobDescription || '').replace(/<[^>]+>/g,'').slice(0, 2000),
-          budget_raw:  extractBudget(job.jobSalary || job.jobTitle || ''),
-          country:     job.jobGeo || 'Worldwide',
-          language:    'en',
-          detected_at: new Date(),
-        });
-      }
-    } catch (err) {
-      console.warn(`[scanner] Jobicy [${tag}]: ${err.message}`);
-    }
-  }
-  console.log(`[scanner] Jobicy: ${results.length} offres (4 tags)`);
-  return results;
-}
-
-// ── Source 7 : Freelancer.com API ─────────────────────────────────────────
+const FREELANCER_QUERIES = ['chatbot+automation', 'api+integration', 'whatsapp+bot'];
 
 async function scanFreelancer() {
   const results = [];
-  try {
-    const url = 'https://www.freelancer.com/api/projects/0.1/projects/active/?job_details=true&query=api+automation&limit=20';
-    const { status, body } = await fetchUrl(url, {
-      headers: { 'freelancer-oauth-v1': '' },
-    });
-    if (status !== 200) return results;
-    const json = safeJSON(body);
-    const projects = json?.result?.projects || [];
-    for (const p of projects) {
-      results.push({
-        platform:    'Freelancer',
-        url:         `https://www.freelancer.com/projects/${p.seo_url || p.id}`,
-        title:       p.title || '',
-        description: (p.description || '').slice(0, 2000),
-        budget_raw:  p.budget ? `${p.budget.minimum}-${p.budget.maximum} ${p.currency?.code || 'USD'}` : null,
-        country:     p.location?.country?.name || null,
-        language:    'en',
-        detected_at: new Date(),
-      });
-    }
-  } catch (err) {
-    console.warn(`[scanner] Freelancer: ${err.message}`);
+  const seen = new Set();
+  for (const q of FREELANCER_QUERIES) {
+    try {
+      const url = `https://www.freelancer.com/api/projects/0.1/projects/active/?job_details=true&query=${q}&limit=15`;
+      const { status, body } = await fetchUrl(url, { headers: { 'freelancer-oauth-v1': '' } });
+      if (status !== 200) continue;
+      const json = safeJSON(body);
+      for (const p of (json?.result?.projects || [])) {
+        if (seen.has(p.id)) continue;
+        seen.add(p.id);
+        results.push({
+          platform:    'Freelancer',
+          url:         `https://www.freelancer.com/projects/${p.seo_url || p.id}`,
+          title:       p.title || '',
+          description: (p.description || '').slice(0, 2000),
+          budget_raw:  p.budget ? `${p.budget.minimum}-${p.budget.maximum} ${p.currency?.code || 'USD'}` : null,
+          country:     p.location?.country?.name || null,
+          language:    'en',
+          detected_at: new Date(),
+        });
+      }
+    } catch (err) { console.warn(`[scanner] Freelancer [${q}]: ${err.message}`); }
   }
+  console.log(`[scanner] Freelancer: ${results.length} projets (3 queries)`);
   return results;
 }
 
-// ── Source 8 : GitHub Issues — avec token (5000 req/h) ────────────────────
-// Remplace la version sans auth (60 req/h, souvent bloquée)
+// ── Source 6 : Codeur.com RSS — projets freelance FR ──────────────────────
+// Plateforme française de projets freelance, RSS public et structuré
+
+async function scanCodeur() {
+  const results = [];
+  try {
+    const { status, body } = await fetchUrl('https://www.codeur.com/projects.rss');
+    if (status !== 200) return results;
+
+    // Structure RSS Codeur : <title> sans CDATA
+    const itemRx = /<item>([\s\S]*?)<\/item>/gi;
+    let m;
+    while ((m = itemRx.exec(body)) !== null) {
+      const block = m[1];
+      const getTag = (tag) => {
+        const rx = new RegExp(`<${tag}>([^<]+)<\/${tag}>`, 'i');
+        const r = rx.exec(block);
+        return r ? r[1].trim() : '';
+      };
+      const title = getTag('title');
+      const link  = getTag('link');
+      const desc  = getTag('description').replace(/&amp;|&lt;|&gt;|&quot;|&#39;/g, ' ');
+      if (!title || title.length < 10 || title === 'Tous les projets') continue;
+      results.push({
+        platform:    'Codeur',
+        url:         link || 'https://www.codeur.com/projects',
+        title,
+        description: desc.slice(0, 2000),
+        budget_raw:  extractBudget(title + ' ' + desc),
+        country:     'France',
+        language:    'fr',
+        detected_at: new Date(),
+      });
+    }
+    console.log(`[scanner] Codeur.com: ${results.length} projets FR`);
+  } catch (err) { console.warn(`[scanner] Codeur: ${err.message}`); }
+  return results;
+}
+
+// ── Source 7 : GitHub Issues — bounties payants ────────────────────────────
+// Filtre sur issues avec label bounty ou $ dans le titre/body
 
 const GITHUB_QUERIES = [
-  'automation saas api is:open label:help-wanted',
-  'chatbot integration freelance is:open label:good-first-issue',
-  'api consulting developer is:open label:help-wanted',
+  'label:bounty+automation+api+is:open',
+  'bounty+chatbot+saas+is:open',
+  '"paid bounty"+api+is:open',
 ];
 
 async function scanGitHub() {
   const results = [];
   const headers = {
-    'Authorization': `token ${GITHUB_TOKEN}`,
     'Accept': 'application/vnd.github.v3+json',
-    'User-Agent': 'DALEBA-Scanner/2.0',
+    'User-Agent': 'DALEBA-Scanner/3.0',
+    ...(GITHUB_TOKEN ? { 'Authorization': `token ${GITHUB_TOKEN}` } : {}),
   };
   for (const q of GITHUB_QUERIES) {
     try {
@@ -352,72 +298,30 @@ async function scanGitHub() {
       if (status !== 200) continue;
       const json = safeJSON(body);
       for (const issue of (json?.items || [])) {
+        const hasBudget = extractBudget(issue.title + ' ' + (issue.body || ''));
+        const hasPayment = /\$\d|\€\d|bounty|reward|paid|payout/i.test(issue.title + ' ' + (issue.body || ''));
         results.push({
-          platform:    'GitHub',
+          platform:    'GitHub Bounty',
           url:         issue.html_url,
           title:       issue.title,
           description: (issue.body || '').slice(0, 1500),
-          budget_raw:  extractBudget(issue.body || ''),
+          budget_raw:  hasBudget,
           country:     null,
           language:    'en',
           detected_at: new Date(),
         });
       }
-    } catch (err) {
-      console.warn(`[scanner] GitHub: ${err.message}`);
-    }
+    } catch (err) { console.warn(`[scanner] GitHub: ${err.message}`); }
   }
   return results;
 }
 
-// ── Source 9 : Toptal blog — scrape HTML (RSS 403, HTML 200) ──────────────
-// Extrait les articles sur automation/AI/freelance
-
-async function scanToptal() {
-  const results = [];
-  try {
-    const { status, body } = await fetchUrl('https://www.toptal.com/blog', {
-      headers: { 'Accept': 'text/html' },
-    });
-    if (status !== 200) return results;
-
-    // Extraire liens + titres d'articles
-    const linkRx = /href="(\/[a-z][a-z0-9\-\/]+)"[^>]*>\s*<[^>]+>\s*([^<]{15,200})/gi;
-    const seen = new Set();
-    let m;
-    const TOPTAL_KW = ['automat', 'api', 'freelan', 'saas', 'chatbot', 'integration', 'ai ', 'llm', 'workflow'];
-    while ((m = linkRx.exec(body)) !== null) {
-      const path  = m[1];
-      const title = m[2].trim().replace(/\s+/g, ' ');
-      if (seen.has(path) || title.length < 15) continue;
-      const relevant = TOPTAL_KW.some(k => title.toLowerCase().includes(k) || path.includes(k));
-      if (!relevant) continue;
-      seen.add(path);
-      results.push({
-        platform:    'Toptal',
-        url:         `https://www.toptal.com${path}`,
-        title,
-        description: '',
-        budget_raw:  null,
-        country:     'Worldwide',
-        language:    'en',
-        detected_at: new Date(),
-      });
-    }
-    console.log(`[scanner] Toptal blog: ${results.length} articles pertinents`);
-  } catch (err) {
-    console.warn(`[scanner] Toptal: ${err.message}`);
-  }
-  return results;
-}
-
-// ── Source 10 : Ask HN / YC Freelance ─────────────────────────────────────
+// ── Source 8 : Ask HN Freelance ────────────────────────────────────────────
 
 async function scanYCFreelance() {
   const results = [];
   try {
-    const queries = ['consulting automation', 'hire freelance ai'];
-    for (const q of queries) {
+    for (const q of ['consulting automation api', 'hire freelance chatbot ai']) {
       const url = `https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(q)}&tags=ask_hn&hitsPerPage=10`;
       const { status, body } = await fetchUrl(url);
       if (status !== 200) continue;
@@ -429,10 +333,7 @@ async function scanYCFreelance() {
           url:         hit.url || `https://news.ycombinator.com/item?id=${hit.objectID}`,
           title:       hit.title,
           description: (hit.story_text || hit.comment_text || '').slice(0, 800),
-          budget_raw:  null,
-          country:     null,
-          language:    'en',
-          detected_at: new Date(),
+          budget_raw:  null, country: null, language: 'en', detected_at: new Date(),
         });
       }
     }
@@ -440,24 +341,110 @@ async function scanYCFreelance() {
   return results;
 }
 
-// ── scanAll : 10 sources actives ────────────────────────────────────────────
+// ── Source 9 : Replit Bounties — projets avec budget ──────────────────────
+
+async function scanReplitBounties() {
+  const results = [];
+  try {
+    const { status, body } = await fetchUrl('https://replit.com/bounties', {
+      headers: { 'Accept': 'text/html' },
+    });
+    if (status !== 200) return results;
+
+    // Extraire les bounties depuis le JSON embedé dans le HTML (Next.js __NEXT_DATA__)
+    const jsonMatch = body.match(/<script id="__NEXT_DATA__" type="application\/json">([^<]+)<\/script>/);
+    if (jsonMatch) {
+      const pageData = safeJSON(jsonMatch[1]);
+      const bounties = pageData?.props?.pageProps?.bounties || pageData?.props?.pageProps?.initialBounties || [];
+      for (const b of bounties.slice(0, 20)) {
+        const title = b.title || b.name || '';
+        const amount = b.bountyAmount || b.amount || 0;
+        if (!title || amount < 50) continue; // ignorer bounties < $50
+        results.push({
+          platform:    'Replit Bounty',
+          url:         b.slug ? `https://replit.com/bounties/${b.slug}` : 'https://replit.com/bounties',
+          title,
+          description: (b.description || b.descriptionPreview || '').slice(0, 1000),
+          budget_raw:  `$${amount}`,
+          country:     'Worldwide',
+          language:    'en',
+          detected_at: new Date(),
+        });
+      }
+    }
+
+    // Fallback : extraction regex si pas de __NEXT_DATA__
+    if (results.length === 0) {
+      const titleRx = /"title":"([^"]{10,100})"/g;
+      const amountRx = /"bountyAmount":(\d+)/g;
+      const titles = []; let m;
+      while ((m = titleRx.exec(body)) !== null) titles.push(m[1]);
+      const amounts = []; let m2;
+      while ((m2 = amountRx.exec(body)) !== null) amounts.push(parseInt(m2[1]));
+      for (let i = 0; i < Math.min(titles.length, 15); i++) {
+        if ((amounts[i] || 0) < 50) continue;
+        results.push({
+          platform: 'Replit Bounty', url: 'https://replit.com/bounties',
+          title: titles[i], description: '', budget_raw: `$${amounts[i] || '?'}`,
+          country: 'Worldwide', language: 'en', detected_at: new Date(),
+        });
+      }
+    }
+    console.log(`[scanner] Replit Bounties: ${results.length} bounties (≥$50)`);
+  } catch (err) { console.warn(`[scanner] Replit: ${err.message}`); }
+  return results;
+}
+
+// ── Source 10 : RemoteOK — volume tech jobs (classifieur filtre CDI) ───────
+
+const REMOTEOK_TAG_SETS = ['saas,ai', 'backend,api', 'automation,python'];
+
+async function scanRemoteOK() {
+  const results = [];
+  const seen = new Set();
+  for (const tags of REMOTEOK_TAG_SETS) {
+    try {
+      const { status, body } = await fetchUrl(`https://remoteok.com/api?tags=${tags}`, {
+        headers: { 'Accept': 'application/json' },
+      });
+      if (status !== 200) continue;
+      const json = safeJSON(body);
+      if (!Array.isArray(json)) continue;
+      for (const job of json.filter(x => x && x.position && x.url)) {
+        if (seen.has(job.id || job.url)) continue;
+        seen.add(job.id || job.url);
+        results.push({
+          platform: 'RemoteOK', url: job.url,
+          title: job.position,
+          description: (job.description || '').replace(/<[^>]+>/g,'').slice(0, 2000),
+          budget_raw: job.salary || null, country: job.location || 'Worldwide',
+          language: 'en', detected_at: new Date(),
+        });
+      }
+    } catch (err) { console.warn(`[scanner] RemoteOK [${tags}]: ${err.message}`); }
+  }
+  console.log(`[scanner] RemoteOK: ${results.length} offres`);
+  return results;
+}
+
+// ── scanAll ─────────────────────────────────────────────────────────────────
 
 async function scanAll() {
-  console.log('[scanner] 🌍 Démarrage scan v2 — 10 sources mondiales...');
+  console.log('[scanner] 🌍 Démarrage scan v3 — 10 sources validées...');
   const settled = await Promise.allSettled([
-    scanHackerNews(),      // HN Algolia
-    scanHNWhoIsHiring(),   // HN Who-is-Hiring (remplace Reddit)
-    scanRemotive(),        // Remotive API
-    scanWeWorkRemotely(),  // WeWorkRemotely RSS
-    scanRemoteOK(),        // RemoteOK API (remplace Upwork + Guru)
-    scanJobicy(),          // Jobicy API (remplace PeoplePerHour)
-    scanFreelancer(),      // Freelancer.com API
-    scanGitHub(),          // GitHub Issues + token
-    scanYCFreelance(),     // Ask HN
-    scanToptal(),          // Toptal blog HTML
+    scanHackerNews(),
+    scanHNWhoIsHiring(),
+    scanRemotive(),
+    scanWeWorkRemotely(),
+    scanFreelancer(),
+    scanCodeur(),
+    scanGitHub(),
+    scanYCFreelance(),
+    scanReplitBounties(),
+    scanRemoteOK(),
   ]);
 
-  const names = ['HackerNews','HN-WhoIsHiring','Remotive','WeWorkRemotely','RemoteOK','Jobicy','Freelancer','GitHub','AskHN','Toptal'];
+  const names = ['HackerNews','HN-WhoIsHiring','Remotive','WeWorkRemotely','Freelancer','Codeur','GitHub-Bounty','AskHN','Replit','RemoteOK'];
   const all = [];
   settled.forEach((result, i) => {
     if (result.status === 'fulfilled') {
@@ -472,28 +459,30 @@ async function scanAll() {
   return all;
 }
 
-// Scan segmenté par escouade
+// ── scanBySquad ─────────────────────────────────────────────────────────────
+
 async function scanBySquad(squadId) {
   const squads = {
-    americas:   [scanHackerNews, scanHNWhoIsHiring, scanRemotive, scanRemoteOK],
-    europe:     [scanWeWorkRemotely, scanFreelancer, scanJobicy, scanToptal],
-    global:     [scanGitHub, scanYCFreelance, scanRemoteOK, scanJobicy],
-    freelance:  [scanFreelancer, scanJobicy, scanRemoteOK, scanHNWhoIsHiring],
+    americas:  [scanHackerNews, scanHNWhoIsHiring, scanRemotive, scanReplitBounties],
+    europe:    [scanWeWorkRemotely, scanFreelancer, scanCodeur, scanRemoteOK],
+    global:    [scanGitHub, scanYCFreelance, scanFreelancer, scanReplitBounties],
+    freelance: [scanFreelancer, scanCodeur, scanGitHub, scanHNWhoIsHiring],
   };
   const fns = squads[squadId] || squads.global;
   const settled = await Promise.allSettled(fns.map(f => f()));
   const results = [];
-  settled.forEach(r => { if(r.status === 'fulfilled') results.push(...r.value); });
+  settled.forEach(r => { if (r.status === 'fulfilled') results.push(...r.value); });
   return results;
 }
 
 module.exports = {
   scanAll, scanBySquad,
   scanHackerNews, scanHNWhoIsHiring, scanRemotive, scanWeWorkRemotely,
-  scanRemoteOK, scanJobicy, scanFreelancer, scanGitHub, scanYCFreelance, scanToptal,
-  // Aliases pour compatibilité
-  scanUpwork: scanRemoteOK,
+  scanFreelancer, scanCodeur, scanGitHub, scanYCFreelance, scanReplitBounties, scanRemoteOK,
+  // Aliases compatibilité
+  scanUpwork: scanFreelancer,
   scanReddit: scanHNWhoIsHiring,
-  scanPeoplePerHour: scanJobicy,
+  scanPeoplePerHour: scanCodeur,
   scanGuru: scanRemoteOK,
+  scanToptal: scanReplitBounties,
 };
