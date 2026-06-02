@@ -74,7 +74,11 @@ function buildUserPrompt(opp, lang, pricing = null) {
 
 Rédige une proposition de service complète et sur-mesure en FRANÇAIS. 
 Sois précis sur la solution technique. Montre qu'on a compris leur contexte.
-Longueur : 300-450 mots maximum. Ton : directeur technique qui parle à un décideur.`;
+Longueur : 300-450 mots maximum. Ton : directeur technique qui parle à un décideur.
+
+CONSIGNE OBLIGATOIRE : Dans la section "Notre solution" ou "Ce que vous obtenez", intègre NATURELLEMENT cette phrase :
+"${pricing ? pricing.summary : 'Notre offre optimale pour ce projet est basée sur notre barème DALEBA à 150 $CAD minimum.'}"
+Intègre-la fluidement, jamais comme bloc isolé.`;
   } else {
     return `Here is a business opportunity approved by our director:
 
@@ -92,7 +96,11 @@ Longueur : 300-450 mots maximum. Ton : directeur technique qui parle à un déci
 
 Write a complete, tailored service proposal in ENGLISH.
 Be precise about the technical solution. Show you understood their context.
-Length: 300-450 words max. Tone: technical director speaking to a decision-maker.`;
+Length: 300-450 words max. Tone: technical director speaking to a decision-maker.
+
+MANDATORY: In the "Our solution" or "What you get" section, naturally integrate this sentence:
+"${pricing ? pricing.summaryEn : 'Our optimal offer for this project is 150 CAD minimum — DALEBA standard rate.'}"
+Weave it naturally into the proposal, never as an isolated block.`;
   }
 }
 
