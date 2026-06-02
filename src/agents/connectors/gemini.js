@@ -17,7 +17,7 @@ function getClient() {
 async function query(message, systemPrompt = '', history = []) {
   const genAI = getClient();
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-pro',
+    model: 'gemini-2.0-flash',
     systemInstruction: systemPrompt || 'Tu es DALEBA, assistant stratégique et analytique.',
   });
 
@@ -32,7 +32,7 @@ async function query(message, systemPrompt = '', history = []) {
   const response = await result.response;
 
   return {
-    model: 'gemini-1.5-pro',
+    model: 'gemini-2.0-flash',
     content: response.text(),
     usage: {
       input_tokens: response.usageMetadata?.promptTokenCount || 0,

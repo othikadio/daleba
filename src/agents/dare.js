@@ -90,7 +90,7 @@ const PROVIDERS = {
     contextWindow: 1000000, costPer1MInput: 1.25, costPer1MOutput: 5.00,
     strengths: { analysis: 10, documents: 10, multimodal: 10, bulk: 9, code: 7, strategy: 8, creative: 7, math: 8, conversation: 7 },
     health: { status: 'unknown', latencyMs: null, lastCheck: null, failures: 0 },
-    addedAt: Date.now(), deprecated: false,
+    addedAt: Date.now(), deprecated: true, // gemini-1.5-pro retiré — 2.0-flash instable en EU → exclu du pool actif
     docs: { url: 'https://ai.google.dev/docs', authScheme: 'Bearer', envKey: 'GEMINI_API_KEY' },
   },
 };
