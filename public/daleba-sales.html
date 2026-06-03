@@ -119,6 +119,220 @@
       .hero-stats { gap:24px; }
       nav { padding:14px 5%; }
     }
+
+    /* ─── CART ICON ─── */
+    .cart-icon-btn {
+      position: relative;
+      background: rgba(124,58,237,0.15);
+      border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 10px;
+      padding: 8px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #a78bfa;
+      transition: all .2s;
+    }
+    .cart-icon-btn:hover { background: rgba(124,58,237,0.25); transform: scale(1.03); }
+    .cart-badge {
+      position: absolute;
+      top: -6px; right: -6px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      display: none;
+    }
+    .cart-badge.show { display: flex; }
+
+    /* ─── CART DRAWER ─── */
+    .cart-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 200;
+      backdrop-filter: blur(4px);
+    }
+    .cart-overlay.open { display: block; }
+
+    .cart-drawer {
+      position: fixed;
+      top: 0; right: -420px;
+      width: 100%; max-width: 420px;
+      height: 100%;
+      background: #0e0e1a;
+      border-left: 1px solid rgba(124,58,237,0.2);
+      z-index: 201;
+      display: flex; flex-direction: column;
+      transition: right .35s cubic-bezier(.4,0,.2,1);
+      box-shadow: -20px 0 60px rgba(0,0,0,0.5);
+    }
+    .cart-drawer.open { right: 0; }
+
+    .cart-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cart-header-title {
+      font-size: 16px; font-weight: 700; color: #f0f0f8;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .cart-close {
+      background: none; border: none; color: var(--muted);
+      font-size: 22px; cursor: pointer; padding: 4px 8px;
+      transition: color .2s;
+    }
+    .cart-close:hover { color: #f0f0f8; }
+
+    .cart-items-list {
+      flex: 1; overflow-y: auto; padding: 16px 24px;
+    }
+
+    .cart-empty {
+      text-align: center; padding: 60px 20px;
+      color: var(--muted); font-size: 14px;
+    }
+    .cart-empty-icon { font-size: 48px; margin-bottom: 12px; opacity: .4; }
+
+    .cart-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .cart-item-emoji { font-size: 24px; flex-shrink: 0; }
+    .cart-item-info { flex: 1; min-width: 0; }
+    .cart-item-name { font-size: 14px; font-weight: 600; color: #f0f0f8; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cart-item-price { font-size: 12px; color: var(--muted); }
+    .cart-item-qty {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .qty-btn {
+      width: 24px; height: 24px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      color: #f0f0f8; font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .qty-btn:hover { background: rgba(124,58,237,0.2); }
+    .qty-num { font-size: 14px; font-weight: 700; color: #f0f0f8; min-width: 20px; text-align: center; }
+
+    /* ─── CART FOOTER ─── */
+    .cart-footer { padding: 20px 24px 28px; border-top: 1px solid rgba(255,255,255,0.06); }
+
+    /* Promo */
+    .promo-row {
+      display: flex; gap: 8px; margin-bottom: 16px;
+    }
+    .promo-input {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #f0f0f8;
+      font-family: inherit;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .promo-input:focus { border-color: rgba(124,58,237,0.5); }
+    .promo-input::placeholder { text-transform: none; letter-spacing: 0; color: var(--muted); }
+    .promo-apply {
+      background: rgba(124,58,237,0.2);
+      border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-family: inherit;
+      font-size: 13px; font-weight: 600;
+      color: #a78bfa; cursor: pointer;
+      transition: background .2s;
+      white-space: nowrap;
+    }
+    .promo-apply:hover { background: rgba(124,58,237,0.3); }
+
+    .promo-msg {
+      font-size: 12px; margin-bottom: 12px; padding: 8px 12px;
+      border-radius: 8px; display: none;
+    }
+    .promo-msg.ok { display:block; background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.2); color:var(--green); }
+    .promo-msg.err { display:block; background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.2); color:#f87171; }
+
+    /* Totals */
+    .cart-totals { margin-bottom: 16px; }
+    .total-row { display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:6px; }
+    .total-row.discount { color: var(--green); }
+    .total-row.main { font-size:17px; font-weight:800; color:#f0f0f8; margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,.06); }
+
+    .btn-checkout {
+      display:block; width:100%; padding:15px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color:#fff; border:none; border-radius:14px;
+      font-family:inherit; font-size:15px; font-weight:700;
+      cursor:pointer; transition:all .2s;
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+    .btn-checkout:hover { transform:translateY(-2px); box-shadow:0 8px 30px var(--accent-glow); }
+    .btn-checkout:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+    /* ─── ADD-TO-CART btn ─── */
+    .price-btn-add {
+      display:block; text-align:center;
+      background: transparent;
+      color: #a78bfa;
+      border: 1px solid rgba(124,58,237,0.5);
+      padding: 11px; border-radius:12px;
+      font-size:13px; font-weight:700;
+      transition:all .2s; margin-top:8px;
+      cursor:pointer; width:100%;
+    }
+    .price-btn-add:hover {
+      background: rgba(124,58,237,0.12);
+      border-color: #7c3aed;
+    }
+    .price-btn-add.added {
+      background: rgba(34,197,94,0.1);
+      border-color: rgba(34,197,94,0.4);
+      color: var(--green);
+    }
+
+    /* Phone input in cart */
+    .phone-row { margin-bottom: 14px; }
+    .phone-label { font-size:11px; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; margin-bottom:5px; }
+    .phone-input {
+      width:100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius:10px;
+      padding:10px 14px;
+      font-size:14px; color:#f0f0f8;
+      font-family:inherit; outline:none;
+      transition:border-color .2s;
+    }
+    .phone-input:focus { border-color:rgba(124,58,237,0.5); }
+    .phone-input::placeholder { color:var(--muted); }
+
+    /* famille banner */
+    .famille-hint {
+      background: rgba(245,158,11,0.08);
+      border: 1px solid rgba(245,158,11,0.2);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 12px; color: var(--gold);
+      margin-bottom: 14px; display: none;
+    }
+    .famille-hint.show { display: block; }
+
   </style>
 </head>
 <body>
@@ -126,7 +340,13 @@
 <!-- NAV -->
 <nav>
   <div class="nav-logo">DALEBA</div>
-  <button class="nav-cta" id="navCta">Démarrer maintenant</button>
+  <div style="display:flex;align-items:center;gap:10px;">
+  <button class="cart-icon-btn" id="cartIconBtn" onclick="openCart()">
+    🛒 <span id="cartLabel">Panier</span>
+    <span class="cart-badge" id="cartBadge">0</span>
+  </button>
+  <button class="nav-cta" id="navCta">Démarrer</button>
+</div>
 </nav>
 
 <!-- HERO -->
@@ -281,6 +501,58 @@
   <p style="margin-top:8px;">© 2026 DALEBA. Tous droits réservés.</p>
 </footer>
 
+
+<!-- CART OVERLAY -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+
+<!-- CART DRAWER -->
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-header">
+    <div class="cart-header-title">🛒 Mon panier <span id="cartCount" style="color:var(--muted);font-weight:400;font-size:13px"></span></div>
+    <button class="cart-close" onclick="closeCart()">✕</button>
+  </div>
+
+  <div class="cart-items-list" id="cartItemsList">
+    <div class="cart-empty">
+      <div class="cart-empty-icon">🛒</div>
+      <p>Votre panier est vide</p>
+      <p style="margin-top:6px;font-size:12px">Ajoutez des abonnements depuis la grille tarifaire</p>
+    </div>
+  </div>
+
+  <div class="cart-footer">
+    <!-- Hint famille -->
+    <div class="famille-hint" id="familleHint">
+      💡 Ajoutez plusieurs abonnements et utilisez le code <strong>FAMILLE</strong> pour obtenir −10% !
+    </div>
+
+    <!-- Promo -->
+    <div class="promo-row">
+      <input type="text" class="promo-input" id="promoInput" placeholder="Code promo (ex: FAMILLE)" maxlength="20">
+      <button class="promo-apply" onclick="applyPromo()">Appliquer</button>
+    </div>
+    <div class="promo-msg" id="promoMsg"></div>
+
+    <!-- Totals -->
+    <div class="cart-totals" id="cartTotals" style="display:none">
+      <div class="total-row"><span>Sous-total</span><span id="subtotalDisplay">0 $</span></div>
+      <div class="total-row discount" id="discountRow" style="display:none"><span id="discountLabel">Réduction</span><span id="discountDisplay"></span></div>
+      <div class="total-row main"><span>Total</span><span id="totalDisplay">0 $</span></div>
+    </div>
+
+    <!-- Phone -->
+    <div class="phone-row" id="phoneRow" style="display:none">
+      <div class="phone-label">Numéro pour recevoir vos codes SMS</div>
+      <input type="tel" class="phone-input" id="checkoutPhone" placeholder="+1 514 000 0000">
+    </div>
+
+    <!-- Checkout -->
+    <button class="btn-checkout" id="checkoutBtn" onclick="proceedToCheckout()" disabled>
+      Procéder au paiement →
+    </button>
+  </div>
+</div>
+
 <script>
 // Animations scroll
 (function() {
@@ -321,9 +593,10 @@ fetch('/api/sales/packages')
         return '<li>' + f + '</li>';
       }).join('');
 
-      var btnHtml = pkg.paymentLinkUrl
-        ? '<a href="' + pkg.paymentLinkUrl + '" target="_blank" class="price-btn">Acheter maintenant →</a>'
-        : '<a href="mailto:kadioothniel@yahoo.fr?subject=DALEBA ' + pkg.name + '" class="price-btn outline">Nous contacter →</a>';
+      var btnHtml = pkg.type === 'recurring'
+        ? '<a href="mailto:kadioothniel@yahoo.fr?subject=Maintenance DALEBA" class="price-btn outline">Nous contacter →</a>'
+        : '<button class="price-btn" onclick="window.open(\'' + (pkg.paymentLinkUrl||'') + '\',\'_blank\')">Acheter maintenant →</button>' +
+          '<button class="price-btn-add" id="add-' + pkg.id + '" onclick="addToCart(\'' + pkg.id + '\')">+ Ajouter au panier</button>';
 
       card.innerHTML = badgeHtml +
         '<div class="price-emoji">' + pkg.emoji + '</div>' +
@@ -364,6 +637,208 @@ function updateCtaLinks() {
     document.getElementById('tarifs').scrollIntoView({ behavior: 'smooth' });
   });
 }
+
+
+// ═══════════════════════════════════════════════════════════════════
+// DALEBA CART ENGINE
+// ═══════════════════════════════════════════════════════════════════
+var cart       = {};   // { pkgId: { ...pkg, quantity } }
+var packages   = {};   // pkgId → pkg (loaded from API)
+var promoState = { code: '', discountPct: 0, label: '' };
+
+// Load packages index
+fetch('/api/cart/packages')
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if (data.ok) {
+      data.packages.forEach(function(p){ packages[p.id] = p; });
+    }
+  })
+  .catch(function(){});
+
+function addToCart(pkgId) {
+  if (!packages[pkgId]) return;
+  if (cart[pkgId]) {
+    cart[pkgId].quantity++;
+  } else {
+    cart[pkgId] = Object.assign({}, packages[pkgId], { quantity: 1 });
+  }
+  updateCartUI();
+  openCart();
+
+  // Feedback visuel sur le bouton
+  var btn = document.getElementById('add-' + pkgId);
+  if (btn) {
+    btn.textContent = '✓ Ajouté';
+    btn.classList.add('added');
+    setTimeout(function(){
+      btn.textContent = '+ Ajouter au panier';
+      btn.classList.remove('added');
+    }, 1500);
+  }
+}
+
+function removeFromCart(pkgId) {
+  delete cart[pkgId];
+  // Re-validate promo
+  var itemCount = Object.values(cart).reduce(function(s,i){ return s + i.quantity; }, 0);
+  if (promoState.code && itemCount < 2) {
+    promoState = { code: '', discountPct: 0, label: '' };
+    document.getElementById('promoInput').value = '';
+  }
+  updateCartUI();
+}
+
+function changeQty(pkgId, delta) {
+  if (!cart[pkgId]) return;
+  cart[pkgId].quantity = Math.max(1, cart[pkgId].quantity + delta);
+  updateCartUI();
+}
+
+function updateCartUI() {
+  var items     = Object.values(cart);
+  var totalQty  = items.reduce(function(s,i){ return s + i.quantity; }, 0);
+  var subtotal  = items.reduce(function(s,i){ return s + i.amount * i.quantity; }, 0);
+  var discount  = Math.round(subtotal * promoState.discountPct / 100);
+  var total     = subtotal - discount;
+
+  // Badge nav
+  var badge = document.getElementById('cartBadge');
+  badge.textContent = totalQty;
+  badge.classList.toggle('show', totalQty > 0);
+  document.getElementById('cartLabel').textContent = totalQty > 0 ? 'Panier (' + totalQty + ')' : 'Panier';
+
+  // Cart count
+  document.getElementById('cartCount').textContent = totalQty > 0 ? '— ' + totalQty + ' article' + (totalQty > 1 ? 's' : '') : '';
+
+  // Items list
+  var listEl = document.getElementById('cartItemsList');
+  if (items.length === 0) {
+    listEl.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p>Votre panier est vide</p><p style="margin-top:6px;font-size:12px">Ajoutez des abonnements depuis la grille tarifaire</p></div>';
+    document.getElementById('cartTotals').style.display = 'none';
+    document.getElementById('phoneRow').style.display = 'none';
+    document.getElementById('checkoutBtn').disabled = true;
+    document.getElementById('familleHint').classList.remove('show');
+    return;
+  }
+
+  var html = '';
+  items.forEach(function(item) {
+    var unitPrice = (item.amount / 100).toLocaleString('fr-CA', { style:'currency', currency:'CAD' });
+    html += '<div class="cart-item">' +
+      '<div class="cart-item-emoji">' + item.emoji + '</div>' +
+      '<div class="cart-item-info">' +
+        '<div class="cart-item-name">' + item.name + '</div>' +
+        '<div class="cart-item-price">' + unitPrice + ' × ' + item.quantity + '</div>' +
+      '</div>' +
+      '<div class="cart-item-qty">' +
+        '<button class="qty-btn" onclick="changeQty('' + item.id + '',-1)">−</button>' +
+        '<span class="qty-num">' + item.quantity + '</span>' +
+        '<button class="qty-btn" onclick="changeQty('' + item.id + '',1)">+</button>' +
+        '<button class="qty-btn" onclick="removeFromCart('' + item.id + '')" style="margin-left:4px;color:#f87171;font-size:12px;">✕</button>' +
+      '</div>' +
+    '</div>';
+  });
+  listEl.innerHTML = html;
+
+  // Totals
+  document.getElementById('cartTotals').style.display = 'block';
+  document.getElementById('subtotalDisplay').textContent = (subtotal/100).toLocaleString('fr-CA',{style:'currency',currency:'CAD'});
+
+  if (discount > 0) {
+    document.getElementById('discountRow').style.display = 'flex';
+    document.getElementById('discountLabel').textContent = promoState.label;
+    document.getElementById('discountDisplay').textContent = '−' + (discount/100).toLocaleString('fr-CA',{style:'currency',currency:'CAD'});
+  } else {
+    document.getElementById('discountRow').style.display = 'none';
+  }
+  document.getElementById('totalDisplay').textContent = (total/100).toLocaleString('fr-CA',{style:'currency',currency:'CAD'});
+
+  // Phone + checkout
+  document.getElementById('phoneRow').style.display = 'block';
+  document.getElementById('checkoutBtn').disabled = false;
+
+  // Famille hint si 2+ items sans promo
+  document.getElementById('familleHint').classList.toggle('show', totalQty >= 2 && !promoState.code);
+}
+
+function openCart()  { document.getElementById('cartDrawer').classList.add('open'); document.getElementById('cartOverlay').classList.add('open'); }
+function closeCart() { document.getElementById('cartDrawer').classList.remove('open'); document.getElementById('cartOverlay').classList.remove('open'); }
+
+// ── Promo code ────────────────────────────────────────────────────────────────
+function applyPromo() {
+  var code = document.getElementById('promoInput').value.trim().toUpperCase();
+  var msgEl = document.getElementById('promoMsg');
+  if (!code) { msgEl.className='promo-msg err'; msgEl.textContent='Entrez un code promo.'; return; }
+
+  var totalQty = Object.values(cart).reduce(function(s,i){ return s + i.quantity; }, 0);
+
+  fetch('/api/cart/validate-promo', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code: code, itemCount: totalQty }),
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if (data.valid) {
+      promoState = { code: data.code, discountPct: data.discountPct, label: '-' + data.discountPct + '% (' + data.code + ')' };
+      msgEl.className = 'promo-msg ok';
+      msgEl.textContent = '✓ ' + data.message;
+      updateCartUI();
+    } else {
+      promoState = { code: '', discountPct: 0, label: '' };
+      msgEl.className = 'promo-msg err';
+      msgEl.textContent = data.error || 'Code invalide';
+      updateCartUI();
+    }
+  })
+  .catch(function(){ msgEl.className='promo-msg err'; msgEl.textContent='Erreur réseau.'; });
+}
+
+// ── Checkout ─────────────────────────────────────────────────────────────────
+function proceedToCheckout() {
+  var items = Object.values(cart);
+  if (!items.length) return;
+
+  var phone = (document.getElementById('checkoutPhone').value || '').trim();
+  var btn   = document.getElementById('checkoutBtn');
+
+  btn.disabled = true;
+  btn.textContent = 'Création de votre session…';
+
+  var payload = {
+    items: items.map(function(i){ return { id: i.id, quantity: i.quantity }; }),
+    promoCode: promoState.code || undefined,
+    phone: phone || undefined,
+  };
+
+  fetch('/api/cart/checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if (data.success && data.checkoutUrl) {
+      window.location.href = data.checkoutUrl;
+    } else {
+      alert('Erreur : ' + (data.error || 'Impossible de créer la session de paiement.'));
+      btn.disabled = false;
+      btn.textContent = 'Procéder au paiement →';
+    }
+  })
+  .catch(function(){
+    alert('Erreur réseau. Réessayez.');
+    btn.disabled = false;
+    btn.textContent = 'Procéder au paiement →';
+  });
+}
+
+// Enter dans promo input
+document.getElementById('promoInput').addEventListener('keydown', function(e){
+  if (e.key === 'Enter') applyPromo();
+});
+
 </script>
 </body>
 </html>

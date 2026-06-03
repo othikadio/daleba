@@ -93,6 +93,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/api/booking', require('./api/booking-routes'));
 app.use('/api/oauth/meta', require('./api/meta-oauth-routes')); // Meta OAuth — 1 clic PME
 app.use('/api/daleba', require('./api/daleba-client-routes')); // Accès client DALEBA — SMS OTP
+app.use('/api/cart',   require('./api/cart-routes'));           // Panier + Code Promo + Checkout multi
 app.use('/api', routes);
 app.use('/api/ai', require('./api/ai-admin-routes')); // Hub IA universel — Cerveau Central
 app.use('/api/auth', require('./api/otp-auth-routes')); // V31-AUTH: OTP phone (monté PREMIER — request-otp + verify-otp avec {phone,code})

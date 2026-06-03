@@ -114,6 +114,38 @@ async function initTables() {
 }
 initTables();
 
+// ── Crée une subscription + ses livrables en DB ─────────────────────────────
+async function createSubscriptionRecord({ sessionId, paymentIntent, phone, email, name, pkg, amount }) {
+  if (!pool || DEMO_MODE) return null;
+  try {
+    const r = await pool.query(
+      `INSERT INTO daleba_subscriptions
+         (stripe_session_id, stripe_payment_intent, client_phone, client_email, client_name, package_name, amount_cad, started_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,NOW())
+       ON CONFLICT (stripe_session_id) DO UPDATE SET
+         client_phone = COALESCE(EXCLUDED.client_phone, daleba_subscriptions.client_phone),
+         status = 'active'
+       RETURNING *`,
+      [sessionId, paymentIntent, phone, email, name, pkg, amount]
+    );
+    const sub = r.rows[0];
+    const existing = await pool.query('SELECT id FROM daleba_deliverables WHERE subscription_id=$1', [sub.id]);
+    if (existing.rows.length === 0) {
+      const items = DEFAULT_DELIVERABLES[pkg] || DEFAULT_DELIVERABLES.Audit;
+      for (let i = 0; i < items.length; i++) {
+        await pool.query(
+          `INSERT INTO daleba_deliverables (subscription_id, title, status, position) VALUES ($1,$2,'pending',$3)`,
+          [sub.id, items[i], i]
+        );
+      }
+    }
+    return sub;
+  } catch(e) {
+    console.error('[SUBS] createSubscriptionRecord:', e.message);
+    return null;
+  }
+}
+
 // ── Crée ou récupère subscription depuis webhook Stripe ─────────────────────
 async function handleStripePayment(stripeSession) {
   const phone  = stripeSession.customer_details?.phone
@@ -126,64 +158,77 @@ async function handleStripePayment(stripeSession) {
   const name   = stripeSession.customer_details?.name
               || stripeSession.metadata?.client_name
               || null;
+
+  // ── Cas panier multi-abonnements ──────────────────────────────────────────
+  let cartItems = null;
+  try {
+    if (stripeSession.metadata?.daleba_cart) {
+      cartItems = JSON.parse(stripeSession.metadata.daleba_cart);
+    }
+  } catch(e) {}
+
+  if (cartItems && cartItems.length > 0) {
+    // Panier multi : créer une sub par item et envoyer les SMS groupés
+    return await handleCartPayment(stripeSession, cartItems, phone, email, name);
+  }
+
+  // ── Achat simple (compatibilité ascendante) ───────────────────────────────
   const pkg    = detectPackage(stripeSession);
   const amount = (stripeSession.amount_total || 0) / 100;
 
-  let sub = null;
+  const sub = await createSubscriptionRecord({
+    sessionId:     stripeSession.id,
+    paymentIntent: stripeSession.payment_intent,
+    phone, email, name, pkg, amount,
+  });
 
-  if (pool && !DEMO_MODE) {
-    try {
-      // Upsert
-      const r = await pool.query(
-        `INSERT INTO daleba_subscriptions
-           (stripe_session_id, stripe_payment_intent, client_phone, client_email, client_name, package_name, amount_cad, started_at)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,NOW())
-         ON CONFLICT (stripe_session_id) DO UPDATE SET
-           client_phone = COALESCE(EXCLUDED.client_phone, daleba_subscriptions.client_phone),
-           status = 'active'
-         RETURNING *`,
-        [
-          stripeSession.id,
-          stripeSession.payment_intent,
-          phone,
-          email,
-          name,
-          pkg,
-          amount,
-        ]
-      );
-      sub = r.rows[0];
-
-      // Créer les livrables par défaut si nouveaux
-      const existing = await pool.query(
-        'SELECT id FROM daleba_deliverables WHERE subscription_id=$1',
-        [sub.id]
-      );
-      if (existing.rows.length === 0) {
-        const items = DEFAULT_DELIVERABLES[pkg] || DEFAULT_DELIVERABLES.Audit;
-        for (let i = 0; i < items.length; i++) {
-          await pool.query(
-            `INSERT INTO daleba_deliverables (subscription_id, title, status, position)
-             VALUES ($1,$2,'pending',$3)`,
-            [sub.id, items[i], i]
-          );
-        }
-      }
-    } catch(e) { console.error('[SUBS] handleStripePayment DB:', e.message); }
+  if (phone) {
+    try { await sendAccessSMS(phone, pkg); }
+    catch(e) { console.error('[SUBS] SMS échoué:', e.message); }
+  } else {
+    console.warn('[SUBS] Pas de téléphone — SMS ignoré. Email:', email);
   }
 
-  // Envoyer SMS si on a le téléphone
+  return { sub, phone, pkg, cartMode: false };
+}
+
+// ── Gère un paiement de panier (multi-abonnements) ───────────────────────────
+async function handleCartPayment(stripeSession, cartItems, phone, email, name) {
+  const { PACKAGES } = require('./stripe-catalog');
+  const pkgMap = Object.fromEntries(PACKAGES.map(p => [p.id, p]));
+
+  const subs     = [];
+  const pkgNames = [];
+  const totalQty = cartItems.reduce((s, i) => s + (parseInt(i.quantity) || 1), 0);
+  const totalAmt = (stripeSession.amount_total || 0) / 100;
+  const amtEach  = totalQty > 0 ? Math.round((totalAmt / totalQty) * 100) / 100 : 0;
+
+  for (const { id, quantity = 1 } of cartItems) {
+    const pkg = pkgMap[id];
+    if (!pkg) continue;
+    const pkgLabel = pkg.name;
+    pkgNames.push(pkgLabel);
+
+    for (let q = 0; q < (parseInt(quantity) || 1); q++) {
+      const sub = await createSubscriptionRecord({
+        sessionId:     `${stripeSession.id}_${id}_${q}`,
+        paymentIntent: stripeSession.payment_intent,
+        phone, email, name, pkg: pkgLabel, amount: amtEach,
+      });
+      subs.push({ sub, pkg: pkgLabel });
+    }
+  }
+
+  // Envoyer SMS multi-codes si téléphone disponible
   if (phone) {
     try {
-      await sendAccessSMS(phone, pkg);
+      await sendMultiAccessSMS(phone, subs.map(s => s.pkg));
     } catch(e) {
-      console.error('[SUBS] SMS envoi échoué:', e.message);
+      console.error('[SUBS] SMS multi échoué:', e.message);
     }
-  } else {
-    console.warn('[SUBS] Pas de téléphone dans session Stripe — SMS ignoré. Email:', email);
   }
 
-  return { sub, phone, pkg };
+  return { subs, phone, cartMode: true, pkgNames };
 }
 
 // ── Envoie SMS d'accès avec OTP ──────────────────────────────────────────────
@@ -203,6 +248,37 @@ async function sendAccessSMS(phone, packageName) {
 
   await client.messages.create({ body: msg, from: TWILIO_FROM, to: phone });
   console.log(`[SUBS] SMS accès envoyé → ${phone} (${packageName})`);
+}
+
+
+// ── SMS multi-codes (panier famille) ─────────────────────────────────────────
+async function sendMultiAccessSMS(phone, packageNames) {
+  const BASE = process.env.API_BASE_URL || 'https://daleba-api-production.up.railway.app';
+  const link = `${BASE}/client-login`;
+
+  // Générer un OTP unique par abonnement
+  const entries = packageNames.map((pkgName, i) => {
+    const code = String(crypto.randomInt(100000, 999999));
+    const key  = i === 0 ? phone : `${phone}#${i}`;
+    otpStore.set(key, { code, expiresAt: Date.now() + OTP_TTL, attempts: 0, linkedPhone: phone });
+    return { pkgName, code };
+  });
+
+  const codeLines = entries.map((e, i) =>
+    `${i + 1}. ${e.pkgName} : ${e.code}`
+  ).join('\n');
+
+  const msg = `🎉 DALEBA — Vos ${packageNames.length} abonnements sont activés !\n\n${codeLines}\n\nChaque code donne accès à un espace indépendant :\n${link}\n\n(Valides 10 min — ne pas partager)`;
+
+  const client = getTwilio();
+  if (!client || DEMO_MODE) {
+    console.log(`[SUBS] DEMO MULTI-SMS → ${phone} (${packageNames.length} codes)`);
+    entries.forEach(e => console.log(`  • ${e.pkgName}: ${e.code}`));
+    return;
+  }
+
+  await client.messages.create({ body: msg, from: TWILIO_FROM, to: phone });
+  console.log(`[SUBS] SMS multi-accès envoyé → ${phone} (${packageNames.length} codes)`);
 }
 
 // ── Re-envoie un OTP (accès /client-login) ──────────────────────────────────
@@ -323,6 +399,7 @@ async function getClientSubscription(phone) {
 module.exports = {
   handleStripePayment,
   sendAccessSMS,
+  sendMultiAccessSMS,
   requestOTP,
   verifyOTPAndLogin,
   resolveToken,
