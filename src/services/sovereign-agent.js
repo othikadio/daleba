@@ -474,23 +474,49 @@ async function runAgentLoop(sessionId) {
     try {
       response = await callClaudeWithTools(messages, systemPrompt);
     } catch (e) {
-      // Fallback GPT-4o si Claude échoue
-      emit(sessionId, 'fallback', { from: 'claude-sonnet', to: 'gpt-4o', reason: e.message });
-      try {
-        const gptRes = await axios.post('https://api.openai.com/v1/chat/completions', {
-          model: 'gpt-4o',
-          messages: [{ role: 'system', content: systemPrompt }, ...messages],
-          max_tokens: 2048,
-        }, {
-          headers: { Authorization: `Bearer ${CFG.openaiKey}`, 'Content-Type': 'application/json' },
-          timeout: 60000,
-        });
-        const gptText = gptRes.data.choices[0].message.content;
-        messages.push({ role: 'assistant', content: gptText });
-        emit(sessionId, 'agent_message', { text: gptText });
-        continue;
-      } catch (e2) {
-        emit(sessionId, 'error', { message: 'Tous les modèles indisponibles: ' + e2.message });
+      const errMsg = e.response?.data?.error?.message || e.message;
+      console.warn('[Agent] Claude error:', errMsg);
+      // Fallback GPT-4o — convertir les messages au format OpenAI
+      if (CFG.openaiKey) {
+        emit(sessionId, 'fallback', { from: 'claude-sonnet', to: 'gpt-4o', reason: errMsg });
+        try {
+          // Convertir les messages Anthropic en messages OpenAI (texte seulement)
+          const gptMessages = [{ role: 'system', content: systemPrompt }];
+          for (const m of messages) {
+            if (m.role === 'user') {
+              if (typeof m.content === 'string') gptMessages.push({ role: 'user', content: m.content });
+              else if (Array.isArray(m.content)) {
+                const txt = m.content.filter(b => b.type === 'text' || b.type === 'tool_result').map(b => b.content || b.text || '').join('\n');
+                if (txt) gptMessages.push({ role: 'user', content: txt });
+              }
+            } else if (m.role === 'assistant') {
+              if (typeof m.content === 'string') gptMessages.push({ role: 'assistant', content: m.content });
+              else if (Array.isArray(m.content)) {
+                const txt = m.content.filter(b => b.type === 'text').map(b => b.text).join('');
+                if (txt) gptMessages.push({ role: 'assistant', content: txt });
+              }
+            }
+          }
+          const gptRes = await axios.post('https://api.openai.com/v1/chat/completions', {
+            model: 'gpt-4o',
+            messages: gptMessages.slice(-20), // garder max 20 messages pour GPT-4o
+            max_tokens: 2048,
+          }, {
+            headers: { Authorization: `Bearer ${CFG.openaiKey}`, 'Content-Type': 'application/json' },
+            timeout: 60000,
+          });
+          const gptText = gptRes.data.choices[0].message.content;
+          messages.push({ role: 'assistant', content: gptText });
+          emit(sessionId, 'agent_message', { text: gptText });
+          continue;
+        } catch (e2) {
+          const err2 = e2.response?.data?.error?.message || e2.message;
+          emit(sessionId, 'error', { message: 'Erreur critique: ' + err2 });
+          session.status = 'error';
+          break;
+        }
+      } else {
+        emit(sessionId, 'error', { message: 'Claude indisponible: ' + errMsg });
         session.status = 'error';
         break;
       }
