@@ -552,14 +552,30 @@ async function runAgentLoop(sessionId) {
 
     if (stop_reason === 'tool_use' && toolUseBlocks.length > 0) {
       const toolResults = [];
-      for (const toolUse of toolUseBlocks) {
+      let shouldStop = false;
+      let stopIndex  = -1;
+
+      for (let ti = 0; ti < toolUseBlocks.length; ti++) {
+        const toolUse = toolUseBlocks[ti];
         const result = await executeTool(sessionId, toolUse.name, toolUse.input);
         toolResults.push({ type: 'tool_result', tool_use_id: toolUse.id, content: result });
-        // Si task_complete a été appelé, on sort
-        if (session.status === 'done') break;
+        if (session.status === 'done') { shouldStop = true; stopIndex = ti; break; }
       }
+
+      // CRITICAL: s'assurer que TOUS les tool_use ont un tool_result correspondant
+      // (requis par l'API Anthropic — sinon 400 à la prochaine requête)
+      if (shouldStop && stopIndex >= 0) {
+        for (let ti = stopIndex + 1; ti < toolUseBlocks.length; ti++) {
+          toolResults.push({
+            type: 'tool_result',
+            tool_use_id: toolUseBlocks[ti].id,
+            content: '(annulé — tâche terminée)',
+          });
+        }
+      }
+
       messages.push({ role: 'user', content: toolResults });
-      if (session.status === 'done') break;
+      if (shouldStop) break;
     }
   }
 
