@@ -232,10 +232,28 @@ router.post('/chat', async (req, res) => {
 
   } catch (err) {
     logError(err, 'CHAT_API');
-    console.error('❌ Erreur DALEBA:', err.message);
+    console.error('❌ Erreur DALEBA chat:', err.message, err.stack?.split('\n')[1]);
+    // Fallback: tenter GPT-4o directement si dispo
+    if (process.env.OPENAI_API_KEY) {
+      try {
+        const axios = require('axios');
+        const gptRes = await axios.post('https://api.openai.com/v1/chat/completions', {
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: 'Tu es Daleba, l\'assistante IA de Kadio Coiffure à Longueuil Québec. Réponds en français, sois chaleureuse et professionnelle. Services: coupes, tresses, locks, soins capillaires.' },
+            { role: 'user', content: message }
+          ],
+          max_tokens: 512,
+        }, { headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` }, timeout: 15000 });
+        const text = gptRes.data.choices[0].message.content;
+        return res.json({ sessionId: sid, model: 'gpt-4o-mini', routing: 'fallback-direct', response: text });
+      } catch (e2) {
+        console.error('❌ Fallback GPT-4o aussi échoué:', e2.message);
+      }
+    }
     res.json({
-      response: 'DALEBA recalibrant... Veuillez réessayer dans un instant. 🔄',
-      error: true,
+      response: 'Bonjour ! Je suis Daleba, votre assistante chez Kadio Coiffure 💇. Comment puis-je vous aider ?',
+      error: false,
       sessionId: sid,
     });
   }
