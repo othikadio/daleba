@@ -53,6 +53,9 @@
     .model-card.forced{background:rgba(124,58,237,.1);border-color:rgba(124,58,237,.3);}
     .model-card.last-used{border-color:rgba(34,197,94,.25);background:rgba(34,197,94,.05);}
     .model-card.unavailable{opacity:.45;cursor:default;}
+    .model-card.flagship{border-color:rgba(168,85,247,.25);background:rgba(168,85,247,.05);}
+    .model-card.flagship:hover{border-color:rgba(168,85,247,.45);background:rgba(168,85,247,.1);}
+    .tier-badge{position:absolute;bottom:5px;right:7px;font-size:8px;background:rgba(168,85,247,.2);color:#c4b5fd;padding:1px 5px;border-radius:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
     .mc-row{display:flex;align-items:center;gap:8px;}
     .mc-icon{font-size:15px;line-height:1;}
     .mc-name{font-size:12px;font-weight:600;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -161,9 +164,10 @@
     <div class="messages" id="messages">
       <div class="welcome" id="welcome">
         <div class="welcome-icon">&#x1F9E0;</div>
-        <div class="welcome-title">Flotte Souveraine &#x2014; 8 mod&#232;les op&#233;rationnels</div>
+        <div class="welcome-title">Flotte Souveraine &#x2014; 13 mod&#232;les op&#233;rationnels</div>
         <div class="welcome-sub">
           En mode <b>Daleba Auto</b>, j'analyse ta demande et je d&#233;l&#232;gue au mod&#232;le le plus comp&#233;tent.<br><br>
+          <b>Nouveaux :</b> Claude Sonnet&#x202F;4.6 &#x2022; GPT-4o &#x2022; Gemini Flash &#x2014; 13 mod&#232;les souverains actifs.<br><br>
           Tu peux aussi <b>glisser-d&#233;poser</b> un fichier (PDF, code, CSV&#x2026;) pour l'inclure dans le contexte.
         </div>
       </div>
@@ -247,7 +251,8 @@ function loadFleet() {
       fleetData = data.fleet || [];
       renderFleet();
       var n = data.available ? data.available.length : 0;
-      document.getElementById('fleetCount').textContent = n + '/8 mod\u00e8les actifs';
+      var total = fleetData.length || 13;
+      document.getElementById('fleetCount').textContent = n + '/' + total + ' mod\u00e8les actifs';
     })
     .catch(function(){
       document.getElementById('fleetCount').textContent = 'Erreur de connexion';
@@ -261,6 +266,7 @@ function renderFleet() {
     var card = document.createElement('div');
     card.className = 'model-card' +
       (!m.connected ? ' unavailable' : '') +
+      (m.tier === 'flagship' && m.connected ? ' flagship' : '') +
       (forcedModel === m.id && mode === 'manual' ? ' forced' : '');
     card.id = 'card-' + m.id;
     card.innerHTML =
@@ -271,7 +277,8 @@ function renderFleet() {
         '<span class="mc-dot ' + (m.connected ? 'on' : 'off') + '"></span>' +
       '</div>' +
       '<div class="mc-desc">' + esc(m.description) + '</div>' +
-      (!m.connected ? '<div class="mc-key">&#x1F511; ' + esc(m.envKey) + '</div>' : '');
+      (!m.connected ? '<div class="mc-key">&#x1F511; ' + esc(m.envKey) + '</div>' : '') +
+      (m.tier === 'flagship' && m.connected ? '<span class="tier-badge">Flagship</span>' : '');
     if (m.connected) {
       (function(id){ card.addEventListener('click', function(){ selectModel(id); }); })(m.id);
     } else {
