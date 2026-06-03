@@ -524,9 +524,10 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   const { startHunter } = require('./services/agent-hunter');
   startHunter().catch(e => console.warn('[Hunter] Démarrage:', e.message));
 
-  // Radar Planétaire — scan opportunités mondiales toutes les 4h
-  const { startOpportunityWorker } = require('./workers/opportunity-worker');
-  startOpportunityWorker();
+  // Radar Planétaire — DÉSACTIVÉ par Ulrich le 2026-06-03
+  // const { startOpportunityWorker } = require('./workers/opportunity-worker');
+  // startOpportunityWorker();
+  console.log('[Usine] ⛔ Radar Planétaire désactivé.');
 
   // Sync catalogue Stripe au démarrage
   try {
