@@ -1,9 +1,17 @@
 const Anthropic = require('@anthropic-ai/sdk');
 const { DALEBA_SYSTEM_PROMPT } = require('./persona');
 
+// ClawRapid proxy (préféré) ou Anthropic directe
+const CLAWRAPID_KEY = process.env.CLAWRAPID_API_KEY;
+const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+const API_KEY       = CLAWRAPID_KEY || ANTHROPIC_KEY;
+const BASE_URL      = CLAWRAPID_KEY
+  ? 'https://www.clawrapid.com/api/llm/proxy/v1'
+  : 'https://api.anthropic.com/v1';
+
 // [032] Prompt Caching — réduit les coûts de ~50% sur les system prompts répétitifs
-const client = process.env.ANTHROPIC_API_KEY
-  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+const client = API_KEY
+  ? new Anthropic({ apiKey: API_KEY, baseURL: BASE_URL })
   : null;
 
 // Cache activé pour les system prompts > 1024 tokens

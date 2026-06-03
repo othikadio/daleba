@@ -179,8 +179,26 @@ async function createChatSession({ clientId, channel, callSid, status = 'bot_han
   return getOrCreateChatSession({ clientId, channel, callSid });
 }
 
-// Init table au démarrage (non-bloquant)
+// Init table daleba_memory (chat history) — création automatique si absente
+async function initMemoryTable() {
+  if (DEMO_MODE || !pool) return;
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS daleba_memory (
+      id              SERIAL PRIMARY KEY,
+      session_id      VARCHAR(128) NOT NULL,
+      user_message    TEXT,
+      ai_response     TEXT,
+      model_used      VARCHAR(64),
+      routing_reason  VARCHAR(128),
+      created_at      TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_memory_session ON daleba_memory(session_id);
+  `);
+}
+
+// Init tables au démarrage (non-bloquant)
 initChatSessionsTable().catch(err => console.warn('[DB] daleba_chat_sessions init skipped:', err.message));
+initMemoryTable().catch(err => console.warn('[DB] daleba_memory init skipped:', err.message));
 
 module.exports = {
   pool, saveExchange, getHistory, saveAnnale, DEMO_MODE,

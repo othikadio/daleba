@@ -35,7 +35,7 @@ const PROVIDERS = {
   claude: {
     id: 'claude', name: 'Claude (Anthropic)',
     module: path.resolve(__dirname, 'claude'),
-    available: !!process.env.ANTHROPIC_API_KEY,
+    available: !!(process.env.CLAWRAPID_API_KEY || process.env.ANTHROPIC_API_KEY),
     contextWindow: 200000, costPer1MInput: 3.00, costPer1MOutput: 15.00,
     strengths: { code: 10, strategy: 10, analysis: 10, reasoning: 10, creative: 8, conversation: 9, math: 8, bulk: 5 },
     health: { status: 'unknown', latencyMs: null, lastCheck: null, failures: 0 },
