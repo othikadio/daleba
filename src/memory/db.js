@@ -179,9 +179,10 @@ async function createChatSession({ clientId, channel, callSid, status = 'bot_han
   return getOrCreateChatSession({ clientId, channel, callSid });
 }
 
-// Init table daleba_memory (chat history) — création automatique si absente
+// Init table daleba_memory (chat history) — création + migration automatique
 async function initMemoryTable() {
   if (DEMO_MODE || !pool) return;
+  // Créer si absente
   await pool.query(`
     CREATE TABLE IF NOT EXISTS daleba_memory (
       id              SERIAL PRIMARY KEY,
@@ -192,8 +193,20 @@ async function initMemoryTable() {
       routing_reason  VARCHAR(128),
       created_at      TIMESTAMPTZ DEFAULT NOW()
     );
-    CREATE INDEX IF NOT EXISTS idx_memory_session ON daleba_memory(session_id);
   `);
+  // Migrations : ajouter colonnes manquantes si la table existait déjà avec ancien schéma
+  const migrations = [
+    `ALTER TABLE daleba_memory ADD COLUMN IF NOT EXISTS user_message TEXT`,
+    `ALTER TABLE daleba_memory ADD COLUMN IF NOT EXISTS ai_response TEXT`,
+    `ALTER TABLE daleba_memory ADD COLUMN IF NOT EXISTS model_used VARCHAR(64)`,
+    `ALTER TABLE daleba_memory ADD COLUMN IF NOT EXISTS routing_reason VARCHAR(128)`,
+    `ALTER TABLE daleba_memory ADD COLUMN IF NOT EXISTS session_id VARCHAR(128)`,
+    `CREATE INDEX IF NOT EXISTS idx_memory_session ON daleba_memory(session_id)`,
+  ];
+  for (const sql of migrations) {
+    await pool.query(sql).catch(() => {}); // non-bloquant si échec
+  }
+  console.log('[DB] daleba_memory ready');
 }
 
 // Init tables au démarrage (non-bloquant)
