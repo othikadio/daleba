@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DALEBA — Accès Client</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ivory:      #F8F3EC;
+      --orange:     #C4612D;
+      --orange-lt:  #E8895A;
+      --dark:       #2A1A0E;
+      --muted:      #8A7060;
+      --border:     #DDD0C0;
+      --white:      #FFFFFF;
+      --success:    #5A8A5A;
+      --error:      #C43D1A;
+    }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      background: var(--ivory);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 2px 20px rgba(42,26,14,0.07);
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .logo-d {
+      display: inline-block;
+      font-size: 2.2rem;
+      font-weight: 400;
+      letter-spacing: 0.35em;
+      color: var(--orange);
+      text-transform: uppercase;
+      border-bottom: 2px solid var(--orange);
+      padding-bottom: 0.15em;
+      margin-bottom: 0.4rem;
+    }
+
+    .logo-sub {
+      display: block;
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    h2 {
+      font-size: 1rem;
+      font-weight: normal;
+      letter-spacing: 0.06em;
+      color: var(--dark);
+      margin-bottom: 0.4rem;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 1.8rem;
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    input[type="tel"],
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--dark);
+      background: var(--ivory);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--orange);
+      background: var(--white);
+    }
+
+    .field { margin-bottom: 1.2rem; }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 0.85rem;
+      background: var(--orange);
+      color: var(--white);
+      border: none;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .btn:hover:not(:disabled) { background: var(--orange-lt); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .btn-ghost {
+      background: none;
+      color: var(--orange);
+      border: 1px solid var(--border);
+      margin-top: 0.75rem;
+      font-size: 0.78rem;
+    }
+
+    .btn-ghost:hover:not(:disabled) {
+      background: var(--ivory);
+      border-color: var(--orange);
+    }
+
+    .alert {
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .alert-error { background: #fef2ee; border: 1px solid #f5c6b5; color: var(--error); }
+    .alert-success { background: #eef5ee; border: 1px solid #b5d4b5; color: var(--success); }
+    .alert.show { display: block; }
+
+    #step-phone, #step-otp { display: block; }
+    #step-otp { display: none; }
+
+    .otp-hint {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+    }
+
+    .phone-display {
+      font-weight: bold;
+      color: var(--orange);
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.5rem 0;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <span class="logo-d">DALEBA</span>
+      <span class="logo-sub">Espace Client Premium</span>
+    </div>
+
+    <div id="alert" class="alert"></div>
+
+    <!-- ÉTAPE 1 : Numéro de téléphone -->
+    <div id="step-phone">
+      <h2>Accédez à votre espace</h2>
+      <p class="subtitle">Entrez votre numéro de téléphone. Vous recevrez un code d'accès par SMS.</p>
+
+      <div class="field">
+        <label for="phone-input">Numéro de téléphone</label>
+        <input
+          type="tel"
+          id="phone-input"
+          placeholder="+1 514 000 0000"
+          autocomplete="tel"
+          inputmode="tel"
+        />
+      </div>
+
+      <button class="btn" id="btn-send" onclick="sendOTP()">
+        Recevoir mon code SMS
+      </button>
+    </div>
+
+    <!-- ÉTAPE 2 : Code OTP -->
+    <div id="step-otp">
+      <h2>Entrez votre code</h2>
+      <p class="subtitle">
+        Un code à 6 chiffres a été envoyé au <span class="phone-display" id="phone-confirm"></span>.
+      </p>
+
+      <div class="field">
+        <label for="otp-input">Code d'accès</label>
+        <input
+          type="text"
+          id="otp-input"
+          placeholder="123456"
+          maxlength="6"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+        />
+        <p class="otp-hint">Valide 10 minutes — ne pas partager</p>
+      </div>
+
+      <button class="btn" id="btn-verify" onclick="verifyOTP()">
+        Accéder à mon espace
+      </button>
+      <button class="btn btn-ghost" onclick="backToPhone()">
+        Changer de numéro
+      </button>
+      <hr class="divider">
+      <button class="btn btn-ghost" onclick="resendOTP()" id="btn-resend">
+        Renvoyer le code
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const API = '';  // même origin
+    let currentPhone = '';
+
+    function showAlert(msg, type = 'error') {
+      const el = document.getElementById('alert');
+      el.className = `alert alert-${type} show`;
+      el.textContent = msg;
+    }
+    function hideAlert() {
+      document.getElementById('alert').className = 'alert';
+    }
+
+    function setLoading(btnId, loading) {
+      const btn = document.getElementById(btnId);
+      if (loading) {
+        btn.disabled = true;
+        btn.innerHTML = btn.innerHTML.replace(/<span.*<\/span>/, '') + '<span class="spinner"></span>';
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = btn.innerHTML.replace(/<span.*<\/span>/, '');
+      }
+    }
+
+    async function sendOTP() {
+      hideAlert();
+      const phone = document.getElementById('phone-input').value.trim();
+      if (!phone) { showAlert('Entrez votre numéro de téléphone.'); return; }
+
+      setLoading('btn-send', true);
+      try {
+        const r = await fetch(`${API}/api/daleba/request-otp`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ phone }),
+        });
+        const data = await r.json();
+        if (!r.ok) { showAlert(data.error || 'Erreur envoi SMS'); return; }
+
+        currentPhone = phone;
+        document.getElementById('phone-confirm').textContent = phone;
+        document.getElementById('step-phone').style.display = 'none';
+        document.getElementById('step-otp').style.display   = 'block';
+        if (data.demo) showAlert('Mode démo — vérifiez les logs serveur.', 'success');
+      } catch(e) {
+        showAlert('Erreur réseau. Réessayez.');
+      } finally {
+        setLoading('btn-send', false);
+      }
+    }
+
+    async function verifyOTP() {
+      hideAlert();
+      const code = document.getElementById('otp-input').value.trim();
+      if (!code || code.length !== 6) { showAlert('Entrez le code à 6 chiffres.'); return; }
+
+      setLoading('btn-verify', true);
+      try {
+        const r = await fetch(`${API}/api/daleba/verify-otp`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ phone: currentPhone, code }),
+        });
+        const data = await r.json();
+        if (!r.ok) { showAlert(data.error || 'Code incorrect'); return; }
+
+        // Stocker le token et rediriger
+        localStorage.setItem('daleba_client_token', data.token);
+        localStorage.setItem('daleba_subscription', JSON.stringify(data.subscription));
+        window.location.href = '/mon-abonnement';
+      } catch(e) {
+        showAlert('Erreur réseau. Réessayez.');
+      } finally {
+        setLoading('btn-verify', false);
+      }
+    }
+
+    async function resendOTP() {
+      hideAlert();
+      document.getElementById('btn-resend').disabled = true;
+      try {
+        const r = await fetch(`${API}/api/daleba/request-otp`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ phone: currentPhone }),
+        });
+        const data = await r.json();
+        if (!r.ok) { showAlert(data.error || 'Erreur'); }
+        else showAlert('Nouveau code envoyé !', 'success');
+      } catch(e) {
+        showAlert('Erreur réseau.');
+      } finally {
+        setTimeout(() => { document.getElementById('btn-resend').disabled = false; }, 30000);
+      }
+    }
+
+    function backToPhone() {
+      hideAlert();
+      document.getElementById('step-otp').style.display   = 'none';
+      document.getElementById('step-phone').style.display = 'block';
+      document.getElementById('otp-input').value = '';
+    }
+
+    // Auto-submit OTP à 6 chiffres
+    document.getElementById('otp-input').addEventListener('input', function() {
+      if (this.value.replace(/\D/g,'').length === 6) {
+        this.value = this.value.replace(/\D/g,'');
+        verifyOTP();
+      }
+    });
+
+    // Pré-remplir depuis URL param
+    const urlPhone = new URLSearchParams(location.search).get('phone');
+    if (urlPhone) document.getElementById('phone-input').value = urlPhone;
+  </script>
+</body>
+</html>

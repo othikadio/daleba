@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DALEBA — Mon Abonnement</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ivory:      #F8F3EC;
+      --orange:     #C4612D;
+      --orange-lt:  #E8895A;
+      --orange-bg:  #FDF0E8;
+      --dark:       #2A1A0E;
+      --muted:      #8A7060;
+      --border:     #DDD0C0;
+      --white:      #FFFFFF;
+      --success:    #5A8A5A;
+      --green-bg:   #EDF5ED;
+      --tag-pending:   #F5EEE6;
+      --tag-progress:  #FFF3E0;
+      --tag-done:      #EDF5ED;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      background: var(--ivory);
+      min-height: 100vh;
+      color: var(--dark);
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header-brand {
+      font-size: 1.1rem;
+      letter-spacing: 0.2em;
+      color: var(--orange);
+      text-transform: uppercase;
+    }
+
+    .btn-logout {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      font-family: inherit;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 0.35rem 0.75rem;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-logout:hover { border-color: var(--orange); color: var(--orange); }
+
+    /* ─── MAIN ─── */
+    .main {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 4rem;
+    }
+
+    /* ─── GREETING ─── */
+    .greeting {
+      margin-bottom: 2rem;
+    }
+
+    .greeting-name {
+      font-size: 1.5rem;
+      font-weight: normal;
+      color: var(--dark);
+      margin-bottom: 0.25rem;
+    }
+
+    .greeting-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* ─── PACKAGE CARD ─── */
+    .package-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--orange);
+      border-radius: 6px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pkg-badge {
+      display: inline-block;
+      background: var(--orange);
+      color: var(--white);
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.7rem;
+      border-radius: 2px;
+      margin-bottom: 1rem;
+    }
+
+    .pkg-name {
+      font-size: 1.8rem;
+      font-weight: normal;
+      color: var(--dark);
+      margin-bottom: 0.15rem;
+    }
+
+    .pkg-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .pkg-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.25rem 0;
+    }
+
+    .pkg-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .meta-item {}
+    .meta-item .meta-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+    .meta-item .meta-value {
+      font-size: 0.95rem;
+      color: var(--dark);
+    }
+
+    .status-pill {
+      display: inline-block;
+      background: var(--green-bg);
+      color: var(--success);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      border: 1px solid #c3dac3;
+    }
+
+    /* ─── DELIVERABLES ─── */
+    .section-title {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .deliverable-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .deliverable-item {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 0.9rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .d-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .d-icon.pending     { background: var(--tag-pending); }
+    .d-icon.in_progress { background: var(--tag-progress); }
+    .d-icon.delivered   { background: var(--tag-done); }
+
+    .d-info { flex: 1; }
+    .d-title {
+      font-size: 0.9rem;
+      color: var(--dark);
+      margin-bottom: 0.15rem;
+    }
+
+    .d-status {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.1rem 0.5rem;
+      border-radius: 20px;
+      display: inline-block;
+    }
+
+    .d-status.pending     { background: var(--tag-pending);   color: #a07040; border: 1px solid #e0c8a8; }
+    .d-status.in_progress { background: var(--tag-progress);  color: #c06010; border: 1px solid #ffd0a0; }
+    .d-status.delivered   { background: var(--tag-done);      color: var(--success); border: 1px solid #c0d8c0; }
+
+    /* Progress bar */
+    .progress-wrap {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-bar-bg {
+      height: 6px;
+      background: var(--ivory);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--orange), var(--orange-lt));
+      border-radius: 3px;
+      transition: width 0.8s ease;
+    }
+
+    /* ─── Loading ─── */
+    .loading {
+      text-align: center;
+      padding: 3rem 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+    }
+
+    .dot-anim::after {
+      content: '';
+      animation: dots 1.5s infinite;
+    }
+    @keyframes dots {
+      0%   { content: ''; }
+      33%  { content: '.'; }
+      66%  { content: '..'; }
+      100% { content: '...'; }
+    }
+
+    /* ─── CTA Support ─── */
+    .support-block {
+      background: var(--orange-bg);
+      border: 1px solid #e8c8a0;
+      border-radius: 5px;
+      padding: 1.25rem;
+      margin-top: 2rem;
+      font-size: 0.82rem;
+      color: var(--dark);
+      line-height: 1.6;
+    }
+
+    .support-block strong { color: var(--orange); }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="header-brand">DALEBA</span>
+    <button class="btn-logout" onclick="logout()">Déconnexion</button>
+  </header>
+
+  <div class="main" id="main-content">
+    <div class="loading">
+      <span class="dot-anim">Chargement</span>
+    </div>
+  </div>
+
+  <script>
+    const API = '';
+
+    function logout() {
+      localStorage.removeItem('daleba_client_token');
+      localStorage.removeItem('daleba_subscription');
+      window.location.href = '/client-login';
+    }
+
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      const d = new Date(iso);
+      return d.toLocaleString('fr-CA', {
+        year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+      });
+    }
+
+    function statusLabel(s) {
+      return { pending: 'En attente', in_progress: 'En cours', delivered: 'Livré' }[s] || s;
+    }
+
+    function statusIcon(s) {
+      return { pending: '○', in_progress: '◐', delivered: '●' }[s] || '○';
+    }
+
+    function renderPage(sub) {
+      const deliverables = sub.deliverables || [];
+      const total    = deliverables.length;
+      const done     = deliverables.filter(d => d.status === 'delivered').length;
+      const inProg   = deliverables.filter(d => d.status === 'in_progress').length;
+      const pct      = total > 0 ? Math.round(((done + inProg * 0.5) / total) * 100) : 0;
+
+      const dItems = deliverables.map(d => `
+        <div class="deliverable-item">
+          <div class="d-icon ${d.status}">${statusIcon(d.status)}</div>
+          <div class="d-info">
+            <div class="d-title">${d.title}</div>
+            <span class="d-status ${d.status}">${statusLabel(d.status)}</span>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('main-content').innerHTML = `
+        <div class="greeting">
+          <div class="greeting-name">Bonjour${sub.clientName ? ', ' + sub.clientName.split(' ')[0] : ''} 👋</div>
+          <div class="greeting-sub">Voici l'état de votre espace DALEBA</div>
+        </div>
+
+        <!-- Package Card -->
+        <div class="package-card">
+          <div class="pkg-badge">Package actif</div>
+          <div class="pkg-name">${sub.packageName}</div>
+          <div class="pkg-label">Service DALEBA</div>
+
+          <hr class="pkg-divider">
+
+          <div class="pkg-meta">
+            <div class="meta-item">
+              <div class="meta-label">Démarré le</div>
+              <div class="meta-value">${fmtDate(sub.startedAt)}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Statut</div>
+              <div class="meta-value">
+                <span class="status-pill">✓ Actif</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>Avancement global</span>
+            <span>${pct}% — ${done}/${total} livrables</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="pbar" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- Livrables -->
+        <p class="section-title">Vos livrables</p>
+        <div class="deliverable-list">
+          ${dItems || '<p style="color:var(--muted);font-size:.85rem;padding:.5rem 0">Aucun livrable configuré.</p>'}
+        </div>
+
+        <div class="support-block">
+          <strong>Une question ?</strong> Notre équipe est disponible. Répondez simplement au SMS reçu lors de votre achat ou contactez-nous à <strong>contact@daleba.ai</strong>.
+        </div>
+      `;
+
+      // Animate progress bar
+      setTimeout(() => {
+        const bar = document.getElementById('pbar');
+        if (bar) bar.style.width = pct + '%';
+      }, 200);
+    }
+
+    async function loadSubscription() {
+      const token = localStorage.getItem('daleba_client_token');
+      if (!token) {
+        window.location.href = '/client-login';
+        return;
+      }
+
+      // Essai rapide avec données en cache
+      const cached = localStorage.getItem('daleba_subscription');
+      if (cached) {
+        try { renderPage(JSON.parse(cached)); } catch(e) {}
+      }
+
+      // Rafraîchir depuis l'API
+      try {
+        const r = await fetch(`${API}/api/daleba/my-subscription`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (r.status === 401) {
+          localStorage.removeItem('daleba_client_token');
+          window.location.href = '/client-login';
+          return;
+        }
+
+        if (r.ok) {
+          const sub = await r.json();
+          localStorage.setItem('daleba_subscription', JSON.stringify(sub));
+          renderPage(sub);
+        } else if (!cached) {
+          document.getElementById('main-content').innerHTML =
+            '<p style="color:var(--muted);padding:2rem 0;text-align:center">Impossible de charger vos données. <a href="/client-login" style="color:var(--orange)">Reconnectez-vous.</a></p>';
+        }
+      } catch(e) {
+        if (!cached) {
+          document.getElementById('main-content').innerHTML =
+            '<p style="color:var(--muted);padding:2rem 0;text-align:center">Erreur réseau. Vérifiez votre connexion.</p>';
+        }
+      }
+    }
+
+    loadSubscription();
+  </script>
+</body>
+</html>

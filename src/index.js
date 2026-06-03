@@ -92,6 +92,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 // V32: Booking live — montage direct AVANT routes générales (Square slots + SMS)
 app.use('/api/booking', require('./api/booking-routes'));
 app.use('/api/oauth/meta', require('./api/meta-oauth-routes')); // Meta OAuth — 1 clic PME
+app.use('/api/daleba', require('./api/daleba-client-routes')); // Accès client DALEBA — SMS OTP
 app.use('/api', routes);
 app.use('/api/ai', require('./api/ai-admin-routes')); // Hub IA universel — Cerveau Central
 app.use('/api/auth', require('./api/otp-auth-routes')); // V31-AUTH: OTP phone (monté PREMIER — request-otp + verify-otp avec {phone,code})
@@ -181,6 +182,13 @@ app.get('/login', (req, res) => {
 });
 app.get('/portail-client', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/portail-client.html'));
+});
+// DALEBA — Accès client premium (SMS OTP)
+app.get('/client-login', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/client-login.html'));
+});
+app.get('/mon-abonnement', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/mon-abonnement.html'));
 });
 app.get('/portail-staff', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/portail-staff.html'));

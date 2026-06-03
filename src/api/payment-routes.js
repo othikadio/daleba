@@ -139,6 +139,13 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
         currency: session.currency?.toUpperCase() || 'CAD',
         stripeSessionId: session.id,
       });
+      // 🔑 DALEBA — Déclenche SMS d'accès client (OTP) dès paiement confirmé
+      try {
+        const subService = require('../services/subscription-service');
+        subService.handleStripePayment(session).catch(e =>
+          console.warn('[Webhook→SubSMS]', e.message)
+        );
+      } catch(e) { console.warn('[Webhook→SubSMS] import:', e.message); }
       break;
     }
     case 'invoice.payment_succeeded': {
