@@ -95,12 +95,27 @@ const OPENAI_TOOLS = [
   {
     type: 'function',
     function: {
-      name: 'deploy_vercel',
-      description: 'Déploie TOUS les fichiers du workspace sur Vercel. Retourne l\'URL live publique. Utiliser uniquement quand tous les fichiers sont prêts.',
+      name: 'deploy_github_pages',
+      description: 'Déploie un site statique (HTML/CSS/JS) sur GitHub Pages — PUBLIC et accessible sans authentification. URL: https://othikadio.github.io/{repo_name}. Utiliser pour tous les sites statiques.',
       parameters: {
         type: 'object',
         properties: {
-          project_name: { type: 'string', description: 'Nom projet Vercel (minuscules, tirets, ex: kadio-coiffure-site)' },
+          repo_name:   { type: 'string', description: 'Nom du repo (ex: kadio-coiffure-site, minuscules tirets)' },
+          description: { type: 'string', description: 'Description du site' },
+        },
+        required: ['repo_name'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'deploy_vercel',
+      description: 'Déploie sur Vercel (pour apps Node.js/Next.js/Vue). Pour les sites HTML/CSS/JS purs, préférer deploy_github_pages.',
+      parameters: {
+        type: 'object',
+        properties: {
+          project_name: { type: 'string', description: 'Nom projet Vercel (minuscules, tirets)' },
           framework:    { type: 'string', description: 'null pour static, nextjs, vue, etc.' },
         },
         required: ['project_name'],
@@ -202,7 +217,8 @@ Recevoir une demande et l'accomplir COMPLÈTEMENT: de la première ligne de code
 1. Crée index.html avec TOUT le contenu (HTML5 complet, head, body, CSS inline ou <style>, scripts)
 2. Crée les fichiers supplémentaires si nécessaire (style.css, script.js, etc.)
 3. Le HTML doit être 100% autonome et beau — pas besoin de CDN externe (sauf Google Fonts)
-4. Appelle deploy_vercel avec un nom de projet court en minuscules
+4. Appelle deploy_github_pages avec un nom de repo court en minuscules (pour les sites statiques HTML/CSS/JS)
+   OU deploy_vercel pour les apps Node.js/Next.js
 5. Appelle task_complete avec l'URL live
 
 ## Contexte
@@ -281,6 +297,62 @@ async function toolDeployVercel(sessionId, { project_name, framework = null }) {
   } catch (e) {
     const msg = e.response?.data?.error?.message || e.message;
     return `❌ Erreur Vercel: ${msg}`;
+  }
+}
+
+async function toolDeployGitHubPages(sessionId, { repo_name, description = '' }) {
+  const session = getSession(sessionId);
+  if (!CFG.githubToken) return '❌ GITHUB_TOKEN manquant';
+  if (Object.keys(session.files).length === 0) return '❌ Aucun fichier à déployer.';
+
+  emit(sessionId, 'deploying', { platform: 'GitHub Pages', files: Object.keys(session.files).length });
+
+  try {
+    // Supprimer le repo s'il existe déjà
+    await axios.delete(`https://api.github.com/repos/${CFG.githubUser}/${repo_name}`, {
+      headers: { Authorization: `token ${CFG.githubToken}` }, timeout: 10000,
+    }).catch(() => {});
+
+    // Créer le repo
+    await axios.post('https://api.github.com/user/repos', {
+      name: repo_name, description: description || repo_name,
+      private: false, auto_init: false,
+    }, {
+      headers: { Authorization: `token ${CFG.githubToken}`, 'Content-Type': 'application/json' },
+      timeout: 15000,
+    });
+
+    // Attendre un peu
+    await new Promise(r => setTimeout(r, 2000));
+
+    // Pusher tous les fichiers
+    for (const [filePath, content] of Object.entries(session.files)) {
+      await axios.put(
+        `https://api.github.com/repos/${CFG.githubUser}/${repo_name}/contents/${filePath}`,
+        { message: `Add ${filePath}`, content: Buffer.from(content).toString('base64') },
+        { headers: { Authorization: `token ${CFG.githubToken}` }, timeout: 15000 }
+      ).catch(() => {});
+      await new Promise(r => setTimeout(r, 300)); // anti-rate-limit
+    }
+
+    // Activer GitHub Pages
+    await axios.post(
+      `https://api.github.com/repos/${CFG.githubUser}/${repo_name}/pages`,
+      { source: { branch: 'main', path: '/' } },
+      { headers: { Authorization: `token ${CFG.githubToken}`, 'Content-Type': 'application/json', Accept: 'application/vnd.github.v3+json' }, timeout: 15000 }
+    ).catch(() => {});
+
+    const url = `https://${CFG.githubUser}.github.io/${repo_name}`;
+    const ghUrl = `https://github.com/${CFG.githubUser}/${repo_name}`;
+    session.liveUrl   = url;
+    session.githubUrl = ghUrl;
+    emit(sessionId, 'deployed', { url, platform: 'GitHub Pages' });
+    return `✅ Déployé sur GitHub Pages!
+URL live: ${url}
+Code source: ${ghUrl}
+(La page peut prendre 1-2 minutes à être accessible la première fois)`;
+  } catch (e) {
+    return `❌ Erreur GitHub Pages: ${e.response?.data?.message || e.message}`;
   }
 }
 
@@ -406,7 +478,8 @@ async function executeTool(sessionId, toolName, rawInput) {
       case 'read_file':           result = await toolReadFile(sessionId, input);           break;
       case 'list_files':          result = await toolListFiles(sessionId);                 break;
       case 'http_request':        result = await toolHttpRequest(sessionId, input);        break;
-      case 'deploy_vercel':       result = await toolDeployVercel(sessionId, input);       break;
+      case 'deploy_github_pages': result = await toolDeployGitHubPages(sessionId, input);   break;
+      case 'deploy_vercel':       result = await toolDeployVercel(sessionId, input);         break;
       case 'create_github_repo':  result = await toolCreateGitHubRepo(sessionId, input);  break;
       case 'search_web':          result = await toolSearchWeb(sessionId, input);          break;
       case 'delegate_specialist': result = await toolDelegateSpecialist(sessionId, input); break;
