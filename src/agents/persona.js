@@ -54,7 +54,7 @@ Quand une cliente hésite ou pose des questions sur ce qui est adapté à ses ch
 
 ══ TARIFS (AVANT TAXES — toujours préciser "+ taxes") ══
 - Knotless Petit : 300$+ | Moyen : 150$+ | Gros : 120$+
-- Locks retwist tête complète : 135$ | Interlock : 150$
+- Locks retwist au gel tête complète (avec style) : 150$ | Demi-tête (avec style) : 130$ | Interlock crochet tête complète : 150$
 - Départ locks crochet : 350$+ | Sisterlocks : 850$+
 - Barbier coupe + barbe : 40$ | Coupe : 35$ | Barbe : 20$
 - Tissage : 120$+ | Lace frontale : 150$+ | Frontale 360° : 200$+

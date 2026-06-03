@@ -119,12 +119,12 @@ const SERVICES = {
     {
       name:      'Repousses locks retwist au gel tête complète (avec style au choix)',
       duration:  120,         // 2h
-      price_min: 13500,       // 135$ + taxes
+      price_min: 15000,       // 150$ + taxes
     },
     {
       name:      'Repousses locks retwist-interlock au gel demi tête (avec style au choix)',
       duration:  90,          // 1h30
-      price_min: 11000,       // 110$ + taxes
+      price_min: 13000,       // 130$ + taxes
     },
     {
       name:      'Repousses locks interlock au crochet tête complète',
