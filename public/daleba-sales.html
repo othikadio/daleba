@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DALEBA — L'IA qui gère votre entreprise</title>
+  <meta name="description" content="DALEBA automatise votre entreprise avec l'IA : réservations, marketing, fidélisation, comptabilité. Commencez aujourd'hui.">
+  <style>
+    :root {
+      --bg: #080810;
+      --bg2: #0e0e1a;
+      --bg3: #14142a;
+      --accent: #7c3aed;
+      --accent2: #6d28d9;
+      --accent-glow: rgba(124,58,237,0.3);
+      --text: #f0f0f8;
+      --muted: #6b7280;
+      --border: rgba(255,255,255,0.08);
+      --green: #22c55e;
+      --gold: #f59e0b;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body { background:var(--bg); color:var(--text); font-family:-apple-system,'Inter',system-ui,sans-serif; line-height:1.6; overflow-x:hidden; }
+    a { color:inherit; text-decoration:none; }
+
+    /* NAV */
+    nav { position:fixed; top:0; left:0; right:0; z-index:100; padding:16px 5%; background:rgba(8,8,16,0.85); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .nav-logo { font-size:22px; font-weight:800; background:linear-gradient(135deg,#a78bfa,#7c3aed); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .nav-cta { background:var(--accent); color:#fff; padding:9px 22px; border-radius:8px; font-size:14px; font-weight:600; transition:all .2s; border:none; cursor:pointer; }
+    .nav-cta:hover { background:var(--accent2); transform:translateY(-1px); box-shadow:0 4px 20px var(--accent-glow); }
+
+    /* SECTIONS */
+    section { padding:100px 5%; }
+    .container { max-width:1100px; margin:0 auto; }
+
+    /* HERO */
+    .hero { min-height:100vh; display:flex; align-items:center; justify-content:center; text-align:center; position:relative; overflow:hidden; padding-top:120px; }
+    .hero-glow { position:absolute; top:20%; left:50%; transform:translateX(-50%); width:600px; height:600px; background:radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%); pointer-events:none; }
+    .hero-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(124,58,237,0.12); border:1px solid rgba(124,58,237,0.25); border-radius:20px; padding:6px 16px; font-size:12px; color:#a78bfa; font-weight:600; letter-spacing:.5px; margin-bottom:28px; }
+    .hero h1 { font-size:clamp(36px,6vw,72px); font-weight:800; line-height:1.1; margin-bottom:24px; }
+    .hero h1 span { background:linear-gradient(135deg,#a78bfa 0%,#7c3aed 50%,#4f46e5 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .hero-sub { font-size:clamp(16px,2vw,20px); color:var(--muted); max-width:620px; margin:0 auto 40px; }
+    .hero-actions { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+    .btn-primary { background:var(--accent); color:#fff; padding:14px 32px; border-radius:12px; font-size:16px; font-weight:700; transition:all .2s; border:none; cursor:pointer; box-shadow:0 0 30px var(--accent-glow); }
+    .btn-primary:hover { background:var(--accent2); transform:translateY(-2px); box-shadow:0 8px 30px var(--accent-glow); }
+    .btn-secondary { background:transparent; color:var(--text); padding:14px 32px; border-radius:12px; font-size:16px; font-weight:600; border:1px solid var(--border); transition:all .2s; cursor:pointer; }
+    .btn-secondary:hover { border-color:rgba(124,58,237,0.4); background:rgba(124,58,237,0.05); }
+    .hero-stats { display:flex; gap:40px; justify-content:center; margin-top:60px; flex-wrap:wrap; }
+    .stat { text-align:center; }
+    .stat-num { font-size:32px; font-weight:800; color:#a78bfa; }
+    .stat-label { font-size:12px; color:var(--muted); margin-top:4px; }
+
+    /* VALUE PROPS */
+    .section-badge { display:inline-block; background:rgba(124,58,237,0.1); border:1px solid rgba(124,58,237,0.2); border-radius:20px; padding:5px 14px; font-size:12px; color:#a78bfa; font-weight:600; letter-spacing:.5px; margin-bottom:16px; }
+    .section-title { font-size:clamp(28px,4vw,44px); font-weight:800; line-height:1.2; margin-bottom:16px; }
+    .section-sub { font-size:16px; color:var(--muted); max-width:560px; }
+
+    .props-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:24px; margin-top:60px; }
+    .prop-card { background:var(--bg2); border:1px solid var(--border); border-radius:20px; padding:32px; transition:all .3s; }
+    .prop-card:hover { border-color:rgba(124,58,237,0.3); transform:translateY(-4px); box-shadow:0 20px 40px rgba(0,0,0,0.3); }
+    .prop-icon { font-size:36px; margin-bottom:16px; }
+    .prop-title { font-size:20px; font-weight:700; margin-bottom:10px; }
+    .prop-desc { font-size:14px; color:var(--muted); line-height:1.7; }
+
+    /* FEATURES */
+    .features-bg { background:var(--bg2); }
+    .features-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-top:60px; }
+    .feature-item { display:flex; align-items:flex-start; gap:12px; padding:20px; background:var(--bg3); border:1px solid var(--border); border-radius:14px; transition:all .2s; }
+    .feature-item:hover { border-color:rgba(124,58,237,0.25); }
+    .feature-check { width:22px; height:22px; background:rgba(34,197,94,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; font-size:11px; color:var(--green); }
+    .feature-text { font-size:14px; font-weight:500; }
+
+    /* PRICING */
+    .pricing-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px; margin-top:60px; }
+    .price-card { background:var(--bg2); border:1px solid var(--border); border-radius:20px; padding:32px; display:flex; flex-direction:column; position:relative; transition:all .3s; }
+    .price-card:hover { transform:translateY(-6px); box-shadow:0 24px 48px rgba(0,0,0,0.4); }
+    .price-card.highlight { border-color:rgba(124,58,237,0.5); background:linear-gradient(135deg,rgba(124,58,237,0.08),var(--bg2)); box-shadow:0 0 40px rgba(124,58,237,0.15); }
+    .price-badge { position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:var(--accent); color:#fff; padding:4px 16px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap; }
+    .price-emoji { font-size:28px; margin-bottom:12px; }
+    .price-name { font-size:18px; font-weight:700; margin-bottom:6px; }
+    .price-desc { font-size:12px; color:var(--muted); line-height:1.5; margin-bottom:20px; flex:1; }
+    .price-amount { font-size:36px; font-weight:800; margin-bottom:6px; }
+    .price-amount span { font-size:14px; font-weight:400; color:var(--muted); }
+    .price-features { list-style:none; margin:20px 0; display:flex; flex-direction:column; gap:8px; }
+    .price-features li { display:flex; align-items:center; gap:8px; font-size:13px; color:rgba(255,255,255,0.75); }
+    .price-features li::before { content:'✓'; color:var(--green); font-weight:700; flex-shrink:0; }
+    .price-btn { display:block; text-align:center; background:var(--accent); color:#fff; padding:13px; border-radius:12px; font-size:14px; font-weight:700; transition:all .2s; margin-top:auto; border:none; cursor:pointer; width:100%; }
+    .price-btn:hover { background:var(--accent2); transform:translateY(-1px); box-shadow:0 6px 20px var(--accent-glow); }
+    .price-btn.outline { background:transparent; border:1px solid rgba(124,58,237,0.4); color:#a78bfa; }
+    .price-btn.outline:hover { background:rgba(124,58,237,0.1); }
+    .price-loading { text-align:center; color:var(--muted); font-size:14px; padding:40px; }
+
+    /* PROCESS */
+    .process-steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:0; margin-top:60px; position:relative; }
+    .step { text-align:center; padding:30px 20px; position:relative; }
+    .step-num { width:48px; height:48px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; margin:0 auto 16px; box-shadow:0 0 20px var(--accent-glow); }
+    .step-title { font-size:16px; font-weight:700; margin-bottom:8px; }
+    .step-desc { font-size:13px; color:var(--muted); line-height:1.6; }
+
+    /* CTA SECTION */
+    .cta-section { text-align:center; }
+    .cta-box { background:linear-gradient(135deg,rgba(124,58,237,0.15),rgba(79,70,229,0.1)); border:1px solid rgba(124,58,237,0.25); border-radius:28px; padding:80px 40px; position:relative; overflow:hidden; }
+    .cta-glow { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:400px; height:400px; background:radial-gradient(circle,rgba(124,58,237,0.2),transparent 70%); pointer-events:none; }
+    .cta-title { font-size:clamp(28px,4vw,48px); font-weight:800; margin-bottom:16px; position:relative; }
+    .cta-sub { font-size:16px; color:var(--muted); margin-bottom:36px; max-width:480px; margin-left:auto; margin-right:auto; }
+    .cta-email { display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:10px; padding:10px 20px; font-size:14px; color:var(--muted); margin-top:24px; }
+
+    /* FOOTER */
+    footer { text-align:center; padding:40px 5%; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+    footer strong { color:rgba(255,255,255,0.5); }
+
+    /* ANIMATE */
+    .fade-in { opacity:0; transform:translateY(24px); transition:opacity .6s ease, transform .6s ease; }
+    .fade-in.visible { opacity:1; transform:translateY(0); }
+
+    @media(max-width:768px) {
+      section { padding:70px 5%; }
+      .hero-stats { gap:24px; }
+      nav { padding:14px 5%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">DALEBA</div>
+  <button class="nav-cta" id="navCta">Démarrer maintenant</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="container">
+    <div class="hero-badge">✦ Intelligence Artificielle pour PME</div>
+    <h1>L'IA qui gère votre<br><span>entreprise à votre place</span></h1>
+    <p class="hero-sub">De la prise de rendez-vous à la comptabilité, du marketing à la fidélisation — votre entreprise tourne toute seule, 24h/24, 7j/7.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" id="heroCtaMain">Commencer avec un Audit — 150$</button>
+      <button class="btn-secondary" id="heroCtaLearn">Voir les forfaits</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">24/7</div><div class="stat-label">Agents IA actifs</div></div>
+      <div class="stat"><div class="stat-num">8</div><div class="stat-label">Modèles IA frontières</div></div>
+      <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Automatisé</div></div>
+      <div class="stat"><div class="stat-num">48h</div><div class="stat-label">Temps de déploiement</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- VALUE PROPS -->
+<section id="apropos">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-badge">CE QU'ON APPORTE</div>
+      <h2 class="section-title">Votre entreprise sur pilote automatique</h2>
+      <p class="section-sub">DALEBA connecte vos outils, automatise vos opérations et fait travailler l'IA à votre place — pendant que vous vous concentrez sur ce qui compte.</p>
+    </div>
+    <div class="props-grid">
+      <div class="prop-card fade-in">
+        <div class="prop-icon">🤖</div>
+        <div class="prop-title">Agents IA Autonomes</div>
+        <div class="prop-desc">Nos agents IA répondent à vos clients, gèrent les réservations, traitent les demandes Instagram/WhatsApp/Facebook — sans intervention humaine.</div>
+      </div>
+      <div class="prop-card fade-in">
+        <div class="prop-icon">📊</div>
+        <div class="prop-title">Tableau de Bord Intelligent</div>
+        <div class="prop-desc">Visualisez vos revenus, performances clients, taux de rétention et opportunités en temps réel. Décisions éclairées, toujours.</div>
+      </div>
+      <div class="prop-card fade-in">
+        <div class="prop-icon">💬</div>
+        <div class="prop-title">Omnicanal Unifié</div>
+        <div class="prop-desc">WhatsApp, Instagram, Facebook Messenger, SMS — toutes vos conversations dans une seule interface. Un agent IA répond instantanément.</div>
+      </div>
+      <div class="prop-card fade-in">
+        <div class="prop-icon">🎯</div>
+        <div class="prop-title">Marketing IA</div>
+        <div class="prop-desc">Campagnes Meta et Google générées et optimisées automatiquement par l'IA. Acquisition clients sur pilote automatique.</div>
+      </div>
+      <div class="prop-card fade-in">
+        <div class="prop-icon">💰</div>
+        <div class="prop-title">Comptabilité Automatisée</div>
+        <div class="prop-desc">Suivi des revenus, rapports financiers, analyse des dépenses — tout est calculé automatiquement et présenté clairement.</div>
+      </div>
+      <div class="prop-card fade-in">
+        <div class="prop-icon">🔄</div>
+        <div class="prop-title">Fidélisation Intelligente</div>
+        <div class="prop-desc">Système de points, relances automatiques, offres personnalisées — vos clients reviennent et dépensent plus, sans effort de votre part.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-bg" id="fonctionnalites">
+  <div class="container">
+    <div class="fade-in" style="text-align:center;">
+      <div class="section-badge">FONCTIONNALITÉS</div>
+      <h2 class="section-title">Tout ce dont votre entreprise a besoin</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-item fade-in"><div class="feature-check">✓</div><div class="feature-text">Prise de rendez-vous en ligne</div></div>
+      <div class="feature-item fade-in"><div class="feature-check">✓</div><div class="feature-text">Rappels SMS & Email automatiques</div></div>
+      <div class="feature-item fade-in"><div class="feature-check">✓</div><div class="feature-text">Agent vocal IA (appels entrants)</div></div>
+      <div class="feature-item fade-in"><div class="feature-check">✓</div><div class="feature-text">Gestion des absences & no-shows</div></div>
+      <div class="feature-item fade-in"><div class="feature-check">✓</div><div class="feature-text">Programme de fidélité & points</div></div>
+      <div class="feature-item fade-in"><div class="feature-check">✓</div><div class="feature-text">Campagnes marketing IA</div></div>
+      <div class="feature-item fade-in"><div class="feature-check">✓</div><div class="feature-text">Analyse financière en temps réel</div></div>
+      <div class="feature-item fade-in"><div class="feature-check">✓</div><div class="feature-text">Gestion du personnel & planning</div></div>
+      <div class="feature-item fade-in"><div class="feature-check">✓</div><div class="feature-text">Intégration Square, Stripe</div></div>
+      <div class="feature-item fade-in"><div class="feature-check">✓</div><div class="feature-text">Avis Google automatisés</div></div>
+      <div class="feature-item fade-in"><div class="feature-check">✓</div><div class="feature-text">Publication réseaux sociaux IA</div></div>
+      <div class="feature-item fade-in"><div class="feature-check">✓</div><div class="feature-text">Tableau de bord multi-sites</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="tarifs">
+  <div class="container">
+    <div class="fade-in" style="text-align:center;">
+      <div class="section-badge">TARIFS</div>
+      <h2 class="section-title">Choisissez votre niveau</h2>
+      <p class="section-sub" style="margin:0 auto;">Pas d'abonnement caché. Pas de surprise. Vous payez une fois, votre système tourne en continu.</p>
+    </div>
+    <div id="pricingGrid" class="pricing-grid">
+      <div class="price-loading">Chargement des forfaits...</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="features-bg">
+  <div class="container">
+    <div class="fade-in" style="text-align:center;">
+      <div class="section-badge">COMMENT ÇA MARCHE</div>
+      <h2 class="section-title">De zéro à opérationnel en 48h</h2>
+    </div>
+    <div class="process-steps">
+      <div class="step fade-in">
+        <div class="step-num">1</div>
+        <div class="step-title">Audit IA</div>
+        <div class="step-desc">Nos agents analysent votre entreprise, identifient les opportunités d'automatisation et livrent un plan d'action.</div>
+      </div>
+      <div class="step fade-in">
+        <div class="step-num">2</div>
+        <div class="step-title">Déploiement</div>
+        <div class="step-desc">Nous configurons DALEBA pour votre secteur : connectons vos outils, personnalisons les agents IA et formons votre équipe.</div>
+      </div>
+      <div class="step fade-in">
+        <div class="step-num">3</div>
+        <div class="step-title">Automatisation</div>
+        <div class="step-desc">Vos processus tournent automatiquement. Vous supervisez depuis votre tableau de bord et intervenez seulement si vous le souhaitez.</div>
+      </div>
+      <div class="step fade-in">
+        <div class="step-num">4</div>
+        <div class="step-title">Croissance</div>
+        <div class="step-desc">Les agents DALEBA s'améliorent en continu. Plus votre entreprise grandit, plus le système s'adapte.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <div class="container">
+    <div class="cta-box fade-in">
+      <div class="cta-glow"></div>
+      <h2 class="cta-title" style="position:relative;">Prêt à automatiser<br>votre entreprise ?</h2>
+      <p class="cta-sub">Commencez par un audit IA à 150$ — livré en 48h, sans engagement. On prend en charge le reste.</p>
+      <button class="btn-primary" id="ctaBottom" style="font-size:18px;padding:16px 40px;">Commencer maintenant — 150$ CAD</button>
+      <div class="cta-email">✉️ kadioothniel@yahoo.fr</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p><strong>DALEBA</strong> — Plateforme IA pour PME &nbsp;·&nbsp; <a href="mailto:kadioothniel@yahoo.fr" style="color:#a78bfa;">kadioothniel@yahoo.fr</a></p>
+  <p style="margin-top:8px;">© 2026 DALEBA. Tous droits réservés.</p>
+</footer>
+
+<script>
+// Animations scroll
+(function() {
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { e.target.classList.add('visible'); }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(function(el) { observer.observe(el); });
+})();
+
+// Charger les packages
+var auditLink = null;
+
+fetch('/api/sales/packages')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data.ok || !data.packages) throw new Error('no packages');
+    var packages = data.packages;
+    var grid = document.getElementById('pricingGrid');
+    grid.innerHTML = '';
+
+    // Stocker le lien audit pour les CTAs
+    var auditPkg = packages.find(function(p) { return p.id === 'audit'; });
+    if (auditPkg && auditPkg.paymentLinkUrl) auditLink = auditPkg.paymentLinkUrl;
+    updateCtaLinks();
+
+    packages.forEach(function(pkg) {
+      var card = document.createElement('div');
+      card.className = 'price-card fade-in' + (pkg.highlight ? ' highlight' : '');
+
+      var badgeHtml = pkg.highlight ? '<div class="price-badge">⭐ Le plus populaire</div>' : '';
+      var priceDisplay = pkg.type === 'recurring'
+        ? '<span style="font-size:20px;font-weight:400">' + pkg.amountFormatted + '</span><span>/mois</span>'
+        : pkg.amountFormatted + '<span> CAD</span>';
+
+      var featuresHtml = (pkg.features || []).map(function(f) {
+        return '<li>' + f + '</li>';
+      }).join('');
+
+      var btnHtml = pkg.paymentLinkUrl
+        ? '<a href="' + pkg.paymentLinkUrl + '" target="_blank" class="price-btn">Acheter maintenant →</a>'
+        : '<a href="mailto:kadioothniel@yahoo.fr?subject=DALEBA ' + pkg.name + '" class="price-btn outline">Nous contacter →</a>';
+
+      card.innerHTML = badgeHtml +
+        '<div class="price-emoji">' + pkg.emoji + '</div>' +
+        '<div class="price-name">' + pkg.name + '</div>' +
+        '<div class="price-desc">' + pkg.description + '</div>' +
+        '<div class="price-amount">' + priceDisplay + '</div>' +
+        '<ul class="price-features">' + featuresHtml + '</ul>' +
+        btnHtml;
+
+      grid.appendChild(card);
+
+      // Déclencher animation
+      setTimeout(function() {
+        var obs2 = new IntersectionObserver(function(entries) {
+          entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+        obs2.observe(card);
+      }, 100);
+    });
+  })
+  .catch(function() {
+    document.getElementById('pricingGrid').innerHTML =
+      '<div class="price-loading">Contactez-nous à <a href="mailto:kadioothniel@yahoo.fr" style="color:#a78bfa;">kadioothniel@yahoo.fr</a> pour obtenir nos tarifs.</div>';
+  });
+
+function updateCtaLinks() {
+  var target = auditLink || 'mailto:kadioothniel@yahoo.fr?subject=Audit DALEBA';
+
+  ['heroCtaMain', 'ctaBottom', 'navCta'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click', function() {
+      window.open(target, '_blank');
+    });
+  });
+
+  document.getElementById('heroCtaLearn').addEventListener('click', function() {
+    document.getElementById('tarifs').scrollIntoView({ behavior: 'smooth' });
+  });
+}
+</script>
+</body>
+</html>

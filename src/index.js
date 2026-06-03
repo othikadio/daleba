@@ -159,6 +159,10 @@ try { app.use('/api/crm', require('./api/crm-routes')); } catch(_) {}
 // Hub Souverain Multi-Agents — Flotte 8 modèles
 app.use('/api/sovereign', require('./routes/sovereign-hub-routes'));
 
+// Système de vente autonome DALEBA — Catalogue Stripe + Page de vente
+app.use('/api/sales', require('./routes/sales-routes'));
+app.get('/vente', (req, res) => res.sendFile(path.join(__dirname, '../public/daleba-sales.html')));
+
 // Middleware erreurs (Point 12)
 app.use(errorMiddleware);
 app.use(errorWatcher.middleware); // V27 — surveillance 4xx/5xx + patch SMS Ulrich
@@ -523,6 +527,14 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   // Radar Planétaire — scan opportunités mondiales toutes les 4h
   const { startOpportunityWorker } = require('./workers/opportunity-worker');
   startOpportunityWorker();
+
+  // Sync catalogue Stripe au démarrage
+  try {
+    const stripeCatalog = require('./services/stripe-catalog');
+    stripeCatalog.syncAll().catch(e => console.warn('[stripe-catalog] Sync startup error:', e.message));
+  } catch(e) {
+    console.warn('[stripe-catalog] Init error:', e.message);
+  }
 
   app.listen(PORT, () => {
     console.log(`
