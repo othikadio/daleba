@@ -331,6 +331,10 @@ function recommendPackage(budgetUSD) {
  * @returns {Promise<Object>}    - { provider, ... }
  */
 async function notifyProposal(opportunity, proposalText, pricingContext = {}) {
+  // ⛔ USINE ARRÊTÉE — emails désactivés par Ulrich le 2026-06-03
+  console.log('[email-notifier] ⛔ KILL SWITCH ACTIF — email bloqué:', opportunity?.title?.slice(0,50));
+  return { provider: 'disabled', skipped: true, reason: 'kill_switch' };
+  // eslint-disable-next-line no-unreachable
   // ── Sécurité prix : alerte si budget toujours 0 après normalisation ───────
   const { normalizeBudget: norm } = require('./pricing-guard');
   const budgetCheck = norm(opportunity);

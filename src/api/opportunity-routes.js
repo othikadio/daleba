@@ -280,8 +280,8 @@ router.put('/:id/approve', async (req, res) => {
 
         // ── ÉTAPE 3 : Notification email à Ulrich (avec lien Stripe calculé) ─
         try {
-          const { notifyProposal } = require('../services/email-notifier');
-          const emailResult = await notifyProposal(opp, text, { pricing, paymentUrl });
+          // ⛔ USINE STOP const { notifyProposal } = require('../services/email-notifier');
+          // ⛔ USINE STOP const emailResult = await notifyProposal(opp, text, { pricing, paymentUrl });
           console.log(`[approve] Email envoyé via ${emailResult.provider}`, emailResult.previewUrl || emailResult.messageId || '');
         } catch (mailErr) {
           console.error(`[approve] Email notification échouée (non bloquant):`, mailErr.message);
