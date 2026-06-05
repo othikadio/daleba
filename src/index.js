@@ -161,6 +161,12 @@ try { app.use('/api/crm', require('./api/crm-routes')); } catch(_) {}
 // Hub Souverain Multi-Agents — Flotte 8 modèles
 app.use('/api/sovereign', require('./routes/sovereign-hub-routes'));
 
+// ── Bot Telegram Kadio Coiffure (@Kadiocoiffurebot) ──────────────────────────
+try {
+  app.use('/api/webhook/telegram', require('./api/telegram-salon-routes'));
+  console.log('[TELEGRAM-BOT] Routes @Kadiocoiffurebot montées (/api/webhook/telegram/salon)');
+} catch(e) { console.warn('[TELEGRAM-BOT] Routes non montées:', e.message); }
+
 // Système de vente autonome DALEBA — Catalogue Stripe + Page de vente
 app.use('/api/sales', require('./routes/sales-routes'));
 app.get('/vente', (req, res) => res.sendFile(path.join(__dirname, '../public/daleba-sales.html')));
@@ -546,7 +552,7 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
     console.warn('[stripe-catalog] Init error:', e.message);
   }
 
-  app.listen(PORT, () => {
+  app.listen(PORT, async () => {
     console.log(`
 ╔══════════════════════════════════════════╗
 ║     DALEBA CORE v2.0 — EN LIGNE         ║
@@ -555,6 +561,15 @@ if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
 ║     Piliers: I+II+III+IV+V actifs 🚀     ║
 ╚══════════════════════════════════════════╝
     `);
+    // Auto-setup webhook Telegram @Kadiocoiffurebot
+    const baseUrl = process.env.API_BASE_URL || `https://daleba-api-production.up.railway.app`;
+    try {
+      const telegramBot = require('./services/telegram-salon-bot');
+      await telegramBot.setWebhook(baseUrl);
+      console.log('[TELEGRAM-BOT] ✅ Webhook @Kadiocoiffurebot actif');
+    } catch(e) {
+      console.warn('[TELEGRAM-BOT] Webhook setup échoué:', e.message);
+    }
   });
 }
 
