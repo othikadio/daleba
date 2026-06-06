@@ -382,3 +382,44 @@ router.post('/airtable/sync', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// ══════════════════════════════════════════════════════════════════════════════
+// POST /api/payment/admin/activate — Activer manuellement des subscriptions Stripe
+// TEMPORAIRE — À SUPPRIMER après utilisation
+// ══════════════════════════════════════════════════════════════════════════════
+router.post('/admin/activate', async (req, res) => {
+  const { secret } = req.body;
+  if (secret !== 'DALEBA_ADMIN_2026') {
+    return res.status(403).json({ error: 'Non autorisé' });
+  }
+  try {
+    const subService = require('../services/subscription-service');
+    const Stripe = require('stripe');
+    const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+    // Sessions checkout payées avec subscription
+    const sessions = await stripeClient.checkout.sessions.list({ limit: 50 });
+    const paidSessions = sessions.data.filter(s =>
+      s.payment_status === 'paid' && s.subscription
+    );
+
+    const results = [];
+    for (const session of paidSessions) {
+      try {
+        // Expand customer_details si manquant
+        const fullSession = await stripeClient.checkout.sessions.retrieve(session.id, {
+          expand: ['customer_details', 'subscription'],
+        });
+        await subService.handleStripePayment(fullSession);
+        results.push({ sessionId: session.id, email: fullSession.customer_details?.email, status: 'ok' });
+      } catch (e) {
+        results.push({ sessionId: session.id, status: 'error', error: e.message });
+      }
+    }
+    res.json({ success: true, processed: results.length, results });
+  } catch (err) {
+    console.error('[admin/activate]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
