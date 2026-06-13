@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Points Fidélité — Kadio OS</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body { font-family: 'Inter', sans-serif; background: #f9fafb; }
+.progress-bar { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: #d97706; border-radius: 4px; transition: width 0.5s ease; }
+.toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: #111827; color: white; padding: 0.75rem 1.25rem; border-radius: 8px; font-size: 0.85rem; opacity: 0; transform: translateY(8px); transition: all 0.25s; z-index: 999; }
+.toast.show { opacity: 1; transform: translateY(0); }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.open { display: flex; }
+</style>
+</head>
+<body class="p-6">
+
+<div class="max-w-6xl mx-auto">
+
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">🎁 Programme Fidélité</h1>
+    <p class="text-sm text-gray-500 mt-1">1$ dépensé = 1 point · 450 points = 20$ de réduction</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-xl border border-gray-100 p-4">
+      <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Clients</div>
+      <div class="text-2xl font-bold text-gray-900 mt-1" id="stat-total">—</div>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-100 p-4">
+      <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Récompenses Disponibles</div>
+      <div class="text-2xl font-bold text-amber-600 mt-1" id="stat-rewards">—</div>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-100 p-4">
+      <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Proche Objectif</div>
+      <div class="text-2xl font-bold text-orange-500 mt-1" id="stat-soon">—</div>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-100 p-4">
+      <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Points en Circulation</div>
+      <div class="text-2xl font-bold text-gray-900 mt-1" id="stat-points">—</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="flex gap-3 mb-4">
+    <input type="text" id="searchInput" placeholder="Rechercher par nom ou téléphone…" 
+      class="flex-1 max-w-md border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-amber-500"
+      oninput="filterTable()">
+    <button onclick="openAddModal()" class="bg-gray-900 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-amber-600 transition">
+      + Ajouter un client
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Client</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Téléphone</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Points</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Progression</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Statut</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody" class="divide-y divide-gray-100">
+        <tr><td colspan="6" class="text-center py-12 text-gray-400">Chargement…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- Modal Add Client -->
+<div class="modal-overlay" id="addModal">
+  <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-bold text-gray-900">Ajouter un client</h2>
+      <button onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600">✕</button>
+    </div>
+    <div class="space-y-3">
+      <div>
+        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Nom</label>
+        <input type="text" id="newName" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Téléphone</label>
+        <input type="tel" id="newPhone" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Points initiaux</label>
+        <input type="number" id="newPoints" value="0" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 mt-5">
+      <button onclick="closeAddModal()" class="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">Annuler</button>
+      <button onclick="saveNewClient()" class="px-4 py-2 text-sm bg-gray-900 text-white rounded-lg hover:bg-amber-600">Ajouter →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Add Points -->
+<div class="modal-overlay" id="addPointsModal">
+  <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-bold text-gray-900">Ajouter des points</h2>
+      <button onclick="closeAddPointsModal()" class="text-gray-400 hover:text-gray-600">✕</button>
+    </div>
+    <p id="addPointsClientName" class="text-sm text-gray-500 mb-3"></p>
+    <div class="space-y-3">
+      <div>
+        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Montant de l'achat ($)</label>
+        <input type="number" id="purchaseAmount" step="0.01" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Note</label>
+        <input type="text" id="purchaseNote" placeholder="Tresses + Lavage" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 mt-5">
+      <button onclick="closeAddPointsModal()" class="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">Annuler</button>
+      <button onclick="savePoints()" class="px-4 py-2 text-sm bg-gray-900 text-white rounded-lg hover:bg-amber-600">Ajouter →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Use Reward -->
+<div class="modal-overlay" id="useRewardModal">
+  <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-bold text-gray-900">Utiliser la récompense</h2>
+      <button onclick="closeUseRewardModal()" class="text-gray-400 hover:text-gray-600">✕</button>
+    </div>
+    <p class="text-sm text-gray-600 mb-4">
+      <span id="rewardClientName" class="font-semibold"></span> a 
+      <span id="rewardClientPoints" class="font-bold text-amber-600"></span> points.
+    </p>
+    <p class="text-sm text-gray-500 mb-4">Confirmer l'utilisation de 450 points pour obtenir <strong>20$ de réduction</strong>.</p>
+    <div class="flex justify-end gap-2">
+      <button onclick="closeUseRewardModal()" class="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">Annuler</button>
+      <button onclick="confirmUseReward()" class="px-4 py-2 text-sm bg-amber-600 text-white rounded-lg hover:bg-amber-700">✓ Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const POINTS_THRESHOLD = 450;
+const REWARD_AMOUNT = 20;
+const POINTS_PER_DOLLAR = 1;
+
+let allClients = [];
+let currentClientPhone = null;
+
+function loadClients() {
+  const data = localStorage.getItem('kadio_fidelity_clients');
+  allClients = data ? JSON.parse(data) : [];
+  updateStats();
+  renderTable(allClients);
+}
+
+function saveClients() {
+  localStorage.setItem('kadio_fidelity_clients', JSON.stringify(allClients));
+  updateStats();
+}
+
+function updateStats() {
+  const total = allClients.length;
+  const rewards = allClients.filter(c => c.points >= POINTS_THRESHOLD).length;
+  const soon = allClients.filter(c => c.points >= POINTS_THRESHOLD * 0.85 && c.points < POINTS_THRESHOLD).length;
+  const totalPoints = allClients.reduce((sum, c) => sum + c.points, 0);
+  
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-rewards').textContent = rewards;
+  document.getElementById('stat-soon').textContent = soon;
+  document.getElementById('stat-points').textContent = totalPoints.toLocaleString();
+}
+
+function renderTable(clients) {
+  const tbody = document.getElementById('tableBody');
+  if (!clients.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-12 text-gray-400"><p class="text-lg font-semibold mb-1">Aucun client</p><span class="text-sm">Ajoutez votre premier client ci-dessus</span></td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = clients.map(c => {
+    const pct = Math.min((c.points / POINTS_THRESHOLD) * 100, 100);
+    let statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">En cours</span>';
+    if (c.points >= POINTS_THRESHOLD) {
+      statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">🎁 Récompense disponible</span>';
+    } else if (c.points >= POINTS_THRESHOLD * 0.85) {
+      statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">Bientôt !</span>';
+    }
+    
+    let rewardBtn = '';
+    if (c.points >= POINTS_THRESHOLD) {
+      rewardBtn = `<button onclick="openUseReward('${c.phone}')" class="ml-2 text-xs bg-amber-600 text-white px-2 py-1 rounded hover:bg-amber-700">🎁 Utiliser</button>`;
+    }
+    
+    return `<tr class="hover:bg-gray-50">
+      <td class="px-4 py-3 font-medium text-gray-900">${c.name}</td>
+      <td class="px-4 py-3 text-gray-500 text-xs">${c.phone}</td>
+      <td class="px-4 py-3 font-semibold text-gray-900">${c.points} pts</td>
+      <td class="px-4 py-3">
+        <div class="w-32">
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+          <div class="text-xs text-gray-400 mt-1">${c.points} / ${POINTS_THRESHOLD}</div>
+        </div>
+      </td>
+      <td class="px-4 py-3">${statusBadge}</td>
+      <td class="px-4 py-3">
+        <button onclick="openAddPointsModal('${c.phone}')" class="text-xs border border-gray-200 px-2 py-1 rounded hover:border-amber-500 hover:text-amber-600">+ Points</button>
+        ${rewardBtn}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = allClients.filter(c => c.name.toLowerCase().includes(q) || c.phone.includes(q));
+  renderTable(filtered);
+}
+
+// Add Client
+function openAddModal() { document.getElementById('addModal').classList.add('open'); }
+function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
+
+function saveNewClient() {
+  const name = document.getElementById('newName').value.trim();
+  const phone = document.getElementById('newPhone').value.trim();
+  const points = parseInt(document.getElementById('newPoints').value) || 0;
+  if (!name || !phone) { toast('Nom et téléphone requis'); return; }
+  
+  allClients.push({
+    id: Date.now().toString(), name, phone, points,
+    history: points > 0 ? [{date: new Date().toISOString(), points, note: 'Points initiaux'}] : []
+  });
+  saveClients();
+  renderTable(allClients);
+  closeAddModal();
+  toast(`✓ ${name} ajouté avec ${points} points`);
+}
+
+// Add Points
+function openAddPointsModal(phone) {
+  currentClientPhone = phone;
+  const client = allClients.find(c => c.phone === phone);
+  if (!client) return;
+  document.getElementById('addPointsClientName').textContent = client.name;
+  document.getElementById('addPointsModal').classList.add('open');
+}
+function closeAddPointsModal() { document.getElementById('addPointsModal').classList.remove('open'); currentClientPhone = null; }
+
+function savePoints() {
+  const amount = parseFloat(document.getElementById('purchaseAmount').value);
+  const note = document.getElementById('purchaseNote').value.trim() || 'Achat';
+  if (!amount || amount <= 0) { toast('Montant invalide'); return; }
+  
+  const points = Math.floor(amount * POINTS_PER_DOLLAR);
+  const client = allClients.find(c => c.phone === currentClientPhone);
+  if (!client) return;
+  
+  const oldPoints = client.points;
+  client.points += points;
+  if (!client.history) client.history = [];
+  client.history.push({date: new Date().toISOString(), points, note, amount});
+  
+  saveClients();
+  renderTable(allClients);
+  closeAddPointsModal();
+  
+  let msg = `✓ +${points} points pour ${client.name}`;
+  if (oldPoints < POINTS_THRESHOLD && client.points >= POINTS_THRESHOLD) {
+    msg += `
+🎁 RÉCOMPENSE DÉBLOQUÉE ! 20$ de réduction disponible.`;
+  }
+  toast(msg);
+}
+
+// Use Reward
+function openUseReward(phone) {
+  currentClientPhone = phone;
+  const client = allClients.find(c => c.phone === phone);
+  if (!client || client.points < POINTS_THRESHOLD) return;
+  document.getElementById('rewardClientName').textContent = client.name;
+  document.getElementById('rewardClientPoints').textContent = client.points;
+  document.getElementById('useRewardModal').classList.add('open');
+}
+function closeUseRewardModal() { document.getElementById('useRewardModal').classList.remove('open'); currentClientPhone = null; }
+
+function confirmUseReward() {
+  const client = allClients.find(c => c.phone === currentClientPhone);
+  if (!client || client.points < POINTS_THRESHOLD) return;
+  
+  client.points -= POINTS_THRESHOLD;
+  if (!client.history) client.history = [];
+  client.history.push({date: new Date().toISOString(), points: -POINTS_THRESHOLD, note: 'Récompense utilisée : 20$ de réduction'});
+  
+  saveClients();
+  renderTable(allClients);
+  closeUseRewardModal();
+  toast(`✓ Récompense utilisée ! ${client.points} points restants`);
+}
+
+// Toast
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+// Init
+loadClients();
+</script>
+
+</body>
+</html>
