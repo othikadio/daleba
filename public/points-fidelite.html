@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Points Fidélité — Kadio Coiffure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#f5f0ea;--ivory:#faf7f4;--charcoal:#1a1a1a;--warm:#2c2520;
+  --gold:#b8965a;--gold-light:#d4af7a;--muted:#7a6e65;--border:#e0d8d0;
+  --green:#5a9e6f;--red:#c0392b;--orange:#e67e22;--blue:#4a7c9b;
+  --serif:'Cormorant Garamond',Georgia,serif;--sans:'Jost',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--cream);color:var(--charcoal);font-family:var(--sans);font-weight:300;line-height:1.5}
+a{color:inherit;text-decoration:none}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;height:64px;background:rgba(250,247,244,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.nav-logo{font-family:var(--serif);font-size:18px;font-weight:400;letter-spacing:2px}
+.nav-logo span{color:var(--gold)}
+.nav-links{display:flex;gap:24px;align-items:center}
+.nav-links a{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--charcoal)}
+.nav-cta{background:var(--charcoal);color:var(--ivory)!important;padding:8px 18px}
+
+/* LAYOUT */
+.page{padding-top:64px;min-height:100vh}
+
+/* HEADER */
+.page-header{background:var(--charcoal);color:var(--ivory);padding:32px 24px;text-align:center}
+.page-header h1{font-family:var(--serif);font-size:28px;font-weight:300;margin-bottom:8px}
+.page-header p{font-size:13px;color:rgba(250,247,244,0.6);letter-spacing:1px}
+
+/* RULES BANNER */
+.rules-banner{background:var(--ivory);border:2px solid var(--gold);border-radius:12px;margin:24px;padding:20px;display:flex;gap:24px;align-items:center;justify-content:center;flex-wrap:wrap}
+.rule-item{text-align:center}
+.rule-value{font-family:var(--serif);font-size:32px;color:var(--gold);font-weight:300}
+.rule-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-top:4px}
+.rule-arrow{font-size:24px;color:var(--gold);font-family:var(--serif)}
+
+/* TOOLBAR */
+.toolbar{background:var(--ivory);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;position:sticky;top:64px;z-index:100}
+.search-box{flex:1;min-width:200px;max-width:360px;border:1px solid var(--border);background:var(--cream);padding:9px 16px;font-family:var(--sans);font-size:13px;color:var(--charcoal);outline:none;transition:border-color .2s}
+.search-box:focus{border-color:var(--gold)}
+.btn-add{background:var(--charcoal);color:var(--ivory);border:none;padding:9px 20px;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:background .2s;font-family:var(--sans)}
+.btn-add:hover{background:var(--gold)}
+
+/* TABLE */
+.table-wrap{padding:24px;overflow-x:auto}
+.points-table{width:100%;border-collapse:collapse;background:var(--ivory);font-size:13px}
+.points-table th{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:400;text-align:left;padding:12px 16px;border-bottom:2px solid var(--border);background:var(--cream)}
+.points-table td{padding:14px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+.points-table tr:hover td{background:rgba(245,240,234,0.6)}
+.client-name{font-family:var(--serif);font-size:15px;font-weight:400}
+.client-phone{font-size:11px;color:var(--muted);letter-spacing:.5px}
+
+/* PROGRESS BAR */
+.progress-wrap{width:100%;max-width:200px}
+.progress-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:var(--gold);border-radius:4px;transition:width .5s ease}
+.progress-text{font-size:11px;color:var(--muted);margin-top:4px;text-align:right}
+
+/* BADGES */
+.badge{display:inline-block;font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:500;padding:3px 10px;border-radius:20px}
+.badge-reward{background:rgba(184,150,90,0.15);color:var(--gold);border:1px solid rgba(184,150,90,0.4)}
+.badge-active{background:rgba(90,158,111,0.12);color:var(--green);border:1px solid rgba(90,158,111,0.3)}
+.badge-soon{background:rgba(230,126,34,0.1);color:var(--orange);border:1px solid rgba(230,126,34,0.25)}
+
+/* ACTION BUTTONS */
+.action-btn{font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:5px 10px;border:1px solid var(--border);background:none;cursor:pointer;font-family:var(--sans);transition:all .2s;margin-right:4px}
+.action-btn:hover{border-color:var(--gold);color:var(--gold)}
+.action-btn.reward{background:var(--gold);color:var(--ivory);border-color:var(--gold)}
+.action-btn.reward:hover{background:var(--charcoal)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(26,26,26,0.55);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--ivory);max-width:500px;width:100%;padding:36px;position:relative;max-height:90vh;overflow-y:auto}
+.modal-title{font-family:var(--serif);font-size:22px;font-weight:400;margin-bottom:20px}
+.modal-close{position:absolute;top:16px;right:20px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)}
+.form-group{margin-bottom:14px}
+.form-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px}
+.form-input,.form-select{width:100%;border:1px solid var(--border);background:var(--cream);padding:9px 14px;font-family:var(--sans);font-size:13px;color:var(--charcoal);outline:none;transition:border-color .2s}
+.form-input:focus,.form-select:focus{border-color:var(--gold)}
+.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.btn-cancel{background:none;border:1px solid var(--border);padding:9px 20px;font-family:var(--sans);font-size:12px;cursor:pointer;letter-spacing:1px}
+.btn-save{background:var(--charcoal);color:var(--ivory);border:none;padding:9px 24px;font-family:var(--sans);font-size:12px;cursor:pointer;letter-spacing:1px;transition:background .2s}
+.btn-save:hover{background:var(--gold)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--charcoal);color:var(--ivory);padding:12px 20px;font-size:12px;letter-spacing:.5px;z-index:1000;transform:translateY(80px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:60px 24px;color:var(--muted)}
+.empty-state p{font-family:var(--serif);font-size:18px;margin-bottom:8px}
+
+/* HISTORY PANEL */
+.history-panel{background:var(--ivory);border-top:2px solid var(--gold);padding:24px;margin:0 24px 24px;max-height:300px;overflow-y:auto}
+.history-item{padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.history-item:last-child{border-bottom:none}
+.history-date{color:var(--muted);font-size:10px}
+.history-points{color:var(--green);font-weight:500}
+
+@media(max-width:768px){
+  .toolbar{padding:10px 16px}
+  .rules-banner{flex-direction:column;gap:12px}
+  .rule-arrow{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">KADIO <span>·</span> COIFFURE</a>
+  <div class="nav-links">
+    <a href="/admin-abonnes.html">Abonnés</a>
+    <a href="/points-fidelite.html" class="active">Points</a>
+    <a href="/" class="nav-cta">← Accueil</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <h1>Programme Fidélité</h1>
+    <p>1$ dépensé = 1 point · 450 points = 20$ de réduction</p>
+  </div>
+
+  <!-- RULES -->
+  <div class="rules-banner">
+    <div class="rule-item">
+      <div class="rule-value">1<span style="font-size:16px">$</span></div>
+      <div class="rule-label">= 1 point</div>
+    </div>
+    <div class="rule-arrow">→</div>
+    <div class="rule-item">
+      <div class="rule-value">450</div>
+      <div class="rule-label">points objectif</div>
+    </div>
+    <div class="rule-arrow">→</div>
+    <div class="rule-item">
+      <div class="rule-value">20<span style="font-size:16px">$</span></div>
+      <div class="rule-label">réduction</div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <input class="search-box" id="searchInput" type="text" placeholder="Rechercher par nom ou téléphone…" oninput="filterTable()" />
+    <button class="btn-add" onclick="openAddModal()">+ Ajouter un client</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table class="points-table" id="pointsTable">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Téléphone</th>
+          <th>Points</th>
+          <th>Progression</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)">Chargement…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- HISTORY PANEL (hidden by default) -->
+  <div class="history-panel" id="historyPanel" style="display:none">
+    <h3 style="font-family:var(--serif);font-size:18px;margin-bottom:12px">Historique</h3>
+    <div id="historyContent"></div>
+  </div>
+
+</div>
+
+<!-- MODAL ADD CLIENT -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAdd()">✕</button>
+    <div class="modal-title">Ajouter un client</div>
+    <div class="form-group">
+      <label class="form-label">Prénom & Nom</label>
+      <input class="form-input" id="newName" type="text" placeholder="Sophie Beaumont" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Téléphone</label>
+      <input class="form-input" id="newPhone" type="tel" placeholder="+1 514 XXX-XXXX" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Points initiaux (optionnel)</label>
+      <input class="form-input" id="newPoints" type="number" placeholder="0" value="0" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeAdd()">Annuler</button>
+      <button class="btn-save" onclick="saveNewClient()">Ajouter →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ADD POINTS -->
+<div class="modal-overlay" id="addPointsModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAddPoints()">✕</button>
+    <div class="modal-title">Ajouter des points</div>
+    <p id="addPointsClient" style="font-family:var(--serif);font-size:16px;margin-bottom:16px;color:var(--muted)"></p>
+    <div class="form-group">
+      <label class="form-label">Montant de l'achat ($)</label>
+      <input class="form-input" id="purchaseAmount" type="number" placeholder="75.00" step="0.01" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Note (optionnel)</label>
+      <input class="form-input" id="purchaseNote" type="text" placeholder="Tresses + Lavage" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeAddPoints()">Annuler</button>
+      <button class="btn-save" onclick="savePoints()">Ajouter les points →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL USE REWARD -->
+<div class="modal-overlay" id="useRewardModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeUseReward()">✕</button>
+    <div class="modal-title">Utiliser la récompense</div>
+    <p style="margin-bottom:16px;font-size:14px">
+      <span id="rewardClientName" style="font-family:var(--serif);font-size:18px"></span> a 
+      <strong id="rewardPoints" style="color:var(--gold)"></strong> points.
+    </p>
+    <p style="margin-bottom:20px;font-size:13px;color:var(--muted)">
+      Confirmer l'utilisation de 450 points pour obtenir <strong>20$ de réduction</strong> sur la prochaine visite.
+    </p>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeUseReward()">Annuler</button>
+      <button class="btn-save" onclick="confirmUseReward()">✓ Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const POINTS_THRESHOLD = 450;
+const REWARD_AMOUNT = 20;
+const POINTS_PER_DOLLAR = 1;
+
+let allClients = [];
+let currentClientPhone = null;
+
+// ─── LOAD ───────────────────────────────────────────────────────
+function loadClients() {
+  const data = localStorage.getItem('kadio_fidelity_clients');
+  allClients = data ? JSON.parse(data) : [];
+  renderTable(allClients);
+}
+
+function saveClients() {
+  localStorage.setItem('kadio_fidelity_clients', JSON.stringify(allClients));
+}
+
+// ─── RENDER ─────────────────────────────────────────────────────
+function renderTable(clients) {
+  const tbody = document.getElementById('tableBody');
+  if (!clients.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-state"><p>Aucun client enregistré</p><span style="font-size:12px">Ajoutez votre premier client avec le bouton ci-dessus</span></td></tr>`;
+    return;
+  }
+  
+  tbody.innerHTML = clients.map(c => {
+    const pct = Math.min((c.points / POINTS_THRESHOLD) * 100, 100);
+    let statusBadge = '<span class="badge badge-active">En cours</span>';
+    if (c.points >= POINTS_THRESHOLD) {
+      statusBadge = '<span class="badge badge-reward">🎁 Récompense disponible</span>';
+    } else if (c.points >= POINTS_THRESHOLD * 0.85) {
+      statusBadge = '<span class="badge badge-soon">Bientôt !</span>';
+    }
+    
+    let rewardBtn = '';
+    if (c.points >= POINTS_THRESHOLD) {
+      rewardBtn = `<button class="action-btn reward" onclick="openUseReward('${c.phone}')">🎁 Utiliser</button>`;
+    }
+    
+    return `<tr>
+      <td><div class="client-name">${c.name}</div></td>
+      <td><div class="client-phone">${c.phone}</div></td>
+      <td><strong>${c.points}</strong> pts</td>
+      <td>
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+          <div class="progress-text">${c.points} / ${POINTS_THRESHOLD}</div>
+        </div>
+      </td>
+      <td>${statusBadge}</td>
+      <td>
+        <button class="action-btn" onclick="openAddPoints('${c.phone}')">+ Points</button>
+        ${rewardBtn}
+        <button class="action-btn" onclick="showHistory('${c.phone}')">Historique</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── FILTER ─────────────────────────────────────────────────────
+function filterTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = allClients.filter(c => 
+    c.name.toLowerCase().includes(q) || c.phone.includes(q)
+  );
+  renderTable(filtered);
+}
+
+// ─── ADD CLIENT ─────────────────────────────────────────────────
+function openAddModal() {
+  document.getElementById('addModal').classList.add('open');
+  document.getElementById('newName').focus();
+}
+function closeAdd() {
+  document.getElementById('addModal').classList.remove('open');
+  document.getElementById('newName').value = '';
+  document.getElementById('newPhone').value = '';
+  document.getElementById('newPoints').value = '0';
+}
+
+function saveNewClient() {
+  const name = document.getElementById('newName').value.trim();
+  const phone = document.getElementById('newPhone').value.trim();
+  const points = parseInt(document.getElementById('newPoints').value) || 0;
+  
+  if (!name || !phone) { toast('Nom et téléphone requis'); return; }
+  
+  allClients.push({
+    id: Date.now().toString(),
+    name, phone, points,
+    history: points > 0 ? [{date: new Date().toISOString(), points: points, note: 'Points initiaux'}] : []
+  });
+  
+  saveClients();
+  renderTable(allClients);
+  closeAdd();
+  toast(`✓ ${name} ajouté avec ${points} points`);
+}
+
+// ─── ADD POINTS ─────────────────────────────────────────────────
+function openAddPoints(phone) {
+  currentClientPhone = phone;
+  const client = allClients.find(c => c.phone === phone);
+  if (!client) return;
+  document.getElementById('addPointsClient').textContent = client.name;
+  document.getElementById('addPointsModal').classList.add('open');
+  document.getElementById('purchaseAmount').focus();
+}
+function closeAddPoints() {
+  document.getElementById('addPointsModal').classList.remove('open');
+  document.getElementById('purchaseAmount').value = '';
+  document.getElementById('purchaseNote').value = '';
+  currentClientPhone = null;
+}
+
+function savePoints() {
+  const amount = parseFloat(document.getElementById('purchaseAmount').value);
+  const note = document.getElementById('purchaseNote').value.trim() || 'Achat';
+  if (!amount || amount <= 0) { toast('Montant invalide'); return; }
+  
+  const points = Math.floor(amount * POINTS_PER_DOLLAR);
+  const client = allClients.find(c => c.phone === currentClientPhone);
+  if (!client) return;
+  
+  const oldPoints = client.points;
+  client.points += points;
+  if (!client.history) client.history = [];
+  client.history.push({date: new Date().toISOString(), points: points, note: note, amount: amount});
+  
+  saveClients();
+  renderTable(allClients);
+  closeAddPoints();
+  
+  let msg = `✓ +${points} points pour ${client.name} (${client.points} total)`;
+  if (oldPoints < POINTS_THRESHOLD && client.points >= POINTS_THRESHOLD) {
+    msg += `
+🎁 RÉCOMPENSE DÉBLOQUÉE ! 20$ de réduction disponible.`;
+  } else if (client.points >= POINTS_THRESHOLD * 0.85 && client.points < POINTS_THRESHOLD) {
+    const rest = POINTS_THRESHOLD - client.points;
+    msg += `
+🔥 Plus que ${rest} points pour la récompense !`;
+  }
+  toast(msg);
+}
+
+// ─── USE REWARD ─────────────────────────────────────────────────
+function openUseReward(phone) {
+  currentClientPhone = phone;
+  const client = allClients.find(c => c.phone === phone);
+  if (!client || client.points < POINTS_THRESHOLD) return;
+  document.getElementById('rewardClientName').textContent = client.name;
+  document.getElementById('rewardPoints').textContent = client.points;
+  document.getElementById('useRewardModal').classList.add('open');
+}
+function closeUseReward() {
+  document.getElementById('useRewardModal').classList.remove('open');
+  currentClientPhone = null;
+}
+
+function confirmUseReward() {
+  const client = allClients.find(c => c.phone === currentClientPhone);
+  if (!client || client.points < POINTS_THRESHOLD) return;
+  
+  client.points -= POINTS_THRESHOLD;
+  if (!client.history) client.history = [];
+  client.history.push({date: new Date().toISOString(), points: -POINTS_THRESHOLD, note: 'Récompense utilisée : 20$ de réduction'});
+  
+  saveClients();
+  renderTable(allClients);
+  closeUseReward();
+  toast(`✓ Récompense utilisée ! ${client.name} a maintenant ${client.points} points restants`);
+}
+
+// ─── HISTORY ────────────────────────────────────────────────────
+function showHistory(phone) {
+  const client = allClients.find(c => c.phone === phone);
+  if (!client || !client.history || !client.history.length) {
+    toast('Aucun historique'); return;
+  }
+  
+  const panel = document.getElementById('historyPanel');
+  const content = document.getElementById('historyContent');
+  
+  content.innerHTML = `<h4 style="margin-bottom:8px;font-family:var(--serif)">${client.name}</h4>` +
+    client.history.slice().reverse().map(h => {
+      const d = new Date(h.date).toLocaleDateString('fr-CA');
+      const sign = h.points > 0 ? '+' : '';
+      return `<div class="history-item"><span class="history-date">${d}</span> — <span class="history-points">${sign}${h.points} pts</span> — ${h.note}${h.amount ? ' ('+h.amount+'$)' : ''}</div>`;
+    }).join('');
+  
+  panel.style.display = 'block';
+  panel.scrollIntoView({behavior: 'smooth'});
+}
+
+// ─── TOAST ──────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+// ─── INIT ───────────────────────────────────────────────────────
+loadClients();
+</script>
+
+</body>
+</html>
