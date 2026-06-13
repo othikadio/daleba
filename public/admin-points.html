@@ -308,6 +308,10 @@ function confirmUseReward() {
   saveClients();
   renderTable(allClients);
   closeUseRewardModal();
+  
+  // Notifier le client
+  notifyClient(client.phone, 'reward_used', 0, client.points, 0);
+  
   toast(`✓ Récompense utilisée ! ${client.points} points restants`);
 }
 
@@ -317,6 +321,27 @@ function toast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+// NOTIFY WHATSAPP
+const NOTIFY_API = window.location.origin + '/api/loyalty-notify';
+
+async function notifyClient(phone, type, points, total, remaining) {
+  try {
+    const r = await fetch(NOTIFY_API, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ phone, type, points, total, remaining })
+    });
+    const result = await r.json();
+    if (result.success) {
+      console.log('✓ WhatsApp notification sent', result.messageSid);
+    } else {
+      console.error('WhatsApp notification failed:', result.error);
+    }
+  } catch (err) {
+    console.error('Notify error:', err.message);
+  }
 }
 
 // Init
