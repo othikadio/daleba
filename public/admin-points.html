@@ -455,7 +455,7 @@ function saveEditPoints() {
 }
 
 // NOTIFY WHATSAPP
-const NOTIFY_API = window.location.origin + '/api/loyalty-notify';
+const NOTIFY_API = 'https://kadio-whatsapp-notify-production.up.railway.app/api/loyalty-notify';
 
 async function notifyClient(phone, type, points, total, remaining) {
   try {
