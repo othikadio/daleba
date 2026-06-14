@@ -4,10 +4,6 @@ const TWILIO_SID = process.env.TWILIO_SID;
 const TWILIO_AUTH = process.env.TWILIO_AUTH;
 const TWILIO_NUMBER = process.env.TWILIO_NUMBER || '+13022328291';
 
-if (!TWILIO_SID || !TWILIO_AUTH) {
-  console.error('Missing Twilio credentials');
-}
-
 const client = new Twilio(TWILIO_SID, TWILIO_AUTH);
 
 module.exports = async (req, res) => {
@@ -26,50 +22,26 @@ module.exports = async (req, res) => {
   let message = '';
   switch (type) {
     case 'points_added':
-      message = '🎉 *Kadio Coiffure — Points Fidélité*
-
-+' + points + ' points ajoutés !
-Tu as maintenant *' + total + ' points*.
-
-';
+      message = `🎉 *Kadio Coiffure — Points Fidélité*\n\n+${points} points ajoutés !\nTu as maintenant *${total} points*.\n\n`;
       if (total >= 450) {
-        message += '🎁 *RÉCOMPENSE DÉBLOQUÉE !*
-450 points = 20$ de réduction sur ta prochaine visite !';
+        message += '🎁 *RÉCOMPENSE DÉBLOQUÉE !*\n450 points = 20$ de réduction sur ta prochaine visite !';
       } else if (remaining && remaining > 0) {
-        message += '🔥 Plus que ' + remaining + ' points pour ta réduction de 20$ !';
+        message += `🔥 Plus que ${remaining} points pour ta réduction de 20$ !`;
       } else {
         message += 'Continue, tu avances bien ! 💪';
       }
       break;
     case 'near_reward':
-      message = '🔥 *Kadio Coiffure — Points Fidélité*
-
-Tu as ' + total + ' points.
-
-Plus que *' + remaining + ' points* pour débloquer ta réduction de *20 !
-
-Encore un petit effort ! 💪';
+      message = `🔥 *Kadio Coiffure — Points Fidélité*\n\nTu as ${total} points.\n\nPlus que *${remaining} points* pour débloquer ta réduction de *20$* !\n\nEncore un petit effort ! 💪`;
       break;
     case 'reward_unlocked':
-      message = '🎁 *Félicitations — Kadio Coiffure !*
-
-Tu as atteint *450 points* !
-
-*20$ de réduction* sont disponibles sur ta prochaine visite.
-
-Montre ce message au salon et profite de ta récompense ! 🎉';
+      message = `🎁 *Félicitations — Kadio Coiffure !*\n\nTu as atteint *450 points* !\n\n*20$ de réduction* sont disponibles sur ta prochaine visite.\n\nMontre ce message au salon et profite de ta récompense ! 🎉`;
       break;
     case 'reward_used':
-      message = '✅ *Kadio Coiffure — Récompense utilisée*
-
-Tu as utilisé 450 points pour 20$ de réduction.
-Il te reste *' + total + ' points*.
-
-Merci pour ta fidélité ! 🖤';
+      message = `✅ *Kadio Coiffure — Récompense utilisée*\n\nTu as utilisé 450 points pour 20$ de réduction.\nIl te reste *${total} points*.\n\nMerci pour ta fidélité ! 🖤`;
       break;
     default:
-      message = '🎉 *Kadio Coiffure*
-Mise à jour de tes points : ' + total + ' points.';
+      message = `🎉 *Kadio Coiffure*\nMise à jour de tes points : ${total} points.`;
   }
   
   try {
