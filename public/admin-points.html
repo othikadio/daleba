@@ -116,8 +116,15 @@ body { font-family: 'Inter', sans-serif; background: #f9fafb; }
     <p id="addPointsClientName" class="text-sm text-gray-500 mb-3"></p>
     <div class="space-y-3">
       <div>
-        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Montant de l'achat ($)</label>
-        <input type="number" id="purchaseAmount" step="0.01" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
+        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Montant de l'achat ($) — option A</label>
+        <input type="number" id="purchaseAmount" step="0.01" placeholder="75.00" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
+        <p class="text-xs text-gray-400 mt-1">Les points se calculent auto (1$ = 1 pt)</p>
+      </div>
+      <div class="text-center text-xs text-gray-400 uppercase tracking-wider">— OU —</div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Points à ajouter manuellement — option B</label>
+        <input type="number" id="manualPoints" placeholder="50" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-500">
+        <p class="text-xs text-gray-400 mt-1">Écrase le calcul auto si rempli</p>
       </div>
       <div>
         <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Note</label>
@@ -127,6 +134,31 @@ body { font-family: 'Inter', sans-serif; background: #f9fafb; }
     <div class="flex justify-end gap-2 mt-5">
       <button onclick="closeAddPointsModal()" class="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">Annuler</button>
       <button onclick="savePoints()" class="px-4 py-2 text-sm bg-gray-900 text-white rounded-lg hover:bg-amber-600">Ajouter →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Edit Points -->
+<div class="modal-overlay" id="editPointsModal">
+  <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-bold text-gray-900">Modifier les points</h2>
+      <button onclick="closeEditPointsModal()" class="text-gray-400 hover:text-gray-600">✕</button>
+    </div>
+    <p id="editPointsClientName" class="text-sm text-gray-500 mb-3"></p>
+    <div class="space-y-3">
+      <div>
+        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Nouveau total de points</label>
+        <input type="number" id="editPointsTotal" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Raison</label>
+        <input type="text" id="editPointsReason" placeholder="Correction / Ajustement" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 mt-5">
+      <button onclick="closeEditPointsModal()" class="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">Annuler</button>
+      <button onclick="saveEditPoints()" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">Sauvegarder →</button>
     </div>
   </div>
 </div>
@@ -204,6 +236,7 @@ function renderTable(clients) {
     if (c.points >= POINTS_THRESHOLD) {
       rewardBtn = `<button onclick="openUseReward('${c.phone}')" class="ml-2 text-xs bg-amber-600 text-white px-2 py-1 rounded hover:bg-amber-700">🎁 Utiliser</button>`;
     }
+    let editBtn = `<button onclick="openEditPoints('${c.phone}')" class="ml-2 text-xs border border-gray-200 px-2 py-1 rounded hover:border-blue-500 hover:text-blue-600">✏️ Modifier</button>`;
     
     return `<tr class="hover:bg-gray-50">
       <td class="px-4 py-3 font-medium text-gray-900">${c.name}</td>
@@ -219,6 +252,7 @@ function renderTable(clients) {
       <td class="px-4 py-3">
         <button onclick="openAddPointsModal('${c.phone}')" class="text-xs border border-gray-200 px-2 py-1 rounded hover:border-amber-500 hover:text-amber-600">+ Points</button>
         ${rewardBtn}
+        ${editBtn}
       </td>
     </tr>`;
   }).join('');
@@ -262,10 +296,17 @@ function closeAddPointsModal() { document.getElementById('addPointsModal').class
 
 function savePoints() {
   const amount = parseFloat(document.getElementById('purchaseAmount').value);
+  const manualPoints = parseInt(document.getElementById('manualPoints').value);
   const note = document.getElementById('purchaseNote').value.trim() || 'Achat';
-  if (!amount || amount <= 0) { toast('Montant invalide'); return; }
   
-  const points = Math.floor(amount * POINTS_PER_DOLLAR);
+  let points = 0;
+  if (manualPoints && manualPoints > 0) {
+    points = manualPoints;
+  } else if (amount && amount > 0) {
+    points = Math.floor(amount * POINTS_PER_DOLLAR);
+  } else {
+    toast('Entre un montant ou un nombre de points'); return;
+  }
   const client = allClients.find(c => c.phone === currentClientPhone);
   if (!client) return;
   
@@ -321,6 +362,38 @@ function toast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+// EDIT POINTS
+function openEditPoints(phone) {
+  currentClientPhone = phone;
+  const client = allClients.find(c => c.phone === phone);
+  if (!client) return;
+  document.getElementById('editPointsClientName').textContent = client.name + ' — actuellement ' + client.points + ' points';
+  document.getElementById('editPointsTotal').value = client.points;
+  document.getElementById('editPointsModal').classList.add('open');
+}
+function closeEditPointsModal() {
+  document.getElementById('editPointsModal').classList.remove('open');
+  currentClientPhone = null;
+}
+function saveEditPoints() {
+  const newTotal = parseInt(document.getElementById('editPointsTotal').value);
+  const reason = document.getElementById('editPointsReason').value.trim() || 'Modification manuelle';
+  if (isNaN(newTotal) || newTotal < 0) { toast('Nombre de points invalide'); return; }
+  
+  const client = allClients.find(c => c.phone === currentClientPhone);
+  if (!client) return;
+  
+  const diff = newTotal - client.points;
+  client.points = newTotal;
+  if (!client.history) client.history = [];
+  client.history.push({date: new Date().toISOString(), points: diff, note: reason});
+  
+  saveClients();
+  renderTable(allClients);
+  closeEditPointsModal();
+  toast(`✓ Points modifiés : ${client.name} a maintenant ${newTotal} points`);
 }
 
 // NOTIFY WHATSAPP
