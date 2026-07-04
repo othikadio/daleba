@@ -344,6 +344,11 @@
         document.getElementById('demoCode').textContent = data.code;
         document.getElementById('demoCodeBox').style.display = 'block';
       }
+      
+      // Stocke le otp_token pour la vérification
+      if (data.otp_token) {
+        sessionStorage.setItem('otp_token', data.otp_token);
+      }
 
       document.getElementById('phoneDisplay').textContent = phone;
       setStep(2);
@@ -359,6 +364,8 @@
     const phone = document.getElementById('phone').value.trim();
     const code  = ['d1','d2','d3','d4'].map(id => document.getElementById(id).value).join('');
 
+    const otpToken = sessionStorage.getItem('otp_token');
+
     if (code.length < 4) { setError('error2', 'Entrez les 4 chiffres de votre code.'); return; }
     setError('error2', '');
     setLoading('btnVerify', true);
@@ -367,7 +374,7 @@
       const r = await fetch(API + '/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, code }),
+        body: JSON.stringify({ phone, code, otp_token: otpToken }),
       });
       const data = await r.json();
       if (!r.ok || !data.success) throw new Error(data.error || 'Code incorrect');
