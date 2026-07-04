@@ -16,6 +16,10 @@
       "dest": "/api/loyalty-notify.js"
     },
     {
+      "src": "/api/auth/(.*)",
+      "dest": "https://kadio-cerveau-v2-production.up.railway.app/api/auth/$1"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "https://daleba-api-production.up.railway.app/api/$1"
     },

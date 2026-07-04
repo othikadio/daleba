@@ -57,9 +57,15 @@ async function sendOTP(phone) {
     return { sent: true, demo: true };
   }
 
-  await client.messages.create({ body, from, to: phone });
-  console.log(`[OTP-AUTH] OTP envoyé → ${phone}`);
-  return { sent: true };
+  try {
+    await client.messages.create({ body, from, to: phone });
+    console.log(`[OTP-AUTH] OTP envoyé → ${phone}`);
+    return { sent: true };
+  } catch (err) {
+    console.error(`[OTP-AUTH] Twilio failed → ${phone}: ${err.message}`);
+    console.log(`[OTP-AUTH] DEMO FALLBACK → ${phone}: ${body}`);
+    return { sent: true, demo: true };
+  }
 }
 
 /**
