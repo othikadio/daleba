@@ -4,22 +4,9 @@
  */
 
 const crypto = require('crypto');
+const { otpStore, normalizePhone } = require('./otp-store');
 
-// Même stockage que request-otp (partagé dans le même process)
-const otpStore = new Map();
 const JWT_SECRET = process.env.JWT_SECRET || 'kadio-daleba-2026-secret-key';
-
-function normalizePhone(phone) {
-  phone = phone.trim();
-  if (!phone.startsWith('+')) {
-    if (phone.startsWith('1') && phone.length === 11) {
-      phone = '+' + phone;
-    } else {
-      phone = '+1' + phone.lstrip('0');
-    }
-  }
-  return phone;
-}
 
 function generateToken(phone) {
   const payload = { phone, iat: Date.now() };
