@@ -8,16 +8,28 @@
     {
       "src": "api/loyalty-notify.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/auth/request-otp.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/auth/verify-otp.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/api/loyalty-notify",
-      "dest": "/api/loyalty-notify.js"
+      "src": "/api/auth/request-otp",
+      "dest": "/api/auth/request-otp.js"
     },
     {
-      "src": "/api/auth/(.*)",
-      "dest": "https://kadio-cerveau-v2-production.up.railway.app/api/auth/$1"
+      "src": "/api/auth/verify-otp",
+      "dest": "/api/auth/verify-otp.js"
+    },
+    {
+      "src": "/api/loyalty-notify",
+      "dest": "/api/loyalty-notify.js"
     },
     {
       "src": "/api/(.*)",

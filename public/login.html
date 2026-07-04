@@ -256,6 +256,10 @@
         <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" inputmode="numeric" id="d4">
       </div>
       <div class="error-msg" id="error2"></div>
+      <div id="demoCodeBox" style="display:none; background:#f0f8ff; border:1px solid #b0d4f1; border-radius:4px; padding:0.75rem; margin:0.75rem 0; text-align:center;">
+        <div style="font-size:0.75rem; color:#666; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.3rem;">Code de vérification (mode test)</div>
+        <div id="demoCode" style="font-size:1.8rem; font-weight:bold; color:#2D1B0E; letter-spacing:0.2em;">----</div>
+      </div>
       <button class="btn-primary" id="btnVerify" onclick="verifyOTP()">Confirmer</button>
       <button class="btn-back" onclick="goBack()">Modifier le numéro</button>
     </div>
@@ -334,6 +338,12 @@
       });
       const data = await r.json();
       if (!r.ok || !data.success) throw new Error(data.error || 'Erreur serveur');
+
+      // Affiche le code en mode démo (quand SMS non envoyé)
+      if (data.code) {
+        document.getElementById('demoCode').textContent = data.code;
+        document.getElementById('demoCodeBox').style.display = 'block';
+      }
 
       document.getElementById('phoneDisplay').textContent = phone;
       setStep(2);
