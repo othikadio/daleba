@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DALEBA — Gestion Salon</title>
+<style>
+  :root {
+    --bg: #FAF6F0;
+    --accent: #C4622D;
+    --accent-dim: rgba(196,98,45,0.12);
+    --success: #7A9E6E;
+    --warn: #C4622D;
+    --danger: #C0392B;
+    --text: #2D1B0E;
+    --muted: #8C7B6B;
+    --card: #FFFFFF;
+    --border: #E2D8CE;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+  .header {
+    background: #FFFFFF;
+    border-bottom: 2px solid var(--accent);
+    box-shadow: 0 2px 8px rgba(196,98,45,0.08);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { font-size: 20px; font-weight: 800; color: var(--accent); font-family: Georgia, serif; letter-spacing: 2px; }
+  .header-sep { color: var(--border); font-size: 18px; }
+  .header-title { font-size: 14px; font-weight: 600; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+  .logout-btn { font-size: 12px; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  .logout-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .tabs { display: flex; gap: 4px; padding: 20px 28px 0; flex-wrap: wrap; }
+  .tab {
+    padding: 10px 18px; border-radius: 10px 10px 0 0; background: var(--card);
+    border: 1px solid var(--border); border-bottom: none; cursor: pointer;
+    font-size: 13px; font-weight: 600; color: var(--muted);
+  }
+  .tab.active { color: var(--accent); background: var(--card); box-shadow: 0 -2px 8px rgba(196,98,45,0.08); }
+
+  .panel { display: none; padding: 20px 28px; }
+  .panel.active { display: block; }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  .card h3 { font-size: 14px; margin-bottom: 14px; color: var(--text); }
+
+  .form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  input, select, textarea {
+    border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13px;
+    font-family: inherit; background: #fff; color: var(--text); flex: 1; min-width: 160px;
+  }
+  textarea { min-width: 100%; min-height: 60px; resize: vertical; }
+  .btn {
+    border: none; border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 700;
+    cursor: pointer; background: var(--accent); color: #fff;
+  }
+  .btn:hover { opacity: .88; }
+  .btn-muted { background: var(--border); color: var(--text); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-sm { padding: 5px 10px; font-size: 11px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; padding: 8px; border-bottom: 2px solid var(--border); }
+  td { padding: 8px; border-bottom: 1px solid var(--border); }
+  tr:hover td { background: var(--accent-dim); }
+  .empty { color: var(--muted); font-size: 13px; padding: 20px 0; text-align: center; }
+
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .pill-good { background: rgba(122,158,110,0.15); color: var(--success); }
+  .pill-bad { background: rgba(192,57,43,0.15); color: var(--danger); }
+  .pill-muted { background: var(--accent-dim); color: var(--accent); }
+
+  .stars-input { display: flex; gap: 4px; margin: 4px 0; }
+  .star-btn { font-size: 26px; cursor: pointer; filter: grayscale(1); background: none; border: none; padding: 0; }
+  .star-btn.active { filter: none; }
+
+  .banner {
+    display: none; background: #fff3cd; border: 1px solid #ffe08a; color: #7a5c00;
+    padding: 10px 16px; border-radius: 8px; font-size: 12px; margin: 0 28px 16px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">DALEBA</div>
+  <div class="header-sep">/</div>
+  <div class="header-title">Gestion Salon</div>
+  <div class="header-right">
+    <button class="logout-btn" onclick="logout()">Déconnexion</button>
+  </div>
+</div>
+
+<div id="authBanner" class="banner">Accès refusé — réservé aux administrateurs. Redirection vers la connexion…</div>
+
+<div class="tabs">
+  <div class="tab active" data-panel="clients">Clients</div>
+  <div class="tab" data-panel="employes">Employés</div>
+  <div class="tab" data-panel="parrainages">Parrainages</div>
+  <div class="tab" data-panel="references">Références</div>
+  <div class="tab" data-panel="notations">Notations</div>
+  <div class="tab" data-panel="smslog">SMS Log</div>
+</div>
+
+<!-- ═══════ CLIENTS ═══════ -->
+<div class="panel active" id="panel-clients">
+  <div class="card">
+    <h3>Nouveau client</h3>
+    <div class="form-row">
+      <input id="c-nom" placeholder="Nom *" />
+      <input id="c-tel" placeholder="Téléphone (+15145551234)" />
+      <input id="c-email" placeholder="Email" />
+    </div>
+    <div class="form-row"><textarea id="c-notes" placeholder="Notes"></textarea></div>
+    <button class="btn" onclick="createClient()">+ Ajouter</button>
+  </div>
+  <div class="card">
+    <h3>Clients</h3>
+    <table><thead><tr><th>Nom</th><th>Téléphone</th><th>Email</th><th>Statut</th><th></th></tr></thead>
+      <tbody id="clients-body"></tbody>
+    </table>
+    <div class="empty" id="clients-empty" style="display:none">Aucun client.</div>
+  </div>
+</div>
+
+<!-- ═══════ EMPLOYÉS ═══════ -->
+<div class="panel" id="panel-employes">
+  <div class="card">
+    <h3>Nouvel employé</h3>
+    <div class="form-row">
+      <input id="e-nom" placeholder="Nom *" />
+      <input id="e-tel" placeholder="Téléphone" />
+      <input id="e-email" placeholder="Email" />
+      <input id="e-poste" placeholder="Poste (coiffeur, esthéticienne…)" />
+    </div>
+    <button class="btn" onclick="createEmploye()">+ Ajouter</button>
+  </div>
+  <div class="card">
+    <h3>Équipe</h3>
+    <table><thead><tr><th>Nom</th><th>Poste</th><th>Téléphone</th><th>Statut</th><th></th></tr></thead>
+      <tbody id="employes-body"></tbody>
+    </table>
+    <div class="empty" id="employes-empty" style="display:none">Aucun employé.</div>
+  </div>
+</div>
+
+<!-- ═══════ PARRAINAGES ═══════ -->
+<div class="panel" id="panel-parrainages">
+  <div class="card">
+    <h3>Nouveau parrainage</h3>
+    <div class="form-row">
+      <select id="p-parrain"></select>
+      <input id="p-filleul-nom" placeholder="Nom du filleul *" />
+      <input id="p-filleul-tel" placeholder="Téléphone du filleul" />
+      <input id="p-recompense" placeholder="Récompense (ex: 10$ crédit)" />
+    </div>
+    <button class="btn" onclick="createParrainage()">+ Ajouter</button>
+  </div>
+  <div class="card">
+    <h3>Parrainages</h3>
+    <table><thead><tr><th>Parrain</th><th>Filleul</th><th>Récompense</th><th>Statut</th><th></th></tr></thead>
+      <tbody id="parrainages-body"></tbody>
+    </table>
+    <div class="empty" id="parrainages-empty" style="display:none">Aucun parrainage.</div>
+  </div>
+</div>
+
+<!-- ═══════ RÉFÉRENCES ═══════ -->
+<div class="panel" id="panel-references">
+  <div class="card">
+    <h3>Nouvelle référence employé</h3>
+    <div class="form-row">
+      <select id="r-employe"></select>
+      <input id="r-nom" placeholder="Nom de la référence *" />
+      <input id="r-tel" placeholder="Téléphone" />
+      <input id="r-relation" placeholder="Relation (ex: ancien employeur)" />
+    </div>
+    <div class="form-row"><textarea id="r-commentaire" placeholder="Commentaire"></textarea></div>
+    <button class="btn" onclick="createReference()">+ Ajouter</button>
+  </div>
+  <div class="card">
+    <h3>Références</h3>
+    <table><thead><tr><th>Employé</th><th>Référence</th><th>Relation</th><th>Téléphone</th></tr></thead>
+      <tbody id="references-body"></tbody>
+    </table>
+    <div class="empty" id="references-empty" style="display:none">Aucune référence.</div>
+  </div>
+</div>
+
+<!-- ═══════ NOTATIONS ═══════ -->
+<div class="panel" id="panel-notations">
+  <div class="card">
+    <h3>Nouvelle notation</h3>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
+      Note ≥ 4 → SMS automatique au client avec le lien d'avis Google. Note ≤ 3 → SMS d'alerte envoyé à l'équipe (514-919-5970, 514-984-5970).
+    </p>
+    <div class="form-row">
+      <input id="n-client-nom" placeholder="Nom du client" />
+      <input id="n-client-tel" placeholder="Téléphone du client (requis pour SMS avis Google)" />
+      <select id="n-employe"></select>
+    </div>
+    <div class="stars-input" id="n-stars">
+      <button class="star-btn" data-v="1">⭐</button>
+      <button class="star-btn" data-v="2">⭐</button>
+      <button class="star-btn" data-v="3">⭐</button>
+      <button class="star-btn" data-v="4">⭐</button>
+      <button class="star-btn" data-v="5">⭐</button>
+    </div>
+    <div class="form-row"><textarea id="n-commentaire" placeholder="Commentaire"></textarea></div>
+    <button class="btn" onclick="createNotation()">Envoyer la notation</button>
+  </div>
+  <div class="card">
+    <h3>Historique des notations</h3>
+    <table><thead><tr><th>Client</th><th>Note</th><th>Type SMS</th><th>Commentaire</th><th>Date</th></tr></thead>
+      <tbody id="notations-body"></tbody>
+    </table>
+    <div class="empty" id="notations-empty" style="display:none">Aucune notation.</div>
+  </div>
+</div>
+
+<!-- ═══════ SMS LOG ═══════ -->
+<div class="panel" id="panel-smslog">
+  <div class="card">
+    <h3>Journal SMS (Twilio)</h3>
+    <table><thead><tr><th>Destinataire</th><th>Type</th><th>Statut</th><th>Message</th><th>Date</th></tr></thead>
+      <tbody id="smslog-body"></tbody>
+    </table>
+    <div class="empty" id="smslog-empty" style="display:none">Aucun SMS envoyé.</div>
+  </div>
+</div>
+
+<script>
+  const state = { clients: [], employes: [], parrainages: [], references: [], notations: [], smsLog: [], noteSelected: 0 };
+
+  // ── Auth ──────────────────────────────────────────────────────────────────
+  function authFetch(url, opts = {}) {
+    const token = localStorage.getItem('daleba_token') || '';
+    return fetch(url, {
+      ...opts,
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...(opts.headers || {}) },
+    }).then(async r => {
+      if (r.status === 401 || r.status === 403) {
+        document.getElementById('authBanner').style.display = 'block';
+        setTimeout(() => { window.location.href = '/admin/login'; }, 1500);
+        return null;
+      }
+      return r.json().catch(() => null);
+    }).catch(() => null);
+  }
+
+  function logout() {
+    localStorage.removeItem('daleba_token');
+    window.location.href = '/admin/login';
+  }
+
+  // ── Tabs ──────────────────────────────────────────────────────────────────
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+    });
+  });
+
+  function esc(s) { return (s ?? '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function fmtDate(d) { return d ? new Date(d).toLocaleString('fr-CA', { dateStyle: 'short', timeStyle: 'short' }) : '—'; }
+
+  // ── Clients ───────────────────────────────────────────────────────────────
+  async function loadClients() {
+    const r = await authFetch('/api/gestion/clients');
+    state.clients = r?.clients || [];
+    renderClients();
+    fillSelect('p-parrain', state.clients, c => c.id, c => c.nom, 'Parrain (client)…');
+  }
+  function renderClients() {
+    const body = document.getElementById('clients-body');
+    document.getElementById('clients-empty').style.display = state.clients.length ? 'none' : 'block';
+    body.innerHTML = state.clients.map(c => `
+      <tr>
+        <td>${esc(c.nom)}</td><td>${esc(c.telephone)}</td><td>${esc(c.email)}</td>
+        <td><span class="pill ${c.actif ? 'pill-good' : 'pill-muted'}">${c.actif ? 'Actif' : 'Inactif'}</span></td>
+        <td><button class="btn btn-sm btn-danger" onclick="deleteClient(${c.id})">Suppr.</button></td>
+      </tr>`).join('');
+  }
+  async function createClient() {
+    const nom = document.getElementById('c-nom').value.trim();
+    if (!nom) return alert('Nom requis');
+    await authFetch('/api/gestion/clients', { method: 'POST', body: JSON.stringify({
+      nom, telephone: document.getElementById('c-tel').value.trim(),
+      email: document.getElementById('c-email').value.trim(), notes: document.getElementById('c-notes').value.trim(),
+    })});
+    document.getElementById('c-nom').value = ''; document.getElementById('c-tel').value = '';
+    document.getElementById('c-email').value = ''; document.getElementById('c-notes').value = '';
+    loadClients();
+  }
+  async function deleteClient(id) { if (confirm('Supprimer ce client ?')) { await authFetch('/api/gestion/clients/' + id, { method: 'DELETE' }); loadClients(); } }
+
+  // ── Employés ──────────────────────────────────────────────────────────────
+  async function loadEmployes() {
+    const r = await authFetch('/api/gestion/employes');
+    state.employes = r?.employes || [];
+    renderEmployes();
+    fillSelect('r-employe', state.employes, e => e.id, e => e.nom, 'Employé…');
+    fillSelect('n-employe', state.employes, e => e.id, e => e.nom, 'Employé (optionnel)…');
+  }
+  function renderEmployes() {
+    const body = document.getElementById('employes-body');
+    document.getElementById('employes-empty').style.display = state.employes.length ? 'none' : 'block';
+    body.innerHTML = state.employes.map(e => `
+      <tr>
+        <td>${esc(e.nom)}</td><td>${esc(e.poste)}</td><td>${esc(e.telephone)}</td>
+        <td><span class="pill ${e.actif ? 'pill-good' : 'pill-muted'}">${e.actif ? 'Actif' : 'Inactif'}</span></td>
+        <td><button class="btn btn-sm btn-danger" onclick="deleteEmploye(${e.id})">Suppr.</button></td>
+      </tr>`).join('');
+  }
+  async function createEmploye() {
+    const nom = document.getElementById('e-nom').value.trim();
+    if (!nom) return alert('Nom requis');
+    await authFetch('/api/gestion/employes', { method: 'POST', body: JSON.stringify({
+      nom, telephone: document.getElementById('e-tel').value.trim(),
+      email: document.getElementById('e-email').value.trim(), poste: document.getElementById('e-poste').value.trim(),
+    })});
+    document.getElementById('e-nom').value = ''; document.getElementById('e-tel').value = '';
+    document.getElementById('e-email').value = ''; document.getElementById('e-poste').value = '';
+    loadEmployes();
+  }
+  async function deleteEmploye(id) { if (confirm('Supprimer cet employé ?')) { await authFetch('/api/gestion/employes/' + id, { method: 'DELETE' }); loadEmployes(); } }
+
+  // ── Parrainages ───────────────────────────────────────────────────────────
+  async function loadParrainages() {
+    const r = await authFetch('/api/gestion/parrainages');
+    state.parrainages = r?.parrainages || [];
+    renderParrainages();
+  }
+  function renderParrainages() {
+    const body = document.getElementById('parrainages-body');
+    document.getElementById('parrainages-empty').style.display = state.parrainages.length ? 'none' : 'block';
+    body.innerHTML = state.parrainages.map(p => {
+      const parrain = state.clients.find(c => c.id === p.parrain_client_id);
+      return `<tr>
+        <td>${esc(parrain?.nom || p.parrain_client_id)}</td>
+        <td>${esc(p.filleul_nom)} ${esc(p.filleul_telephone ? '(' + p.filleul_telephone + ')' : '')}</td>
+        <td>${esc(p.recompense)}</td>
+        <td>
+          <select onchange="updateParrainageStatut(${p.id}, this.value)">
+            <option value="en_attente" ${p.statut === 'en_attente' ? 'selected' : ''}>En attente</option>
+            <option value="valide" ${p.statut === 'valide' ? 'selected' : ''}>Validé</option>
+            <option value="recompense" ${p.statut === 'recompense' ? 'selected' : ''}>Récompensé</option>
+          </select>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+  async function createParrainage() {
+    const parrainClientId = document.getElementById('p-parrain').value;
+    const filleulNom = document.getElementById('p-filleul-nom').value.trim();
+    if (!parrainClientId || !filleulNom) return alert('Parrain et nom du filleul requis');
+    await authFetch('/api/gestion/parrainages', { method: 'POST', body: JSON.stringify({
+      parrainClientId, filleulNom, filleulTelephone: document.getElementById('p-filleul-tel').value.trim(),
+      recompense: document.getElementById('p-recompense').value.trim(),
+    })});
+    document.getElementById('p-filleul-nom').value = ''; document.getElementById('p-filleul-tel').value = ''; document.getElementById('p-recompense').value = '';
+    loadParrainages();
+  }
+  async function updateParrainageStatut(id, statut) { await authFetch('/api/gestion/parrainages/' + id, { method: 'PATCH', body: JSON.stringify({ statut }) }); }
+
+  // ── Références ────────────────────────────────────────────────────────────
+  async function loadReferences() {
+    const r = await authFetch('/api/gestion/references');
+    state.references = r?.references || [];
+    renderReferences();
+  }
+  function renderReferences() {
+    const body = document.getElementById('references-body');
+    document.getElementById('references-empty').style.display = state.references.length ? 'none' : 'block';
+    body.innerHTML = state.references.map(r => {
+      const emp = state.employes.find(e => e.id === r.employe_id);
+      return `<tr><td>${esc(emp?.nom || r.employe_id)}</td><td>${esc(r.nom_reference)}</td><td>${esc(r.relation)}</td><td>${esc(r.telephone)}</td></tr>`;
+    }).join('');
+  }
+  async function createReference() {
+    const employeId = document.getElementById('r-employe').value;
+    const nomReference = document.getElementById('r-nom').value.trim();
+    if (!employeId || !nomReference) return alert('Employé et nom requis');
+    await authFetch('/api/gestion/references', { method: 'POST', body: JSON.stringify({
+      employeId, nomReference, telephone: document.getElementById('r-tel').value.trim(),
+      relation: document.getElementById('r-relation').value.trim(), commentaire: document.getElementById('r-commentaire').value.trim(),
+    })});
+    document.getElementById('r-nom').value = ''; document.getElementById('r-tel').value = '';
+    document.getElementById('r-relation').value = ''; document.getElementById('r-commentaire').value = '';
+    loadReferences();
+  }
+
+  // ── Notations ─────────────────────────────────────────────────────────────
+  document.querySelectorAll('#n-stars .star-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.noteSelected = parseInt(btn.dataset.v);
+      document.querySelectorAll('#n-stars .star-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.v) <= state.noteSelected));
+    });
+  });
+  async function loadNotations() {
+    const r = await authFetch('/api/gestion/notations');
+    state.notations = r?.notations || [];
+    renderNotations();
+  }
+  function renderNotations() {
+    const body = document.getElementById('notations-body');
+    document.getElementById('notations-empty').style.display = state.notations.length ? 'none' : 'block';
+    body.innerHTML = state.notations.map(n => `
+      <tr>
+        <td>${esc(n.client_nom)}</td>
+        <td><span class="pill ${n.note >= 4 ? 'pill-good' : 'pill-bad'}">${n.note}/5</span></td>
+        <td>${n.sms_type === 'google' ? 'Avis Google' : 'Alerte équipe'}</td>
+        <td>${esc(n.commentaire)}</td>
+        <td>${fmtDate(n.created_at)}</td>
+      </tr>`).join('');
+  }
+  async function createNotation() {
+    if (!state.noteSelected) return alert('Sélectionnez une note');
+    const employeId = document.getElementById('n-employe').value || null;
+    const r = await authFetch('/api/gestion/notations', { method: 'POST', body: JSON.stringify({
+      clientNom: document.getElementById('n-client-nom').value.trim(),
+      clientTelephone: document.getElementById('n-client-tel').value.trim(),
+      employeId, note: state.noteSelected, commentaire: document.getElementById('n-commentaire').value.trim(),
+    })});
+    if (r?.success) {
+      alert(r.smsType === 'google' ? 'Notation enregistrée — SMS avis Google envoyé.' : 'Notation enregistrée — SMS d\'alerte envoyé à l\'équipe.');
+    }
+    document.getElementById('n-client-nom').value = ''; document.getElementById('n-client-tel').value = '';
+    document.getElementById('n-commentaire').value = ''; state.noteSelected = 0;
+    document.querySelectorAll('#n-stars .star-btn').forEach(b => b.classList.remove('active'));
+    loadNotations(); loadSmsLog();
+  }
+
+  // ── SMS Log ───────────────────────────────────────────────────────────────
+  async function loadSmsLog() {
+    const r = await authFetch('/api/gestion/sms-log');
+    state.smsLog = r?.smsLog || [];
+    renderSmsLog();
+  }
+  function renderSmsLog() {
+    const body = document.getElementById('smslog-body');
+    document.getElementById('smslog-empty').style.display = state.smsLog.length ? 'none' : 'block';
+    body.innerHTML = state.smsLog.map(s => `
+      <tr>
+        <td>${esc(s.destinataire)}</td><td>${esc(s.type)}</td>
+        <td><span class="pill ${s.statut === 'echec' ? 'pill-bad' : 'pill-good'}">${esc(s.statut)}</span></td>
+        <td style="max-width:340px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(s.message)}</td>
+        <td>${fmtDate(s.created_at)}</td>
+      </tr>`).join('');
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function fillSelect(id, items, valFn, labelFn, placeholder) {
+    const el = document.getElementById(id);
+    const current = el.value;
+    el.innerHTML = `<option value="">${placeholder}</option>` + items.map(i => `<option value="${valFn(i)}">${esc(labelFn(i))}</option>`).join('');
+    if (current) el.value = current;
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  (async function init() {
+    if (!localStorage.getItem('daleba_token')) {
+      window.location.href = '/admin/login';
+      return;
+    }
+    await loadClients();
+    await loadEmployes();
+    await Promise.all([loadParrainages(), loadReferences(), loadNotations(), loadSmsLog()]);
+  })();
+</script>
+</body>
+</html>

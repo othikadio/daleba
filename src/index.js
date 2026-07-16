@@ -115,6 +115,7 @@ app.use('/api/commercial',   require('./api/commercial-routes'));  // V43 Agent 
 app.use('/api/voice', require('./api/voice-dashboard-routes'));     // Jarvis — commande vocale + meta
 app.use('/api/dashboard', require('./api/voice-dashboard-routes')); // Jarvis — statut meta + site
 app.use('/api/salon', require('./api/salon-ops-routes'));  // V35 — Arrivée VIP + ratings + bouclier Google
+app.use('/api/gestion', require('./api/gestion-routes'));  // Gestion Salon — clients/employés/parrainages/références/notations (admin)
 app.use('/api/staff', require('./api/staff-routes'));       // V35 — /api/staff/scan-qr
 app.use('/api/training', require('./api/training-routes')); // V31 — Ingestion conversations historiques + Style DNA
 app.use('/api/sq-calendar', require('./api/square-calendar-routes')); // Chantier 2 — Calendrier Square multi-staff
@@ -257,6 +258,11 @@ app.get('/admin/staff-portal', (req, res) => {
 });
 app.get('/admin/team-manager', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin/team-manager.html'));
+});
+
+// Gestion Salon — clients/employés/parrainages/références/notations (admin)
+app.get('/admin/gestion', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin/gestion.html'));
 });
 
 // Chantier 2 — Calendrier Square multi-staff
