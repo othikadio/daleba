@@ -60,14 +60,16 @@ async function initTables() {
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS kadio_gestion_clients (
-        id          SERIAL PRIMARY KEY,
-        nom         VARCHAR(150) NOT NULL,
-        telephone   VARCHAR(20),
-        email       VARCHAR(150),
-        notes       TEXT,
-        actif       BOOLEAN DEFAULT TRUE,
-        created_at  TIMESTAMP DEFAULT NOW(),
-        updated_at  TIMESTAMP DEFAULT NOW()
+        id                 SERIAL PRIMARY KEY,
+        nom                VARCHAR(150) NOT NULL,
+        telephone          VARCHAR(20),
+        email              VARCHAR(150),
+        notes              TEXT,
+        actif              BOOLEAN DEFAULT TRUE,
+        points_fidelite    INT DEFAULT 0,
+        credit_disponible  NUMERIC(8,2) DEFAULT 0,
+        created_at         TIMESTAMP DEFAULT NOW(),
+        updated_at         TIMESTAMP DEFAULT NOW()
       );
       CREATE TABLE IF NOT EXISTS kadio_gestion_employes (
         id          SERIAL PRIMARY KEY,
@@ -123,7 +125,14 @@ async function initTables() {
     console.log(`${LOG} Tables OK`);
   } catch (e) { console.warn(`${LOG} initTables: ${e.message}`); }
 }
-initTables();
+const dbReady = initTables();
+
+function normalizePhone(phone = '') {
+  let p = phone.replace(/[^\d+]/g, '');
+  if (!p.startsWith('+') && p.length === 10) p = '+1' + p;
+  else if (!p.startsWith('+') && p.length === 11 && p.startsWith('1')) p = '+' + p;
+  return p;
+}
 
 // ── Auth : admin uniquement (business_admin ou super_admin) ────────────────
 router.use(requireAuth, requireRole(ROLES.BUSINESS_ADMIN));
@@ -144,7 +153,7 @@ router.post('/clients', async (req, res) => {
   try {
     const r = await pool.query(`
       INSERT INTO kadio_gestion_clients (nom, telephone, email, notes) VALUES ($1,$2,$3,$4) RETURNING *
-    `, [nom, telephone || null, email || null, notes || null]);
+    `, [nom, telephone ? normalizePhone(telephone) : null, email || null, notes || null]);
     res.status(201).json({ success: true, client: r.rows[0] });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -158,7 +167,7 @@ router.put('/clients/:id', async (req, res) => {
         nom=COALESCE($1,nom), telephone=COALESCE($2,telephone), email=COALESCE($3,email),
         notes=COALESCE($4,notes), actif=COALESCE($5,actif), updated_at=NOW()
       WHERE id=$6 RETURNING *
-    `, [nom, telephone, email, notes, actif, req.params.id]);
+    `, [nom, telephone ? normalizePhone(telephone) : null, email, notes, actif, req.params.id]);
     if (!r.rows[0]) return res.status(404).json({ error: 'Client introuvable' });
     res.json({ success: true, client: r.rows[0] });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -336,3 +345,4 @@ router.get('/sms-log', async (req, res) => {
 });
 
 module.exports = router;
+module.exports.dbReady = dbReady;

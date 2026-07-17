@@ -123,6 +123,9 @@ app.use('/api/rh-notations', require('./api/rh-notations-routes')); // Kadio RH 
 app.use('/api/rh-taches', require('./api/rh-taches-routes'));    // Kadio RH — tâches ménagères (auth employé)
 app.use('/api/rh-echelons', require('./api/rh-echelons-routes')); // Kadio RH — montée automatique des échelons (admin)
 require('./api/rh-employe-mois-cron'); // Kadio RH — proposition auto employé du mois (fin de mois, pas de route HTTP)
+const fideliteRoutes = require('./api/fidelite-routes');
+app.use('/api/fidelite', fideliteRoutes);                     // Programme fidélité (admin)
+app.use('/api/fidelite-public', fideliteRoutes.publicRouter);  // Programme fidélité (consultation solde, public)
 app.use('/api/staff', require('./api/staff-routes'));       // V35 — /api/staff/scan-qr
 app.use('/api/training', require('./api/training-routes')); // V31 — Ingestion conversations historiques + Style DNA
 app.use('/api/sq-calendar', require('./api/square-calendar-routes')); // Chantier 2 — Calendrier Square multi-staff
@@ -225,6 +228,9 @@ app.get('/mon-espace-rh', (req, res) => {
 });
 app.get('/noter-coiffeur/:token', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/noter-coiffeur.html'));
+});
+app.get('/kadio-fidelite', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/kadio-fidelite.html'));
 });
 
 // Dashboard → redirect
