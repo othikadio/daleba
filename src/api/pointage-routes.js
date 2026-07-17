@@ -27,6 +27,14 @@ try { const db = require('../memory/db'); pool = db.pool; DEMO_MODE = db.DEMO_MO
 let sendSMS = null;
 try { sendSMS = require('../services/twilio').sendSMS; } catch (e) {}
 
+// Module 3 — déclenchement automatique des sanctions (retards, pauses longues)
+let declencherSanctionRetard = async () => {}, declencherSanctionPauseLongue = async () => {};
+try {
+  const auto = require('./rh-sanctions-auto');
+  declencherSanctionRetard = auto.declencherSanctionRetard;
+  declencherSanctionPauseLongue = auto.declencherSanctionPauseLongue;
+} catch (e) {}
+
 const OWNER_PHONE = process.env.OWNER_PHONE_NUMBER || '+15149195970';
 
 async function alertOwner(message, employeId = null, type = 'info', niveau = 'attention') {
@@ -284,6 +292,7 @@ router.post('/arrivee', async (req, res) => {
       `${employe.prenom} est arrivé(e) avec ${retardMinutes} min de retard. Raison : ${raison}. ${monthsAlertLabel(n)}`,
       employe.id, 'retard', 'attention'
     );
+    await declencherSanctionRetard(employe, n);
   }
 
   res.json({
@@ -370,6 +379,7 @@ router.post('/pause/fin', async (req, res) => {
 
   if (dureeMinutes > 70) {
     await alertOwner(`${employe.prenom} est en pause depuis ${dureeMinutes} minutes.`, employe.id, 'pause_longue', 'attention');
+    await declencherSanctionPauseLongue(employe.id, `Pause de ${dureeMinutes} min (limite 60 min, autorisation non confirmée)`);
   }
 
   res.json({ success: true, pause: r.rows[0], message: `Bon retour, ${employe.prenom}. Pause de ${dureeMinutes} min.` });

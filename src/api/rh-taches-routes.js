@@ -28,9 +28,9 @@ const OWNER_PHONE = process.env.OWNER_PHONE_NUMBER || '+15149195970';
 
 let creerSanction = null, descendreEchelon = (e) => e;
 try {
-  const rhAdmin = require('./rh-admin-routes');
-  creerSanction = rhAdmin.creerSanction;
-  descendreEchelon = rhAdmin.descendreEchelon || descendreEchelon;
+  const core = require('./rh-sanctions-core');
+  creerSanction = core.creerSanction;
+  descendreEchelon = core.descendreEchelon || descendreEchelon;
 } catch (e) {}
 
 async function alertOwner(message, niveau = 'attention', employeId = null, type = 'tache_manquante') {

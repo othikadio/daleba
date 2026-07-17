@@ -25,6 +25,10 @@ try { const db = require('../memory/db'); pool = db.pool; DEMO_MODE = db.DEMO_MO
 let sendSMS = null;
 try { sendSMS = require('../services/twilio').sendSMS; } catch (e) {}
 
+// Module 3 — 3 mauvaises notes (≤3/5) dans le mois = sanction automatique
+let declencherSanctionNotesBasses = async () => {};
+try { declencherSanctionNotesBasses = require('./rh-sanctions-auto').declencherSanctionNotesBasses; } catch (e) {}
+
 // kadio_rh_notations_client est créée par rh-employe-routes.js — on attend
 // avant d'y ajouter les colonnes token/soumis_at (ALTER TABLE) ci-dessous.
 let employeDbReady = Promise.resolve();
@@ -130,6 +134,8 @@ router.post('/client/:token', async (req, res) => {
       google_sms_type=$6, soumis_at=NOW()
     WHERE token=$7
   `, [accueil, qualite, proprete, ambiance, commentaire || null, googleSmsType, req.params.token]);
+
+  if (noteArrondie <= 3) await declencherSanctionNotesBasses(row.employe_id, row.employe_prenom);
 
   res.json({ success: true, moyenne, redirectUrl });
 });

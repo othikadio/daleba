@@ -165,42 +165,10 @@ router.get('/taches-jour', async (req, res) => {
 });
 
 // ═══════════════════════ SANCTIONS (moteur 3 paliers) ══════════════════════
-const ECHELON_ORDER = ['bronze', 'argent', 'or', 'platine'];
-function descendreEchelon(echelon, niveaux = 1) {
-  const idx = ECHELON_ORDER.indexOf(echelon);
-  return ECHELON_ORDER[Math.max(0, (idx === -1 ? 0 : idx) - niveaux)];
-}
-
-// Palier dérivé du nombre de sanctions déjà au dossier (1re/2e/3e), pas choisi
-// à la main — conforme à la Section 5 (système progressif à 3 paliers).
-async function creerSanction(employeId, motif, type = 'manuelle') {
-  const empRes = await pool.query(`SELECT * FROM kadio_rh_employes WHERE id=$1`, [employeId]);
-  const employe = empRes.rows[0];
-  if (!employe) throw new Error('Employé introuvable');
-
-  const countRes = await pool.query(`SELECT COUNT(*) FROM kadio_rh_sanctions WHERE employe_id=$1`, [employeId]);
-  const palier = parseInt(countRes.rows[0].count, 10) + 1;
-
-  let echelonApres, consequence;
-  if (palier === 1) { echelonApres = descendreEchelon(employe.echelon, 1); consequence = 'Avertissement écrit'; }
-  else if (palier === 2) { echelonApres = descendreEchelon(employe.echelon, 1); consequence = '1 journée sans salaire + avertissement écrit'; }
-  else { echelonApres = 'bronze'; consequence = "Fin d'emploi — rapport final généré"; }
-
-  await pool.query(`UPDATE kadio_rh_employes SET echelon=$1, date_echelon_depuis=NOW() WHERE id=$2`, [echelonApres, employeId]);
-
-  const r = await pool.query(`
-    INSERT INTO kadio_rh_sanctions (employe_id, palier, motif, type, echelon_avant, echelon_apres)
-    VALUES ($1,$2,$3,$4,$5,$6) RETURNING *
-  `, [employeId, palier, motif, type, employe.echelon, echelonApres]);
-
-  const niveau = palier >= 3 ? 'urgent' : 'attention';
-  const recap = `${employe.prenom} — ${palier}e sanction. ${consequence}. Motif : ${motif}.`;
-  await pool.query(`INSERT INTO kadio_rh_alertes (niveau, message, employe_id, type) VALUES ($1,$2,$3,'sanction')`,
-    [niveau, recap, employeId]);
-  await alertOwner(`${palier >= 3 ? '🔴 URGENT' : '🟠'} ${recap}${palier >= 3 ? ' Séparation à confirmer.' : ''}`);
-
-  return { ...r.rows[0], consequence };
-}
+// Le moteur lui-même vit dans rh-sanctions-core.js (évite un require
+// circulaire avec pointage-routes.js, qui déclenche aussi des sanctions
+// automatiques — retards, pauses trop longues — voir Module 3).
+const { creerSanction, descendreEchelon } = require('./rh-sanctions-core');
 
 router.get('/sanctions', async (req, res) => {
   if (!pool || DEMO_MODE) return res.json({ sanctions: [], demo: true });
