@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DALEBA — Kadio RH</title>
+<style>
+  :root {
+    --bg: #FAF6F0; --accent: #C4622D; --accent-dim: rgba(196,98,45,0.12);
+    --success: #7A9E6E; --danger: #C0392B; --warn: #D98B2B;
+    --text: #2D1B0E; --muted: #8C7B6B; --card: #FFFFFF; --border: #E2D8CE;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; min-height: 100vh; padding-bottom: 60px; }
+  .header { background: #fff; border-bottom: 2px solid var(--accent); padding: 14px 28px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 100; }
+  .logo { font-size: 20px; font-weight: 800; color: var(--accent); font-family: Georgia, serif; letter-spacing: 2px; }
+  .header-title { font-size: 14px; font-weight: 600; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; }
+
+  .indicators { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; padding: 20px 28px 0; }
+  .ind-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; }
+  .ind-value { font-size: 22px; font-weight: 800; }
+  .ind-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+
+  .tabs { display: flex; gap: 4px; padding: 20px 28px 0; flex-wrap: wrap; }
+  .tab { padding: 10px 18px; border-radius: 10px 10px 0 0; background: var(--card); border: 1px solid var(--border); border-bottom: none; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--muted); }
+  .tab.active { color: var(--accent); }
+  .panel { display: none; padding: 20px 28px; }
+  .panel.active { display: block; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  .card h3 { font-size: 14px; margin-bottom: 14px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: var(--muted); font-size: 11px; text-transform: uppercase; padding: 8px; border-bottom: 2px solid var(--border); }
+  td { padding: 8px; border-bottom: 1px solid var(--border); }
+  .empty { color: var(--muted); font-size: 13px; padding: 20px 0; text-align: center; }
+
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .pill-urgent { background: rgba(192,57,43,0.15); color: var(--danger); }
+  .pill-attention { background: rgba(217,139,43,0.15); color: var(--warn); }
+  .pill-info { background: rgba(122,158,110,0.15); color: var(--success); }
+  .pill-good { background: rgba(122,158,110,0.15); color: var(--success); }
+  .pill-bad { background: rgba(192,57,43,0.15); color: var(--danger); }
+  .pill-muted { background: var(--accent-dim); color: var(--accent); }
+
+  .form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  input, select, textarea { border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13px; font-family: inherit; background: #fff; color: var(--text); flex: 1; min-width: 160px; }
+  textarea { min-width: 100%; min-height: 60px; resize: vertical; }
+  .btn { border: none; border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer; background: var(--accent); color: #fff; }
+  .btn:hover { opacity: .88; }
+  .btn-sm { padding: 5px 10px; font-size: 11px; }
+  .btn-success { background: var(--success); }
+
+  .recap-table { font-size: 12px; margin-top: 16px; }
+  .recap-table td { padding: 6px 8px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">DALEBA</div>
+  <div style="color:var(--border)">/</div>
+  <div class="header-title">Kadio RH — Tableau de bord</div>
+</div>
+
+<div class="indicators">
+  <div class="ind-card"><div class="ind-value" id="ind-presents">—</div><div class="ind-label">Présents / total</div></div>
+  <div class="ind-card"><div class="ind-value" id="ind-retards">—</div><div class="ind-label">Retards du jour</div></div>
+  <div class="ind-card"><div class="ind-value" id="ind-taches">—</div><div class="ind-label">Tâches non faites</div></div>
+  <div class="ind-card"><div class="ind-value" id="ind-note">—</div><div class="ind-label">Note moy. du jour</div></div>
+  <div class="ind-card"><div class="ind-value" id="ind-alertes">—</div><div class="ind-label">Alertes actives</div></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-panel="alertes">Alertes</div>
+  <div class="tab" data-panel="employes">Employés</div>
+  <div class="tab" data-panel="taches">Tâches ménage</div>
+  <div class="tab" data-panel="sanctions">Sanctions</div>
+  <div class="tab" data-panel="mois">Employé du mois</div>
+</div>
+
+<!-- ALERTES -->
+<div class="panel active" id="panel-alertes">
+  <div class="card">
+    <h3>Alertes actives</h3>
+    <table><thead><tr><th>Niveau</th><th>Employé</th><th>Message</th><th>Date</th><th></th></tr></thead>
+      <tbody id="alertes-body"></tbody>
+    </table>
+    <div class="empty" id="alertes-empty" style="display:none">Aucune alerte active. 👍</div>
+  </div>
+</div>
+
+<!-- EMPLOYÉS -->
+<div class="panel" id="panel-employes">
+  <div class="card">
+    <h3>Équipe</h3>
+    <table><thead><tr><th>Employé</th><th>Présence</th><th>Badge</th><th>Score du mois</th><th>Retards (mois)</th><th>Sanctions</th></tr></thead>
+      <tbody id="employes-body"></tbody>
+    </table>
+    <div class="empty" id="employes-empty" style="display:none">Aucun employé.</div>
+  </div>
+</div>
+
+<!-- TÂCHES -->
+<div class="panel" id="panel-taches">
+  <div class="card">
+    <h3>Tâches quotidiennes — aujourd'hui</h3>
+    <table><thead><tr><th>Tâche</th><th>Statut</th><th>Par</th><th>Heure</th></tr></thead>
+      <tbody id="taches-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SANCTIONS -->
+<div class="panel" id="panel-sanctions">
+  <div class="card">
+    <h3>Générer une sanction</h3>
+    <div class="form-row">
+      <select id="s-employe"></select>
+      <input id="s-motif" placeholder="Motif" />
+    </div>
+    <button class="btn" onclick="creerSanction()">Générer</button>
+    <table class="recap-table">
+      <tr><td><strong>1re</strong></td><td>Avertissement écrit + descente d'un échelon</td></tr>
+      <tr><td><strong>2e</strong></td><td>1 journée sans salaire + avertissement + descente d'un échelon</td></tr>
+      <tr><td><strong>3e</strong></td><td>Fin d'emploi — rapport final</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Historique des sanctions</h3>
+    <table><thead><tr><th>Employé</th><th>Palier</th><th>Motif</th><th>Échelon</th><th>Date</th></tr></thead>
+      <tbody id="sanctions-body"></tbody>
+    </table>
+    <div class="empty" id="sanctions-empty" style="display:none">Aucune sanction enregistrée.</div>
+  </div>
+</div>
+
+<!-- EMPLOYÉ DU MOIS -->
+<div class="panel" id="panel-mois">
+  <div class="card">
+    <h3>Classement du mois en cours</h3>
+    <table><thead><tr><th>#</th><th>Employé</th><th>Score</th><th></th></tr></thead>
+      <tbody id="classement-body"></tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Historique employé du mois</h3>
+    <table><thead><tr><th>Employé</th><th>Mois</th><th>Récompense</th></tr></thead>
+      <tbody id="mois-historique-body"></tbody>
+    </table>
+    <div class="empty" id="mois-historique-empty" style="display:none">Aucun mois confirmé pour l'instant.</div>
+  </div>
+</div>
+
+<script>
+  const state = { employes: [] };
+
+  function authFetch(url, opts = {}) {
+    const token = localStorage.getItem('daleba_token') || '';
+    return fetch(url, { ...opts, headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...(opts.headers || {}) } })
+      .then(r => r.json()).catch(() => null);
+  }
+  function esc(s) { return (s ?? '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function fmtDate(d) { return d ? new Date(d).toLocaleString('fr-CA', { dateStyle: 'short', timeStyle: 'short' }) : '—'; }
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+    });
+  });
+
+  const NIVEAU_PILL = { urgent: 'pill-urgent', attention: 'pill-attention', info: 'pill-info' };
+  const PRESENCE_LABEL = { present: '🟢 Présent', en_pause: '☕ En pause', absent: '⚪ Absent', parti: '🔵 Parti' };
+  const BADGE_ICON = { bronze: '🥉', argent: '🥈', or: '🥇', platine: '💎' };
+
+  async function loadIndicateurs() {
+    const r = await authFetch('/api/rh/indicateurs');
+    if (!r) return;
+    document.getElementById('ind-presents').textContent = `${r.presents ?? 0} / ${r.totalEmployes ?? 0}`;
+    document.getElementById('ind-retards').textContent = r.retardsJour ?? 0;
+    document.getElementById('ind-note').textContent = r.noteMoyenneJour != null ? r.noteMoyenneJour + '/5' : '—';
+    document.getElementById('ind-alertes').textContent = r.alertesActives ?? 0;
+  }
+
+  async function loadAlertes() {
+    const r = await authFetch('/api/rh/alertes?traitee=false');
+    const alertes = r?.alertes || [];
+    document.getElementById('alertes-empty').style.display = alertes.length ? 'none' : 'block';
+    document.getElementById('alertes-body').innerHTML = alertes.map(a => `
+      <tr>
+        <td><span class="pill ${NIVEAU_PILL[a.niveau] || 'pill-info'}">${esc(a.niveau)}</span></td>
+        <td>${esc(a.prenom) || '—'}</td><td>${esc(a.message)}</td><td>${fmtDate(a.created_at)}</td>
+        <td><button class="btn btn-sm" onclick="traiterAlerte(${a.id})">Traitée</button></td>
+      </tr>`).join('');
+  }
+  async function traiterAlerte(id) { await authFetch('/api/rh/alertes/' + id, { method: 'PATCH' }); loadAlertes(); loadIndicateurs(); }
+
+  async function loadEmployes() {
+    const r = await authFetch('/api/rh/employes-detail');
+    state.employes = r?.employes || [];
+    document.getElementById('employes-empty').style.display = state.employes.length ? 'none' : 'block';
+    document.getElementById('employes-body').innerHTML = state.employes.map(e => `
+      <tr>
+        <td>${esc(e.prenom)} ${esc(e.nom)}</td>
+        <td>${PRESENCE_LABEL[e.presence] || e.presence}</td>
+        <td>${BADGE_ICON[e.echelon] || ''} ${esc(e.echelon)}</td>
+        <td>${e.score}/100${e.scorePartiel ? ' <span class="pill pill-muted">partiel</span>' : ''}</td>
+        <td>${e.retardsMois > 1 ? `<span class="pill pill-bad">${e.retardsMois}</span>` : e.retardsMois}</td>
+        <td>${e.sanctionsTotal || 0}</td>
+      </tr>`).join('');
+    fillSelect('s-employe', state.employes, e => e.id, e => `${e.prenom} ${e.nom || ''}`.trim(), 'Employé…');
+  }
+
+  async function loadTaches() {
+    const r = await authFetch('/api/rh/taches-jour');
+    const taches = r?.taches || [];
+    document.getElementById('ind-taches').textContent = r?.nonCompletees ?? taches.filter(t => !t.faite).length;
+    document.getElementById('taches-body').innerHTML = taches.map(t => `
+      <tr>
+        <td>${esc(t.nom)}</td>
+        <td><span class="pill ${t.faite ? 'pill-good' : 'pill-bad'}">${t.faite ? 'Faite' : 'À faire'}</span></td>
+        <td>${esc(t.par) || '—'}</td><td>${t.heure ? fmtDate(t.heure) : '—'}</td>
+      </tr>`).join('');
+  }
+
+  async function loadSanctions() {
+    const r = await authFetch('/api/rh/sanctions');
+    const sanctions = r?.sanctions || [];
+    document.getElementById('sanctions-empty').style.display = sanctions.length ? 'none' : 'block';
+    document.getElementById('sanctions-body').innerHTML = sanctions.map(s => `
+      <tr><td>${esc(s.prenom)}</td><td>${s.palier}</td><td>${esc(s.motif)}</td>
+      <td>${esc(s.echelon_avant)} → ${esc(s.echelon_apres)}</td><td>${fmtDate(s.created_at)}</td></tr>`).join('');
+  }
+  async function creerSanction() {
+    const employeId = document.getElementById('s-employe').value;
+    const motif = document.getElementById('s-motif').value.trim();
+    if (!employeId || !motif) return alert('Employé et motif requis');
+    const r = await authFetch('/api/rh/sanctions', { method: 'POST', body: JSON.stringify({ employeId, motif }) });
+    if (r?.success) alert(`Sanction générée : ${r.sanction.consequence}`);
+    document.getElementById('s-motif').value = '';
+    loadSanctions(); loadEmployes(); loadAlertes();
+  }
+
+  async function loadEmployeDuMois() {
+    const r = await authFetch('/api/rh/employe-du-mois');
+    const classement = r?.classement || [];
+    document.getElementById('classement-body').innerHTML = classement.map((c, i) => `
+      <tr><td>${i + 1}</td><td>${esc(c.prenom)}</td><td>${c.score}/100${c.partiel ? ' <span class="pill pill-muted">partiel</span>' : ''}</td>
+      <td>${i === 0 ? `<button class="btn btn-sm btn-success" onclick="confirmerEmployeDuMois(${c.employeId})">Confirmer</button>` : ''}</td></tr>`).join('');
+    const hist = r?.historique || [];
+    document.getElementById('mois-historique-empty').style.display = hist.length ? 'none' : 'block';
+    document.getElementById('mois-historique-body').innerHTML = hist.map(h => `
+      <tr><td>${esc(h.prenom)}</td><td>${fmtDate(h.created_at)}</td><td>${esc(h.description)}</td></tr>`).join('');
+  }
+  async function confirmerEmployeDuMois(employeId) {
+    if (!confirm('Confirmer cet employé comme employé du mois ?')) return;
+    await authFetch('/api/rh/employe-du-mois/confirmer', { method: 'POST', body: JSON.stringify({ employeId }) });
+    loadEmployeDuMois();
+  }
+
+  function fillSelect(id, items, valFn, labelFn, placeholder) {
+    const el = document.getElementById(id);
+    el.innerHTML = `<option value="">${placeholder}</option>` + items.map(i => `<option value="${valFn(i)}">${esc(labelFn(i))}</option>`).join('');
+  }
+
+  (async function init() {
+    await loadIndicateurs();
+    await loadEmployes();
+    await Promise.all([loadAlertes(), loadTaches(), loadSanctions(), loadEmployeDuMois()]);
+  })();
+</script>
+</body>
+</html>

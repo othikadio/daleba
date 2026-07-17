@@ -129,7 +129,7 @@ async function initTables() {
     console.log(`${LOG} Tables OK`);
   } catch (e) { console.warn(`${LOG} initTables: ${e.message}`); }
 }
-initTables();
+const dbReady = initTables();
 
 function normalizePhone(phone = '') {
   let p = phone.replace(/[^\d+]/g, '');
@@ -367,3 +367,6 @@ router.post('/video/vue', async (req, res) => {
 });
 
 module.exports = router;
+module.exports.computeScoreMensuel = computeScoreMensuel;
+module.exports.ECHELONS = ECHELONS;
+module.exports.dbReady = dbReady;

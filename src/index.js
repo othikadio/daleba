@@ -274,6 +274,11 @@ app.get('/admin/gestion', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin/gestion.html'));
 });
 
+// Kadio RH — tableau de bord propriétaire (admin)
+app.get('/admin/rh', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin/rh-dashboard.html'));
+});
+
 // Chantier 2 — Calendrier Square multi-staff
 app.get('/admin/calendar', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin/calendar.html'));
