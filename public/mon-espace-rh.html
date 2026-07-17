@@ -126,6 +126,16 @@
     </div>
 
     <div class="section">
+      <h3>Tâches ménagères — équipe (aujourd'hui)</h3>
+      <table><tbody id="taches-jour-body"></tbody></table>
+    </div>
+
+    <div class="section">
+      <h3>Tâches ménagères — équipe (cette semaine)</h3>
+      <table><tbody id="taches-semaine-body"></tbody></table>
+    </div>
+
+    <div class="section">
       <h3>Mes pointages (7 derniers jours)</h3>
       <table><thead><tr><th>Type</th><th>Heure</th><th>Retard</th><th>Raison</th></tr></thead>
         <tbody id="pointages-body"></tbody>
@@ -235,6 +245,36 @@
     document.getElementById('note-commentaire').value = '';
   }
 
+  async function loadTaches() {
+    const [jour, semaine] = await Promise.all([
+      fetch('/api/rh-taches/aujourdhui', { headers: authHeaders() }).then(r => r.json()),
+      fetch('/api/rh-taches/semaine', { headers: authHeaders() }).then(r => r.json()),
+    ]);
+    document.getElementById('taches-jour-body').innerHTML = (jour.taches || []).map(t => `
+      <tr>
+        <td>${t.faite ? '✅' : '⬜'} ${esc(t.nom)}</td>
+        <td style="text-align:right">${t.faite
+          ? `<span style="font-size:11px;color:var(--muted)">${esc(t.par)} · ${fmtDate(t.heure)}</span>`
+          : `<button class="btn" style="padding:6px 12px;font-size:12px" onclick="cocherTache('${t.nom.replace(/'/g, "\\'")}','quotidienne',this)">Cocher</button>`}
+        </td>
+      </tr>`).join('');
+    document.getElementById('taches-semaine-body').innerHTML = (semaine.taches || []).map(t => `
+      <tr>
+        <td>${t.faite ? '✅' : '⬜'} ${esc(t.nom)}</td>
+        <td style="text-align:right">${t.faite
+          ? `<span style="font-size:11px;color:var(--muted)">${esc(t.par)} · ${fmtDate(t.heure)}</span>`
+          : `<button class="btn" style="padding:6px 12px;font-size:12px" onclick="cocherTache('${t.nom.replace(/'/g, "\\'")}','hebdomadaire',this)">Cocher</button>`}
+        </td>
+      </tr>`).join('');
+  }
+
+  async function cocherTache(tacheNom, frequence) {
+    const r = await fetch('/api/rh-taches/cocher', { method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ tacheNom, frequence }) }).then(r => r.json()).catch(() => null);
+    if (!r || r.error) { alert(r?.error || 'Erreur'); return; }
+    loadTaches();
+  }
+
   const ECHELON_ICONS = { bronze: '🥉', argent: '🥈', or: '🥇', platine: '💎' };
 
   function esc(s) { return (s ?? '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -251,6 +291,8 @@
 
     const reg = await fetch(API + '/reglement', { headers: authHeaders() }).then(r => r.json());
     document.getElementById('reglement-texte-dash').textContent = reg.texte;
+
+    await loadTaches();
 
     const score = await fetch(API + '/score-mois', { headers: authHeaders() }).then(r => r.json());
     document.getElementById('score-value').textContent = score.total + ' / 100';

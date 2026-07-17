@@ -140,18 +140,10 @@ router.patch('/alertes/:id', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ═══════════════════════ TÂCHES MÉNAGÈRES (lecture — Module 4 à venir) ═════
-// Liste figée d'après le cahier des charges Section 6. L'écriture (bouton
-// "Cocher comme fait") arrive avec le Module 4 — ici, lecture seule.
-const TACHES_QUOTIDIENNES = [
-  'Laver les assiettes et verres utilisés',
-  'Vider les poubelles',
-  "Passer l'aspirateur dans tout le salon",
-  'Vérifier l\'apparence et propreté générale',
-  "S'assurer du bon parfum d'ambiance",
-  'Allumer la musique ou la télévision avant le premier client',
-  'Préparer les boissons et grignotines disponibles',
-];
+// ═══════════════════════ TÂCHES MÉNAGÈRES (lecture) ════════════════════════
+// L'écriture (bouton "Cocher comme fait") et les vérifications automatiques
+// vivent dans rh-taches-routes.js (Module 4) — ici, lecture seule pour le dashboard.
+const { TACHES_QUOTIDIENNES } = require('./rh-taches-constants');
 
 router.get('/taches-jour', async (req, res) => {
   if (!pool || DEMO_MODE) {
@@ -372,3 +364,6 @@ router.get('/notations/coiffeur', async (req, res) => {
 });
 
 module.exports = router;
+module.exports.creerSanction = creerSanction;
+module.exports.descendreEchelon = descendreEchelon;
+module.exports.alertOwner = alertOwner;

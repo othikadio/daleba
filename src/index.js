@@ -120,6 +120,7 @@ app.use('/api/pointage', require('./api/pointage-routes')); // Kadio RH — kios
 app.use('/api/rh', require('./api/rh-admin-routes'));        // Kadio RH — admin (employés, pointages, alertes)
 app.use('/api/rh-employe', require('./api/rh-employe-routes')); // Kadio RH — page employé (auth téléphone+PIN)
 app.use('/api/rh-notations', require('./api/rh-notations-routes')); // Kadio RH — notation client (lien SMS public)
+app.use('/api/rh-taches', require('./api/rh-taches-routes'));    // Kadio RH — tâches ménagères (auth employé)
 app.use('/api/staff', require('./api/staff-routes'));       // V35 — /api/staff/scan-qr
 app.use('/api/training', require('./api/training-routes')); // V31 — Ingestion conversations historiques + Style DNA
 app.use('/api/sq-calendar', require('./api/square-calendar-routes')); // Chantier 2 — Calendrier Square multi-staff
