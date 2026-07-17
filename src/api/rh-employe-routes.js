@@ -312,6 +312,38 @@ router.post('/notations/client-prive', async (req, res) => {
   res.status(201).json({ success: true, id: r.rows[0].id });
 });
 
+// ── Parrainage cash (employé) ────────────────────────────────────────────
+let parrainage = null;
+try { parrainage = require('./parrainage-routes'); } catch (e) {}
+
+router.get('/parrainage/mon-code', async (req, res) => {
+  if (!pool || DEMO_MODE || !parrainage) return res.json({ demo: true });
+  try {
+    const empRes = await pool.query(`SELECT prenom FROM kadio_rh_employes WHERE id=$1`, [req.employeId]);
+    const codeRow = await parrainage.getOrCreateCode('employe', req.employeId, empRes.rows[0]?.prenom);
+    const QRCode = require('qrcode');
+    const APP_URL = process.env.APP_URL || 'https://daleba.vercel.app';
+    const shareUrl = `${APP_URL}/parrainage?code=${codeRow.code}`;
+    const qrDataUrl = await QRCode.toDataURL(shareUrl).catch(() => null);
+    const solde = await parrainage.calculerSolde('employe', req.employeId);
+    res.json({ code: codeRow.code, shareUrl, qrDataUrl, ...solde });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/parrainage/retrait/demander', async (req, res) => {
+  const { montant } = req.body || {};
+  if (!montant || montant <= 0) return res.status(400).json({ error: 'montant (>0) requis' });
+  if (!pool || DEMO_MODE || !parrainage) return res.json({ success: true, demo: true });
+  try {
+    const solde = await parrainage.calculerSolde('employe', req.employeId);
+    if (montant > solde.disponible) return res.status(400).json({ error: `Solde insuffisant (disponible: ${solde.disponible}$)` });
+    const r = await pool.query(`
+      INSERT INTO kadio_parrainage_retraits (proprietaire_type, proprietaire_id, montant) VALUES ('employe',$1,$2) RETURNING *
+    `, [req.employeId, montant]);
+    res.status(201).json({ success: true, retrait: r.rows[0] });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── Checklist standard de service (Module 6 — obligatoire après chaque client) ──
 router.post('/checklist', async (req, res) => {
   const { accueilSourire, guidePlace, boissonProposee, grignotinesProposees, attenteAnnoncee, telephoneRange } = req.body || {};

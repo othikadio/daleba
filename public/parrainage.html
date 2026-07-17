@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KADIO — Parrainage</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&display=swap');
+  :root { --bg: #FAFAF8; --gold: #B8922A; --black: #0E0C09; --border: #E7E3DA; --danger: #B0392E; --success: #4a6b3f; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--black); font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  .logo { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 34px; letter-spacing: 0.08em; text-align: center; margin-bottom: 4px; }
+  .sub { text-align: center; color: #7A7364; font-size: 13px; margin-bottom: 24px; }
+  .card { background: #fff; border-radius: 18px; padding: 26px; max-width: 420px; width: 100%; margin: 0 auto 20px; box-shadow: 0 8px 40px rgba(0,0,0,.06); }
+  .card h3 { font-size: 15px; margin-bottom: 14px; }
+  input, select { width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 13px; font-size: 15px; margin-bottom: 12px; font-family: inherit; }
+  .btn { width: 100%; border: none; border-radius: 10px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; background: var(--gold); color: #fff; }
+  .msg { margin-top: 12px; font-size: 13px; text-align: center; }
+  .msg.err { color: var(--danger); }
+  .msg.ok { color: var(--success); }
+  #monCode { display: none; text-align: center; }
+  #monCode img { width: 160px; height: 160px; margin: 12px auto; display: block; }
+  .code-value { font-size: 22px; font-weight: 800; color: var(--gold); letter-spacing: 0.04em; }
+  .solde { background: #F7F5EF; border-radius: 10px; padding: 12px; font-size: 14px; margin-top: 14px; }
+</style>
+</head>
+<body>
+<div class="logo">KADIO</div>
+<div class="sub">Parrainage — gagnez de l'argent cash</div>
+
+<div class="card">
+  <h3>Mon code de parrainage</h3>
+  <input type="tel" id="tel" placeholder="Votre numéro de téléphone" />
+  <button class="btn" onclick="voirMonCode()">Voir mon code</button>
+  <div class="msg" id="codeMsg"></div>
+  <div id="monCode">
+    <div class="code-value" id="codeValue"></div>
+    <img id="qrImg" alt="QR code" />
+    <div class="solde" id="solde"></div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>J'ai été parrainé(e)</h3>
+  <input type="text" id="s-code" placeholder="Code de parrainage reçu" />
+  <input type="text" id="s-nom" placeholder="Votre nom" />
+  <input type="tel" id="s-tel" placeholder="Votre téléphone" />
+  <select id="s-type">
+    <option value="coiffure">Un service de coiffure</option>
+    <option value="formation">Une formation</option>
+  </select>
+  <button class="btn" onclick="soumettreParrainage()">Confirmer</button>
+  <div class="msg" id="soumettreMsg"></div>
+</div>
+
+<div class="card">
+  <h3>Demander un retrait (en salon)</h3>
+  <input type="tel" id="r-tel" placeholder="Votre numéro de téléphone" />
+  <input type="number" id="r-montant" placeholder="Montant ($)" />
+  <button class="btn" onclick="demanderRetrait()">Demander</button>
+  <div class="msg" id="retraitMsg"></div>
+</div>
+
+<script>
+  async function voirMonCode() {
+    const telephone = document.getElementById('tel').value.trim();
+    const msg = document.getElementById('codeMsg');
+    if (!telephone) { msg.className = 'msg err'; msg.textContent = 'Entrez votre numéro.'; return; }
+    const r = await fetch('/api/parrainage-public/mon-code?telephone=' + encodeURIComponent(telephone)).then(r => r.json()).catch(() => null);
+    if (!r || r.error) { msg.className = 'msg err'; msg.textContent = r?.error || 'Erreur.'; return; }
+    msg.textContent = '';
+    document.getElementById('codeValue').textContent = r.code;
+    document.getElementById('qrImg').src = r.qrDataUrl || '';
+    document.getElementById('solde').textContent = `💰 ${r.disponible}$ disponible pour un retrait en salon`;
+    document.getElementById('monCode').style.display = 'block';
+  }
+
+  async function soumettreParrainage() {
+    const code = document.getElementById('s-code').value.trim();
+    const filleulNom = document.getElementById('s-nom').value.trim();
+    const filleulTelephone = document.getElementById('s-tel').value.trim();
+    const type = document.getElementById('s-type').value;
+    const msg = document.getElementById('soumettreMsg');
+    if (!code || !filleulNom) { msg.className = 'msg err'; msg.textContent = 'Code et nom requis.'; return; }
+    const r = await fetch('/api/parrainage-public/soumettre', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, filleulNom, filleulTelephone, type }) }).then(r => r.json()).catch(() => null);
+    if (!r || r.error) { msg.className = 'msg err'; msg.textContent = r?.error || 'Erreur.'; return; }
+    msg.className = 'msg ok';
+    msg.textContent = 'Merci ! Votre parrainage sera confirmé après votre visite.';
+    document.getElementById('s-code').value = ''; document.getElementById('s-nom').value = ''; document.getElementById('s-tel').value = '';
+  }
+
+  async function demanderRetrait() {
+    const telephone = document.getElementById('r-tel').value.trim();
+    const montant = parseFloat(document.getElementById('r-montant').value);
+    const msg = document.getElementById('retraitMsg');
+    if (!telephone || !montant) { msg.className = 'msg err'; msg.textContent = 'Téléphone et montant requis.'; return; }
+    const r = await fetch('/api/parrainage-public/retrait/demander', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ telephone, montant }) }).then(r => r.json()).catch(() => null);
+    if (!r || r.error) { msg.className = 'msg err'; msg.textContent = r?.error || 'Erreur.'; return; }
+    msg.className = 'msg ok';
+    msg.textContent = 'Demande enregistrée — passez au salon pour récupérer votre argent.';
+    document.getElementById('r-montant').value = '';
+  }
+
+  (function prefillFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) document.getElementById('s-code').value = code;
+  })();
+</script>
+</body>
+</html>
