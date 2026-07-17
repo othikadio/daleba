@@ -30,6 +30,9 @@ try {
   ECHELONS = rhEmploye.ECHELONS;
 } catch (e) {}
 
+let creerNotationEnAttente = null;
+try { creerNotationEnAttente = require('./rh-notations-routes').creerNotationEnAttente; } catch (e) {}
+
 router.use(requireAuth, requireRole(ROLES.BUSINESS_ADMIN));
 
 function normalizePhone(phone = '') {
@@ -320,6 +323,51 @@ router.get('/indicateurs', async (req, res) => {
       noteMoyenneJour: notesRes.rows[0].avg ? Math.round(parseFloat(notesRes.rows[0].avg) * 10) / 10 : null,
       alertesActives: parseInt(alertesRes.rows[0].count, 10),
     });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ═══════════════════════ NOTATIONS (Module 5) ══════════════════════════════
+// Déclenche l'envoi du lien SMS au client après un service (à appeler
+// manuellement pour l'instant, ou depuis une future intégration Square —
+// le webhook Square lui-même n'est pas câblé dans cette PR).
+router.post('/notations/declencher', async (req, res) => {
+  const { employeId, clientNom, clientTelephone } = req.body || {};
+  if (!employeId || !clientTelephone) return res.status(400).json({ error: 'employeId et clientTelephone requis' });
+  if (!pool || DEMO_MODE || !creerNotationEnAttente) return res.json({ success: true, demo: true });
+  try {
+    const { token, lien } = await creerNotationEnAttente(employeId, clientNom, clientTelephone);
+    if (sendSMS) {
+      try { await sendSMS(clientTelephone, `Merci pour votre visite chez Kadio Coiffure ! Notez votre expérience (30 secondes) : ${lien}`); }
+      catch (e) { console.error(`${LOG} SMS déclenchement échec: ${e.message}`); }
+    } else {
+      console.log(`${LOG} [SMS-DEMO] → ${clientTelephone}: lien notation ${lien}`);
+    }
+    res.status(201).json({ success: true, token, lien });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Vue admin des deux sens de notation (le client et les collègues n'y ont jamais accès)
+router.get('/notations/client', async (req, res) => {
+  if (!pool || DEMO_MODE) return res.json({ notations: [], demo: true });
+  try {
+    const r = await pool.query(`
+      SELECT n.*, e.prenom AS employe_prenom FROM kadio_rh_notations_client n
+      JOIN kadio_rh_employes e ON e.id = n.employe_id
+      WHERE n.soumis_at IS NOT NULL ORDER BY n.soumis_at DESC LIMIT 200
+    `);
+    res.json({ notations: r.rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.get('/notations/coiffeur', async (req, res) => {
+  if (!pool || DEMO_MODE) return res.json({ notations: [], demo: true });
+  try {
+    const r = await pool.query(`
+      SELECT n.*, e.prenom AS employe_prenom FROM kadio_rh_notations_coiffeur n
+      JOIN kadio_rh_employes e ON e.id = n.employe_id
+      ORDER BY n.created_at DESC LIMIT 200
+    `);
+    res.json({ notations: r.rows });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

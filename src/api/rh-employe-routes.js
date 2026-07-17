@@ -298,6 +298,20 @@ router.get('/classement', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Coiffeur note client (privé — jamais visible du client ni des collègues) ──
+router.post('/notations/client-prive', async (req, res) => {
+  const { clientNom, ponctualite, comportement, respect, commentaire } = req.body || {};
+  for (const [k, v] of Object.entries({ ponctualite, comportement, respect })) {
+    if (!Number.isInteger(v) || v < 1 || v > 5) return res.status(400).json({ error: `${k} doit être un entier entre 1 et 5` });
+  }
+  if (!pool || DEMO_MODE) return res.json({ success: true, demo: true });
+  const r = await pool.query(`
+    INSERT INTO kadio_rh_notations_coiffeur (employe_id, client_nom, ponctualite, comportement, respect, commentaire)
+    VALUES ($1,$2,$3,$4,$5,$6) RETURNING id
+  `, [req.employeId, clientNom || null, ponctualite, comportement, respect, commentaire || null]);
+  res.status(201).json({ success: true, id: r.rows[0].id });
+});
+
 // ── Notes clients reçues ──────────────────────────────────────────────────
 router.get('/notes', async (req, res) => {
   if (!pool || DEMO_MODE) return res.json({ notes: [], demo: true });

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KADIO — Votre avis</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&display=swap');
+  :root { --bg: #FAFAF8; --gold: #B8922A; --black: #0E0C09; --border: #E7E3DA; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--black); font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .card { background: #fff; border-radius: 18px; padding: 30px; max-width: 420px; width: 100%; box-shadow: 0 8px 40px rgba(0,0,0,.06); }
+  .logo { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 32px; letter-spacing: 0.08em; text-align: center; margin-bottom: 4px; }
+  .sub { text-align: center; color: #7A7364; font-size: 13px; margin-bottom: 24px; }
+  .critere { margin-bottom: 18px; }
+  .critere-label { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+  .stars { display: flex; gap: 6px; }
+  .star { font-size: 30px; cursor: pointer; filter: grayscale(1); background: none; border: none; padding: 0; }
+  .star.active { filter: none; }
+  textarea { width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 12px; font-size: 14px; min-height: 70px; resize: vertical; font-family: inherit; margin-top: 6px; }
+  .btn { width: 100%; border: none; border-radius: 10px; padding: 15px; font-size: 15px; font-weight: 700; cursor: pointer; background: var(--gold); color: #fff; margin-top: 18px; }
+  .msg { margin-top: 14px; font-size: 14px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="logo">KADIO</div>
+  <div class="sub" id="intro">Chargement…</div>
+  <div id="form" style="display:none">
+    <div class="critere"><div class="critere-label">Accueil</div><div class="stars" data-critere="accueil"></div></div>
+    <div class="critere"><div class="critere-label">Qualité du service</div><div class="stars" data-critere="qualite"></div></div>
+    <div class="critere"><div class="critere-label">Propreté</div><div class="stars" data-critere="proprete"></div></div>
+    <div class="critere"><div class="critere-label">Ambiance</div><div class="stars" data-critere="ambiance"></div></div>
+    <textarea id="commentaire" placeholder="Un commentaire (optionnel)"></textarea>
+    <button class="btn" onclick="soumettre()">Envoyer mon avis</button>
+  </div>
+  <div class="msg" id="msg"></div>
+</div>
+
+<script>
+  const token = window.location.pathname.split('/').filter(Boolean).pop();
+  const notes = { accueil: 0, qualite: 0, proprete: 0, ambiance: 0 };
+
+  ['accueil','qualite','proprete','ambiance'].forEach(critere => {
+    const container = document.querySelector(`.stars[data-critere="${critere}"]`);
+    for (let i = 1; i <= 5; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'star'; btn.textContent = '⭐'; btn.dataset.v = i;
+      btn.onclick = () => {
+        notes[critere] = i;
+        [...container.children].forEach((s, idx) => s.classList.toggle('active', idx < i));
+      };
+      container.appendChild(btn);
+    }
+  });
+
+  async function init() {
+    try {
+      const r = await fetch('/api/rh-notations/client/' + token).then(r => r.json());
+      if (r.error) { document.getElementById('intro').textContent = r.error; return; }
+      if (r.dejaSoumis) { document.getElementById('intro').textContent = 'Vous avez déjà donné votre avis — merci !'; return; }
+      document.getElementById('intro').textContent = `Comment s'est passée votre visite avec ${r.employePrenom} ?`;
+      document.getElementById('form').style.display = 'block';
+    } catch (e) { document.getElementById('intro').textContent = 'Erreur de chargement.'; }
+  }
+
+  async function soumettre() {
+    if (!notes.accueil || !notes.qualite || !notes.proprete || !notes.ambiance) {
+      document.getElementById('msg').textContent = 'Merci de noter les 4 critères.'; return;
+    }
+    const commentaire = document.getElementById('commentaire').value.trim();
+    const r = await fetch('/api/rh-notations/client/' + token, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...notes, commentaire }),
+    }).then(r => r.json()).catch(() => null);
+
+    if (!r || r.error) { document.getElementById('msg').textContent = r?.error || 'Erreur — réessayez.'; return; }
+    document.getElementById('form').style.display = 'none';
+    if (r.redirectUrl) {
+      document.getElementById('msg').textContent = 'Merci ! Redirection vers Google…';
+      setTimeout(() => { window.location.href = r.redirectUrl; }, 1200);
+    } else {
+      document.getElementById('msg').textContent = 'Merci pour votre avis ! Notre équipe en a été informée.';
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>

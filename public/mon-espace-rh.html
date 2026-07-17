@@ -113,6 +113,19 @@
     </div>
 
     <div class="section">
+      <h3>Noter un client (privé — visible du propriétaire uniquement)</h3>
+      <input type="text" id="note-client-nom" placeholder="Nom du client" style="margin-bottom:10px" />
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+        <div><div style="font-size:11px;color:var(--muted);margin-bottom:4px">Ponctualité</div><select id="note-ponctualite"><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select></div>
+        <div><div style="font-size:11px;color:var(--muted);margin-bottom:4px">Comportement</div><select id="note-comportement"><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select></div>
+        <div><div style="font-size:11px;color:var(--muted);margin-bottom:4px">Respect</div><select id="note-respect"><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select></div>
+      </div>
+      <textarea id="note-commentaire" placeholder="Commentaire (optionnel)"></textarea>
+      <button class="btn" style="margin-top:10px" onclick="noterClient()">Enregistrer</button>
+      <div class="msg" id="note-client-msg"></div>
+    </div>
+
+    <div class="section">
       <h3>Mes pointages (7 derniers jours)</h3>
       <table><thead><tr><th>Type</th><th>Heure</th><th>Retard</th><th>Raison</th></tr></thead>
         <tbody id="pointages-body"></tbody>
@@ -204,6 +217,22 @@
   async function confirmerVideo() {
     await fetch(API + '/video/vue', { method: 'POST', headers: authHeaders() });
     afterLogin();
+  }
+
+  async function noterClient() {
+    const clientNom = document.getElementById('note-client-nom').value.trim();
+    const ponctualite = parseInt(document.getElementById('note-ponctualite').value, 10);
+    const comportement = parseInt(document.getElementById('note-comportement').value, 10);
+    const respect = parseInt(document.getElementById('note-respect').value, 10);
+    const commentaire = document.getElementById('note-commentaire').value.trim();
+    const msg = document.getElementById('note-client-msg');
+    const r = await fetch(API + '/notations/client-prive', { method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ clientNom, ponctualite, comportement, respect, commentaire }) })
+      .then(r => r.json()).catch(() => null);
+    if (!r || r.error) { msg.textContent = r?.error || 'Erreur.'; return; }
+    msg.textContent = 'Note enregistrée.';
+    document.getElementById('note-client-nom').value = '';
+    document.getElementById('note-commentaire').value = '';
   }
 
   const ECHELON_ICONS = { bronze: '🥉', argent: '🥈', or: '🥇', platine: '💎' };

@@ -119,6 +119,7 @@ app.use('/api/gestion', require('./api/gestion-routes'));  // Gestion Salon — 
 app.use('/api/pointage', require('./api/pointage-routes')); // Kadio RH — kiosque pointage (public, contrôle d'accès physique)
 app.use('/api/rh', require('./api/rh-admin-routes'));        // Kadio RH — admin (employés, pointages, alertes)
 app.use('/api/rh-employe', require('./api/rh-employe-routes')); // Kadio RH — page employé (auth téléphone+PIN)
+app.use('/api/rh-notations', require('./api/rh-notations-routes')); // Kadio RH — notation client (lien SMS public)
 app.use('/api/staff', require('./api/staff-routes'));       // V35 — /api/staff/scan-qr
 app.use('/api/training', require('./api/training-routes')); // V31 — Ingestion conversations historiques + Style DNA
 app.use('/api/sq-calendar', require('./api/square-calendar-routes')); // Chantier 2 — Calendrier Square multi-staff
@@ -218,6 +219,9 @@ app.get('/pointage', (req, res) => {
 });
 app.get('/mon-espace-rh', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/mon-espace-rh.html'));
+});
+app.get('/noter-coiffeur/:token', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/noter-coiffeur.html'));
 });
 
 // Dashboard → redirect
