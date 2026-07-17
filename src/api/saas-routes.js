@@ -11,7 +11,7 @@ const router = express.Router();
 const axios = require('axios');
 const { pool } = require('../memory/db');
 
-const RESEND_KEY = process.env.RESEND_API_KEY || 're_hVMJtA4G_5BydQQv4noQx767KpL4xowMk';
+const RESEND_KEY = process.env.RESEND_API_KEY;
 const GOOGLE_PLACES_KEY = process.env.GOOGLE_PLACES_API_KEY || '';
 
 // ── Ensure table ─────────────────────────────────────────────────────────────
@@ -244,6 +244,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f8f8f8;margin:0;padding
 </body></html>`;
 
     // Send via Resend
+    if (!RESEND_KEY) return res.status(503).json({ error: 'RESEND_API_KEY non configuré — envoi email désactivé' });
     const emailRes = await axios.post('https://api.resend.com/emails', {
       from: 'DALEBA OS <onboarding@resend.dev>',
       to: [toEmail],

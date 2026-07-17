@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KADIO — Ma fidélité</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&display=swap');
+  :root { --bg: #FAFAF8; --gold: #B8922A; --black: #0E0C09; --border: #E7E3DA; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--black); font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .card { background: #fff; border-radius: 18px; padding: 32px; max-width: 420px; width: 100%; box-shadow: 0 8px 40px rgba(0,0,0,.06); }
+  .logo { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 34px; letter-spacing: 0.08em; text-align: center; margin-bottom: 4px; }
+  .sub { text-align: center; color: #7A7364; font-size: 13px; margin-bottom: 24px; }
+  input { width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 13px; font-size: 15px; margin-bottom: 12px; font-family: inherit; }
+  .btn { width: 100%; border: none; border-radius: 10px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; background: var(--gold); color: #fff; }
+  .msg { margin-top: 12px; font-size: 13px; text-align: center; }
+  #resultat { display: none; margin-top: 20px; text-align: center; }
+  .points-value { font-size: 42px; font-weight: 800; color: var(--gold); }
+  .points-label { font-size: 12px; color: #7A7364; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 20px; }
+  .credit { background: #F7F5EF; border-radius: 10px; padding: 12px; font-size: 14px; margin-bottom: 16px; }
+  .bar-track { background: #F0EDE5; border-radius: 999px; height: 12px; overflow: hidden; margin-bottom: 8px; }
+  .bar-fill { background: var(--gold); height: 100%; border-radius: 999px; transition: width .3s; }
+  .bar-label { font-size: 12px; color: #7A7364; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">KADIO</div>
+  <div class="sub">Programme fidélité</div>
+  <input type="tel" id="tel" placeholder="Votre numéro de téléphone" />
+  <button class="btn" onclick="consulter()">Voir mon solde</button>
+  <div class="msg" id="msg"></div>
+  <div id="resultat">
+    <div class="points-value" id="points">0</div>
+    <div class="points-label">points fidélité</div>
+    <div class="credit" id="credit" style="display:none"></div>
+    <div class="bar-track"><div class="bar-fill" id="bar" style="width:0%"></div></div>
+    <div class="bar-label" id="barLabel"></div>
+  </div>
+</div>
+<script>
+  async function consulter() {
+    const telephone = document.getElementById('tel').value.trim();
+    const msg = document.getElementById('msg');
+    const resultat = document.getElementById('resultat');
+    if (!telephone) { msg.textContent = 'Entrez votre numéro de téléphone.'; return; }
+    msg.textContent = ''; resultat.style.display = 'none';
+    const r = await fetch('/api/fidelite-public/solde-public?telephone=' + encodeURIComponent(telephone))
+      .then(r => r.json()).catch(() => null);
+    if (!r || r.error) { msg.textContent = r?.error || 'Erreur de connexion.'; return; }
+    document.getElementById('points').textContent = r.points;
+    const creditEl = document.getElementById('credit');
+    if (r.credit > 0) { creditEl.style.display = 'block'; creditEl.textContent = `💰 ${r.credit}$ de crédit disponible sur votre prochaine réservation`; }
+    else { creditEl.style.display = 'none'; }
+    document.getElementById('bar').style.width = r.progressionPct + '%';
+    document.getElementById('barLabel').textContent = `Encore ${r.pointsRequisProchainPalier} points pour débloquer 20$`;
+    resultat.style.display = 'block';
+  }
+</script>
+</body>
+</html>

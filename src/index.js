@@ -1,4 +1,8 @@
 require('dotenv').config();
+// Fuseau horaire du salon (Longueuil/Montréal) — sans ceci le serveur (UTC)
+// décale de 4-5h tous les calculs locaux : retards de pointage, fermeture
+// des tâches, fin de mois. Doit être posé avant tout usage de Date.
+process.env.TZ = process.env.TZ || 'America/Toronto';
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -115,6 +119,20 @@ app.use('/api/commercial',   require('./api/commercial-routes'));  // V43 Agent 
 app.use('/api/voice', require('./api/voice-dashboard-routes'));     // Jarvis — commande vocale + meta
 app.use('/api/dashboard', require('./api/voice-dashboard-routes')); // Jarvis — statut meta + site
 app.use('/api/salon', require('./api/salon-ops-routes'));  // V35 — Arrivée VIP + ratings + bouclier Google
+app.use('/api/gestion', require('./api/gestion-routes'));  // Gestion Salon — clients/employés/parrainages/références/notations (admin)
+app.use('/api/pointage', require('./api/pointage-routes')); // Kadio RH — kiosque pointage (public, contrôle d'accès physique)
+app.use('/api/rh', require('./api/rh-admin-routes'));        // Kadio RH — admin (employés, pointages, alertes)
+app.use('/api/rh-employe', require('./api/rh-employe-routes')); // Kadio RH — page employé (auth téléphone+PIN)
+app.use('/api/rh-notations', require('./api/rh-notations-routes')); // Kadio RH — notation client (lien SMS public)
+app.use('/api/rh-taches', require('./api/rh-taches-routes'));    // Kadio RH — tâches ménagères (auth employé)
+app.use('/api/rh-echelons', require('./api/rh-echelons-routes')); // Kadio RH — montée automatique des échelons (admin)
+require('./api/rh-employe-mois-cron'); // Kadio RH — proposition auto employé du mois (fin de mois, pas de route HTTP)
+const fideliteRoutes = require('./api/fidelite-routes');
+app.use('/api/fidelite', fideliteRoutes);                     // Programme fidélité (admin)
+app.use('/api/fidelite-public', fideliteRoutes.publicRouter);  // Programme fidélité (consultation solde, public)
+const parrainageRoutes = require('./api/parrainage-routes');
+app.use('/api/parrainage', parrainageRoutes);                     // Parrainage cash (admin)
+app.use('/api/parrainage-public', parrainageRoutes.publicRouter); // Parrainage cash (code, soumission, retrait — public)
 app.use('/api/staff', require('./api/staff-routes'));       // V35 — /api/staff/scan-qr
 app.use('/api/training', require('./api/training-routes')); // V31 — Ingestion conversations historiques + Style DNA
 app.use('/api/sq-calendar', require('./api/square-calendar-routes')); // Chantier 2 — Calendrier Square multi-staff
@@ -209,6 +227,21 @@ app.get('/scan-qr', (req, res) => {
 app.get('/noter-service', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/noter-service.html'));
 });
+app.get('/pointage', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/pointage.html'));
+});
+app.get('/mon-espace-rh', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/mon-espace-rh.html'));
+});
+app.get('/noter-coiffeur/:token', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/noter-coiffeur.html'));
+});
+app.get('/kadio-fidelite', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/kadio-fidelite.html'));
+});
+app.get('/parrainage', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/parrainage.html'));
+});
 
 // Dashboard → redirect
 app.get('/dashboard', (req, res) => {
@@ -257,6 +290,16 @@ app.get('/admin/staff-portal', (req, res) => {
 });
 app.get('/admin/team-manager', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin/team-manager.html'));
+});
+
+// Gestion Salon — clients/employés/parrainages/références/notations (admin)
+app.get('/admin/gestion', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin/gestion.html'));
+});
+
+// Kadio RH — tableau de bord propriétaire (admin)
+app.get('/admin/rh', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin/rh-dashboard.html'));
 });
 
 // Chantier 2 — Calendrier Square multi-staff

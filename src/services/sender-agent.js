@@ -18,7 +18,7 @@ const DALEBA_SITE        = process.env.DALEBA_SITE_URL    || 'https://daleba.ver
 const DALEBA_PRICING     = process.env.DALEBA_PRICING_URL || 'https://daleba.vercel.app/tarifs';
 const DALEBA_PAYMENT_150 = process.env.DALEBA_PAYMENT_URL || 'https://buy.stripe.com/fZu8wO78Vaq6eAe6F96wE0r';
 
-const RESEND_KEY   = process.env.RESEND_API_KEY  || 're_hVMJtA4G_5BydQQv4noQx767KpL4xowMk';
+const RESEND_KEY   = process.env.RESEND_API_KEY;
 const DALEBA_FROM  = process.env.DALEBA_FROM_EMAIL || 'onboarding@resend.dev';
 const DALEBA_NAME  = 'Marc Beausoleil — DALEBA';
 const DALEBA_REPLY = process.env.DALEBA_REPLY_TO   || 'kadioothniel@yahoo.fr';
@@ -99,6 +99,7 @@ ${footer}</body></html>`;
 // ── Envoi via Resend ──────────────────────────────────────────────────────────
 function sendEmail(to, subject, html, text) {
   return new Promise((resolve, reject) => {
+    if (!RESEND_KEY) return reject(new Error('RESEND_API_KEY non configuré — envoi email impossible'));
     const body = JSON.stringify({
       from:    `${DALEBA_NAME} <${DALEBA_FROM}>`,
       to:      [to],

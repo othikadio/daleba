@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<title>KADIO — Pointage</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&display=swap');
+  :root {
+    --bg: #FAFAF8;
+    --gold: #B8922A;
+    --black: #0E0C09;
+    --card: #FFFFFF;
+    --border: #E7E3DA;
+    --danger: #B0392E;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--black);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 24px 16px 40px;
+  }
+  .logo { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 400; font-size: 40px; letter-spacing: 0.08em; margin: 12px 0 4px; }
+  .sub { color: #7A7364; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 28px; }
+
+  .code-card {
+    background: var(--black); color: #fff; border-radius: 20px; padding: 28px 40px;
+    text-align: center; margin-bottom: 32px; min-width: 260px;
+  }
+  .code-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+  .code-digits { font-size: 56px; font-weight: 700; letter-spacing: 0.15em; font-variant-numeric: tabular-nums; }
+  .code-timer { font-size: 12px; color: #b8b3a5; margin-top: 8px; }
+
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; max-width: 480px; }
+  .action-btn {
+    background: var(--card); border: 1.5px solid var(--border); border-radius: 16px;
+    padding: 26px 12px; font-size: 16px; font-weight: 600; color: var(--black);
+    cursor: pointer; text-align: center;
+  }
+  .action-btn:active { background: var(--gold); color: #fff; border-color: var(--gold); }
+  .action-btn .icon { display: block; font-size: 30px; margin-bottom: 8px; }
+
+  .overlay {
+    display: none; position: fixed; inset: 0; background: rgba(14,12,9,0.55);
+    align-items: center; justify-content: center; padding: 20px; z-index: 50;
+  }
+  .overlay.show { display: flex; }
+  .modal { background: #fff; border-radius: 18px; padding: 28px; max-width: 380px; width: 100%; }
+  .modal h2 { font-family: 'Cormorant Garamond', serif; font-size: 24px; margin-bottom: 16px; }
+  .modal input, .modal textarea {
+    width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 14px;
+    font-size: 16px; margin-bottom: 12px; font-family: inherit;
+  }
+  .modal textarea { min-height: 80px; resize: vertical; }
+  .modal-actions { display: flex; gap: 10px; }
+  .btn { flex: 1; border: none; border-radius: 10px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .btn-primary { background: var(--gold); color: #fff; }
+  .btn-muted { background: #F0EDE5; color: var(--black); }
+  .msg { margin-top: 14px; font-size: 14px; padding: 12px; border-radius: 10px; display: none; }
+  .msg.ok { display: block; background: rgba(122,158,110,0.15); color: #4a6b3f; }
+  .msg.err { display: block; background: rgba(176,57,46,0.12); color: var(--danger); }
+</style>
+</head>
+<body>
+
+<div class="logo">KADIO</div>
+<div class="sub">Pointage salon</div>
+
+<div class="code-card">
+  <div class="code-label">Code actuel</div>
+  <div class="code-digits" id="codeDigits">— — — —</div>
+  <div class="code-timer" id="codeTimer">expire dans …</div>
+</div>
+
+<div class="actions">
+  <div class="action-btn" onclick="openModal('arrivee')"><span class="icon">🟢</span>Arrivée</div>
+  <div class="action-btn" onclick="openModal('depart')"><span class="icon">🔴</span>Départ</div>
+  <div class="action-btn" onclick="openModal('pause-debut')"><span class="icon">☕</span>Début pause</div>
+  <div class="action-btn" onclick="openModal('pause-fin')"><span class="icon">▶️</span>Fin pause</div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2 id="modalTitle">Arrivée</h2>
+    <input type="tel" id="f-telephone" placeholder="Téléphone (ex: 514 555 1234)" />
+    <input type="text" id="f-prenom" placeholder="Prénom" />
+    <input type="text" id="f-code" placeholder="Code affiché à l'écran" maxlength="4" inputmode="numeric" />
+    <div id="raisonBlock" style="display:none">
+      <p style="font-size:13px;color:var(--danger);margin-bottom:8px" id="retardMsg"></p>
+      <textarea id="f-raison" placeholder="Raison du retard (obligatoire)"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-muted" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="submitAction()">Valider</button>
+    </div>
+    <div class="msg" id="modalMsg"></div>
+  </div>
+</div>
+
+<script>
+  let currentMode = null;
+  let needsReason = false;
+
+  function fmtCountdown(expiresAt) {
+    const ms = new Date(expiresAt).getTime() - Date.now();
+    if (ms <= 0) return 'renouvellement…';
+    const s = Math.floor(ms / 1000);
+    return `expire dans ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  }
+
+  // Clé kiosque : fournie une fois via /pointage?cle=XXX puis mémorisée sur la tablette.
+  (function saveKioskKey() {
+    const cle = new URLSearchParams(window.location.search).get('cle');
+    if (cle) localStorage.setItem('kadio_kiosk_key', cle);
+  })();
+
+  let expiresAtCache = null;
+  async function refreshCode() {
+    try {
+      const kioskKey = localStorage.getItem('kadio_kiosk_key') || '';
+      const r = await fetch('/api/pointage/code-actuel', { headers: kioskKey ? { 'X-Kiosk-Key': kioskKey } : {} }).then(r => r.json());
+      if (r.error) { document.getElementById('codeDigits').textContent = '🔒'; document.getElementById('codeTimer').textContent = r.error; return; }
+      document.getElementById('codeDigits').textContent = r.code.split('').join(' ');
+      expiresAtCache = r.expiresAt;
+    } catch (e) {}
+  }
+  setInterval(() => { if (expiresAtCache) document.getElementById('codeTimer').textContent = fmtCountdown(expiresAtCache); }, 1000);
+  setInterval(refreshCode, 15000);
+  refreshCode();
+
+  const TITLES = { arrivee: 'Arrivée', depart: 'Départ', 'pause-debut': 'Début de pause', 'pause-fin': 'Fin de pause' };
+  const NEEDS_CODE = { arrivee: true, depart: true, 'pause-debut': false, 'pause-fin': false };
+
+  function openModal(mode) {
+    currentMode = mode; needsReason = false;
+    document.getElementById('modalTitle').textContent = TITLES[mode];
+    document.getElementById('f-telephone').value = '';
+    document.getElementById('f-prenom').value = '';
+    document.getElementById('f-code').value = '';
+    document.getElementById('f-raison').value = '';
+    document.getElementById('raisonBlock').style.display = 'none';
+    document.getElementById('f-code').style.display = NEEDS_CODE[mode] ? '' : 'none';
+    document.getElementById('modalMsg').className = 'msg';
+    document.getElementById('modalMsg').textContent = '';
+    document.getElementById('overlay').classList.add('show');
+  }
+  function closeModal() { document.getElementById('overlay').classList.remove('show'); }
+
+  const ENDPOINTS = { arrivee: '/api/pointage/arrivee', depart: '/api/pointage/depart',
+    'pause-debut': '/api/pointage/pause/debut', 'pause-fin': '/api/pointage/pause/fin' };
+
+  async function submitAction() {
+    const telephone = document.getElementById('f-telephone').value.trim();
+    const prenom = document.getElementById('f-prenom').value.trim();
+    const code = document.getElementById('f-code').value.trim();
+    const raison = document.getElementById('f-raison').value.trim();
+    const msgEl = document.getElementById('modalMsg');
+
+    if (!telephone || !prenom) { msgEl.className = 'msg err'; msgEl.textContent = 'Téléphone et prénom requis.'; return; }
+    if (NEEDS_CODE[currentMode] && !code) { msgEl.className = 'msg err'; msgEl.textContent = 'Entrez le code affiché à l\'écran.'; return; }
+    if (needsReason && !raison) { msgEl.className = 'msg err'; msgEl.textContent = 'La raison du retard est obligatoire.'; return; }
+
+    const body = { telephone, prenom };
+    if (NEEDS_CODE[currentMode]) body.code = code;
+    if (needsReason) body.raison = raison;
+
+    try {
+      const r = await fetch(ENDPOINTS[currentMode], {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+      }).then(r => r.json());
+
+      if (r.needsReason) {
+        needsReason = true;
+        document.getElementById('raisonBlock').style.display = 'block';
+        document.getElementById('retardMsg').textContent = r.message;
+        return;
+      }
+      if (r.error) { msgEl.className = 'msg err'; msgEl.textContent = r.error; return; }
+
+      msgEl.className = 'msg ok';
+      msgEl.textContent = r.message || 'Enregistré.';
+      setTimeout(closeModal, 2200);
+    } catch (e) {
+      msgEl.className = 'msg err'; msgEl.textContent = 'Erreur réseau — réessayez.';
+    }
+  }
+</script>
+</body>
+</html>

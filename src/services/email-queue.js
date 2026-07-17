@@ -11,7 +11,7 @@
 const https = require('https');
 const nodemailer = require('nodemailer');
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_hVMJtA4G_5BydQQv4noQx767KpL4xowMk';
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const MAX_EMAILS_PER_HOUR = 90;
 
 // ============== Table Setup ==============
@@ -49,6 +49,9 @@ async function ensureTableExists(pool) {
 // ============== Provider 1: Resend ==============
 
 async function sendViaResend(to, from, subject, html, text, attachments) {
+  // Sans clé, on échoue tout de suite (le fallback SMTP/Ethereal prend le
+  // relais) plutôt que d'envoyer "Bearer undefined" à Resend pour un 401.
+  if (!RESEND_API_KEY) throw new Error('RESEND_API_KEY non configuré');
   return new Promise((resolve, reject) => {
     const payload = {
       from: from || 'DALEBA <onboarding@resend.dev>',
