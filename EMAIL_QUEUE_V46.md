@@ -43,7 +43,7 @@ CREATE INDEX idx_email_queue_scheduled ON daleba_email_queue(scheduled_at);
 
 **Queue d'envoi intelligente avec multi-provider :**
 
-1. **Resend** : `onboarding@resend.dev` (clé existante `re_hVMJtA4G_5BydQQv4noQx767KpL4xowMk`)
+1. **Resend** : `onboarding@resend.dev` (clé via `RESEND_API_KEY` env var)
 2. **Nodemailer SMTP** : Ethereal auto-généré (test/preview) avec timeout 10s
 3. **Fallback DB** : Si tout échoue → `status='pending_manual'`, rapport JSON dans `metadata_json`
 

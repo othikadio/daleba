@@ -11,7 +11,7 @@
 const https = require('https');
 const nodemailer = require('nodemailer');
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_hVMJtA4G_5BydQQv4noQx767KpL4xowMk';
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const MAX_EMAILS_PER_HOUR = 90;
 
 // ============== Table Setup ==============
