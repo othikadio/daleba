@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KADIO — Mon espace</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&display=swap');
+  :root {
+    --bg: #FAFAF8; --gold: #B8922A; --black: #0E0C09;
+    --card: #FFFFFF; --border: #E7E3DA; --danger: #B0392E; --success: #4a6b3f; --muted: #7A7364;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--black); font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; min-height: 100vh; padding-bottom: 60px; }
+  .center-screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+  .logo { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 40px; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .sub { color: var(--muted); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 28px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; }
+  input, textarea { width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 13px; font-size: 15px; margin-bottom: 12px; font-family: inherit; }
+  .btn { width: 100%; border: none; border-radius: 10px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; background: var(--gold); color: #fff; }
+  .btn:hover { opacity: .9; }
+  .btn-muted { background: #F0EDE5; color: var(--black); }
+  .msg { margin-top: 12px; font-size: 13px; padding: 10px; border-radius: 8px; display: none; }
+  .msg.err { display: block; background: rgba(176,57,46,0.1); color: var(--danger); }
+
+  .header { background: var(--black); color: #fff; padding: 18px 20px; display: flex; align-items: center; gap: 12px; }
+  .header .logo { font-size: 22px; margin: 0; color: var(--gold); }
+  .header-right { margin-left: auto; font-size: 12px; color: #cfc8b6; cursor: pointer; }
+
+  .content { max-width: 720px; margin: 0 auto; padding: 20px 16px; }
+  .section { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .section h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 14px; }
+  .badge-row { display: flex; align-items: center; gap: 16px; }
+  .badge-big { font-size: 40px; }
+  .badge-label { font-size: 20px; font-weight: 700; }
+  .badge-next { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  .score-bar-track { background: #F0EDE5; border-radius: 999px; height: 10px; margin: 8px 0; overflow: hidden; }
+  .score-bar-fill { background: var(--gold); height: 100%; border-radius: 999px; }
+  .score-value { font-size: 28px; font-weight: 700; }
+  .score-partiel { font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: var(--muted); font-size: 10px; text-transform: uppercase; padding: 6px; border-bottom: 1.5px solid var(--border); }
+  td { padding: 7px 6px; border-bottom: 1px solid var(--border); }
+  .empty { color: var(--muted); font-size: 13px; padding: 10px 0; }
+  .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 10px; font-weight: 700; }
+  .pill-good { background: rgba(74,107,63,0.12); color: var(--success); }
+  .pill-bad { background: rgba(176,57,46,0.1); color: var(--danger); }
+
+  .gate-text { white-space: pre-wrap; font-size: 13px; line-height: 1.6; max-height: 320px; overflow-y: auto; background: #F7F5EF; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════ LOGIN ═══════ -->
+<div class="center-screen" id="screen-login">
+  <div class="logo">KADIO</div>
+  <div class="sub">Mon espace employé</div>
+  <div class="card">
+    <input type="tel" id="login-tel" placeholder="Téléphone" />
+    <input type="password" id="login-pin" placeholder="Code PIN (4 chiffres)" maxlength="4" inputmode="numeric" />
+    <button class="btn" onclick="login()">Connexion</button>
+    <div class="msg" id="login-msg"></div>
+  </div>
+</div>
+
+<!-- ═══════ GATE RÈGLEMENT ═══════ -->
+<div class="center-screen" id="screen-reglement" style="display:none">
+  <div class="logo">KADIO</div>
+  <div class="sub">Règlement intérieur</div>
+  <div class="card" style="max-width:520px">
+    <div class="gate-text" id="reglement-texte"></div>
+    <button class="btn" onclick="signerReglement()">J'ai lu et j'accepte le règlement</button>
+  </div>
+</div>
+
+<!-- ═══════ GATE VIDÉO ═══════ -->
+<div class="center-screen" id="screen-video" style="display:none">
+  <div class="logo">KADIO</div>
+  <div class="sub">Vidéo d'accueil</div>
+  <div class="card" style="max-width:520px">
+    <div id="video-container" style="margin-bottom:16px"></div>
+    <button class="btn" onclick="confirmerVideo()">J'ai visionné la vidéo</button>
+  </div>
+</div>
+
+<!-- ═══════ TABLEAU DE BORD ═══════ -->
+<div id="screen-dashboard" style="display:none">
+  <div class="header">
+    <div class="logo">KADIO</div>
+    <div class="header-right" onclick="logout()">Déconnexion</div>
+  </div>
+  <div class="content">
+
+    <div class="section">
+      <h3>Mon badge</h3>
+      <div class="badge-row">
+        <div class="badge-big" id="badge-icon">🥉</div>
+        <div>
+          <div class="badge-label" id="badge-label">Bronze</div>
+          <div class="badge-next" id="badge-next"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Mon score du mois</h3>
+      <div class="score-value" id="score-value">—</div>
+      <div class="score-bar-track"><div class="score-bar-fill" id="score-bar" style="width:0%"></div></div>
+      <div class="score-partiel" id="score-partiel"></div>
+      <div class="score-partiel" id="classement-info" style="margin-top:6px"></div>
+    </div>
+
+    <div class="section">
+      <h3>Mes pointages (7 derniers jours)</h3>
+      <table><thead><tr><th>Type</th><th>Heure</th><th>Retard</th><th>Raison</th></tr></thead>
+        <tbody id="pointages-body"></tbody>
+      </table>
+      <div class="empty" id="pointages-empty" style="display:none">Aucun pointage cette semaine.</div>
+    </div>
+
+    <div class="section">
+      <h3>Mes notes clients</h3>
+      <table><thead><tr><th>Client</th><th>Note moy.</th><th>Commentaire</th></tr></thead>
+        <tbody id="notes-body"></tbody>
+      </table>
+      <div class="empty" id="notes-empty" style="display:none">Aucune note reçue pour l'instant.</div>
+    </div>
+
+    <div class="section">
+      <h3>Mes avertissements et sanctions</h3>
+      <table><thead><tr><th>Palier</th><th>Motif</th><th>Date</th></tr></thead>
+        <tbody id="sanctions-body"></tbody>
+      </table>
+      <div class="empty" id="sanctions-empty" style="display:none">Aucune sanction. 👏</div>
+    </div>
+
+    <div class="section">
+      <h3>Mes récompenses</h3>
+      <table><thead><tr><th>Type</th><th>Montant</th><th>Date</th></tr></thead>
+        <tbody id="recompenses-body"></tbody>
+      </table>
+      <div class="empty" id="recompenses-empty" style="display:none">Aucune récompense pour l'instant.</div>
+    </div>
+
+    <div class="section">
+      <h3>Règlement intérieur</h3>
+      <div class="gate-text" id="reglement-texte-dash"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const API = '/api/rh-employe';
+  let TOKEN = localStorage.getItem('kadio_rh_token') || '';
+
+  function authHeaders() { return { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' }; }
+  function show(id) {
+    ['screen-login','screen-reglement','screen-video','screen-dashboard'].forEach(s =>
+      document.getElementById(s).style.display = s === id ? '' : 'none');
+  }
+
+  async function login() {
+    const telephone = document.getElementById('login-tel').value.trim();
+    const pin = document.getElementById('login-pin').value.trim();
+    const msg = document.getElementById('login-msg');
+    if (!telephone || !pin) { msg.className = 'msg err'; msg.textContent = 'Téléphone et PIN requis.'; return; }
+    const r = await fetch(API + '/connexion', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ telephone, pin }) }).then(r => r.json()).catch(() => null);
+    if (!r || r.error) { msg.className = 'msg err'; msg.textContent = r?.error || 'Erreur de connexion.'; return; }
+    TOKEN = r.token;
+    localStorage.setItem('kadio_rh_token', TOKEN);
+    await afterLogin();
+  }
+
+  function logout() { localStorage.removeItem('kadio_rh_token'); TOKEN = ''; show('screen-login'); }
+
+  async function afterLogin() {
+    const moi = await fetch(API + '/moi', { headers: authHeaders() }).then(r => r.json()).catch(() => null);
+    if (!moi || moi.error) { logout(); return; }
+
+    if (!moi.employe.reglement_signe) {
+      const reg = await fetch(API + '/reglement', { headers: authHeaders() }).then(r => r.json());
+      document.getElementById('reglement-texte').textContent = reg.texte;
+      show('screen-reglement');
+      return;
+    }
+    const videoInfo = await fetch(API + '/video', { headers: authHeaders() }).then(r => r.json());
+    if (videoInfo.url && !videoInfo.vue) {
+      document.getElementById('video-container').innerHTML =
+        `<video src="${videoInfo.url}" controls style="width:100%;border-radius:10px"></video>`;
+      show('screen-video');
+      return;
+    }
+    loadDashboard(moi);
+  }
+
+  async function signerReglement() {
+    await fetch(API + '/reglement/signer', { method: 'POST', headers: authHeaders() });
+    afterLogin();
+  }
+  async function confirmerVideo() {
+    await fetch(API + '/video/vue', { method: 'POST', headers: authHeaders() });
+    afterLogin();
+  }
+
+  const ECHELON_ICONS = { bronze: '🥉', argent: '🥈', or: '🥇', platine: '💎' };
+
+  function esc(s) { return (s ?? '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function fmtDate(d) { return d ? new Date(d).toLocaleString('fr-CA', { dateStyle: 'short', timeStyle: 'short' }) : '—'; }
+
+  async function loadDashboard(moi) {
+    show('screen-dashboard');
+
+    document.getElementById('badge-icon').textContent = ECHELON_ICONS[moi.employe.echelon] || '🥉';
+    document.getElementById('badge-label').textContent = (moi.echelonActuel?.label || 'Bronze');
+    document.getElementById('badge-next').textContent = moi.prochainEchelon
+      ? `Prochain niveau (${moi.prochainEchelon.label}) : ${moi.prochainEchelon.condition}`
+      : 'Niveau maximum atteint.';
+
+    const reg = await fetch(API + '/reglement', { headers: authHeaders() }).then(r => r.json());
+    document.getElementById('reglement-texte-dash').textContent = reg.texte;
+
+    const score = await fetch(API + '/score-mois', { headers: authHeaders() }).then(r => r.json());
+    document.getElementById('score-value').textContent = score.total + ' / 100';
+    document.getElementById('score-bar').style.width = Math.min(100, score.total) + '%';
+    document.getElementById('score-partiel').textContent = score.partiel
+      ? `Score partiel — en attente : ${(score.composantsManquants || []).join(', ')}`
+      : '';
+
+    const classement = await fetch(API + '/classement', { headers: authHeaders() }).then(r => r.json());
+    if (classement.rang) document.getElementById('classement-info').textContent = `Classement équipe : ${classement.rang}e / ${classement.total}`;
+
+    const semaine = await fetch(API + '/pointages-semaine', { headers: authHeaders() }).then(r => r.json());
+    const pointages = semaine.pointages || [];
+    document.getElementById('pointages-empty').style.display = pointages.length ? 'none' : 'block';
+    document.getElementById('pointages-body').innerHTML = pointages.map(p => `
+      <tr><td>${p.type === 'arrivee' ? 'Arrivée' : 'Départ'}</td><td>${fmtDate(p.heure_reelle)}</td>
+      <td>${p.retard_minutes > 0 ? `<span class="pill pill-bad">${p.retard_minutes} min</span>` : '<span class="pill pill-good">À l\'heure</span>'}</td>
+      <td>${esc(p.raison_retard)}</td></tr>`).join('');
+
+    const notesR = await fetch(API + '/notes', { headers: authHeaders() }).then(r => r.json());
+    const notes = notesR.notes || [];
+    document.getElementById('notes-empty').style.display = notes.length ? 'none' : 'block';
+    document.getElementById('notes-body').innerHTML = notes.map(n => {
+      const moy = ((n.accueil + n.qualite + n.proprete + n.ambiance) / 4).toFixed(1);
+      return `<tr><td>${esc(n.client_nom)}</td><td>${moy}/5</td><td>${esc(n.commentaire)}</td></tr>`;
+    }).join('');
+
+    const sancR = await fetch(API + '/sanctions', { headers: authHeaders() }).then(r => r.json());
+    const sanctions = sancR.sanctions || [];
+    document.getElementById('sanctions-empty').style.display = sanctions.length ? 'none' : 'block';
+    document.getElementById('sanctions-body').innerHTML = sanctions.map(s => `
+      <tr><td>${s.palier}</td><td>${esc(s.motif)}</td><td>${fmtDate(s.created_at)}</td></tr>`).join('');
+
+    const recR = await fetch(API + '/recompenses', { headers: authHeaders() }).then(r => r.json());
+    const recompenses = recR.recompenses || [];
+    document.getElementById('recompenses-empty').style.display = recompenses.length ? 'none' : 'block';
+    document.getElementById('recompenses-body').innerHTML = recompenses.map(r => `
+      <tr><td>${esc(r.type)}</td><td>${r.montant ? r.montant + '$' : '—'}</td><td>${fmtDate(r.created_at)}</td></tr>`).join('');
+  }
+
+  if (TOKEN) afterLogin(); else show('screen-login');
+</script>
+</body>
+</html>

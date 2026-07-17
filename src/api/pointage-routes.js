@@ -106,7 +106,7 @@ async function initTables() {
     console.log(`${LOG} Tables OK`);
   } catch (e) { console.warn(`${LOG} initTables: ${e.message}`); }
 }
-initTables();
+const dbReady = initTables();
 
 // ── Cron : alertes proactives (pause > 70 min, absent non pointé) ──────────
 // Grace period avant "absent" : 15 min après l'heure officielle sans pointage.
@@ -375,3 +375,4 @@ router.post('/pause/fin', async (req, res) => {
 });
 
 module.exports = router;
+module.exports.dbReady = dbReady;
