@@ -20,6 +20,7 @@
  */
 
 const express = require('express');
+const { normalizePhone } = require('../services/phone');
 const router  = express.Router();
 const crypto  = require('crypto');
 const QRCode  = require('qrcode');
@@ -49,12 +50,6 @@ let gestionDbReady = Promise.resolve(), pointageDbReady = Promise.resolve();
 try { gestionDbReady = require('./gestion-routes').dbReady || Promise.resolve(); } catch (e) {}
 try { pointageDbReady = require('./pointage-routes').dbReady || Promise.resolve(); } catch (e) {}
 
-function normalizePhone(phone = '') {
-  let p = phone.replace(/[^\d+]/g, '');
-  if (!p.startsWith('+') && p.length === 10) p = '+1' + p;
-  else if (!p.startsWith('+') && p.length === 11 && p.startsWith('1')) p = '+' + p;
-  return p;
-}
 
 // ── Init tables ───────────────────────────────────────────────────────────
 async function initTables() {
@@ -147,14 +142,20 @@ async function calculerSolde(proprietaireType, proprietaireId) {
     primesRes = await pool.query(`SELECT COALESCE(SUM(montant),0) AS total FROM kadio_parrainage_primes_employe WHERE employe_id=$1`, [proprietaireId]);
   }
 
+  // Les demandes en attente réservent le montant — sinon deux demandes
+  // simultanées sur le même solde seraient toutes deux payables (double dépense).
   const retraitsRes = await pool.query(`
-    SELECT COALESCE(SUM(montant),0) AS total FROM kadio_parrainage_retraits
-    WHERE proprietaire_type=$1 AND proprietaire_id=$2 AND statut='paye'
+    SELECT
+      COALESCE(SUM(montant) FILTER (WHERE statut='paye'), 0)    AS paye,
+      COALESCE(SUM(montant) FILTER (WHERE statut='demande'), 0) AS en_attente
+    FROM kadio_parrainage_retraits
+    WHERE proprietaire_type=$1 AND proprietaire_id=$2
   `, [proprietaireType, proprietaireId]);
 
   const gagne = parseFloat(bonusRes.rows[0].total) + parseFloat(primesRes.rows[0].total);
-  const paye = parseFloat(retraitsRes.rows[0].total);
-  return { gagne, paye, disponible: Math.round((gagne - paye) * 100) / 100 };
+  const paye = parseFloat(retraitsRes.rows[0].paye);
+  const enAttente = parseFloat(retraitsRes.rows[0].en_attente);
+  return { gagne, paye, enAttente, disponible: Math.round((gagne - paye - enAttente) * 100) / 100 };
 }
 
 // ═══════════════════════ ADMIN ═════════════════════════════════════════════

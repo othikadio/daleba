@@ -25,13 +25,8 @@ const JOUR_MS = 24 * 3600 * 1000;
 let pool = null, DEMO_MODE = true;
 try { const db = require('../memory/db'); pool = db.pool; DEMO_MODE = db.DEMO_MODE; } catch (e) {}
 
-let sendSMS = null;
-try { sendSMS = require('../services/twilio').sendSMS; } catch (e) {}
-const OWNER_PHONE = process.env.OWNER_PHONE_NUMBER || '+15149195970';
-async function alertOwner(message) {
-  if (sendSMS) { try { await sendSMS(OWNER_PHONE, message); } catch (e) { console.error(`${LOG} SMS échec: ${e.message}`); } }
-  else console.log(`${LOG} [SMS-DEMO] → propriétaire: ${message}`);
-}
+// SMS propriétaire : source unique dans rh-sanctions-core (OWNER_PHONE inclus)
+const { alertOwner } = require('./rh-sanctions-core');
 
 let pointageDbReady = Promise.resolve();
 try { pointageDbReady = require('./pointage-routes').dbReady || Promise.resolve(); } catch (e) {}

@@ -99,6 +99,7 @@ ${footer}</body></html>`;
 // ── Envoi via Resend ──────────────────────────────────────────────────────────
 function sendEmail(to, subject, html, text) {
   return new Promise((resolve, reject) => {
+    if (!RESEND_KEY) return reject(new Error('RESEND_API_KEY non configuré — envoi email impossible'));
     const body = JSON.stringify({
       from:    `${DALEBA_NAME} <${DALEBA_FROM}>`,
       to:      [to],

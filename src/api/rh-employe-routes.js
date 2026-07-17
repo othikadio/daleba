@@ -15,8 +15,9 @@
  */
 
 const express = require('express');
+const { normalizePhone } = require('../services/phone');
 const router  = express.Router();
-const { generateToken, verifyToken } = require('../middleware/auth');
+const { generateToken, requireEmployeRH } = require('../middleware/auth');
 
 const LOG = '[RH-EMPLOYE]';
 
@@ -131,12 +132,6 @@ async function initTables() {
 }
 const dbReady = initTables();
 
-function normalizePhone(phone = '') {
-  let p = phone.replace(/[^\d+]/g, '');
-  if (!p.startsWith('+') && p.length === 10) p = '+1' + p;
-  else if (!p.startsWith('+') && p.length === 11 && p.startsWith('1')) p = '+' + p;
-  return p;
-}
 
 // ── Auth téléphone + PIN ─────────────────────────────────────────────────
 router.post('/connexion', async (req, res) => {
@@ -164,18 +159,7 @@ router.post('/connexion', async (req, res) => {
 });
 
 // ── Middleware : session employé (auto-accès uniquement à ses données) ────
-function requireEmploye(req, res, next) {
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-  if (!token) return res.status(401).json({ error: 'Token requis' });
-  try {
-    const decoded = verifyToken(token);
-    if (decoded.role !== 'employe_rh') return res.status(403).json({ error: 'Accès réservé aux employés' });
-    req.employeId = decoded.employeId;
-    next();
-  } catch (e) { return res.status(401).json({ error: 'Session expirée — reconnectez-vous' }); }
-}
-router.use(requireEmploye);
+router.use(requireEmployeRH);
 
 // ── Échelons — infos statiques (progression automatique = Module 2) ───────
 const ECHELONS = [
@@ -210,12 +194,8 @@ async function computeScoreMensuel(employeId, ref = new Date()) {
 
   const checklistRes = await pool.query(`
     SELECT
-      AVG(CASE WHEN accueil_sourire AND guide_place AND boisson_proposee
-               AND grignotines_proposees AND attente_annoncee AND telephone_range
-          THEN 100.0 ELSE (
-            (accueil_sourire::int + guide_place::int + boisson_proposee::int +
-             grignotines_proposees::int + attente_annoncee::int + telephone_range::int) / 6.0 * 100
-          ) END) AS avg,
+      AVG((accueil_sourire::int + guide_place::int + boisson_proposee::int +
+           grignotines_proposees::int + attente_annoncee::int + telephone_range::int) / 6.0 * 100) AS avg,
       COUNT(*) AS n
     FROM kadio_rh_checklist_service
     WHERE employe_id=$1 AND date_trunc('month', created_at) = date_trunc('month', $2::timestamp)
@@ -287,11 +267,10 @@ router.get('/classement', async (req, res) => {
   if (!pool || DEMO_MODE) return res.json({ rang: 1, total: 1, demo: true });
   try {
     const employes = await pool.query(`SELECT id FROM kadio_rh_employes WHERE actif=TRUE`);
-    const scores = [];
-    for (const e of employes.rows) {
+    const scores = await Promise.all(employes.rows.map(async (e) => {
       const s = await computeScoreMensuel(e.id);
-      scores.push({ employeId: e.id, total: s.total });
-    }
+      return { employeId: e.id, total: s.total };
+    }));
     scores.sort((a, b) => b.total - a.total);
     const rang = scores.findIndex(s => s.employeId === req.employeId) + 1;
     res.json({ rang: rang || null, total: scores.length, classement: scores });

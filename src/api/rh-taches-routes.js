@@ -13,7 +13,7 @@
 
 const express = require('express');
 const router  = express.Router();
-const { verifyToken } = require('../middleware/auth');
+const { requireEmployeRH } = require('../middleware/auth');
 const { TACHES_QUOTIDIENNES, TACHES_HEBDOMADAIRES } = require('./rh-taches-constants');
 
 const LOG = '[RH-TACHES]';
@@ -22,20 +22,16 @@ const SALON_HEURE_FERMETURE = process.env.SALON_HEURE_FERMETURE || '18:00';
 let pool = null, DEMO_MODE = true;
 try { const db = require('../memory/db'); pool = db.pool; DEMO_MODE = db.DEMO_MODE; } catch (e) {}
 
-let sendSMS = null;
-try { sendSMS = require('../services/twilio').sendSMS; } catch (e) {}
-const OWNER_PHONE = process.env.OWNER_PHONE_NUMBER || '+15149195970';
-
-let creerSanction = null, descendreEchelon = (e) => e;
+let creerSanction = null, descendreEchelon = (e) => e, sendOwnerSMS = async () => {};
 try {
   const core = require('./rh-sanctions-core');
   creerSanction = core.creerSanction;
   descendreEchelon = core.descendreEchelon || descendreEchelon;
+  sendOwnerSMS = core.alertOwner;
 } catch (e) {}
 
 async function alertOwner(message, niveau = 'attention', employeId = null, type = 'tache_manquante') {
-  if (sendSMS) { try { await sendSMS(OWNER_PHONE, message); } catch (e) { console.error(`${LOG} SMS échec: ${e.message}`); } }
-  else console.log(`${LOG} [SMS-DEMO] → propriétaire: ${message}`);
+  await sendOwnerSMS(message);
   if (pool && !DEMO_MODE) {
     try { await pool.query(`INSERT INTO kadio_rh_alertes (niveau, message, employe_id, type) VALUES ($1,$2,$3,$4)`, [niveau, message, employeId, type]); }
     catch (e) { console.warn(`${LOG} alerte insert: ${e.message}`); }
@@ -67,17 +63,7 @@ async function initTables() {
 const dbReady = initTables();
 
 // ── Middleware : session employé (n'importe quel employé peut cocher) ─────
-function requireEmploye(req, res, next) {
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-  if (!token) return res.status(401).json({ error: 'Token requis' });
-  try {
-    const decoded = verifyToken(token);
-    if (decoded.role !== 'employe_rh') return res.status(403).json({ error: 'Accès réservé aux employés' });
-    req.employeId = decoded.employeId;
-    next();
-  } catch (e) { return res.status(401).json({ error: 'Session expirée — reconnectez-vous' }); }
-}
+const requireEmploye = requireEmployeRH;
 
 // ── Listes + statut ──────────────────────────────────────────────────────
 router.get('/aujourdhui', requireEmploye, async (req, res) => {

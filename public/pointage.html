@@ -111,10 +111,18 @@
     return `expire dans ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   }
 
+  // Clé kiosque : fournie une fois via /pointage?cle=XXX puis mémorisée sur la tablette.
+  (function saveKioskKey() {
+    const cle = new URLSearchParams(window.location.search).get('cle');
+    if (cle) localStorage.setItem('kadio_kiosk_key', cle);
+  })();
+
   let expiresAtCache = null;
   async function refreshCode() {
     try {
-      const r = await fetch('/api/pointage/code-actuel').then(r => r.json());
+      const kioskKey = localStorage.getItem('kadio_kiosk_key') || '';
+      const r = await fetch('/api/pointage/code-actuel', { headers: kioskKey ? { 'X-Kiosk-Key': kioskKey } : {} }).then(r => r.json());
+      if (r.error) { document.getElementById('codeDigits').textContent = '🔒'; document.getElementById('codeTimer').textContent = r.error; return; }
       document.getElementById('codeDigits').textContent = r.code.split('').join(' ');
       expiresAtCache = r.expiresAt;
     } catch (e) {}

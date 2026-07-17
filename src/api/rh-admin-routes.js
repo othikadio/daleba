@@ -6,6 +6,7 @@
  */
 
 const express = require('express');
+const { normalizePhone } = require('../services/phone');
 const router  = express.Router();
 const { requireAuth, requireRole, ROLES } = require('../middleware/auth');
 
@@ -16,11 +17,6 @@ try { const db = require('../memory/db'); pool = db.pool; DEMO_MODE = db.DEMO_MO
 
 let sendSMS = null;
 try { sendSMS = require('../services/twilio').sendSMS; } catch (e) {}
-const OWNER_PHONE = process.env.OWNER_PHONE_NUMBER || '+15149195970';
-async function alertOwner(message) {
-  if (sendSMS) { try { await sendSMS(OWNER_PHONE, message); } catch (e) { console.error(`${LOG} SMS échec: ${e.message}`); } }
-  else console.log(`${LOG} [SMS-DEMO] → propriétaire: ${message}`);
-}
 
 let computeScoreMensuel = async () => ({ total: 0, partiel: true, composantsDisponibles: [], composantsManquants: [] });
 let ECHELONS = [];
@@ -35,12 +31,6 @@ try { creerNotationEnAttente = require('./rh-notations-routes').creerNotationEnA
 
 router.use(requireAuth, requireRole(ROLES.BUSINESS_ADMIN));
 
-function normalizePhone(phone = '') {
-  let p = phone.replace(/[^\d+]/g, '');
-  if (!p.startsWith('+') && p.length === 10) p = '+1' + p;
-  else if (!p.startsWith('+') && p.length === 11 && p.startsWith('1')) p = '+' + p;
-  return p;
-}
 
 // ═══════════════════════ EMPLOYÉS RH ═══════════════════════════════════════
 router.get('/employes', async (req, res) => {
@@ -196,11 +186,10 @@ router.get('/employe-du-mois', async (req, res) => {
   if (!pool || DEMO_MODE) return res.json({ classement: [], historique: [], demo: true });
   try {
     const employesRes = await pool.query(`SELECT id, prenom FROM kadio_rh_employes WHERE actif=TRUE`);
-    const classement = [];
-    for (const e of employesRes.rows) {
+    const classement = await Promise.all(employesRes.rows.map(async (e) => {
       const score = await computeScoreMensuel(e.id);
-      classement.push({ employeId: e.id, prenom: e.prenom, score: score.total, partiel: score.partiel });
-    }
+      return { employeId: e.id, prenom: e.prenom, score: score.total, partiel: score.partiel };
+    }));
     classement.sort((a, b) => b.score - a.score);
 
     const histRes = await pool.query(`
@@ -234,30 +223,29 @@ router.get('/employes-detail', async (req, res) => {
   if (!pool || DEMO_MODE) return res.json({ employes: [], demo: true });
   try {
     const employesRes = await pool.query(`SELECT * FROM kadio_rh_employes WHERE actif=TRUE ORDER BY prenom`);
-    const out = [];
-    for (const e of employesRes.rows) {
-      const score = await computeScoreMensuel(e.id);
-
-      const arrivalRes = await pool.query(`SELECT 1 FROM kadio_rh_pointages WHERE employe_id=$1 AND type='arrivee' AND heure_reelle::date=CURRENT_DATE`, [e.id]);
-      const departRes = await pool.query(`SELECT 1 FROM kadio_rh_pointages WHERE employe_id=$1 AND type='depart' AND heure_reelle::date=CURRENT_DATE`, [e.id]);
-      const pauseRes = await pool.query(`SELECT 1 FROM kadio_rh_pauses WHERE employe_id=$1 AND fin IS NULL`, [e.id]);
+    const out = await Promise.all(employesRes.rows.map(async (e) => {
+      const [score, arrivalRes, departRes, pauseRes, retardsRes, sanctionsRes] = await Promise.all([
+        computeScoreMensuel(e.id),
+        pool.query(`SELECT 1 FROM kadio_rh_pointages WHERE employe_id=$1 AND type='arrivee' AND heure_reelle::date=CURRENT_DATE`, [e.id]),
+        pool.query(`SELECT 1 FROM kadio_rh_pointages WHERE employe_id=$1 AND type='depart' AND heure_reelle::date=CURRENT_DATE`, [e.id]),
+        pool.query(`SELECT 1 FROM kadio_rh_pauses WHERE employe_id=$1 AND fin IS NULL`, [e.id]),
+        pool.query(`
+          SELECT COUNT(*) FROM kadio_rh_pointages WHERE employe_id=$1 AND type='arrivee' AND retard_minutes>0
+          AND date_trunc('month', heure_reelle) = date_trunc('month', NOW())
+        `, [e.id]),
+        pool.query(`SELECT COUNT(*) FROM kadio_rh_sanctions WHERE employe_id=$1`, [e.id]),
+      ]);
       let presence = 'absent';
       if (departRes.rows.length) presence = 'parti';
       else if (arrivalRes.rows.length) presence = pauseRes.rows.length ? 'en_pause' : 'present';
 
-      const retardsRes = await pool.query(`
-        SELECT COUNT(*) FROM kadio_rh_pointages WHERE employe_id=$1 AND type='arrivee' AND retard_minutes>0
-        AND date_trunc('month', heure_reelle) = date_trunc('month', NOW())
-      `, [e.id]);
-      const sanctionsRes = await pool.query(`SELECT COUNT(*) FROM kadio_rh_sanctions WHERE employe_id=$1`, [e.id]);
-
-      out.push({
+      return {
         id: e.id, prenom: e.prenom, nom: e.nom, poste: e.poste, echelon: e.echelon,
         presence, score: score.total, scorePartiel: score.partiel,
         retardsMois: parseInt(retardsRes.rows[0].count, 10),
         sanctionsTotal: parseInt(sanctionsRes.rows[0].count, 10),
-      });
-    }
+      };
+    }));
     res.json({ employes: out });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -331,7 +319,5 @@ router.get('/notations/coiffeur', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// Le moteur de sanctions s'importe depuis rh-sanctions-core, pas d'ici.
 module.exports = router;
-module.exports.creerSanction = creerSanction;
-module.exports.descendreEchelon = descendreEchelon;
-module.exports.alertOwner = alertOwner;

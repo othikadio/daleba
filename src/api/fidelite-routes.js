@@ -17,6 +17,7 @@
  */
 
 const express = require('express');
+const { normalizePhone } = require('../services/phone');
 const router  = express.Router();
 const { requireAuth, requireRole, ROLES } = require('../middleware/auth');
 
@@ -39,39 +40,34 @@ async function sms(to, body) {
   else console.log(`${LOG} [SMS-DEMO] → ${to}: ${body}`);
 }
 
-function normalizePhone(phone = '') {
-  let p = phone.replace(/[^\d+]/g, '');
-  if (!p.startsWith('+') && p.length === 10) p = '+1' + p;
-  else if (!p.startsWith('+') && p.length === 11 && p.startsWith('1')) p = '+' + p;
-  return p;
-}
 
 // ── Crédite des points pour un montant dépensé, débloque le crédit tous les
-// 450 points (peut franchir plusieurs paliers en un seul achat) ────────────
+// 450 points (peut franchir plusieurs paliers en un seul achat).
+// Une seule requête atomique avec verrou de ligne (FOR UPDATE) : deux crédits
+// simultanés pour le même client se sérialisent au lieu de s'écraser. ──────
 async function crediterPoints(clientId, montant) {
   const points = Math.floor(montant);
   if (points <= 0) return null;
 
   const r = await pool.query(`
-    UPDATE kadio_gestion_clients SET points_fidelite = points_fidelite + $1, updated_at = NOW()
-    WHERE id = $2 RETURNING *
-  `, [points, clientId]);
+    WITH avant AS (
+      SELECT points_fidelite FROM kadio_gestion_clients WHERE id = $2 FOR UPDATE
+    )
+    UPDATE kadio_gestion_clients c SET
+      points_fidelite   = (avant.points_fidelite + $1::int) % $3::int,
+      credit_disponible = c.credit_disponible + ((avant.points_fidelite + $1::int) / $3::int) * $4::numeric,
+      updated_at        = NOW()
+    FROM avant
+    WHERE c.id = $2
+    RETURNING c.*, ((avant.points_fidelite + $1::int) / $3::int) AS paliers_debloques
+  `, [points, clientId, POINTS_REQUIS, CREDIT_PAR_PALIER]);
   const client = r.rows[0];
   if (!client) return null;
 
-  let creditsDebloques = 0;
-  while (client.points_fidelite >= POINTS_REQUIS) {
-    client.points_fidelite -= POINTS_REQUIS;
-    creditsDebloques += 1;
-  }
-  if (creditsDebloques > 0) {
-    const montantCredit = creditsDebloques * CREDIT_PAR_PALIER;
-    const upd = await pool.query(`
-      UPDATE kadio_gestion_clients SET points_fidelite = $1, credit_disponible = credit_disponible + $2
-      WHERE id = $3 RETURNING *
-    `, [client.points_fidelite, montantCredit, clientId]);
-    await sms(upd.rows[0].telephone, `🎉 Félicitations ${upd.rows[0].nom} ! Vous avez débloqué ${montantCredit}$ de crédit fidélité chez Kadio Coiffure — applicable sur votre prochaine réservation.`);
-    return upd.rows[0];
+  const paliers = parseInt(client.paliers_debloques, 10) || 0;
+  if (paliers > 0) {
+    const montantCredit = paliers * CREDIT_PAR_PALIER;
+    await sms(client.telephone, `🎉 Félicitations ${client.nom} ! Vous avez débloqué ${montantCredit}$ de crédit fidélité chez Kadio Coiffure — applicable sur votre prochaine réservation.`);
   }
   return client;
 }

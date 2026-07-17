@@ -244,6 +244,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f8f8f8;margin:0;padding
 </body></html>`;
 
     // Send via Resend
+    if (!RESEND_KEY) return res.status(503).json({ error: 'RESEND_API_KEY non configuré — envoi email désactivé' });
     const emailRes = await axios.post('https://api.resend.com/emails', {
       from: 'DALEBA OS <onboarding@resend.dev>',
       to: [toEmail],

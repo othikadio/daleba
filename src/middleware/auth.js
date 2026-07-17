@@ -80,6 +80,22 @@ const requireSuperAdmin = requireRole(ROLES.SUPER_ADMIN);
 const requireBusinessAdmin = requireRole(ROLES.BUSINESS_ADMIN);
 const requireEmployee = requireRole(ROLES.EMPLOYEE);
 
+/**
+ * Middleware : session employé Kadio RH (login téléphone + PIN, rôle 'employe_rh').
+ * Distinct des rôles JWT classiques ci-dessus — pose req.employeId.
+ */
+function requireEmployeRH(req, res, next) {
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  if (!token) return res.status(401).json({ error: 'Token requis' });
+  try {
+    const decoded = verifyToken(token);
+    if (decoded.role !== 'employe_rh') return res.status(403).json({ error: 'Accès réservé aux employés' });
+    req.employeId = decoded.employeId;
+    next();
+  } catch (err) { return res.status(401).json({ error: 'Session expirée — reconnectez-vous' }); }
+}
+
 module.exports = {
   ROLES,
   ROLE_LEVELS,
@@ -90,4 +106,5 @@ module.exports = {
   requireSuperAdmin,
   requireBusinessAdmin,
   requireEmployee,
+  requireEmployeRH,
 };

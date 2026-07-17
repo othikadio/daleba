@@ -6,6 +6,7 @@
  */
 
 const express = require('express');
+const { normalizePhone } = require('../services/phone');
 const router  = express.Router();
 const { requireAuth, requireRole, ROLES } = require('../middleware/auth');
 
@@ -127,12 +128,6 @@ async function initTables() {
 }
 const dbReady = initTables();
 
-function normalizePhone(phone = '') {
-  let p = phone.replace(/[^\d+]/g, '');
-  if (!p.startsWith('+') && p.length === 10) p = '+1' + p;
-  else if (!p.startsWith('+') && p.length === 11 && p.startsWith('1')) p = '+' + p;
-  return p;
-}
 
 // ── Auth : admin uniquement (business_admin ou super_admin) ────────────────
 router.use(requireAuth, requireRole(ROLES.BUSINESS_ADMIN));

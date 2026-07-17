@@ -49,6 +49,9 @@ async function ensureTableExists(pool) {
 // ============== Provider 1: Resend ==============
 
 async function sendViaResend(to, from, subject, html, text, attachments) {
+  // Sans clé, on échoue tout de suite (le fallback SMTP/Ethereal prend le
+  // relais) plutôt que d'envoyer "Bearer undefined" à Resend pour un 401.
+  if (!RESEND_API_KEY) throw new Error('RESEND_API_KEY non configuré');
   return new Promise((resolve, reject) => {
     const payload = {
       from: from || 'DALEBA <onboarding@resend.dev>',

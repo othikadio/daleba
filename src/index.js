@@ -1,4 +1,8 @@
 require('dotenv').config();
+// Fuseau horaire du salon (Longueuil/Montréal) — sans ceci le serveur (UTC)
+// décale de 4-5h tous les calculs locaux : retards de pointage, fermeture
+// des tâches, fin de mois. Doit être posé avant tout usage de Date.
+process.env.TZ = process.env.TZ || 'America/Toronto';
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');

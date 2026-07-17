@@ -15,6 +15,7 @@
  */
 
 const express = require('express');
+const { normalizePhone } = require('../services/phone');
 const router  = express.Router();
 const crypto  = require('crypto');
 
@@ -24,8 +25,8 @@ const CODE_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 let pool = null, DEMO_MODE = true;
 try { const db = require('../memory/db'); pool = db.pool; DEMO_MODE = db.DEMO_MODE; } catch (e) {}
 
-let sendSMS = null;
-try { sendSMS = require('../services/twilio').sendSMS; } catch (e) {}
+// SMS propriétaire : source unique dans rh-sanctions-core (OWNER_PHONE inclus)
+const { alertOwner: sendOwnerSMS } = require('./rh-sanctions-core');
 
 // Module 3 — déclenchement automatique des sanctions (retards, pauses longues)
 let declencherSanctionRetard = async () => {}, declencherSanctionPauseLongue = async () => {};
@@ -35,14 +36,8 @@ try {
   declencherSanctionPauseLongue = auto.declencherSanctionPauseLongue;
 } catch (e) {}
 
-const OWNER_PHONE = process.env.OWNER_PHONE_NUMBER || '+15149195970';
-
 async function alertOwner(message, employeId = null, type = 'info', niveau = 'attention') {
-  if (sendSMS) {
-    try { await sendSMS(OWNER_PHONE, message); } catch (e) { console.error(`${LOG} SMS échec: ${e.message}`); }
-  } else {
-    console.log(`${LOG} [SMS-DEMO] → propriétaire: ${message}`);
-  }
+  await sendOwnerSMS(message);
   if (pool && !DEMO_MODE) {
     try {
       await pool.query(`
@@ -193,6 +188,11 @@ async function getCurrentKioskCode() {
   const existing = await pool.query(`SELECT code, expires_at FROM kadio_rh_kiosk_codes WHERE bucket_key=$1`, [key]);
   if (existing.rows[0]) return { code: existing.rows[0].code, expiresAt: existing.rows[0].expires_at };
 
+  // Purge des vieux codes en passant (1 fois par nouveau créneau de 5 min) —
+  // sinon la table grossit indéfiniment (~105k lignes/an). Fenêtre de 2 jours
+  // conservée pour ne pas casser l'unicité journalière du jour courant.
+  pool.query(`DELETE FROM kadio_rh_kiosk_codes WHERE expires_at < NOW() - INTERVAL '2 days'`).catch(() => {});
+
   let code, tries = 0, dup;
   do {
     code = String(crypto.randomInt(0, 10000)).padStart(4, '0');
@@ -209,7 +209,19 @@ async function getCurrentKioskCode() {
   return { code: row.rows[0].code, expiresAt: row.rows[0].expires_at };
 }
 
+// Secret kiosque : sans lui, n'importe qui hors salon peut récupérer le code
+// courant par un simple GET et pointer à distance — exactement la fraude que
+// le code rotatif est censé empêcher. Configurer KIOSK_SECRET et ouvrir la
+// tablette du salon sur /pointage?cle=<secret> (mémorisé côté tablette).
+// Si KIOSK_SECRET n'est pas configuré, l'endpoint reste ouvert (compat).
+const KIOSK_SECRET = process.env.KIOSK_SECRET || null;
+if (!KIOSK_SECRET) console.warn(`${LOG} ⚠️ KIOSK_SECRET non configuré — le code kiosque est récupérable publiquement (pointage à distance possible)`);
+
 router.get('/code-actuel', async (req, res) => {
+  if (KIOSK_SECRET) {
+    const fourni = req.headers['x-kiosk-key'] || req.query.cle;
+    if (fourni !== KIOSK_SECRET) return res.status(401).json({ error: 'Accès réservé au kiosque du salon' });
+  }
   try {
     const { code, expiresAt } = await getCurrentKioskCode();
     res.json({ code, expiresAt });
@@ -217,12 +229,6 @@ router.get('/code-actuel', async (req, res) => {
 });
 
 // ── Identification employé ───────────────────────────────────────────────
-function normalizePhone(phone = '') {
-  let p = phone.replace(/[^\d+]/g, '');
-  if (!p.startsWith('+') && p.length === 10) p = '+1' + p;
-  else if (!p.startsWith('+') && p.length === 11 && p.startsWith('1')) p = '+' + p;
-  return p;
-}
 
 async function findEmploye(telephone, prenom) {
   if (!pool || DEMO_MODE) return null;
@@ -269,7 +275,9 @@ router.post('/arrivee', async (req, res) => {
   const officiel = new Date(now); officiel.setHours(h, m, 0, 0);
 
   const enRetard = now.getTime() >= officiel.getTime();
-  const retardMinutes = enRetard ? Math.max(0, Math.round((now - officiel) / 60000)) : 0;
+  // Arriver pile à l'heure officielle = retard (règle des 5 min avant) — mais
+  // jamais "0 minute" : on arrondit vers le haut avec un plancher de 1.
+  const retardMinutes = enRetard ? Math.max(1, Math.ceil((now - officiel) / 60000)) : 0;
 
   if (enRetard && !raison) {
     return res.json({ success: false, retard: true, minutes: retardMinutes, needsReason: true,

@@ -265,10 +265,9 @@
     el.innerHTML = `<option value="">${placeholder}</option>` + items.map(i => `<option value="${valFn(i)}">${esc(labelFn(i))}</option>`).join('');
   }
 
-  (async function init() {
-    await loadIndicateurs();
-    await loadEmployes();
-    await Promise.all([loadAlertes(), loadTaches(), loadSanctions(), loadEmployeDuMois()]);
+  (function init() {
+    // Chaque chargeur remplit sa propre zone du DOM — tout en parallèle.
+    Promise.all([loadIndicateurs(), loadEmployes(), loadAlertes(), loadTaches(), loadSanctions(), loadEmployeDuMois()]);
   })();
 </script>
 </body>

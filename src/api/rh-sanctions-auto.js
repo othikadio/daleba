@@ -51,11 +51,17 @@ async function declencherSanctionRetard(employe, nRetardsMois) {
       await pool.query(`UPDATE kadio_rh_employes SET echelon=$1, date_echelon_depuis=NOW() WHERE id=$2`, [echelonApres, employe.id]);
     }
 
-    const motif = `${nRetardsMois}e retard du mois`;
+    // Le palier stocké est l'ordinal du dossier (comme creerSanction) — les
+    // retards comptent comme des sanctions officielles (Section 5 : "1er
+    // retard du mois → compte comme 1re sanction"), donc même numérotation.
+    // Le contexte mensuel (1er/2e/3e retard, récidive) vit dans le motif.
+    const dossierRes = await pool.query(`SELECT COUNT(*) FROM kadio_rh_sanctions WHERE employe_id=$1`, [employe.id]);
+    const palierDossier = parseInt(dossierRes.rows[0].count, 10) + 1;
+    const motif = finEmploi ? `Récidive du 3e retard mensuel (${nRetardsMois}e retard ce mois)` : `${nRetardsMois}e retard du mois`;
     const r = await pool.query(`
       INSERT INTO kadio_rh_sanctions (employe_id, palier, motif, type, echelon_avant, echelon_apres)
       VALUES ($1,$2,$3,'retard',$4,$5) RETURNING *
-    `, [employe.id, typeof palier === 'number' ? palier : 99, motif, echelonAvant, echelonApres]);
+    `, [employe.id, palierDossier, motif, echelonAvant, echelonApres]);
 
     const niveau = finEmploi ? 'urgent' : 'attention';
     const recap = `${employe.prenom} — ${motif}. ${consequence}.`;
@@ -78,7 +84,15 @@ async function declencherSanctionNotesBasses(employeId, employePrenom) {
         AND date_trunc('month', soumis_at) = date_trunc('month', NOW())
     `, [employeId]);
     const mauvaises = r.rows.filter(n => Math.round((n.accueil + n.qualite + n.proprete + n.ambiance) / 4) <= 3);
-    if (mauvaises.length !== 3) return; // ne déclenche qu'au moment exact où le seuil est atteint
+    if (mauvaises.length < 3) return;
+    // Une seule sanction de ce type par mois — le test "=== 3" précédent ratait
+    // le seuil si deux notes arrivaient quasi simultanément (compte 2 → 4).
+    const deja = await pool.query(`
+      SELECT 1 FROM kadio_rh_sanctions
+      WHERE employe_id=$1 AND type='mauvaises_notes'
+        AND date_trunc('month', created_at) = date_trunc('month', NOW())
+    `, [employeId]);
+    if (deja.rows.length) return;
     await creerSanction(employeId, `3 mauvaises notes clients (≤3/5) ce mois-ci`, 'mauvaises_notes');
   } catch (e) { console.warn(`${LOG} declencherSanctionNotesBasses: ${e.message}`); }
 }

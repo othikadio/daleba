@@ -34,15 +34,17 @@ try { declencherSanctionNotesBasses = require('./rh-sanctions-auto').declencherS
 let employeDbReady = Promise.resolve();
 try { employeDbReady = require('./rh-employe-routes').dbReady || Promise.resolve(); } catch (e) {}
 
-const OWNER_PHONE = process.env.OWNER_PHONE_NUMBER || '+15149195970';
 const GOOGLE_REVIEW_LINK = process.env.GESTION_GOOGLE_REVIEW_LINK || 'https://g.page/r/CekIGz7Cw580EBE/review';
+
+// SMS propriétaire : source unique dans rh-sanctions-core (OWNER_PHONE inclus)
+const { alertOwner: sendOwnerSMS } = require('./rh-sanctions-core');
 
 async function sms(to, body) {
   if (sendSMS) { try { await sendSMS(to, body); } catch (e) { console.error(`${LOG} SMS échec: ${e.message}`); } }
   else console.log(`${LOG} [SMS-DEMO] → ${to}: ${body}`);
 }
 async function alertOwner(message, niveau, employeId) {
-  await sms(OWNER_PHONE, message);
+  await sendOwnerSMS(message);
   if (pool && !DEMO_MODE) {
     try { await pool.query(`INSERT INTO kadio_rh_alertes (niveau, message, employe_id, type) VALUES ($1,$2,$3,'notation_client')`,
       [niveau, message, employeId]); } catch (e) { console.warn(`${LOG} alerte insert: ${e.message}`); }

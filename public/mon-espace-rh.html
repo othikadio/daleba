@@ -318,30 +318,35 @@
       ? `Prochain niveau (${moi.prochainEchelon.label}) : ${moi.prochainEchelon.condition}`
       : 'Niveau maximum atteint.';
 
-    const reg = await fetch(API + '/reglement', { headers: authHeaders() }).then(r => r.json());
+    // Toutes ces requêtes sont indépendantes — en parallèle plutôt qu'en série.
+    const [reg, score, classement, semaine, notesR, sancR, recR] = await Promise.all([
+      fetch(API + '/reglement', { headers: authHeaders() }).then(r => r.json()),
+      fetch(API + '/score-mois', { headers: authHeaders() }).then(r => r.json()),
+      fetch(API + '/classement', { headers: authHeaders() }).then(r => r.json()),
+      fetch(API + '/pointages-semaine', { headers: authHeaders() }).then(r => r.json()),
+      fetch(API + '/notes', { headers: authHeaders() }).then(r => r.json()),
+      fetch(API + '/sanctions', { headers: authHeaders() }).then(r => r.json()),
+      fetch(API + '/recompenses', { headers: authHeaders() }).then(r => r.json()),
+      loadTaches(),
+    ]);
     document.getElementById('reglement-texte-dash').textContent = reg.texte;
 
-    await loadTaches();
-
-    const score = await fetch(API + '/score-mois', { headers: authHeaders() }).then(r => r.json());
     document.getElementById('score-value').textContent = score.total + ' / 100';
     document.getElementById('score-bar').style.width = Math.min(100, score.total) + '%';
     document.getElementById('score-partiel').textContent = score.partiel
       ? `Score partiel — en attente : ${(score.composantsManquants || []).join(', ')}`
       : '';
 
-    const classement = await fetch(API + '/classement', { headers: authHeaders() }).then(r => r.json());
     if (classement.rang) document.getElementById('classement-info').textContent = `Classement équipe : ${classement.rang}e / ${classement.total}`;
 
-    const semaine = await fetch(API + '/pointages-semaine', { headers: authHeaders() }).then(r => r.json());
     const pointages = semaine.pointages || [];
+
     document.getElementById('pointages-empty').style.display = pointages.length ? 'none' : 'block';
     document.getElementById('pointages-body').innerHTML = pointages.map(p => `
       <tr><td>${p.type === 'arrivee' ? 'Arrivée' : 'Départ'}</td><td>${fmtDate(p.heure_reelle)}</td>
       <td>${p.retard_minutes > 0 ? `<span class="pill pill-bad">${p.retard_minutes} min</span>` : '<span class="pill pill-good">À l\'heure</span>'}</td>
       <td>${esc(p.raison_retard)}</td></tr>`).join('');
 
-    const notesR = await fetch(API + '/notes', { headers: authHeaders() }).then(r => r.json());
     const notes = notesR.notes || [];
     document.getElementById('notes-empty').style.display = notes.length ? 'none' : 'block';
     document.getElementById('notes-body').innerHTML = notes.map(n => {
@@ -349,13 +354,11 @@
       return `<tr><td>${esc(n.client_nom)}</td><td>${moy}/5</td><td>${esc(n.commentaire)}</td></tr>`;
     }).join('');
 
-    const sancR = await fetch(API + '/sanctions', { headers: authHeaders() }).then(r => r.json());
     const sanctions = sancR.sanctions || [];
     document.getElementById('sanctions-empty').style.display = sanctions.length ? 'none' : 'block';
     document.getElementById('sanctions-body').innerHTML = sanctions.map(s => `
       <tr><td>${s.palier}</td><td>${esc(s.motif)}</td><td>${fmtDate(s.created_at)}</td></tr>`).join('');
 
-    const recR = await fetch(API + '/recompenses', { headers: authHeaders() }).then(r => r.json());
     const recompenses = recR.recompenses || [];
     document.getElementById('recompenses-empty').style.display = recompenses.length ? 'none' : 'block';
     document.getElementById('recompenses-body').innerHTML = recompenses.map(r => `

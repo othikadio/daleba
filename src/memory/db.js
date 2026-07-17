@@ -14,8 +14,14 @@ const memoryStore = [];
 const annalesStore = [];
 const chatSessionsStore = new Map(); // V22 — Human-in-the-loop sessions
 
-// Pool PostgreSQL (null en mode démo)
-const pool = DEMO_MODE ? null : new Pool({ connectionString: process.env.DATABASE_URL });
+// Pool PostgreSQL (null en mode démo).
+// options -c timezone : aligne CURRENT_DATE / date_trunc côté Postgres sur le
+// fuseau du salon — sinon un pointage à 21h à Montréal (01h UTC) compte sur
+// la date du lendemain.
+const pool = DEMO_MODE ? null : new Pool({
+  connectionString: process.env.DATABASE_URL,
+  options: `-c timezone=${(process.env.TZ || 'America/Toronto').replace(/[^\w/+-]/g, '')}`,
+});
 
 async function saveExchange(sessionId, userMessage, aiResponse, model, routingReason) {
   if (DEMO_MODE) {
