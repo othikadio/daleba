@@ -186,7 +186,7 @@ async function creerSanction(employeId, motif, type = 'manuelle') {
   else if (palier === 2) { echelonApres = descendreEchelon(employe.echelon, 1); consequence = '1 journée sans salaire + avertissement écrit'; }
   else { echelonApres = 'bronze'; consequence = "Fin d'emploi — rapport final généré"; }
 
-  await pool.query(`UPDATE kadio_rh_employes SET echelon=$1 WHERE id=$2`, [echelonApres, employeId]);
+  await pool.query(`UPDATE kadio_rh_employes SET echelon=$1, date_echelon_depuis=NOW() WHERE id=$2`, [echelonApres, employeId]);
 
   const r = await pool.query(`
     INSERT INTO kadio_rh_sanctions (employe_id, palier, motif, type, echelon_avant, echelon_apres)

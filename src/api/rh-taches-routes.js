@@ -164,7 +164,7 @@ async function appliquerManquementCollectif(type, manquantes) {
   } else {
     for (const e of employesRes.rows) {
       const nouvel = descendreEchelon(e.echelon, 1);
-      await pool.query(`UPDATE kadio_rh_employes SET echelon=$1 WHERE id=$2`, [nouvel, e.id]);
+      await pool.query(`UPDATE kadio_rh_employes SET echelon=$1, date_echelon_depuis=NOW() WHERE id=$2`, [nouvel, e.id]);
       await pool.query(`INSERT INTO kadio_rh_alertes (niveau, message, employe_id, type) VALUES ('urgent',$1,$2,'manquement_collectif')`,
         [`3e manquement collectif du mois — descente d'échelon (${e.echelon} → ${nouvel}) pour toute l'équipe.`, e.id]);
     }

@@ -59,6 +59,7 @@ async function initTables() {
         heure_debut_quart   TIME DEFAULT '09:00',
         heure_fin_quart     TIME DEFAULT '17:00',
         echelon             VARCHAR(20) DEFAULT 'bronze',
+        date_echelon_depuis TIMESTAMP DEFAULT NOW(),
         date_embauche       DATE DEFAULT CURRENT_DATE,
         date_probation_fin  DATE DEFAULT '2026-08-15',
         actif               BOOLEAN DEFAULT TRUE,
