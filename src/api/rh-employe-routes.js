@@ -312,6 +312,26 @@ router.post('/notations/client-prive', async (req, res) => {
   res.status(201).json({ success: true, id: r.rows[0].id });
 });
 
+// ── Checklist standard de service (Module 6 — obligatoire après chaque client) ──
+router.post('/checklist', async (req, res) => {
+  const { accueilSourire, guidePlace, boissonProposee, grignotinesProposees, attenteAnnoncee, telephoneRange } = req.body || {};
+  if (!pool || DEMO_MODE) return res.json({ success: true, demo: true });
+  const r = await pool.query(`
+    INSERT INTO kadio_rh_checklist_service
+      (employe_id, accueil_sourire, guide_place, boisson_proposee, grignotines_proposees, attente_annoncee, telephone_range)
+    VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *
+  `, [req.employeId, !!accueilSourire, !!guidePlace, !!boissonProposee, !!grignotinesProposees, !!attenteAnnoncee, !!telephoneRange]);
+  res.status(201).json({ success: true, checklist: r.rows[0] });
+});
+
+router.get('/checklist', async (req, res) => {
+  if (!pool || DEMO_MODE) return res.json({ checklists: [], demo: true });
+  const r = await pool.query(`
+    SELECT * FROM kadio_rh_checklist_service WHERE employe_id=$1 ORDER BY created_at DESC LIMIT 50
+  `, [req.employeId]);
+  res.json({ checklists: r.rows });
+});
+
 // ── Notes clients reçues ──────────────────────────────────────────────────
 router.get('/notes', async (req, res) => {
   if (!pool || DEMO_MODE) return res.json({ notes: [], demo: true });

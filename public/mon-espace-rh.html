@@ -113,6 +113,18 @@
     </div>
 
     <div class="section">
+      <h3>Checklist service client — après chaque client</h3>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px"><input type="checkbox" id="chk-sourire" /> J'ai accueilli le client avec le sourire</label>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px"><input type="checkbox" id="chk-place" /> J'ai guidé le client vers sa place</label>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px"><input type="checkbox" id="chk-boisson" /> J'ai proposé une boisson</label>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px"><input type="checkbox" id="chk-grignotines" /> J'ai proposé des grignotines (si disponibles)</label>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px"><input type="checkbox" id="chk-attente" /> J'ai annoncé le temps d'attente</label>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px"><input type="checkbox" id="chk-telephone" /> Mon téléphone était rangé pendant le service</label>
+      <button class="btn" onclick="soumettreChecklist()">Fermer le service</button>
+      <div class="msg" id="checklist-msg"></div>
+    </div>
+
+    <div class="section">
       <h3>Noter un client (privé — visible du propriétaire uniquement)</h3>
       <input type="text" id="note-client-nom" placeholder="Nom du client" style="margin-bottom:10px" />
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
@@ -227,6 +239,23 @@
   async function confirmerVideo() {
     await fetch(API + '/video/vue', { method: 'POST', headers: authHeaders() });
     afterLogin();
+  }
+
+  async function soumettreChecklist() {
+    const body = {
+      accueilSourire: document.getElementById('chk-sourire').checked,
+      guidePlace: document.getElementById('chk-place').checked,
+      boissonProposee: document.getElementById('chk-boisson').checked,
+      grignotinesProposees: document.getElementById('chk-grignotines').checked,
+      attenteAnnoncee: document.getElementById('chk-attente').checked,
+      telephoneRange: document.getElementById('chk-telephone').checked,
+    };
+    const r = await fetch(API + '/checklist', { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) })
+      .then(r => r.json()).catch(() => null);
+    const msg = document.getElementById('checklist-msg');
+    if (!r || r.error) { msg.textContent = r?.error || 'Erreur.'; return; }
+    msg.textContent = 'Service fermé — checklist enregistrée.';
+    ['chk-sourire', 'chk-place', 'chk-boisson', 'chk-grignotines', 'chk-attente', 'chk-telephone'].forEach(id => { document.getElementById(id).checked = false; });
   }
 
   async function noterClient() {
