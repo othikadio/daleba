@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alimentation Poivre &amp; Sel — Épicerie de quartier à Montréal</title>
+<meta name="description" content="Alimentation Poivre & Sel, votre épicerie de quartier sur la rue Masson à Montréal. Fruits et légumes frais, produits d'épicerie et service de proximité.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --vert:#2e5e3f;
+    --vert-fonce:#1f4230;
+    --vert-clair:#e8f1e9;
+    --creme:#faf6ee;
+    --creme-2:#f3ecdd;
+    --terracotta:#c96f3b;
+    --terracotta-fonce:#a95826;
+    --encre:#22302a;
+    --gris:#5d6b63;
+    --blanc:#ffffff;
+    --radius:16px;
+    --ombre:0 10px 30px rgba(34,48,42,.10);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    color:var(--encre);
+    background:var(--creme);
+    line-height:1.65;
+  }
+  h1,h2,h3{font-family:'Fraunces',Georgia,serif;line-height:1.15;color:var(--vert-fonce)}
+  img{max-width:100%}
+  a{color:inherit}
+
+  /* Bandeau maquette */
+  .demo-banner{
+    background:var(--encre);
+    color:#f3ecdd;
+    text-align:center;
+    font-size:.8rem;
+    letter-spacing:.04em;
+    padding:.45rem 1rem;
+  }
+  .demo-banner strong{color:#ffd9a8}
+
+  /* Header */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(250,246,238,.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid rgba(34,48,42,.08);
+  }
+  .nav{
+    max-width:1120px;margin:0 auto;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:.8rem 1.25rem;
+  }
+  .logo{display:flex;align-items:center;gap:.65rem;text-decoration:none}
+  .logo-badge{
+    width:44px;height:44px;border-radius:12px;
+    background:linear-gradient(135deg,var(--vert) 0%,var(--vert-fonce) 100%);
+    display:grid;place-items:center;color:#fff;
+    font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem;
+  }
+  .logo-texte{display:flex;flex-direction:column}
+  .logo-texte b{font-family:'Fraunces',serif;font-size:1.12rem;color:var(--vert-fonce);letter-spacing:.01em}
+  .logo-texte span{font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;color:var(--terracotta)}
+  nav ul{display:flex;gap:1.6rem;list-style:none;align-items:center}
+  nav a{text-decoration:none;font-size:.92rem;font-weight:500;color:var(--encre)}
+  nav a:hover{color:var(--vert)}
+  .btn{
+    display:inline-flex;align-items:center;gap:.5rem;
+    background:var(--terracotta);color:#fff !important;
+    padding:.68rem 1.3rem;border-radius:999px;
+    font-weight:600;font-size:.92rem;text-decoration:none;
+    box-shadow:0 4px 14px rgba(201,111,59,.35);
+    transition:transform .15s ease, background .15s ease;
+  }
+  .btn:hover{background:var(--terracotta-fonce);transform:translateY(-1px)}
+  .btn.secondaire{
+    background:transparent;color:var(--vert-fonce) !important;
+    border:1.5px solid var(--vert);box-shadow:none;
+  }
+  .btn.secondaire:hover{background:var(--vert-clair)}
+  .burger{display:none}
+
+  /* Hero */
+  .hero{
+    position:relative;overflow:hidden;
+    background:
+      radial-gradient(ellipse 60% 80% at 85% 20%, rgba(201,111,59,.16), transparent 60%),
+      radial-gradient(ellipse 50% 70% at 10% 90%, rgba(46,94,63,.14), transparent 60%),
+      var(--creme);
+  }
+  .hero-inner{
+    max-width:1120px;margin:0 auto;
+    padding:4.5rem 1.25rem 4rem;
+    display:grid;grid-template-columns:1.1fr .9fr;gap:3rem;align-items:center;
+  }
+  .badge{
+    display:inline-flex;align-items:center;gap:.45rem;
+    background:var(--vert-clair);color:var(--vert-fonce);
+    font-size:.8rem;font-weight:600;
+    padding:.4rem .9rem;border-radius:999px;margin-bottom:1.2rem;
+  }
+  .hero h1{font-size:clamp(2.2rem,4.5vw,3.4rem);margin-bottom:1.1rem}
+  .hero h1 em{font-style:normal;color:var(--terracotta)}
+  .hero p.accroche{font-size:1.12rem;color:var(--gris);max-width:34rem;margin-bottom:1.8rem}
+  .hero-actions{display:flex;gap:.9rem;flex-wrap:wrap}
+  .hero-infos{display:flex;gap:1.8rem;margin-top:2.2rem;flex-wrap:wrap}
+  .hero-info{display:flex;align-items:center;gap:.6rem;font-size:.88rem;color:var(--gris)}
+  .hero-info .ico{
+    width:36px;height:36px;border-radius:10px;background:var(--blanc);
+    display:grid;place-items:center;font-size:1.05rem;box-shadow:var(--ombre);
+  }
+
+  /* Illustration panier */
+  .hero-visuel{position:relative;display:grid;place-items:center}
+  .visuel-carte{
+    width:min(380px,100%);aspect-ratio:.86;
+    border-radius:24px;
+    background:linear-gradient(160deg,#37704c 0%,#1f4230 100%);
+    box-shadow:0 24px 60px rgba(31,66,48,.35);
+    display:flex;flex-direction:column;justify-content:space-between;
+    padding:1.8rem;color:#eef5ef;position:relative;overflow:hidden;
+  }
+  .visuel-carte::after{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(circle at 80% 15%, rgba(255,255,255,.14), transparent 45%);
+  }
+  .visuel-etiquette{font-size:.72rem;text-transform:uppercase;letter-spacing:.2em;color:#bcd6c2}
+  .visuel-emoji{font-size:4.2rem;line-height:1;text-align:center;filter:drop-shadow(0 8px 16px rgba(0,0,0,.25))}
+  .visuel-liste{display:grid;gap:.5rem;font-size:.9rem}
+  .visuel-liste div{display:flex;align-items:center;gap:.55rem}
+  .visuel-liste .puce{width:22px;height:22px;border-radius:7px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:.75rem}
+  .pastille{
+    position:absolute;background:var(--blanc);border-radius:14px;
+    box-shadow:var(--ombre);padding:.6rem .9rem;
+    display:flex;align-items:center;gap:.55rem;font-size:.82rem;font-weight:600;
+  }
+  .pastille small{display:block;font-weight:400;color:var(--gris);font-size:.72rem}
+  .pastille.haut{top:6%;right:0}
+  .pastille.bas{bottom:8%;left:-2%}
+
+  /* Sections génériques */
+  section{padding:4.5rem 1.25rem}
+  .conteneur{max-width:1120px;margin:0 auto}
+  .sur-titre{
+    font-size:.78rem;font-weight:700;text-transform:uppercase;
+    letter-spacing:.18em;color:var(--terracotta);margin-bottom:.6rem;
+  }
+  .titre-section{font-size:clamp(1.7rem,3vw,2.3rem);margin-bottom:1rem}
+  .intro-section{color:var(--gris);max-width:38rem;margin-bottom:2.5rem}
+
+  /* Rayons */
+  .rayons{background:var(--blanc)}
+  .grille-rayons{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.4rem}
+  .carte-rayon{
+    background:var(--creme);border-radius:var(--radius);
+    padding:1.7rem 1.5rem;border:1px solid rgba(34,48,42,.06);
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .carte-rayon:hover{transform:translateY(-4px);box-shadow:var(--ombre)}
+  .carte-rayon .emoji{
+    width:52px;height:52px;border-radius:14px;font-size:1.5rem;
+    display:grid;place-items:center;margin-bottom:1rem;
+    background:var(--vert-clair);
+  }
+  .carte-rayon h3{font-size:1.15rem;margin-bottom:.5rem}
+  .carte-rayon p{font-size:.92rem;color:var(--gris)}
+
+  /* À propos */
+  .apropos .conteneur{display:grid;grid-template-columns:.9fr 1.1fr;gap:3.5rem;align-items:center}
+  .apropos-visuel{
+    border-radius:24px;overflow:hidden;position:relative;
+    aspect-ratio:.95;
+    background:
+      linear-gradient(150deg, rgba(201,111,59,.9), rgba(169,88,38,.92)),
+      var(--creme-2);
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    color:#fff;text-align:center;padding:2rem;gap:1rem;
+    box-shadow:0 24px 60px rgba(169,88,38,.28);
+  }
+  .apropos-visuel .grand-emoji{font-size:4rem;filter:drop-shadow(0 8px 16px rgba(0,0,0,.2))}
+  .apropos-visuel blockquote{font-family:'Fraunces',serif;font-size:1.3rem;line-height:1.4;max-width:18rem}
+  .apropos-points{display:grid;gap:1.1rem;margin-top:1.8rem}
+  .point{display:flex;gap:1rem;align-items:flex-start}
+  .point .coche{
+    flex:none;width:28px;height:28px;border-radius:9px;margin-top:.15rem;
+    background:var(--vert);color:#fff;display:grid;place-items:center;font-size:.8rem;
+  }
+  .point b{display:block;color:var(--vert-fonce)}
+  .point span{font-size:.92rem;color:var(--gris)}
+
+  /* Bande chiffres */
+  .bande{
+    background:var(--vert-fonce);color:#e9f2ea;padding:3rem 1.25rem;
+  }
+  .bande .conteneur{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:2rem;text-align:center}
+  .chiffre b{display:block;font-family:'Fraunces',serif;font-size:2.1rem;color:#fff}
+  .chiffre span{font-size:.88rem;color:#b9d0be}
+
+  /* Horaires + Contact */
+  .pratique{background:var(--blanc)}
+  .pratique .colonnes{display:grid;grid-template-columns:1fr 1fr;gap:1.6rem;margin-top:.5rem}
+  .carte-pratique{
+    background:var(--creme);border-radius:var(--radius);
+    padding:1.9rem;border:1px solid rgba(34,48,42,.06);
+  }
+  .carte-pratique h3{display:flex;align-items:center;gap:.6rem;font-size:1.2rem;margin-bottom:1.2rem}
+  .ligne-horaire{
+    display:flex;justify-content:space-between;
+    padding:.55rem 0;border-bottom:1px dashed rgba(34,48,42,.12);
+    font-size:.94rem;
+  }
+  .ligne-horaire:last-child{border-bottom:none}
+  .ligne-horaire span:last-child{font-weight:600;color:var(--vert-fonce)}
+  .note-horaire{font-size:.8rem;color:var(--gris);margin-top:.9rem}
+  .contact-item{display:flex;gap:.9rem;align-items:flex-start;padding:.65rem 0}
+  .contact-item .ico{
+    flex:none;width:40px;height:40px;border-radius:12px;
+    background:var(--vert-clair);display:grid;place-items:center;font-size:1.1rem;
+  }
+  .contact-item b{display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--gris)}
+  .contact-item a{font-weight:600;color:var(--vert-fonce);text-decoration:none}
+  .contact-item a:hover{text-decoration:underline}
+
+  /* Carte localisation */
+  .carte-map{
+    margin-top:1.6rem;border-radius:var(--radius);overflow:hidden;
+    border:1px solid rgba(34,48,42,.08);box-shadow:var(--ombre);
+  }
+  .carte-map iframe{display:block;width:100%;height:340px;border:0}
+
+  /* CTA final */
+  .cta-final{
+    background:
+      radial-gradient(ellipse 70% 100% at 50% 0%, rgba(201,111,59,.18), transparent 55%),
+      var(--creme);
+    text-align:center;
+  }
+  .cta-final h2{font-size:clamp(1.8rem,3.4vw,2.5rem);max-width:38rem;margin:0 auto 1rem}
+  .cta-final p{color:var(--gris);max-width:32rem;margin:0 auto 2rem}
+  .cta-final .hero-actions{justify-content:center}
+
+  /* Footer */
+  footer{background:var(--vert-fonce);color:#b9d0be;padding:3rem 1.25rem 2rem}
+  footer .conteneur{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:2.5rem}
+  footer h4{color:#fff;font-family:'Fraunces',serif;font-size:1.05rem;margin-bottom:.9rem}
+  footer p, footer a{font-size:.9rem;color:#b9d0be;text-decoration:none}
+  footer a:hover{color:#fff}
+  footer ul{list-style:none;display:grid;gap:.5rem}
+  .footer-bas{
+    max-width:1120px;margin:2.5rem auto 0;padding-top:1.4rem;
+    border-top:1px solid rgba(255,255,255,.12);
+    font-size:.78rem;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  }
+
+  @media(max-width:900px){
+    nav ul{display:none}
+    .hero-inner{grid-template-columns:1fr;padding-top:3rem}
+    .hero-visuel{order:-1}
+    .visuel-carte{width:min(320px,90%)}
+    .apropos .conteneur{grid-template-columns:1fr}
+    .pratique .colonnes{grid-template-columns:1fr}
+    footer .conteneur{grid-template-columns:1fr}
+    .pastille.bas{left:0}
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-banner">
+  <strong>Maquette de démonstration</strong> — proposition de site vitrine préparée pour Alimentation Poivre &amp; Sel. Contenu à valider avec le commerçant.
+</div>
+
+<header>
+  <div class="nav">
+    <a class="logo" href="#accueil">
+      <span class="logo-badge">P·S</span>
+      <span class="logo-texte">
+        <b>Poivre &amp; Sel</b>
+        <span>Épicerie de quartier</span>
+      </span>
+    </a>
+    <nav>
+      <ul>
+        <li><a href="#rayons">Nos rayons</a></li>
+        <li><a href="#apropos">À propos</a></li>
+        <li><a href="#pratique">Horaires &amp; contact</a></li>
+        <li><a class="btn" href="tel:+15147228600">📞 514&nbsp;722-8600</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" id="accueil" style="padding:0">
+  <div class="hero-inner">
+    <div>
+      <span class="badge">🌿 Votre épicerie de proximité — Rue Masson, Montréal</span>
+      <h1>L'épicerie du quartier, <em>fraîche</em> et accueillante</h1>
+      <p class="accroche">
+        Chez Alimentation Poivre &amp; Sel, retrouvez chaque jour des produits frais,
+        vos essentiels du garde-manger et un service chaleureux, à deux pas de chez vous.
+      </p>
+      <div class="hero-actions">
+        <a class="btn" href="tel:+15147228600">📞 Appelez-nous</a>
+        <a class="btn secondaire" href="#pratique">📍 Nous trouver</a>
+      </div>
+      <div class="hero-infos">
+        <div class="hero-info"><span class="ico">🥕</span> Produits frais<br>chaque jour</div>
+        <div class="hero-info"><span class="ico">🏘️</span> Au cœur de<br>Rosemont</div>
+        <div class="hero-info"><span class="ico">💬</span> Service<br>personnalisé</div>
+      </div>
+    </div>
+    <div class="hero-visuel">
+      <div class="visuel-carte">
+        <span class="visuel-etiquette">Fraîcheur du jour</span>
+        <div class="visuel-emoji">🧺</div>
+        <div class="visuel-liste">
+          <div><span class="puce">🍎</span> Fruits &amp; légumes de saison</div>
+          <div><span class="puce">🥖</span> Boulangerie &amp; essentiels</div>
+          <div><span class="puce">🧀</span> Produits laitiers &amp; fromages</div>
+          <div><span class="puce">🌶️</span> Épices &amp; produits du monde</div>
+        </div>
+      </div>
+      <div class="pastille haut">🕗 <span>Ouvert aujourd'hui<small>Horaires à confirmer</small></span></div>
+      <div class="pastille bas">📍 <span>3245 Rue Masson<small>Montréal (Rosemont)</small></span></div>
+    </div>
+  </div>
+</section>
+
+<section class="rayons" id="rayons">
+  <div class="conteneur">
+    <div class="sur-titre">Nos rayons</div>
+    <h2 class="titre-section">Tout ce qu'il vous faut, à deux pas</h2>
+    <p class="intro-section">
+      Un vrai marché de quartier : des produits frais, vos marques préférées et
+      des trouvailles pour cuisiner au quotidien.
+    </p>
+    <div class="grille-rayons">
+      <div class="carte-rayon">
+        <div class="emoji">🥦</div>
+        <h3>Fruits &amp; légumes</h3>
+        <p>Un étal garni de produits frais et de saison, renouvelé régulièrement.</p>
+      </div>
+      <div class="carte-rayon">
+        <div class="emoji">🥩</div>
+        <h3>Viandes &amp; charcuteries</h3>
+        <p>Une sélection de viandes et de charcuteries pour vos repas de tous les jours.</p>
+      </div>
+      <div class="carte-rayon">
+        <div class="emoji">🧀</div>
+        <h3>Crèmerie &amp; fromages</h3>
+        <p>Lait, œufs, yogourts et fromages : les indispensables de votre frigo.</p>
+      </div>
+      <div class="carte-rayon">
+        <div class="emoji">🥫</div>
+        <h3>Épicerie générale</h3>
+        <p>Conserves, pâtes, riz, huiles et tous les essentiels du garde-manger.</p>
+      </div>
+      <div class="carte-rayon">
+        <div class="emoji">🌍</div>
+        <h3>Produits du monde</h3>
+        <p>Épices, condiments et saveurs d'ici et d'ailleurs pour varier vos menus.</p>
+      </div>
+      <div class="carte-rayon">
+        <div class="emoji">🧴</div>
+        <h3>Dépannage &amp; maison</h3>
+        <p>Produits ménagers, hygiène et articles de dépannage, disponibles en tout temps.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="apropos" id="apropos">
+  <div class="conteneur">
+    <div class="apropos-visuel">
+      <div class="grand-emoji">🛒</div>
+      <blockquote>« Une épicerie de quartier, c'est d'abord des visages qu'on reconnaît. »</blockquote>
+    </div>
+    <div>
+      <div class="sur-titre">À propos</div>
+      <h2 class="titre-section">Un commerce de proximité, au service du quartier</h2>
+      <p style="color:var(--gris)">
+        Alimentation Poivre &amp; Sel, c'est l'épicerie où l'on vous accueille par votre
+        prénom. Située sur la rue Masson, au cœur de Rosemont, elle offre aux résidents
+        du quartier un service simple, rapide et chaleureux.
+      </p>
+      <div class="apropos-points">
+        <div class="point">
+          <span class="coche">✓</span>
+          <div><b>Proximité avant tout</b><span>Faites vos courses à pied, sans file d'attente interminable.</span></div>
+        </div>
+        <div class="point">
+          <span class="coche">✓</span>
+          <div><b>Fraîcheur au quotidien</b><span>Des arrivages réguliers pour des rayons toujours garnis.</span></div>
+        </div>
+        <div class="point">
+          <span class="coche">✓</span>
+          <div><b>Service humain</b><span>Une équipe disponible qui connaît ses clients et ses produits.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="bande">
+  <div class="conteneur">
+    <div class="chiffre"><b>7 j / 7</b><span>Un service de proximité*</span></div>
+    <div class="chiffre"><b>100 %</b><span>Quartier Rosemont</span></div>
+    <div class="chiffre"><b>1 000+</b><span>Produits en rayon*</span></div>
+    <div class="chiffre"><b>👋</b><span>Un accueil qui fait la différence</span></div>
+  </div>
+  <p style="text-align:center;font-size:.75rem;color:#8fae95;margin-top:1.5rem">* Données indicatives de la maquette — à personnaliser avec les informations réelles du commerce.</p>
+</div>
+
+<section class="pratique" id="pratique">
+  <div class="conteneur">
+    <div class="sur-titre">Infos pratiques</div>
+    <h2 class="titre-section">Horaires &amp; contact</h2>
+    <div class="colonnes">
+      <div class="carte-pratique">
+        <h3>🕗 Heures d'ouverture</h3>
+        <div class="ligne-horaire"><span>Lundi – Vendredi</span><span>8 h – 21 h</span></div>
+        <div class="ligne-horaire"><span>Samedi</span><span>8 h – 20 h</span></div>
+        <div class="ligne-horaire"><span>Dimanche</span><span>9 h – 19 h</span></div>
+        <p class="note-horaire">⚠️ Horaires présentés à titre d'exemple — à confirmer avec le commerçant.</p>
+      </div>
+      <div class="carte-pratique">
+        <h3>📬 Nous joindre</h3>
+        <div class="contact-item">
+          <span class="ico">📍</span>
+          <div><b>Adresse</b><a href="https://www.openstreetmap.org/node/2305248783" target="_blank" rel="noopener">3245 Rue Masson, Montréal, QC H1Y 1Y4</a></div>
+        </div>
+        <div class="contact-item">
+          <span class="ico">📞</span>
+          <div><b>Téléphone</b><a href="tel:+15147228600">514 722-8600</a></div>
+        </div>
+        <div class="contact-item">
+          <span class="ico">✉️</span>
+          <div><b>Courriel</b><a href="mailto:info@alimentationpoivreetsel.com">info@alimentationpoivreetsel.com</a></div>
+        </div>
+        <div class="contact-item">
+          <span class="ico">👍</span>
+          <div><b>Facebook</b><a href="https://www.facebook.com/AlimentationPoivreetSel/" target="_blank" rel="noopener">@AlimentationPoivreetSel</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="carte-map">
+      <iframe title="Carte — 3245 Rue Masson, Montréal"
+        src="https://www.openstreetmap.org/export/embed.html?bbox=-73.5850%2C45.5470%2C-73.5750%2C45.5530&amp;layer=mapnik&amp;marker=45.55006%2C-73.58001"
+        loading="lazy"></iframe>
+    </div>
+  </div>
+</section>
+
+<section class="cta-final">
+  <div class="conteneur">
+    <h2>Passez nous voir, on vous attend&nbsp;!</h2>
+    <p>Une question sur un produit, une commande spéciale ou simplement envie de dire bonjour ? Appelez-nous ou passez en boutique.</p>
+    <div class="hero-actions">
+      <a class="btn" href="tel:+15147228600">📞 514 722-8600</a>
+      <a class="btn secondaire" href="mailto:info@alimentationpoivreetsel.com">✉️ Écrivez-nous</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="conteneur">
+    <div>
+      <h4>Alimentation Poivre &amp; Sel</h4>
+      <p>Votre épicerie de quartier sur la rue Masson, au cœur de Rosemont. Produits frais, essentiels du quotidien et service chaleureux.</p>
+    </div>
+    <div>
+      <h4>Navigation</h4>
+      <ul>
+        <li><a href="#rayons">Nos rayons</a></li>
+        <li><a href="#apropos">À propos</a></li>
+        <li><a href="#pratique">Horaires &amp; contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="tel:+15147228600">📞 514 722-8600</a></li>
+        <li><a href="mailto:info@alimentationpoivreetsel.com">✉️ info@alimentationpoivreetsel.com</a></li>
+        <li><a href="https://www.facebook.com/AlimentationPoivreetSel/" target="_blank" rel="noopener">👍 Facebook</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bas">
+    <span>Maquette de démonstration — non affiliée officiellement au commerce tant que non validée.</span>
+    <span>Proposition de site vitrine · 2026</span>
+  </div>
+</footer>
+
+</body>
+</html>
