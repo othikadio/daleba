@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "J Display"; src: url("fonts/InterDisplay-Bold.otf") format("opentype"); font-weight: 700; }
+      @font-face { font-family: "J Display"; src: url("fonts/InterDisplay-ExtraBold.otf") format("opentype"); font-weight: 800; }
+      @font-face { font-family: "J Display"; src: url("fonts/InterDisplay-Black.otf") format("opentype"); font-weight: 900; }
+      @font-face { font-family: "J Serif"; src: url("fonts/Caladea-Bold.ttf") format("truetype"); font-weight: 700; }
+      @font-face { font-family: "J Emoji"; src: url("fonts/NotoColorEmoji.ttf") format("truetype"); }
+      :root { --gold: #ffc76b; --rose: #ff4fa3; --plum: #2a0b2e; --font: "J Display", "J Emoji", sans-serif; --serif: "J Serif", serif; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--plum); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; font-family: var(--font); color: #fff; background: var(--plum); }
+      .blob { position: absolute; width: 1500px; height: 1500px; border-radius: 50%;
+        background: radial-gradient(circle, var(--c) 0%, color-mix(in srgb, var(--c) 40%, transparent) 38%, transparent 66%); }
+      #b1 { --c: #ff3d9a; left: -650px; top: -560px; } #b2 { --c: #7b3dff; left: 320px; top: -240px; }
+      #b3 { --c: #ffb03d; left: -520px; top: 920px; } #b4 { --c: #18c8d0; left: 280px; top: 1120px; }
+      .clipv { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; object-fit: cover; }
+      .wrap { position: absolute; inset: 0; overflow: hidden; }
+      .shade { position: absolute; left: 0; right: 0; bottom: 0; height: 760px; background: linear-gradient(180deg, rgba(42,11,46,0), rgba(42,11,46,.85)); }
+      .tshade { position: absolute; left: 0; right: 0; top: 0; height: 420px; background: linear-gradient(0deg, rgba(42,11,46,0), rgba(42,11,46,.6)); }
+      .center { position: absolute; left: 0; right: 0; text-align: center; }
+      .ch { display: inline-block; white-space: pre; } .sp { display: inline-block; width: .26em; }
+      .serif { font-family: var(--serif); font-weight: 700; }
+      .h { font-size: 132px; letter-spacing: -.02em; line-height: 1.02; text-shadow: 0 10px 40px rgba(0,0,0,.45); }
+      .gold { color: var(--gold); }
+      .pill { display: inline-block; padding: 16px 36px; border-radius: 999px; font-size: 36px; font-weight: 900; letter-spacing: .1em; color: var(--plum); background: var(--gold);
+        box-shadow: 0 14px 40px rgba(0,0,0,.4); }
+      .label { position: absolute; left: 70px; top: 1380px; }
+      .label .k { font-size: 30px; font-weight: 900; letter-spacing: .2em; color: var(--gold); }
+      .label .t { font-family: var(--serif); font-size: 96px; font-weight: 700; line-height: 1; margin-top: 10px; text-shadow: 0 8px 30px rgba(0,0,0,.5); }
+      .quote { position: absolute; left: 80px; right: 80px; top: 1360px; padding: 40px 44px; border-radius: 40px; background: rgba(255,255,255,.16);
+        border: 2px solid rgba(255,255,255,.5); backdrop-filter: blur(26px); box-shadow: 0 30px 90px rgba(0,0,0,.4); }
+      .quote .q { font-family: var(--serif); font-size: 50px; line-height: 1.15; } .quote .s { margin-top: 18px; font-size: 32px; font-weight: 800; color: var(--gold); }
+      svg.wave { position: absolute; left: 0; width: 1080px; height: 240px; overflow: visible; }
+      svg.wave path { fill: none; stroke: var(--gold); stroke-width: 9; stroke-linecap: round; filter: drop-shadow(0 0 14px rgba(255,199,107,.8)); }
+      #rate .num { font-size: 330px; font-weight: 900; letter-spacing: -.06em; line-height: 1; color: var(--gold); text-shadow: 0 16px 50px rgba(0,0,0,.4); }
+      .star { display: inline-block; font-size: 110px; margin: 0 6px; color: rgba(255,255,255,.25); }
+      .phone { display: inline-block; padding: 26px 50px; border-radius: 999px; font-size: 62px; font-weight: 900; background: #fff; color: var(--plum);
+        box-shadow: 0 30px 90px rgba(255,79,163,.55); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="19.6" data-width="1080" data-height="1920">
+      <div id="bg" class="clip" data-start="0" data-duration="19.6" data-track-index="0" style="position:absolute;inset:0">
+        <div id="b1" class="blob"></div><div id="b2" class="blob"></div><div id="b3" class="blob"></div><div id="b4" class="blob"></div>
+      </div>
+
+      <div class="wrap" id="w3"><video id="v3" class="clipv clip" src="assets/j3.mp4" muted data-start="1.8" data-duration="3.9" data-media-start="0.2" data-track-index="1"></video></div>
+      <div class="wrap" id="w2"><video id="v2" class="clipv clip" src="assets/j2.mp4" muted data-start="5.7" data-duration="3.55" data-media-start="0" data-track-index="2"></video></div>
+      <div class="wrap" id="w1"><video id="v1" class="clipv clip" src="assets/j1.mp4" muted data-start="9.25" data-duration="3.8" data-media-start="0" data-track-index="3"></video></div>
+
+      <!-- 0 : accroche -->
+      <div id="s0" class="clip" data-start="0" data-duration="1.9" data-track-index="4" style="position:absolute;inset:0">
+        <div class="center" style="top:560px"><span class="pill" id="p0">JOLINA COIFFURE</span></div>
+        <div class="center h serif" style="top:700px"><span class="split" id="h1">Des nattes</span></div>
+        <div class="center h serif gold" style="top:845px;font-size:100px"><span class="split" id="h2">qui se remarquent.</span></div>
+        <svg class="wave" id="wv0" style="top:1060px" viewBox="0 0 1080 240"><path d="M -20 120 C 120 20, 240 220, 380 120 S 640 20, 780 120 S 1000 220, 1110 120" /></svg>
+      </div>
+
+      <!-- overlays clips -->
+      <div id="o3" class="clip" data-start="1.8" data-duration="3.9" data-track-index="5" style="position:absolute;inset:0">
+        <div class="tshade"></div><div class="shade"></div>
+        <svg class="wave" style="top:1130px" viewBox="0 0 1080 240"><path id="pw3" d="M -20 120 C 120 20, 240 220, 380 120 S 640 20, 780 120 S 1000 220, 1110 120" /></svg>
+        <div class="label" id="l3"><div class="k">NATTES DESIGN</div><div class="t">Des lignes nettes</div></div>
+      </div>
+      <div id="o2" class="clip" data-start="5.7" data-duration="3.55" data-track-index="5" style="position:absolute;inset:0">
+        <div class="tshade"></div><div class="shade"></div>
+        <div class="center" style="top:150px"><span class="pill" id="g2" style="background:#fff">⭐ AVIS GOOGLE</span></div>
+        <div class="quote" id="q2"><div class="q">« Les gens adorent la qualité des tresses et des nattes réalisées ici »</div><div class="s">— Résumé des avis Google</div></div>
+      </div>
+      <div id="o1" class="clip" data-start="9.25" data-duration="3.8" data-track-index="5" style="position:absolute;inset:0">
+        <div class="tshade"></div><div class="shade"></div>
+        <svg class="wave" style="top:1130px" viewBox="0 0 1080 240"><path id="pw1" d="M -20 120 C 120 20, 240 220, 380 120 S 640 20, 780 120 S 1000 220, 1110 120" /></svg>
+        <div class="label" id="l1"><div class="k">LE DÉTAIL</div><div class="t">qui fait la différence</div></div>
+      </div>
+
+      <!-- note -->
+      <div id="rate" class="clip" data-start="13.05" data-duration="2.6" data-track-index="6" style="position:absolute;inset:0">
+        <div class="center" style="top:480px"><span class="pill" style="background:#fff">NOTE GOOGLE</span></div>
+        <div class="center num" style="top:600px" id="num">0,0</div>
+        <div class="center" style="top:960px" id="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+        <div class="center" style="top:1110px;font-size:46px;font-weight:800" id="avis">13 avis · Salon de coiffure</div>
+      </div>
+
+      <!-- fin -->
+      <div id="end" class="clip" data-start="15.65" data-duration="3.95" data-track-index="6" style="position:absolute;inset:0">
+        <svg class="wave" style="top:330px" viewBox="0 0 1080 240"><path id="pwe" d="M -20 120 C 120 20, 240 220, 380 120 S 640 20, 780 120 S 1000 220, 1110 120" /></svg>
+        <div class="center h serif" style="top:600px"><span class="split" id="e1">Jolina</span></div>
+        <div class="center h serif gold" style="top:740px"><span class="split" id="e2">Coiffure</span></div>
+        <div class="center" style="top:930px;font-size:48px;font-weight:800" id="e3">📍 Avenue Papineau · Montréal</div>
+        <div class="center" style="top:1050px"><span class="phone" id="e4">📞 263 550-1630</span></div>
+        <div class="center" style="top:1220px"><span class="pill" id="e5">RÉSERVE TA PLACE</span></div>
+      </div>
+    </div>
+    <script>
+      const CUES = []; const cue = (t, id, db = -12) => CUES.push({ t: +t.toFixed(3), id, db });
+      document.querySelectorAll(".split").forEach((el) => {
+        el.innerHTML = [...el.textContent].map(c => c === " " ? '<span class="sp"> </span>' : `<span class="ch">${c}</span>`).join("");
+      });
+      const tl = gsap.timeline({ paused: true }); const P = "power4.out", B = "back.out(2.2)";
+      const L = (sel) => [...document.querySelectorAll(sel + " .ch")];
+      function letters(sel, t, st = .035, snd = "pro_typing_key/glass", db = -18) {
+        const els = L(sel); tl.set(els, { opacity: 0 }, 0);
+        tl.fromTo(els, { y: 60, opacity: 0, scale: .5, filter: "blur(8px)" }, { y: 0, opacity: 1, scale: 1, filter: "blur(0px)", duration: .38, ease: B, stagger: st, immediateRender: false }, t);
+        els.forEach((c, i) => cue(t + i * st, snd, db));
+      }
+      function pop(sel, t, snd = "pro_pop_in/round", db = -11) {
+        tl.set(sel, { scale: 0 }, 0); tl.fromTo(sel, { scale: 0, rotate: -8 }, { scale: 1, rotate: 0, duration: .42, ease: B, immediateRender: false }, t); if (snd) cue(t, snd, db);
+      }
+      function drawWave(path, t, d = .7) {
+        const p = typeof path === "string" ? document.querySelector(path) : path, len = 1600;
+        tl.set(p, { attr: { "stroke-dasharray": len, "stroke-dashoffset": len } }, 0);
+        tl.to(p, { attr: { "stroke-dashoffset": 0 }, duration: d, ease: "power2.inOut" }, t); cue(t, "pro_zip/arc", -13);
+      }
+      function slideIn(sel, t) { tl.set(sel, { opacity: 0 }, 0); tl.fromTo(sel, { x: -400, opacity: 0 }, { x: 0, opacity: 1, duration: .45, ease: P, immediateRender: false }, t); cue(t, "swipe/glide", -13); }
+      function palette(t, cs, d = .8) { ["#b1", "#b2", "#b3", "#b4"].forEach((b, i) => tl.to(b, { "--c": cs[i], duration: d, ease: "power2.inOut" }, t)); }
+      [[380, 260], [-420, 380], [460, -300], [-380, -420]].forEach(([x, y], i) => tl.to(["#b1", "#b2", "#b3", "#b4"][i], { x, y, duration: 19.6, ease: "sine.inOut" }, 0));
+
+      // 0 accroche
+      pop("#p0", .05, "pro_pop_in/double", -10);
+      letters("#h1", .2, .04); letters("#h2", .65, .03, "pro_pop/tink", -16);
+      drawWave("#wv0 path", .9, .8);
+      tl.to("#s0", { scale: 2.4, opacity: 0, filter: "blur(26px)", duration: .32, ease: "power4.in" }, 1.6); cue(1.55, "pro_whoosh_big/swell", -10);
+
+      // clips : entrée zoom + push-in lent + sortie zoom-through
+      [["#w3", "#v3", 1.8, 5.7], ["#w2", "#v2", 5.7, 9.25], ["#w1", "#v1", 9.25, 13.05]].forEach(([w, v, s, e], i) => {
+        tl.set(w, { opacity: 0 }, 0); tl.set(w, { opacity: 1 }, s);
+        tl.fromTo(w, { scale: .5, rotate: i % 2 ? 6 : -6, filter: "blur(24px)" }, { scale: 1, rotate: 0, filter: "blur(0px)", duration: .4, ease: P, immediateRender: false }, s);
+        tl.fromTo(v, { scale: 1.02 }, { scale: 1.14, duration: e - s, ease: "none", immediateRender: false }, s);
+        tl.to(w, { scale: 2.2, opacity: 0, filter: "blur(26px)", duration: .32, ease: "power4.in" }, e - .32);
+        cue(e - .36, i % 2 ? "pro_whoosh_big/tonal" : "pro_whoosh_big/swell", -10);
+        cue(s + .05, "pro_impact/short", -16);
+      });
+      tl.to(["#o3", "#o2", "#o1"], { opacity: 1, duration: .01 }, 0);
+      drawWave("#pw3", 2.3, .9); slideIn("#l3", 2.6);
+      tl.to("#o3", { opacity: 0, duration: .25 }, 5.4);
+      pop("#g2", 5.95, "pro_pop_in/knock", -10);
+      tl.set("#q2", { opacity: 0 }, 0); tl.fromTo("#q2", { y: 400, opacity: 0, rotate: 4 }, { y: 0, opacity: 1, rotate: -1.5, duration: .5, ease: P, immediateRender: false }, 6.3);
+      cue(6.25, "swipe/velvet", -12); cue(6.75, "pro_notify/ding_2045", -13);
+      tl.to("#o2", { opacity: 0, duration: .25 }, 8.95);
+      drawWave("#pw1", 9.7, .9); slideIn("#l1", 10.0);
+      tl.to("#o1", { opacity: 0, duration: .25 }, 12.75);
+
+      // note
+      palette(12.9, ["#ffb03d", "#ff3d9a", "#7b3dff", "#ffc76b"]);
+      tl.fromTo("#rate", { scale: .4, opacity: 0, filter: "blur(24px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: .4, ease: P, immediateRender: false }, 13.05);
+      const o = { v: 0 }, num = document.getElementById("num");
+      tl.fromTo(o, { v: 0 }, { v: 4.8, duration: .9, ease: "power3.out", onUpdate: () => (num.textContent = o.v.toFixed(1).replace(".", ",")), immediateRender: false }, 13.3);
+      cue(13.3, "pro_typing_run/tick", -15);
+      document.querySelectorAll("#stars .star").forEach((s, i) => {
+        const t = 13.5 + i * .17; tl.fromTo(s, { scale: .6 }, { scale: 1.25, duration: .15, yoyo: true, repeat: 1, immediateRender: false }, t);
+        tl.to(s, { color: "#ffc76b", duration: .08 }, t); cue(t, "pro_pop/tink", -12);
+      });
+      cue(14.35, "pro_shimmer/m3", -14);
+      tl.set("#avis", { opacity: 0 }, 0); tl.to("#avis", { opacity: 1, duration: .35 }, 14.3);
+      tl.to("#rate", { scale: 2.3, opacity: 0, filter: "blur(26px)", duration: .32, ease: "power4.in" }, 15.33); cue(15.3, "pro_whoosh_big/swell", -10);
+
+      // fin
+      palette(15.5, ["#ff3d9a", "#ffc76b", "#7b3dff", "#18c8d0"], 1.2);
+      drawWave("#pwe", 15.7, .8);
+      letters("#e1", 15.85, .05, "pro_typing_key/glass", -17); letters("#e2", 16.2, .05, "pro_pop/tink", -15);
+      tl.set("#e3", { opacity: 0 }, 0); tl.fromTo("#e3", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .4, immediateRender: false }, 16.8); cue(16.8, "pro_pop/boop", -14);
+      pop("#e4", 17.15, "logo_sting/whoosh_glass", -9);
+      tl.to("#e4", { scale: 1.06, duration: .4, yoyo: true, repeat: 3, ease: "sine.inOut" }, 17.8);
+      pop("#e5", 17.6, "pro_pop_in/double", -11);
+
+      window.__cues = CUES;
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
