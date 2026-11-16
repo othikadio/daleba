@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "E Sans"; src: url("fonts/InterDisplay-SemiBold.otf") format("opentype"); font-weight: 600; }
+      @font-face { font-family: "E Sans"; src: url("fonts/InterDisplay-Bold.otf") format("opentype"); font-weight: 700; }
+      @font-face { font-family: "E Serif"; src: url("fonts/Caladea-Regular.ttf") format("truetype"); font-weight: 400; }
+      @font-face { font-family: "E Serif"; src: url("fonts/Caladea-Bold.ttf") format("truetype"); font-weight: 700; }
+      :root { --cream: #f3ece2; --ink: #17120f; --sans: "E Sans", sans-serif; --serif: "E Serif", serif; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--cream); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; font-family: var(--sans); color: var(--ink); background: var(--cream); }
+      #paper { position: absolute; inset: 0; background:
+        radial-gradient(1200px 900px at 20% 10%, rgba(255,255,255,.7), transparent 60%),
+        repeating-linear-gradient(0deg, rgba(23,18,15,.025) 0 2px, transparent 2px 5px), var(--cream); }
+      #tint { position: absolute; inset: 0; background: var(--acc0, #c8553d); opacity: .07; }
+      .scene { position: absolute; inset: 0; }
+      .mask { position: absolute; left: 0; right: 0; overflow: hidden; text-align: center; }
+      .giant { font-family: var(--serif); font-weight: 700; font-size: 240px; line-height: 1.05; letter-spacing: -.02em; }
+      .lede { font-family: var(--serif); font-size: 96px; line-height: 1.05; }
+      .acc { color: var(--acc); font-weight: 700; }
+      .light { color: var(--cream); }
+      .kicker { position: absolute; left: 0; right: 0; text-align: center; font-size: 30px; font-weight: 700; letter-spacing: .45em; color: var(--acc); }
+      .kicker.light { color: var(--cream); opacity: .85; }
+      .rule { position: absolute; left: 340px; width: 400px; height: 3px; background: var(--ink); transform-origin: 50% 50%; }
+      .band { position: absolute; left: -40px; right: -40px; height: 120px; background: var(--acc); transform: rotate(-4deg); overflow: hidden; display: flex; align-items: center; }
+      .mq { white-space: nowrap; font-size: 54px; font-weight: 700; letter-spacing: .12em; color: var(--cream); }
+      .frame { position: absolute; overflow: hidden; background: #000; box-shadow: 0 40px 90px rgba(23,18,15,.28); }
+      .frame video { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .arch { border-radius: 320px 320px 18px 18px; outline: 3px solid #b8924a; outline-offset: 12px; }
+      .arch.mini { border-radius: 150px 150px 10px 10px; outline-offset: 7px; outline-width: 2px; }
+      .circle { border-radius: 50%; outline: 3px solid var(--ink); outline-offset: 16px; }
+      .num { position: absolute; left: 60px; top: 230px; font-family: var(--serif); font-weight: 700; font-size: 300px; line-height: 1; color: transparent;
+        -webkit-text-stroke: 3px var(--acc); }
+      .num.right { left: auto; right: 60px; }
+      .cap { position: absolute; }
+      .cap.right { text-align: right; } .cap.sm .t { font-size: 112px; }
+      .cap .k { font-size: 28px; font-weight: 700; letter-spacing: .4em; color: var(--acc); }
+      .cap .t { font-family: var(--serif); font-weight: 700; font-size: 150px; line-height: 1; margin-top: 10px; }
+      .cap .s { font-family: var(--serif); font-size: 46px; margin-top: 14px; opacity: .8; }
+      svg.ring { position: absolute; left: 90px; top: 230px; width: 900px; height: 900px; overflow: visible; }
+      svg.ring text { font-family: var(--sans); font-weight: 700; font-size: 34px; letter-spacing: 6px; fill: var(--acc); }
+      .big { position: absolute; left: 0; right: 0; top: 700px; text-align: center; font-family: var(--serif); font-weight: 700; font-size: 340px; line-height: 1; color: var(--acc); }
+      .over5 { position: absolute; left: 0; right: 0; top: 1060px; text-align: center; font-size: 40px; font-weight: 700; letter-spacing: .2em; }
+      .dia { position: absolute; left: 0; right: 0; top: 1140px; text-align: center; }
+      .dia i { display: inline-block; width: 34px; height: 34px; margin: 0 14px; transform: rotate(45deg); border: 3px solid var(--acc); }
+      .quote { position: absolute; left: 90px; right: 90px; top: 1250px; font-family: var(--serif); font-size: 50px; line-height: 1.2; text-align: center; }
+      .quote .qq { display: block; font-size: 160px; line-height: .6; color: var(--acc); }
+      .quote .src { font-family: var(--sans); font-size: 28px; font-weight: 700; letter-spacing: .2em; margin-top: 22px; color: var(--acc); }
+      .toc { position: absolute; left: 80px; right: 80px; top: 660px; }
+      .li { display: flex; align-items: baseline; gap: 18px; padding: 34px 0; border-bottom: 2px solid rgba(23,18,15,.18); }
+      .li b { font-size: 34px; letter-spacing: .25em; text-transform: uppercase; color: var(--acc); }
+      .li span { flex: 1; border-bottom: 3px dotted rgba(23,18,15,.35); transform: translateY(-8px); }
+      .li em { font-family: var(--serif); font-style: normal; font-weight: 700; font-size: 54px; }
+      .cta-bg { position: absolute; inset: 0; background: var(--acc); }
+      .tel { position: absolute; left: 140px; right: 140px; top: 1000px; text-align: center; padding: 34px 0; border-radius: 999px; background: var(--ink); color: var(--cream);
+        font-size: 84px; font-weight: 700; letter-spacing: .04em; }
+      .addr { position: absolute; left: 0; right: 0; top: 1200px; text-align: center; font-family: var(--serif); font-size: 48px; color: var(--cream); }
+      #wipe { position: absolute; top: 0; bottom: 0; left: 0; width: 1080px; }
+      #folio { position: absolute; left: 70px; right: 70px; top: 1660px; display: flex; justify-content: space-between; font-size: 26px; font-weight: 700; letter-spacing: .3em; }
+      #mast { position: absolute; left: 0; right: 0; top: 80px; text-align: center; font-family: var(--serif); font-weight: 700; font-size: 44px; letter-spacing: .5em; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="{{TOTAL}}" data-width="1080" data-height="1920">
+      <div id="bg" class="clip" data-start="0" data-duration="{{TOTAL}}" data-track-index="0" style="position:absolute;inset:0"><div id="paper"></div><div id="tint"></div></div>
+{{SCENES}}
+      <div id="chrome" class="clip" data-start="0" data-duration="{{TOTAL}}" data-track-index="5" style="position:absolute;inset:0">
+        <div id="mast">JOLINA</div>
+        <div id="folio"><span id="fl">N° 01</span><span>COIFFURE · MONTRÉAL</span></div>
+        <div id="wipe"></div>
+      </div>
+    </div>
+    <script>
+      const CFG = {{CFG}};
+      const CUES = []; const cue = (t, file, gain = .5) => CUES.push({ t: +t.toFixed(3), file, gain });
+      const tl = gsap.timeline({ paused: true }); const P = "power4.out", T = CFG.total;
+      const S = (i) => document.getElementById("s" + i), q = (i, sel) => [...S(i).querySelectorAll(sel)];
+      const st = (i) => CFG.scenes[i][0], en = (i) => CFG.scenes[i][0] + CFG.scenes[i][1];
+      const ACC = CFG.acc;
+      // texte révélé par masque (glisse depuis le bas)
+      function reveal(els, t, d = .7, file = "type-click.wav") {
+        tl.set(els, { yPercent: 110 }, 0);
+        tl.to(els, { yPercent: 0, duration: d, ease: "expo.out", stagger: .12 }, t); if (file) cue(t, file, .35);
+      }
+      function fadeUp(els, t) { tl.set(els, { opacity: 0, y: 40 }, 0); tl.to(els, { opacity: 1, y: 0, duration: .6, ease: P, stagger: .1 }, t); }
+      // volet de couleur entre les scènes
+      for (let i = 1; i < CFG.scenes.length; i++) {
+        const t = st(i);
+        tl.set("#wipe", { backgroundColor: ACC[i] }, t - .42);
+        tl.fromTo("#wipe", { xPercent: -110 }, { xPercent: 0, duration: .32, ease: "power3.in", immediateRender: false }, t - .42);
+        tl.fromTo("#wipe", { xPercent: 0 }, { xPercent: 110, duration: .42, ease: "power3.out", immediateRender: false }, t - .08);
+        cue(t - .45, i % 2 ? "swoosh-wind.wav" : "woosh-air.wav", .45);
+        tl.to("#tint", { backgroundColor: ACC[i], duration: .1 }, t - .1);
+        tl.set("#fl", { textContent: "N° 0" + (i + 1) }, t);
+      }
+      tl.set("#tint", { backgroundColor: ACC[0] }, 0); tl.set("#wipe", { xPercent: -110 }, 0);
+      tl.fromTo("#mast", { opacity: 0, scaleX: 1.6 }, { opacity: 1, scaleX: 1, duration: 1.2, ease: P }, .1);
+      tl.fromTo("#folio", { opacity: 0 }, { opacity: .8, duration: .8 }, .4);
+      // cadres vidéo
+      const F = { f_v1: [1, 1], f_v2: [2, -1], f_v3: [3, 0], f_m1: [4, 0], f_m2: [4, 0], f_m3: [4, 0] };
+      Object.entries(F).forEach(([id, [i, dir]], k) => {
+        const el = document.getElementById(id), v = el.querySelector("video"), t0 = st(i) + (el.classList.contains("mini") ? .25 + (k - 3) * .18 : .15);
+        tl.set(el, { opacity: 0 }, 0); tl.set(el, { opacity: 1 }, t0);
+        if (el.classList.contains("circle")) tl.fromTo(el, { clipPath: "circle(0% at 50% 50%)" }, { clipPath: "circle(50% at 50% 50%)", duration: .9, ease: "expo.out", immediateRender: false }, t0);
+        else tl.fromTo(el, { clipPath: "inset(100% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: .8, ease: "expo.out", immediateRender: false }, t0);
+        tl.fromTo(v, { scale: 1.25 }, { scale: 1.02, duration: CFG.scenes[i][1], ease: "power1.out", immediateRender: false }, t0);
+        cue(t0 + .05, "shutter.wav", el.classList.contains("mini") ? .45 : .7);
+        tl.to(el, { opacity: 0, duration: .2 }, en(i) - .12);
+      });
+      // 0 couverture
+      reveal(q(0, ".giant"), .3, .9); tl.fromTo(q(0, ".rule"), { scaleX: 0 }, { scaleX: 1, duration: .8, ease: "expo.out", immediateRender: false }, .9);
+      reveal(q(0, ".lede"), 1.2, .7, "click.wav"); fadeUp(q(0, ".kicker"), .15);
+      tl.set(q(0, ".band"), { xPercent: -110 }, 0); tl.to(q(0, ".band"), { xPercent: 0, duration: .7, ease: "expo.out" }, 1.8); cue(1.8, "swoosh-wind.wav", .4);
+      tl.fromTo(q(0, ".mq"), { x: 0 }, { x: -1400, duration: CFG.scenes[0][1], ease: "none", immediateRender: false }, 0);
+      // 1-2 angles
+      [1, 2].forEach((i) => {
+        tl.fromTo(q(i, ".num"), { opacity: 0, x: i === 1 ? -120 : 120 }, { opacity: 1, x: 0, duration: .8, ease: P, immediateRender: false }, st(i) + .3);
+        reveal(q(i, ".cap .t"), st(i) + .7, .8); fadeUp(q(i, ".cap .k, .cap .s"), st(i) + .9);
+      });
+      // 3 détail : cercle + texte qui tourne
+      tl.fromTo(q(3, "svg.ring"), { rotate: 0, opacity: 0 }, { rotate: 160, opacity: 1, duration: CFG.scenes[3][1], ease: "none", immediateRender: false }, st(3));
+      reveal(q(3, ".cap .t"), st(3) + .9, .8); fadeUp(q(3, ".cap .k, .cap .s"), st(3) + 1.1);
+      // 4 note
+      const note = document.getElementById("note"), o = { v: 0 };
+      tl.set("#note", { opacity: 0 }, 0); tl.set("#note", { opacity: 1 }, st(4) + 1.0);
+      tl.fromTo(o, { v: 0 }, { v: 4.8, duration: 1.0, ease: "power3.out", onUpdate: () => (note.textContent = o.v.toFixed(1).replace(".", ",")), immediateRender: false }, st(4) + 1.0);
+      fadeUp(q(4, ".over5"), st(4) + 1.6);
+      q(4, ".dia i").forEach((d, k) => { const t = st(4) + 1.8 + k * .14; tl.set(d, { backgroundColor: "rgba(0,0,0,0)" }, 0); tl.to(d, { backgroundColor: ACC[4], duration: .1 }, t);
+        tl.fromTo(d, { scale: .4 }, { scale: 1, duration: .3, ease: "back.out(3)", immediateRender: false }, t); cue(t, "click.wav", .3); });
+      cue(st(4) + 2.6, "tone-correct.wav", .35);
+      fadeUp(q(4, ".quote"), st(4) + 2.9); cue(st(4) + 2.9, "type-click.wav", .3);
+      // 5 sommaire
+      reveal(q(5, ".giant"), st(5) + .3, .8); fadeUp(q(5, ".kicker"), st(5) + .2);
+      q(5, ".li").forEach((r, k) => { const t = st(5) + 1.0 + k * .38; tl.set(r, { opacity: 0, x: -80 }, 0); tl.to(r, { opacity: 1, x: 0, duration: .5, ease: P }, t); cue(t, "click.wav", .35);
+        tl.fromTo(r.querySelector("span"), { scaleX: 0, transformOrigin: "0 50%" }, { scaleX: 1, duration: .5, ease: P, immediateRender: false }, t + .1); });
+      // 6 fin
+      tl.fromTo(q(6, ".cta-bg"), { clipPath: "circle(0% at 50% 50%)" }, { clipPath: "circle(75% at 50% 50%)", duration: .8, ease: "expo.out", immediateRender: false }, st(6));
+      fadeUp(q(6, ".kicker"), st(6) + .3); reveal(q(6, ".giant"), st(6) + .5, .8);
+      tl.set(q(6, ".tel"), { scale: 0 }, 0); tl.to(q(6, ".tel"), { scale: 1, duration: .6, ease: "back.out(2)" }, st(6) + 1.5); cue(st(6) + 1.5, "notif-positive.wav", .35);
+      fadeUp(q(6, ".addr"), st(6) + 1.9);
+      tl.to("#mast, #folio", { color: "#f3ece2", duration: .3 }, st(6) + .2);
+
+      window.__cues = CUES;
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "J Display"; src: url("fonts/InterDisplay-Bold.otf") format("opentype"); font-weight: 700; }
+      @font-face { font-family: "J Display"; src: url("fonts/InterDisplay-ExtraBold.otf") format("opentype"); font-weight: 800; }
+      @font-face { font-family: "J Display"; src: url("fonts/InterDisplay-Black.otf") format("opentype"); font-weight: 900; }
+      @font-face { font-family: "J Serif"; src: url("fonts/Caladea-Bold.ttf") format("truetype"); font-weight: 700; }
+      @font-face { font-family: "J Emoji"; src: url("fonts/NotoColorEmoji.ttf") format("truetype"); }
+      :root { --font: "J Display", "J Emoji", sans-serif; --serif: "J Serif", "J Emoji", serif; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #2a0b2e; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; font-family: var(--font); color: #fff; background: #2a0b2e; }
+      .blob { position: absolute; width: 1500px; height: 1500px; border-radius: 50%;
+        background: radial-gradient(circle, var(--c) 0%, color-mix(in srgb, var(--c) 40%, transparent) 38%, transparent 66%); }
+      #b1 { --c: #ff3d9a; left: -620px; top: -520px; } #b2 { --c: #7b3dff; left: 300px; top: -200px; }
+      #b3 { --c: #ffb03d; left: -500px; top: 900px; } #b4 { --c: #18e0d0; left: 260px; top: 1100px; }
+      .shape { position: absolute; border-radius: 50%; box-shadow: 0 30px 80px rgba(0,0,0,.25), inset -14px -18px 40px rgba(0,0,0,.18), inset 14px 16px 40px rgba(255,255,255,.55); }
+      .cube { border-radius: 30px; }
+      .scene { position: absolute; inset: 0; }
+      .center { position: absolute; left: 0; right: 0; text-align: center; }
+      .ch { display: inline-block; white-space: pre; } .sp { display: inline-block; width: .26em; }
+      .pill { display: inline-block; padding: 16px 36px; border-radius: 999px; font-size: 36px; font-weight: 900; letter-spacing: .08em; color: #2a0b2e; background: #fff;
+        box-shadow: 0 14px 40px rgba(0,0,0,.3); }
+      .chip { display: inline-block; margin: 0 10px; padding: 18px 34px; border-radius: 26px; font-size: 46px; font-weight: 900; color: #2a0b2e; box-shadow: 0 16px 40px rgba(0,0,0,.35); }
+      .glass { background: rgba(255,255,255,.16); border: 2px solid rgba(255,255,255,.5); backdrop-filter: blur(28px);
+        box-shadow: 0 40px 120px rgba(20,0,40,.4), inset 0 2px 0 rgba(255,255,255,.6); }
+      .hook { position: absolute; left: 0; right: 0; top: 690px; text-align: center; }
+      .hl { font-size: 130px; font-weight: 900; letter-spacing: -.05em; line-height: 1.12; }
+      .title { position: absolute; left: 40px; right: 40px; text-align: center; font-family: var(--serif); font-weight: 700; font-size: 104px; line-height: 1;
+        text-shadow: 0 8px 30px rgba(20,0,40,.5); }
+      .vcard { position: absolute; border-radius: 52px; overflow: hidden; border: 7px solid #fff; box-shadow: 0 50px 130px rgba(20,0,40,.55); background: #000; }
+      .vcard.mini { border-radius: 34px; border-width: 5px; }
+      .vcard video { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .num { font-size: 300px; font-weight: 900; letter-spacing: -.06em; line-height: 1; color: #ffc76b; text-shadow: 0 16px 50px rgba(0,0,0,.4); }
+      .star { display: inline-block; font-size: 100px; margin: 0 6px; color: rgba(255,255,255,.25); }
+      .quote { position: absolute; left: 80px; right: 80px; top: 1290px; padding: 36px 44px; border-radius: 40px; }
+      .quote .q { font-family: var(--serif); font-size: 46px; line-height: 1.15; } .quote .s { margin-top: 14px; font-size: 30px; font-weight: 800; color: #ffc76b; }
+      .rows { position: absolute; left: 70px; right: 70px; top: 640px; }
+      .row { height: 120px; margin-bottom: 18px; border-radius: 30px; display: flex; align-items: center; justify-content: space-between; padding: 0 36px;
+        background: rgba(42,11,46,.55); border: 2px solid rgba(255,255,255,.3); backdrop-filter: blur(20px); }
+      .rn { font-size: 40px; font-weight: 700; } .rp { font-size: 44px; font-weight: 900; }
+      .cta { position: absolute; left: 0; right: 0; top: 500px; text-align: center; }
+      .cl { font-size: 136px; font-weight: 900; letter-spacing: -.05em; line-height: 1.08; }
+      .site { display: inline-block; padding: 30px 56px; border-radius: 999px; font-size: 76px; font-weight: 900; background: #fff; color: #2a0b2e;
+        box-shadow: 0 30px 90px rgba(255,61,154,.55); }
+      #brand { position: absolute; left: 0; right: 0; top: 70px; text-align: center; font-family: var(--serif); font-size: 44px; letter-spacing: .04em; }
+      #brand b { color: #ffc76b; font-family: var(--font); font-size: 24px; letter-spacing: .35em; display: block; margin-top: 4px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="45.26" data-width="1080" data-height="1920">
+      <div id="bg" class="clip" data-start="0" data-duration="45.26" data-track-index="0" style="position:absolute;inset:0">
+        <div id="b1" class="blob"></div><div id="b2" class="blob"></div><div id="b3" class="blob"></div><div id="b4" class="blob"></div>
+      </div>
+      <div id="shapes" class="clip" data-start="0" data-duration="45.26" data-track-index="1" style="position:absolute;inset:0">
+        <div id="h1" class="shape" style="width:110px;height:110px;left:40px;top:1500px;background:#ff7ac0"></div>
+        <div id="h2" class="shape cube" style="width:90px;height:90px;left:950px;top:330px;background:#3ee0d0"></div>
+        <div id="h3" class="shape" style="width:76px;height:76px;left:960px;top:1560px;background:#ffd23d"></div>
+        <div id="h4" class="shape cube" style="width:96px;height:96px;left:30px;top:250px;background:#a46bff"></div>
+      </div>
+<div id="s0" class="scene clip" data-start="0.0" data-duration="6.21" data-track-index="3"><div class="center" style="top:560px"><span class="pill kick" style="background:#ffc76b">JOLINA COIFFURE</span></div><div class="hook"><div class="hl"><span class="split">Des nattes</span></div><div class="hl"><span class="split rainbow">impeccables</span></div><div class="hl"><span class="split">à Montréal.</span></div></div></div>
+<div id="s1" class="scene clip" data-start="6.21" data-duration="7.05" data-track-index="3"><div class="center" style="top:170px"><span class="pill tag" style="background:#ff7ac0">ANGLE 1 · DE FACE</span></div><div class="title" style="top:1350px"><span class="split">Nattes design</span></div><div class="center" style="top:1480px"><span class="chip c1" style="background:#3ee0d0">Lignes nettes</span><span class="chip c2" style="background:#ffd23d">Précision</span></div></div>
+<div id="s2" class="scene clip" data-start="13.26" data-duration="5.09" data-track-index="3"><div class="center" style="top:170px"><span class="pill tag" style="background:#3ee0d0">ANGLE 2 · DE DOS</span></div><div class="title" style="top:1350px"><span class="split">Le même soin</span></div><div class="center" style="top:1480px"><span class="chip c1" style="background:#ff7ac0">Du début</span><span class="chip c2" style="background:#a46bff;color:#fff">à la fin</span></div></div>
+<div id="s3" class="scene clip" data-start="18.35" data-duration="7.37" data-track-index="3"><div class="center" style="top:170px"><span class="pill tag" style="background:#ffd23d">ANGLE 3 · LE DÉTAIL</span></div><div class="title" style="top:1350px"><span class="split">Raies en vague</span></div><div class="center" style="top:1480px"><span class="chip c1" style="background:#3ee07a">Tracées avec précision</span></div></div>
+<div id="s4" class="scene clip" data-start="25.72" data-duration="9.13" data-track-index="3"><div class="center num" style="top:760px" id="num">0,0</div><div class="center" style="top:1060px" id="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div><div class="center" style="top:1190px;font-size:44px;font-weight:800" id="avis">13 avis Google</div><div class="quote glass" id="quote"><div class="q">« Les gens adorent la qualité des tresses et des nattes réalisées ici »</div><div class="s">— Résumé des avis Google</div></div></div>
+<div id="s5" class="scene clip" data-start="34.85" data-duration="4.6" data-track-index="3"><div class="center" style="top:300px"><span class="pill tag" style="background:#ffc76b">LE SALON</span></div><div class="title" style="top:420px;font-size:120px"><span class="split rainbow">Jolina Coiffure</span></div><div class="rows"><div class="row"><span class="rn">✂️ Spécialité</span><span class="rp" style="color:#ff9ac8">Tresses · Nattes</span></div><div class="row"><span class="rn">📍 Adresse</span><span class="rp" style="color:#7dffcf">Av. Papineau, Montréal</span></div><div class="row"><span class="rn">💳 Gamme de prix</span><span class="rp" style="color:#ffd23d">50 – 200 $</span></div><div class="row"><span class="rn">⭐ Note Google</span><span class="rp" style="color:#ffc76b">4,8 (13 avis)</span></div></div></div>
+<div id="s6" class="scene clip" data-start="39.45" data-duration="5.81" data-track-index="3"><div class="cta"><div class="cl"><span class="split">Réserve</span></div><div class="cl"><span class="split rainbow">ta place</span></div></div><div class="center" style="top:920px"><span class="site">📞 263 550-1630</span></div><div class="center" style="top:1090px"><span class="pill" style="background:#ffc76b;font-size:44px">JOLINA COIFFURE</span></div><div class="center" style="top:1200px;font-size:40px;font-weight:800" id="addr">📍 Avenue Papineau · Montréal</div></div>
+<div class="vcard big" id="c_v1" style="left:200px;top:300px;width:680px;height:1000px"><video id="v1" class="clip" src="assets/j3.mp4" muted data-start="6.21" data-duration="7.05" data-media-start="0" data-track-index="2"></video></div>
+<div class="vcard big" id="c_v2" style="left:200px;top:300px;width:680px;height:1000px"><video id="v2" class="clip" src="assets/j2.mp4" muted data-start="13.26" data-duration="5.09" data-media-start="0" data-track-index="2"></video></div>
+<div class="vcard big" id="c_v3" style="left:200px;top:300px;width:680px;height:1000px"><video id="v3" class="clip" src="assets/j1.mp4" muted data-start="18.35" data-duration="7.37" data-media-start="0" data-track-index="2"></video></div>
+<div class="vcard mini" id="c_t1" style="left:60px;top:250px;width:300px;height:440px"><video id="t1" class="clip" src="assets/j3.mp4" muted data-start="25.72" data-duration="9.13" data-media-start="0" data-track-index="2"></video></div>
+<div class="vcard mini" id="c_t2" style="left:390px;top:230px;width:300px;height:440px"><video id="t2" class="clip" src="assets/j2.mp4" muted data-start="25.72" data-duration="9.13" data-media-start="0" data-track-index="2"></video></div>
+<div class="vcard mini" id="c_t3" style="left:720px;top:250px;width:300px;height:440px"><video id="t3" class="clip" src="assets/j1.mp4" muted data-start="25.72" data-duration="9.13" data-media-start="0" data-track-index="2"></video></div>
+      <div id="chrome" class="clip" data-start="0" data-duration="45.26" data-track-index="4" style="position:absolute;inset:0">
+        <div id="brand">Jolina<b>COIFFURE</b></div>
+      </div>
+    </div>
+    <script>
+      const CFG = {"total": 45.26, "scenes": [[0.0, 6.21], [6.21, 7.05], [13.26, 5.09], [18.35, 7.37], [25.72, 9.13], [34.85, 4.6], [39.45, 5.81]]};
+      const RAINBOW = ["#ff4fb8", "#ffd23d", "#3ee07a", "#18e0d0", "#4f8bff", "#a46bff"];
+      const CUES = []; const cue = (t, file, gain = .5) => CUES.push({ t: +t.toFixed(3), file, gain });
+      document.querySelectorAll(".split").forEach((el) => {
+        el.innerHTML = [...el.textContent].map(c => c === " " ? '<span class="sp"> </span>' : `<span class="ch">${c}</span>`).join("");
+        if (el.classList.contains("rainbow")) el.querySelectorAll(".ch").forEach((s, i) => (s.style.color = RAINBOW[i % 6]));
+      });
+      const tl = gsap.timeline({ paused: true }); const P = "power4.out", B = "back.out(2.2)", T = CFG.total;
+      const S = (i) => document.getElementById("s" + i);
+      const q = (i, sel) => [...S(i).querySelectorAll(sel)];
+      const st = (i) => CFG.scenes[i][0], en = (i) => CFG.scenes[i][0] + CFG.scenes[i][1];
+      function letters(els, t, s = .035, file = "type-click.wav", g = .22) {
+        tl.set(els, { opacity: 0 }, 0);
+        tl.fromTo(els, { y: 60, opacity: 0, scale: .4, filter: "blur(8px)" }, { y: 0, opacity: 1, scale: 1, filter: "blur(0px)", duration: .38, ease: B, stagger: s, immediateRender: false }, t);
+        els.forEach((c, k) => { if (k % 2 === 0) cue(t + k * s, file, g); });
+      }
+      function pop(els, t, file = "pop-long.wav", g = .55, from = {}) {
+        tl.set(els, { scale: 0 }, 0);
+        tl.fromTo(els, { scale: 0, rotate: -8, ...from }, { scale: 1, rotate: 0, x: 0, y: 0, duration: .45, ease: B, stagger: .12, immediateRender: false }, t); if (file) cue(t, file, g);
+      }
+      function palette(t, cs, d = .8) { ["#b1", "#b2", "#b3", "#b4"].forEach((b, i) => tl.to(b, { "--c": cs[i], duration: d, ease: "power2.inOut" }, t)); }
+      [[380, 260], [-420, 380], [460, -300], [-380, -420]].forEach(([x, y], i) => tl.to(["#b1", "#b2", "#b3", "#b4"][i], { x, y, duration: T, ease: "sine.inOut" }, 0));
+      ["#h1", "#h2", "#h3", "#h4"].forEach((s, i) => { pop(s, .1 + i * .1, i ? null : "pop-bubble.wav", .4); tl.to(s, { y: (i % 2 ? -1 : 1) * 140, rotate: (i % 2 ? 1 : -1) * 140, duration: T - 1, ease: "sine.inOut" }, .8); });
+      tl.fromTo("#brand", { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: .5, ease: P }, .3);
+
+      // transitions entre scènes
+      for (let i = 0; i < CFG.scenes.length; i++) {
+        if (i > 0) tl.fromTo(S(i), { scale: .4, opacity: 0, filter: "blur(26px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: .42, ease: P, immediateRender: false }, st(i));
+        if (i < CFG.scenes.length - 1) { tl.to(S(i), { scale: 2.3, opacity: 0, filter: "blur(26px)", duration: .34, ease: "power4.in" }, en(i) - .34); cue(en(i) - .45, "whoosh-cine.wav", .5); }
+      }
+      // cartes vidéo : visibles seulement dans leur scène
+      const CARDS = { c_v1: 1, c_v2: 2, c_v3: 3, c_t1: 4, c_t2: 4, c_t3: 4 };
+      Object.entries(CARDS).forEach(([id, i], k) => {
+        const el = document.getElementById(id), big = el.classList.contains("big");
+        tl.set(el, { opacity: 0 }, 0); tl.set(el, { opacity: 1 }, st(i));
+        const dir = big ? (i % 2 ? 1 : -1) : (k % 2 ? 1 : -1);
+        tl.fromTo(el, { y: big ? 1300 : -700, rotate: dir * 10, scale: .8 }, { y: 0, rotate: big ? dir * -2 : dir * -4, scale: 1, duration: .55, ease: P, immediateRender: false }, st(i) + (big ? .05 : .15 + (k - 3) * .14));
+        if (big) { cue(st(i), "woosh-air.wav", .35); cue(st(i) + .42, "pop-hard.wav", .35); tl.to(el.querySelector("video"), { scale: 1.12, duration: CFG.scenes[i][1], ease: "none" }, st(i)); }
+        else cue(st(i) + .15 + (k - 3) * .14, "pop-whoosh.wav", .5);
+        tl.to(el, { scale: big ? 2.2 : 0, opacity: 0, duration: .32, ease: "power4.in" }, en(i) - .34);
+      });
+
+      // 0 accroche
+      palette(0, ["#ff3d9a", "#7b3dff", "#ffb03d", "#18e0d0"], .01);
+      pop(q(0, ".kick"), .1, "pop-long.wav", .6);
+      q(0, ".hl").forEach((l, j) => letters([...l.querySelectorAll(".ch")], .3 + j * .45, j === 1 ? .04 : .03, j === 1 ? "pop-bubble.wav" : "type-click.wav", j === 1 ? .3 : .22));
+      // 1-3 angles
+      [[1, ["#ff4fb8", "#ffd23d", "#a46bff", "#ff3d9a"]], [2, ["#18e0d0", "#3ee07a", "#2f6bff", "#18e0d0"]], [3, ["#ffb03d", "#ff3d9a", "#ffd23d", "#7b3dff"]]].forEach(([i, pal]) => {
+        palette(st(i) - .2, pal);
+        pop(q(i, ".tag"), st(i) + .1, "click.wav", .5);
+        letters(q(i, ".title .ch"), st(i) + .6, .03);
+        pop(q(i, ".chip"), st(i) + 1.4, "pop-hard.wav", .45);
+      });
+      // 4 triptyque + note
+      palette(st(4) - .2, ["#ffc76b", "#ff3d9a", "#7b3dff", "#ffb03d"]);
+      const o = { v: 0 }, num = document.getElementById("num");
+      tl.set("#num", { opacity: 0 }, 0); tl.set("#num", { opacity: 1 }, st(4) + .9);
+      tl.fromTo(o, { v: 0 }, { v: 4.8, duration: .9, ease: "power3.out", onUpdate: () => (num.textContent = o.v.toFixed(1).replace(".", ",")), immediateRender: false }, st(4) + .9);
+      cue(st(4) + .9, "type-click.wav", .3); cue(st(4) + 1.3, "type-click.wav", .3);
+      q(4, ".star").forEach((s, k) => { const t = st(4) + 1.2 + k * .16; tl.fromTo(s, { scale: .6 }, { scale: 1.25, duration: .14, yoyo: true, repeat: 1, immediateRender: false }, t); tl.to(s, { color: "#ffc76b", duration: .08 }, t); cue(t, "pop-bubble.wav", .35); });
+      cue(st(4) + 2.05, "tone-correct.wav", .4);
+      tl.set(["#avis", "#quote"], { opacity: 0 }, 0);
+      tl.to("#avis", { opacity: 1, duration: .3 }, st(4) + 2.0);
+      tl.fromTo("#quote", { y: 300, opacity: 0, rotate: 3 }, { y: 0, opacity: 1, rotate: -1, duration: .5, ease: P, immediateRender: false }, st(4) + 2.5); cue(st(4) + 2.5, "woosh-air.wav", .3);
+      // 5 fiche salon
+      palette(st(5) - .2, ["#7b3dff", "#ffc76b", "#ff4fb8", "#18e0d0"]);
+      pop(q(5, ".tag"), st(5) + .1, "click.wav", .5);
+      letters(q(5, ".title .ch"), st(5) + .35, .03, "pop-bubble.wav", .22);
+      q(5, ".row").forEach((r, k) => { const t = st(5) + 1.0 + k * .4; tl.set(r, { opacity: 0 }, 0);
+        tl.fromTo(r, { x: k % 2 ? -900 : 900, opacity: 0 }, { x: 0, opacity: 1, duration: .4, ease: P, immediateRender: false }, t); cue(t, "pop-whoosh.wav", .5); });
+      // 6 fin
+      palette(st(6) - .2, ["#ff4fb8", "#ffd23d", "#3ee07a", "#18e0d0"], 1.2);
+      q(6, ".cl").forEach((l, j) => letters([...l.querySelectorAll(".ch")], st(6) + .2 + j * .45, j ? .045 : .035, j ? "pop-bubble.wav" : "type-click.wav", .25));
+      pop(q(6, ".site"), st(6) + 1.2, "notif-positive.wav", .4);
+      tl.to(q(6, ".site"), { scale: 1.06, duration: .4, yoyo: true, repeat: 3, ease: "sine.inOut" }, st(6) + 1.9);
+      pop(q(6, ".pill"), st(6) + 1.6, "pop-long.wav", .5);
+      tl.set("#addr", { opacity: 0 }, 0); tl.to("#addr", { opacity: 1, duration: .4 }, st(6) + 1.9);
+      cue(st(6) + 1.25, "sparkle.wav", .25);
+
+      window.__cues = CUES;
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
