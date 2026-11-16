@@ -13,6 +13,8 @@
 - club-kadio-v2 : remontage animé de la vidéo Club Kadio (52 s) — à valider
 - campagne des fêtes : 10 vidéos — plan dans plans/fetes-10-videos.md, à valider
 
+- menu-kadio : 5 vidéos motion design (abonnements, famille, privilèges, tresses, locs/barbier) — livrées, à valider
+
 ## Outils installés
 - 44 skills dans `.claude/skills/` (short-editing, hyperframes, remotion, earshot…)
 - Hyperframes CLI testé : rendu 1080×1920 OK (`templates/verre-premium/apercu.mp4`)
