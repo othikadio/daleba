@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="gsap.min.js"></script>
+    <script src="words.js"></script>
+    <style>
+      @font-face { font-family: "Kadio Display"; src: url("fonts/InterDisplay-SemiBold.otf") format("opentype"); font-weight: 600; }
+      @font-face { font-family: "Kadio Display"; src: url("fonts/InterDisplay-Bold.otf") format("opentype"); font-weight: 700; }
+      @font-face { font-family: "Kadio Display"; src: url("fonts/InterDisplay-ExtraBold.otf") format("opentype"); font-weight: 800; }
+      @font-face { font-family: "Kadio Display"; src: url("fonts/InterDisplay-Black.otf") format("opentype"); font-weight: 900; }
+      @font-face { font-family: "Kadio Emoji"; src: url("fonts/NotoColorEmoji.ttf") format("truetype"); }
+      :root { --ground: #160a3a; --font: "Kadio Display", "Kadio Emoji", sans-serif; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ground); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; font-family: var(--font); color: #fff; background: var(--ground); }
+      .blob { position: absolute; width: 1500px; height: 1500px; border-radius: 50%;
+        background: radial-gradient(circle, var(--c) 0%, color-mix(in srgb, var(--c) 40%, transparent) 38%, transparent 66%); }
+      #b1 { --c: #ff3d9a; left: -620px; top: -520px; } #b2 { --c: #2f6bff; left: 300px; top: -200px; }
+      #b3 { --c: #18e0d0; left: -500px; top: 900px; }  #b4 { --c: #7b3dff; left: 260px; top: 1100px; }
+      .abs { position: absolute; }
+      .center { position: absolute; left: 0; right: 0; text-align: center; }
+      .ch { display: inline-block; white-space: pre; } .sp { display: inline-block; width: .28em; }
+
+      /* carte caméra */
+      #camcard { position: absolute; left: 100px; top: 330px; width: 880px; height: 900px; border-radius: 56px; overflow: hidden;
+        border: 6px solid #fff; box-shadow: 0 40px 120px rgba(20,0,60,.55); background: #000; }
+      .cam { position: absolute; left: -120px; top: -720px; width: 1440px; height: 2560px; }
+
+      .chip { display: inline-block; padding: 18px 34px; border-radius: 26px; font-size: 54px; font-weight: 900; letter-spacing: -.01em;
+        color: #160a3a; box-shadow: 0 16px 40px rgba(0,0,0,.3); }
+      .pill { display: inline-block; padding: 16px 36px; border-radius: 999px; font-size: 40px; font-weight: 800; letter-spacing: .06em;
+        background: #fff; color: #160a3a; box-shadow: 0 16px 50px rgba(0,0,0,.3); }
+      .title { font-size: 112px; font-weight: 900; letter-spacing: -.05em; line-height: 1; text-shadow: 0 10px 40px rgba(20,0,60,.35); }
+      .glass { background: rgba(255,255,255,.16); border: 2px solid rgba(255,255,255,.5); backdrop-filter: blur(30px);
+        border-radius: 48px; box-shadow: 0 40px 120px rgba(20,0,60,.4), inset 0 2px 0 rgba(255,255,255,.6); }
+
+      /* sous-titres */
+      #caps { position: absolute; left: 60px; right: 60px; top: 1275px; height: 200px; text-align: center; }
+      .cap { position: absolute; left: 0; right: 0; top: 0; font-size: 74px; font-weight: 900; letter-spacing: -.03em; line-height: 1.05;
+        text-shadow: 0 6px 0 rgba(20,0,60,.55), 0 0 30px rgba(20,0,60,.4); opacity: 0; }
+      .w { display: inline-block; margin: 0 .12em; padding: 0 .12em; border-radius: 14px; }
+
+      /* broll */
+      .broll { position: absolute; width: 864px; height: 512px; left: 108px; border-radius: 40px; overflow: hidden; border: 6px solid #fff;
+        box-shadow: 0 30px 90px rgba(0,0,0,.45); background: #000; }
+      .broll video { position: absolute; left: 0; width: 864px; height: 1536px; }
+      .sticker { position: absolute; left: 16px; top: 160px; min-width: 330px; padding: 22px 40px; border-radius: 22px; font-size: 64px; font-weight: 900; color: #160a3a;
+        box-shadow: 0 12px 30px rgba(0,0,0,.35); }
+
+      /* tirage */
+      .stamp { width: 120px; height: 120px; border-radius: 50%; border: 6px dashed rgba(255,255,255,.7); display: inline-flex; align-items: center;
+        justify-content: center; font-size: 64px; font-weight: 900; margin: 0 10px; }
+      .confetti { position: absolute; width: 22px; height: 34px; border-radius: 6px; }
+      .node { position: absolute; width: 230px; height: 230px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        font-size: 50px; font-weight: 900; color: #160a3a; box-shadow: 0 20px 60px rgba(0,0,0,.35); text-align: center; line-height: 1; }
+      .line { position: absolute; height: 10px; border-radius: 5px; background: #fff; transform-origin: 0 50%; }
+
+      /* navigateur */
+      #browser { position: absolute; left: 90px; top: 330px; width: 900px; height: 900px; border-radius: 40px; background: #fff; color: #160a3a; overflow: hidden;
+        box-shadow: 0 40px 120px rgba(20,0,60,.5); }
+      #bar { height: 110px; background: #f0eef8; display: flex; align-items: center; padding: 0 30px; gap: 14px; }
+      .dotw { width: 24px; height: 24px; border-radius: 50%; }
+      #url { margin-left: 20px; flex: 1; height: 64px; border-radius: 32px; background: #fff; font-size: 36px; font-weight: 700; display: flex; align-items: center; padding: 0 30px; }
+      #abtn { position: absolute; left: 60px; top: 170px; padding: 26px 50px; border-radius: 24px; background: #ff3d9a; color: #fff; font-size: 50px; font-weight: 900; }
+      .row { position: absolute; left: 60px; right: 60px; height: 92px; border-radius: 22px; display: flex; align-items: center; justify-content: space-between;
+        padding: 0 30px; font-size: 40px; font-weight: 800; }
+      #cursor { position: absolute; left: 0; top: 0; width: 0; height: 0; border-left: 34px solid #160a3a; border-top: 22px solid transparent; border-bottom: 22px solid transparent;
+        transform: rotate(-35deg); filter: drop-shadow(0 4px 6px rgba(0,0,0,.4)); }
+
+      /* téléphone */
+      #phone { position: absolute; left: 140px; top: 70px; width: 800px; padding: 30px 40px; border-radius: 36px; background: #fff; color: #160a3a;
+        box-shadow: 0 30px 90px rgba(0,0,0,.4); display: flex; align-items: center; gap: 28px; }
+      #phone .ic { width: 110px; height: 110px; border-radius: 30px; background: #3ee07a; display: flex; align-items: center; justify-content: center; font-size: 64px; }
+      #num { font-size: 76px; font-weight: 900; letter-spacing: -.02em; }
+      .numg { display: inline-block; }
+      .emoji { font-family: "Kadio Emoji"; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="52.8" data-width="1080" data-height="1920">
+      <div id="bg" class="clip" data-start="0" data-duration="52.8" data-track-index="0" style="position:absolute;inset:0">
+        <div id="b1" class="blob"></div><div id="b2" class="blob"></div><div id="b3" class="blob"></div><div id="b4" class="blob"></div>
+      </div>
+
+      <!-- caméra (recadrée sur le visage) -->
+      <div id="camcard">
+        <video id="cam1" class="cam clip" src="assets/source.mp4" muted data-start="0" data-duration="19.6" data-media-start="0" data-track-index="1"></video>
+        <video id="cam2" class="cam clip" src="assets/source.mp4" muted data-start="42" data-duration="10.8" data-media-start="42" data-track-index="1"></video>
+      </div>
+
+      <!-- 0-19.6 : overlays caméra -->
+      <div id="o1" class="clip" data-start="0" data-duration="19.6" data-track-index="2" style="position:absolute;inset:0">
+        <div class="center" style="top:120px">
+          <span class="chip" id="c1" style="background:#ff7ac0">TRESSES ?</span>
+          <span class="chip" id="c2" style="background:#3ee0d0;margin-left:14px">LOCS ?</span>
+        </div>
+        <div class="center" style="top:230px"><span class="chip" id="c3" style="background:#ffd23d">BARBIER ?</span></div>
+        <div class="center" style="top:170px"><span class="pill" id="brand">KADIO COIFFURE</span></div>
+        <div class="center title" style="top:150px"><span class="split rainbow" id="club">CLUB KADIO</span></div>
+        <div class="abs" id="regu" style="left:560px;top:1120px"><span class="chip" style="background:#fff;font-size:40px">💜 pour les habitués</span></div>
+        <div class="center" style="top:150px"><span class="pill" id="simple" style="background:#3ee07a">LE PRINCIPE EST SIMPLE</span></div>
+        <div class="abs glass" id="st1" style="left:40px;top:930px;padding:28px 36px;font-size:46px;font-weight:900">① Ta coiffure</div>
+        <div class="abs glass" id="st2" style="left:500px;top:1050px;padding:28px 36px;font-size:46px;font-weight:900">② Ta fréquence</div>
+      </div>
+
+      <!-- 19.6-23.6 : formules populaires -->
+      <div id="o2" class="clip" data-start="19.6" data-duration="4.0" data-track-index="2" style="position:absolute;inset:0">
+        <div class="center title" style="top:150px;font-size:96px"><span class="split" id="pop1">Les + populaires</span></div>
+        <div class="abs glass" id="br3" style="left:300px;top:1000px;padding:30px 50px;font-size:70px;font-weight:900;background:#ffd23d;color:#160a3a">
+          <span class="emoji">💈</span> BARBIER</div>
+      </div>
+
+      <div class="broll" id="br1" style="top:330px">
+        <video id="vbr1" class="clip" src="assets/source.mp4" muted data-start="21.5" data-duration="2.1" data-media-start="21.5" data-track-index="3" style="top:0"></video>
+        <span class="sticker" style="background:#ff7ac0">TRESSES</span>
+      </div>
+      <div class="broll" id="br2" style="top:700px">
+        <video id="vbr2" class="clip" src="assets/source.mp4" muted data-start="22.3" data-duration="1.3" data-media-start="22.3" data-track-index="4" style="top:-512px"></video>
+        <span class="sticker" style="background:#3ee0d0">LOCS</span>
+      </div>
+      <!-- 23.6-32.3 : tirage -->
+      <div id="o3" class="clip" data-start="23.6" data-duration="8.7" data-track-index="2" style="position:absolute;inset:0">
+        <div class="center" style="top:220px"><span class="pill" id="plus" style="background:#ffd23d">+ UN PETIT PLUS</span></div>
+        <div class="abs glass" id="card100" style="left:110px;top:380px;width:860px;height:820px;padding:60px">
+          <div style="font-size:44px;font-weight:800;opacity:.9" id="vis">Chaque visite admissible =</div>
+          <div style="margin-top:40px;text-align:center" id="stamps">
+            <span class="stamp">✓</span><span class="stamp">✓</span><span class="stamp">✓</span><span class="stamp">✓</span>
+          </div>
+          <div style="margin-top:50px;font-size:56px;font-weight:900" id="chance">1 chance de gagner</div>
+          <div style="font-size:230px;font-weight:900;letter-spacing:-.06em;line-height:1;color:#ffe14d" id="cent">0 $</div>
+          <div style="font-size:44px;font-weight:800;margin-top:10px" id="tir">au tirage du mois 🎉</div>
+        </div>
+        <div id="conf"></div>
+      </div>
+
+      <!-- 32.3-37.2 : parrainage -->
+      <div id="o4" class="clip" data-start="32.3" data-duration="4.9" data-track-index="2" style="position:absolute;inset:0">
+        <div class="center title" style="top:220px;font-size:100px"><span class="split rainbow" id="par">Parrainage</span></div>
+        <div class="line" id="l1" style="left:540px;top:780px;width:330px;transform:rotate(-35deg)"></div>
+        <div class="line" id="l2" style="left:540px;top:780px;width:330px;transform:rotate(35deg)"></div>
+        <div class="line" id="l3" style="left:540px;top:780px;width:330px;transform:rotate(180deg)"></div>
+        <div class="node" id="toi" style="left:425px;top:665px;background:#fff">TOI</div>
+        <div class="node" id="a1" style="left:720px;top:430px;width:200px;height:200px;background:#ff7ac0;font-size:42px">AMI·E</div>
+        <div class="node" id="a2" style="left:720px;top:930px;width:200px;height:200px;background:#3ee0d0;font-size:42px">AMI·E</div>
+        <div class="node" id="a3" style="left:110px;top:680px;width:200px;height:200px;background:#ffd23d;font-size:42px">AMI·E</div>
+        <div class="center" style="top:1150px"><span class="pill" id="fais">FAIS DÉCOUVRIR LE SALON</span></div>
+      </div>
+
+      <!-- 37.2-41.4 : site -->
+      <div id="o5" class="clip" data-start="37.2" data-duration="4.8" data-track-index="2" style="position:absolute;inset:0">
+        <div id="browser">
+          <div id="bar"><span class="dotw" style="background:#ff5f57"></span><span class="dotw" style="background:#febc2e"></span><span class="dotw" style="background:#28c840"></span>
+            <div id="url"><span id="urlt"></span><span id="caret" style="display:inline-block;width:4px;height:40px;background:#160a3a;margin-left:4px"></span></div></div>
+          <div id="abtn">Abonnements</div>
+          <div class="row" id="r0" style="top:340px;background:#d6fff5">Locs Illimité <span>129,99 $</span></div>
+          <div class="row" id="r1" style="top:450px;background:#ffe0ef">Knotless & Tresses <span>139,99 $</span></div>
+          <div class="row" id="r2" style="top:560px;background:#fff6c8">Tresses rapides <span>79,99 $</span></div>
+          <div class="row" id="r3" style="top:670px;background:#dfe8ff">Coupe + barbe <span>64,99 $</span></div>
+          <div style="position:absolute;left:60px;top:790px;font-size:30px;font-weight:700;opacity:.6" id="tx">par mois + taxes</div>
+          <div id="cursor"></div>
+        </div>
+      </div>
+
+      <!-- 41.4-52.8 : caméra, téléphone, fin -->
+      <div id="o6" class="clip" data-start="41.4" data-duration="11.4" data-track-index="2" style="position:absolute;inset:0">
+        <div class="center" style="top:150px"><span class="chip" id="fa" style="background:#ff7ac0">Formule A ?</span><span class="chip" id="fb" style="background:#3ee0d0;margin-left:20px">Formule B ?</span></div>
+        <div id="phone"><div class="ic">📞</div><div><div style="font-size:30px;font-weight:800;opacity:.6">APPELLE-NOUS</div>
+          <div id="num"><span class="numg" id="n1">514</span> <span class="numg" id="n2">919</span>-<span class="numg" id="n3">59</span><span class="numg" id="n4">70</span></div></div></div>
+        <div class="abs" id="aide" style="left:520px;top:1120px"><span class="chip" style="background:#3ee07a;font-size:42px">On t'aide à choisir ✓</span></div>
+        <div class="center" style="top:130px"><span class="pill" id="endb" style="font-size:52px;padding:22px 50px">KADIO COIFFURE</span></div>
+        <div class="center" style="top:250px"><span class="chip" id="endl" style="background:#ffd23d;font-size:44px">📍 Longueuil · kadiocoiffure.com</span></div>
+      </div>
+
+      <div id="caps" class="clip" data-start="0" data-duration="52.8" data-track-index="5"></div>
+    </div>
+
+    <script>
+      const RAINBOW = ["#ff4fb8", "#ffd23d", "#3ee07a", "#18e0d0", "#4f8bff", "#a46bff"];
+      const CUES = []; const cue = (t, id, db = -12) => CUES.push({ t: +t.toFixed(3), id, db });
+      function split(el) {
+        el.innerHTML = [...el.textContent].map(c => c === " " ? '<span class="sp"> </span>' : `<span class="ch">${c}</span>`).join("");
+        if (el.classList.contains("rainbow")) el.querySelectorAll(".ch").forEach((s, i) => (s.style.color = RAINBOW[i % 6]));
+      }
+      document.querySelectorAll(".split").forEach(split);
+
+      // sous-titres : groupes de 3 mots max, coupure sur la ponctuation
+      const groups = []; let g = [];
+      WORDS.forEach((w, i) => {
+        g.push(w); const nx = WORDS[i + 1];
+        if (g.length === 3 || /[,.?!]$/.test(w[2]) || !nx || nx[0] - w[1] > 0.6) { groups.push(g); g = []; }
+      });
+      const caps = document.getElementById("caps");
+      caps.innerHTML = groups.map((g, i) => `<div class="cap" id="g${i}">${g.map((w, j) => `<span class="w" id="w${i}_${j}">${w[2]}</span>`).join("")}</div>`).join("");
+
+      const tl = gsap.timeline({ paused: true }); const P = "power4.out", B = "back.out(2.4)";
+      function pop(sel, t, snd = "pro_pop_in/round", db = -11, from = {}) {
+        tl.set(sel, { scale: 0 }, 0);
+        tl.fromTo(sel, { scale: 0, rotate: -8, ...from }, { scale: 1, rotate: 0, y: 0, x: 0, duration: 0.45, ease: B, immediateRender: false }, t); cue(t, snd, db);
+      }
+      function out(sel, t, snd = "whoosh_fast/tight", db = -14) {
+        tl.to(sel, { scale: 0, opacity: 0, duration: 0.25, ease: "power3.in" }, t); if (snd) cue(t, snd, db);
+      }
+      function letters(sel, t, st = 0.04, snd = "pro_typing_key/glass", db = -18) {
+        const chs = [...document.querySelectorAll(sel + " .ch")];
+        tl.fromTo(chs, { y: 60, opacity: 0, scale: .4, filter: "blur(8px)" }, { y: 0, opacity: 1, scale: 1, filter: "blur(0px)", duration: .4, ease: B, stagger: st }, t);
+        chs.forEach((c, i) => cue(t + i * st, snd, db));
+      }
+      function palette(t, cs, d = 0.8) { ["#b1", "#b2", "#b3", "#b4"].forEach((b, i) => tl.to(b, { "--c": cs[i], duration: d, ease: "power2.inOut" }, t)); }
+
+      // fond
+      tl.to("#b1", { x: 380, y: 260, duration: 52.8, ease: "sine.inOut" }, 0); tl.to("#b2", { x: -420, y: 380, duration: 52.8, ease: "sine.inOut" }, 0);
+      tl.to("#b3", { x: 460, y: -300, duration: 52.8, ease: "sine.inOut" }, 0); tl.to("#b4", { x: -380, y: -420, duration: 52.8, ease: "sine.inOut" }, 0);
+
+      // sous-titres : apparition par groupe, mot actif coloré
+      groups.forEach((g, i) => {
+        const s = g[0][0], nx = groups[i + 1] ? groups[i + 1][0][0] : 52.8; let e = Math.min(nx, Math.max(g[g.length - 1][1], s) + 0.6); e = Math.max(e, Math.min(nx, s + 0.35));
+        tl.fromTo(`#g${i}`, { opacity: 0, y: 30, scale: .9 }, { opacity: 1, y: 0, scale: 1, duration: .16, ease: P }, s);
+        tl.set(`#g${i}`, { opacity: 0 }, e);
+        g.forEach((w, j) => {
+          const c = RAINBOW[(i + j) % 6];
+          tl.set(`#w${i}_${j}`, { backgroundColor: c, color: "#160a3a", textShadow: "none" }, w[0]);
+          tl.fromTo(`#w${i}_${j}`, { scale: 1.18 }, { scale: 1, duration: .2, ease: P }, w[0]);
+          tl.set(`#w${i}_${j}`, { backgroundColor: "rgba(0,0,0,0)", color: "#fff", textShadow: "0 6px 0 rgba(20,0,60,.55)" }, j < g.length - 1 ? g[j + 1][0] : e);
+        });
+      });
+
+      // caméra : entrée + punch-in à chaque phrase
+      tl.fromTo("#camcard", { scale: .7, opacity: 0, rotate: -4 }, { scale: 1, opacity: 1, rotate: 0, duration: .5, ease: P }, 0);
+      cue(0, "pro_whoosh_big/swell", -12);
+      [[4.8, 1.08], [8.3, 1], [12.2, 1.1], [14.5, 1.0], [17.4, 1.08]].forEach(([t, s]) => { tl.to(".cam", { scale: s, duration: .25, ease: P }, t); });
+      tl.to("#camcard", { scale: .3, opacity: 0, rotate: 8, filter: "blur(20px)", duration: .4, ease: "power4.in" }, 19.3); cue(19.25, "pro_whoosh_big/tonal", -11);
+      tl.fromTo("#camcard", { scale: .3, opacity: 0, rotate: -8, filter: "blur(20px)" }, { scale: 1, opacity: 1, rotate: 0, filter: "blur(0px)", duration: .5, ease: P, immediateRender: false }, 42.0);
+      cue(41.95, "pro_whoosh_big/swell", -11);
+      [[42.7, 1.08], [44.19, 1], [48.8, 1.1], [50.08, 1]].forEach(([t, s]) => { tl.to(".cam", { scale: s, duration: .25, ease: P }, t); });
+
+      // 0-19.6
+      palette(0, ["#ff3d9a", "#2f6bff", "#18e0d0", "#7b3dff"], .01);
+      pop("#c1", .57, "pro_pop_in/round"); pop("#c2", 2.08, "pro_pop_in/double"); pop("#c3", 4.15, "pro_pop_in/deep");
+      tl.to(["#c1", "#c2", "#c3"], { y: -12, duration: .2, yoyo: true, repeat: 1, stagger: .08 }, 4.6);
+      out(["#c1", "#c2", "#c3"], 6.3);
+      pop("#brand", 6.82, "pro_pop_in/double", -10); out("#brand", 8.0, null);
+      palette(8.1, ["#7b3dff", "#ff4fb8", "#2f6bff", "#ffd23d"]);
+      letters("#club", 8.4, .05, "pro_pop/tink", -14); cue(8.9, "pro_shimmer/m1", -16);
+      pop("#regu", 9.44, "pro_pop/bloop", -12); out(["#club", "#regu"], 11.8);
+      palette(12.0, ["#18e0d0", "#3ee07a", "#2f6bff", "#ff4fb8"]);
+      pop("#simple", 12.2, "pro_pop_in/knock", -10);
+      pop("#st1", 15.0, "pro_pop_in/round", -11, { x: -300 }); cue(14.95, "swipe/glide", -14);
+      pop("#st2", 16.82, "pro_pop_in/round", -11, { x: 300 }); cue(16.77, "swipe/glide", -14);
+      out(["#simple", "#st1", "#st2"], 19.1);
+
+      // 19.6-23.6
+      palette(19.5, ["#ff4fb8", "#ffd23d", "#18e0d0", "#7b3dff"]);
+      letters("#pop1", 19.75, .035);
+      tl.set(["#br1","#br2"], { opacity: 0 }, 0); tl.set("#br1", { opacity: 1 }, 21.6); tl.set("#br2", { opacity: 1 }, 22.35);
+      tl.fromTo("#br1", { x: 1000, rotate: 10 }, { x: 0, rotate: -3, duration: .45, ease: P }, 21.6); cue(21.55, "swipe/glide", -12); cue(21.95, "pro_pop_in/knock", -12);
+      tl.fromTo("#br2", { x: -1000, rotate: -10 }, { x: 0, rotate: 3, duration: .45, ease: P }, 22.35); cue(22.3, "swipe/glide", -12); cue(22.7, "pro_pop_in/knock", -12);
+      pop("#br3", 23.2, "pro_pop_in/deep", -10);
+      tl.to(["#br1","#br2"], { scale: 2.2, opacity: 0, filter: "blur(24px)", duration: .3, ease: "power4.in" }, 23.35);
+      tl.to("#o2", { scale: 2.2, opacity: 0, filter: "blur(24px)", duration: .3, ease: "power4.in" }, 23.35); cue(23.3, "pro_whoosh_big/swell", -11);
+
+      // 23.6-32.3 tirage
+      palette(23.5, ["#ffd23d", "#ff4fb8", "#7b3dff", "#18e0d0"]);
+      pop("#plus", 24.42, "pro_pop_in/double", -10);
+      tl.set("#card100", { opacity: 0 }, 0); tl.set("#card100", { opacity: 1 }, 25.6);
+      tl.fromTo("#card100", { y: 900, rotate: 6 }, { y: 0, rotate: 0, duration: .55, ease: P }, 25.6); cue(25.55, "swipe/velvet", -12);
+      document.querySelectorAll("#stamps .stamp").forEach((s, i) => {
+        const t = 26.55 + i * 0.32; tl.fromTo(s, { scale: 0 }, { scale: 1, duration: .3, ease: B }, t);
+        tl.to(s, { backgroundColor: RAINBOW[i], borderStyle: "solid", color: "#160a3a", duration: .1 }, t + .15); cue(t, "pro_tap/glass", -10);
+      });
+      tl.fromTo("#chance", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .3, ease: P }, 28.3); cue(28.3, "pro_pop/boop", -14);
+      const o = { v: 0 }, cent = document.getElementById("cent");
+      tl.fromTo(o, { v: 0 }, { v: 100, duration: .6, ease: "power3.out", onUpdate: () => (cent.textContent = Math.round(o.v) + " $") }, 28.9);
+      cue(28.9, "pro_typing_run/tick", -15); cue(29.5, "pro_impact/short", -8); cue(29.52, "pro_shimmer/m3", -14);
+      tl.fromTo("#cent", { scale: .5 }, { scale: 1, duration: .5, ease: B }, 29.0);
+      tl.to("#card100", { x: 12, duration: .05, yoyo: true, repeat: 5 }, 29.5);
+      const conf = document.getElementById("conf");
+      for (let i = 0; i < 40; i++) {
+        const d = document.createElement("div"); d.className = "confetti"; d.style.background = RAINBOW[i % 6];
+        d.style.left = (100 + (i * 197) % 880) + "px"; d.style.top = "-60px"; conf.appendChild(d);
+        tl.fromTo(d, { y: 0, rotate: 0 }, { y: 2000 + (i % 7) * 60, rotate: 360 + i * 47, duration: 2.4 + (i % 5) * .3, ease: "power1.in" }, 29.5 + (i % 8) * .04);
+      }
+      tl.fromTo("#tir", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .3 }, 30.34); cue(30.34, "pro_pop/bloop", -14);
+      tl.to("#o3", { scale: 2.2, opacity: 0, filter: "blur(24px)", duration: .3, ease: "power4.in" }, 32.0); cue(31.95, "pro_whoosh_big/tonal", -11);
+
+      // 32.3-37.2 parrainage
+      palette(32.2, ["#3ee07a", "#2f6bff", "#ff4fb8", "#18e0d0"]);
+      letters("#par", 32.9, .045, "pro_pop/tink", -14);
+      pop("#toi", 33.55, "pro_pop_in/deep", -10);
+      [["#l1", "#a1", 34.4], ["#l2", "#a2", 35.05], ["#l3", "#a3", 35.6]].forEach(([l, a, t]) => {
+        tl.fromTo(l, { scaleX: 0 }, { scaleX: 1, duration: .3, ease: P }, t); cue(t, "pro_zip/up", -14);
+        pop(a, t + .2, "pro_pop/bloop", -11);
+      });
+      pop("#fais", 36.14, "pro_pop_in/double", -11);
+      tl.to("#o4", { scale: 2.2, opacity: 0, filter: "blur(24px)", duration: .3, ease: "power4.in" }, 36.95); cue(36.9, "pro_whoosh_big/swell", -11);
+
+      // 37.2-41.4 site
+      palette(37.1, ["#ff4fb8", "#7b3dff", "#18e0d0", "#ffd23d"]);
+      tl.fromTo("#browser", { y: 1200, rotate: 5 }, { y: 0, rotate: 0, duration: .45, ease: P }, 37.2); cue(37.15, "swipe/glide", -12);
+      const url = "kadiocoiffure.com", ut = document.getElementById("urlt");
+      [...url].forEach((c, i) => { const t = 37.45 + i * 0.06; tl.set(ut, { textContent: url.slice(0, i + 1) }, t); cue(t, "pro_typing_key/soft", -15); });
+      tl.set(ut, { textContent: "" }, 37.2);
+      tl.fromTo("#cursor", { x: 700, y: 700 }, { x: 260, y: 210, duration: .5, ease: "power3.inOut" }, 38.55);
+      tl.to("#abtn", { scale: .92, duration: .08, yoyo: true, repeat: 1 }, 39.09); cue(39.09, "pro_click/glass", -8);
+      tl.to("#abtn", { backgroundColor: "#7b3dff", duration: .2 }, 39.1);
+      ["#r0", "#r1", "#r2", "#r3"].forEach((r, i) => { tl.fromTo(r, { x: 900, opacity: 0 }, { x: 0, opacity: 1, duration: .35, ease: P }, 39.6 + i * .22); cue(39.6 + i * .22, "pro_pop/boop", -14); });
+      tl.fromTo("#tx", { opacity: 0 }, { opacity: .6, duration: .3 }, 40.6);
+      tl.to("#o5", { scale: .3, opacity: 0, filter: "blur(24px)", duration: .3, ease: "power4.in" }, 41.7);
+
+      // 41.4-52.8
+      palette(41.3, ["#7b3dff", "#ff3d9a", "#18e0d0", "#2f6bff"]);
+      pop("#fa", 43.0, "pro_pop_in/round"); pop("#fb", 43.36, "pro_pop_in/double");
+      tl.to(["#fa", "#fb"], { rotate: (i) => (i ? 6 : -6), duration: .15, yoyo: true, repeat: 3 }, 43.6);
+      out(["#fa", "#fb"], 44.0);
+      tl.fromTo("#phone", { y: -400, scale: .8 }, { y: 0, scale: 1, duration: .45, ease: P }, 44.19); cue(44.15, "swipe/glide", -12);
+      tl.to("#phone .ic", { rotate: 14, duration: .07, yoyo: true, repeat: 7 }, 44.5); cue(44.5, "pro_notify/ding_1930", -12);
+      [["#n1", 45.3], ["#n2", 46.03], ["#n3", 46.75], ["#n4", 47.51]].forEach(([g, t], i) => {
+        tl.fromTo(g, { opacity: 0, y: 40, scale: .5 }, { opacity: 1, y: 0, scale: 1, duration: .3, ease: B }, t);
+        tl.to(g, { color: RAINBOW[i + 1], duration: .1, yoyo: true, repeat: 1 }, t); cue(t, "pro_tap/glass", -10);
+      });
+      tl.set("#n1,#n2,#n3,#n4", { opacity: 0 }, 41.4);
+      pop("#aide", 48.99, "pro_notify/ding_2045", -12);
+      out(["#phone", "#aide"], 49.9);
+      palette(49.9, ["#ff4fb8", "#ffd23d", "#3ee07a", "#18e0d0"], 1.2);
+      pop("#endb", 50.71, "logo_sting/whoosh_glass", -9);
+      pop("#endl", 51.79, "pro_pop_in/double", -11);
+      tl.to("#endb", { scale: 1.06, duration: .4, yoyo: true, repeat: 1, ease: "sine.inOut" }, 51.9);
+
+      window.__cues = CUES;
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
