@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="gsap.min.js"></script>
+    <script src="words.js"></script>
+    <style>
+      @font-face { font-family: "Kadio Display"; src: url("fonts/InterDisplay-Bold.otf") format("opentype"); font-weight: 700; }
+      @font-face { font-family: "Kadio Display"; src: url("fonts/InterDisplay-ExtraBold.otf") format("opentype"); font-weight: 800; }
+      @font-face { font-family: "Kadio Display"; src: url("fonts/InterDisplay-Black.otf") format("opentype"); font-weight: 900; }
+      @font-face { font-family: "Kadio Serif"; src: url("fonts/Caladea-Bold.ttf") format("truetype"); font-weight: 700; }
+      @font-face { font-family: "Kadio Emoji"; src: url("fonts/NotoColorEmoji.ttf") format("truetype"); }
+      :root { --font: "Kadio Display", "Kadio Emoji", sans-serif; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #160a3a; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; font-family: var(--font); color: #fff; background: #160a3a; }
+      .blob { position: absolute; width: 1500px; height: 1500px; border-radius: 50%;
+        background: radial-gradient(circle, var(--c) 0%, color-mix(in srgb, var(--c) 40%, transparent) 38%, transparent 66%); }
+      #b1 { --c: #ff3d9a; left: -620px; top: -520px; } #b2 { --c: #2f6bff; left: 300px; top: -200px; }
+      #b3 { --c: #18e0d0; left: -500px; top: 900px; } #b4 { --c: #7b3dff; left: 260px; top: 1100px; }
+      #cam { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; object-fit: cover; filter: contrast(1.08) saturate(1.18) brightness(1.03); }
+      #shade { position: absolute; left: 0; right: 0; bottom: 0; height: 900px; background: linear-gradient(180deg, rgba(22,10,58,0) 0%, rgba(22,10,58,.55) 60%, rgba(22,10,58,.8) 100%); }
+      #topshade { position: absolute; left: 0; right: 0; top: 0; height: 420px; background: linear-gradient(0deg, rgba(22,10,58,0) 0%, rgba(22,10,58,.45) 100%); }
+      .center { position: absolute; left: 0; right: 0; text-align: center; }
+      .pill { display: inline-block; padding: 16px 34px; border-radius: 999px; font-size: 36px; font-weight: 900; letter-spacing: .08em; color: #160a3a; background: #fff;
+        box-shadow: 0 14px 40px rgba(0,0,0,.35); }
+      .chip { position: absolute; padding: 20px 38px; border-radius: 28px; font-size: 56px; font-weight: 900; color: #160a3a; box-shadow: 0 18px 50px rgba(0,0,0,.4); }
+      #check { position: absolute; left: 400px; top: 940px; width: 280px; height: 280px; border-radius: 50%; background: #3ee07a; display: flex; align-items: center;
+        justify-content: center; font-size: 190px; font-weight: 900; color: #fff; box-shadow: 0 0 0 18px rgba(62,224,122,.35), 0 30px 90px rgba(0,0,0,.4); }
+      #possible { top: 1250px; font-size: 84px; font-weight: 900; letter-spacing: -.04em; text-shadow: 0 8px 30px rgba(20,0,60,.6); }
+      .glass { background: rgba(255,255,255,.18); border: 2px solid rgba(255,255,255,.55); backdrop-filter: blur(26px);
+        box-shadow: 0 30px 90px rgba(20,0,60,.45), inset 0 2px 0 rgba(255,255,255,.6); }
+      #routine { position: absolute; left: 110px; right: 110px; top: 1040px; border-radius: 44px; padding: 40px 50px; text-align: center; }
+      #routine .a { font-size: 64px; font-weight: 900; letter-spacing: -.03em; } #routine .b { font-size: 42px; font-weight: 800; margin-top: 14px; color: #ffd23d; }
+      #caps { position: absolute; left: 50px; right: 50px; top: 1440px; height: 160px; text-align: center; }
+      .cap { position: absolute; left: 0; right: 0; top: 0; font-size: 76px; font-weight: 900; letter-spacing: -.03em; line-height: 1.05;
+        text-shadow: 0 6px 0 rgba(20,0,60,.6), 0 0 30px rgba(20,0,60,.5); opacity: 0; }
+      .w { display: inline-block; margin: 0 .1em; padding: 0 .12em; border-radius: 14px; }
+      /* fin */
+      .ch { display: inline-block; white-space: pre; } .sp { display: inline-block; width: .26em; }
+      .et { font-size: 140px; font-weight: 900; letter-spacing: -.05em; line-height: 1; }
+      .site { display: inline-block; padding: 30px 56px; border-radius: 999px; font-size: 70px; font-weight: 900; background: #fff; color: #160a3a;
+        box-shadow: 0 30px 90px rgba(255,61,154,.55); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="15" data-width="1080" data-height="1920">
+      <div id="bg" class="clip" data-start="0" data-duration="15" data-track-index="0" style="position:absolute;inset:0">
+        <div id="b1" class="blob"></div><div id="b2" class="blob"></div><div id="b3" class="blob"></div><div id="b4" class="blob"></div>
+      </div>
+      <div id="camwrap" style="position:absolute;inset:0;overflow:hidden">
+        <video id="cam" class="clip" src="assets/cut.mp4" muted data-start="0" data-duration="12.03" data-media-start="0" data-track-index="1"></video>
+      </div>
+      <div id="ov" class="clip" data-start="0" data-duration="12.03" data-track-index="2" style="position:absolute;inset:0">
+        <div id="topshade"></div><div id="shade"></div>
+        <div class="center" style="top:150px"><span class="pill" id="club" style="background:#ff7ac0">💜 CLUB KADIO</span></div>
+        <div class="center" style="top:250px"><span class="pill" id="regu" style="background:#ffd23d;font-size:44px">🔁 TU VIENS SOUVENT ?</span></div>
+        <div class="chip" id="k1" style="left:90px;top:1060px;background:#ff7ac0">TRESSES</div>
+        <div class="chip" id="k2" style="left:600px;top:1060px;background:#3ee0d0">LOCS</div>
+        <div class="chip" id="k3" style="left:120px;top:1200px;background:#ffd23d">CHEVEUX</div>
+        <div class="chip" id="k4" style="left:560px;top:1200px;background:#6f8bff;color:#fff">💈 BARBIER</div>
+        <div id="check">✓</div>
+        <div class="center" id="possible">C'est possible !</div>
+        <div id="routine" class="glass"><div class="a">Ta routine habituelle</div><div class="b">à prix fixe, chaque mois</div></div>
+      </div>
+      <div id="end" class="clip" data-start="12.03" data-duration="2.97" data-track-index="3" style="position:absolute;inset:0">
+        <div class="center" style="top:520px"><span class="pill" style="background:#3ee07a" id="e0">ABONNEMENTS</span></div>
+        <div class="center et" style="top:640px"><span class="split" id="e1">Club</span></div>
+        <div class="center et" style="top:790px"><span class="split rainbow" id="e2">Kadio</span></div>
+        <div class="center" style="top:980px;font-size:64px;font-weight:900;color:#ffd23d" id="e3">dès 11,99 $/mois</div>
+        <div class="center" style="top:1110px"><span class="site" id="e4">kadiocoiffure.com</span></div>
+        <div class="center" style="top:1270px;font-size:44px;font-weight:800" id="e5">📞 514 919-5970 · 📍 Longueuil</div>
+      </div>
+      <div id="caps" class="clip" data-start="0" data-duration="12.03" data-track-index="4"></div>
+    </div>
+    <script>
+      const RAINBOW = ["#ff4fb8", "#ffd23d", "#3ee07a", "#18e0d0", "#4f8bff", "#a46bff"];
+      const CUES = []; const cue = (t, id, db = -12) => CUES.push({ t: +t.toFixed(3), id, db });
+      // mots au même départ : étalés
+      for (let i = 0; i < WORDS.length; ) { let j = i; while (j + 1 < WORDS.length && Math.abs(WORDS[j + 1][0] - WORDS[i][0]) < .02) j++;
+        if (j > i) { const end = WORDS[j + 1] ? WORDS[j + 1][0] : WORDS[j][1], st = (end - WORDS[i][0]) / (j - i + 1); for (let k = i; k <= j; k++) WORDS[k][0] = WORDS[i][0] + (k - i) * st; } i = j + 1; }
+      WORDS.forEach(w => { if (w[2] === "locks,") w[2] = "locs,"; });
+      document.querySelectorAll(".split").forEach((el) => {
+        el.innerHTML = [...el.textContent].map(c => c === " " ? '<span class="sp"> </span>' : `<span class="ch">${c}</span>`).join("");
+        if (el.classList.contains("rainbow")) el.querySelectorAll(".ch").forEach((s, i) => (s.style.color = RAINBOW[i % 6]));
+      });
+      const groups = []; let g = [];
+      WORDS.forEach((w, i) => { g.push(w); const nx = WORDS[i + 1]; if (g.length === 3 || /[,.?!]$/.test(w[2]) || !nx || nx[0] - w[1] > .6) { groups.push(g); g = []; } });
+      const caps = document.getElementById("caps");
+      caps.innerHTML = groups.map((g, i) => `<div class="cap" id="g${i}">${g.map((w, j) => `<span class="w" id="w${i}_${j}">${w[2]}</span>`).join("")}</div>`).join("");
+
+      const tl = gsap.timeline({ paused: true }); const P = "power4.out", B = "back.out(2.3)", CAM_END = 12.03;
+      function pop(sel, t, snd = "pro_pop_in/round", db = -11, from = {}) {
+        tl.set(sel, { scale: 0 }, 0);
+        tl.fromTo(sel, { scale: 0, rotate: -10, ...from }, { scale: 1, rotate: 0, x: 0, y: 0, duration: .42, ease: B, immediateRender: false }, t); if (snd) cue(t, snd, db);
+      }
+      function out(sel, t, snd = "whoosh_fast/tight", db = -14) { tl.to(sel, { scale: 0, opacity: 0, duration: .22, ease: "power3.in" }, t); if (snd) cue(t, snd, db); }
+
+      // sous-titres
+      groups.forEach((g, i) => {
+        const s = g[0][0], nx = groups[i + 1] ? groups[i + 1][0][0] : CAM_END; let e = Math.min(nx, Math.max(g[g.length - 1][1], s) + .5); e = Math.max(e, Math.min(nx, s + .35));
+        tl.fromTo(`#g${i}`, { opacity: 0, y: 26, scale: .9 }, { opacity: 1, y: 0, scale: 1, duration: .14, ease: P, immediateRender: false }, s);
+        tl.set(`#g${i}`, { opacity: 0 }, e);
+        g.forEach((w, j) => {
+          tl.set(`#w${i}_${j}`, { backgroundColor: RAINBOW[(i + j) % 6], color: "#160a3a", textShadow: "none" }, w[0]);
+          tl.fromTo(`#w${i}_${j}`, { scale: 1.2 }, { scale: 1, duration: .18, ease: P, immediateRender: false }, w[0]);
+          tl.set(`#w${i}_${j}`, { backgroundColor: "rgba(0,0,0,0)", color: "#fff", textShadow: "0 6px 0 rgba(20,0,60,.6)" }, j < g.length - 1 ? g[j + 1][0] : e);
+        });
+      });
+
+      // caméra : zoom lent + punch-in sur les temps forts
+      tl.fromTo("#cam", { scale: 1.0 }, { scale: 1.05, duration: 2.7, ease: "none" }, 0);
+      [[2.76, 1.13], [3.99, 1.02], [6.89, 1.1], [7.61, 1.18], [9.62, 1.04]].forEach(([t, s]) => tl.to("#cam", { scale: s, duration: .2, ease: P }, t));
+      cue(0, "pro_whoosh_big/swell", -13);
+
+      pop("#club", .05, "pro_pop_in/double", -10);
+      pop("#regu", 1.82, "pro_pop_in/knock", -10, { y: -60 });
+      tl.to("#regu", { rotate: 3, duration: .12, yoyo: true, repeat: 3 }, 2.25);
+      [["#k1", 4.24, "pro_pop/bloop", -150], ["#k2", 4.93, "pro_pop/tink", 150], ["#k3", 5.5, "pro_pop/boop", -150], ["#k4", 6.89, "pro_pop_in/deep", 150]].forEach(([k, t, s, x]) => pop(k, t, s, -10, { x }));
+      tl.to(["#k1", "#k2", "#k3", "#k4"], { y: -14, duration: .18, yoyo: true, repeat: 1, stagger: .06 }, 7.15);
+      out(["#k1", "#k2", "#k3", "#k4", "#regu"], 7.55);
+      tl.set("#possible", { opacity: 0 }, 0);
+      pop("#check", 8.05, "pro_pop_in/deep", -9);
+      cue(8.32, "pro_impact/short", -9); cue(8.34, "pro_shimmer/m3", -15);
+      tl.fromTo("#possible", { opacity: 0, y: 50, scale: .6 }, { opacity: 1, y: 0, scale: 1, duration: .35, ease: B, immediateRender: false }, 8.32);
+      tl.to("#check", { rotate: 360, duration: .6, ease: "power2.out" }, 8.32);
+      out(["#check", "#possible", "#club"], 9.45);
+      tl.set("#routine", { opacity: 0 }, 0);
+      tl.fromTo("#routine", { y: 500, opacity: 0, rotate: 6 }, { y: 0, opacity: 1, rotate: -2, duration: .45, ease: P, immediateRender: false }, 9.62);
+      cue(9.58, "swipe/glide", -12); cue(10.0, "pro_pop_in/knock", -12);
+      tl.fromTo("#routine .b", { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: .3, ease: P, immediateRender: false }, 10.78); cue(10.78, "pro_notify/ding_2045", -12);
+
+      // transition vers la fin
+      tl.to("#cam", { scale: 2.2, opacity: 0, filter: "blur(30px)", duration: .4, ease: "power4.in" }, 11.75);
+      tl.to("#ov", { opacity: 0, duration: .3 }, 11.75); cue(11.7, "pro_whoosh_big/tonal", -10);
+      [[380, 260], [-420, 380], [460, -300], [-380, -420]].forEach(([x, y], i) => tl.to(["#b1", "#b2", "#b3", "#b4"][i], { x, y, duration: 15, ease: "sine.inOut" }, 0));
+      pop("#e0", 12.1, "pro_pop_in/double", -11);
+      const E1 = [...document.querySelectorAll("#e1 .ch")], E2 = [...document.querySelectorAll("#e2 .ch")];
+      tl.set([...E1, ...E2], { opacity: 0 }, 0);
+      tl.fromTo(E1, { y: 60, opacity: 0, scale: .4 }, { y: 0, opacity: 1, scale: 1, duration: .35, ease: B, stagger: .04, immediateRender: false }, 12.2);
+      tl.fromTo(E2, { y: 60, opacity: 0, scale: .4 }, { y: 0, opacity: 1, scale: 1, duration: .35, ease: B, stagger: .05, immediateRender: false }, 12.45);
+      E1.forEach((c, i) => cue(12.2 + i * .04, "pro_typing_key/glass", -18)); E2.forEach((c, i) => cue(12.45 + i * .05, "pro_pop/tink", -15));
+      tl.set(["#e3", "#e5"], { opacity: 0 }, 0);
+      tl.fromTo("#e3", { opacity: 0, scale: 2.5 }, { opacity: 1, scale: 1, duration: .35, ease: "power4.in", immediateRender: false }, 12.85); cue(13.18, "pro_impact/short", -10);
+      pop("#e4", 13.3, "logo_sting/whoosh_glass", -9);
+      tl.fromTo("#e5", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .35, immediateRender: false }, 13.6); cue(13.6, "pro_pop/boop", -15);
+      tl.to("#e4", { scale: 1.06, duration: .35, yoyo: true, repeat: 1, ease: "sine.inOut" }, 14.0);
+
+      window.__cues = CUES;
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
