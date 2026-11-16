@@ -9,7 +9,7 @@
 - (à compléter au fil des montages)
 
 ## Vidéos en cours
-- (aucune)
+- abonnements-kadio : v1 animée + sons (28 s) — en attente de la voix off
 
 ## Outils installés
 - 44 skills dans `.claude/skills/` (short-editing, hyperframes, remotion, earshot…)

@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Kadio Display"; src: url("fonts/InterDisplay-SemiBold.otf") format("opentype"); font-weight: 600; }
+      @font-face { font-family: "Kadio Display"; src: url("fonts/InterDisplay-Bold.otf") format("opentype"); font-weight: 700; }
+      @font-face { font-family: "Kadio Display"; src: url("fonts/InterDisplay-ExtraBold.otf") format("opentype"); font-weight: 800; }
+      @font-face { font-family: "Kadio Display"; src: url("fonts/InterDisplay-Black.otf") format("opentype"); font-weight: 900; }
+      :root {
+        --ground: #160a3a;
+        --ink: #ffffff;
+        --font: "Kadio Display", sans-serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ground); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; font-family: var(--font); color: var(--ink);
+        background: var(--ground); }
+
+      /* fond : 4 taches de couleur qui bougent et changent de teinte */
+      .blob { position: absolute; width: 1500px; height: 1500px; border-radius: 50%;
+        background: radial-gradient(circle at 50% 50%, var(--c) 0%, color-mix(in srgb, var(--c) 40%, transparent) 38%, transparent 66%); }
+      #b1 { --c: #ff3d9a; left: -620px; top: -520px; }
+      #b2 { --c: #2f6bff; left: 300px; top: -200px; }
+      #b3 { --c: #18e0d0; left: -500px; top: 900px; }
+      #b4 { --c: #7b3dff; left: 260px; top: 1100px; }
+      #grain { position: absolute; inset: 0; opacity: .08; mix-blend-mode: overlay;
+        background-image: repeating-radial-gradient(circle at 17% 32%, #fff 0 1px, transparent 1px 3px); }
+
+      .scene { position: absolute; inset: 0; }
+      .ch { display: inline-block; white-space: pre; }
+      .sp { display: inline-block; width: .3em; }
+      .center { position: absolute; left: 0; right: 0; text-align: center; }
+
+      .shape { position: absolute; border-radius: 50%; box-shadow: 0 30px 80px rgba(0,0,0,.25), inset -14px -18px 40px rgba(0,0,0,.18), inset 14px 16px 40px rgba(255,255,255,.55); }
+      .cube { border-radius: 34px; }
+
+      /* hook */
+      .h1 { font-size: 150px; font-weight: 800; letter-spacing: -0.05em; line-height: 1; }
+      .h2 { font-size: 64px; font-weight: 600; letter-spacing: -0.03em; }
+
+      .pill { display: inline-block; padding: 18px 40px; border-radius: 999px; font-size: 38px; font-weight: 700; letter-spacing: .08em;
+        background: rgba(255,255,255,.18); border: 2px solid rgba(255,255,255,.4); backdrop-filter: blur(20px); }
+
+      /* cartes forfaits */
+      .card { position: absolute; left: 110px; top: 560px; width: 860px; height: 760px; border-radius: 64px; padding: 70px 70px;
+        background: rgba(255,255,255,.16); border: 2px solid rgba(255,255,255,.45); backdrop-filter: blur(34px);
+        box-shadow: 0 50px 140px rgba(20,0,60,.45), inset 0 2px 0 rgba(255,255,255,.6); }
+      .card .tag { display: inline-block; font-size: 30px; font-weight: 700; letter-spacing: .14em; padding: 12px 26px; border-radius: 999px; color: #160a3a; }
+      .card .idx { position: absolute; right: 70px; top: 78px; font-size: 34px; font-weight: 600; opacity: .8; }
+      .card .name { margin-top: 56px; font-size: 92px; font-weight: 800; letter-spacing: -0.045em; line-height: 1.02; min-height: 190px; }
+      .card .price { margin-top: 40px; font-size: 190px; font-weight: 800; letter-spacing: -0.06em; line-height: 1; }
+      .card .per { font-size: 46px; font-weight: 600; opacity: .95; margin-top: 10px; }
+      .dots { position: absolute; left: 0; right: 0; top: 1390px; display: flex; justify-content: center; gap: 22px; }
+      .dot { width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,.35); }
+
+      /* promo */
+      .stamp { font-size: 330px; font-weight: 900; letter-spacing: -0.07em; line-height: 1; }
+      .ticket { display: inline-block; padding: 30px 54px; border-radius: 36px; border: 5px dashed #fff; font-size: 70px; font-weight: 800;
+        letter-spacing: .04em; background: rgba(255,255,255,.14); }
+
+      .site { display: inline-block; padding: 34px 60px; border-radius: 999px; font-size: 76px; font-weight: 800; letter-spacing: -0.03em;
+        background: #fff; color: #160a3a; box-shadow: 0 30px 90px rgba(255,61,154,.55); }
+      .info { font-size: 42px; font-weight: 600; opacity: .95; line-height: 1.45; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="28" data-width="1080" data-height="1920">
+      <div id="bg" class="clip" data-start="0" data-duration="28" data-track-index="0" style="position:absolute;inset:0">
+        <div id="b1" class="blob"></div><div id="b2" class="blob"></div><div id="b3" class="blob"></div><div id="b4" class="blob"></div>
+        <div id="grain"></div>
+      </div>
+
+      <!-- formes flottantes -->
+      <div id="shapes" class="clip" data-start="0" data-duration="28" data-track-index="1" style="position:absolute;inset:0">
+        <div id="s1" class="shape" style="width:150px;height:150px;left:120px;top:330px;background:#ff7ac0"></div>
+        <div id="s2" class="shape cube" style="width:110px;height:110px;left:820px;top:420px;background:#3ee0d0"></div>
+        <div id="s3" class="shape" style="width:90px;height:90px;left:860px;top:1420px;background:#ffd23d"></div>
+        <div id="s4" class="shape cube" style="width:130px;height:130px;left:110px;top:1460px;background:#6f8bff"></div>
+      </div>
+
+      <!-- 1. hook -->
+      <div id="sc1" class="scene clip" data-start="0" data-duration="3.2" data-track-index="2">
+        <div class="center h1" style="top:620px"><span class="split" id="l1">Tes cheveux,</span></div>
+        <div class="center h1" style="top:790px"><span class="split rainbow" id="l2">parfaits</span></div>
+        <div class="center h1" style="top:960px"><span class="split" id="l3">tout le mois.</span></div>
+      </div>
+
+      <!-- 2. titre -->
+      <div id="sc2" class="scene clip" data-start="3.2" data-duration="3.2" data-track-index="2">
+        <div class="center" style="top:560px"><span class="pill" id="brand">KADIO COIFFURE</span></div>
+        <div class="center h1" style="top:740px;font-size:120px"><span class="split" id="t1">Les abonnements</span></div>
+        <div class="center h1" style="top:880px;font-size:120px"><span class="split rainbow" id="t2">mensuels</span></div>
+        <div class="center h2" style="top:1080px"><span class="split" id="t3">dès 35,99 $ / mois</span></div>
+      </div>
+
+      <!-- 3. forfaits (générés en JS) -->
+      <div id="sc3" class="scene clip" data-start="6.4" data-duration="13.4" data-track-index="2"></div>
+
+      <!-- 4. promo -->
+      <div id="sc4" class="scene clip" data-start="19.8" data-duration="3.8" data-track-index="2">
+        <div class="center h2" style="top:520px;font-size:80px;font-weight:800"><span class="split" id="p1">2 abonnements ou +</span></div>
+        <div class="center stamp" style="top:700px"><span id="p2" style="display:inline-block">-10%</span></div>
+        <div class="center" style="top:1120px"><span class="ticket" id="p3"><span class="split" id="p3t">CODE FAMILLE10</span></span></div>
+      </div>
+
+      <!-- 5. fin -->
+      <div id="sc5" class="scene clip" data-start="23.6" data-duration="4.4" data-track-index="2">
+        <div class="center h1" style="top:540px;font-size:120px"><span class="split" id="e1">Réserve</span></div>
+        <div class="center h1" style="top:680px;font-size:120px"><span class="split rainbow" id="e2">ton forfait</span></div>
+        <div class="center" style="top:900px"><span class="site" id="site">kadiocoiffure.com</span></div>
+        <div class="center info" style="top:1120px" id="info">615 Antoinette-Robidoux, Longueuil<br />514-919-5970</div>
+      </div>
+    </div>
+
+    <script>
+      const RAINBOW = ["#ff4fb8", "#ffd23d", "#3ee07a", "#18e0d0", "#4f8bff", "#a46bff"];
+      const PLANS = [
+        { name: "Locs<br>Illimité", price: 129.99, c1: "#12d6c5", c2: "#3ee07a", tag: "#7dffcf" },
+        { name: "Microlocs &<br>Sisterlocks", price: 149.99, c1: "#8a4dff", c2: "#ff4fb8", tag: "#e4b8ff" },
+        { name: "Knotless<br>& Tresses", price: 139.99, c1: "#ff3d8b", c2: "#ff9a3d", tag: "#ffc1dc" },
+        { name: "Tresses<br>rapides", price: 79.99, c1: "#ffc93d", c2: "#3ee07a", tag: "#fff1a8" },
+        { name: "Barbier<br>coupe + barbe", price: 64.99, c1: "#2f6bff", c2: "#19d3ff", tag: "#b8d4ff" },
+        { name: "Barbe<br>illimitée", price: 35.99, c1: "#14b88a", c2: "#18e0d0", tag: "#a8ffe6" },
+      ];
+      const CUES = [];
+      const cue = (t, id, db = -12) => CUES.push({ t: +t.toFixed(3), id, db });
+
+      // découpe chaque lettre dans un <span>
+      function split(el) {
+        const parts = el.innerHTML.split(/(<br\s*\/?>)/i);
+        el.innerHTML = parts.map(p => /^<br/i.test(p) ? p :
+          [...p.replace(/&amp;/g, "&")].map(c => c === " " ? `<span class="sp"> </span>` : `<span class="ch">${c === "&" ? "&amp;" : c}</span>`).join("")).join("");
+        if (el.classList.contains("rainbow")) el.querySelectorAll(".ch").forEach((s, i) => (s.style.color = RAINBOW[i % RAINBOW.length]));
+        return el.querySelectorAll(".ch");
+      }
+
+      // cartes
+      const sc3 = document.getElementById("sc3");
+      sc3.innerHTML = PLANS.map((p, i) => `
+        <div class="card" id="card${i}">
+          <span class="tag" style="background:${p.tag}">FORFAIT MENSUEL</span>
+          <span class="idx">0${i + 1} / 06</span>
+          <div class="name"><span class="split" id="n${i}">${p.name}</span></div>
+          <div class="price" id="pr${i}" style="color:${p.tag}">0,00 $</div>
+          <div class="per" id="per${i}">par mois + taxes</div>
+        </div>`).join("") +
+        `<div class="dots">${PLANS.map((p, i) => `<div class="dot" id="d${i}"></div>`).join("")}</div>`;
+      document.querySelectorAll(".split").forEach(split);
+
+      const tl = gsap.timeline({ paused: true });
+      const P = "power4.out";
+
+      // lettres une par une + un clic par lettre
+      function letters(sel, t, { st = 0.035, snd = "pro_typing_key/glass", db = -17, from = {} } = {}) {
+        const chs = [...document.querySelectorAll(sel + " .ch")];
+        tl.fromTo(chs, { y: 70, opacity: 0, scale: 0.4, rotate: -12, filter: "blur(10px)", ...from },
+          { y: 0, opacity: 1, scale: 1, rotate: 0, filter: "blur(0px)", duration: 0.42, ease: "back.out(2.2)", stagger: st }, t);
+        let k = 0;
+        chs.forEach((c, i) => { if (c.textContent.trim()) { if (k++ % 1 === 0) cue(t + i * st, snd, db); } });
+        return t + chs.length * st;
+      }
+      // sortie zoom-through (la scène grossit et se floute) + whoosh
+      function zoomOut(sel, t, snd = "pro_whoosh_big/swell") {
+        tl.to(sel, { scale: 2.4, opacity: 0, filter: "blur(28px)", duration: 0.38, ease: "power4.in" }, t);
+        cue(t - 0.05, snd, -10);
+      }
+      // couleurs du fond
+      function palette(t, cs, d = 0.9) {
+        ["#b1", "#b2", "#b3", "#b4"].forEach((b, i) => tl.to(b, { "--c": cs[i], duration: d, ease: "power2.inOut" }, t));
+      }
+
+      // fond toujours en mouvement
+      tl.to("#b1", { x: 380, y: 260, duration: 28, ease: "sine.inOut" }, 0);
+      tl.to("#b2", { x: -420, y: 380, duration: 28, ease: "sine.inOut" }, 0);
+      tl.to("#b3", { x: 460, y: -300, duration: 28, ease: "sine.inOut" }, 0);
+      tl.to("#b4", { x: -380, y: -420, duration: 28, ease: "sine.inOut" }, 0);
+      ["#s1", "#s2", "#s3", "#s4"].forEach((s, i) => {
+        tl.fromTo(s, { scale: 0 }, { scale: 1, duration: 0.6, ease: "back.out(2.5)" }, 0.15 + i * 0.12);
+        cue(0.15 + i * 0.12, "pro_pop_in/round", -14);
+        tl.to(s, { y: (i % 2 ? -1 : 1) * 160, rotate: (i % 2 ? 1 : -1) * 120, duration: 27, ease: "sine.inOut" }, 0.8);
+      });
+
+      // 1. hook
+      palette(0, ["#ff3d9a", "#2f6bff", "#18e0d0", "#7b3dff"], 0.01);
+      let t = letters("#l1", 0.0, { st: 0.04 });
+      t = letters("#l2", 0.6, { st: 0.05, snd: "pro_pop/bloop", db: -13, from: { scale: 0, y: 0 } });
+      tl.to("#l2 .ch", { y: -22, duration: 0.18, ease: "power2.out", stagger: { each: 0.04, yoyo: true, repeat: 1 } }, 1.4);
+      cue(1.4, "pro_shimmer/m1", -16);
+      letters("#l3", 1.5, { st: 0.035 });
+      zoomOut("#sc1", 2.82);
+
+      // 2. titre
+      palette(3.0, ["#7b3dff", "#ff4fb8", "#2f6bff", "#18e0d0"]);
+      tl.fromTo("#sc2", { scale: 0.4, opacity: 0, filter: "blur(30px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.45, ease: P }, 3.2);
+      tl.fromTo("#brand", { scale: 0, rotate: -8 }, { scale: 1, rotate: 0, duration: 0.5, ease: "back.out(2.4)" }, 3.3);
+      cue(3.3, "pro_pop_in/double", -10);
+      letters("#t1", 3.6, { st: 0.035 });
+      letters("#t2", 4.25, { st: 0.05, snd: "pro_pop/tink", db: -13, from: { scale: 0, y: -40 } });
+      letters("#t3", 5.0, { st: 0.03, snd: "pro_typing_key/soft", db: -19 });
+      zoomOut("#sc2", 6.02, "pro_whoosh_big/tonal");
+
+      // 3. forfaits
+      tl.fromTo("#sc3", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 6.4);
+      PLANS.forEach((p, i) => {
+        const s = 6.4 + i * 2.2, c = `#card${i}`;
+        palette(s - 0.25, [p.c1, p.c2, p.c2, p.c1], 0.7);
+        tl.fromTo(c, { x: 900, rotate: 10, scale: 0.9, opacity: 0 }, { x: 0, rotate: 0, scale: 1, opacity: 1, duration: 0.5, ease: P }, s);
+        cue(s - 0.04, "swipe/glide", -12);
+        cue(s + 0.32, "pro_pop_in/knock", -12);
+        tl.fromTo(`${c} .tag`, { scale: 0 }, { scale: 1, duration: 0.35, ease: "back.out(2.5)" }, s + 0.2);
+        tl.to(`#d${i}`, { backgroundColor: "#ffffff", scale: 1.5, duration: 0.3, ease: "back.out(3)" }, s + 0.2);
+        letters(`#n${i}`, s + 0.3, { st: 0.022, db: -19 });
+        const o = { v: 0 }, el = document.getElementById(`pr${i}`);
+        tl.fromTo(o, { v: 0 }, { v: p.price, duration: 0.65, ease: "power3.out",
+          onUpdate: () => (el.textContent = o.v.toFixed(2).replace(".", ",") + " $") }, s + 0.75);
+        tl.fromTo(el, { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(2)" }, s + 0.75);
+        cue(s + 0.75, "pro_typing_run/tick", -16);
+        cue(s + 1.4, "pro_notify/ding_2045", -12);
+        tl.fromTo(`#per${i}`, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: P }, s + 1.45);
+        cue(s + 1.45, "pro_pop/boop", -16);
+        tl.to(`#d${i}`, { scale: 1, duration: 0.3 }, s + 2.0);
+        if (i < PLANS.length - 1) {
+          tl.to(c, { x: -950, rotate: -10, opacity: 0, filter: "blur(16px)", duration: 0.32, ease: "power4.in" }, s + 1.9);
+          cue(s + 1.88, "whoosh_fast/tight", -11);
+        }
+      });
+      zoomOut("#sc3", 19.42);
+
+      // 4. promo
+      palette(19.6, ["#ff3d9a", "#ffd23d", "#18e0d0", "#ff4fb8"]);
+      letters("#p1", 19.85, { st: 0.03 });
+      tl.fromTo("#p2", { scale: 4, opacity: 0, rotate: -14 }, { scale: 1, opacity: 1, rotate: -4, duration: 0.42, ease: "power4.in" }, 20.55);
+      cue(20.92, "pro_impact/short", -7);
+      cue(20.95, "pro_shimmer/m3", -14);
+      tl.to("#sc4", { x: 14, duration: 0.05, yoyo: true, repeat: 5, ease: "none" }, 20.97);
+      tl.to("#p2", { color: "#ffe14d", duration: 0.25, yoyo: true, repeat: 3 }, 21.0);
+      tl.fromTo("#p3", { scale: 0, rotate: 6 }, { scale: 1, rotate: 0, duration: 0.45, ease: "back.out(2.2)" }, 21.45);
+      cue(21.45, "pro_pop_in/deep", -11);
+      letters("#p3t", 21.7, { st: 0.045, snd: "pro_typing_key/blip", db: -15 });
+      zoomOut("#sc4", 23.22, "pro_whoosh_big/long");
+
+      // 5. fin
+      palette(23.4, ["#18e0d0", "#ff4fb8", "#7b3dff", "#3ee07a"]);
+      letters("#e1", 23.65, { st: 0.04 });
+      letters("#e2", 24.0, { st: 0.045, snd: "pro_pop/tink", db: -13, from: { scale: 0, y: 0 } });
+      tl.fromTo("#site", { scale: 0, y: 80 }, { scale: 1, y: 0, duration: 0.6, ease: "back.out(2)" }, 24.7);
+      cue(24.66, "logo_sting/whoosh_glass", -9);
+      tl.to("#site", { scale: 1.06, duration: 0.5, yoyo: true, repeat: 3, ease: "sine.inOut" }, 25.4);
+      tl.fromTo("#info", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: P }, 25.3);
+      cue(25.3, "pro_pop/boop", -15);
+      palette(26.2, ["#ff4fb8", "#2f6bff", "#ffd23d", "#18e0d0"], 1.6);
+
+      window.__cues = CUES;
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
