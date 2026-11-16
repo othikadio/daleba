@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="gsap.min.js"></script>
+    <style>
+      :root {
+        --ground: #05081c;
+        --blue: #2f45ff;
+        --ink: #ffffff;
+        --font-display: "Inter Display", "Inter", sans-serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ground); }
+      #root {
+        position: relative; width: 100%; height: 100%; overflow: hidden;
+        font-family: var(--font-display); color: var(--ink);
+        background: radial-gradient(120% 70% at 50% 110%, #1a2cff 0%, #0b1250 45%, #05081c 80%);
+      }
+      .wave { position: absolute; left: -20%; width: 140%; height: 900px; border-radius: 50%;
+        border-top: 2px solid rgba(120,140,255,.35); filter: blur(1px); }
+      #w1 { top: 1150px; } #w2 { top: 1250px; opacity: .6; } #w3 { top: 1350px; opacity: .35; }
+      .orb { position: absolute; border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #fff 0%, #b9c3ff 25%, #3b4dff 70%, #1a1f7a 100%);
+        box-shadow: 0 0 80px rgba(80,100,255,.8); }
+      #orb1 { width: 150px; height: 150px; left: 140px; top: 360px; }
+      #orb2 { width: 90px; height: 90px; right: 170px; top: 520px; border-radius: 26px; }
+      #card { position: absolute; left: 140px; top: 700px; width: 800px; height: 520px; border-radius: 48px;
+        background: rgba(255,255,255,.07); border: 1.5px solid rgba(255,255,255,.18);
+        backdrop-filter: blur(30px); box-shadow: 0 40px 120px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.25);
+        padding: 80px 70px; }
+      .line { font-size: 104px; font-weight: 700; letter-spacing: -0.045em; line-height: 1.02; display: block; }
+      .word { display: inline-block; }
+      #u { position: absolute; left: 70px; top: 330px; height: 8px; width: 0; background: #fff; border-radius: 4px; }
+      #chips { position: absolute; left: 70px; bottom: 60px; display: flex; gap: 22px; }
+      .chip { font-size: 30px; font-weight: 500; padding: 12px 26px; border-radius: 999px;
+        background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); }
+      .chip::before { content: "●"; margin-right: 10px; font-size: 18px; vertical-align: 4px; }
+      #big { position: absolute; left: 0; right: 0; top: 760px; text-align: center; font-size: 170px; font-weight: 800; line-height: .95;
+        letter-spacing: -0.06em; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="5" data-width="1080" data-height="1920">
+      <div id="w1" class="wave clip" data-start="0" data-duration="5" data-track-index="0"></div>
+      <div id="w2" class="wave clip" data-start="0" data-duration="5" data-track-index="0"></div>
+      <div id="w3" class="wave clip" data-start="0" data-duration="5" data-track-index="0"></div>
+      <div id="orb1" class="orb clip" data-start="0" data-duration="5" data-track-index="1"></div>
+      <div id="orb2" class="orb clip" data-start="0" data-duration="5" data-track-index="1"></div>
+      <div id="card" class="clip" data-start="0" data-duration="3.2" data-track-index="2">
+        <span class="line"><span class="word">Ton</span> <span class="word">montage.</span></span>
+        <span class="line"><span class="word">Zéro</span> <span class="word">caméra.</span></span>
+        <div id="u"></div>
+        <div id="chips"><span class="chip">Texte</span><span class="chip">Motion</span><span class="chip">Son</span></div>
+      </div>
+      <div id="big" class="clip" data-start="3.2" data-duration="1.8" data-track-index="3">Monté<br>par Claude</div>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo(".wave", { y: 200, opacity: 0 }, { y: 0, opacity: (i) => [1, .6, .35][i], duration: 1.2, ease: "power3.out", stagger: .08 }, 0);
+      tl.to(".wave", { y: -60, duration: 3.8, ease: "none" }, 1.2);
+      tl.fromTo("#orb1", { scale: 0, y: 120 }, { scale: 1, y: 0, duration: .9, ease: "power4.out" }, .2);
+      tl.fromTo("#orb2", { scale: 0, rotate: -40 }, { scale: 1, rotate: 12, duration: .9, ease: "power4.out" }, .35);
+      tl.fromTo("#card", { y: 220, scale: .85, opacity: 0, filter: "blur(24px)" }, { y: 0, scale: 1, opacity: 1, filter: "blur(0px)", duration: .8, ease: "power4.out" }, .25);
+      tl.fromTo("#card .word", { x: 90, opacity: 0, filter: "blur(18px)" }, { x: 0, opacity: 1, filter: "blur(0px)", duration: .45, ease: "power4.out", stagger: .12 }, .55);
+      tl.to("#u", { width: 470, duration: .5, ease: "power4.inOut" }, 1.4);
+      tl.fromTo(".chip", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: .4, ease: "power3.out", stagger: .1 }, 1.6);
+      tl.to("#card", { scale: 2.6, opacity: 0, filter: "blur(30px)", duration: .5, ease: "power4.in" }, 2.7);
+      tl.to(["#orb1", "#orb2"], { scale: 3, opacity: 0, duration: .5, ease: "power4.in" }, 2.7);
+      tl.fromTo("#big", { scale: .3, opacity: 0, filter: "blur(30px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: .5, ease: "power4.out" }, 3.2);
+      tl.to("#big", { scale: 1.08, duration: 1.3, ease: "none" }, 3.7);
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
