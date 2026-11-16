@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Kadio Display"; src: url("fonts/InterDisplay-SemiBold.otf") format("opentype"); font-weight: 600; }
+      @font-face { font-family: "Kadio Display"; src: url("fonts/InterDisplay-Bold.otf") format("opentype"); font-weight: 700; }
+      @font-face { font-family: "Kadio Display"; src: url("fonts/InterDisplay-ExtraBold.otf") format("opentype"); font-weight: 800; }
+      @font-face { font-family: "Kadio Display"; src: url("fonts/InterDisplay-Black.otf") format("opentype"); font-weight: 900; }
+      @font-face { font-family: "Kadio Serif"; src: url("fonts/Caladea-Bold.ttf") format("truetype"); font-weight: 700; }
+      @font-face { font-family: "Kadio Emoji"; src: url("fonts/NotoColorEmoji.ttf") format("truetype"); }
+      :root { --ground: #160a3a; --font: "Kadio Display", "Kadio Emoji", sans-serif; --serif: "Kadio Serif", serif; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ground); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; font-family: var(--font); color: #fff; background: var(--ground); }
+      .blob { position: absolute; width: 1500px; height: 1500px; border-radius: 50%;
+        background: radial-gradient(circle, var(--c) 0%, color-mix(in srgb, var(--c) 40%, transparent) 38%, transparent 66%); }
+      #b1 { left: -620px; top: -520px; } #b2 { left: 300px; top: -200px; } #b3 { left: -500px; top: 900px; } #b4 { left: 260px; top: 1100px; }
+      .shape { position: absolute; border-radius: 50%; box-shadow: 0 30px 80px rgba(0,0,0,.25), inset -14px -18px 40px rgba(0,0,0,.18), inset 14px 16px 40px rgba(255,255,255,.55); }
+      .cube { border-radius: 30px; }
+      .scene { position: absolute; inset: 0; }
+      .center { position: absolute; left: 0; right: 0; text-align: center; }
+      .ch { display: inline-block; white-space: pre; } .sp { display: inline-block; width: .26em; }
+      .pill { display: inline-block; padding: 16px 34px; border-radius: 999px; font-size: 32px; font-weight: 800; letter-spacing: .08em; color: #160a3a; background: #fff;
+        box-shadow: 0 14px 40px rgba(0,0,0,.3); }
+      .glass { background: rgba(255,255,255,.16); border: 2px solid rgba(255,255,255,.5); backdrop-filter: blur(30px);
+        box-shadow: 0 40px 120px rgba(20,0,60,.4), inset 0 2px 0 rgba(255,255,255,.6); }
+      #brand { position: absolute; left: 0; right: 0; top: 70px; text-align: center; font-size: 30px; font-weight: 800; letter-spacing: .3em; opacity: .9; }
+      #foot { position: absolute; left: 0; right: 0; top: 1600px; text-align: center; }
+      #foot span { display: inline-block; padding: 14px 30px; border-radius: 999px; font-size: 30px; font-weight: 800; background: rgba(255,255,255,.18);
+        border: 1.5px solid rgba(255,255,255,.4); backdrop-filter: blur(20px); }
+
+      /* hook */
+      .hook { position: absolute; left: 0; right: 0; top: 660px; text-align: center; }
+      .hl { font-size: 128px; font-weight: 900; letter-spacing: -.05em; line-height: 1.12; }
+      /* list */
+      .photo { position: absolute; left: 190px; top: 270px; width: 700px; height: 660px; border-radius: 48px; overflow: hidden; border: 6px solid #fff;
+        box-shadow: 0 40px 110px rgba(20,0,60,.5); background: #2a1a12; }
+      .photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; display: block; }
+      .title { position: absolute; left: 60px; right: 60px; top: 955px; text-align: center; font-family: var(--serif); font-weight: 700; letter-spacing: -.01em; line-height: 1;
+        text-shadow: 0 8px 30px rgba(20,0,60,.45); }
+      .rows { position: absolute; left: 70px; right: 70px; top: 1085px; }
+      .row { height: 76px; margin-bottom: 9px; border-radius: 22px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px;
+        background: rgba(20,8,58,.55); border: 1.5px solid rgba(255,255,255,.28); backdrop-filter: blur(20px); }
+      .rn { font-size: 36px; font-weight: 700; } .rp { font-size: 42px; font-weight: 900; letter-spacing: -.02em; }
+      .note { position: absolute; left: 0; right: 0; top: 1532px; text-align: center; font-size: 28px; font-weight: 600; opacity: .85; }
+      /* big */
+      .ring { position: absolute; border-radius: 50%; border: 4px solid rgba(255,255,255,.35); }
+      .r1 { width: 900px; height: 900px; left: 90px; top: 520px; border-style: solid; border-width: 5px; border-right-color: transparent; border-bottom-color: transparent; }
+      .r2 { width: 1040px; height: 1040px; left: 20px; top: 450px; border-width: 2px; }
+      .btitle { top: 470px; font-family: var(--serif); font-weight: 700; font-size: 120px; line-height: 1; text-shadow: 0 8px 30px rgba(20,0,60,.45); }
+      .bval { top: 690px; font-weight: 900; letter-spacing: -.06em; line-height: 1; text-shadow: 0 12px 40px rgba(20,0,60,.45); white-space: nowrap; }
+      .bsub { top: 1080px; left: 110px; right: 110px; font-size: 46px; font-weight: 700; line-height: 1.25; }
+      .confetti { position: absolute; width: 22px; height: 34px; border-radius: 6px; top: -60px; }
+      /* versus */
+      .vs { position: absolute; top: 560px; width: 440px; height: 640px; border-radius: 48px; padding: 50px 30px; text-align: center; }
+      .vl { left: 60px; } .vr { right: 60px; border-width: 5px; }
+      .vh { font-size: 44px; font-weight: 800; margin-top: 30px; } .vp { font-size: 96px; font-weight: 900; letter-spacing: -.05em; margin-top: 160px; line-height: 1; }
+      .vm { font-size: 46px; font-weight: 800; margin-top: 10px; } .vr .vp { font-size: 92px; color: #fff !important; line-height: 1.05; } .vr { background: rgba(62,224,122,.35); box-shadow: 0 0 90px rgba(62,224,122,.6); }
+      .strike { position: absolute; left: 50px; right: 50px; top: 330px; height: 10px; border-radius: 5px; background: #ff3d6e; transform-origin: 0 50%; transform: rotate(-12deg); }
+      .vsb { position: absolute; left: 470px; top: 810px; width: 140px; height: 140px; border-radius: 50%; background: #fff; color: #160a3a; font-size: 52px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+      .note2 { top: 1260px; font-size: 32px; font-weight: 600; opacity: .9; }
+      /* cta */
+      .cta { position: absolute; left: 0; right: 0; top: 520px; text-align: center; }
+      .cl { font-size: 124px; font-weight: 900; letter-spacing: -.05em; line-height: 1.1; }
+      .site { display: inline-block; padding: 32px 56px; border-radius: 999px; font-size: 72px; font-weight: 900; letter-spacing: -.03em; background: #fff; color: #160a3a;
+        box-shadow: 0 30px 90px rgba(255,61,154,.55); }
+      .phone { font-size: 52px; letter-spacing: 0; background: #3ee07a; padding: 20px 44px; }
+      .addr { font-size: 36px; font-weight: 700; opacity: .95; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="{{TOTAL}}" data-width="1080" data-height="1920">
+      <div id="bg" class="clip" data-start="0" data-duration="{{TOTAL}}" data-track-index="0" style="position:absolute;inset:0">
+        <div id="b1" class="blob"></div><div id="b2" class="blob"></div><div id="b3" class="blob"></div><div id="b4" class="blob"></div>
+      </div>
+      <div id="shapes" class="clip" data-start="0" data-duration="{{TOTAL}}" data-track-index="1" style="position:absolute;inset:0">
+        <div id="h1" class="shape" style="width:120px;height:120px;left:60px;top:300px;background:#ff7ac0"></div>
+        <div id="h2" class="shape cube" style="width:96px;height:96px;left:930px;top:360px;background:#3ee0d0"></div>
+        <div id="h3" class="shape" style="width:80px;height:80px;left:950px;top:1470px;background:#ffd23d"></div>
+        <div id="h4" class="shape cube" style="width:110px;height:110px;left:40px;top:1440px;background:#6f8bff"></div>
+      </div>
+{{SCENES}}
+      <div id="chrome" class="clip" data-start="0" data-duration="{{TOTAL}}" data-track-index="3" style="position:absolute;inset:0">
+        <div id="brand">KADIO COIFFURE</div>
+        <div id="foot"><span>kadiocoiffure.com · 514 919-5970</span></div>
+      </div>
+    </div>
+    <script>
+      const CFG = {{CFG}};
+      const RAINBOW = ["#ff4fb8", "#ffd23d", "#3ee07a", "#18e0d0", "#4f8bff", "#a46bff"];
+      const CUES = []; const cue = (t, id, db = -12) => CUES.push({ t: +t.toFixed(3), id, db });
+      document.querySelectorAll(".split").forEach((el) => {
+        el.innerHTML = [...el.textContent].map(c => c === " " ? '<span class="sp"> </span>' : `<span class="ch">${c}</span>`).join("");
+        if (el.classList.contains("rainbow")) el.querySelectorAll(".ch").forEach((s, i) => (s.style.color = RAINBOW[i % 6]));
+      });
+      const tl = gsap.timeline({ paused: true }); const P = "power4.out", B = "back.out(2.2)", T = CFG.total;
+      const q = (sc, sel) => [...document.getElementById(sc).querySelectorAll(sel)];
+      function letters(els, t, st = 0.035, snd = "pro_typing_key/glass", db = -19) {
+        tl.fromTo(els, { y: 60, opacity: 0, scale: .4, filter: "blur(8px)" }, { y: 0, opacity: 1, scale: 1, filter: "blur(0px)", duration: .4, ease: B, stagger: st, immediateRender: false }, t);
+        tl.set(els, { opacity: 0 }, 0);
+        els.forEach((c, i) => cue(t + i * st, snd, db));
+      }
+      function pop(els, t, snd = "pro_pop_in/round", db = -11) {
+        tl.set(els, { scale: 0 }, 0);
+        tl.fromTo(els, { scale: 0, rotate: -8 }, { scale: 1, rotate: 0, duration: .45, ease: B, immediateRender: false }, t); if (snd) cue(t, snd, db);
+      }
+      function palette(t, cs, d = .8) { ["#b1", "#b2", "#b3", "#b4"].forEach((b, i) => tl.to(b, { "--c": cs[i], duration: d, ease: "power2.inOut" }, t)); }
+
+      // fond + formes
+      ["#b1", "#b2", "#b3", "#b4"].forEach((b, i) => gsap.set(b, { "--c": CFG.palette[i] }));
+      [[380, 260], [-420, 380], [460, -300], [-380, -420]].forEach(([x, y], i) => tl.to(["#b1", "#b2", "#b3", "#b4"][i], { x, y, duration: T, ease: "sine.inOut" }, 0));
+      ["#h1", "#h2", "#h3", "#h4"].forEach((s, i) => {
+        pop(s, .1 + i * .12, i % 2 ? "pro_pop_in/double" : "pro_pop_in/round", -15);
+        tl.to(s, { y: (i % 2 ? -1 : 1) * 140, rotate: (i % 2 ? 1 : -1) * 140, duration: T - 1, ease: "sine.inOut" }, .8);
+      });
+      tl.fromTo("#brand", { opacity: 0, y: -30 }, { opacity: .9, y: 0, duration: .5, ease: P }, .2);
+      tl.fromTo("#foot", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: .5, ease: P }, .4);
+
+      CFG.scenes.forEach((s, i) => {
+        const id = "s" + i, SC = document.getElementById(id), t0 = s.start, end = s.start + s.dur, last = i === CFG.scenes.length - 1;
+        if (s.pal) palette(t0 - .2, s.pal);
+        if (i > 0) { tl.fromTo(SC, { scale: .4, opacity: 0, filter: "blur(26px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: .42, ease: P, immediateRender: false }, t0); }
+        if (!last) { tl.to(SC, { scale: 2.3, opacity: 0, filter: "blur(26px)", duration: .34, ease: "power4.in" }, end - .34); cue(end - .38, i % 2 ? "pro_whoosh_big/tonal" : "pro_whoosh_big/swell", -11); }
+
+        if (s.type === "hook") {
+          pop(q(id, ".kick"), t0 + .1, "pro_pop_in/double", -10);
+          q(id, ".hl").forEach((l, j) => letters([...l.querySelectorAll(".ch")], t0 + .3 + j * .45, j === 1 ? .045 : .03, j === 1 ? "pro_pop/tink" : "pro_typing_key/glass", j === 1 ? -14 : -19));
+          tl.to(q(id, ".hl:nth-child(2) .ch"), { y: -20, duration: .16, stagger: { each: .04, yoyo: true, repeat: 1 } }, t0 + 1.6);
+          cue(t0 + 1.6, "pro_shimmer/m1", -16);
+        }
+        if (s.type === "list") {
+          pop(q(id, ".tag"), t0 + .1, "pro_pop_in/knock", -11);
+          tl.fromTo(q(id, ".photo"), { y: 700, rotate: 8, scale: .8 }, { y: 0, rotate: -2, scale: 1, duration: .55, ease: P, immediateRender: false }, t0 + .05);
+          cue(t0, "swipe/glide", -12); cue(t0 + .4, "pro_pop_in/deep", -12);
+          tl.fromTo(q(id, ".photo img"), { scale: 1.02 }, { scale: 1.12, duration: s.dur, ease: "none", immediateRender: false }, t0);
+          tl.to(q(id, ".photo"), { rotate: 1.5, duration: s.dur - .6, ease: "sine.inOut" }, t0 + .6);
+          letters(q(id, ".title .ch"), t0 + .4, .028, "pro_typing_key/glass", -19);
+          q(id, ".row").forEach((r, j) => {
+            const t = t0 + 1.0 + j * .38;
+            tl.set(r, { opacity: 0 }, 0);
+            tl.fromTo(r, { x: j % 2 ? -900 : 900, opacity: 0 }, { x: 0, opacity: 1, duration: .38, ease: P, immediateRender: false }, t);
+            cue(t, "pro_pop/boop", -14);
+            const p = r.querySelector(".rp"); tl.fromTo(p, { scale: 1.5 }, { scale: 1, duration: .3, ease: B, immediateRender: false }, t + .2); cue(t + .2, "pro_tap/glass", -15);
+          });
+          tl.set(q(id, ".note"), { opacity: 0 }, 0);
+          tl.to(q(id, ".note"), { opacity: .85, duration: .4 }, t0 + 1.2 + s.items.length * .38);
+        }
+        if (s.type === "big") {
+          pop(q(id, ".tag"), t0 + .1, "pro_pop_in/knock", -11);
+          tl.fromTo(q(id, ".r1"), { rotate: -90, scale: .6 }, { rotate: 270, scale: 1, duration: s.dur, ease: "power2.out", immediateRender: false }, t0);
+          tl.fromTo(q(id, ".r2"), { scale: .5, opacity: 0 }, { scale: 1, opacity: 1, duration: .8, ease: P, immediateRender: false }, t0 + .1);
+          letters(q(id, ".btitle .ch"), t0 + .35, .035, "pro_typing_key/glass", -18);
+          tl.set(q(id, ".bval"), { opacity: 0 }, 0);
+          tl.fromTo(q(id, ".bval"), { scale: 3.5, opacity: 0, rotate: -10 }, { scale: 1, opacity: 1, rotate: -3, duration: .4, ease: "power4.in", immediateRender: false }, t0 + 1.0);
+          cue(t0 + 1.38, "pro_impact/short", -8); cue(t0 + 1.4, "pro_shimmer/m3", -15);
+          tl.to(SC, { x: 12, duration: .05, yoyo: true, repeat: 5 }, t0 + 1.4);
+          tl.set(q(id, ".bsub"), { opacity: 0 }, 0);
+          tl.fromTo(q(id, ".bsub"), { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: .4, ease: P, immediateRender: false }, t0 + 1.8); cue(t0 + 1.8, "pro_pop/bloop", -14);
+          const cf = document.getElementById(id).querySelector(".conf");
+          if (cf) for (let k = 0; k < 36; k++) {
+            const d = document.createElement("div"); d.className = "confetti"; d.style.background = RAINBOW[k % 6]; d.style.left = (60 + (k * 197) % 960) + "px"; cf.appendChild(d);
+            tl.fromTo(d, { y: 0, rotate: 0 }, { y: 2100, rotate: 360 + k * 47, duration: 2.4 + (k % 5) * .3, ease: "power1.in", immediateRender: false }, t0 + 1.4 + (k % 8) * .04);
+          }
+        }
+        if (s.type === "versus") {
+          pop(q(id, ".tag"), t0 + .1, "pro_pop_in/knock", -11);
+          tl.fromTo(q(id, ".vl"), { x: -700, rotate: -8 }, { x: 0, rotate: -3, duration: .5, ease: P, immediateRender: false }, t0 + .3); cue(t0 + .25, "swipe/glide", -12);
+          tl.fromTo(q(id, ".strike"), { scaleX: 0 }, { scaleX: 1, duration: .3, ease: P, immediateRender: false }, t0 + 1.3); cue(t0 + 1.3, "pro_zip/down", -10);
+          tl.to(q(id, ".vl"), { opacity: .55, scale: .92, duration: .4 }, t0 + 1.5);
+          pop(q(id, ".vsb"), t0 + 1.7, "pro_pop_in/deep", -10);
+          tl.fromTo(q(id, ".vr"), { x: 700, rotate: 8 }, { x: 0, rotate: 3, duration: .5, ease: P, immediateRender: false }, t0 + 2.0); cue(t0 + 1.95, "swipe/glide", -12);
+          tl.to(q(id, ".vr"), { scale: 1.06, duration: .35, yoyo: true, repeat: 3, ease: "sine.inOut" }, t0 + 2.6); cue(t0 + 2.6, "pro_notify/ding_2045", -11);
+          tl.set(q(id, ".note2"), { opacity: 0 }, 0); tl.to(q(id, ".note2"), { opacity: .9, duration: .4 }, t0 + 2.8);
+        }
+        if (s.type === "cta") {
+          q(id, ".cl").forEach((l, j) => letters([...l.querySelectorAll(".ch")], t0 + .2 + j * .45, j ? .045 : .035, j ? "pro_pop/tink" : "pro_typing_key/glass", j ? -14 : -19));
+          tl.set(q(id, ".site"), { scale: 0 }, 0);
+          tl.fromTo(q(id, ".site"), { scale: 0, y: 80 }, { scale: 1, y: 0, duration: .6, ease: "back.out(2)", immediateRender: false }, t0 + 1.2); cue(t0 + 1.16, "logo_sting/whoosh_glass", -9);
+          tl.to(q(id, ".site"), { scale: 1.06, duration: .45, yoyo: true, repeat: 3, ease: "sine.inOut" }, t0 + 1.9);
+          pop(q(id, ".phone"), t0 + 1.7, "pro_pop_in/double", -11);
+          tl.set(q(id, ".addr"), { opacity: 0 }, 0); tl.to(q(id, ".addr"), { opacity: .95, duration: .4 }, t0 + 2.0);
+          palette(t0 + 1.2, ["#ff4fb8", "#ffd23d", "#3ee07a", "#18e0d0"], 1.4);
+        }
+      });
+      window.__cues = CUES;
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

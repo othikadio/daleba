@@ -1,0 +1,734 @@
+{
+ "v1-abonnements": {
+  "palette": [
+   "#ff3d9a",
+   "#2f6bff",
+   "#18e0d0",
+   "#7b3dff"
+  ],
+  "scenes": [
+   {
+    "type": "hook",
+    "kicker": "CLUB KADIO",
+    "lines": [
+     "Ta coiffure,",
+     "prix fixe,",
+     "chaque mois."
+    ],
+    "vo": "Ta coiffure, avec un prix fixe, chaque mois. Voici les abonnements du Club Kadio."
+   },
+   {
+    "type": "list",
+    "tag": "ABONNEMENTS",
+    "title": "Barbier",
+    "photo": "abo-barbier",
+    "color": "#ffd23d",
+    "pal": [
+     "#ffb03d",
+     "#ff3d9a",
+     "#7b3dff",
+     "#ffd23d"
+    ],
+    "items": [
+     [
+      "Coupe + barbe",
+      "19,99 $/mois"
+     ],
+     [
+      "Coupe simple",
+      "18,99 $/mois"
+     ],
+     [
+      "Entretien de barbe",
+      "23,98 $/mois"
+     ]
+    ],
+    "note": "Prix de départ par mois · Taxes incluses",
+    "vo": "Au barbier, coupe et barbe : dix-neuf dollars quatre-vingt-dix-neuf par mois."
+   },
+   {
+    "type": "list",
+    "tag": "ABONNEMENTS",
+    "title": "Tresses & coiffage",
+    "photo": "abo-tresses",
+    "color": "#ff9ac8",
+    "pal": [
+     "#ff3d9a",
+     "#ff9a3d",
+     "#a46bff",
+     "#ff4fb8"
+    ],
+    "items": [
+     [
+      "Nattes & Barrel twists",
+      "74,99 $/mois"
+     ],
+     [
+      "Knotless & tresses Signature",
+      "75,00 $/mois"
+     ],
+     [
+      "Twists & tresses courtes",
+      "55,00 $/mois"
+     ],
+     [
+      "Mise en plis",
+      "49,99 $/mois"
+     ],
+     [
+      "Pixie Cut au fer",
+      "39,99 $/mois"
+     ]
+    ],
+    "note": "Prix de départ par mois · Taxes incluses",
+    "vo": "Tresses, twists ou knotless : dès trente-neuf dollars quatre-vingt-dix-neuf par mois."
+   },
+   {
+    "type": "list",
+    "tag": "ABONNEMENTS",
+    "title": "Locs & Sisterlocks",
+    "photo": "abo-locs",
+    "color": "#7dffcf",
+    "pal": [
+     "#12d6c5",
+     "#3ee07a",
+     "#2f6bff",
+     "#18e0d0"
+    ],
+    "items": [
+     [
+      "Entretien des locs",
+      "65,00 $/mois"
+     ],
+     [
+      "Microlocs / Sisterlocks",
+      "74,99 $/mois"
+     ]
+    ],
+    "note": "Prix de départ par mois · Taxes incluses",
+    "vo": "L'entretien de tes locs : soixante-cinq dollars par mois."
+   },
+   {
+    "type": "list",
+    "tag": "ABONNEMENTS",
+    "title": "Perruques & lace",
+    "photo": "perruques",
+    "color": "#ffd23d",
+    "pal": [
+     "#7b3dff",
+     "#ffd23d",
+     "#ff4fb8",
+     "#2f6bff"
+    ],
+    "items": [
+     [
+      "Pose de perruque",
+      "85,99 $/mois"
+     ],
+     [
+      "Pose + nattes",
+      "119,99 $/mois"
+     ]
+    ],
+    "note": "Prix de départ par mois · Taxes incluses",
+    "vo": "Et la pose de perruque, dès quatre-vingt-cinq dollars quatre-vingt-dix-neuf."
+   },
+   {
+    "type": "cta",
+    "lines": [
+     "Abonne-toi",
+     "au Club Kadio"
+    ],
+    "vo": "Taxes incluses. Abonne-toi sur Kadio Coiffure point com."
+   }
+  ]
+ },
+ "v2-famille": {
+  "palette": [
+   "#ffd23d",
+   "#ff4fb8",
+   "#3ee07a",
+   "#2f6bff"
+  ],
+  "scenes": [
+   {
+    "type": "hook",
+    "kicker": "CLUB KADIO",
+    "lines": [
+     "Toute",
+     "la famille",
+     "chez Kadio."
+    ],
+    "vo": "Toute la famille chez Kadio Coiffure ? On a pensé à vous."
+   },
+   {
+    "type": "list",
+    "tag": "ABONNEMENTS",
+    "title": "Enfants",
+    "photo": "enfants",
+    "color": "#ffd23d",
+    "pal": [
+     "#ffd23d",
+     "#3ee07a",
+     "#ff4fb8",
+     "#18e0d0"
+    ],
+    "items": [
+     [
+      "Barbier enfant",
+      "11,99 $/mois"
+     ],
+     [
+      "Locs enfant",
+      "36,99 $/mois"
+     ],
+     [
+      "Tresses rapides",
+      "49,99 $/mois"
+     ],
+     [
+      "Twists enfant",
+      "39,99 $/mois"
+     ],
+     [
+      "Knotless / tresses",
+      "44,99 $/mois"
+     ]
+    ],
+    "note": "Prix de départ par mois · Taxes incluses",
+    "vo": "Pour les enfants, le barbier commence à onze dollars quatre-vingt-dix-neuf par mois."
+   },
+   {
+    "type": "list",
+    "tag": "ABONNEMENTS",
+    "title": "Duos & combos",
+    "photo": "duos",
+    "color": "#ffb03d",
+    "pal": [
+     "#ff9a3d",
+     "#7b3dff",
+     "#ffd23d",
+     "#ff3d9a"
+    ],
+    "items": [
+     [
+      "Tresses rapides + barbier",
+      "99,99 $/mois"
+     ],
+     [
+      "Locs + barbier",
+      "78,99 $/mois"
+     ],
+     [
+      "Enfant : locs + barbier",
+      "49,99 $/mois"
+     ],
+     [
+      "Enfant : tresses + barbier",
+      "42,99 $/mois"
+     ]
+    ],
+    "note": "Prix de départ par mois · Taxes incluses",
+    "vo": "Et nos duos : locs plus barbier, soixante-dix-huit dollars quatre-vingt-dix-neuf par mois."
+   },
+   {
+    "type": "big",
+    "tag": "PRIVILÈGE FAMILLE",
+    "title": "Dès 2 forfaits",
+    "value": "–10 %",
+    "sub": "dans la même famille",
+    "color": "#3ee07a",
+    "pal": [
+     "#3ee07a",
+     "#18e0d0",
+     "#ff4fb8",
+     "#ffd23d"
+    ],
+    "vo": "Dès deux forfaits dans la même famille : moins dix pour cent."
+   },
+   {
+    "type": "cta",
+    "lines": [
+     "Inscris",
+     "ta famille"
+    ],
+    "vo": "Inscris ta famille sur Kadio Coiffure point com."
+   }
+  ]
+ },
+ "v3-privileges": {
+  "palette": [
+   "#18e0d0",
+   "#7b3dff",
+   "#ff4fb8",
+   "#ffd23d"
+  ],
+  "scenes": [
+   {
+    "type": "hook",
+    "kicker": "CLUB KADIO",
+    "lines": [
+     "Être membre,",
+     "ça rapporte."
+    ],
+    "vo": "Être membre du Club Kadio, ça rapporte. Regarde."
+   },
+   {
+    "type": "list",
+    "tag": "RÉSERVÉ AUX MEMBRES",
+    "title": "Vos privilèges",
+    "photo": "privileges",
+    "color": "#7dffcf",
+    "pal": [
+     "#18e0d0",
+     "#3ee07a",
+     "#7b3dff",
+     "#2f6bff"
+    ],
+    "items": [
+     [
+      "Lavage offert",
+      "1 / semaine"
+     ],
+     [
+      "Dépôt à la réservation",
+      "0 $"
+     ],
+     [
+      "Rabais sur les produits",
+      "–15 %"
+     ],
+     [
+      "Dès 2 forfaits dans la famille",
+      "–10 %"
+     ]
+    ],
+    "note": "Services inclus et fréquence selon votre forfait.",
+    "vo": "Un lavage offert chaque semaine, zéro dollar de dépôt, et moins quinze pour cent sur les produits."
+   },
+   {
+    "type": "big",
+    "tag": "VOS AVANTAGES · 01",
+    "title": "Points fidélité",
+    "value": "450 pts = 20 $",
+    "sub": "1 $ dépensé = 1 point",
+    "color": "#ffb8d6",
+    "pal": [
+     "#ff4fb8",
+     "#ff9ac8",
+     "#7b3dff",
+     "#ff3d9a"
+    ],
+    "vo": "Chaque dollar te donne un point. Quatre cent cinquante points, c'est vingt dollars."
+   },
+   {
+    "type": "big",
+    "tag": "VOS AVANTAGES · 02",
+    "title": "Parrainage",
+    "value": "10 $",
+    "sub": "par tranche de 100 $ dépensée par la personne parrainée",
+    "color": "#ffd23d",
+    "pal": [
+     "#ffd23d",
+     "#ff9a3d",
+     "#3ee07a",
+     "#ff4fb8"
+    ],
+    "vo": "Tu parraines ? Dix dollars pour chaque tranche de cent dollars dépensés."
+   },
+   {
+    "type": "big",
+    "tag": "VOS AVANTAGES · 03",
+    "title": "Tirage mensuel",
+    "value": "100 $",
+    "sub": "en crédit salon · 1 visite = 1 billet",
+    "color": "#ffd23d",
+    "pal": [
+     "#ffb03d",
+     "#ff3d9a",
+     "#ffd23d",
+     "#7b3dff"
+    ],
+    "confetti": true,
+    "vo": "Et chaque mois, cent dollars en crédit salon à gagner. Une visite, un billet."
+   },
+   {
+    "type": "cta",
+    "lines": [
+     "Deviens",
+     "membre"
+    ],
+    "vo": "Deviens membre sur Kadio Coiffure point com."
+   }
+  ]
+ },
+ "v4-tresses": {
+  "palette": [
+   "#ff4fb8",
+   "#ffd23d",
+   "#18e0d0",
+   "#a46bff"
+  ],
+  "scenes": [
+   {
+    "type": "hook",
+    "kicker": "MENU · À LA VISITE",
+    "lines": [
+     "Nattes, twists,",
+     "knotless :",
+     "nos prix."
+    ],
+    "vo": "Nattes, twists, knotless. Voici nos prix à la visite."
+   },
+   {
+    "type": "list",
+    "tag": "À LA VISITE",
+    "title": "Nattes · Design simple",
+    "photo": "nattes-simple",
+    "color": "#ffd23d",
+    "pal": [
+     "#ffb03d",
+     "#ff4fb8",
+     "#ffd23d",
+     "#7b3dff"
+    ],
+    "items": [
+     [
+      "Demi-tête · 2 à 5",
+      "30 $"
+     ],
+     [
+      "Demi-tête · 5 et plus",
+      "50 $"
+     ],
+     [
+      "Tête complète · 2 à 5",
+      "40–60 $"
+     ],
+     [
+      "Tête complète · 5 et plus",
+      "70–80 $"
+     ]
+    ],
+    "note": "Nattes ou barrels · Mèches incluses · Taxes en sus",
+    "vo": "Nattes design simple, mèches incluses, dès trente dollars."
+   },
+   {
+    "type": "list",
+    "tag": "À LA VISITE",
+    "title": "Nattes · Super design",
+    "photo": "nattes-super",
+    "color": "#ffb03d",
+    "pal": [
+     "#ff9a3d",
+     "#ff3d9a",
+     "#ffd23d",
+     "#2f6bff"
+    ],
+    "items": [
+     [
+      "Demi-tête · 2 à 5",
+      "40 $"
+     ],
+     [
+      "Demi-tête · 5 et plus",
+      "60 $"
+     ],
+     [
+      "Tête complète · 2 à 5",
+      "70 $"
+     ],
+     [
+      "Tête complète · 5 et plus",
+      "90 $"
+     ]
+    ],
+    "note": "Nattes ou barrels · Mèches incluses · Taxes en sus",
+    "vo": "Le super design, dès quarante dollars."
+   },
+   {
+    "type": "list",
+    "tag": "À LA VISITE",
+    "title": "Twists & Knotless",
+    "photo": "twists",
+    "color": "#ffd23d",
+    "pal": [
+     "#a46bff",
+     "#ffd23d",
+     "#ff4fb8",
+     "#18e0d0"
+    ],
+    "items": [
+     [
+      "Demi-tête",
+      "55–290 $"
+     ],
+     [
+      "Tête complète",
+      "90–410 $"
+     ]
+    ],
+    "note": "Mèches incluses · Taxes en sus",
+    "vo": "Twists et knotless, mèches incluses, dès cinquante-cinq dollars."
+   },
+   {
+    "type": "list",
+    "tag": "À LA VISITE",
+    "title": "Crochet braids",
+    "photo": "crochet",
+    "color": "#7dffcf",
+    "pal": [
+     "#18e0d0",
+     "#3ee07a",
+     "#ff4fb8",
+     "#2f6bff"
+    ],
+    "items": [
+     [
+      "Pose normale",
+      "130 $"
+     ],
+     [
+      "Pose volume",
+      "150 $"
+     ]
+    ],
+    "note": "Prix indicatifs · Taxes en sus",
+    "vo": "Les crochet braids, à partir de cent trente dollars."
+   },
+   {
+    "type": "list",
+    "tag": "À LA VISITE",
+    "title": "Étudiants · 12 à 17 ans",
+    "photo": "etudiants",
+    "color": "#ffb8d6",
+    "pal": [
+     "#ff4fb8",
+     "#7b3dff",
+     "#18e0d0",
+     "#ffd23d"
+    ],
+    "items": [
+     [
+      "Coupe",
+      "20 $"
+     ],
+     [
+      "Contours",
+      "10 $"
+     ],
+     [
+      "Nattes / barrels + contours",
+      "60 $"
+     ],
+     [
+      "Twists / tresses demi-tête",
+      "80 $"
+     ],
+     [
+      "Twists / tresses tête complète",
+      "100 $"
+     ]
+    ],
+    "note": "Taxes en sus · Supplément taille petit : 25 $",
+    "vo": "Et pour les douze à dix-sept ans, des prix étudiants."
+   },
+   {
+    "type": "cta",
+    "lines": [
+     "Réserve",
+     "ta coiffure"
+    ],
+    "vo": "Réserve au cinq un quatre, neuf un neuf, cinquante-neuf soixante-dix."
+   }
+  ]
+ },
+ "v5-locs-barbier": {
+  "palette": [
+   "#3ee07a",
+   "#2f6bff",
+   "#ffd23d",
+   "#ff3d9a"
+  ],
+  "scenes": [
+   {
+    "type": "hook",
+    "kicker": "MENU · À LA VISITE",
+    "lines": [
+     "Locs, barbier,",
+     "tissages :",
+     "le menu."
+    ],
+    "vo": "Locs, barbier, tissages. Voici le menu de Kadio Coiffure."
+   },
+   {
+    "type": "list",
+    "tag": "À LA VISITE",
+    "title": "Entretien des locs",
+    "photo": "entretien-locs",
+    "color": "#ffd23d",
+    "pal": [
+     "#ffd23d",
+     "#3ee07a",
+     "#ff9a3d",
+     "#2f6bff"
+    ],
+    "items": [
+     [
+      "Retwist gel · tête complète",
+      "150 $"
+     ],
+     [
+      "Retwist-interlock gel · demi-tête",
+      "150 $"
+     ],
+     [
+      "Interlock crochet · tête complète",
+      "150 $"
+     ],
+     [
+      "Interlock crochet · demi-tête",
+      "125 $"
+     ]
+    ],
+    "note": "Prix indicatifs · Taxes en sus",
+    "vo": "Retwist au gel, tête complète : cent cinquante dollars."
+   },
+   {
+    "type": "list",
+    "tag": "À LA VISITE",
+    "title": "Locs · Soins & style",
+    "photo": "soins-locs",
+    "color": "#ffd23d",
+    "pal": [
+     "#ff9a3d",
+     "#ffd23d",
+     "#18e0d0",
+     "#a46bff"
+    ],
+    "items": [
+     [
+      "Tresser les locs",
+      "45 $"
+     ],
+     [
+      "Réparation",
+      "120 $"
+     ],
+     [
+      "Lavage",
+      "30 $"
+     ],
+     [
+      "Détox",
+      "75 $"
+     ],
+     [
+      "Coiffure sur locs longs",
+      "Au salon"
+     ]
+    ],
+    "note": "Prix indicatifs · Taxes en sus",
+    "vo": "Lavage de locs, trente dollars. Détox, soixante-quinze."
+   },
+   {
+    "type": "list",
+    "tag": "À LA VISITE",
+    "title": "Tissages",
+    "photo": "tissages",
+    "color": "#ffb8d6",
+    "pal": [
+     "#ff4fb8",
+     "#ff9ac8",
+     "#7b3dff",
+     "#ffd23d"
+    ],
+    "items": [
+     [
+      "Ouvert · pose normale",
+      "120 $"
+     ],
+     [
+      "Ouvert · extra volume",
+      "150 $"
+     ],
+     [
+      "Fermé · pose normale",
+      "150 $"
+     ],
+     [
+      "Fermé · extra volume",
+      "180 $"
+     ]
+    ],
+    "note": "Prix indicatifs · Taxes en sus",
+    "vo": "Les tissages, dès cent vingt dollars."
+   },
+   {
+    "type": "list",
+    "tag": "À LA VISITE",
+    "title": "Barbier",
+    "photo": "menu-barbier",
+    "color": "#ffd23d",
+    "pal": [
+     "#2f6bff",
+     "#ffd23d",
+     "#18e0d0",
+     "#ff3d9a"
+    ],
+    "items": [
+     [
+      "Coupe simple",
+      "50 $"
+     ],
+     [
+      "Coupe + barbe",
+      "60 $"
+     ],
+     [
+      "Taille de barbe",
+      "30 $"
+     ],
+     [
+      "Contours",
+      "30 $"
+     ],
+     [
+      "Coupe enfant (12 ans et moins)",
+      "40 $"
+     ]
+    ],
+    "note": "Taxes incluses · Disponibilité à vérifier au salon",
+    "vo": "Au barbier, coupe et barbe : soixante dollars à la visite."
+   },
+   {
+    "type": "versus",
+    "tag": "COUPE + BARBE",
+    "left": [
+     "À la visite",
+     "60 $"
+    ],
+    "right": [
+     "Club Kadio",
+     "19,99 $/mois"
+    ],
+    "color": "#3ee07a",
+    "pal": [
+     "#3ee07a",
+     "#ff3d9a",
+     "#2f6bff",
+     "#ffd23d"
+    ],
+    "vo": "Ou dix-neuf dollars quatre-vingt-dix-neuf par mois, avec le Club Kadio."
+   },
+   {
+    "type": "cta",
+    "lines": [
+     "Réserve",
+     "maintenant"
+    ],
+    "vo": "Réserve sur Kadio Coiffure point com."
+   }
+  ]
+ }
+}
