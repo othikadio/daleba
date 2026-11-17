@@ -12,3 +12,8 @@
 - Numéros : séparer les chiffres par des virgules et des pauses « … ».
 - Traitement (tonalité) : `highpass 70 Hz, +2 dB @180 Hz (chaleur), +3,5 dB @3,2 kHz (présence), +2 dB @9,5 kHz (air), compresseur 3:1, atempo 1.04, limiteur`.
 - Toujours retranscrire chaque phrase avec whisper-cli avant le rendu.
+
+## Voix off pro (sans clonage)
+- `voix_pro.py` : voix intégrée de Chatterbox (pas de référence, voix de personne réelle), `exaggeration 0.75`, `cfg 0.4`.
+- Faire 2 prises par phrase (seeds 11 et 5) : sans référence, le modèle ajoute parfois du charabia en fin de phrase → couper au dernier mot avec les timestamps whisper.
+- Traitement : highpass 60, +1,5 dB @160, +2,5 dB @3 kHz, +1,5 dB @10 kHz, compresseur 2,5:1, limiteur.
