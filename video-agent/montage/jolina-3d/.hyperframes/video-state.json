@@ -864,5 +864,18 @@
       ]
     },
     "unversioned": []
-  }
+  },
+  "renders": {
+    "latest": {
+      "id": "583150aa-5d1c-4694-b1e1-0677f1f1796a",
+      "completedAt": 1794879464264,
+      "output": "/tmp/claude-0/-home-user-daleba/5cb6c19f-73be-5ced-b2f4-13ab7e9423d2/scratchpad/jolina3d.mp4",
+      "status": "completed",
+      "revision": "a02afa73-09d8-43ad-97a1-00379f21e0d3"
+    },
+    "retainedRevisions": [
+      "a02afa73-09d8-43ad-97a1-00379f21e0d3"
+    ]
+  },
+  "pendingArtifactCleanup": []
 }
