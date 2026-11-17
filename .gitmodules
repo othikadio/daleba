@@ -2,3 +2,7 @@
 	path = outils/everything
 	url = https://github.com/HeyPuter/everything.git
 	shallow = true
+[submodule "outils/everything-claude-code"]
+	path = outils/everything-claude-code
+	url = https://github.com/affaan-m/everything-claude-code.git
+	shallow = true
