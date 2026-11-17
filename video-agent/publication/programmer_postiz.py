@@ -7,7 +7,7 @@ MODE = sys.argv[6] if len(sys.argv) > 6 else "schedule"
 IDS = {"facebook": "cmwdczeem001po3074vfb8fni", "instagram": "cmwddj73z00bqo108bjg4c79m", "tiktok": "cmwdcvm1i01e0pr07plg94q0r"}
 TITLES = {"kadio-menu-v1-abonnements.mp4": "Club Kadio : tes abonnements coiffure", "kadio-menu-v5-locs-barbier.mp4": "Locs, barbier, tissages : le menu",
           "kadio-menu-v4-tresses.mp4": "Nattes, twists, knotless : nos prix", "kadio-menu-v3-privileges.mp4": "Être membre Club Kadio, ça rapporte",
-          "kadio-menu-v2-famille.mp4": "Toute la famille chez Kadio Coiffure", "kadio-reel-routine.mp4": "Ta routine coiffure à prix fixe"}
+          "kadio-menu-v2-famille.mp4": "Toute la famille chez Kadio Coiffure", "kadio-reel-routine.mp4": "Ta routine coiffure à prix fixe", "kadio-bento-fetes-voixpro.mp4": "Ta coiffure des fêtes chez Kadio"}
 for i in which:
     p = cal["posts"][i]; u = up[p["video"]]
     date = datetime.fromisoformat(p["date"]).replace(tzinfo=ZoneInfo(cal["fuseau"])).astimezone(ZoneInfo("UTC")).strftime("%Y-%m-%dT%H:%M:%S.000Z")
