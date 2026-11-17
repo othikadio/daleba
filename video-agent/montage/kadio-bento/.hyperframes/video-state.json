@@ -263,5 +263,18 @@
         "attribution": "unversioned"
       }
     ]
-  }
+  },
+  "renders": {
+    "latest": {
+      "id": "038843d8-5f67-4390-a3d6-342b5051bde4",
+      "completedAt": 1794882860173,
+      "output": "/tmp/claude-0/-home-user-daleba/5cb6c19f-73be-5ced-b2f4-13ab7e9423d2/scratchpad/kbento.mp4",
+      "status": "completed",
+      "revision": "edabe685-f407-4ffc-898b-84b8c94c92d1"
+    },
+    "retainedRevisions": [
+      "edabe685-f407-4ffc-898b-84b8c94c92d1"
+    ]
+  },
+  "pendingArtifactCleanup": []
 }
