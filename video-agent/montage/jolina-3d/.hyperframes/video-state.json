@@ -1,7 +1,7 @@
 {
   "version": 1,
   "historyId": "c2377701-71ba-4d95-a14e-1e0897950962",
-  "currentRevision": "1ac9814e-95a1-403e-974e-046cc3f425c1",
+  "currentRevision": "a02afa73-09d8-43ad-97a1-00379f21e0d3",
   "pendingChanges": false,
   "files": {
     "assets/frames/j1/001.jpg": {
@@ -599,6 +599,14 @@
     "gsap.min.js": {
       "hash": "92bb9a96476f983d212a2bc4f54c889039c1696dd4461d40a736860938570fbb",
       "content": "/root/.cache/hyperframes/history/c2377701-71ba-4d95-a14e-1e0897950962/blobs/92/92bb9a96476f983d212a2bc4f54c889039c1696dd4461d40a736860938570fbb"
+    },
+    "cues.json": {
+      "hash": "b15407ef8ee233a6d56fbd271e54627dad572453130da22faf481e9dd36916b7",
+      "content": "/root/.cache/hyperframes/history/c2377701-71ba-4d95-a14e-1e0897950962/blobs/b1/b15407ef8ee233a6d56fbd271e54627dad572453130da22faf481e9dd36916b7"
+    },
+    "vo.json": {
+      "hash": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "content": "/root/.cache/hyperframes/history/c2377701-71ba-4d95-a14e-1e0897950962/blobs/37/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
     }
   },
   "revisions": {
@@ -618,6 +626,25 @@
         "index.html": {
           "before": "/root/.cache/hyperframes/history/c2377701-71ba-4d95-a14e-1e0897950962/blobs/c7/c797fd3984e912cbb52d0f435016c48f0d38f27099c12de4b886623f5bfba7c0",
           "after": "/root/.cache/hyperframes/history/c2377701-71ba-4d95-a14e-1e0897950962/blobs/64/645ccc05d1c796ac584fbe46f67d991fb49bfa5a24a0f4eeb7336c15018f7096"
+        }
+      }
+    },
+    "a02afa73-09d8-43ad-97a1-00379f21e0d3": {
+      "actor": {
+        "kind": "outside",
+        "name": "Outside"
+      },
+      "label": "Changed outside the app",
+      "startedAt": 1794879272823,
+      "endedAt": 1794879272827,
+      "files": {
+        "cues.json": {
+          "before": null,
+          "after": "/root/.cache/hyperframes/history/c2377701-71ba-4d95-a14e-1e0897950962/blobs/b1/b15407ef8ee233a6d56fbd271e54627dad572453130da22faf481e9dd36916b7"
+        },
+        "vo.json": {
+          "before": null,
+          "after": "/root/.cache/hyperframes/history/c2377701-71ba-4d95-a14e-1e0897950962/blobs/37/37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
         }
       }
     }
