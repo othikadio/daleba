@@ -28,11 +28,11 @@ body = [
           '<div class="stk lime" style="left:80px;top:1480px;--r:-4deg">📍 LONGUEUIL</div><div class="stk vio" style="left:420px;top:1500px;--r:3deg">chaque tête est une œuvre</div>'),
     sc(2, '<div class="idx">01</div><div class="cat">NATTES</div>'
           + tile("card c1", "k1", "left:60px;top:520px;width:470px;height:820px;--r:-3deg") + tile("card c2", "k2", "left:550px;top:600px;width:470px;height:620px;--r:4deg")
-          + '<div class="price" style="left:600px;top:1260px"><small>DÈS</small>30 $</div>'),
+          + '<div class="price" style="left:600px;top:1260px"><small>DÈS</small>40 $</div>'),
     sc(3, '<div class="idx">02</div><div class="cat">DESIGN</div>'
           + tile("card c1 flip", "k5", "left:60px;top:520px;width:470px;height:760px;--r:-2deg") + tile("card c2 flip", "k7", "left:550px;top:560px;width:470px;height:470px;--r:3deg")
           + '<div class="tags" style="top:1080px;left:560px"><span>ZIGZAG</span><span>CROISÉ</span></div>'
-          + '<div class="price" style="left:600px;top:1260px"><small>DÈS</small>40 $</div>'),
+          + '<div class="price" style="left:600px;top:1260px"><small>DÈS</small>60 $</div>'),
     sc(4, '<div class="idx">03</div><div class="cat">TWISTS · LOCS</div>'
           + tile("card c1 scan", "k3", "left:60px;top:520px;width:470px;height:720px;--r:-3deg", '<i class="bar"></i>') + tile("card c2 scan", "k6", "left:550px;top:620px;width:470px;height:470px;--r:3deg", '<i class="bar"></i>')
           + '<div class="stk lime" style="left:80px;top:1300px;--r:-3deg">TWISTS DÈS 55 $</div><div class="stk vio" style="left:560px;top:1150px;--r:4deg">RETWIST 150 $</div>'),

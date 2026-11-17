@@ -1,0 +1,4 @@
+[submodule "outils/everything"]
+	path = outils/everything
+	url = https://github.com/HeyPuter/everything.git
+	shallow = true
