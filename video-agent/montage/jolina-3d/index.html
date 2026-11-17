@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <style>
+      @font-face { font-family: "N Sans"; src: url("fonts/InterDisplay-Bold.otf") format("opentype"); font-weight: 700; }
+      @font-face { font-family: "N Sans"; src: url("fonts/InterDisplay-Black.otf") format("opentype"); font-weight: 900; }
+      @font-face { font-family: "N Serif"; src: url("fonts/Caladea-Bold.ttf") format("truetype"); font-weight: 700; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #0b0410; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: #0b0410; font-family: "N Sans", sans-serif; color: #fff; }
+      #gl { position: absolute; inset: 0; width: 1080px; height: 1920px; }
+      .ov { position: absolute; left: 0; right: 0; text-align: center; opacity: 0; }
+      #topcap { top: 150px; }
+      #topcap span { display: inline-block; padding: 14px 30px; border-radius: 18px; background: rgba(0,0,0,.45); font-size: 34px; font-weight: 700; }
+      #cap2 { top: 1450px; font-size: 54px; font-weight: 900; text-shadow: 0 6px 30px rgba(255,46,151,.7); }
+      #endpanel { position: absolute; left: 0; right: 0; top: 1180px; bottom: 0; background: linear-gradient(180deg, rgba(244,230,220,0), rgba(244,230,220,.92) 22%); opacity: 0; }
+      #endname { top: 1280px; font-family: "N Serif"; font-size: 150px; color: #2a0b1e; line-height: 1; }
+      #endsub { top: 1450px; font-size: 40px; font-weight: 700; letter-spacing: .3em; color: #c2185b; }
+      #endinfo { top: 1530px; font-size: 40px; font-weight: 700; color: #2a0b1e; }
+      #endtel { top: 1610px; }
+      #endtel span { display: inline-block; padding: 22px 46px; border-radius: 999px; background: #2a0b1e; color: #fff; font-size: 60px; font-weight: 900; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="21" data-width="1080" data-height="1920">
+      <canvas id="gl" width="1080" height="1920"></canvas>
+      <div id="ovl" class="clip" data-start="0" data-duration="21" data-track-index="1" style="position:absolute;inset:0">
+        <div class="ov" id="topcap"><span>Jolina Coiffure ouvre à 11 h 30 ✨</span></div>
+        <div class="ov" id="cap2">4,8 sur Google · 13 avis</div>
+        <div class="ov" id="cap3" style="top:1450px;font-size:54px;font-weight:900">Ses nattes, sous tous les angles</div>
+        <div id="endpanel"></div><div class="ov" id="endname">Jolina</div>
+        <div class="ov" id="endsub">COIFFURE · TRESSES · NATTES</div>
+        <div class="ov" id="endinfo">Avenue Papineau · Montréal</div>
+        <div class="ov" id="endtel"><span>263 550-1630</span></div>
+      </div>
+    </div>
+    <script src="gsap.min.js"></script>
+    <script type="module">
+      import * as THREE from "./lib/three.module.min.js";
+      const W = 1080, H = 1920, DUR = 21;
+      const ROSE = new THREE.Color("#ff2e97"), GOLD = new THREE.Color("#ffc76b");
+      const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+      const ss = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+      const lerp = (a, b, t) => a + (b - a) * t;
+      const easeIn = (t) => t * t, easeOut = (t) => 1 - (1 - t) * (1 - t);
+
+      const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("gl"), antialias: true, preserveDrawingBuffer: true });
+      renderer.setPixelRatio(1); renderer.setSize(W, H, false);
+      renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.95;
+      renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      const scene = new THREE.Scene();
+      const NIGHT = new THREE.Color("#0b0410"), DAY = new THREE.Color("#f4e6dc");
+      scene.background = NIGHT.clone(); scene.fog = new THREE.Fog(NIGHT.clone(), 8, 26);
+      const camera = new THREE.PerspectiveCamera(42, W / H, 0.05, 100);
+
+      // lumières
+      const amb = new THREE.AmbientLight("#5a2a4a", 0.35); scene.add(amb);
+      const hemi = new THREE.HemisphereLight("#fff3e6", "#3a1830", 0.0); scene.add(hemi);
+      const key = new THREE.DirectionalLight("#ffd9ec", 0.7); key.position.set(-4, 9, 6); key.castShadow = true;
+      key.shadow.mapSize.set(1024, 1024); Object.assign(key.shadow.camera, { left: -16, right: 16, top: 16, bottom: -16, near: 1, far: 40 });
+      scene.add(key); scene.add(key.target);
+      const pts = [[0, 2.2, 1.5], [6, 1.2, 1.8], [11, 1.2, -1.5], [16, 1.2, 1.5], [21, 4, 1.5], [27, 3.5, 2.5]].map(([x, y, z]) => {
+        const l = new THREE.PointLight(ROSE, 4.5, 9, 1.6); l.position.set(x, y, z); scene.add(l); return l; });
+
+      // sol brillant
+      const floor = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), new THREE.MeshStandardMaterial({ color: "#1a0a16", roughness: .32, metalness: .45 }));
+      floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+
+      // halo (sprite dégradé)
+      function haloTex(c) { const cv = document.createElement("canvas"); cv.width = cv.height = 128; const g = cv.getContext("2d");
+        const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, c); gr.addColorStop(.25, c + "aa"); gr.addColorStop(1, c + "00");
+        g.fillStyle = gr; g.fillRect(0, 0, 128, 128); const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t; }
+      const haloRose = haloTex("#ff2e97"), haloGold = haloTex("#ffc76b");
+      const halo = (tex, s) => { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); sp.scale.set(s, s, 1); return sp; };
+
+      // horloge
+      const clockCv = document.createElement("canvas"); clockCv.width = 1024; clockCv.height = 512; const cg = clockCv.getContext("2d");
+      const clockTex = new THREE.CanvasTexture(clockCv); clockTex.colorSpace = THREE.SRGBColorSpace;
+      let lastClock = "";
+      function drawClock(txt, sub, glow) {
+        const k = txt + sub + glow.toFixed(2); if (k === lastClock) return; lastClock = k;
+        cg.fillStyle = "#12060f"; cg.fillRect(0, 0, 1024, 512);
+        cg.strokeStyle = "#ff2e97"; cg.lineWidth = 10; cg.strokeRect(24, 24, 976, 464);
+        cg.shadowColor = "#ff2e97"; cg.shadowBlur = 30 + 40 * glow; cg.fillStyle = "#ff5fb0";
+        cg.font = "900 300px 'N Sans'"; cg.textAlign = "center"; cg.textBaseline = "middle"; cg.fillText(txt, 512, 230);
+        cg.shadowBlur = 12; cg.font = "700 56px 'N Sans'"; cg.fillStyle = "#ffd1e8"; cg.fillText(sub, 512, 420);
+        clockTex.needsUpdate = true;
+      }
+      const clock = new THREE.Group(); scene.add(clock);
+      const cbody = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.3, .7), new THREE.MeshStandardMaterial({ color: "#16070f", roughness: .4, metalness: .6 }));
+      cbody.position.y = 1.15; cbody.castShadow = true; clock.add(cbody);
+      const cface = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.2), new THREE.MeshBasicMaterial({ map: clockTex, toneMapped: false }));
+      cface.position.set(0, 1.15, .36); clock.add(cface);
+      const ped = new THREE.Mesh(new THREE.CylinderGeometry(.9, 1.1, .5, 48), new THREE.MeshStandardMaterial({ color: "#20101a", roughness: .3, metalness: .7 })); ped.position.y = .25; ped.castShadow = true; clock.add(ped);
+      const clockHalo = halo(haloRose, 6); clockHalo.position.set(0, 1.2, .2); clock.add(clockHalo);
+
+      // rampe
+      const rampLen = Math.hypot(2.8, 1.25);
+      const ramp = new THREE.Mesh(new THREE.BoxGeometry(rampLen, .08, .45), new THREE.MeshStandardMaterial({ color: "#2a0f20", roughness: .25, metalness: .8, emissive: ROSE, emissiveIntensity: .12 }));
+      ramp.position.set(1.4 + 1.4, 1.45 / 2 + .05, 0); ramp.rotation.z = -Math.atan2(1.25, 2.8); ramp.castShadow = true; scene.add(ramp);
+
+      // billes
+      const ballMat = new THREE.MeshStandardMaterial({ color: "#ff8cc6", emissive: ROSE, emissiveIntensity: 1.6, roughness: .2, metalness: .3 });
+      const ball = new THREE.Mesh(new THREE.SphereGeometry(.18, 32, 32), ballMat); ball.castShadow = true; scene.add(ball);
+      const bh = halo(haloRose, 1.6); ball.add(bh);
+      const ball2 = new THREE.Mesh(new THREE.SphereGeometry(.18, 32, 32), ballMat.clone()); ball2.castShadow = true; scene.add(ball2);
+      ball2.add(halo(haloRose, 1.6));
+
+      // dominos sur une vague
+      const N = 26, X0 = 5.3, X1 = 17.2, wave = (x) => 1.3 * Math.sin((x - X0) * .62);
+      const T0 = 5.25, DT = .17, FALL = .3;
+      const dominos = [];
+      for (let i = 0; i < N; i++) {
+        const x = X0 + (X1 - X0) * i / (N - 1), z = wave(x), dz = (wave(x + .01) - z) / .01;
+        const piv = new THREE.Group(); piv.position.set(x, 0, z); piv.rotation.y = -Math.atan2(dz, 1); scene.add(piv);
+        const m = new THREE.Mesh(new THREE.BoxGeometry(.12, 1.0, .55), new THREE.MeshStandardMaterial({ color: "#1c0a16", roughness: .3, metalness: .6, emissive: ROSE, emissiveIntensity: .08 }));
+        m.position.set(.06, .5, 0); m.castShadow = true; piv.add(m);
+        dominos.push({ piv, m, t: T0 + i * DT });
+      }
+      // levier
+      const LX = 18.1, lever = new THREE.Group(); lever.position.set(LX, .32, 0); scene.add(lever);
+      const plank = new THREE.Mesh(new THREE.BoxGeometry(2.0, .08, .5), new THREE.MeshStandardMaterial({ color: "#2a0f20", roughness: .25, metalness: .8, emissive: ROSE, emissiveIntensity: .15 }));
+      plank.castShadow = true; lever.add(plank);
+      const fulc = new THREE.Mesh(new THREE.ConeGeometry(.28, .32, 3), new THREE.MeshStandardMaterial({ color: "#20101a", metalness: .7, roughness: .3 })); fulc.position.set(LX, .16, 0); scene.add(fulc);
+      const TL = T0 + (N - 1) * DT + FALL; // le dernier domino touche le levier
+
+      // anneau + note
+      const RING = new THREE.Vector3(21.2, 3.3, 0);
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(1.15, .07, 24, 96), new THREE.MeshStandardMaterial({ color: "#ffd9a0", emissive: GOLD, emissiveIntensity: .3, metalness: .9, roughness: .25 }));
+      ring.position.copy(RING); scene.add(ring);
+      const ringHalo = halo(haloGold, 5); ringHalo.position.copy(RING); ringHalo.material.opacity = 0; scene.add(ringHalo);
+      const noteCv = document.createElement("canvas"); noteCv.width = noteCv.height = 512; const ng = noteCv.getContext("2d");
+      ng.textAlign = "center"; ng.textBaseline = "middle"; ng.shadowColor = "#ffc76b"; ng.shadowBlur = 30; ng.fillStyle = "#ffe2a8";
+      ng.font = "900 230px 'N Sans'"; ng.fillText("4,8", 256, 220); ng.font = "900 70px 'N Sans'"; ng.fillText("★★★★★", 256, 380);
+      const noteTex = new THREE.CanvasTexture(noteCv); noteTex.colorSpace = THREE.SRGBColorSpace;
+      const note = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 1.9), new THREE.MeshBasicMaterial({ map: noteTex, transparent: true, toneMapped: false, depthWrite: false }));
+      note.position.copy(RING); scene.add(note);
+
+      // arches avec ses vidéos (images extraites)
+      function archAlpha() { const cv = document.createElement("canvas"); cv.width = 256; cv.height = 456; const g = cv.getContext("2d");
+        g.fillStyle = "#000"; g.fillRect(0, 0, 256, 456); g.fillStyle = "#fff"; g.beginPath(); g.moveTo(0, 456); g.lineTo(0, 128); g.arc(128, 128, 128, Math.PI, 0); g.lineTo(256, 456); g.closePath(); g.fill();
+        return new THREE.CanvasTexture(cv); }
+      function archLine() { const cv = document.createElement("canvas"); cv.width = 280; cv.height = 490; const g = cv.getContext("2d");
+        g.strokeStyle = "#ff5fb0"; g.lineWidth = 6; g.shadowColor = "#ff2e97"; g.shadowBlur = 18; g.beginPath(); g.moveTo(12, 478); g.lineTo(12, 140); g.arc(140, 140, 128, Math.PI, 0); g.lineTo(268, 478); g.closePath(); g.stroke();
+        const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t; }
+      const AA = archAlpha(), AL = archLine();
+      const COUNTS = { j1: 46, j2: 43, j3: 51 }, loader = new THREE.TextureLoader(), FR = {};
+      const loads = [];
+      for (const j of ["j3", "j2", "j1"]) { FR[j] = []; for (let k = 1; k <= COUNTS[j]; k++) {
+        const p = loader.loadAsync(`assets/frames/${j}/${String(k).padStart(3, "0")}.jpg`).then((t) => { t.colorSpace = THREE.SRGBColorSpace; FR[j][k - 1] = t; }); loads.push(p); } }
+      const arches = ["j3", "j2", "j1"].map((j, i) => {
+        const g = new THREE.Group(); g.position.set(24.6 + i * 2.4, 0, -1.2 + Math.abs(i - 1) * .5); g.rotation.y = (1 - i) * .18; scene.add(g);
+        const mat = new THREE.MeshBasicMaterial({ alphaMap: AA, transparent: true, toneMapped: false, color: "#ffffff" });
+        const pic = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 3.56), mat); pic.position.y = 1.9; g.add(pic);
+        const line = new THREE.Mesh(new THREE.PlaneGeometry(2.19, 3.83), new THREE.MeshBasicMaterial({ map: AL, transparent: true, toneMapped: false, depthWrite: false }));
+        line.position.set(0, 1.92, .01); g.add(line);
+        return { g, pic, line, j };
+      });
+
+      // caméra : images clés (position, cible)
+      const domX = (t) => { const i = clamp((t - T0) / DT, 0, N - 1); return X0 + (X1 - X0) * i / (N - 1); };
+      function camAt(t) {
+        const K = [
+          [0.0, [-2.6, 2.0, 5.6], [0, 1.15, 0]], [2.4, [-1.6, 2.3, 4.6], [.3, 1.2, 0]], [3.4, [.6, 2.6, 5.2], [2.2, .9, 0]], [4.9, [2.4, 1.9, 4.6], [4.9, .4, 0]],
+        ];
+        if (t <= 4.9) { for (let i = 0; i < K.length - 1; i++) if (t <= K[i + 1][0]) { const u = ss(K[i][0], K[i + 1][0], t);
+          return [K[i][1].map((v, k) => lerp(v, K[i + 1][1][k], u)), K[i][2].map((v, k) => lerp(v, K[i + 1][2][k], u))]; } }
+        if (t <= TL + .1) { const x = domX(t), z = wave(x), u = ss(4.9, 5.6, t);
+          const p = [x - 2.8, 1.9, z + 4.6], l = [x + 1.6, .35, wave(x + 1.6)];
+          return [[lerp(2.4, p[0], u), lerp(1.9, p[1], u), lerp(4.6, p[2], u)], [lerp(4.9, l[0], u), lerp(.4, l[1], u), lerp(0, l[2], u)]]; }
+        const xe = domX(TL), K2 = [
+          [TL + .1, [xe - 2.8, 1.9, wave(xe) + 4.6], [xe + 1.6, .35, wave(xe + 1.6)]], [TL + .9, [18.2, 2.6, 6.2], [20.4, 2.6, 0]],
+          [TL + 2.0, [19.9, 3.5, 5.6], [21.2, 3.3, 0]], [TL + 3.0, [20.4, 3.5, 4.9], [21.2, 3.3, 0]],
+          [TL + 4.4, [25.0, 4.6, 9.2], [27.0, 2.2, -1.2]], [17.6, [27.0, 2.7, 7.0], [27.0, 2.0, -1.2]], [21.0, [27.0, 2.9, 10.0], [27.0, .9, -1.2]],
+        ];
+        for (let i = 0; i < K2.length - 1; i++) if (t <= K2[i + 1][0]) { const u = ss(K2[i][0], K2[i + 1][0], t);
+          return [K2[i][1].map((v, k) => lerp(v, K2[i + 1][1][k], u)), K2[i][2].map((v, k) => lerp(v, K2[i + 1][2][k], u))]; }
+        return [K2[K2.length - 1][1], K2[K2.length - 1][2]];
+      }
+
+      // trajectoire de la bille 1
+      const RTOP = new THREE.Vector3(1.45, 1.42 + .05, 0), RBOT = new THREE.Vector3(4.15, .18 + .05, 0);
+      function ballAt(t) {
+        if (t < 2.8) return [0, 1.98, 0];
+        if (t < 3.2) { const u = easeIn(ss(2.8, 3.2, t)); return [lerp(0, 1.2, u), 1.98 - .1 * u, 0]; }
+        if (t < 3.45) { const u = ss(3.2, 3.45, t); return [lerp(1.2, RTOP.x, u), lerp(1.88, RTOP.y + .18, easeIn(u)), 0]; }
+        if (t < 4.6) { const u = easeIn(ss(3.45, 4.6, t)); return [lerp(RTOP.x, RBOT.x, u), lerp(RTOP.y + .18, RBOT.y, u), 0]; }
+        const u = clamp((t - 4.6) / (T0 - 4.6)); return [lerp(RBOT.x, X0 - .2, u), .18, 0];
+      }
+
+      const ov = (id) => document.getElementById(id);
+      function renderAt(t) {
+        // horloge
+        const flip = t >= 1.6; drawClock(flip ? "11:30" : "11:29", flip ? "OUVERTURE · JOLINA" : "BIENTÔT…", flip ? .5 + .5 * Math.sin(t * 9) * ss(1.6, 1.8, t) * (1 - ss(2.6, 3.0, t)) : 0);
+        clockHalo.material.opacity = .45 + (flip ? .45 * (1 - ss(1.6, 3.2, t)) : 0);
+        // bille 1
+        const b = ballAt(t); ball.position.set(b[0], b[1], b[2]); ball.rotation.z = -b[0] * 3.2; ball.visible = t < T0 + .15;
+        // dominos
+        for (const d of dominos) { const u = clamp((t - d.t) / FALL); d.piv.rotation.z = -1.32 * easeIn(u); d.m.material.emissiveIntensity = .08 + .9 * (u > 0 ? (1 - ss(d.t + FALL, d.t + FALL + .5, t)) * ss(d.t, d.t + .05, t) : 0); }
+        // levier + bille 2 (parabole vers l'anneau)
+        const lu = ss(TL, TL + .12, t); lever.rotation.z = lerp(-.22, .22, lu);
+        const B0 = new THREE.Vector3(LX + .85, .32 - .19 + .24, 0);
+        if (t < TL + .05) ball2.position.copy(B0);
+        else { const u = clamp((t - TL - .05) / 1.0), p = B0.clone().lerp(RING, u); p.y += Math.sin(Math.PI * u) * 1.6; if (u >= 1) p.copy(RING).add(new THREE.Vector3(.9 * (t - TL - 1.05), -2.6 * easeIn(clamp((t - TL - 1.05) / .8)), -1.2 * clamp((t - TL - 1.05) / .8))); ball2.position.copy(p); }
+        ball2.visible = t < TL + 2.0;
+        const hit = TL + 1.05, rf = ss(hit, hit + .1, t) * (1 - ss(hit + .6, hit + 1.6, t));
+        ring.material.emissiveIntensity = .3 + 3 * rf + ss(hit, hit + .4, t) * .6; ringHalo.material.opacity = rf + ss(hit, hit + .4, t) * .35;
+        ring.rotation.z = t * .2; note.scale.setScalar(.01 + .99 * ss(hit + .05, hit + .5, t)); note.material.opacity = ss(hit + .05, hit + .4, t);
+        // arches
+        const A0 = TL + 3.4;
+        arches.forEach((a, i) => { const u = easeOut(ss(A0 + i * .25, A0 + i * .25 + .8, t)); a.g.scale.set(1, Math.max(.001, u), 1); a.g.visible = u > .002;
+          const fr = FR[a.j], k = Math.min(fr.length - 1, Math.floor(Math.max(0, t - A0) * 12) % fr.length); if (fr[k] && a.pic.material.map !== fr[k]) { a.pic.material.map = fr[k]; a.pic.material.needsUpdate = true; } });
+        // nuit -> matin
+        const m = ss(17.4, 18.8, t);
+        scene.background.copy(NIGHT).lerp(DAY, m); scene.fog.color.copy(scene.background);
+        amb.intensity = .35 + .5 * m; hemi.intensity = 1.6 * m; key.intensity = .7 + 1.2 * m; floor.material.color.set("#1a0a16").lerp(new THREE.Color("#e9d6cb"), m);
+        pts.forEach((l) => (l.intensity = 4.5 * (1 - .7 * m)));
+        // caméra
+        const [cp, cl] = camAt(t); camera.position.set(...cp); camera.lookAt(...cl);
+        renderer.render(scene, camera);
+        // textes 2D
+        ov("topcap").style.opacity = ss(.2, .6, t) * (1 - ss(4.4, 4.8, t));
+        ov("cap2").style.opacity = ss(hit + .5, hit + .8, t) * (1 - ss(A0 - .4, A0, t));
+        ov("cap3").style.opacity = ss(A0 + .9, A0 + 1.3, t) * (1 - ss(17.3, 17.6, t));
+        ov("endpanel").style.opacity = ss(18.0, 18.6, t);
+        ["endname", "endsub", "endinfo", "endtel"].forEach((id, i) => { const o = ss(18.4 + i * .35, 18.8 + i * .35, t); ov(id).style.opacity = o; ov(id).style.transform = `translateY(${(1 - o) * 40}px)`; });
+      }
+      window.__cues = [
+        { t: 1.6, file: "beep.wav", gain: .5 }, { t: 2.8, file: "roll.wav", gain: .4 },
+        ...dominos.map((d, i) => ({ t: +(d.t + FALL - .02).toFixed(3), file: "tick.wav", gain: .35 + .25 * (i / N) })),
+        { t: +(TL + .02).toFixed(3), file: "thunk.wav", gain: .6 }, { t: +(TL + 1.05).toFixed(3), file: "ding.wav", gain: .6 },
+        { t: +(TL + 3.3).toFixed(3), file: "whoosh.wav", gain: .5 }, { t: 17.4, file: "rise.wav", gain: .4 },
+      ];
+      window.__hf = window.__hf || {}; window.__hf.buildReady = window.__hf.buildReady || {};
+      window.__hf.buildReady.scene = Promise.all([...loads, document.fonts.ready]).then(() => { lastClock = ""; renderAt(0); });
+      window.__timelines = window.__timelines || {}; const tl = gsap.timeline({ paused: true }); tl.to({}, { duration: DUR }); window.__timelines["main"] = tl;
+      window.addEventListener("hf-seek", (e) => renderAt(e.detail.time));
+      renderAt(0);
+    </script>
+  </body>
+</html>
