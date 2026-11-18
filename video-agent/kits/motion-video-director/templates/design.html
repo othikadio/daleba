@@ -1,0 +1,91 @@
+<!doctype html>
+<!--
+  DESIGN FILE (visual style board) — Motion Video Director.
+  The AI fills ONLY the `DESIGN` object below; the page draws itself. The user double-clicks this file to see it in any browser.
+  Keep it in sync with TASTE.md §1–§5 (same values). Shows: concept, colours, every font written in itself, live motion demos, key frames, sound, do/don't — nothing else. Fonts load from ../assets/fonts/ (relative to plan/).
+  Frames: put code-rendered stills in plan/frames/ (e.g. node src/render.js --from 2 --to 2.04 --fps 25 --scale 0.5 --out plan/frames).
+  Check it yourself: screenshot with Playwright/Chromium: chromium --headless --screenshot=plan/design.png --window-size=1400,3000 plan/design.html
+-->
+<html lang="en"><head><meta charset="utf-8"><title>Design file</title>
+<script>
+const DESIGN = {
+  project: "<Project name>", version: "v1", status: "draft",            // draft | approved
+  updated: "YYYY-MM-DD", format: "9:16 · 1080×1920 · 30 fps · 45 s", pipeline: "A · code-drawn",
+  concept: "<one-line concept>",
+  mood: ["playful", "techy", "retro-arcade"],
+  feelsLike: ["<reference file/link — what we take from it>"],
+  notLike: ["corporate stock template"],
+  palette: [ // role: bg | primary | secondary | accent | text ; optional use: "hero words only"
+    { name: "Night", hex: "#0E1116", role: "bg" }, { name: "Teal", hex: "#2EE6C5", role: "primary" },
+    { name: "Signal red", hex: "#FF3B3B", role: "accent" }, { name: "Paper", hex: "#F4F1EA", role: "text" }],
+  fonts: [ // file relative to plan/ ; role: display | keyword | caption | mono ; use = what it is for (shown) ; sample = real words from the script
+    { family: "Display", file: "../assets/fonts/Display/Display-Black.ttf", weight: 900, role: "display", use: "Headlines + hero words", sample: "STOP WASTING TIME", license: "OFL", source: "fontshare.com" }],
+  sample: { headline: "STOP WASTING TIME", keyword: "TIME", caption: "most teams lose hours every week", sizes: { filler: 64, keyword: 160, hero: 220 } },
+  textTreatment: { outline: "4px #0E1116", shadow: "8px 8px 0 #0E1116", glow: "", backing: "dark blur 30px 50% when contrast < 4.5" },
+  motion: { // easing: CSS cubic-bezier or keyword; ms
+    entrance: { ease: "cubic-bezier(.16,1,.3,1)", ms: 280 }, exit: { ease: "cubic-bezier(.32,0,.67,0)", ms: 180 },
+    stagger: 60, overshoot: "8 %", textAnim: ["pop", "blur", "decode", "slam"],
+    devices: ["binary decode → mosaic resolve on hero words", "smoke puff + pixel debris on landing", "smear frames 0.15 s"],
+    transitions: ["hard cut on beat", "pixel wipe"], camera: "static, shake 6 px / 120 ms on impacts" },
+  layout: { aspect: [9, 16], safeTop: 220, safeBottom: 420, safeRight: 140, captionY: "64%", maxWords: 4 },
+  textures: ["grain 4 %", "scanlines 6 %", "vignette 20 %"],
+  frames: [ /* { src: "frames/00000.jpg", t: "0:02.1", note: "hook — hero word lands" } */ ],
+  sound: [ { use: "text word", type: "soft dry tick 40–150 ms", level: "−7 dB vs VO" }, { use: "hero word", type: "low thump + click", level: "−5 dB" } ],
+  bannedSounds: ["long whooshes", "risers", "thruster swooshes"],
+  do: ["every caption ≥ 4.5:1 contrast"], dont: ["linear easing", "more than 2 font families"],
+  openQuestions: []
+};
+</script>
+<style>
+*{box-sizing:border-box;margin:0}body{font:15px/1.5 system-ui,Segoe UI,Arial,sans-serif;background:#141518;color:#e9e9ee;padding:32px;max-width:1400px;margin:auto}
+h1{font-size:28px}h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#9aa0aa;margin:40px 0 14px}
+.meta{color:#9aa0aa;margin-top:4px}.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;margin-left:8px;vertical-align:middle}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(var(--w,170px),1fr))}.card{background:#1d1f24;border-radius:12px;padding:16px}
+.sw{height:96px;border-radius:10px;margin-bottom:10px;border:1px solid #ffffff22}.small{font-size:12px;color:#9aa0aa}
+.chip{display:inline-block;background:#2a2d34;border-radius:99px;padding:3px 12px;margin:3px 3px 0 0;font-size:13px}
+.stage{border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.demo{display:flex;gap:14px;flex-wrap:wrap}.demo .stage{flex:1 1 240px;height:180px}.lbl{position:absolute;left:12px;top:8px;font:12px system-ui;opacity:.6}
+.fname{font-size:46px;line-height:1.1;margin:2px 0 8px;overflow-wrap:anywhere}.fsample{font-size:24px;line-height:1.2;margin-bottom:10px}
+table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:8px;border-bottom:1px solid #2a2d34;vertical-align:top}th{color:#9aa0aa;font-weight:500}
+img{width:100%;border-radius:8px;display:block}.ok{color:#5ee08f}.bad{color:#ff6b6b}ul{padding-left:18px}
+</style></head><body><div id="app"></div>
+<script>
+const esc = v => typeof v === 'string' ? v.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : Array.isArray(v) ? v.map(esc) : (v && typeof v === 'object') ? Object.fromEntries(Object.entries(v).map(([a,b]) => [a, esc(b)])) : v;
+const D = esc(DESIGN), $ = h => { const t = document.createElement('template'); t.innerHTML = h.trim(); return t.content; };
+const role = r => (D.palette.find(p => p.role === r) || D.palette[0] || {hex:'#000'}).hex;
+const lum = h => { const c = h.replace('#','').match(/../g).map(x => parseInt(x,16)/255).map(v => v <= .03928 ? v/12.92 : ((v+.055)/1.055)**2.4); return .2126*c[0]+.7152*c[1]+.0722*c[2]; };
+const cr = (a,b) => { const [x,y] = [lum(a),lum(b)].sort((m,n)=>n-m); return (x+.05)/(y+.05); };
+document.head.append($(`<style>${D.fonts.map((f,i) => `@font-face{font-family:'F${i}';src:url('${f.file}');font-weight:${f.weight||400}}`).join('')}</style>`));
+const F = i => `'F${i}', system-ui, sans-serif`, fi = r => { const i = D.fonts.findIndex(f => f.role === r); return i < 0 ? 0 : i; };
+const bg = role('bg'), tx = role('text'), ac = role('accent'), pr = role('primary'), S = D.sample;
+const kw = s => s.replace(S.keyword, `<span style="color:${ac};font-family:${F(fi('keyword'))}">${S.keyword}</span>`);
+const sec = (t, body, show = true) => show ? `<h2>${t}</h2>${body}` : '';
+let h = `<h1>${D.project} — design file <span class="badge" style="background:${D.status==='approved'?'#1f6f43':'#6f5a1f'}">${D.status}</span></h1>
+<div class="meta">${D.version} · ${D.format} · updated ${D.updated}</div>`
++ sec('Concept & feel', `<div class="card"><div style="font-size:20px;margin-bottom:8px">${D.concept}</div>${D.mood.map(m=>`<span class="chip">${m}</span>`).join('')}
+  <div class="small" style="margin-top:12px"><b>Feels like:</b> ${D.feelsLike.join(' · ')}<br><b>Never like:</b> ${D.notLike.join(' · ')}</div></div>`)
++ sec('Colours', `<div class="grid">${D.palette.map(p=>`<div class="card"><div class="sw" style="background:${p.hex}"></div><b>${p.name}</b><div class="small">${p.hex} · ${p.use||p.role}${p.role!=='bg'&&cr(p.hex,bg)<3?' · <span class="bad">low contrast on background</span>':''}</div></div>`).join('')}</div>`)
++ sec('Typography', `<div class="stage" style="background:${bg};flex-direction:column;padding:34px 20px;text-align:center;margin-bottom:14px">
+  <div style="font:${S.sizes.hero/2.4}px/1.05 ${F(fi('display'))};color:${tx}">${kw(S.headline)}</div>
+  <div style="font:${S.sizes.filler/2.2}px/1.3 ${F(fi('caption'))};color:${tx};margin-top:14px">${S.caption}</div></div>
+  <div class="grid" style="--w:300px">${D.fonts.map((f,i)=>`<div class="card"><div class="fname" style="font-family:${F(i)};font-weight:${f.weight||400}">${f.family}</div>
+  <div class="fsample" style="font-family:${F(i)};font-weight:${f.weight||400};color:${f.role==='display'||f.role==='keyword'?ac:tx}">${f.sample||S.keyword}</div>
+  <div class="small"><b style="color:#e9e9ee">${f.use||f.role}</b><span class="fstat" data-i="${i}"></span></div></div>`).join('')}</div>`)
++ sec('Motion (live)', `<div class="demo">${D.motion.textAnim.map(a=>`<div class="stage" style="background:${bg}"><span class="lbl" style="color:${tx}">${a}</span><div class="anim-${a}" style="font:${S.sizes.keyword/2.7}px/1 ${F(fi('display'))};color:${tx}">${S.keyword}</div></div>`).join('')}</div>
+  <div class="card" style="margin-top:14px"><b>Signature effects</b><ul>${D.motion.devices.map(x=>`<li>${x}</li>`).join('')}</ul><div class="small" style="margin-top:6px"><b>Transitions:</b> ${D.motion.transitions.join(' · ')} &nbsp; <b>Camera:</b> ${D.motion.camera}</div></div>`)
++ sec('Key frames', `<div class="grid" style="--w:${(D.layout?.aspect||[9,16])[0]>(D.layout?.aspect||[9,16])[1]?300:200}px">${D.frames.map(f=>`<div class="card" style="padding:8px"><img src="${f.src}" onerror="const g=this.closest('.grid');this.parentNode.remove();if(!g.children.length){g.previousElementSibling.remove();g.remove();}"><div class="small" style="margin-top:6px">${f.t}${f.note?' · '+f.note:''}</div></div>`).join('')}</div>`, D.frames.length)
++ sec('Sound', `<div class="card"><table><tr><th>When</th><th>Sound</th><th>Level</th></tr>${D.sound.map(r=>`<tr><td>${r.use}</td><td>${r.type}</td><td>${r.level}</td></tr>`).join('')}</table><div class="small" style="margin-top:10px"><b class="bad">Never:</b> ${D.bannedSounds.join(' · ')}</div></div>`)
++ sec('Do / Don\'t', `<div class="grid" style="--w:320px"><div class="card">${D.do.map(x=>`<div class="ok">✓ ${x}</div>`).join('')}</div><div class="card">${D.dont.map(x=>`<div class="bad">✕ ${x}</div>`).join('')}</div></div>`)
++ sec('Open questions', `<div class="card">${D.openQuestions.map(q=>`<div>• ${q}</div>`).join('')}</div>`, D.openQuestions.length);
+document.getElementById('app').append($(h));
+const E = D.motion.entrance, k = `${E.ms*3+600}ms ${E.ease} infinite`;
+document.head.append($(`<style>
+.anim-pop{animation:pop ${k}}@keyframes pop{0%{transform:scale(0)}25%{transform:scale(1.08)}33%,80%{transform:scale(1)}100%{transform:scale(0)}}
+.anim-blur{animation:blr ${k}}@keyframes blr{0%{filter:blur(12px);opacity:0;transform:translateY(20px)}33%,80%{filter:blur(0);opacity:1;transform:none}100%{opacity:0}}
+.anim-slam{animation:slm ${k}}@keyframes slm{0%{transform:scale(2.45);opacity:0}20%{transform:scale(.94,1.06);opacity:1}30%,80%{transform:scale(1)}100%{opacity:0}}
+.anim-slam,.anim-pop{color:${ac}!important}</style>`));
+document.querySelectorAll('.anim-decode').forEach(el => { const w = el.textContent; let f = 0; setInterval(() => { f = (f+1)%40; el.textContent = f < 20 ? w.split('').map((c,i) => i < f/2.5 ? c : (Math.random()<.5?'0':'1')).join('') : w; el.style.color = f >= 20 ? ac : pr; }, 50); });
+document.fonts.ready.then(() => document.querySelectorAll('.fstat').forEach(el => { const f = DESIGN.fonts[+el.dataset.i];
+  const ok = [...document.fonts].some(ff => ff.family.replace(/'/g,'') === 'F'+el.dataset.i && ff.status === 'loaded');
+  if (!ok) el.innerHTML = ' · <span class="bad">font file not found: ' + esc(f.file) + '</span>'; }));
+</script></body></html>

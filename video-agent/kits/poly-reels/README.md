@@ -11,3 +11,12 @@ Guide complet : `poly-animated-reels-guide.html`.
 
 État : lot 1 reçu (règles, formules de script, outils look/align/tts). En attente : `engine/` (main.js, director.js, rig.js, ui.js, lowpoly.js), `brand/` (brand.js, voice.json, audio.json, looks.json), `tools/render.mjs`, `tools/mix.mjs`, `package.json`, exemples.
 Besoins : Node, ffmpeg, Python (faster-whisper, google-genai), clé `GEMINI_API_KEY`, Chromium.
+
+
+## Lot 2 (reçu)
+- `SKILL.md` : la marche à suivre complète du kit.
+- `brands/dark-sitcom/skill/tools/tts.py` : voix Gemini en flux (variante « generate_content_stream »).
+- `extras/index-canvas-minimal.html` : page de rendu minimale (charge `main.js`).
+
+## Toujours manquant pour faire tourner le kit
+Le moteur 3D (`engine/main.js`, `director.js`, `rig.js`, `ui.js`, `lowpoly.js`), les réglages `brand/` (`brand.js`, `voice.json`, `audio.json`, `looks.json`), `tools/render.mjs`, `tools/mix.mjs`, `package.json`. Sans eux, les personnages ne peuvent pas être dessinés.
