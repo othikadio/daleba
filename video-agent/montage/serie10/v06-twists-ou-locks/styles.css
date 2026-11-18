@@ -1,0 +1,185 @@
+@font-face { font-family: Inter; src: url(fonts/InterDisplay-Black.otf); font-weight: 900; }
+@font-face { font-family: Inter; src: url(fonts/InterDisplay-Bold.otf); font-weight: 700; }
+@font-face { font-family: Mono; src: url(fonts/space-mono-latin-400-normal.woff2); font-weight: 400; }
+@font-face { font-family: Mono; src: url(fonts/space-mono-latin-700-normal.woff2); font-weight: 700; }
+@font-face { font-family: JB; src: url(fonts/jetbrains-mono-latin-700-normal.woff2); font-weight: 700; }
+@font-face { font-family: Bangers; src: url(fonts/bangers-latin-400-normal.woff2); }
+@font-face { font-family: Archivo; src: url(fonts/archivo-black-latin-400-normal.woff2); }
+@font-face { font-family: Anton; src: url(fonts/anton-latin-400-normal.woff2); }
+@font-face { font-family: Fredoka; src: url(fonts/fredoka-latin-500-normal.woff2); font-weight: 500; }
+@font-face { font-family: Fredoka; src: url(fonts/fredoka-latin-700-normal.woff2); font-weight: 700; }
+@font-face { font-family: Cinzel; src: url(fonts/cinzel-latin-400-normal.woff2); font-weight: 400; }
+@font-face { font-family: Cinzel; src: url(fonts/cinzel-latin-700-normal.woff2); font-weight: 700; }
+@font-face { font-family: Monoton; src: url(fonts/monoton-latin-400-normal.woff2); }
+@font-face { font-family: Righteous; src: url(fonts/righteous-latin-400-normal.woff2); }
+@font-face { font-family: Outfit; src: url(fonts/outfit-latin-300-normal.woff2); font-weight: 300; }
+@font-face { font-family: Outfit; src: url(fonts/outfit-latin-700-normal.woff2); font-weight: 700; }
+@font-face { font-family: Outfit; src: url(fonts/outfit-latin-900-normal.woff2); font-weight: 900; }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; }
+#root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); color: var(--fg); font-family: var(--f2); }
+.layer { position: absolute; inset: 0; }
+.scene { position: absolute; inset: 0; padding: 300px 80px 440px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 34px; text-align: center; }
+.ch { display: inline-block; white-space: pre; }
+.photo { position: relative; width: 760px; height: 600px; background-size: cover; background-position: 50% 45%; flex: none; }
+.kick { font-family: var(--f2); font-size: 38px; font-weight: 700; letter-spacing: .22em; color: var(--ac); }
+.big { font-family: var(--f1); font-size: var(--bs, 150px); line-height: .98; color: var(--fg); }
+.big .ln { display: block; white-space: nowrap; }
+.sub { font-family: var(--f2); font-size: 50px; font-weight: 700; line-height: 1.2; max-width: 900px; color: var(--fg2, var(--fg)); }
+.items { display: flex; flex-direction: column; gap: 22px; align-items: stretch; width: 860px; }
+.it { font-family: var(--f2); font-size: 56px; font-weight: 700; padding: 26px 40px; text-align: left; }
+.badge { position: absolute; z-index: 5; }
+.contact { display: flex; flex-direction: column; gap: 18px; align-items: center; margin-top: 10px; }
+.pill { font-family: var(--f2); font-size: 62px; font-weight: 700; padding: 22px 48px; }
+.url { font-family: var(--f2); font-size: 42px; font-weight: 700; color: var(--fg2, var(--fg)); }
+#brand { position: absolute; left: 0; right: 0; top: 150px; text-align: center; font-family: var(--f2); font-size: 30px; font-weight: 700; letter-spacing: .32em; color: var(--fg2, var(--fg)); opacity: .9; }
+#foot { position: absolute; left: 0; right: 0; top: 1560px; text-align: center; font-family: var(--f2); font-size: 28px; letter-spacing: .2em; color: var(--fg2, var(--fg)); opacity: .7; }
+#wipe { position: absolute; z-index: 50; }
+
+/* ---------- 1 · BLUEPRINT (formation) ---------- */
+.st-blueprint { --bg: #1652a8; --fg: #ffffff; --fg2: #cfe0ff; --ac: #ffd23f; --f1: JB; --f2: Mono; --bs: 140px; }
+.st-blueprint #grid { position: absolute; inset: -200px; background:
+  linear-gradient(rgba(255,255,255,.16) 2px, transparent 2px) 0 0/180px 180px, linear-gradient(90deg, rgba(255,255,255,.16) 2px, transparent 2px) 0 0/180px 180px,
+  linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px) 0 0/36px 36px, linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px) 0 0/36px 36px; }
+.st-blueprint .ring { position: absolute; border: 3px dashed rgba(255,255,255,.35); border-radius: 50%; }
+.st-blueprint .photo { border: 4px solid #fff; filter: grayscale(.2) contrast(1.05); }
+.st-blueprint .photo::after { content: "Ø 760 · ÉCHELLE 1:1"; position: absolute; left: 0; right: 0; bottom: -58px; font: 700 28px Mono; color: var(--ac); border-top: 3px solid var(--ac); padding-top: 8px; }
+.st-blueprint .it { border: 3px solid #fff; background: rgba(255,255,255,.06); }
+.st-blueprint .it::before { content: "→ "; color: var(--ac); }
+.st-blueprint .pill { border: 4px solid var(--ac); color: var(--ac); }
+.st-blueprint #wipe { left: 0; top: 0; width: 1080px; height: 1920px; background: #0f3d80; border-bottom: 8px solid var(--ac); }
+.st-blueprint #tblock { position: absolute; left: 60px; right: 60px; top: 1600px; border: 3px solid #fff; font: 700 28px Mono; display: flex; }
+.st-blueprint #tblock div { padding: 18px 24px; border-right: 3px solid #fff; } .st-blueprint #tblock div:last-child { border: 0; margin-left: auto; color: var(--ac); }
+
+/* ---------- 2 · NEO-BRUTALISM (barbier tuto) ---------- */
+.st-brutal { --bg: #ffde4d; --fg: #111; --ac: #ff4fa0; --f1: Archivo; --f2: Inter; --bs: 132px; }
+.st-brutal #grid { position: absolute; inset: 0; background: linear-gradient(rgba(0,0,0,.07) 2px, transparent 2px) 0 0/60px 60px, linear-gradient(90deg, rgba(0,0,0,.07) 2px, transparent 2px) 0 0/60px 60px; }
+.st-brutal .big { max-width: 1000px; background: #fff; border: 8px solid #111; box-shadow: 20px 20px 0 #111; padding: 30px 40px 24px; }
+.st-brutal .photo { border: 8px solid #111; box-shadow: 22px 22px 0 #111; height: 560px; }
+.st-brutal .kick { background: #111; color: #ffde4d; padding: 12px 26px; }
+.st-brutal .sub { background: #6cd2ff; border: 6px solid #111; box-shadow: 12px 12px 0 #111; padding: 18px 30px; font-size: 46px; }
+.st-brutal .it { background: #fff; border: 7px solid #111; box-shadow: 12px 12px 0 #111; }
+.st-brutal .badge { width: 210px; height: 210px; border-radius: 50%; background: #a6ff5c; border: 8px solid #111; box-shadow: 10px 10px 0 #111;
+  display: flex; align-items: center; justify-content: center; font: 92px Archivo; left: 790px; top: 300px; }
+.st-brutal .pill { background: #ff4fa0; border: 7px solid #111; box-shadow: 12px 12px 0 #111; }
+.st-brutal #star { position: absolute; left: 70px; top: 1470px; width: 170px; height: 170px; background: #ff7a2f; border: 6px solid #111;
+  clip-path: polygon(50% 0, 61% 30%, 95% 20%, 72% 47%, 100% 70%, 65% 70%, 60% 100%, 45% 74%, 12% 92%, 28% 60%, 0 42%, 35% 36%); }
+.st-brutal #wipe { left: 0; top: 0; width: 1080px; height: 1920px; background: #111; }
+
+/* ---------- 3 · NEON (barbier de nuit) ---------- */
+.st-neon { --bg: #0a0612; --fg: #ffe6fb; --fg2: #9ff3ff; --ac: #2ee6ff; --f1: Righteous; --f2: Outfit; --bs: 150px; }
+.st-neon #haze { position: absolute; inset: 0; background: radial-gradient(60% 40% at 50% 45%, rgba(255,46,200,.22), transparent 70%), radial-gradient(50% 30% at 50% 100%, rgba(46,230,255,.18), transparent 70%); }
+.st-neon #frame { position: absolute; left: 60px; right: 60px; top: 250px; bottom: 380px; border: 8px solid #ff4fd8; border-radius: 60px;
+  box-shadow: 0 0 24px #ff4fd8, 0 0 70px #ff2ec8, inset 0 0 30px rgba(255,46,200,.6); }
+.st-neon #frame2 { position: absolute; left: 92px; right: 92px; top: 282px; bottom: 412px; border: 5px solid #2ee6ff; border-radius: 40px; box-shadow: 0 0 18px #2ee6ff, inset 0 0 18px rgba(46,230,255,.5); }
+.st-neon .big { color: #fff; text-shadow: 0 0 10px #ff4fd8, 0 0 30px #ff2ec8, 0 0 70px #ff2ec8; -webkit-text-stroke: 3px #ff9cf0; }
+.st-neon .kick { text-shadow: 0 0 14px #2ee6ff; }
+.st-neon .photo { width: 700px; height: 520px; border-radius: 30px; border: 5px solid #2ee6ff; box-shadow: 0 0 30px #2ee6ff; }
+.st-neon .it { border: 4px solid #2ee6ff; border-radius: 22px; color: #dffcff; box-shadow: 0 0 20px rgba(46,230,255,.6); text-align: center; }
+.st-neon .sub { color: #9ff3ff; text-shadow: 0 0 12px #2ee6ff; font-weight: 300; }
+.st-neon .pill { border: 5px solid #ff4fd8; border-radius: 999px; box-shadow: 0 0 26px #ff4fd8; color: #fff; }
+.st-neon #wipe { left: 0; top: 0; width: 1080px; height: 1920px; background: #000; }
+
+/* ---------- 4 · COMIC BOOK (mythes) ---------- */
+.st-comic { --bg: #fff6df; --fg: #111; --ac: #ff3b1f; --f1: Bangers; --f2: Archivo; --bs: 168px; }
+.st-comic #panel { position: absolute; left: 40px; right: 40px; top: 230px; bottom: 360px; border: 12px solid #111; background: #ff4a1c;
+  background-image: radial-gradient(#ffa21f 10px, transparent 11px); background-size: 46px 46px; overflow: hidden; }
+.st-comic #rays { position: absolute; left: 50%; top: 50%; width: 2600px; height: 2600px; margin: -1300px 0 0 -1300px;
+  background: repeating-conic-gradient(rgba(255,255,255,.22) 0 4deg, transparent 4deg 14deg); }
+.st-comic .big { color: #ffd60a; -webkit-text-stroke: 6px #111; text-shadow: 10px 10px 0 #111; letter-spacing: .02em; }
+.st-comic .kick { background: #ffd60a; color: #111; border: 6px solid #111; padding: 10px 26px; font-family: Bangers; font-size: 58px; letter-spacing: .06em; }
+.st-comic .sub { background: #fff; border: 7px solid #111; border-radius: 50px; padding: 26px 40px; font-family: Archivo; font-size: 44px; }
+.st-comic .photo { border: 10px solid #111; width: 700px; height: 560px; }
+.st-comic .badge { left: 600px; top: 1270px; width: 430px; height: 300px; background: #ffd60a; display: flex; align-items: center; justify-content: center;
+  clip-path: polygon(50% 0, 60% 22%, 88% 6%, 78% 34%, 100% 46%, 78% 58%, 92% 90%, 62% 74%, 50% 100%, 38% 74%, 8% 92%, 22% 58%, 0 46%, 22% 34%, 12% 6%, 40% 22%);
+  font: 104px Bangers; color: #e3141b; }
+.st-comic .pill { background: #ffd60a; border: 7px solid #111; font-family: Bangers; font-size: 76px; }
+.st-comic .url { background: #fff; padding: 6px 20px; border: 4px solid #111; }
+.st-comic #wipe { left: 540px; top: 960px; width: 300px; height: 300px; margin: -150px 0 0 -150px; background: #ffd60a; border: 14px solid #111;
+  clip-path: polygon(50% 0, 61% 30%, 95% 20%, 72% 47%, 100% 70%, 65% 70%, 60% 100%, 45% 74%, 12% 92%, 28% 60%, 0 42%, 35% 36%); }
+
+/* ---------- 5 · HALFTONE (nattes) ---------- */
+.st-halftone { --bg: #f4ead5; --fg: #1a1a1a; --ac: #d81e2c; --f1: Anton; --f2: Outfit; --bs: 190px; }
+.st-halftone #sun { position: absolute; left: 540px; top: 900px; width: 1100px; height: 1100px; margin: -550px 0 0 -550px; border-radius: 50%;
+  background: radial-gradient(circle, #d81e2c 9px, transparent 10px) 0 0/30px 30px; -webkit-mask: radial-gradient(circle at 35% 35%, #000 20%, rgba(0,0,0,.25) 60%, transparent 71%); opacity: .55; }
+.st-halftone #dots2 { position: absolute; left: -100px; top: 1350px; width: 800px; height: 600px; background: radial-gradient(circle, #1f4fc4 7px, transparent 8px) 0 0/24px 24px;
+  -webkit-mask: radial-gradient(ellipse at 40% 40%, #000 15%, transparent 70%); opacity: .7; }
+.st-halftone .big { color: #1a1a1a; text-transform: uppercase; }
+.st-halftone .big .ln:nth-child(2) { color: #d81e2c; }
+.st-halftone .photo { border-radius: 50%; width: 600px; height: 600px; filter: contrast(1.15) saturate(.9); box-shadow: 0 0 0 14px #f4ead5, 0 0 0 20px #1f4fc4; }
+.st-halftone .kick { color: #1f4fc4; }
+.st-halftone .badge { left: 760px; top: 330px; width: 220px; height: 220px; border-radius: 50%; background: #1f4fc4; color: #f4ead5; display: flex; align-items: center; justify-content: center; font: 150px Anton; }
+.st-halftone .pill { background: #d81e2c; color: #f4ead5; border-radius: 999px; }
+.st-halftone #wipe { left: 540px; top: 960px; width: 200px; height: 200px; margin: -100px 0 0 -100px; border-radius: 50%; background: #d81e2c; }
+
+/* ---------- 6 · BAUHAUS (twists ou locks) ---------- */
+.st-bauhaus { --bg: #efe6d4; --fg: #141414; --ac: #e1251b; --f1: Outfit; --f2: Outfit; --bs: 148px; }
+.st-bauhaus .big { font-weight: 900; letter-spacing: -.04em; }
+.st-bauhaus .sh { position: absolute; }
+.st-bauhaus .c1 { left: -120px; top: 180px; width: 420px; height: 420px; border-radius: 50%; background: #e1251b; }
+.st-bauhaus .c2 { left: 760px; top: 1420px; width: 440px; height: 440px; border-radius: 0 0 0 100%; background: #1e4fbf; }
+.st-bauhaus .c3 { left: 820px; top: 160px; width: 0; height: 0; border-left: 160px solid transparent; border-right: 160px solid transparent; border-bottom: 280px solid #f3b700; }
+.st-bauhaus .c4 { left: 40px; top: 1500px; width: 300px; height: 40px; background: #141414; box-shadow: 0 70px 0 #141414, 0 140px 0 #141414; }
+.st-bauhaus .photo { width: 640px; height: 640px; border-radius: 50% 50% 0 50%; }
+.st-bauhaus .kick { background: #141414; color: #efe6d4; padding: 12px 28px; }
+.st-bauhaus .it { background: #1e4fbf; color: #fff; } .st-bauhaus .it:nth-child(2) { background: #e1251b; } .st-bauhaus .it:nth-child(3) { background: #f3b700; color: #141414; }
+.st-bauhaus .pill { background: #141414; color: #efe6d4; }
+.st-bauhaus #wipe { left: 540px; top: 960px; width: 200px; height: 200px; margin: -100px 0 0 -100px; border-radius: 50%; background: #1e4fbf; }
+
+/* ---------- 7 · CLAY 3D (enfants) ---------- */
+.st-clay { --bg: #fdf1e7; --fg: #3b2a4a; --ac: #ff7aa8; --f1: Fredoka; --f2: Fredoka; --bs: 140px; }
+.st-clay #root, .st-clay { background: radial-gradient(circle at 50% 40%, #fff8f1, #f9e3d3); }
+.st-clay .ball { position: absolute; border-radius: 50%; }
+.st-clay .b1 { left: 60px; top: 260px; width: 230px; height: 230px; background: radial-gradient(circle at 32% 30%, #ffd5e6, #ff7aa8 45%, #c94a7b); }
+.st-clay .b2 { left: 800px; top: 330px; width: 190px; height: 190px; border-radius: 48px; background: radial-gradient(circle at 30% 25%, #d6ecff, #6aa8ff 50%, #3c6fd1); }
+.st-clay .b3 { left: 780px; top: 1400px; width: 240px; height: 240px; background: radial-gradient(circle at 35% 35%, #fff2b8, #ffc93c 50%, #c99714); }
+.st-clay .b3::after { content: ""; position: absolute; inset: 70px; border-radius: 50%; background: #f9e7da; box-shadow: inset 0 8px 12px rgba(0,0,0,.18); }
+.st-clay .b4 { left: 90px; top: 1450px; width: 160px; height: 160px; background: radial-gradient(circle at 32% 30%, #d9ffe9, #57d39a 50%, #2a9c68); }
+.st-clay .big { font-weight: 700; color: #3b2a4a; text-shadow: 0 8px 0 #f2c4d6, 0 18px 30px rgba(0,0,0,.12); }
+.st-clay .kick { color: #fff; background: #ff7aa8; border-radius: 999px; padding: 12px 34px; box-shadow: 0 10px 0 #c94a7b; letter-spacing: .1em; }
+.st-clay .sub { color: #6b5a7a; }
+.st-clay .it { background: #fff; border-radius: 40px; box-shadow: 0 12px 0 #e8cbd9, 0 24px 40px rgba(0,0,0,.08); text-align: center; color: #3b2a4a; }
+.st-clay .pill { background: #6aa8ff; color: #fff; border-radius: 999px; box-shadow: 0 12px 0 #3c6fd1; }
+.st-clay #wipe { left: 540px; top: 960px; width: 200px; height: 200px; margin: -100px 0 0 -100px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffd5e6, #ff7aa8 55%, #c94a7b); }
+
+/* ---------- 8 · GLASS (hiver) ---------- */
+.st-glass { --bg: #120c2c; --fg: #ffffff; --fg2: #cfe6ff; --ac: #7fe3ff; --f1: Outfit; --f2: Outfit; --bs: 140px; }
+.st-glass .blob { position: absolute; border-radius: 50%; filter: blur(90px); }
+.st-glass .o1 { left: -150px; top: 200px; width: 700px; height: 700px; background: #2f7bff; }
+.st-glass .o2 { left: 520px; top: 900px; width: 700px; height: 700px; background: #a64dff; }
+.st-glass .o3 { left: 100px; top: 1300px; width: 520px; height: 520px; background: #19d3c5; }
+.st-glass .flake { position: absolute; color: #fff; font-size: 40px; opacity: .7; }
+.st-glass .card { background: rgba(255,255,255,.12); border: 2px solid rgba(255,255,255,.4); border-radius: 50px; backdrop-filter: blur(24px); padding: 50px 40px; display: flex; flex-direction: column; gap: 28px; align-items: center; width: 920px; box-shadow: 0 40px 100px rgba(0,0,0,.35); }
+.st-glass .big { font-weight: 900; letter-spacing: -.03em; }
+.st-glass .it { background: rgba(255,255,255,.14); border: 2px solid rgba(255,255,255,.35); border-radius: 28px; text-align: center; }
+.st-glass .photo { border-radius: 40px; width: 720px; height: 480px; }
+.st-glass .pill { background: rgba(255,255,255,.9); color: #120c2c; border-radius: 999px; }
+.st-glass #wipe { display: none; }
+
+/* ---------- 9 · SPLIT-FLAP (tous les services) ---------- */
+.st-flap { --bg: #0d0d10; --fg: #f4efe4; --ac: #ffb21a; --f1: Inter; --f2: JB; --bs: 118px; }
+.st-flap .big .ln { display: flex; gap: 8px; justify-content: center; margin: 8px 0; }
+.st-flap .big .ch { width: 98px; height: 140px; line-height: 140px; text-align: center; background: linear-gradient(#26262b 50%, #1d1d21 50%); border-radius: 12px; font-weight: 900; position: relative; font-size: 104px; }
+.st-flap .big .ch::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 3px; background: #0d0d10; }
+.st-flap .kick { font-family: JB; letter-spacing: .5em; }
+.st-flap .photo { width: 860px; height: 470px; border-radius: 18px; border: 10px solid #1d1d21; }
+.st-flap .sub { font-family: JB; color: #9a978f; font-size: 38px; }
+.st-flap .pill { font-family: JB; background: #ffb21a; color: #0d0d10; border-radius: 12px; }
+.st-flap #board { position: absolute; left: 20px; right: 20px; top: 230px; bottom: 380px; background: #17171b; border-radius: 20px; }
+.st-flap #wipe { left: 0; top: 0; width: 1080px; height: 1920px; background: #17171b; }
+
+/* ---------- 10 · ART DECO (le club) ---------- */
+.st-deco { --bg: #0b0a09; --fg: #f3dc9b; --fg2: #c7a24a; --ac: #e2bf63; --f1: Cinzel; --f2: Cinzel; --bs: 118px; }
+.st-deco .big { font-weight: 700; background: linear-gradient(180deg, #fff1c6, #d9b25a 55%, #9c7529); -webkit-background-clip: text; color: transparent; letter-spacing: .06em; }
+.st-deco .kick { letter-spacing: .5em; font-weight: 400; color: #c7a24a; font-size: 34px; }
+.st-deco .sub { font-weight: 400; letter-spacing: .25em; color: #c7a24a; font-size: 40px; }
+.st-deco #arches { position: absolute; left: 0; top: 0; }
+.st-deco #rays { position: absolute; left: 540px; top: 1330px; width: 1400px; height: 1400px; margin: -700px 0 0 -700px;
+  background: repeating-conic-gradient(from 0deg, rgba(226,191,99,.16) 0 2deg, transparent 2deg 10deg); -webkit-mask: radial-gradient(circle, transparent 18%, #000 19%, #000 45%, transparent 60%); }
+.st-deco .corner { position: absolute; width: 130px; height: 130px; border: 4px solid #c7a24a; }
+.st-deco .k1 { left: 50px; top: 50px; border-right: 0; border-bottom: 0; } .st-deco .k2 { right: 50px; top: 50px; border-left: 0; border-bottom: 0; }
+.st-deco .k3 { left: 50px; bottom: 50px; border-right: 0; border-top: 0; } .st-deco .k4 { right: 50px; bottom: 50px; border-left: 0; border-top: 0; }
+.st-deco .rule { width: 520px; height: 3px; background: linear-gradient(90deg, transparent, #e2bf63, transparent); }
+.st-deco .pill { border: 3px solid #e2bf63; color: #f3dc9b; font-family: Cinzel; letter-spacing: .15em; font-size: 52px; }
+.st-deco #wipe { left: 0; top: 0; width: 1080px; height: 1920px; background: #0b0a09; border-top: 4px solid #e2bf63; border-bottom: 4px solid #e2bf63; }

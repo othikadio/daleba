@@ -55,7 +55,7 @@ html, body { width: 1080px; height: 1920px; overflow: hidden; }
 /* ---------- 2 · NEO-BRUTALISM (barbier tuto) ---------- */
 .st-brutal { --bg: #ffde4d; --fg: #111; --ac: #ff4fa0; --f1: Archivo; --f2: Inter; --bs: 132px; }
 .st-brutal #grid { position: absolute; inset: 0; background: linear-gradient(rgba(0,0,0,.07) 2px, transparent 2px) 0 0/60px 60px, linear-gradient(90deg, rgba(0,0,0,.07) 2px, transparent 2px) 0 0/60px 60px; }
-.st-brutal .big { background: #fff; border: 8px solid #111; box-shadow: 20px 20px 0 #111; padding: 30px 40px 24px; }
+.st-brutal .big { max-width: 940px; background: #fff; border: 8px solid #111; box-shadow: 20px 20px 0 #111; padding: 30px 40px 24px; }
 .st-brutal .photo { border: 8px solid #111; box-shadow: 22px 22px 0 #111; height: 560px; }
 .st-brutal .kick { background: #111; color: #ffde4d; padding: 12px 26px; }
 .st-brutal .sub { background: #6cd2ff; border: 6px solid #111; box-shadow: 12px 12px 0 #111; padding: 18px 30px; font-size: 46px; }
@@ -91,7 +91,7 @@ html, body { width: 1080px; height: 1920px; overflow: hidden; }
 .st-comic .kick { background: #ffd60a; color: #111; border: 6px solid #111; padding: 10px 26px; font-family: Bangers; font-size: 58px; letter-spacing: .06em; }
 .st-comic .sub { background: #fff; border: 7px solid #111; border-radius: 50px; padding: 26px 40px; font-family: Archivo; font-size: 44px; }
 .st-comic .photo { border: 10px solid #111; width: 700px; height: 560px; }
-.st-comic .badge { left: 580px; top: 1170px; width: 430px; height: 300px; background: #ffd60a; display: flex; align-items: center; justify-content: center;
+.st-comic .badge { left: 600px; top: 1270px; width: 430px; height: 300px; background: #ffd60a; display: flex; align-items: center; justify-content: center;
   clip-path: polygon(50% 0, 60% 22%, 88% 6%, 78% 34%, 100% 46%, 78% 58%, 92% 90%, 62% 74%, 50% 100%, 38% 74%, 8% 92%, 22% 58%, 0 46%, 22% 34%, 12% 6%, 40% 22%);
   font: 104px Bangers; color: #e3141b; }
 .st-comic .pill { background: #ffd60a; border: 7px solid #111; font-family: Bangers; font-size: 76px; }

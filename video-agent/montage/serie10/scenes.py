@@ -1,10 +1,10 @@
 # Visuels de chaque phrase (une scène = une phrase de voix off). Textes écran ≤ 6 mots.
 SC = {
  "v01-formation-locks": [
-  dict(kick="DWG 01 · KADIO COIFFURE", big=["FORMATION", "LOCKS"], sub="On t'apprend.", photo="k6"),
+  dict(kick="DWG 01 · KADIO COIFFURE", big=["FORMATION", "LOCKS"], sub="On t'apprend.", photo="vrai-locks"),
   dict(kick="UNIQUEMENT", big=["100 %", "LOCKS"], sub="Une formation dédiée"),
-  dict(kick="PROGRAMME", items=["Départ de locks", "Entretien", "Retwist", "Finitions"], photo="entretien-locs"),
-  dict(kick="MÉTHODE", big=["LES GESTES", "DU SALON"], sub="Ceux qu'on fait chaque jour", photo="soins-locs"),
+  dict(kick="PROGRAMME", items=["Départ de locks", "Entretien", "Retwist", "Finitions"], photo="k6"),
+  dict(kick="MÉTHODE", big=["LES GESTES", "DU SALON"], sub="Ceux qu'on fait chaque jour", photo="vrai-salon-gestes"),
   dict(cta=1, kick="INSCRIPTIONS", big=["PLACES", "LIMITÉES"], sub="Écris-nous pour les détails"),
  ],
  "v02-degrade-4-etapes": [
@@ -23,7 +23,7 @@ SC = {
   dict(cta=1, kick="OPEN", big=["DEMANDE", "AU SALON"], sub="Ta tête va te remercier"),
  ],
  "v04-mythes-locks": [
-  dict(big=["3 MYTHES"], sub="sur les locks", photo="soins-locs", badge="!?"),
+  dict(big=["3 MYTHES"], sub="sur les locks", photo="vrai-locks", badge="!?"),
   dict(kick="MYTHE #1", big=["« ON NE LES", "LAVE PAS »"], badge="FAUX !", sub="Cuir chevelu propre = la base"),
   dict(kick="MYTHE #2", big=["« PLUS DE", "CIRE »"], badge="FAUX !", sub="La cire s'accumule"),
   dict(kick="MYTHE #3", big=["« RETWIST CHAQUE", "SEMAINE »"], badge="FAUX !", sub="Toutes les 4 à 6 semaines"),
@@ -39,7 +39,7 @@ SC = {
  "v06-twists-ou-locks": [
   dict(big=["TWISTS", "OU LOCKS ?"], sub="Pas la même chose"),
   dict(kick="TWISTS", big=["UNE COIFFURE"], sub="Quelques semaines, puis on défait", photo="k3"),
-  dict(kick="LOCKS", big=["UN", "ENGAGEMENT"], sub="Pour des années", photo="soins-locs"),
+  dict(kick="LOCKS", big=["UN", "ENGAGEMENT"], sub="Pour des années", photo="vrai-locks"),
   dict(kick="CHEZ KADIO", items=["Twists dès 55 $", "Locks : départ", "Locks : entretien"]),
   dict(cta=1, big=["ON TE", "CONSEILLE"], sub="Kadio Coiffure · Longueuil"),
  ],
@@ -61,9 +61,9 @@ SC = {
  "v09-tous-les-services": [
   dict(kick="DÉPARTS", big=["JUSTE DES", "TRESSES ?"]),
   dict(kick="PORTE 1", big=["NATTES", "DESIGN", "TWISTS"], photo="k7"),
-  dict(kick="PORTE 2", big=["LOCKS", "RETWIST"], photo="entretien-locs"),
+  dict(kick="PORTE 2", big=["LOCKS", "RETWIST"], photo="vrai-locks"),
   dict(kick="PORTE 3", big=["BARBIER", "DÉGRADÉ"], photo="menu-barbier"),
-  dict(kick="PASSAGERS", big=["HOMMES", "FEMMES", "ENFANTS"]),
+  dict(kick="PASSAGERS", big=["HOMMES", "FEMMES", "ENFANTS"], photo="vrai-salon-tresses"),
   dict(cta=1, kick="DESTINATION", big=["KADIO", "LONGUEUIL"], sub="615 Antoinette-Robidoux"),
  ],
  "v10-le-club": [
