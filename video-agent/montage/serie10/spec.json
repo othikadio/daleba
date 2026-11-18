@@ -1,0 +1,65 @@
+{
+"v01-formation-locks": {"style":"blueprint","titre":"Formation locks","vo":[
+ "Tu rêves de faire des locks ? On t'apprend.",
+ "Chez Kadyo Coiffure, on ouvre une formation… uniquement pour les locks.",
+ "Départ de locks, entretien, retwist, finitions : les vraies techniques du salon.",
+ "Tu apprends les gestes qu'on fait chaque jour, avec un coiffeur qui vit les locks.",
+ "Les places sont limitées. Écris-nous pour les détails."]},
+"v02-degrade-4-etapes": {"style":"brutal","titre":"Le dégradé en 4 étapes","vo":[
+ "Un dégradé propre, ça se construit. Voici les quatre étapes.",
+ "Un : on discute. La hauteur, la longueur, le style. Pas de surprise.",
+ "Deux : la tondeuse, du sabot le plus long au plus court.",
+ "Trois : on fond chaque ligne, pour ne voir aucune marque.",
+ "Quatre : les contours bien nets, et la barbe bien dessinée.",
+ "Ton dégradé t'attend chez Kadyo Coiffure, à Longueuil."]},
+"v03-coupe-fraiche": {"style":"neon","titre":"Ta coupe reste fraîche ?","vo":[
+ "Ta coupe est fraîche… mais pendant combien de temps ?",
+ "Deux semaines plus tard, les contours repoussent. Le dégradé disparaît.",
+ "La solution : passer chez le barbier régulièrement, sans y penser.",
+ "Au Club Kadyo, ta coupe et ta barbe, c'est un prix fixe, chaque mois.",
+ "Demande les détails au salon. Ta tête va te remercier."]},
+"v04-mythes-locks": {"style":"comic","titre":"3 mythes sur les locks","vo":[
+ "Trois mythes sur les locks… qu'on entend tous les jours.",
+ "Mythe numéro un : les locks, on ne les lave pas. Faux ! Un cuir chevelu propre, c'est la base.",
+ "Mythe numéro deux : plus de cire, plus de tenue. Faux ! La cire s'accumule dans les locks.",
+ "Mythe numéro trois : retwister chaque semaine. Faux ! Toutes les quatre à six semaines, c'est assez.",
+ "Tes locks méritent un vrai pro. Kadyo Coiffure, à Longueuil."]},
+"v05-nattes-durent": {"style":"halftone","titre":"Des nattes qui durent","vo":[
+ "Tes nattes défrisent trop vite ? Voici trois gestes.",
+ "Avant : des cheveux lavés et hydratés. Sur des cheveux secs, la natte gonfle vite.",
+ "La nuit : un foulard ou un bonnet en satin. Toujours.",
+ "Entre deux : un spray hydratant léger, directement sur les raies.",
+ "Des nattes bien nettes, dès quarante dollars, chez Kadyo Coiffure."]},
+"v06-twists-ou-locks": {"style":"bauhaus","titre":"Twists ou locks ?","vo":[
+ "Twists ou locks ? Ce n'est pas du tout la même chose.",
+ "Les twists, c'est une coiffure. Tu les gardes quelques semaines, puis on les défait.",
+ "Les locks, c'est un engagement. Tes cheveux se forment pour des années.",
+ "Les twists, c'est dès cinquante-cinq dollars. Pour les locks, on fait le départ et l'entretien.",
+ "Pas sûr ? Viens nous voir, on te conseille. Kadyo Coiffure."]},
+"v07-premiere-coupe": {"style":"clay","titre":"Sa première coupe","vo":[
+ "La première coupe de ton enfant, ça peut faire peur.",
+ "Chez nous, on prend le temps. On explique, on fait des pauses.",
+ "Les parents restent juste à côté. Pas de stress.",
+ "Et pour les petits habitués, il existe même une formule chaque mois.",
+ "Kadyo Coiffure, à Longueuil. Les petits sont les bienvenus."]},
+"v08-hiver": {"style":"glass","titre":"Cheveux et barbe en hiver","vo":[
+ "L'hiver au Québec est dur pour tes cheveux… et pour ta barbe.",
+ "Le froid dehors, le chauffage dedans : tout s'assèche.",
+ "Hydrate plus souvent, et choisis une tuque doublée de satin.",
+ "Pour la barbe, un peu d'huile chaque jour, et ça ne grattera plus.",
+ "La meilleure protection ? Une coiffure protectrice : nattes, twists ou locks.",
+ "Prépare ton hiver chez Kadyo Coiffure."]},
+"v09-tous-les-services": {"style":"flap","titre":"Tous nos services","vo":[
+ "Tu pensais qu'on faisait juste des tresses ?",
+ "Nattes. Designs en croisé. Twists.",
+ "Locks : le départ, le retwist, l'entretien.",
+ "Barbier : la coupe, le dégradé, la barbe, les contours.",
+ "Pour les hommes, les femmes… et les enfants.",
+ "Kadyo Coiffure. On est à Longueuil."]},
+"v10-le-club": {"style":"deco","titre":"Le Club","vo":[
+ "Il existe un club… chez Kadyo Coiffure.",
+ "Ses membres ne paient plus leurs coupes à la visite.",
+ "Ils ont des privilèges que les autres n'ont pas.",
+ "Les détails ? On les donne seulement au salon.",
+ "Club Kadyo. Demande ton invitation."]}
+}
