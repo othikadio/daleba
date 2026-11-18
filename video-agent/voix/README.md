@@ -17,3 +17,8 @@
 - `voix_pro.py` : voix intégrée de Chatterbox (pas de référence, voix de personne réelle), `exaggeration 0.75`, `cfg 0.4`.
 - Faire 2 prises par phrase (seeds 11 et 5) : sans référence, le modèle ajoute parfois du charabia en fin de phrase → couper au dernier mot avec les timestamps whisper.
 - Traitement : highpass 60, +1,5 dB @160, +2,5 dB @3 kHz, +1,5 dB @10 kHz, compresseur 2,5:1, limiteur.
+
+## Voix françaises naturelles (remplace la voix pro à accent anglais)
+- La voix intégrée de Chatterbox a un accent anglais. On donne maintenant à Chatterbox une **référence en français natif** produite par Piper TTS (voix libres, entraînées pour la synthèse) : `refs-fr/ref_tom-medium.wav` (A, homme), `ref_siwis-medium.wav` (B, femme), `ref_upmc-medium.wav` (C, femme).
+- Piper : `/opt/piper` (`uv pip install piper-tts`), voix depuis `huggingface.co/rhasspy/piper-voices` (fr_FR).
+- Réglages : `ex 0.6`, `cfg 0.5`, seed 11. Écrire « Kadyo » dans le texte.
