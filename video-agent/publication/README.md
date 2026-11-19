@@ -5,3 +5,5 @@
 - Envoyer une vidéo : `curl -X POST https://api.postiz.com/public/v1/upload -H "Authorization: $CLE" -F "file=@video.mp4;type=video/mp4"`
 - Programmer : `python3 -I programmer_postiz.py calendrier.json medias.json 0,1,2 tiktok "$CLE"`
 - TikTok : `video_made_with_ai: true` (voix off clonée par IA).
+- Google Business (fiche « Kadio Coiffure et esthétique », id cmwddd862008jo1080bj7nt2r) : Google n'accepte pas la vidéo dans les posts → on publie une vraie photo + texte, settings `{"__type":"gmb","topicType":"STANDARD","callToActionType":"BOOK","callToActionUrl":"https://kadiocoiffure.com"}`.
+- Vérifier l'état : `GET /public/v1/posts?startDate=…&endDate=…` (state PUBLISHED / QUEUE / ERROR, releaseURL).
