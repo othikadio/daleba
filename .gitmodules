@@ -9,3 +9,4 @@
 [submodule "outils/open-higgsfield"]
 	path = outils/open-higgsfield
 	url = https://github.com/wide-trace/open-higgsfield.git
+	ignore = dirty
