@@ -217,3 +217,22 @@ html, body { width: 1080px; height: 1920px; overflow: hidden; }
 .st-pole .it:nth-child(2) { border-left-color: #1f4fd8; }
 .st-pole .pill { background: #e8202f; color: #fff; transform: skewX(-8deg); }
 .st-pole #wipe { left: -100px; top: 0; width: 1280px; height: 1920px; background: repeating-linear-gradient(-45deg, #e8202f 0 60px, #fff 60px 120px, #1f4fd8 120px 180px, #fff 180px 240px); }
+
+/* ---------- 13 · CINÉMA (sortie du client) ---------- */
+@font-face { font-family: Caladea; src: url(fonts/Caladea-Bold.ttf); font-weight: 700; }
+@font-face { font-family: Caladea; src: url(fonts/Caladea-Regular.ttf); font-weight: 400; }
+.st-cine { --bg: #0b0806; --fg: #fff6e6; --fg2: #f1d9a8; --ac: #e8b866; --f1: Caladea; --f2: Outfit; --bs: 132px; }
+.st-cine .scene { justify-content: flex-end; padding-bottom: 470px; }
+.st-cine .photo { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; z-index: 0; background-position: 50% 40%; filter: sepia(.22) saturate(1.1) contrast(1.06); }
+.st-cine .scene::after { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(11,8,6,.55) 0%, rgba(11,8,6,0) 22%, rgba(11,8,6,0) 45%, rgba(11,8,6,.9) 80%); pointer-events: none; }
+.st-cine .scene > *:not(.photo) { position: relative; z-index: 2; }
+.st-cine .big { font-weight: 700; letter-spacing: .02em; text-shadow: 0 6px 30px rgba(0,0,0,.6); }
+.st-cine .kick { font-size: 30px; letter-spacing: .3em; color: #e8b866; }
+.st-cine .sub { font-family: Caladea; font-weight: 400; font-style: italic; font-size: 58px; color: #f1d9a8; }
+.st-cine .grid4 { width: 900px; } .st-cine .grid4 .gp { height: 430px; box-shadow: 0 0 0 4px #e8b866; }
+.st-cine .pill { border: 3px solid #e8b866; color: #fff6e6; font-family: Caladea; }
+.st-cine #grain { position: absolute; inset: 0; z-index: 40; opacity: .16; mix-blend-mode: overlay; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>"); background-size: 300px 300px; }
+.st-cine #brand { color: #e8b866; z-index: 45; }
+.st-cine #wipe { left: 0; top: 0; width: 1080px; height: 1920px; background: #000; }
+.st-cine #chrome::before, .st-cine #chrome::after { content: ""; position: absolute; left: 0; right: 0; height: 110px; background: #000; z-index: 44; }
+.st-cine #chrome::before { top: 0; } .st-cine #chrome::after { bottom: 0; }

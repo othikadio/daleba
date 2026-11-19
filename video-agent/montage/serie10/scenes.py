@@ -100,3 +100,12 @@ SC["v12-barbier-ta-coupe"] = [
 ]
 MUSIC["v11-barbier-preuves"] = ("young-trizzy", 40)
 MUSIC["v12-barbier-ta-coupe"] = ("midnight-funk", 40)
+SC["v13-sortie-client"] = [
+  dict(kick="SCÈNE 01 — LA SORTIE", big=["UNE COUPE", "FRAÎCHE"], sub="… et la soirée commence.", photo="sortie-1"),
+  dict(kick="SCÈNE 02 — LE DÉTAIL", big=["CONTOUR NET"], sub="Chemise blanche.", photo="sortie-2"),
+  dict(kick="SCÈNE 03 — LE REGARD", big=["PRÊT."], sub="Ça se voit tout de suite.", photo="sortie-3"),
+  dict(kick="SCÈNE 04 — LE DÎNER", big=["CE SOIR,", "C'EST LUI"], sub="qu'on remarque.", photo="sortie-4"),
+  dict(kick="ENVOYÉ PAR NOTRE CLIENT", big=["MERCI"], sub="pour la photo et ta confiance", grid=["sortie-1", "sortie-2", "sortie-3", "sortie-4"]),
+  dict(cta=1, kick="KADIO COIFFURE · LONGUEUIL", big=["TA PROCHAINE", "SORTIE"], sub="commence ici.", photo="sortie-4"),
+]
+MUSIC["v13-sortie-client"] = ("lounging-moonlight", 6)

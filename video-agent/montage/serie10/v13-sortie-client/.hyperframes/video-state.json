@@ -1,0 +1,302 @@
+{
+  "version": 1,
+  "historyId": "2bcf8699-8b04-428c-917b-45f3242caa2f",
+  "currentRevision": null,
+  "pendingChanges": false,
+  "files": {
+    "cues.json": {
+      "hash": "fe04e995fd5dff8159ebbad4001d1adceb400a063bab2ca57697cd6c019cee24",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/fe/fe04e995fd5dff8159ebbad4001d1adceb400a063bab2ca57697cd6c019cee24"
+    },
+    "fonts/Caladea-Bold.ttf": {
+      "hash": "ae3cb2dcbc925809dd29d2a44e9802211cab66be541bacbfc9c08c74b27c3742",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/ae/ae3cb2dcbc925809dd29d2a44e9802211cab66be541bacbfc9c08c74b27c3742"
+    },
+    "fonts/Caladea-Regular.ttf": {
+      "hash": "f1e899278b7b4491aba5b6a8253c4b04c050cc59b21865be5c37559a775153cd",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/f1/f1e899278b7b4491aba5b6a8253c4b04c050cc59b21865be5c37559a775153cd"
+    },
+    "fonts/InterDisplay-Black.otf": {
+      "hash": "c0ebb676933a45d73d16fea70c875f9f2b711b585c69b15962b7f2a890b5f8e8",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/c0/c0ebb676933a45d73d16fea70c875f9f2b711b585c69b15962b7f2a890b5f8e8"
+    },
+    "fonts/InterDisplay-Bold.otf": {
+      "hash": "4253eed76d9014a469d7449934e54250497ee007f4d58dab4ddefe9f759b1970",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/42/4253eed76d9014a469d7449934e54250497ee007f4d58dab4ddefe9f759b1970"
+    },
+    "fonts/anton-latin-400-normal.woff2": {
+      "hash": "d0fa07ff63dd60cbc0e2f58e29c802dca2a5ae0276c999f59c6111ab7bbaec3b",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/d0/d0fa07ff63dd60cbc0e2f58e29c802dca2a5ae0276c999f59c6111ab7bbaec3b"
+    },
+    "fonts/archivo-black-latin-400-normal.woff2": {
+      "hash": "25f33e61cf995abd6be62931cf03bf427286259177b43618cc410ee0157cfd30",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/25/25f33e61cf995abd6be62931cf03bf427286259177b43618cc410ee0157cfd30"
+    },
+    "fonts/bangers-latin-400-normal.woff2": {
+      "hash": "04f54ff42ea2b8fc50b4259c29c60b1e05e606b769c2fb541c98624346c9767c",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/04/04f54ff42ea2b8fc50b4259c29c60b1e05e606b769c2fb541c98624346c9767c"
+    },
+    "fonts/cinzel-latin-400-normal.woff2": {
+      "hash": "b873cdd90d6bd9ca4793c805b4175abfae00b3611ee8afccf63067133dcf1217",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/b8/b873cdd90d6bd9ca4793c805b4175abfae00b3611ee8afccf63067133dcf1217"
+    },
+    "fonts/cinzel-latin-700-normal.woff2": {
+      "hash": "8efa224fe70fef188a39c095e218b81fd31061809f2752537e33a9ec7b9c2263",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/8e/8efa224fe70fef188a39c095e218b81fd31061809f2752537e33a9ec7b9c2263"
+    },
+    "fonts/fredoka-latin-500-normal.woff2": {
+      "hash": "7d76e44a94b02894b384fc98c124ccf521d8460bf0e0bbe31c1b6b4be6099620",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/7d/7d76e44a94b02894b384fc98c124ccf521d8460bf0e0bbe31c1b6b4be6099620"
+    },
+    "fonts/fredoka-latin-700-normal.woff2": {
+      "hash": "ee61b48acab42fcfee4e1c398b03bbae7e09d1be8471779c440a97dc85118c16",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/ee/ee61b48acab42fcfee4e1c398b03bbae7e09d1be8471779c440a97dc85118c16"
+    },
+    "fonts/jetbrains-mono-latin-700-normal.woff2": {
+      "hash": "d0d4e818808f2a0ba39b2b09d1989366f63494e295f003c7ef436697378507e8",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/d0/d0d4e818808f2a0ba39b2b09d1989366f63494e295f003c7ef436697378507e8"
+    },
+    "fonts/monoton-latin-400-normal.woff2": {
+      "hash": "54dd0ac1cf6c02e094ad114d3cc038baddc42e5d6ba1c0b74566cedaed765c4c",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/54/54dd0ac1cf6c02e094ad114d3cc038baddc42e5d6ba1c0b74566cedaed765c4c"
+    },
+    "fonts/outfit-latin-300-normal.woff2": {
+      "hash": "ef88e74f63ce75b54cce4d5a4087c6f180750b9ebae6ab6e5bf2a9939bf6958f",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/ef/ef88e74f63ce75b54cce4d5a4087c6f180750b9ebae6ab6e5bf2a9939bf6958f"
+    },
+    "fonts/outfit-latin-700-normal.woff2": {
+      "hash": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/5d/5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706"
+    },
+    "fonts/outfit-latin-900-normal.woff2": {
+      "hash": "090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/09/090bdae2e8f2fdc962732c8f918d57c5501737c6826be989bcd770860ec19f85"
+    },
+    "fonts/righteous-latin-400-normal.woff2": {
+      "hash": "17055c538efddf7a754a98bb7db3d15405316dfb4645c287421ed3e7f8769144",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/17/17055c538efddf7a754a98bb7db3d15405316dfb4645c287421ed3e7f8769144"
+    },
+    "fonts/space-mono-latin-400-normal.woff2": {
+      "hash": "fb4a81a2d0a893e5c38c394a7e716a1cef0b24610a0af49c96f6d529bd66bf2b",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/fb/fb4a81a2d0a893e5c38c394a7e716a1cef0b24610a0af49c96f6d529bd66bf2b"
+    },
+    "fonts/space-mono-latin-700-normal.woff2": {
+      "hash": "2d46bd159b53f55c41167a4f1540a074649464194fd1e416f5b4694a6c0f282c",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/2d/2d46bd159b53f55c41167a4f1540a074649464194fd1e416f5b4694a6c0f282c"
+    },
+    "gsap.min.js": {
+      "hash": "92bb9a96476f983d212a2bc4f54c889039c1696dd4461d40a736860938570fbb",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/92/92bb9a96476f983d212a2bc4f54c889039c1696dd4461d40a736860938570fbb"
+    },
+    "hyperframes.json": {
+      "hash": "53dbce1e19aa713cbb12ee0bc4d206143b45ab15e6ffbfcaa8f69572d4d24d50",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/53/53dbce1e19aa713cbb12ee0bc4d206143b45ab15e6ffbfcaa8f69572d4d24d50"
+    },
+    "index.html": {
+      "hash": "8f4fb4d03cf17a19c5f2282237c592fd71eaef2f60aaf5a65382eaa4668e372b",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/8f/8f4fb4d03cf17a19c5f2282237c592fd71eaef2f60aaf5a65382eaa4668e372b"
+    },
+    "package.json": {
+      "hash": "0503f14b6a946a60b69841e6776452314936cf64bbc9ea6fcb3e513c3375d21b",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/05/0503f14b6a946a60b69841e6776452314936cf64bbc9ea6fcb3e513c3375d21b"
+    },
+    "photos/abo-barbier.jpg": {
+      "hash": "cd40971a0e2f83a2de0b5f995f34f38723e3584b3592dffff3ee139279c7adf3",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/cd/cd40971a0e2f83a2de0b5f995f34f38723e3584b3592dffff3ee139279c7adf3"
+    },
+    "photos/b-contour-allonge.jpg": {
+      "hash": "847f80288605b62e9a6a7c239a9f44ef81d3e280f93c36bfd06d19ddb53fc549",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/84/847f80288605b62e9a6a7c239a9f44ef81d3e280f93c36bfd06d19ddb53fc549"
+    },
+    "photos/b-degrade.jpg": {
+      "hash": "af31552d92f36d48f1c31471abfa2fed015ff3bcdb7a5089359a0d20f4aa146f",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/af/af31552d92f36d48f1c31471abfa2fed015ff3bcdb7a5089359a0d20f4aa146f"
+    },
+    "photos/b-profil-barbe.jpg": {
+      "hash": "7e7c9fb96e0101f78e9ee7738f05696bc86f8d24d1c43bf142a5a77c261e22a9",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/7e/7e7c9fb96e0101f78e9ee7738f05696bc86f8d24d1c43bf142a5a77c261e22a9"
+    },
+    "photos/b-tresses-contour.jpg": {
+      "hash": "1ab1a475273c23fc788415ae6bb5055c97d056ff3ebfaf05f14785c7c64ccc0c",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/1a/1ab1a475273c23fc788415ae6bb5055c97d056ff3ebfaf05f14785c7c64ccc0c"
+    },
+    "photos/entretien-locs.jpg": {
+      "hash": "8cfc754eb142085aeda52c574648ba2ee8e0729976cfc0140ef24f4ce3c4835e",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/8c/8cfc754eb142085aeda52c574648ba2ee8e0729976cfc0140ef24f4ce3c4835e"
+    },
+    "photos/k1.jpg": {
+      "hash": "a9620f907b350928f4f60de9d921008bdfb2a4da652904ae1f37e304d3322d6d",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/a9/a9620f907b350928f4f60de9d921008bdfb2a4da652904ae1f37e304d3322d6d"
+    },
+    "photos/k2.jpg": {
+      "hash": "e706313ccd8ce6af6a4f9b28d954919d17e4a78c73ac495dfade1c8fbfdbf56a",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/e7/e706313ccd8ce6af6a4f9b28d954919d17e4a78c73ac495dfade1c8fbfdbf56a"
+    },
+    "photos/k3.jpg": {
+      "hash": "a11543988c9860827777940961e14bf4af13292e2938caabe64ef97f4edb1be0",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/a1/a11543988c9860827777940961e14bf4af13292e2938caabe64ef97f4edb1be0"
+    },
+    "photos/k4.jpg": {
+      "hash": "85c7f19ef55c1f656db79719128a8c681cca5fee3119ff79ecb52e08461deb05",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/85/85c7f19ef55c1f656db79719128a8c681cca5fee3119ff79ecb52e08461deb05"
+    },
+    "photos/k5.jpg": {
+      "hash": "dcfecbf9c54d8c8293fed1b80f57b791938e7cf8302eacbd3c99d3fce724da40",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/dc/dcfecbf9c54d8c8293fed1b80f57b791938e7cf8302eacbd3c99d3fce724da40"
+    },
+    "photos/k6.jpg": {
+      "hash": "c55fce35c13670b185d8ddc631feb6d9f589a9fac5962761f81b7a1792194426",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/c5/c55fce35c13670b185d8ddc631feb6d9f589a9fac5962761f81b7a1792194426"
+    },
+    "photos/k7.jpg": {
+      "hash": "fc67c56dfd6388bf209593a998d09f025602bfd295215690bd0ef8c7b8d89662",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/fc/fc67c56dfd6388bf209593a998d09f025602bfd295215690bd0ef8c7b8d89662"
+    },
+    "photos/menu-barbier.jpg": {
+      "hash": "c48f5c2f760aee8c5a27997ce2cc4e597cc91641a6dd68860776860d9f9007d6",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/c4/c48f5c2f760aee8c5a27997ce2cc4e597cc91641a6dd68860776860d9f9007d6"
+    },
+    "photos/soins-locs.jpg": {
+      "hash": "af7d0ddcfb77b1630833f9758999b11030ba15953d99a570fe5ba45f5562cd4d",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/af/af7d0ddcfb77b1630833f9758999b11030ba15953d99a570fe5ba45f5562cd4d"
+    },
+    "photos/sortie-1.jpg": {
+      "hash": "70615ff9f1b6d1fef9801b89129918ab5625f966004c9eb619c4883310bb695f",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/70/70615ff9f1b6d1fef9801b89129918ab5625f966004c9eb619c4883310bb695f"
+    },
+    "photos/sortie-2.jpg": {
+      "hash": "c9fae4377928b35e1e48f05c4d6bb3d043c8c2f605b70f8acaf5bd9d52aa2913",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/c9/c9fae4377928b35e1e48f05c4d6bb3d043c8c2f605b70f8acaf5bd9d52aa2913"
+    },
+    "photos/sortie-3.jpg": {
+      "hash": "f352addc7603c9ec75e796ef9f9143ed01a92ce55d30feb09945b9e6366eb261",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/f3/f352addc7603c9ec75e796ef9f9143ed01a92ce55d30feb09945b9e6366eb261"
+    },
+    "photos/sortie-4.jpg": {
+      "hash": "bbcf4465f77da8f3ad6a2ad06460e41a3abf7fb8fabecbc6ee267727d1651cf1",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/bb/bbcf4465f77da8f3ad6a2ad06460e41a3abf7fb8fabecbc6ee267727d1651cf1"
+    },
+    "photos/sortie-collage.jpg": {
+      "hash": "cd09cb388bb66d241220fc4a6e034afdbcaf14ecf8dce2c16411050ad47d6749",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/cd/cd09cb388bb66d241220fc4a6e034afdbcaf14ecf8dce2c16411050ad47d6749"
+    },
+    "photos/twists.jpg": {
+      "hash": "b64aaf7c782be02b9c79e0fda2840b52db794c167fe3d97ff95fd07a5a037a8b",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/b6/b64aaf7c782be02b9c79e0fda2840b52db794c167fe3d97ff95fd07a5a037a8b"
+    },
+    "photos/vrai-locks.jpg": {
+      "hash": "c5e0a454e6dcf296f348767713f6b1909862ab0786b7ddbb6792f5d15512b034",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/c5/c5e0a454e6dcf296f348767713f6b1909862ab0786b7ddbb6792f5d15512b034"
+    },
+    "photos/vrai-salon-gestes.jpg": {
+      "hash": "a9cf9d00bdb98c7d9c1bbe2565b3687bd98d2757d41955c5469877e55a0fd839",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/a9/a9cf9d00bdb98c7d9c1bbe2565b3687bd98d2757d41955c5469877e55a0fd839"
+    },
+    "photos/vrai-salon-tresses.jpg": {
+      "hash": "1b4c68aa92a1aa6e48463d6f896e5016186cc10c6b15d52113a86ba460e7045d",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/1b/1b4c68aa92a1aa6e48463d6f896e5016186cc10c6b15d52113a86ba460e7045d"
+    },
+    "styles.css": {
+      "hash": "70e12ea13dc6d14ad997d9b2b57e2f9e1a780b7f36c2959db617c995c1e2dcdf",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/70/70e12ea13dc6d14ad997d9b2b57e2f9e1a780b7f36c2959db617c995c1e2dcdf"
+    },
+    "vo/raw_0.wav": {
+      "hash": "d3205670ad9bd89c42ce764a07d8deba29fe3dd0af2989e14ad20699ffb50a3e",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/d3/d3205670ad9bd89c42ce764a07d8deba29fe3dd0af2989e14ad20699ffb50a3e"
+    },
+    "vo/raw_1.wav": {
+      "hash": "ea59afacbd8708d9348dafb5efe499acc8f560adc909451d1419cdd19b6ff9af",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/ea/ea59afacbd8708d9348dafb5efe499acc8f560adc909451d1419cdd19b6ff9af"
+    },
+    "vo/raw_2.wav": {
+      "hash": "aa6200ef781dd997bb2d4b0e0a7131ccfd2163c579a56142969f195b8c162277",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/aa/aa6200ef781dd997bb2d4b0e0a7131ccfd2163c579a56142969f195b8c162277"
+    },
+    "vo/raw_3.wav": {
+      "hash": "4cc878c0622174eed7d4f47cbad17cc041831061426eba56ac941a7b1ccf9bfb",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/4c/4cc878c0622174eed7d4f47cbad17cc041831061426eba56ac941a7b1ccf9bfb"
+    },
+    "vo/raw_4.wav": {
+      "hash": "f2cfb2a3d1c7fad07b01b80f25941907b77fd6e80f55a4ab7ff6283438af6331",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/f2/f2cfb2a3d1c7fad07b01b80f25941907b77fd6e80f55a4ab7ff6283438af6331"
+    },
+    "vo/raw_5.wav": {
+      "hash": "bfe54f41ec3e11f253c505e4a11b18541a4a2d854bca91e3667a0d0622adc41b",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/bf/bfe54f41ec3e11f253c505e4a11b18541a4a2d854bca91e3667a0d0622adc41b"
+    },
+    "vo/take5_0.wav": {
+      "hash": "adfe711ba8be3860eb59d33a9448cecbe27263662996e114d22071f9592298db",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/ad/adfe711ba8be3860eb59d33a9448cecbe27263662996e114d22071f9592298db"
+    },
+    "vo/take5_1.wav": {
+      "hash": "ea59afacbd8708d9348dafb5efe499acc8f560adc909451d1419cdd19b6ff9af",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/ea/ea59afacbd8708d9348dafb5efe499acc8f560adc909451d1419cdd19b6ff9af"
+    },
+    "vo/take5_2.wav": {
+      "hash": "ff162608c13fae610adf14297c3fe5c0464ce7f706f81677857742a646db6a23",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/ff/ff162608c13fae610adf14297c3fe5c0464ce7f706f81677857742a646db6a23"
+    },
+    "vo/take5_3.wav": {
+      "hash": "079e21a0c30c82e23a78c6525e54114e4eb00b1e8b90205b5a1f78ca201f27e4",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/07/079e21a0c30c82e23a78c6525e54114e4eb00b1e8b90205b5a1f78ca201f27e4"
+    },
+    "vo/take5_4.wav": {
+      "hash": "67d6409ea4a32c23cd2eb0b2cfeae9bf1dc3b7585af5394c3295f2b29ff8a9d2",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/67/67d6409ea4a32c23cd2eb0b2cfeae9bf1dc3b7585af5394c3295f2b29ff8a9d2"
+    },
+    "vo/take5_5.wav": {
+      "hash": "bfe54f41ec3e11f253c505e4a11b18541a4a2d854bca91e3667a0d0622adc41b",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/bf/bfe54f41ec3e11f253c505e4a11b18541a4a2d854bca91e3667a0d0622adc41b"
+    },
+    "vo/vo_0.wav": {
+      "hash": "1d76784b76a0541c0290aea0c111d3209a072682f25af4da1986c3e279558907",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/1d/1d76784b76a0541c0290aea0c111d3209a072682f25af4da1986c3e279558907"
+    },
+    "vo/vo_1.wav": {
+      "hash": "1b912601711a4abf0e7d46a5141cb2961402de9ac1a4fcd480edfb66df8b35f8",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/1b/1b912601711a4abf0e7d46a5141cb2961402de9ac1a4fcd480edfb66df8b35f8"
+    },
+    "vo/vo_2.wav": {
+      "hash": "e586e37fe3b596fd980f78b59218139ce4d31b54ddb43dc7788f6f734383869d",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/e5/e586e37fe3b596fd980f78b59218139ce4d31b54ddb43dc7788f6f734383869d"
+    },
+    "vo/vo_3.wav": {
+      "hash": "086fab08576be838a640f2bbe3c6157bc80f78625f8b6608dba2345e3c9b7d83",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/08/086fab08576be838a640f2bbe3c6157bc80f78625f8b6608dba2345e3c9b7d83"
+    },
+    "vo/vo_4.wav": {
+      "hash": "1ded211a7b7a288ab62376aa5829e095c4967dcc391a8452eef0aded93317698",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/1d/1ded211a7b7a288ab62376aa5829e095c4967dcc391a8452eef0aded93317698"
+    },
+    "vo/vo_5.wav": {
+      "hash": "9385f3a4a5ba42732befae278df4be27c26081cac2c901e5be679bbee400f782",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/93/9385f3a4a5ba42732befae278df4be27c26081cac2c901e5be679bbee400f782"
+    },
+    "vo.json": {
+      "hash": "a35feffd5d3305f48fde18861fbada802594cdfe387fe8cdc698a2e2f1bc1202",
+      "content": "/root/.cache/hyperframes/history/2bcf8699-8b04-428c-917b-45f3242caa2f/blobs/a3/a35feffd5d3305f48fde18861fbada802594cdfe387fe8cdc698a2e2f1bc1202"
+    }
+  },
+  "revisions": {},
+  "checks": {
+    "latest": null,
+    "revisions": {},
+    "unversioned": []
+  },
+  "snapshots": {
+    "latest": null,
+    "revisions": {},
+    "unversioned": []
+  },
+  "renders": {
+    "latest": {
+      "id": "282fc9b2-e101-4d0a-9a88-a58339f68f33",
+      "completedAt": 1795053988730,
+      "output": "/home/user/daleba/video-agent/montage/serie10/.tmp/v13-sortie-client.mp4",
+      "status": "completed",
+      "revision": null
+    },
+    "retainedRevisions": []
+  },
+  "pendingArtifactCleanup": []
+}

@@ -32,6 +32,7 @@ BG = {
  "flap": '<div id="board"></div>',
  "mag": '<div id="mast">KADIO</div><div id="issue">N° 12 · BARBIER · LONGUEUIL</div>',
  "pole": '<div id="poleL" class="pole"></div><div id="poleR" class="pole"></div><div id="vig"></div>',
+ "cine": '<div id="grain"></div>',
  "deco": '<div id="rays"></div><div class="corner k1"></div><div class="corner k2"></div><div class="corner k3"></div><div class="corner k4"></div>',
 }
 

@@ -92,6 +92,11 @@
             ln.forEach(function (l, k) { from(l, t + k * .12, { scale: 1.8, opacity: 0, filter: "blur(10px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: .4, ease: "power4.out" }); cue(t + k * .12, "pop-hard.wav", .35); }); },
           box: function (el, t, k) { from(el, t, { x: k % 2 ? 700 : -700, skewX: k % 2 ? -12 : 12 }, { x: 0, skewX: 0, duration: .5, ease: "expo.out" }); },
           trans: function (t) { from("#wipe", t - .28, { xPercent: 100, skewX: -10 }, { xPercent: 0, skewX: -10, duration: .28, ease: "power3.in" }); tl.to("#wipe", { xPercent: -110, duration: .3, ease: "power3.out" }, t); } },
+        cine: { sfx: { big: "woosh-air.wav", it: "click.wav", tr: "swoosh-wind.wav", ph: "shutter-vintage.wav", bd: "sparkle.wav" },
+          big: function (els, t, box) { from(box, t, { opacity: 0, y: 40, filter: "blur(14px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 1.1, ease: "power2.out" }); },
+          box: function (el, t) { if (el.classList.contains("photo")) { from(el, Math.max(.05, t - .2), { opacity: 0 }, { opacity: 1, duration: .6, ease: "power1.out" }); return; }
+            from(el, t, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: .8, ease: "power2.out" }); },
+          trans: function (t) { tl.set("#wipe", { opacity: 0 }, 0); tl.fromTo("#wipe", { opacity: 0 }, { opacity: 1, duration: .25, ease: "power1.in", immediateRender: false }, t - .25); tl.to("#wipe", { opacity: 0, duration: .45, ease: "power1.out" }, t); } },
       };
       const FL = [], AL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
       const p = P[STY]; const X = p.sfx;
@@ -124,6 +129,8 @@
       document.querySelectorAll(".grid4").forEach(function (g) { const sc = g.closest(".scene"); const i = +sc.id.slice(1);
         Array.from(g.children).forEach(function (c, k) { from(c, st(i) + .3 + k * .2, { scale: 0, rotate: k % 2 ? 8 : -8 }, { scale: 1, rotate: k % 2 ? 2 : -2, duration: .5, ease: "back.out(1.8)" }, "shutter.wav", .4); }); });
       bg(".pole", { backgroundPositionY: "+=" + Math.round(T * 120) + "px" });
+      if (STY === "cine") { for (let i = 0; i < N; i++) { const ph = q(i, ".photo")[0]; if (ph) tl.fromTo(ph, { scale: 1.03 }, { scale: 1.16, duration: du(i), ease: "none", immediateRender: false }, st(i)); }
+        tl.fromTo("#grain", { backgroundPosition: "0px 0px" }, { backgroundPosition: "0px " + Math.round(T * 24) * 37 + "px", duration: T, ease: "steps(" + Math.round(T * 24) + ")" }, 0); }
       cue(.05, X.bd, .3);
       window.__cues = CUES;
       window.__timelines = window.__timelines || {}; window.__timelines["main"] = tl;
