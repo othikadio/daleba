@@ -30,6 +30,8 @@ BG = {
  "glass": '<div class="blob o1"></div><div class="blob o2"></div><div class="blob o3"></div>' + "".join(
      f'<div class="flake" style="left:{(k * 197) % 1040}px;top:{(k * 331) % 1900}px;font-size:{26 + (k * 13) % 30}px">❄</div>' for k in range(16)),
  "flap": '<div id="board"></div>',
+ "mag": '<div id="mast">KADIO</div><div id="issue">N° 12 · BARBIER · LONGUEUIL</div>',
+ "pole": '<div id="poleL" class="pole"></div><div id="poleR" class="pole"></div><div id="vig"></div>',
  "deco": '<div id="rays"></div><div class="corner k1"></div><div class="corner k2"></div><div class="corner k3"></div><div class="corner k4"></div>',
 }
 
@@ -37,6 +39,7 @@ BG = {
 def scene(i, s):
     st, du = SCH[i]; parts = []
     if s.get("photo"): parts.append(f'<div class="photo" style="background-image:url(photos/{s["photo"]}.jpg)"></div>')
+    if s.get("grid"): parts.append('<div class="grid4">' + "".join(f'<div class="gp" style="background-image:url(photos/{g}.jpg)"></div>' for g in s["grid"]) + '</div>')
     if s.get("kick"): parts.append(f'<div class="kick">{e(s["kick"])}</div>')
     if STY == "deco" and s.get("big"): parts.append('<div class="rule"></div>')
     if s.get("big"): parts.append('<div class="big">' + "".join(f'<span class="ln split">{e(l)}</span>' for l in s["big"]) + '</div>')

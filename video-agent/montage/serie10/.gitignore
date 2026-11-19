@@ -2,3 +2,4 @@
 *.log
 *.mp4
 !shared/sfx/*.wav
+.tmp/

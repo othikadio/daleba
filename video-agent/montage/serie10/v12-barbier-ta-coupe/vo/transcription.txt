@@ -1,0 +1,6 @@
+0: Entre jus, mariage, photo, t 'as coupé par la vente toi.  [coupé à 3.20s, +3 mots en trop]
+1: Chez Cadio, chaque coupe commence par une vraie discussion.  [coupé à 3.00s]
+2: Le résultat, un dégradé propre comme celui -ci.  [coupé à 3.08s]
+3: et une barbe bien dessinée qui te ressemble.  [coupé à 2.82s]
+4: La coupe, 50 dollars, coupe et barbe, 60, ou le club un prix fixe chaque mois.  [coupé à 5.84s]
+5: Réserve maintenant sur notre site ou appelle -nous.  [coupé à 2.90s]

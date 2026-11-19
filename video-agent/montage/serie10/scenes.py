@@ -82,3 +82,21 @@ MUSIC = {
  "v07-premiere-coupe": ("sleepy-cat", 4), "v08-hiver": ("winter-wind", 2),
  "v09-tous-les-services": ("cat-walk", 8), "v10-le-club": ("smooth-jazz", 10),
 }
+SC["v11-barbier-preuves"] = [
+  dict(kick="BARBIER · LONGUEUIL", big=["LES", "PREUVES"], photo="b-profil-barbe", badge="N°1"),
+  dict(kick="PREUVE #1 · CONTOUR", big=["LIGNE NETTE"], sub="Coupé chez Kadio Coiffure", photo="b-contour-allonge"),
+  dict(kick="PREUVE #2 · DÉGRADÉ", big=["ZÉRO MARQUE"], photo="b-degrade"),
+  dict(kick="PREUVE #3 · TRESSES + CONTOUR", big=["LE DÉTAIL"], photo="b-tresses-contour"),
+  dict(kick="100 % RÉEL", big=["NOS CLIENTS"], sub="Pas des photos d'internet", grid=["b-profil-barbe", "b-contour-allonge", "b-degrade", "b-tresses-contour"]),
+  dict(cta=1, kick="COUPE + BARBE", big=["60 $"], sub="Réserve ta place"),
+]
+SC["v12-barbier-ta-coupe"] = [
+  dict(kick="ENTREVUE · MARIAGE · PHOTO", big=["TA COUPE", "PARLE", "AVANT TOI"], photo="b-tresses-contour"),
+  dict(kick="ÉTAPE 1", big=["ON DISCUTE"], items=["Ton style", "Ta forme de visage", "Ton entretien"]),
+  dict(kick="LE RÉSULTAT", big=["DÉGRADÉ PROPRE"], photo="b-degrade"),
+  dict(kick="LA BARBE", big=["BIEN DESSINÉE"], photo="b-profil-barbe"),
+  dict(kick="LES PRIX", items=["Coupe · 50 $", "Coupe + barbe · 60 $", "Club · prix fixe / mois"]),
+  dict(cta=1, big=["RÉSERVE", "MAINTENANT"], sub="Kadio Coiffure · Longueuil", photo="b-contour-allonge"),
+]
+MUSIC["v11-barbier-preuves"] = ("young-trizzy", 40)
+MUSIC["v12-barbier-ta-coupe"] = ("midnight-funk", 40)

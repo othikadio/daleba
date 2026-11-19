@@ -22,8 +22,9 @@
         el.innerHTML = Array.from(el.textContent).map(function (c) { return c === " " ? '<span class="ch"> </span>' : '<span class="ch">' + c + "</span>"; }).join("");
       });
       // texte trop large → on réduit pour qu'il tienne dans l'écran
-      document.querySelectorAll(".big .ln").forEach(function (ln) { const w = ln.scrollWidth, M = STY === "brutal" ? 790 : 920;
-        if (w > M) { if (STY === "flap") { ln.style.transform = "scale(" + (M / w).toFixed(3) + ")"; } else { ln.style.fontSize = (parseFloat(getComputedStyle(ln).fontSize) * M / w).toFixed(1) + "px"; } } });
+      function fitAll() { document.querySelectorAll(".big .ln").forEach(function (ln) { ln.style.fontSize = ""; ln.style.transform = ""; const w = ln.scrollWidth, M = STY === "brutal" ? 790 : (STY === "pole" ? 800 : 920);
+        if (w > M) { if (STY === "flap") { ln.style.transform = "scale(" + (M / w).toFixed(3) + ")"; } else { ln.style.fontSize = (parseFloat(getComputedStyle(ln).fontSize) * M / w).toFixed(1) + "px"; } } }); }
+      fitAll(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
       document.querySelectorAll(".badge").forEach(function (b) { if (b.textContent.length > 2) b.style.fontSize = (STY === "comic" ? 84 : 58) + "px"; });
       const tl = gsap.timeline({ paused: true });
       const S = function (i) { return document.getElementById("s" + i); };
@@ -82,6 +83,15 @@
           big: function (els, t, box) { from(box, t, { opacity: 0, scaleX: 1.35, y: 20 }, { opacity: 1, scaleX: 1, y: 0, duration: 1.1, ease: "power2.out" }, "sparkle.wav", .3); },
           box: function (el, t) { from(el, t, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .8, ease: "power2.out" }); },
           trans: function (t) { from("#wipe", t - .4, { scaleY: 0 }, { scaleY: 1, duration: .4, ease: "power2.inOut" }); tl.to("#wipe", { scaleY: 0, duration: .45, ease: "power2.inOut" }, t); } },
+        mag: { sfx: { big: "shutter-vintage.wav", it: "click.wav", tr: "shutter.wav", ph: "shutter.wav", bd: "pop-hard.wav" },
+          big: function (els, t, box) { from(els, t, { yPercent: 110, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .55, ease: "expo.out", stagger: .03 }); },
+          box: function (el, t, k) { from(el, t, { clipPath: "inset(100% 0 0 0)" }, { clipPath: "inset(0% 0 0 0)", duration: .7, ease: "expo.out" }); },
+          trans: function (t) { tl.set("#wipe", { opacity: 0 }, 0); tl.set("#wipe", { opacity: 1 }, t - .06); tl.to("#wipe", { opacity: 0, duration: .35, ease: "power2.out" }, t); } },
+        pole: { sfx: { big: "pop-hard.wav", it: "fit_key_thock.wav", tr: "whoosh-fast.wav", ph: "shutter.wav", bd: "bass.wav" },
+          big: function (els, t, box) { const ln = Array.from(box.querySelectorAll(".ln"));
+            ln.forEach(function (l, k) { from(l, t + k * .12, { scale: 1.8, opacity: 0, filter: "blur(10px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: .4, ease: "power4.out" }); cue(t + k * .12, "pop-hard.wav", .35); }); },
+          box: function (el, t, k) { from(el, t, { x: k % 2 ? 700 : -700, skewX: k % 2 ? -12 : 12 }, { x: 0, skewX: 0, duration: .5, ease: "expo.out" }); },
+          trans: function (t) { from("#wipe", t - .28, { xPercent: 100, skewX: -10 }, { xPercent: 0, skewX: -10, duration: .28, ease: "power3.in" }); tl.to("#wipe", { xPercent: -110, duration: .3, ease: "power3.out" }, t); } },
       };
       const FL = [], AL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
       const p = P[STY]; const X = p.sfx;
@@ -111,6 +121,9 @@
       if (document.getElementById("frame")) [3.1, 9.4, 17.2, 26.3].forEach(function (s) { if (s < T) { tl.set("#frame", { opacity: .3 }, s); tl.set("#frame", { opacity: 1 }, s + .07); tl.set("#frame", { opacity: .5 }, s + .14); tl.set("#frame", { opacity: 1 }, s + .2); } });
       if (FL.length) { const dummy = { v: 0 }; tl.to(dummy, { v: 1, duration: T, ease: "none", onUpdate: function () { const now = tl.time();
           FL.forEach(function (f) { const s = Math.floor((now - f.t0) / .05); f.c.textContent = s >= f.n ? f.fin : AL[(f.k * 7 + Math.max(0, s) * 11) % AL.length]; }); } }, 0); }
+      document.querySelectorAll(".grid4").forEach(function (g) { const sc = g.closest(".scene"); const i = +sc.id.slice(1);
+        Array.from(g.children).forEach(function (c, k) { from(c, st(i) + .3 + k * .2, { scale: 0, rotate: k % 2 ? 8 : -8 }, { scale: 1, rotate: k % 2 ? 2 : -2, duration: .5, ease: "back.out(1.8)" }, "shutter.wav", .4); }); });
+      bg(".pole", { backgroundPositionY: "+=" + Math.round(T * 120) + "px" });
       cue(.05, X.bd, .3);
       window.__cues = CUES;
       window.__timelines = window.__timelines || {}; window.__timelines["main"] = tl;
