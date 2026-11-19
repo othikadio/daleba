@@ -51,3 +51,11 @@ Tout est dans ton dépôt GitHub (branche `claude/montage-video-pvdm69`). Dans u
 - Télécharger le code des sous-modules : `git submodule update --init --depth 1`.
 
 > Non activé volontairement : les *hooks* d'everything-claude-code (scripts qui s'exécuteraient automatiquement à chaque session).
+
+## Open Higgsfield (`outils/open-higgsfield`)
+Studio web de génération IA : 38 modèles (8 images, 30 vidéos : Seedance 2.0/2.5, Kling 3, Wan, LTX, MiniMax, PixVerse, Flux, Ideogram, Soul…).
+- Lancer : `cd outils/open-higgsfield && pnpm install && HF_API_BASE_URL=<adresse API de la plateforme> pnpm dev` → http://localhost:3000
+- Version en ligne sans installation : openhiggsfield.ai
+- Il faut une **clé de plateforme payante** (format `id:secret`, crédits consommés à chaque génération). Le studio est gratuit, la génération non.
+- Pour Kadio : animer une photo de coupe (image → vidéo), faire bouger une photo client avec un mouvement de caméra, créer des plans B-roll de salon, prolonger un clip (Extend).
+- Pas de fichier de licence dans le dépôt : usage interne seulement.

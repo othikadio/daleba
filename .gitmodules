@@ -6,3 +6,6 @@
 	path = outils/everything-claude-code
 	url = https://github.com/affaan-m/everything-claude-code.git
 	shallow = true
+[submodule "outils/open-higgsfield"]
+	path = outils/open-higgsfield
+	url = https://github.com/wide-trace/open-higgsfield.git
