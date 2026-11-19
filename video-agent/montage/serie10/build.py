@@ -39,7 +39,8 @@ BG = {
 
 def scene(i, s):
     st, du = SCH[i]; parts = []
-    if s.get("photo"): parts.append(f'<div class="photo" style="background-image:url(photos/{s["photo"]}.jpg)"></div>')
+    if s.get("video"): pass
+    elif s.get("photo"): parts.append(f'<div class="photo" style="background-image:url(photos/{s["photo"]}.jpg)"></div>')
     if s.get("grid"): parts.append('<div class="grid4">' + "".join(f'<div class="gp" style="background-image:url(photos/{g}.jpg)"></div>' for g in s["grid"]) + '</div>')
     if s.get("kick"): parts.append(f'<div class="kick">{e(s["kick"])}</div>')
     if STY == "deco" and s.get("big"): parts.append('<div class="rule"></div>')
@@ -54,9 +55,11 @@ def scene(i, s):
     return f'<div id="s{i}" class="scene clip" data-start="{st}" data-duration="{du}" data-track-index="2">{inner}</div>'
 
 
+VIDS = "".join(f'<video id="vid{i}" class="clip bgvid" src="photos/{s["video"]}.mp4" muted playsinline data-start="{SCH[i][0]}" data-duration="{min(SCH[i][1], 5.0)}" data-track-index="1"></video>'
+               for i, s in enumerate(SCN) if s.get("video"))
 tpl = open(os.path.join(R, "template.tpl")).read()
 out = (tpl.replace("{{TOTAL}}", str(TOTAL)).replace("{{STYLE}}", STY).replace("{{BG}}", BG[STY])
-       .replace("{{SCENES}}", "\n".join(scene(i, s) for i, s in enumerate(SCN)))
+       .replace("{{SCENES}}", VIDS + "\n" + "\n".join(scene(i, s) for i, s in enumerate(SCN)))
        .replace("{{CFG}}", json.dumps({"total": TOTAL, "scenes": SCH, "style": STY})))
 open(os.path.join(D, "index.html"), "w").write(out)
 for f in ("hyperframes.json", "package.json"):

@@ -3,3 +3,4 @@
 *.mp4
 !shared/sfx/*.wav
 .tmp/
+__pycache__/

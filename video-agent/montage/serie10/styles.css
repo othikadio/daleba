@@ -236,3 +236,4 @@ html, body { width: 1080px; height: 1920px; overflow: hidden; }
 .st-cine #wipe { left: 0; top: 0; width: 1080px; height: 1920px; background: #000; }
 .st-cine #chrome::before, .st-cine #chrome::after { content: ""; position: absolute; left: 0; right: 0; height: 110px; background: #000; z-index: 44; }
 .st-cine #chrome::before { top: 0; } .st-cine #chrome::after { bottom: 0; }
+.bgvid { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; object-fit: cover; filter: sepia(.18) saturate(1.1) contrast(1.05); }

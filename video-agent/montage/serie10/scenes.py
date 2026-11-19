@@ -109,3 +109,6 @@ SC["v13-sortie-client"] = [
   dict(cta=1, kick="KADIO COIFFURE · LONGUEUIL", big=["TA PROCHAINE", "SORTIE"], sub="commence ici.", photo="sortie-4"),
 ]
 MUSIC["v13-sortie-client"] = ("lounging-moonlight", 6)
+
+SC["v14-sortie-client-ia"] = [dict(d, video=d["photo"]) if d.get("photo") and d["photo"] in ("sortie-1","sortie-2","sortie-3","sortie-4") and i < 4 else d for i, d in enumerate(SC["v13-sortie-client"])]
+MUSIC["v14-sortie-client-ia"] = MUSIC["v13-sortie-client"]

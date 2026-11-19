@@ -147,5 +147,17 @@
    "Merci pour la photo… et pour ta confiance.",
    "Ta prochaine sortie commence chez Kadyo Coiffure."
   ]
+ },
+ "v14-sortie-client-ia": {
+  "style": "cine",
+  "titre": "Sortie du salon",
+  "vo": [
+   "Une coupe fraîche… et la soirée commence.",
+   "Chemise blanche. Contour net.",
+   "Le regard qui dit : je suis prêt.",
+   "Ce soir, c'est lui qu'on remarque.",
+   "Merci pour la photo… et pour ta confiance.",
+   "Ta prochaine sortie commence chez Kadyo Coiffure."
+  ]
  }
 }
