@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<script src="gsap.min.js"></script>
+<style>
+@font-face { font-family: Anton; src: url(fonts/anton-latin-400-normal.woff2); }
+@font-face { font-family: JB; src: url(fonts/jetbrains-mono-latin-700-normal.woff2); font-weight: 700; }
+@font-face { font-family: Outfit; src: url(fonts/outfit-latin-700-normal.woff2); font-weight: 700; }
+:root { --acc: {{ACC}}; --gold: {{GOLD}}; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+#root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: #120a20; color: #fff; }
+.layer { position: absolute; inset: 0; }
+.v { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; object-fit: cover; }
+.ph { position: absolute; inset: 0; background-size: cover; background-position: center 40%; }
+.sky { background: {{SKY}}; }
+.sun { position: absolute; left: 290px; top: 760px; width: 500px; height: 500px; border-radius: 50%; background: linear-gradient(#ffe27a, #ff6a3d); box-shadow: 0 0 120px #ff8a4a; }
+.palms { position: absolute; left: 0; right: 0; bottom: 0; height: 520px; background: linear-gradient(180deg, transparent, #12061f 70%); }
+.pan { position: absolute; background-size: cover; background-position: center 35%; border: 10px solid #0d0d0d; box-shadow: 14px 14px 0 rgba(0,0,0,.55); }
+.title { position: absolute; left: 0; right: 0; text-align: center; font-family: Anton; transform: skewX(-9deg); }
+.title .t1 { font-size: 220px; line-height: .9; color: #fff; -webkit-text-stroke: 10px #0d0d0d; paint-order: stroke fill; text-shadow: 12px 12px 0 var(--acc); }
+.title .t2 { font-size: 52px; letter-spacing: .2em; color: var(--gold); -webkit-text-stroke: 4px #0d0d0d; paint-order: stroke fill; margin-top: 10px; }
+#load { position: absolute; left: 140px; right: 140px; bottom: 210px; height: 14px; background: rgba(255,255,255,.2); border: 3px solid #0d0d0d; }
+#load i { position: absolute; inset: 0; background: var(--gold); transform-origin: left; transform: scaleX(0); }
+#loadT { position: absolute; left: 0; right: 0; bottom: 245px; text-align: center; font: 700 26px JB; letter-spacing: .3em; }
+#objective { position: absolute; left: 50px; top: 180px; width: 620px; padding: 22px 26px; background: rgba(10,6,20,.78); border-left: 8px solid var(--gold); font: 700 32px Outfit; line-height: 1.3; }
+#objective small { display: block; font: 700 22px JB; color: var(--gold); letter-spacing: .2em; margin-bottom: 6px; }
+#map { position: absolute; left: 50px; bottom: 300px; width: 300px; height: 300px; border-radius: 50%; overflow: hidden; border: 8px solid #0d0d0d; background: #1d3b2a;
+  background-image: linear-gradient(90deg, rgba(255,255,255,.25) 6px, transparent 6px), linear-gradient(rgba(255,255,255,.25) 6px, transparent 6px); background-size: 70px 70px; box-shadow: 0 0 0 4px rgba(255,255,255,.5); }
+#map .route { position: absolute; left: 150px; top: 60px; width: 8px; height: 100px; background: var(--acc); box-shadow: 0 0 10px var(--acc); }
+#map .route2 { position: absolute; left: 150px; top: 60px; width: 90px; height: 8px; background: var(--acc); box-shadow: 0 0 10px var(--acc); }
+#map .me { position: absolute; left: 138px; top: 140px; width: 0; height: 0; border-left: 16px solid transparent; border-right: 16px solid transparent; border-bottom: 34px solid #fff; }
+#map .dest { position: absolute; left: 222px; top: 34px; width: 50px; height: 50px; border-radius: 50%; background: var(--gold); color: #0d0d0d; font: 30px Anton; display: flex; align-items: center; justify-content: center; border: 4px solid #0d0d0d; }
+#money { position: absolute; right: 50px; top: 180px; text-align: right; font: 92px Anton; color: #7dff8a; -webkit-text-stroke: 5px #0d0d0d; paint-order: stroke fill; }
+#stars { position: absolute; right: 50px; top: 300px; font: 60px Outfit; color: var(--gold); letter-spacing: 6px; text-shadow: 3px 3px 0 #0d0d0d; }
+#stars span { opacity: .25; display: inline-block; }
+#style { position: absolute; right: 50px; top: 390px; width: 300px; }
+#style b { display: block; font: 700 22px JB; letter-spacing: .2em; text-align: right; }
+#style .bar { margin-top: 8px; height: 22px; border: 4px solid #0d0d0d; background: rgba(0,0,0,.5); position: relative; }
+#style .bar i { position: absolute; inset: 0; background: linear-gradient(90deg, var(--acc), var(--gold)); transform-origin: left; transform: scaleX(.15); }
+.mission { position: absolute; left: 0; right: 0; top: 760px; text-align: center; font-family: Anton; transform: skewX(-8deg); }
+.mission .m1 { font-size: 64px; letter-spacing: .25em; color: var(--gold); -webkit-text-stroke: 4px #0d0d0d; paint-order: stroke fill; }
+.mission .m2 { font-size: 150px; line-height: .95; -webkit-text-stroke: 9px #0d0d0d; paint-order: stroke fill; text-shadow: 10px 10px 0 var(--acc); }
+.step { position: absolute; left: 50px; right: 50px; bottom: 640px; text-align: center; font: 90px Anton; transform: skewX(-8deg); -webkit-text-stroke: 7px #0d0d0d; paint-order: stroke fill; text-shadow: 8px 8px 0 var(--acc); }
+.shop { position: absolute; left: 60px; right: 60px; top: 330px; background: rgba(10,6,20,.86); border: 8px solid #0d0d0d; box-shadow: 16px 16px 0 var(--acc); padding: 40px 40px 34px; }
+.sh { font: 92px Anton; transform: skewX(-8deg); color: var(--gold); -webkit-text-stroke: 5px #0d0d0d; paint-order: stroke fill; margin-bottom: 26px; }
+.item { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 26px 22px; margin-top: 16px; border: 4px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06); }
+.item .in { font: 700 40px Outfit; line-height: 1.15; }
+.item .pr { font: 64px Anton; color: #7dff8a; -webkit-text-stroke: 4px #0d0d0d; paint-order: stroke fill; white-space: nowrap; }
+.note { margin-top: 26px; font: 700 26px JB; color: rgba(255,255,255,.7); letter-spacing: .08em; }
+.ok { position: absolute; left: 0; right: 0; top: 680px; text-align: center; transform: skewX(-8deg); }
+.ok .o1 { display: inline-block; font: 170px/0.95 Anton; color: var(--gold); -webkit-text-stroke: 10px #0d0d0d; paint-order: stroke fill; text-shadow: 12px 12px 0 rgba(0,0,0,.6); }
+.ok .o2 { margin-top: 20px; font: 76px Anton; color: #7dff8a; -webkit-text-stroke: 6px #0d0d0d; paint-order: stroke fill; }
+.bandeau { position: absolute; left: 0; right: 0; top: 640px; height: 470px; background: linear-gradient(90deg, transparent, rgba(0,0,0,.6) 20%, rgba(0,0,0,.6) 80%, transparent); }
+#poster { position: absolute; left: 60px; top: 230px; width: 960px; height: 1080px; border: 12px solid #0d0d0d; background-position: center 35%; background-size: cover; box-shadow: 16px 16px 0 var(--acc); }
+.endT { position: absolute; left: 0; right: 0; top: 1350px; text-align: center; }
+.endT .e1 { font: 150px/0.9 Anton; transform: skewX(-9deg); -webkit-text-stroke: 9px #0d0d0d; paint-order: stroke fill; text-shadow: 10px 10px 0 var(--acc); }
+.endT .e2 { margin-top: 18px; font: 700 34px JB; letter-spacing: .25em; color: var(--gold); }
+.endT .e3 { display: inline-block; margin-top: 20px; padding: 14px 40px; background: var(--gold); color: #0d0d0d; font: 56px Anton; border: 6px solid #0d0d0d; transform: skewX(-8deg); }
+.ch { display: inline-block; white-space: pre; }
+#flash { background: #fff; opacity: 0; }
+#scan { background: repeating-linear-gradient(0deg, rgba(0,0,0,.12) 0 2px, transparent 2px 5px); }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="{{TOTAL}}" data-width="1080" data-height="1920">
+{{BODY}}
+</div>
+<script>
+const C = {{CFG}}; const T = C.total, TL = C.TL, P = C.P;
+const CUES = []; const cue = (t, file, gain) => CUES.push({ t: +t.toFixed(3), file: file, gain: gain == null ? .5 : gain });
+const tl = gsap.timeline({ paused: true });
+function from(els, t, a, b, f, g) { tl.fromTo(els, a, Object.assign({ immediateRender: false }, b), t); tl.set(els, a, 0); if (f) cue(t, f, g); }
+function flash(t) { tl.set("#flash", { opacity: 0 }, 0); tl.fromTo("#flash", { opacity: .9 }, { opacity: 0, duration: .3, ease: "power2.out", immediateRender: false }, t); }
+function vis(sel, a, b) { tl.set(sel, { autoAlpha: 0 }, 0); tl.set(sel, { autoAlpha: 1 }, a); tl.set(sel, { autoAlpha: 0 }, b); }
+// visibilité des scènes pilotée par la timeline
+vis("#M", TL.M[0], TL.M[0] + TL.M[1]); vis("#S", TL.S[0], TL.S[0] + TL.S[1]); vis("#W", TL.W[0] + .5, TL.W[0] + TL.W[1]); vis("#E", TL.E[0], T + .1);
+vis("#H", TL.M[0] + .3, TL.S[0]); tl.set("#H", { autoAlpha: 1 }, TL.W[0]); tl.set("#H", { autoAlpha: 0 }, TL.E[0]);
+P.forEach(function (p, i) { vis("#st" + i, p[0], p[0] + p[1]); if (!C.isvid[i]) vis("#g" + i, p[0], p[0] + p[1]); });
+if (!C.winvid) vis("#wv", TL.W[0], TL.W[0] + TL.W[1]);
+tl.set("#L", { autoAlpha: 1 }, 0); tl.set("#L", { autoAlpha: 0 }, TL.L[1]);
+// 0 · chargement
+["#p0", "#p1", "#p2", "#p3"].forEach(function (p, i) { from(p, .1 + i * .26, { scale: 1.6, opacity: 0 }, { scale: 1, opacity: 1, duration: .3, ease: "power4.in" }, "pop-hard.wav", .45);
+  tl.to(p, { x: i % 2 ? 16 : -16, y: i < 2 ? -12 : 12, duration: 3, ease: "none" }, .5); });
+from("#L .t1 .ch", 1.3, { opacity: 0, y: 120, rotate: -10 }, { opacity: 1, y: 0, rotate: 0, duration: .4, stagger: .05, ease: "back.out(2)" }, "whoosh-fast.wav", .4);
+cue(1.8, "bass.wav", .55); from("#L .t2", 2.0, { opacity: 0 }, { opacity: 1, duration: .4 });
+tl.fromTo("#load i", { scaleX: 0 }, { scaleX: 1, duration: 3.2, ease: "power1.inOut", immediateRender: false }, .3);
+for (let t = .5; t < 3.4; t += .6) cue(t, "type-click.wav", .15);
+// 1 · mission
+const m0 = TL.M[0]; flash(m0); cue(m0 - .05, "whoosh-cine.wav", .45);
+from("#M .m1", m0 + .15, { opacity: 0, x: -200 }, { opacity: 1, x: 0, duration: .4, ease: "expo.out" }, "notif-positive.wav", .4);
+from("#M .m2 .ch", m0 + .4, { opacity: 0, scale: 2.2 }, { opacity: 1, scale: 1, duration: .3, stagger: .04, ease: "power4.in" }); cue(m0 + .9, "pop-hard.wav", .45);
+// HUD
+from("#objective", m0 + .4, { x: -700 }, { x: 0, duration: .5, ease: "expo.out" }, "click.wav", .3);
+from("#map", m0 + .5, { scale: 0 }, { scale: 1, duration: .5, ease: "back.out(1.8)" });
+tl.fromTo("#map", { rotate: 0 }, { rotate: -50, duration: T, ease: "none", immediateRender: false }, m0);
+tl.to("#map .dest", { scale: 1.25, duration: .4, yoyo: true, repeat: Math.floor(T / .4), ease: "sine.inOut" }, m0);
+const g0 = P[0][0], gEnd = TL.W[0];
+for (let k = 0; k <= 100; k++) { const p = k / 100; tl.set("#money", { textContent: "$" + Math.round(2026 * p * p) }, g0 + k * (gEnd - g0) / 100); }
+tl.set("#money", { textContent: "$0" }, 0);
+Array.from(document.querySelectorAll("#stars span")).forEach(function (s, i) { const t = g0 + .5 + i * ((gEnd - g0 - 1) / 5);
+  tl.to(s, { opacity: 1, duration: .15 }, t); tl.fromTo(s, { scale: 1.8 }, { scale: 1, duration: .3, immediateRender: false }, t); cue(t, "pop-hard.wav", .2); });
+tl.fromTo("#style .bar i", { scaleX: .15 }, { scaleX: 1, duration: gEnd - g0, ease: "power1.in", immediateRender: false }, g0);
+const obj = document.getElementById("objT");
+P.forEach(function (p, i) { tl.set(obj, { textContent: C.objs[i] }, p[0]); tl.fromTo("#objective", { x: -30, opacity: .3 }, { x: 0, opacity: 1, duration: .3, immediateRender: false }, p[0]); cue(p[0] + .05, "click.wav", .25); });
+tl.set(obj, { textContent: "Mission accomplie. Reviens quand tu veux." }, TL.W[0]);
+// 2 · jeu
+P.forEach(function (p, i) { flash(p[0]); cue(p[0] - .15, "whoosh-cine.wav", .35); cue(p[0], "shutter.wav", .45);
+  if (!C.isvid[i]) tl.fromTo("#g" + i + " .ph", { scale: 1.04 }, { scale: 1.16, duration: p[1], ease: "none", immediateRender: false }, p[0]);
+  from("#st" + i + " .step", p[0] + .45, { opacity: 0, scale: 1.8 }, { opacity: 1, scale: 1, duration: .3, ease: "power4.in" }, "tone-correct.wav", .25); });
+// 3 · boutique
+const s0 = TL.S[0]; flash(s0); cue(s0 - .05, "whoosh-fast.wav", .45);
+from("#S .shop", s0 + .1, { y: 700, rotate: -4 }, { y: 0, rotate: 0, duration: .55, ease: "back.out(1.3)" });
+from("#S .sh", s0 + .5, { opacity: 0, x: -120 }, { opacity: 1, x: 0, duration: .4, ease: "expo.out" }, "notif-positive.wav", .35);
+document.querySelectorAll("#S .item").forEach(function (it, i) { const t = s0 + 1.0 + i * .55;
+  from(it, t, { opacity: 0, x: 200 }, { opacity: 1, x: 0, duration: .4, ease: "expo.out" }, "click.wav", .35);
+  from(it.querySelector(".pr"), t + .25, { scale: 2, opacity: 0 }, { scale: 1, opacity: 1, duration: .3, ease: "power4.in" }, "pop-hard.wav", .3); });
+from("#S .note", s0 + 1.2 + C.nshop * .55, { opacity: 0 }, { opacity: 1, duration: .4 });
+// 4 · mission réussie
+const w0 = TL.W[0]; flash(w0); cue(w0, "bass.wav", .6);
+if (!C.winvid) tl.fromTo("#wv .ph", { scale: 1.02 }, { scale: 1.14, duration: TL.W[1], ease: "none", immediateRender: false }, w0);
+from("#W .bandeau", w0 + .5, { scaleY: 0 }, { scaleY: 1, duration: .35, ease: "expo.out" });
+from("#W .o1 .ch", w0 + .65, { opacity: 0, y: -160, rotate: 12 }, { opacity: 1, y: 0, rotate: 0, duration: .35, stagger: .04, ease: "back.out(2.2)" }, "sparkle.wav", .45);
+cue(w0 + 1.2, "pop-hard.wav", .5);
+from("#W .o2", w0 + 1.6, { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: .4, ease: "back.out(2.5)" }, "tone-correct.wav", .4);
+// 5 · affiche
+const e0 = TL.E[0]; flash(e0); cue(e0 - .05, "whoosh-cine.wav", .45); cue(e0 + .1, "bass.wav", .55);
+from("#poster", e0 + .05, { scale: 1.25, rotate: -4, opacity: 0 }, { scale: 1, rotate: -1, opacity: 1, duration: .6, ease: "expo.out" });
+tl.fromTo("#poster", { backgroundPositionY: "30%" }, { backgroundPositionY: "45%", duration: TL.E[1], ease: "none", immediateRender: false }, e0);
+from("#E .e1 .ch", e0 + .6, { opacity: 0, y: 100 }, { opacity: 1, y: 0, duration: .35, stagger: .05, ease: "back.out(2)" }, "pop-hard.wav", .4);
+from("#E .e2", e0 + 1.2, { opacity: 0 }, { opacity: 1, duration: .5 });
+from("#E .e3", e0 + 1.5, { scale: 0 }, { scale: 1, duration: .45, ease: "back.out(2.2)" }, "notif-positive.wav", .4);
+tl.to("#E .e3", { scale: 1.07, duration: .35, yoyo: true, repeat: 3, ease: "sine.inOut" }, e0 + 2.1);
+window.__cues = CUES;
+window.__timelines = window.__timelines || {}; window.__timelines["main"] = tl;
+tl.seek(0);
+</script>
+</body>
+</html>

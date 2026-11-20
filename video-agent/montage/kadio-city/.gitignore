@@ -4,3 +4,9 @@ music/
 sfx/
 fonts/
 gsap.min.js
+ep/*/clips/
+ep/*/art/
+ep/*/real/
+ep/*/sfx/
+ep/*/fonts/
+ep/*/gsap.min.js
