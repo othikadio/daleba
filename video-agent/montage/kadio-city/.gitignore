@@ -1,0 +1,6 @@
+clips/
+*.wav
+music/
+sfx/
+fonts/
+gsap.min.js
