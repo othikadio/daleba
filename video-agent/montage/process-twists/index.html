@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<script src="gsap.min.js"></script>
+<style>
+@font-face { font-family: Anton; src: url(fonts/anton-latin-400-normal.woff2); }
+@font-face { font-family: JB; src: url(fonts/jetbrains-mono-latin-700-normal.woff2); font-weight: 700; }
+@font-face { font-family: Outfit; src: url(fonts/outfit-latin-700-normal.woff2); font-weight: 700; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+#root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: #000; color: #fff; }
+.v { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; object-fit: cover; }
+.layer { position: absolute; inset: 0; }
+#vign { background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(0,0,0,.55) 100%), linear-gradient(180deg, rgba(0,0,0,.45) 0, transparent 18%, transparent 62%, rgba(0,0,0,.75) 100%); }
+/* interface caméra */
+.corner { position: absolute; width: 90px; height: 90px; border: 5px solid rgba(255,255,255,.85); }
+.c1 { left: 50px; top: 140px; border-right: 0; border-bottom: 0; } .c2 { right: 50px; top: 140px; border-left: 0; border-bottom: 0; }
+.c3 { left: 50px; bottom: 380px; border-right: 0; border-top: 0; } .c4 { right: 50px; bottom: 380px; border-left: 0; border-top: 0; }
+#rec { position: absolute; left: 80px; top: 250px; font: 700 34px JB; letter-spacing: .08em; display: flex; align-items: center; gap: 14px; }
+#rec i { width: 22px; height: 22px; border-radius: 50%; background: #ff2d2d; display: inline-block; }
+#tc { position: absolute; right: 80px; top: 250px; font: 700 34px JB; }
+#brand { position: absolute; left: 0; right: 0; top: 160px; text-align: center; font: 700 26px JB; letter-spacing: .4em; color: rgba(255,255,255,.85); }
+/* étapes */
+.step { position: absolute; left: 80px; right: 80px; bottom: 470px; }
+.num { font: 700 40px JB; color: #ff8a2a; letter-spacing: .1em; }
+.ttl { font: 150px/0.95 Anton; text-transform: uppercase; letter-spacing: .01em; text-shadow: 0 8px 30px rgba(0,0,0,.6); }
+.sub { margin-top: 18px; font: 700 46px Outfit; color: #ffe2c4; text-shadow: 0 4px 16px rgba(0,0,0,.7); }
+.ch { display: inline-block; white-space: pre; }
+/* barre de progression en 4 étapes */
+#prog { position: absolute; left: 80px; right: 80px; bottom: 400px; display: flex; gap: 14px; }
+#prog b { flex: 1; height: 10px; background: rgba(255,255,255,.25); border-radius: 6px; overflow: hidden; position: relative; }
+#prog b i { position: absolute; inset: 0; background: #ff8a2a; transform-origin: left; transform: scaleX(0); }
+/* accroche + rembobinage */
+#hookT { position: absolute; left: 0; right: 0; top: 640px; text-align: center; }
+#hookT .a { font: 700 44px JB; color: #ff8a2a; letter-spacing: .2em; }
+#hookT .b { font: 210px/0.9 Anton; text-shadow: 0 10px 40px rgba(0,0,0,.6); }
+#rw { position: absolute; left: 0; right: 0; top: 860px; text-align: center; font: 120px Anton; }
+#rw small { display: block; font: 700 38px JB; letter-spacing: .3em; color: #ff8a2a; margin-top: 10px; }
+#scan { background: repeating-linear-gradient(0deg, rgba(255,255,255,.07) 0 2px, transparent 2px 6px); mix-blend-mode: overlay; }
+#geste { position: absolute; left: 0; right: 0; top: 760px; text-align: center; font: 700 64px Outfit; line-height: 1.25; text-shadow: 0 6px 24px rgba(0,0,0,.8); }
+#geste b { color: #ff8a2a; }
+/* fin */
+#endbg { background: #0b0806; }
+#endph { position: absolute; left: 90px; top: 300px; width: 900px; height: 1200px; background: url(clips/final.jpg) center 40%/cover; border-radius: 34px; box-shadow: 0 30px 90px rgba(0,0,0,.6), 0 0 0 6px #ff8a2a; }
+#endT { position: absolute; left: 0; right: 0; top: 1530px; text-align: center; }
+#endT .p { font: 120px Anton; } #endT .p em { font-style: normal; color: #ff8a2a; }
+#endT .k { margin-top: 8px; font: 700 40px Outfit; color: #ffe2c4; }
+#endT .t { display: inline-block; margin-top: 18px; padding: 16px 40px; border-radius: 999px; background: #ff8a2a; color: #0b0806; font: 700 52px Outfit; }
+#flash { background: #fff; opacity: 0; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="36.4" data-width="1080" data-height="1920">
+  <video id="v0" class="v clip" src="clips/hook.mp4" muted playsinline data-start="0" data-duration="2.6" data-track-index="0"></video>
+  <video id="v1" class="v clip" src="clips/rewind.mp4" muted playsinline data-start="2.6" data-duration="1.4" data-track-index="0"></video>
+  <video id="v2" class="v clip" src="clips/s1.mp4" muted playsinline data-start="4.0" data-duration="5.1" data-track-index="0"></video>
+  <video id="v3" class="v clip" src="clips/s2.mp4" muted playsinline data-start="9.1" data-duration="5.75" data-track-index="0"></video>
+  <video id="v4" class="v clip" src="clips/s3.mp4" muted playsinline data-start="14.85" data-duration="6.8" data-track-index="0"></video>
+  <video id="v5" class="v clip" src="clips/s3slow.mp4" muted playsinline data-start="21.65" data-duration="2.65" data-track-index="0"></video>
+  <video id="v6" class="v clip" src="clips/rev.mp4" muted playsinline data-start="24.3" data-duration="8.0" data-track-index="0"></video>
+
+  <div id="ui" class="layer clip" data-start="0" data-duration="32.3" data-track-index="1">
+    <div id="vign" class="layer"></div>
+    <div class="corner c1"></div><div class="corner c2"></div><div class="corner c3"></div><div class="corner c4"></div>
+    <div id="brand">KADIO COIFFURE</div>
+    <div id="rec"><i></i>REC</div><div id="tc">00:00:00</div>
+    <div id="prog"><b><i></i></b><b><i></i></b><b><i></i></b><b><i></i></b></div>
+  </div>
+
+  <div id="hk" class="layer clip" data-start="0" data-duration="2.6" data-track-index="2">
+    <div id="hookT"><div class="a">TWISTS PLAQUÉS · CONTOUR</div><div class="b"><span class="split">REGARDE</span><br><span class="split">BIEN.</span></div></div>
+  </div>
+  <div id="rwL" class="layer clip" data-start="2.6" data-duration="1.4" data-track-index="2">
+    <div id="scan" class="layer"></div>
+    <div id="rw">◀◀ <span>REMBOBINE</span><small>AU DÉBUT DE LA SÉANCE</small></div>
+  </div>
+  <div id="st1" class="layer clip" data-start="4.0" data-duration="5.1" data-track-index="2">
+    <div class="step"><div class="num">ÉTAPE 01 / 04</div><div class="ttl split">Séparer</div><div class="sub">Démêler, sectionner, préparer.</div></div>
+  </div>
+  <div id="st2" class="layer clip" data-start="9.1" data-duration="5.75" data-track-index="2">
+    <div class="step"><div class="num">ÉTAPE 02 / 04</div><div class="ttl split">Les raies</div><div class="sub">Au peigne à queue. Au millimètre.</div></div>
+  </div>
+  <div id="st3" class="layer clip" data-start="14.85" data-duration="6.8" data-track-index="2">
+    <div class="step"><div class="num">ÉTAPE 03 / 04</div><div class="ttl split">Twister</div><div class="sub">Ferme, jamais serré.</div></div>
+  </div>
+  <div id="gst" class="layer clip" data-start="21.65" data-duration="2.65" data-track-index="2">
+    <div id="geste">Tout le monde regarde la coupe.<br><b>Personne ne regarde le geste.</b></div>
+  </div>
+  <div id="st4" class="layer clip" data-start="24.3" data-duration="8.0" data-track-index="2">
+    <div class="step"><div class="num">ÉTAPE 04 / 04</div><div class="ttl split">Le résultat</div><div class="sub">Twists plaqués + contour net.</div></div>
+  </div>
+
+  <div id="end" class="layer clip" data-start="32.3" data-duration="4.1" data-track-index="1">
+    <div id="endbg" class="layer"></div>
+    <div id="endph"></div>
+    <div id="endT"><div class="p">TWISTS <em>DÈS 55 $</em></div><div class="k">Kadio Coiffure · Longueuil · kadiocoiffure.com</div><div class="t">514 919-5970</div></div>
+  </div>
+  <div id="fl" class="layer clip" data-start="0" data-duration="36.4" data-track-index="3"><div id="flash" class="layer"></div></div>
+</div>
+<script>
+const CUES = []; const cue = (t, file, gain) => CUES.push({ t: +t.toFixed(3), file: file, gain: gain == null ? .5 : gain });
+document.querySelectorAll(".split").forEach(function (el) { el.innerHTML = Array.from(el.textContent).map(function (c) { return '<span class="ch">' + c + "</span>"; }).join(""); });
+const tl = gsap.timeline({ paused: true }); const T = 36.4;
+function from(els, t, a, b, f, g) { tl.fromTo(els, a, Object.assign({ immediateRender: false }, b), t); tl.set(els, a, 0); if (f) cue(t, f, g); }
+function flash(t) { tl.set("#flash", { opacity: 0 }, 0); tl.fromTo("#flash", { opacity: .85 }, { opacity: 0, duration: .35, ease: "power2.out", immediateRender: false }, t); }
+// timecode de la séance (accéléré) + REC qui clignote
+const tc = document.getElementById("tc"); const o = { s: 0 };
+tl.fromTo(o, { s: 0 }, { s: 47 * 60, duration: 28.3, ease: "none", immediateRender: false, onUpdate: function () { const m = Math.floor(o.s / 60), s = Math.floor(o.s % 60); tc.textContent = "00:" + String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0"); } }, 4.0);
+for (let t = 0; t < 32; t += 1) { tl.set("#rec i", { opacity: 0 }, t + .5); tl.set("#rec i", { opacity: 1 }, t + 1); }
+// accroche
+from("#hookT .a", .15, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .4 }, "click.wav", .3);
+from("#hookT .ch", .3, { opacity: 0, scale: 2, filter: "blur(10px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: .35, stagger: .05, ease: "power4.out" });
+cue(.75, "pop-hard.wav", .45);
+// rembobinage
+flash(2.6); cue(2.5, "rewind.wav", .7);
+from("#rw", 2.62, { opacity: 0, x: 80 }, { opacity: 1, x: 0, duration: .25 });
+tl.to("#rw", { opacity: .3, duration: .12, yoyo: true, repeat: 7 }, 2.9);
+// étapes
+const ST = [["#st1", 4.0, 0], ["#st2", 9.1, 1], ["#st3", 14.85, 2], ["#st4", 24.3, 3]];
+ST.forEach(function (s) { const id = s[0], t = s[1], k = s[2];
+  flash(t); cue(t - .2, "whoosh-cine.wav", .4); cue(t, "shutter.wav", .5);
+  from(id + " .num", t + .1, { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: .4, ease: "expo.out" });
+  from(id + " .ch", t + .2, { opacity: 0, yPercent: 100 }, { opacity: 1, yPercent: 0, duration: .45, stagger: .04, ease: "expo.out" });
+  from(id + " .sub", t + .7, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .5 }, "click.wav", .25);
+  const bar = document.querySelectorAll("#prog b i")[k];
+  tl.fromTo(bar, { scaleX: 0 }, { scaleX: 1, duration: k === 3 ? 1.2 : (ST[k + 1] ? ST[k + 1][1] - t : 2), ease: "none", immediateRender: false }, t);
+});
+// le geste (ralenti)
+flash(21.65); cue(21.6, "sweep-small.wav", .4);
+from("#geste", 21.8, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .6 });
+from("#geste b", 22.6, { opacity: 0 }, { opacity: 1, duration: .5 }, "tone-correct.wav", .3);
+// révélation
+cue(24.3, "bass.wav", .6); cue(25.2, "sparkle.wav", .35);
+// fin
+flash(32.3); cue(32.2, "whoosh-cine.wav", .4); cue(32.4, "bass.wav", .5);
+from("#endph", 32.35, { scale: 1.15, opacity: 0, rotate: -3 }, { scale: 1, opacity: 1, rotate: 0, duration: .7, ease: "expo.out" });
+from("#endT .p", 32.9, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: .5, ease: "expo.out" }, "pop-hard.wav", .4);
+from("#endT .k", 33.3, { opacity: 0 }, { opacity: 1, duration: .5 });
+from("#endT .t", 33.6, { scale: 0 }, { scale: 1, duration: .5, ease: "back.out(2)" }, "tone-correct.wav", .35);
+tl.to("#endT .t", { scale: 1.06, duration: .35, yoyo: true, repeat: 3, ease: "sine.inOut" }, 34.2);
+tl.fromTo("#endph", { backgroundPositionY: "35%" }, { backgroundPositionY: "50%", duration: 4, ease: "none", immediateRender: false }, 32.3);
+window.__cues = CUES;
+window.__timelines = window.__timelines || {}; window.__timelines["main"] = tl;
+tl.seek(0);
+</script>
+</body>
+</html>
