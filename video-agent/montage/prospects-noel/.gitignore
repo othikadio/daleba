@@ -1,0 +1,7 @@
+*.wav
+.tmp/
+*/broll/
+*/sfx/
+*/fonts/
+*/gsap.min.js
+!vo/rapport.txt

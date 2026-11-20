@@ -1,0 +1,27 @@
+{
+ "lulu": {"nom": "Lulu part en brioche", "lieu": "160, rue Guillaume · Vieux-Longueuil", "tel": "450 332-2942", "vo": [
+  "Dans le Vieux-Longueuil, il y a une adresse qui sent bon le beurre chaud.",
+  "Chez Lulu part en brioche, les brioches sont dorées, moelleuses… et faites pour être partagées.",
+  "Pour le réveillon, gâtez-vous… ou gâtez ceux que vous aimez.",
+  "Lulu part en brioche. Cent soixante, rue Guillaume, à Longueuil."]},
+ "chocolatine": {"nom": "Boulangerie Chocolatine", "lieu": "369, rue Saint-Jean · Vieux-Longueuil", "tel": "579 881-8779", "vo": [
+  "Cette année, n'arrivez pas les mains vides.",
+  "À la Boulangerie Chocolatine, on choisit, on emballe… et on fait des heureux.",
+  "Le plus beau des cadeaux, c'est celui qui se mange.",
+  "Boulangerie Chocolatine. Rue Saint-Jean, dans le Vieux-Longueuil."]},
+ "istanbul": {"nom": "Maison Istanbul", "lieu": "3094, chemin de Chambly · Longueuil", "tel": "450 651-9999", "vo": [
+  "Les Fêtes, c'est une grande table… et tout le monde autour.",
+  "À la Maison Istanbul, les grillades arrivent, le pain est chaud, et on partage.",
+  "Pour vos repas de groupe des Fêtes, réservez votre table.",
+  "Maison Istanbul. Chemin de Chambly, à Longueuil."]},
+ "fiori": {"nom": "Fiori Pizza", "lieu": "5951, boulevard Payer · Saint-Hubert", "tel": "450 904-4343", "vo": [
+  "Le party des Fêtes commence quand la boîte s'ouvre.",
+  "Le fromage qui file, les parts qui partent… Fiori Pizza, c'est ça.",
+  "Commandez pour toute la gang, et profitez de la soirée.",
+  "Fiori Pizza. Boulevard Payer, à Saint-Hubert."]},
+ "vanity": {"nom": "Studio Académie Vanity", "lieu": "2174, boul. Marie-Victorin · Longueuil", "tel": "", "vo": [
+  "Avant les photos des Fêtes, prenez un moment pour vous.",
+  "Au Studio Académie Vanity, chaque détail compte.",
+  "Préparez-vous, sublimez votre look, et brillez tout le mois de décembre.",
+  "Studio Académie Vanity. Boulevard Marie-Victorin, à Longueuil."]}
+}

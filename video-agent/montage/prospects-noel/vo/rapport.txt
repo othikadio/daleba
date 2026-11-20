@@ -1,0 +1,20 @@
+lulu_0 1.00 lulu_0_s5.wav: Dans le vieux Longueuil, il y a une adresse qui sent bon le beurre chaud.
+lulu_1 0.97 lulu_1_s5.wav: Chez Lulu, parents brioches, les brioches sont dorées, moelleuses et faites pour être partagées.
+lulu_2 1.00 lulu_2_s11.wav: Pour le réveillon, gâtez-vous ou gâtez ceux que vous aimez.
+lulu_3 0.85 lulu_3_s11.wav: Lulu part en brioche. 160 rue Guillaume à Longueuil.
+chocolatine_0 1.00 chocolatine_0_s11.wav: Cette année, n'arrivez pas les mains vides.
+chocolatine_1 1.00 chocolatine_1_s11.wav: À la boulangerie chocolatine, on choisit, on emballe et on fait des heureux.
+chocolatine_2 1.00 chocolatine_2_s11.wav: Le plus beau des cadeaux, c'est celui qui se mange.
+chocolatine_3 1.00 chocolatine_3_s11.wav: Boulangerie chocolatine, rue Saint-Jean, dans le Vieux-Longueuil.
+istanbul_0 1.00 istanbul_0_s11.wav: Les fêtes, c'est une grande table et tout le monde autour.
+istanbul_1 1.00 istanbul_1_s11.wav: A la maison Istanbul, les grillades arrivent, le pain est chaud et on partage.
+istanbul_2 1.00 istanbul_2_s11.wav: Pour vos repas de groupe des fêtes, réservez votre table.
+istanbul_3 1.00 istanbul_3_s11.wav: Maison Istanbul, chemin de Chambly, à Longueuil.
+fiori_0 0.98 fiori_0_s11.wav: Le parti des fêtes commence quand la boîte s'ouvre.
+fiori_1 1.00 fiori_1_s11.wav: Le fromage qui file, les parts qui partent, Fiori Pizza, c'est ça.
+fiori_2 1.00 fiori_2_s5.wav: Commandez pour toute la gang et profitez de la soirée.
+fiori_3 0.99 fiori_3_s11.wav: Fiori Pizza, boulevard payé à Saint-Hubert.
+vanity_0 0.97 vanity_0_s11.wav: Avant les photos des sets, prenez un moment pour vous.
+vanity_1 0.97 vanity_1_s5.wav: Au studio Academy Vanity, chaque détail compte.
+vanity_2 1.00 vanity_2_s11.wav: Préparez-vous, sublimez votre look et brillez tout le mois de décembre.
+vanity_3 0.97 vanity_3_s11.wav: Studio Academy Vanity, boulevard Marie-Victorin, à Longueuil.
