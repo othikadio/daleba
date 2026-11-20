@@ -43,6 +43,7 @@ html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; 
 .mission { position: absolute; left: 0; right: 0; top: 760px; text-align: center; font-family: Anton; transform: skewX(-8deg); }
 .mission .m1 { font-size: 64px; letter-spacing: .25em; color: var(--gold); -webkit-text-stroke: 4px #0d0d0d; paint-order: stroke fill; }
 .mission .m2 { font-size: 150px; line-height: .95; -webkit-text-stroke: 9px #0d0d0d; paint-order: stroke fill; text-shadow: 10px 10px 0 var(--acc); }
+.step.top { bottom: auto; top: 560px; }
 .step { position: absolute; left: 50px; right: 50px; bottom: 640px; text-align: center; font: 90px Anton; transform: skewX(-8deg); -webkit-text-stroke: 7px #0d0d0d; paint-order: stroke fill; text-shadow: 8px 8px 0 var(--acc); }
 .shop { position: absolute; left: 60px; right: 60px; top: 330px; background: rgba(10,6,20,.86); border: 8px solid #0d0d0d; box-shadow: 16px 16px 0 var(--acc); padding: 40px 40px 34px; }
 .sh { font: 92px Anton; transform: skewX(-8deg); color: var(--gold); -webkit-text-stroke: 5px #0d0d0d; paint-order: stroke fill; margin-bottom: 26px; }
@@ -98,8 +99,8 @@ from("#map", m0 + .5, { scale: 0 }, { scale: 1, duration: .5, ease: "back.out(1.
 tl.fromTo("#map", { rotate: 0 }, { rotate: -50, duration: T, ease: "none", immediateRender: false }, m0);
 tl.to("#map .dest", { scale: 1.25, duration: .4, yoyo: true, repeat: Math.floor(T / .4), ease: "sine.inOut" }, m0);
 const g0 = P[0][0], gEnd = TL.W[0];
-for (let k = 0; k <= 100; k++) { const p = k / 100; tl.set("#money", { textContent: "$" + Math.round(2026 * p * p) }, g0 + k * (gEnd - g0) / 100); }
-tl.set("#money", { textContent: "$0" }, 0);
+for (let k = 0; k <= 100; k++) { const p = k / 100; tl.set("#money", { textContent: C.cur + Math.round(2026 * p * p) }, g0 + k * (gEnd - g0) / 100); }
+tl.set("#money", { textContent: C.cur + "0" }, 0);
 Array.from(document.querySelectorAll("#stars span")).forEach(function (s, i) { const t = g0 + .5 + i * ((gEnd - g0 - 1) / 5);
   tl.to(s, { opacity: 1, duration: .15 }, t); tl.fromTo(s, { scale: 1.8 }, { scale: 1, duration: .3, immediateRender: false }, t); cue(t, "pop-hard.wav", .2); });
 tl.fromTo("#style .bar i", { scaleX: .15 }, { scaleX: 1, duration: gEnd - g0, ease: "power1.in", immediateRender: false }, g0);

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "historyId": "282a49d2-36b2-4def-8b63-436f8375d019",
-  "currentRevision": null,
+  "currentRevision": "7dbd708e-cedb-4ca2-8b41-cee9dfb946fc",
   "pendingChanges": false,
   "files": {
     "art/b-contour-allonge.jpg": {
@@ -81,16 +81,16 @@
       "content": "/root/.cache/hyperframes/history/282a49d2-36b2-4def-8b63-436f8375d019/blobs/53/53dbce1e19aa713cbb12ee0bc4d206143b45ab15e6ffbfcaa8f69572d4d24d50"
     },
     "index.html": {
-      "hash": "af1e4ce0fc8ea8ddfc27e8e4b0408a67530d625d2b85e6456bf027c09062d033",
-      "content": "/root/.cache/hyperframes/history/282a49d2-36b2-4def-8b63-436f8375d019/blobs/af/af1e4ce0fc8ea8ddfc27e8e4b0408a67530d625d2b85e6456bf027c09062d033"
+      "hash": "d953e7f6a6573a1b8f5f93ea7a9d768d35551a25c06bad248251b6f46400f5a5",
+      "content": "/root/.cache/hyperframes/history/282a49d2-36b2-4def-8b63-436f8375d019/blobs/d9/d953e7f6a6573a1b8f5f93ea7a9d768d35551a25c06bad248251b6f46400f5a5"
     },
     "meta.json": {
       "hash": "cbd3bb9f68efd1f9bf09ec5016e78776013c86a60989081d471ccd491396dbc7",
       "content": "/root/.cache/hyperframes/history/282a49d2-36b2-4def-8b63-436f8375d019/blobs/cb/cbd3bb9f68efd1f9bf09ec5016e78776013c86a60989081d471ccd491396dbc7"
     },
     "music.json": {
-      "hash": "4bc86f048d50766da7ef2178644833ec360dea791df981dfa79332ccb2cbd88f",
-      "content": "/root/.cache/hyperframes/history/282a49d2-36b2-4def-8b63-436f8375d019/blobs/4b/4bc86f048d50766da7ef2178644833ec360dea791df981dfa79332ccb2cbd88f"
+      "hash": "55c055ce69836e1de442177a25e83c10963bb59383dea21936f38b38feebf4a8",
+      "content": "/root/.cache/hyperframes/history/282a49d2-36b2-4def-8b63-436f8375d019/blobs/55/55c055ce69836e1de442177a25e83c10963bb59383dea21936f38b38feebf4a8"
     },
     "package.json": {
       "hash": "0503f14b6a946a60b69841e6776452314936cf64bbc9ea6fcb3e513c3375d21b",
@@ -233,7 +233,27 @@
       "content": "/root/.cache/hyperframes/history/282a49d2-36b2-4def-8b63-436f8375d019/blobs/9e/9e6b28ce2ebe5abdf3e33733f2e7c6d29d7610de2bb883d142b6b756985a8e95"
     }
   },
-  "revisions": {},
+  "revisions": {
+    "7dbd708e-cedb-4ca2-8b41-cee9dfb946fc": {
+      "actor": {
+        "kind": "outside",
+        "name": "Outside"
+      },
+      "label": "Changed outside the app",
+      "startedAt": 1795193635929,
+      "endedAt": 1795193635934,
+      "files": {
+        "index.html": {
+          "before": "/root/.cache/hyperframes/history/282a49d2-36b2-4def-8b63-436f8375d019/blobs/af/af1e4ce0fc8ea8ddfc27e8e4b0408a67530d625d2b85e6456bf027c09062d033",
+          "after": "/root/.cache/hyperframes/history/282a49d2-36b2-4def-8b63-436f8375d019/blobs/d9/d953e7f6a6573a1b8f5f93ea7a9d768d35551a25c06bad248251b6f46400f5a5"
+        },
+        "music.json": {
+          "before": "/root/.cache/hyperframes/history/282a49d2-36b2-4def-8b63-436f8375d019/blobs/4b/4bc86f048d50766da7ef2178644833ec360dea791df981dfa79332ccb2cbd88f",
+          "after": "/root/.cache/hyperframes/history/282a49d2-36b2-4def-8b63-436f8375d019/blobs/55/55c055ce69836e1de442177a25e83c10963bb59383dea21936f38b38feebf4a8"
+        }
+      }
+    }
+  },
   "checks": {
     "latest": null,
     "revisions": {},
@@ -246,13 +266,15 @@
   },
   "renders": {
     "latest": {
-      "id": "bc410006-8b4a-4278-a9a7-26d9aecadf25",
-      "completedAt": 1795159934086,
+      "id": "a3b8d78a-a56e-429c-8501-23d695c73f59",
+      "completedAt": 1795193746011,
       "output": "/tmp/claude-0/-home-user-daleba/5cb6c19f-73be-5ced-b2f4-13ab7e9423d2/scratchpad/kc/club.mp4",
       "status": "completed",
-      "revision": null
+      "revision": "7dbd708e-cedb-4ca2-8b41-cee9dfb946fc"
     },
-    "retainedRevisions": []
+    "retainedRevisions": [
+      "7dbd708e-cedb-4ca2-8b41-cee9dfb946fc"
+    ]
   },
   "pendingArtifactCleanup": []
 }

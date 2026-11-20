@@ -1,9 +1,5 @@
 # Publication KADIO CITY (Postiz → Facebook, Instagram, TikTok, Google)
-- Bande-annonce : publiée le 20 nov. 2026.
-- Épisodes programmés à 18 h 30 (heure de Montréal) :
-  - 21 nov. : Ép. 1 Les nattes
-  - 22 nov. : Ép. 2 Les twists
-  - 23 nov. : Ép. 3 Les locks
-  - 24 nov. : Ép. 4 Le barbier
-  - 25 nov. : Ép. 5 Le Club Kadio
-- Google : image de l'affiche finale + bouton « Réserver » (Google n'accepte pas la vidéo).
+- 20 nov. 2026 : bande-annonce + les 5 épisodes publiés le même jour (version variée).
+- Variantes par épisode : musique, disposition de l'écran de chargement, compteur ($ / XP / PTS / VIP), message de victoire
+  (Coiffure débloquée / Niveau terminé / Casse réussi / Nouveau record / Bienvenue au Club), étapes en haut ou en bas.
+- Google : image de l'affiche finale + bouton « Réserver ».
