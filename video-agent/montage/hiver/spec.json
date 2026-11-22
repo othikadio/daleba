@@ -1,32 +1,52 @@
 {
- "v1": {"titre": "Le froid boit l'eau de tes cheveux", "vo": [
-  "Moins vingt dehors… et tes cheveux le sentent tout de suite.",
-  "L'air froid et le chauffage boivent l'eau de tes cheveux. Ils deviennent secs… et ils cassent.",
-  "La solution, en trois couches : de l'eau, une huile, puis une crème pour tout sceller.",
-  "Fais-le deux à trois fois par semaine, surtout sur les pointes.",
-  "Des questions sur tes cheveux ? Passe nous voir chez Kadyo Coiffure, à Longueuil."]},
- "v2": {"titre": "Ton bonnet abîme tes cheveux", "vo": [
-  "Ton bonnet te garde au chaud… mais il abîme peut-être tes cheveux.",
-  "La laine et l'acrylique frottent, cassent les pointes et volent l'hydratation.",
-  "La solution : un bonnet doublé de satin, ou un foulard en satin en dessous.",
-  "Et la nuit, même chose : une taie d'oreiller ou un bonnet en satin.",
-  "Kadyo Coiffure. On prend soin de tes cheveux tout l'hiver."]},
- "v3": {"titre": "Jamais les cheveux mouillés dehors", "vo": [
-  "Sortir les cheveux mouillés quand il fait moins quinze ? Mauvaise idée.",
-  "L'eau peut geler dans tes cheveux. Ils deviennent raides… et ils cassent.",
-  "Lave-les le soir, et sèche-les bien jusqu'aux racines, à chaleur moyenne.",
-  "Et avec le séchoir, utilise toujours un protecteur de chaleur.",
-  "Kadyo Coiffure, à Longueuil. On s'occupe de tes cheveux."]},
- "v4": {"titre": "Protège tes pointes", "vo": [
-  "En hiver, ce sont tes pointes qui souffrent en premier.",
-  "Le foulard, le manteau, le col… tout frotte contre elles, toute la journée.",
-  "La meilleure protection : une coiffure protectrice. Des nattes, des twists ou des locks.",
-  "Chez Kadyo Coiffure : les nattes dès quarante dollars, les twists dès cinquante-cinq.",
-  "Réserve ta coiffure d'hiver sur kadyo coiffure point com."]},
- "v5": {"titre": "Chauffage : cuir chevelu et barbe", "vo": [
-  "Le chauffage roule tout l'hiver… et ton cuir chevelu le sent.",
-  "Ça tire, ça gratte, ça pèle. Et la barbe devient sèche et rêche.",
-  "Bois de l'eau, mets un humidificateur dans ta chambre, et masse ton cuir chevelu avec une huile légère.",
-  "Pour la barbe, une huile chaque matin. Et au Club Kadyo : coupe et barbe pour dix-neuf, quatre-vingt-dix-neuf par mois.",
-  "Kadyo Coiffure. Six cent quinze, Antoinette-Robidoux, à Longueuil."]}
+ "v1": {
+  "titre": "Le froid boit l'eau de tes cheveux",
+  "vo": [
+   "Moins vingt dehors… et tes cheveux le sentent tout de suite.",
+   "L'air froid et le chauffage boivent l'eau de tes cheveux. Ils deviennent secs… et ils cassent.",
+   "La solution, en trois couches : de l'eau, une huile, puis une crème pour tout sceller.",
+   "Fais-le deux à trois fois par semaine, surtout sur les pointes.",
+   "Des questions sur tes cheveux ? Passe nous voir chez Kadyo Coiffure, à Longueuil."
+  ]
+ },
+ "v2": {
+  "titre": "Ton bonnet abîme tes cheveux",
+  "vo": [
+   "Ton bonnet te garde au chaud… mais il abîme peut-être tes cheveux.",
+   "La laine et l'acrylique frottent, cassent les pointes et volent l'hydratation.",
+   "La solution : un bonnet doublé de satin, ou un foulard en satin en dessous.",
+   "Et la nuit, même chose : une taie d'oreiller ou un bonnet en satin.",
+   "Kadyo Coiffure. On prend soin de tes cheveux tout l'hiver."
+  ]
+ },
+ "v3": {
+  "titre": "Jamais les cheveux mouillés dehors",
+  "vo": [
+   "Sortir les cheveux mouillés quand il fait moins quinze ? Mauvaise idée.",
+   "L'eau peut geler dans tes cheveux. Ils deviennent raides… et ils cassent.",
+   "Lave-les le soir, et sèche-les bien jusqu'aux racines, à chaleur moyenne.",
+   "Et avec le séchoir, utilise toujours un protecteur de chaleur.",
+   "Kadyo Coiffure, à Longueuil. On s'occupe de tes cheveux."
+  ]
+ },
+ "v4": {
+  "titre": "Protège tes pointes",
+  "vo": [
+   "En hiver, ce sont tes pointes qui souffrent en premier.",
+   "Le foulard, le manteau, le col… tout frotte contre elles, toute la journée.",
+   "La meilleure protection : une coiffure protectrice. Des nattes, des twists ou des loks.",
+   "Chez Kadyo Coiffure : les nattes dès quarante dollars, les twists dès cinquante-cinq.",
+   "Réserve ta coiffure d'hiver sur kadyo coiffure point com."
+  ]
+ },
+ "v5": {
+  "titre": "Chauffage : cuir chevelu et barbe",
+  "vo": [
+   "Le chauffage roule tout l'hiver… et ton cuir chevelu le sent.",
+   "Ça tire, ça gratte, ça pèle. Et la barbe devient sèche et rêche.",
+   "Bois de l'eau, mets un humidificateur dans ta chambre, et masse ton cuir chevelu avec une huile légère.",
+   "Pour la barbe, une huile chaque matin. Et au Club Kadyo : coupe et barbe pour dix-neuf, quatre-vingt-dix-neuf par mois.",
+   "Kadyo Coiffure. Six cent quinze, Antoinette-Robidoux, à Longueuil."
+  ]
+ }
 }

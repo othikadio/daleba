@@ -10,7 +10,7 @@ for k,d in S.items():
     if len(sys.argv)>1 and k not in sys.argv[1:]: continue
     for i,txt in enumerate(d["vo"]):
         best=None
-        for sd in (11,5):
+        for sd in (11,5,7):
             f=f"vo/{k}_{i}_s{sd}.wav"
             if not os.path.exists(f): continue
             subprocess.run(["ffmpeg","-v","error","-y","-i",f,"-ar","16000","-ac","1","/tmp/pk.wav"])

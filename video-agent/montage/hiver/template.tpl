@@ -78,6 +78,7 @@ html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; 
 /* ===== variantes ===== */
 [data-mode="satin"] .step, [data-mode="satin"] .tip { border-radius: 90px; background: rgba(255,143,199,.2); border-color: rgba(255,200,230,.6); }
 [data-mode="satin"] .word { border-radius: 999px; }
+[data-mode="satin"] .tipnote, [data-mode="satin"] .tel { color: var(--ink); }
 [data-mode="alerte"] .grad { background: repeating-linear-gradient(135deg, var(--bg) 0 60px, var(--bg2) 60px 120px); opacity: .5; }
 [data-mode="alerte"] .blob { display: none; }
 [data-mode="alerte"] #snow .sn { background: var(--ac2); }

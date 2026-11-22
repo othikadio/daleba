@@ -99,7 +99,7 @@ while k < 4:
 
 def subt(x):
     for a, b in [("kadyo coiffure point com", "kadiocoiffure.com"), ("Kadyo", "Kadio"), ("dix-neuf, quatre-vingt-dix-neuf", "19,99 $"), ("quarante dollars", "40 $"),
-                 ("cinquante-cinq", "55 $"), ("Moins vingt", "Moins 20°"), ("moins quinze", "moins 15°"), ("Six cent quinze", "615")]: x = x.replace(a, b)
+                 ("cinquante-cinq", "55 $"), ("Moins vingt", "Moins 20°"), ("moins quinze", "moins 15°"), ("Six cent quinze", "615"), ("loks", "locks")]: x = x.replace(a, b)
     return x
 sp = lambda s: " ".join('<span class="w">' + "".join(f'<span class="ch">{e(c)}</span>' for c in w) + '</span>' for w in s.split(" "))
 flakes = "".join(f'<i class="sn" style="left:{(n * 97) % 1080}px;width:{6 + n % 4 * 4}px;height:{6 + n % 4 * 4}px;opacity:{.35 + (n % 5) * .12:.2f}"></i>' for n in range(44))
