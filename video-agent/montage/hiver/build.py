@@ -90,9 +90,9 @@ while k < 4:
         st, du = SCH[k][0], SCH[j][0] + SCH[j][1] - SCH[k][0]
         src = os.path.join(R, "broll", b + ".mp4"); name = f"{b}_{k}.mp4"; out = os.path.join(D, "media", name)
         if os.path.exists(src):
-            f = max(1.0, du / 10.0)
+            f = min(2.0, max(1.0, du / 5.0))  # ralenti (max ×2), puis image figée si besoin
             subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", src, "-filter_complex",
-                            f"[0:v]split[a][b];[b]reverse[r];[a][r]concat=n=2:v=1,setpts={f:.3f}*PTS,scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fps=30",
+                            f"[0:v]setpts={f:.3f}*PTS,tpad=stop_mode=clone:stop_duration=10,scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fps=30",
                             "-an", "-t", f"{du:.2f}", "-c:v", "libx264", "-crf", "18", "-pix_fmt", "yuv420p", out], check=True)
             vids.append((name, st, du))
     k = j + 1
