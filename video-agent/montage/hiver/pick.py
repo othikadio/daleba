@@ -7,6 +7,7 @@ AF=("highpass=f=70,equalizer=f=170:t=q:w=1:g=1.5,equalizer=f=3100:t=q:w=1.2:g=2.
     "silenceremove=start_periods=1:start_threshold=-45dB")
 rep=[]
 for k,d in S.items():
+    if len(sys.argv)>1 and k not in sys.argv[1:]: continue
     for i,txt in enumerate(d["vo"]):
         best=None
         for sd in (11,5):
@@ -18,4 +19,4 @@ for k,d in S.items():
             if not best or sc>best[0]: best=(sc,f,h)
         subprocess.run(["ffmpeg","-v","error","-y","-i",best[1],"-af",AF,"-ar","48000",f"vo/{k}_{i}.wav"])
         rep.append(f"{k}_{i} {best[0]:.2f} {os.path.basename(best[1])}: {best[2]}"); print(rep[-1],flush=True)
-open("vo/rapport.txt","w").write("\n".join(rep))
+open("vo/rapport.txt","a").write("\n".join(rep))
