@@ -142,10 +142,15 @@ fin(".info .r", te + 1.4, 1, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" });
     open(os.path.join(D, "index.html"), "w").write(page("Maison Kadio", css, body, js, T, ("m288", 0)))
 
 # =====================================================================
-elif F == "signature":
+elif F in ("signature", "galerie_barbier"):
+    GB = F == "galerie_barbier"
     looks = [("h_nattes", "Nattes", "dès 40 $", "50% 40%"), ("h_zigzag", "Zigzag", "design · dès 60 $", "50% 45%"),
              ("h_twists", "Twists", "dès 55 $", "50% 45%"), ("h_croises", "Croisés", "design · dès 60 $", "50% 40%"),
              ("h_locks", "Locks", "retwist · 150 $", "50% 45%"), ("h_chignon", "Chignon tressé", "nattes · dès 40 $", "50% 40%")]
+    if GB: looks = [("b2", "Taper fade", "coupe · 50 $", "55% 40%"), ("b6", "Drop fade", "coupe · 50 $", "50% 40%"),
+                    ("b4", "Fade & barbe", "coupe + barbe · 60 $", "55% 45%"), ("b9", "Burst taper", "coupe · 50 $", "50% 45%"),
+                    ("b13", "Contour", "contours · 30 $", "45% 40%"), ("b3", "Taper bouclé", "coupe · 50 $", "55% 40%"),
+                    ("b12", "Coupe enfant", "club enfant · 11,99 $/mois", "45% 40%")]
     C0, LD = 3.2, 3.3; TE = C0 + LD * len(looks); T = round(TE + 4.2, 2)
     css = """
 :root { --bg: #f2ebe0; --fg: #17130f; --ac: #b8532a; }
@@ -176,11 +181,11 @@ elif F == "signature":
 """
     pages = ""
     for i, (img, nm, pr, pos) in enumerate(looks):
-        pages += f"""<div id="g{i}" class="pg{' alt' if i % 2 else ''}"><div class="no">N° <b>0{i + 1}</b></div><div class="brand">Kadio · Hiver 26</div><div class="rule"></div>
+        pages += f"""<div id="g{i}" class="pg{' alt' if i % 2 else ''}"><div class="no">N° <b>0{i + 1}</b></div><div class="brand">{"Barbier · Kadio" if GB else "Kadio · Hiver 26"}</div><div class="rule"></div>
 <div class="frame"><img src="photos/{img}.jpg" style="object-position:{pos}"></div><div class="big">0{i + 1}</div><div class="name">{e(nm)}</div><div class="price">{e(pr)}</div></div>"""
-    body = f"""<div id="cover"><div class="ct"><small>Kadio Coiffure présente</small><h1>{sp("La")}<br><em>{sp("Signature")}</em></h1><div class="r"></div><p>Collection hiver 2026</p></div></div>
+    body = f"""<div id="cover"><div class="ct"><small>Kadio Coiffure présente</small><h1>{sp("La" if not GB else "La")}<br><em>{sp("Galerie" if GB else "Signature")}</em></h1><div class="r"></div><p>{"Barbier · coupes, dégradés, barbes" if GB else "Collection hiver 2026"}</p></div></div>
 {pages}
-<div id="endp" class="pg"><div class="et"><h2>{sp("Réservez")}<br>{sp("votre signature.")}</h2><div class="r"></div><p>615, Antoinette-Robidoux · Longueuil</p><p>514 919-5970</p><div class="site">kadiocoiffure.com</div></div></div>"""
+<div id="endp" class="pg"><div class="et"><h2>{sp("Réservez")}<br>{sp("votre coupe." if GB else "votre signature.")}</h2><div class="r"></div>{'<p style="margin-bottom:30px">Club Kadio : coupe + barbe <b style="color:#e6a07c">19,99 $/mois</b></p>' if GB else ''}<p>615, Antoinette-Robidoux · Longueuil</p><p>514 919-5970</p><div class="site">kadiocoiffure.com</div></div></div>"""
     js = """
 const C0 = %s, LD = %s, N = %d, TE = %s;
 fin(".ct small", .2, .8, { opacity: 0, letterSpacing: "1.2em" }, { opacity: 1, letterSpacing: ".6em", ease: "expo.out" }); cue(.2, "type-click.wav", .25);
@@ -202,7 +207,7 @@ fin(".et h2 .ch", TE + .5, .7, { opacity: 0, y: 60 }, { opacity: 1, y: 0, stagge
 fin(".et .r", TE + 1.3, .7, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" });
 fin(".et p, .et .site", TE + 1.5, .7, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .2 }); cue(TE + 1.9, "sparkle.wav", .25);
 """ % (C0, LD, len(looks), TE)
-    open(os.path.join(D, "index.html"), "w").write(page("La Signature", css, body, js, T, ("m623", 12)))
+    open(os.path.join(D, "index.html"), "w").write(page("La Galerie Barbier" if GB else "La Signature", css, body, js, T, ("m1183", 40) if GB else ("m623", 12)))
 
 # =====================================================================
 elif F == "bienvenue":
@@ -265,7 +270,11 @@ fin(".ec .r", te + 1.2, .7, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" }); fin
     open(os.path.join(D, "index.html"), "w").write(page("Bienvenue chez Kadio", css, body, js, T, ("m169", 0)))
 # =====================================================================
 # Barrel twist : photos bt1..bt5 ; centre de la tête (fraction de l'image) pour la mise au point
-BT = {"bt1": (.40, .50), "bt2": (.48, .52), "bt3": (.60, .50), "bt4": (.55, .55), "bt5": (.42, .42)}
+BT = {"bt1": (.40, .50), "bt2": (.48, .52), "bt3": (.60, .50), "bt4": (.55, .55), "bt5": (.42, .42),
+      "b1": (.55, .45), "b2": (.55, .42), "b3": (.55, .45), "b4": (.55, .45), "b5": (.58, .48), "b6": (.5, .42),
+      "b7": (.5, .42), "b8": (.5, .42), "b9": (.5, .45), "b13": (.5, .45), "b14": (.55, .45), "b10": (.45, .42), "b11": (.6, .45), "b12": (.5, .45)}
+def dims(name):
+    w, h = Image.open(os.path.join(R, "photos", name + ".jpg")).size; sc = max(1080 / w, 1920 / h); return w * sc, h * sc
 FOCUS_CSS = """
 .fx { position: absolute; inset: 0; transform-origin: 50% 50%; }
 .fx img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -275,13 +284,14 @@ FOCUS_CSS = """
 def focus(i, name, rx=46, ry=30, extra=""):
     cx, cy = BT[name]
     # coordonnées dans le cadre 1080x1920 (photo 3:4 en cover → décalage horizontal de 180 px ; bt5 9:16 → pas de décalage)
-    fx = cx * 1440 - 180 if name != "bt5" else cx * 1080
-    m = f"radial-gradient(ellipse {rx}% {ry}% at {fx / 10.8:.1f}% {cy * 100:.1f}%, #000 55%, transparent 100%)"
+    dw, dh = dims(name); fx = cx * dw - (dw - 1080) / 2; fy = cy * dh - (dh - 1920) / 2
+    m = f"radial-gradient(ellipse {rx}% {ry}% at {fx / 10.8:.1f}% {fy / 19.2:.1f}%, #000 55%, transparent 100%)"
     return (f'<div id="p{i}" class="ph"><div class="fx"><img class="bg" src="photos/{name}.jpg">'
             f'<img class="fg" src="photos/{name}.jpg" style="-webkit-mask-image:{m};mask-image:{m}"></div>{extra}</div>')
 
-if F == "barrel":
+if F in ("barrel", "film_barbier"):
     T = 21.0
+    FB = F == "film_barbier"
     css = FOCUS_CSS + """
 :root { --bg: #070605; --fg: #f3e6cf; --gold: #d9b26f; }
 .bar { position: absolute; left: 0; right: 0; height: 230px; background: #000; z-index: 20; }
@@ -305,14 +315,16 @@ if F == "barrel":
 .info .s { margin-top: 22px; font: 600 30px Corm; letter-spacing: .5em; text-indent: .5em; color: var(--gold); text-transform: uppercase; }
 """
     shots = [("bt2", 2.2, 6.4, ""), ("bt1", 6.4, 9.2, "Volume."), ("bt4", 9.2, 12.0, "Relief."), ("bt3", 12.0, 14.8, "Caractère."), ("bt5", 14.8, 17.4, "Chaque tête,|une signature.")]
+    if FB: shots = [("b7", 2.2, 6.4, ""), ("b4", 6.4, 9.2, "Précision."), ("b2", 9.2, 12.0, "Dégradé."), ("b14", 12.0, 14.8, "Contour."), ("b5", 14.8, 17.4, "Votre style,|notre signature.")]
+    T1, T2, CTA = ("Le", "Barbier", "Réservez votre coupe.") if FB else ("Barrel", "Twist", "Réservez votre barrel twist.")
     body = "".join(focus(i, n) for i, (n, a, b, w) in enumerate(shots))
     words = "".join(f'<div id="w{i}" class="txt word{" sm" if "|" in w else ""}">' + "<br>".join(sp(x) for x in w.split("|")) + "</div>" for i, (n, a, b, w) in enumerate(shots) if w)
     body += f"""
 <div class="layer vig"></div><div class="leak"></div>
-<div id="t0" class="txt open"><small>Kadio Coiffure présente</small><h1>{sp("Barrel")}<em>{sp("Twist")}</em></h1></div>
+<div id="t0" class="txt open"><small>Kadio Coiffure présente</small><h1>{sp(T1)}<em>{sp(T2)}</em></h1></div>
 {words}
 <div id="end" class="layer"><div class="ring"></div><div class="logo">{sp("Kadio")}</div><div class="logo logo2">{sp("Coiffure")}</div>
-  <div class="info"><h4>Réservez votre barrel twist.</h4><p>615, Antoinette-Robidoux · Longueuil</p><p>514 919-5970</p><div class="s">kadiocoiffure.com</div></div></div>
+  <div class="info"><h4>{CTA}</h4><p>615, Antoinette-Robidoux · Longueuil</p><p>514 919-5970</p><div class="s">kadiocoiffure.com</div></div></div>
 <div class="bar t"></div><div class="bar b"></div>"""
     js = """
 const S = %s;
@@ -334,15 +346,22 @@ show(".ring, .logo", te + .4, null);
 cue(te + .38, "neon_flick.wav", .6); cue(te + .8, "bass.wav", .35);
 fin(".info", te + 1.3, 1, { opacity: 0, y: 20 }, { opacity: 1, y: 0 });
 """ % json.dumps(shots)
-    open(os.path.join(D, "index.html"), "w").write(page("Barrel Twist", css, body, js, T, ("m1000", 4)))
+    open(os.path.join(D, "index.html"), "w").write(page("Le Barbier" if FB else "Barrel Twist", css, body, js, T, ("m288", 30) if FB else ("m1000", 4)))
 
-elif F == "anatomie":
+elif F in ("anatomie", "anat_barbier"):
+    AB = F == "anat_barbier"
     # (photo, point x, point y, titre, sous-titre)
     det = [("bt1", .42, .44, "Raies nettes", "des séparations tracées à la règle"),
            ("bt2", .47, .52, "Torsades en relief", "un volume qui tient"),
            ("bt1", .22, .25, "Chignon twisté", "la touche finale"),
            ("bt4", .66, .655, "Contour au rasoir", "une ligne parfaite"),
            ("bt3", .56, .62, "Dégradé net", "une transition douce")]
+    if AB: det = [("b2", .75, .33, "Taper net", "une transition invisible"),
+                  ("b13", .45, .34, "Ligne au rasoir", "un contour au millimètre"),
+                  ("b8", .52, .47, "Burst fade", "le dégradé autour de l'oreille"),
+                  ("b4", .66, .66, "Barbe sculptée", "des lignes franches"),
+                  ("b6", .60, .24, "Texture", "le dessus travaillé")]
+    SUJ, BRAND = ("dégradé", "Barbier · Kadio") if AB else ("barrel twist", "Barrel twist · Kadio")
     C0, LD = 3.2, 3.2; TE = C0 + LD * len(det); T = round(TE + 4.0, 2)
     css = FOCUS_CSS + """
 :root { --bg: #f2ebe0; --fg: #17130f; --ac: #b8532a; --gold: #c99a52; }
@@ -369,24 +388,25 @@ elif F == "anatomie":
 """
     pages = ""
     for i, (img, px, py, h, s) in enumerate(det):
-        W, H, OX = (1080, 1920, 0) if img == "bt5" else (1440, 1920, -180)
+        W, H = Image.open(os.path.join(R, "photos", img + ".jpg")).size
         # cadre 940x1180 placé à (70,300) ; la photo y est en cover → on calcule la position du point dans la page
         fw, fh = 940, 1180; sc = max(fw / W, fh / H); dw, dh = W * sc, H * sc; ox, oy = 70 + (fw - dw) / 2, 300 + (fh - dh) / 2
         X, Y = ox + px * dw, oy + py * dh
         lx = 560 if X < 540 else 80; ly = 1020 if Y < 900 else 330
-        m = 2.4; R = 220
-        lpx, lpy = lx + R, ly + R
-        ang = __import__("math").degrees(__import__("math").atan2(lpy - Y, lpx - X)); ln = ((lpx - X) ** 2 + (lpy - Y) ** 2) ** .5 - R
-        inner = f'<img src="photos/{img}.jpg" style="width:{dw * m:.0f}px;height:{dh * m:.0f}px;left:{R - (X - ox) * m:.0f}px;top:{R - (Y - oy) * m:.0f}px">'
-        pages += f"""<div id="g{i}" class="pg"><div class="no">Détail <b>0{i + 1}</b></div><div class="brand">Barrel twist · Kadio</div><div class="rule"></div>
+        m = 2.4; RR = 220
+        lpx, lpy = lx + RR, ly + RR
+        ang = __import__("math").degrees(__import__("math").atan2(lpy - Y, lpx - X)); ln = ((lpx - X) ** 2 + (lpy - Y) ** 2) ** .5 - RR
+        inner = f'<img src="photos/{img}.jpg" style="width:{dw * m:.0f}px;height:{dh * m:.0f}px;left:{RR - (X - ox) * m:.0f}px;top:{RR - (Y - oy) * m:.0f}px">'
+        pages += f"""<div id="g{i}" class="pg"><div class="no">Détail <b>0{i + 1}</b></div><div class="brand">{BRAND}</div><div class="rule"></div>
 <div class="frame">{focus(f"f{i}", img, 60, 44)}</div>
 <div class="lead" style="left:{X:.0f}px;top:{Y:.0f}px;width:{ln:.0f}px;transform:rotate({ang:.1f}deg)"></div>
 <div class="dot" style="left:{X:.0f}px;top:{Y:.0f}px"></div>
 <div class="loupe" style="left:{lx}px;top:{ly}px">{inner}</div>
 <div class="dt"><h2>{e(h)}</h2><p>{e(s)}</p></div></div>"""
-    body = f"""<div id="cover" class="layer"><div class="ct"><small>Kadio Coiffure</small><h1>{sp("Anatomie")}<br>{sp("d'un")} <em>{sp("barrel twist")}</em></h1><div class="r"></div><p>Le détail fait la différence.</p></div></div>
+    body = f"""<div id="cover" class="layer"><div class="ct"><small>Kadio Coiffure</small><h1>{sp("Anatomie")}<br>{sp("d'un" if not AB else "d'un")} <em>{sp(SUJ)}</em></h1><div class="r"></div><p>Le détail fait la différence.</p></div></div>
 {pages}
-<div id="endp" class="pg"><div class="ct" style="top:640px"><small>Votre tour</small><h1 style="font-size:112px">{sp("Réservez votre")}<br><em>{sp("barrel twist.")}</em></h1><div class="r"></div>
+<div id="endp" class="pg"><div class="ct" style="top:640px"><small>Votre tour</small><h1 style="font-size:112px">{sp("Réservez votre")}<br><em>{sp("coupe." if AB else "barrel twist.")}</em></h1><div class="r"></div>
+{'<p style="font-style:normal;font-weight:600;font-size:40px;line-height:1.6;letter-spacing:.06em">Coupe 50 $ · Coupe + barbe 60 $ · Contours 30 $</p><p style="margin:18px 0 30px;font-size:42px">Club Kadio : coupe + barbe <b style="color:#e6b07c">19,99 $/mois</b></p>' if AB else ''}
 <p style="font-style:normal;font-weight:500;font-size:44px;line-height:1.6">615, Antoinette-Robidoux · Longueuil<br>514 919-5970</p><p style="margin-top:24px;font:600 32px Corm;letter-spacing:.45em;color:#e6b07c">KADIOCOIFFURE.COM</p></div></div>"""
     js = """
 const C0 = %s, LD = %s, N = %d, TE = %s;
@@ -411,7 +431,7 @@ fin("#endp h1 .ch", TE + .5, .7, { opacity: 0, y: 60 }, { opacity: 1, y: 0, stag
 fin("#endp .r", TE + 1.2, .7, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" }); fin("#endp p", TE + 1.4, .7, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .2 }); cue(TE + 1.6, "sparkle.wav", .25);
 """ % (C0, LD, len(det), TE)
     body = body.replace('class="click.wav"', '')
-    open(os.path.join(D, "index.html"), "w").write(page("Anatomie Barrel Twist", css, body, js, T, ("m1183", 8)))
+    open(os.path.join(D, "index.html"), "w").write(page("Anatomie d'un dégradé" if AB else "Anatomie Barrel Twist", css, body, js, T, ("m657", 20) if AB else ("m1183", 8)))
 
 elif F == "rythme":
     BEAT = 60 / 124
