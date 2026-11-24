@@ -482,4 +482,144 @@ fin("#end h1 .ch", TE + .1, .6, { opacity: 0, scale: 1.5 }, { opacity: 1, scale:
 fin("#end .r", TE + .9, .6, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" }); fin("#end p, #end .s", TE + 1.1, .6, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .2 });
 """ % (C0, cut, len(seq), TE, BEAT)
     open(os.path.join(D, "index.html"), "w").write(page("Barrel Twist 360", css, body, js, T, ("m623", 15.5)))
+elif F in ("comparateur", "quiz"):
+    import math
+    END_INFO = ('<p class="px">Coupe 50 $ · Coupe + barbe 60 $ · Contours 30 $</p>'
+                '<p class="club">Club Kadio : coupe + barbe <b>19,99 $/mois</b></p>'
+                '<p class="ad">615, Antoinette-Robidoux · Longueuil<br>514 919-5970</p><p class="site">KADIOCOIFFURE.COM</p>')
+    BASE = FOCUS_CSS + """
+:root { --bg: #f2ebe0; --fg: #17130f; --ac: #b8532a; --gold: #c99a52; }
+.pg { position: absolute; inset: 0; background: var(--bg); visibility: hidden; }
+.frame { position: absolute; left: 70px; right: 70px; top: 300px; height: 1180px; overflow: hidden; border-radius: 4px; }
+.frame .ph { visibility: visible; }
+.no { position: absolute; left: 70px; top: 140px; font: 400 40px Bodoni; letter-spacing: .1em; } .no b { font-weight: 700; }
+.brand { position: absolute; right: 70px; top: 152px; font: 500 26px Corm; letter-spacing: .45em; text-transform: uppercase; }
+.rule { position: absolute; left: 70px; right: 70px; top: 228px; height: 2px; background: var(--fg); transform-origin: 0 50%; }
+#cover, #endp { background: var(--fg); color: var(--bg); }
+.ct { position: absolute; left: 60px; right: 60px; top: 560px; text-align: center; }
+.ct small { display: block; font: 500 30px Corm; letter-spacing: .6em; text-indent: .6em; text-transform: uppercase; }
+.ct h1 { margin-top: 40px; font: 400 112px/1.05 Bodoni; }
+.ct h1 em { font-style: italic; color: #e6b07c; }
+.ct .r { width: 160px; height: 3px; background: var(--ac); margin: 56px auto 40px; }
+.ct p { font: italic 300 48px Corm; }
+.ct .px { font: 600 40px/1.6 Corm; font-style: normal; letter-spacing: .05em; }
+.ct .club { margin: 14px 0 34px; font: 500 42px Corm; font-style: normal; } .ct .club b { color: #e6b07c; }
+.ct .ad { font: 500 44px/1.55 Corm; font-style: normal; }
+.ct .site { margin-top: 22px; font: 600 32px Corm; font-style: normal; letter-spacing: .45em; color: #e6b07c; }
+"""
+    def frame_pt(img, px, py):
+        W, H = Image.open(os.path.join(R, "photos", img + ".jpg")).size
+        fw, fh = 940, 1180; sc = max(fw / W, fh / H); dw, dh = W * sc, H * sc; ox, oy = 70 + (fw - dw) / 2, 300 + (fh - dh) / 2
+        return ox + px * dw, oy + py * dh
+
+    if F == "comparateur":
+        cmp = [("b2", "Taper fade", "Court seulement aux tempes et à la nuque.", "Discret, propre, passe partout.",
+                [(.18, .32), (.35, .30), (.55, .30), (.75, .36), (.92, .50)]),
+               ("b6", "Drop fade", "La ligne plonge derrière l'oreille.", "Un arc moderne, plein de style.",
+                [(.25, .37), (.45, .38), (.62, .42), (.72, .55), (.78, .70)]),
+               ("b8", "Burst fade", "En demi-cercle autour de l'oreille.", "Parfait avec des boucles.",
+                [(.08, .55), (.15, .38), (.32, .30), (.48, .30), (.62, .40)]),
+               ("b4", "High fade", "Le dégradé monte haut sur les côtés.", "Contraste maximal, look affirmé.",
+                [(.05, .33), (.25, .28), (.45, .26), (.62, .27), (.72, .32)])]
+        C0, LD = 3.4, 3.8; TE = C0 + LD * len(cmp); T = round(TE + 5.0, 2)
+        css = BASE + """
+.ln { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; z-index: 5; overflow: visible; }
+.ln path { fill: none; stroke: #f3c77a; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 10px rgba(255,190,90,.9)); }
+.tag { position: absolute; z-index: 6; padding: 12px 26px; border-radius: 999px; background: #f3c77a; color: #17130f; font: 700 30px Corm; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+.dt { position: absolute; left: 70px; right: 70px; top: 1520px; }
+.dt h2 { font: italic 400 108px/1 Bodoni; white-space: nowrap; }
+.dt p { margin-top: 20px; font: 500 40px/1.3 Corm; }
+.dt p i { display: block; margin-top: 8px; font: 600 32px Corm; font-style: normal; letter-spacing: .2em; text-transform: uppercase; color: var(--ac); }
+"""
+        pages = ""
+        for i, (img, nm, d1, d2, pts) in enumerate(cmp):
+            P = [frame_pt(img, x, y) for x, y in pts]
+            dpath = "M" + " L".join(f"{x:.0f} {y:.0f}" for x, y in P)
+            tx, ty = P[0]; tx = min(max(tx - 40, 90), 640); ty = max(ty - 110, 320)
+            pages += f"""<div id="g{i}" class="pg"><div class="no">Le comparateur <b>0{i + 1}</b>/04</div><div class="brand">Barbier · Kadio</div><div class="rule"></div>
+<div class="frame">{focus(f"f{i}", img, 62, 46)}</div>
+<svg class="ln" viewBox="0 0 1080 1920"><path d="{dpath}" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg>
+<div class="tag" style="left:{tx:.0f}px;top:{ty:.0f}px">Le dégradé commence ici</div>
+<div class="dt"><h2>{e(nm)}</h2><p>{e(d1)}<i>{e(d2)}</i></p></div></div>"""
+        body = f"""<div id="cover" class="layer"><div class="ct" style="top:620px"><small>Le comparateur Kadio</small><h1 style="font-size:100px">{sp("Taper, drop,")}<br>{sp("burst ou")} <em>{sp("high fade ?")}</em></h1><div class="r"></div><p>Trouvez votre dégradé.</p></div></div>
+{pages}
+<div id="endp" class="pg"><div class="ct" style="top:500px"><small>Pas sûr ?</small><h1 style="font-size:96px">{sp("On vous conseille")}<br><em>{sp("au fauteuil.")}</em></h1><div class="r"></div>{END_INFO}</div></div>"""
+        js = """
+const C0 = %s, LD = %s, N = %d, TE = %s;
+fin("#cover small", .2, .8, { opacity: 0, letterSpacing: "1.2em" }, { opacity: 1, letterSpacing: ".6em", ease: "expo.out" });
+fin("#cover h1 .ch", .5, .7, { opacity: 0, y: 70 }, { opacity: 1, y: 0, stagger: .03, ease: "power4.out" }); cue(.5, "bass.wav", .35);
+fin("#cover .r", 1.5, .7, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" }); fin("#cover p", 1.7, .7, { opacity: 0 }, { opacity: 1 });
+for (let i = 0; i < N; i++) {
+  const t = C0 + i * LD, g = "#g" + i;
+  show(g, t, null); tl.set(g, { zIndex: 10 + i }, 0);
+  fin(g, t, .55, { xPercent: 100 }, { xPercent: 0, ease: "power3.inOut" }); cue(t, "sweep-small.wav", .4);
+  fin(g + " .rule", t + .4, .6, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" });
+  kb(g + " .fx", t + .3, LD + .6, { scale: 1.1 }, { scale: 1.0 });
+  fin(g + " .ln path", t + .9, 1.1, { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: "power2.inOut" }); cue(t + .9, "swoosh-wind.wav", .25);
+  fin(g + " .tag", t + 1.7, .45, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, ease: "back.out(2.5)" }); cue(t + 1.7, "click.wav", .3);
+  fin(g + " .dt h2", t + .6, .7, { opacity: 0, y: 40 }, { opacity: 1, y: 0, ease: "power3.out" });
+  fin(g + " .dt p", t + 1.0, .6, { opacity: 0, y: 20 }, { opacity: 1, y: 0, ease: "power3.out" });
+}
+show("#endp", TE, null); tl.set("#endp", { zIndex: 99 }, 0); fin("#endp", TE, .55, { xPercent: 100 }, { xPercent: 0, ease: "power3.inOut" }); cue(TE, "sweep-small.wav", .4);
+fin("#endp h1 .ch", TE + .5, .7, { opacity: 0, y: 60 }, { opacity: 1, y: 0, stagger: .025, ease: "power4.out" }); cue(TE + .5, "bass.wav", .35);
+fin("#endp .r", TE + 1.2, .7, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" }); fin("#endp p", TE + 1.4, .6, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .18 }); cue(TE + 1.6, "sparkle.wav", .25);
+""" % (C0, LD, len(cmp), TE)
+        open(os.path.join(D, "index.html"), "w").write(page("Le Comparateur", css, body, js, T, ("m1000", 40)))
+    else:
+        qs = [("Tu veux un look discret et propre ?", "b2", "Le taper fade", "coupe · 50 $"),
+              ("Tu as des boucles à mettre en valeur ?", "b8", "Le burst fade", "coupe · 50 $"),
+              ("Tu portes la barbe ?", "b4", "Le fade & barbe", "coupe + barbe · 60 $"),
+              ("Tu veux du caractère, du contraste ?", "b6", "Le drop fade", "coupe · 50 $")]
+        C0, QD, RD = 2.8, 2.0, 2.6; TE = round(C0 + (QD + RD) * len(qs), 2); T = round(TE + 5.0, 2)
+        css = BASE + """
+.qp { position: absolute; inset: 0; background: radial-gradient(80% 50% at 50% 40%, #2a2018, #17130f 70%); color: #f2ebe0; visibility: hidden; }
+.qn { position: absolute; left: 0; right: 0; top: 380px; text-align: center; font: 600 30px Corm; letter-spacing: .5em; text-indent: .5em; color: #e6b07c; text-transform: uppercase; }
+.qt { position: absolute; left: 80px; right: 80px; top: 560px; text-align: center; font: italic 400 104px/1.08 Bodoni; }
+.btns { position: absolute; left: 0; right: 0; top: 1180px; display: flex; justify-content: center; gap: 50px; }
+.btn { width: 340px; padding: 34px 0; border-radius: 999px; border: 3px solid #e6b07c; text-align: center; font: 700 52px Corm; letter-spacing: .25em; text-indent: .25em; color: #f2ebe0; }
+.btn.yes { position: relative; }
+.ripple { position: absolute; left: 50%; top: 50%; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; border: 6px solid #fff; opacity: 0; }
+.ans { position: absolute; left: 70px; right: 70px; top: 1520px; }
+.ans small { display: block; font: 600 30px Corm; letter-spacing: .4em; text-transform: uppercase; color: var(--ac); }
+.ans h2 { margin-top: 14px; font: italic 400 112px/1 Bodoni; white-space: nowrap; }
+.ans p { margin-top: 18px; font: 600 40px Corm; letter-spacing: .15em; text-transform: uppercase; }
+"""
+        pages = ""
+        for i, (q, img, nm, pr) in enumerate(qs):
+            pages += f"""<div id="q{i}" class="qp"><div class="qn">Question {i + 1} / {len(qs)}</div><div class="qt">{sp(q)}</div>
+<div class="btns"><div class="btn yes">OUI<div class="ripple"></div></div><div class="btn non">NON</div></div></div>
+<div id="r{i}" class="pg"><div class="no">Réponse <b>0{i + 1}</b></div><div class="brand">Barbier · Kadio</div><div class="rule"></div>
+<div class="frame">{focus(f"f{i}", img, 62, 46)}</div><div class="ans"><small>Ton dégradé</small><h2>{e(nm)}</h2><p>{e(pr)}</p></div></div>"""
+        body = f"""<div id="cover" class="layer"><div class="ct" style="top:600px"><small>Le quiz Kadio</small><h1>{sp("Quel dégradé")}<br>{sp("est fait")} <em>{sp("pour toi ?")}</em></h1><div class="r"></div><p>Réponds dans ta tête…</p></div></div>
+{pages}
+<div id="endp" class="pg"><div class="ct" style="top:460px"><small>Et toi ?</small><h1 style="font-size:100px">{sp("C'est lequel ?")}<br><em>{sp("Dis-le en commentaire.")}</em></h1><div class="r"></div>{END_INFO}</div></div>"""
+        js = """
+const C0 = %s, QD = %s, RD = %s, N = %d, TE = %s;
+fin("#cover small", .2, .8, { opacity: 0, letterSpacing: "1.2em" }, { opacity: 1, letterSpacing: ".6em", ease: "expo.out" });
+fin("#cover h1 .ch", .5, .7, { opacity: 0, y: 70 }, { opacity: 1, y: 0, stagger: .03, ease: "power4.out" }); cue(.5, "bass.wav", .35);
+fin("#cover .r", 1.4, .6, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" }); fin("#cover p", 1.6, .6, { opacity: 0 }, { opacity: 1 });
+for (let i = 0; i < N; i++) {
+  const t = C0 + i * (QD + RD), q = "#q" + i, r = "#r" + i;
+  show(q, t, t + QD + .6); tl.set(q, { zIndex: 10 + 2 * i }, 0);
+  fin(q, t, .45, { opacity: 0, scale: 1.08 }, { opacity: 1, scale: 1, ease: "power3.out" }); cue(t, "whoosh-cine.wav", .35);
+  fin(q + " .qn", t + .2, .5, { opacity: 0, y: -20 }, { opacity: 1, y: 0 });
+  fin(q + " .qt .ch", t + .25, .6, { opacity: 0, y: 30 }, { opacity: 1, y: 0, stagger: .012, ease: "power3.out" });
+  fin(q + " .btn", t + .7, .45, { opacity: 0, y: 40 }, { opacity: 1, y: 0, stagger: .1, ease: "back.out(2)" }); cue(t + .7, "pop-bubble.wav", .25);
+  const tap = t + QD - .55;
+  tl.fromTo(q + " .ripple", { opacity: .9, scale: .3 }, { opacity: 0, scale: 3, duration: .5, ease: "power2.out", immediateRender: false }, tap); tl.set(q + " .ripple", { opacity: 0 }, 0);
+  tl.set(q + " .btn.yes", { backgroundColor: "rgba(0,0,0,0)", color: "#f2ebe0" }, 0); tl.set(q + " .btn.yes", { backgroundColor: "#e6b07c", color: "#17130f" }, tap);
+  tl.fromTo(q + " .btn.yes", { scale: .9 }, { scale: 1, duration: .3, ease: "back.out(3)", immediateRender: false }, tap); cue(tap, "click.wav", .45);
+  show(r, t + QD, t + QD + RD + .6); tl.set(r, { zIndex: 11 + 2 * i }, 0);
+  fin(r, t + QD, .5, { yPercent: 100 }, { yPercent: 0, ease: "power3.inOut" }); cue(t + QD, "sweep-small.wav", .4);
+  fin(r + " .rule", t + QD + .35, .5, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" });
+  kb(r + " .fx", t + QD + .3, RD + .5, { scale: 1.12 }, { scale: 1.0 });
+  fin(r + " .ans small", t + QD + .45, .5, { opacity: 0, letterSpacing: "1em" }, { opacity: 1, letterSpacing: ".4em", ease: "expo.out" });
+  fin(r + " .ans h2", t + QD + .6, .6, { opacity: 0, y: 40 }, { opacity: 1, y: 0, ease: "power3.out" }); cue(t + QD + .6, "sparkle.wav", .25);
+  fin(r + " .ans p", t + QD + .9, .5, { opacity: 0, x: -30 }, { opacity: 1, x: 0, ease: "power3.out" });
+}
+show("#endp", TE, null); tl.set("#endp", { zIndex: 99 }, 0); fin("#endp", TE, .55, { yPercent: 100 }, { yPercent: 0, ease: "power3.inOut" }); cue(TE, "sweep-small.wav", .4);
+fin("#endp h1 .ch", TE + .5, .7, { opacity: 0, y: 60 }, { opacity: 1, y: 0, stagger: .02, ease: "power4.out" }); cue(TE + .5, "bass.wav", .35);
+fin("#endp .r", TE + 1.2, .7, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" }); fin("#endp p", TE + 1.4, .6, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .18 }); cue(TE + 1.6, "notif-positive.wav", .3);
+""" % (C0, QD, RD, len(qs), TE)
+        open(os.path.join(D, "index.html"), "w").write(page("Le Quiz Barbier", css, body, js, T, ("m623", 40)))
 print(F, "ok")
