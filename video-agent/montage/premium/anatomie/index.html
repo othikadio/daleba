@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait"><head><meta charset="UTF-8"><meta name="viewport" content="width=1080, height=1920">
+<title>Anatomie Barrel Twist</title><script src="gsap.min.js"></script><style>
+@font-face { font-family: Corm; src: url(fonts/cormorant-garamond-latin-300-normal.woff2); font-weight: 300; }
+@font-face { font-family: Corm; src: url(fonts/cormorant-garamond-latin-500-normal.woff2); font-weight: 500; }
+@font-face { font-family: Corm; src: url(fonts/cormorant-garamond-latin-600-normal.woff2); font-weight: 600; }
+@font-face { font-family: Corm; src: url(fonts/cormorant-garamond-latin-300-italic.woff2); font-weight: 300; font-style: italic; }
+@font-face { font-family: Corm; src: url(fonts/cormorant-garamond-latin-500-italic.woff2); font-weight: 500; font-style: italic; }
+@font-face { font-family: Vibes; src: url(fonts/great-vibes-latin-400-normal.woff2); }
+@font-face { font-family: Bodoni; src: url(fonts/bodoni-moda-latin-400-normal.woff2); font-weight: 400; }
+@font-face { font-family: Bodoni; src: url(fonts/bodoni-moda-latin-700-normal.woff2); font-weight: 700; }
+@font-face { font-family: Bodoni; src: url(fonts/bodoni-moda-latin-400-italic.woff2); font-weight: 400; font-style: italic; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+#root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); color: var(--fg); }
+.layer { position: absolute; inset: 0; }
+.ch { display: inline-block; white-space: pre; } .w { display: inline-block; white-space: nowrap; }
+.ph { position: absolute; inset: 0; overflow: hidden; visibility: hidden; }
+.ph img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 50%; }
+#grain { background: url(grain.png); opacity: .07; mix-blend-mode: overlay; pointer-events: none; }
+.vig { background: radial-gradient(120% 90% at 50% 50%, transparent 45%, rgba(0,0,0,.75) 100%); pointer-events: none; }
+.leak { position: absolute; width: 1600px; height: 1600px; left: -260px; top: 160px; border-radius: 50%; background: radial-gradient(circle, rgba(255,160,70,.75), rgba(255,90,40,.25) 40%, transparent 68%); mix-blend-mode: screen; opacity: 0; pointer-events: none; }
+.txt { position: absolute; visibility: hidden; z-index: 30; }
+.vig { z-index: 25; } .leak { z-index: 26; } #grain { z-index: 200; }
+
+.fx { position: absolute; inset: 0; transform-origin: 50% 50%; }
+.fx img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.fx .bg { filter: blur(18px) brightness(.32) saturate(.55); transform: scale(1.08); }
+.fx .fg { filter: contrast(1.1) saturate(1.05) brightness(1.02); }
+
+:root { --bg: #f2ebe0; --fg: #17130f; --ac: #b8532a; --gold: #c99a52; }
+.pg { position: absolute; inset: 0; background: var(--bg); visibility: hidden; }
+.frame { position: absolute; left: 70px; right: 70px; top: 300px; height: 1180px; overflow: hidden; border-radius: 4px; }
+.frame .ph { visibility: visible; }
+.loupe { position: absolute; width: 440px; height: 440px; border-radius: 50%; overflow: hidden; border: 5px solid var(--bg); box-shadow: 0 0 0 3px var(--gold), 0 30px 60px rgba(0,0,0,.45); z-index: 5; }
+.loupe img { position: absolute; transform-origin: 0 0; filter: contrast(1.12) saturate(1.05); }
+.dot { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 0 0 3px var(--gold), 0 0 30px rgba(255,255,255,.8); z-index: 6; }
+.lead { position: absolute; height: 3px; background: #fff; transform-origin: 0 50%; z-index: 4; box-shadow: 0 0 0 1px rgba(0,0,0,.15); }
+.no { position: absolute; left: 70px; top: 140px; font: 400 40px Bodoni; letter-spacing: .1em; } .no b { font-weight: 700; }
+.brand { position: absolute; right: 70px; top: 152px; font: 500 26px Corm; letter-spacing: .45em; text-transform: uppercase; }
+.rule { position: absolute; left: 70px; right: 70px; top: 228px; height: 2px; background: var(--fg); transform-origin: 0 50%; }
+.dt { position: absolute; left: 70px; right: 70px; top: 1530px; }
+.dt h2 { font: italic 400 104px/1 Bodoni; white-space: nowrap; }
+.dt p { margin-top: 22px; font: 600 36px Corm; letter-spacing: .22em; text-transform: uppercase; color: var(--ac); }
+#cover, #endp { background: var(--fg); color: var(--bg); }
+.ct { position: absolute; left: 0; right: 0; top: 600px; text-align: center; }
+.ct small { display: block; font: 500 30px Corm; letter-spacing: .6em; text-indent: .6em; text-transform: uppercase; }
+.ct h1 { margin-top: 40px; font: 400 128px/1 Bodoni; }
+.ct h1 em { font-style: italic; color: #e6b07c; }
+.ct .r { width: 160px; height: 3px; background: var(--ac); margin: 60px auto 40px; }
+.ct p { font: italic 300 50px Corm; }
+</style></head><body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="23.2" data-width="1080" data-height="1920">
+<div id="cover" class="layer"><div class="ct"><small>Kadio Coiffure</small><h1><span class="w"><span class="ch">A</span><span class="ch">n</span><span class="ch">a</span><span class="ch">t</span><span class="ch">o</span><span class="ch">m</span><span class="ch">i</span><span class="ch">e</span></span><br><span class="w"><span class="ch">d</span><span class="ch">&#x27;</span><span class="ch">u</span><span class="ch">n</span></span> <em><span class="w"><span class="ch">b</span><span class="ch">a</span><span class="ch">r</span><span class="ch">r</span><span class="ch">e</span><span class="ch">l</span></span> <span class="w"><span class="ch">t</span><span class="ch">w</span><span class="ch">i</span><span class="ch">s</span><span class="ch">t</span></span></em></h1><div class="r"></div><p>Le détail fait la différence.</p></div></div>
+<div id="g0" class="pg"><div class="no">Détail <b>01</b></div><div class="brand">Barrel twist · Kadio</div><div class="rule"></div>
+<div class="frame"><div id="pf0" class="ph"><div class="fx"><img class="bg" src="photos/bt1.jpg"><img class="fg" src="photos/bt1.jpg" style="-webkit-mask-image:radial-gradient(ellipse 60% 44% at 36.7% 50.0%, #000 55%, transparent 100%);mask-image:radial-gradient(ellipse 60% 44% at 36.7% 50.0%, #000 55%, transparent 100%)"></div></div></div>
+<div class="lead" style="left:465px;top:815px;width:309px;transform:rotate(53.5deg)"></div>
+<div class="dot" style="left:465px;top:815px"></div>
+<div class="loupe" style="left:560px;top:1020px"><img src="photos/bt1.jpg" style="width:2256px;height:3008px;left:-728px;top:-1104px"></div>
+<div class="dt"><h2>Raies nettes</h2><p>des séparations tracées à la règle</p></div></div><div id="g1" class="pg"><div class="no">Détail <b>02</b></div><div class="brand">Barrel twist · Kadio</div><div class="rule"></div>
+<div class="frame"><div id="pf1" class="ph"><div class="fx"><img class="bg" src="photos/bt2.jpg"><img class="fg" src="photos/bt2.jpg" style="-webkit-mask-image:radial-gradient(ellipse 60% 44% at 47.3% 52.0%, #000 55%, transparent 100%);mask-image:radial-gradient(ellipse 60% 44% at 47.3% 52.0%, #000 55%, transparent 100%)"></div></div></div>
+<div class="lead" style="left:512px;top:915px;width:233px;transform:rotate(-53.7deg)"></div>
+<div class="dot" style="left:512px;top:915px"></div>
+<div class="loupe" style="left:560px;top:330px"><img src="photos/bt2.jpg" style="width:2256px;height:3008px;left:-840px;top:-1344px"></div>
+<div class="dt"><h2>Torsades en relief</h2><p>un volume qui tient</p></div></div><div id="g2" class="pg"><div class="no">Détail <b>03</b></div><div class="brand">Barrel twist · Kadio</div><div class="rule"></div>
+<div class="frame"><div id="pf2" class="ph"><div class="fx"><img class="bg" src="photos/bt1.jpg"><img class="fg" src="photos/bt1.jpg" style="-webkit-mask-image:radial-gradient(ellipse 60% 44% at 36.7% 50.0%, #000 55%, transparent 100%);mask-image:radial-gradient(ellipse 60% 44% at 36.7% 50.0%, #000 55%, transparent 100%)"></div></div></div>
+<div class="lead" style="left:277px;top:577px;width:613px;transform:rotate(52.8deg)"></div>
+<div class="dot" style="left:277px;top:577px"></div>
+<div class="loupe" style="left:560px;top:1020px"><img src="photos/bt1.jpg" style="width:2256px;height:3008px;left:-276px;top:-532px"></div>
+<div class="dt"><h2>Chignon twisté</h2><p>la touche finale</p></div></div><div id="g3" class="pg"><div class="no">Détail <b>04</b></div><div class="brand">Barrel twist · Kadio</div><div class="rule"></div>
+<div class="frame"><div id="pf3" class="ph"><div class="fx"><img class="bg" src="photos/bt4.jpg"><img class="fg" src="photos/bt4.jpg" style="-webkit-mask-image:radial-gradient(ellipse 60% 44% at 56.7% 55.0%, #000 55%, transparent 100%);mask-image:radial-gradient(ellipse 60% 44% at 56.7% 55.0%, #000 55%, transparent 100%)"></div></div></div>
+<div class="lead" style="left:690px;top:1084px;width:442px;transform:rotate(-126.2deg)"></div>
+<div class="dot" style="left:690px;top:1084px"></div>
+<div class="loupe" style="left:80px;top:330px"><img src="photos/bt4.jpg" style="width:2256px;height:3008px;left:-1269px;top:-1750px"></div>
+<div class="dt"><h2>Contour au rasoir</h2><p>une ligne parfaite</p></div></div><div id="g4" class="pg"><div class="no">Détail <b>05</b></div><div class="brand">Barrel twist · Kadio</div><div class="rule"></div>
+<div class="frame"><div id="pf4" class="ph"><div class="fx"><img class="bg" src="photos/bt3.jpg"><img class="fg" src="photos/bt3.jpg" style="-webkit-mask-image:radial-gradient(ellipse 60% 44% at 63.3% 50.0%, #000 55%, transparent 100%);mask-image:radial-gradient(ellipse 60% 44% at 63.3% 50.0%, #000 55%, transparent 100%)"></div></div></div>
+<div class="lead" style="left:596px;top:1040px;width:353px;transform:rotate(-121.1deg)"></div>
+<div class="dot" style="left:596px;top:1040px"></div>
+<div class="loupe" style="left:80px;top:330px"><img src="photos/bt3.jpg" style="width:2256px;height:3008px;left:-1043px;top:-1645px"></div>
+<div class="dt"><h2>Dégradé net</h2><p>une transition douce</p></div></div>
+<div id="endp" class="pg"><div class="ct" style="top:640px"><small>Votre tour</small><h1 style="font-size:112px"><span class="w"><span class="ch">R</span><span class="ch">é</span><span class="ch">s</span><span class="ch">e</span><span class="ch">r</span><span class="ch">v</span><span class="ch">e</span><span class="ch">z</span></span> <span class="w"><span class="ch">v</span><span class="ch">o</span><span class="ch">t</span><span class="ch">r</span><span class="ch">e</span></span><br><em><span class="w"><span class="ch">b</span><span class="ch">a</span><span class="ch">r</span><span class="ch">r</span><span class="ch">e</span><span class="ch">l</span></span> <span class="w"><span class="ch">t</span><span class="ch">w</span><span class="ch">i</span><span class="ch">s</span><span class="ch">t</span><span class="ch">.</span></span></em></h1><div class="r"></div>
+<p style="font-style:normal;font-weight:500;font-size:44px;line-height:1.6">615, Antoinette-Robidoux · Longueuil<br>514 919-5970</p><p style="margin-top:24px;font:600 32px Corm;letter-spacing:.45em;color:#e6b07c">KADIOCOIFFURE.COM</p></div></div>
+<div id="grain" class="layer"></div>
+</div>
+<script>
+const tl = gsap.timeline({ paused: true }); const CUES = [];
+const cue = (t, f, g) => CUES.push({ t: +Math.max(0, t).toFixed(3), file: f, gain: g == null ? .5 : g });
+function show(sel, t0, t1) { tl.set(sel, { autoAlpha: 0 }, 0); tl.set(sel, { autoAlpha: 1 }, t0); if (t1 != null) tl.set(sel, { autoAlpha: 0 }, t1); }
+function fin(sel, t, d, a, b) { tl.fromTo(sel, a, Object.assign({ duration: d, immediateRender: false }, b), t); tl.set(sel, a, 0); }
+function kb(sel, t, d, a, b) { tl.fromTo(sel, a, Object.assign({ duration: d, ease: "none", immediateRender: false }, b), t); tl.set(sel, a, 0); }
+function grain(T) { let s = 7; for (let k = 0; k * .083 < T; k++) { s = (s * 9301 + 49297) % 233280; const x = s % 512; s = (s * 9301 + 49297) % 233280; tl.set("#grain", { backgroundPosition: x + "px " + (s % 512) + "px" }, k * .083); } }
+function leak(t, d) { tl.fromTo(".leak", { opacity: 0, x: -500, scale: .8 }, { opacity: 1, x: 200, scale: 1.1, duration: d * .5, ease: "sine.in", immediateRender: false }, t); tl.to(".leak", { opacity: 0, x: 700, duration: d * .5, ease: "sine.out" }, t + d * .5); }
+
+const T = 23.2;
+
+const C0 = 3.2, LD = 3.2, N = 5, TE = 19.2;
+fin(".ct small", .2, .8, { opacity: 0, letterSpacing: "1.2em" }, { opacity: 1, letterSpacing: ".6em", ease: "expo.out" });
+fin("#cover h1 .ch", .5, .7, { opacity: 0, y: 70 }, { opacity: 1, y: 0, stagger: .035, ease: "power4.out" }); cue(.5, "bass.wav", .35);
+fin("#cover .r", 1.4, .7, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" }); fin("#cover p", 1.6, .7, { opacity: 0 }, { opacity: 1 });
+for (let i = 0; i < N; i++) {
+  const t = C0 + i * LD, g = "#g" + i;
+  show(g, t, null); tl.set(g, { zIndex: 10 + i }, 0);
+  fin(g, t, .55, { yPercent: 100 }, { yPercent: 0, ease: "power3.inOut" }); cue(t, "sweep-small.wav", .4);
+  fin(g + " .rule", t + .4, .6, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" });
+  kb(g + " .fx", t + .3, LD + .6, { scale: 1.12 }, { scale: 1.0 });
+  fin(g + " .dot", t + .8, .4, { scale: 0 }, { scale: 1, ease: "back.out(3)" }); cue(t + .8, "click.wav", .3);
+  fin(g + " .lead", t + 1.0, .4, { scaleX: 0 }, { scaleX: 1, ease: "power2.out" });
+  fin(g + " .loupe", t + 1.2, .55, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, ease: "back.out(1.8)" }); cue(t + 1.2, "shutter-vintage.wav", .3);
+  kb(g + " .loupe img", t + 1.2, LD, { scale: 1.0 }, { scale: 1.08 });
+  fin(g + " .dt h2", t + .6, .7, { opacity: 0, y: 40 }, { opacity: 1, y: 0, ease: "power3.out" });
+  fin(g + " .dt p", t + .9, .6, { opacity: 0, x: -30 }, { opacity: 1, x: 0, ease: "power3.out" });
+}
+show("#endp", TE, null); tl.set("#endp", { zIndex: 99 }, 0); fin("#endp", TE, .55, { yPercent: 100 }, { yPercent: 0, ease: "power3.inOut" }); cue(TE, "sweep-small.wav", .4);
+fin("#endp h1 .ch", TE + .5, .7, { opacity: 0, y: 60 }, { opacity: 1, y: 0, stagger: .025, ease: "power4.out" }); cue(TE + .5, "bass.wav", .35);
+fin("#endp .r", TE + 1.2, .7, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" }); fin("#endp p", TE + 1.4, .7, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .2 }); cue(TE + 1.6, "sparkle.wav", .25);
+
+grain(T);
+window.__cues = CUES; window.__timelines = window.__timelines || {}; window.__timelines["main"] = tl; tl.seek(0);
+</script></body></html>

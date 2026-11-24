@@ -263,4 +263,203 @@ fin(".ec .v .ch", te + .4, .9, { opacity: 0, filter: "blur(8px)" }, { opacity: 1
 fin(".ec .r", te + 1.2, .7, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" }); fin(".ec p, .ec .site", te + 1.4, .7, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .2 });
 """ % json.dumps(shots)
     open(os.path.join(D, "index.html"), "w").write(page("Bienvenue chez Kadio", css, body, js, T, ("m169", 0)))
+# =====================================================================
+# Barrel twist : photos bt1..bt5 ; centre de la tête (fraction de l'image) pour la mise au point
+BT = {"bt1": (.40, .50), "bt2": (.48, .52), "bt3": (.60, .50), "bt4": (.55, .55), "bt5": (.42, .42)}
+FOCUS_CSS = """
+.fx { position: absolute; inset: 0; transform-origin: 50% 50%; }
+.fx img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.fx .bg { filter: blur(18px) brightness(.32) saturate(.55); transform: scale(1.08); }
+.fx .fg { filter: contrast(1.1) saturate(1.05) brightness(1.02); }
+"""
+def focus(i, name, rx=46, ry=30, extra=""):
+    cx, cy = BT[name]
+    # coordonnées dans le cadre 1080x1920 (photo 3:4 en cover → décalage horizontal de 180 px ; bt5 9:16 → pas de décalage)
+    fx = cx * 1440 - 180 if name != "bt5" else cx * 1080
+    m = f"radial-gradient(ellipse {rx}% {ry}% at {fx / 10.8:.1f}% {cy * 100:.1f}%, #000 55%, transparent 100%)"
+    return (f'<div id="p{i}" class="ph"><div class="fx"><img class="bg" src="photos/{name}.jpg">'
+            f'<img class="fg" src="photos/{name}.jpg" style="-webkit-mask-image:{m};mask-image:{m}"></div>{extra}</div>')
+
+if F == "barrel":
+    T = 21.0
+    css = FOCUS_CSS + """
+:root { --bg: #070605; --fg: #f3e6cf; --gold: #d9b26f; }
+.bar { position: absolute; left: 0; right: 0; height: 230px; background: #000; z-index: 20; }
+.bar.t { top: 0; } .bar.b { bottom: 0; }
+.open { left: 0; right: 0; top: 760px; text-align: center; }
+.open small { display: block; font: 500 30px Corm; letter-spacing: .6em; text-indent: .6em; color: var(--gold); text-transform: uppercase; }
+.open h1 { margin-top: 30px; font: 400 150px/.95 Bodoni; color: var(--fg); letter-spacing: .02em; }
+.open h1 em { display: block; font-style: italic; color: var(--gold); }
+.word { left: 0; right: 0; top: 1420px; text-align: center; font: italic 300 124px/1 Corm; color: var(--fg); text-shadow: 0 6px 40px rgba(0,0,0,.8); }
+.word.sm { font-size: 84px; line-height: 1.05; }
+.word b { font-weight: 500; color: var(--gold); }
+#end { background: radial-gradient(70% 45% at 50% 42%, #2a1608 0%, #070605 70%); visibility: hidden; }
+.logo { position: absolute; left: 0; right: 0; top: 600px; text-align: center; font: 190px/1 Vibes; color: #ffd9a0;
+  text-shadow: 0 0 8px #ffb35c, 0 0 24px #ff9a2e, 0 0 60px #ff7a00, 0 0 110px rgba(255,120,0,.6); }
+.logo2 { top: 790px; }
+.ring { position: absolute; left: 190px; top: 500px; width: 700px; height: 700px; border-radius: 50%; border: 6px solid #ffd9a0;
+  box-shadow: 0 0 14px #ffb35c, 0 0 40px #ff8a1e, inset 0 0 14px #ffb35c, inset 0 0 40px rgba(255,138,30,.6); }
+.info { position: absolute; left: 0; right: 0; top: 1290px; text-align: center; color: var(--fg); }
+.info h4 { font: italic 400 62px Bodoni; color: var(--gold); margin-bottom: 34px; }
+.info p { font: 500 40px/1.5 Corm; letter-spacing: .12em; }
+.info .s { margin-top: 22px; font: 600 30px Corm; letter-spacing: .5em; text-indent: .5em; color: var(--gold); text-transform: uppercase; }
+"""
+    shots = [("bt2", 2.2, 6.4, ""), ("bt1", 6.4, 9.2, "Volume."), ("bt4", 9.2, 12.0, "Relief."), ("bt3", 12.0, 14.8, "Caractère."), ("bt5", 14.8, 17.4, "Chaque tête,|une signature.")]
+    body = "".join(focus(i, n) for i, (n, a, b, w) in enumerate(shots))
+    words = "".join(f'<div id="w{i}" class="txt word{" sm" if "|" in w else ""}">' + "<br>".join(sp(x) for x in w.split("|")) + "</div>" for i, (n, a, b, w) in enumerate(shots) if w)
+    body += f"""
+<div class="layer vig"></div><div class="leak"></div>
+<div id="t0" class="txt open"><small>Kadio Coiffure présente</small><h1>{sp("Barrel")}<em>{sp("Twist")}</em></h1></div>
+{words}
+<div id="end" class="layer"><div class="ring"></div><div class="logo">{sp("Kadio")}</div><div class="logo logo2">{sp("Coiffure")}</div>
+  <div class="info"><h4>Réservez votre barrel twist.</h4><p>615, Antoinette-Robidoux · Longueuil</p><p>514 919-5970</p><div class="s">kadiocoiffure.com</div></div></div>
+<div class="bar t"></div><div class="bar b"></div>"""
+    js = """
+const S = %s;
+// ouverture : titre sur noir
+show("#t0", .3, 2.9); fin("#t0 small", .3, 1, { opacity: 0, letterSpacing: "1.3em" }, { opacity: 1, letterSpacing: ".6em", ease: "expo.out" });
+fin("#t0 h1 .ch", .8, .9, { opacity: 0, y: 40, filter: "blur(10px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .06, ease: "power3.out" }); cue(.8, "bass.wav", .4);
+tl.to("#t0", { opacity: 0, y: -30, duration: .6 }, 2.2);
+S.forEach(function (s, i) {
+  show("#p" + i, s[1], s[2] + .6); if (i) fin("#p" + i, s[1], .6, { opacity: 0 }, { opacity: 1, ease: "sine.inOut" });
+  const d = s[2] - s[1] + .6;
+  kb("#p" + i + " .fx", s[1], d, { scale: i %% 2 ? 1.18 : 1.05, x: i %% 2 ? 30 : -30 }, { scale: i %% 2 ? 1.05 : 1.18, x: i %% 2 ? -30 : 30 });
+  fin("#p" + i + " .fg", s[1], 1.2, { filter: "blur(14px) contrast(1.1) brightness(.6)" }, { filter: "blur(0px) contrast(1.1) saturate(1.05) brightness(1.02)", ease: "power2.out" });
+  leak(s[1] - .35, 1.0); cue(s[1] - .3, i ? "sweep-small.wav" : "woosh-air.wav", .35);
+  if (s[3]) { show("#w" + i, s[1] + .5, s[2] - .05); fin("#w" + i + " .ch", s[1] + .5, .8, { opacity: 0, y: 24, filter: "blur(8px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .035, ease: "power3.out" }); }
+});
+const te = 17.4; show("#end", te, null); fin("#end", te, .6, { opacity: 0 }, { opacity: 1 });
+show(".ring, .logo", te + .4, null);
+[[.4, .2], [.48, 0], [.6, .9], [.68, .3], [.8, 1]].forEach(function (k) { tl.set(".ring, .logo", { opacity: k[1] }, te + k[0]); });
+cue(te + .38, "neon_flick.wav", .6); cue(te + .8, "bass.wav", .35);
+fin(".info", te + 1.3, 1, { opacity: 0, y: 20 }, { opacity: 1, y: 0 });
+""" % json.dumps(shots)
+    open(os.path.join(D, "index.html"), "w").write(page("Barrel Twist", css, body, js, T, ("m1000", 4)))
+
+elif F == "anatomie":
+    # (photo, point x, point y, titre, sous-titre)
+    det = [("bt1", .42, .44, "Raies nettes", "des séparations tracées à la règle"),
+           ("bt2", .47, .52, "Torsades en relief", "un volume qui tient"),
+           ("bt1", .22, .25, "Chignon twisté", "la touche finale"),
+           ("bt4", .66, .655, "Contour au rasoir", "une ligne parfaite"),
+           ("bt3", .56, .62, "Dégradé net", "une transition douce")]
+    C0, LD = 3.2, 3.2; TE = C0 + LD * len(det); T = round(TE + 4.0, 2)
+    css = FOCUS_CSS + """
+:root { --bg: #f2ebe0; --fg: #17130f; --ac: #b8532a; --gold: #c99a52; }
+.pg { position: absolute; inset: 0; background: var(--bg); visibility: hidden; }
+.frame { position: absolute; left: 70px; right: 70px; top: 300px; height: 1180px; overflow: hidden; border-radius: 4px; }
+.frame .ph { visibility: visible; }
+.loupe { position: absolute; width: 440px; height: 440px; border-radius: 50%; overflow: hidden; border: 5px solid var(--bg); box-shadow: 0 0 0 3px var(--gold), 0 30px 60px rgba(0,0,0,.45); z-index: 5; }
+.loupe img { position: absolute; transform-origin: 0 0; filter: contrast(1.12) saturate(1.05); }
+.dot { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 0 0 3px var(--gold), 0 0 30px rgba(255,255,255,.8); z-index: 6; }
+.lead { position: absolute; height: 3px; background: #fff; transform-origin: 0 50%; z-index: 4; box-shadow: 0 0 0 1px rgba(0,0,0,.15); }
+.no { position: absolute; left: 70px; top: 140px; font: 400 40px Bodoni; letter-spacing: .1em; } .no b { font-weight: 700; }
+.brand { position: absolute; right: 70px; top: 152px; font: 500 26px Corm; letter-spacing: .45em; text-transform: uppercase; }
+.rule { position: absolute; left: 70px; right: 70px; top: 228px; height: 2px; background: var(--fg); transform-origin: 0 50%; }
+.dt { position: absolute; left: 70px; right: 70px; top: 1530px; }
+.dt h2 { font: italic 400 104px/1 Bodoni; white-space: nowrap; }
+.dt p { margin-top: 22px; font: 600 36px Corm; letter-spacing: .22em; text-transform: uppercase; color: var(--ac); }
+#cover, #endp { background: var(--fg); color: var(--bg); }
+.ct { position: absolute; left: 0; right: 0; top: 600px; text-align: center; }
+.ct small { display: block; font: 500 30px Corm; letter-spacing: .6em; text-indent: .6em; text-transform: uppercase; }
+.ct h1 { margin-top: 40px; font: 400 128px/1 Bodoni; }
+.ct h1 em { font-style: italic; color: #e6b07c; }
+.ct .r { width: 160px; height: 3px; background: var(--ac); margin: 60px auto 40px; }
+.ct p { font: italic 300 50px Corm; }
+"""
+    pages = ""
+    for i, (img, px, py, h, s) in enumerate(det):
+        W, H, OX = (1080, 1920, 0) if img == "bt5" else (1440, 1920, -180)
+        # cadre 940x1180 placé à (70,300) ; la photo y est en cover → on calcule la position du point dans la page
+        fw, fh = 940, 1180; sc = max(fw / W, fh / H); dw, dh = W * sc, H * sc; ox, oy = 70 + (fw - dw) / 2, 300 + (fh - dh) / 2
+        X, Y = ox + px * dw, oy + py * dh
+        lx = 560 if X < 540 else 80; ly = 1020 if Y < 900 else 330
+        m = 2.4; R = 220
+        lpx, lpy = lx + R, ly + R
+        ang = __import__("math").degrees(__import__("math").atan2(lpy - Y, lpx - X)); ln = ((lpx - X) ** 2 + (lpy - Y) ** 2) ** .5 - R
+        inner = f'<img src="photos/{img}.jpg" style="width:{dw * m:.0f}px;height:{dh * m:.0f}px;left:{R - (X - ox) * m:.0f}px;top:{R - (Y - oy) * m:.0f}px">'
+        pages += f"""<div id="g{i}" class="pg"><div class="no">Détail <b>0{i + 1}</b></div><div class="brand">Barrel twist · Kadio</div><div class="rule"></div>
+<div class="frame">{focus(f"f{i}", img, 60, 44)}</div>
+<div class="lead" style="left:{X:.0f}px;top:{Y:.0f}px;width:{ln:.0f}px;transform:rotate({ang:.1f}deg)"></div>
+<div class="dot" style="left:{X:.0f}px;top:{Y:.0f}px"></div>
+<div class="loupe" style="left:{lx}px;top:{ly}px">{inner}</div>
+<div class="dt"><h2>{e(h)}</h2><p>{e(s)}</p></div></div>"""
+    body = f"""<div id="cover" class="layer"><div class="ct"><small>Kadio Coiffure</small><h1>{sp("Anatomie")}<br>{sp("d'un")} <em>{sp("barrel twist")}</em></h1><div class="r"></div><p>Le détail fait la différence.</p></div></div>
+{pages}
+<div id="endp" class="pg"><div class="ct" style="top:640px"><small>Votre tour</small><h1 style="font-size:112px">{sp("Réservez votre")}<br><em>{sp("barrel twist.")}</em></h1><div class="r"></div>
+<p style="font-style:normal;font-weight:500;font-size:44px;line-height:1.6">615, Antoinette-Robidoux · Longueuil<br>514 919-5970</p><p style="margin-top:24px;font:600 32px Corm;letter-spacing:.45em;color:#e6b07c">KADIOCOIFFURE.COM</p></div></div>"""
+    js = """
+const C0 = %s, LD = %s, N = %d, TE = %s;
+fin(".ct small", .2, .8, { opacity: 0, letterSpacing: "1.2em" }, { opacity: 1, letterSpacing: ".6em", ease: "expo.out" });
+fin("#cover h1 .ch", .5, .7, { opacity: 0, y: 70 }, { opacity: 1, y: 0, stagger: .035, ease: "power4.out" }); cue(.5, "bass.wav", .35);
+fin("#cover .r", 1.4, .7, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" }); fin("#cover p", 1.6, .7, { opacity: 0 }, { opacity: 1 });
+for (let i = 0; i < N; i++) {
+  const t = C0 + i * LD, g = "#g" + i;
+  show(g, t, null); tl.set(g, { zIndex: 10 + i }, 0);
+  fin(g, t, .55, { yPercent: 100 }, { yPercent: 0, ease: "power3.inOut" }); cue(t, "sweep-small.wav", .4);
+  fin(g + " .rule", t + .4, .6, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" });
+  kb(g + " .fx", t + .3, LD + .6, { scale: 1.12 }, { scale: 1.0 });
+  fin(g + " .dot", t + .8, .4, { scale: 0 }, { scale: 1, ease: "back.out(3)" }); cue(t + .8, "click.wav", .3);
+  fin(g + " .lead", t + 1.0, .4, { scaleX: 0 }, { scaleX: 1, ease: "power2.out" });
+  fin(g + " .loupe", t + 1.2, .55, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, ease: "back.out(1.8)" }); cue(t + 1.2, "shutter-vintage.wav", .3);
+  kb(g + " .loupe img", t + 1.2, LD, { scale: 1.0 }, { scale: 1.08 });
+  fin(g + " .dt h2", t + .6, .7, { opacity: 0, y: 40 }, { opacity: 1, y: 0, ease: "power3.out" });
+  fin(g + " .dt p", t + .9, .6, { opacity: 0, x: -30 }, { opacity: 1, x: 0, ease: "power3.out" });
+}
+show("#endp", TE, null); tl.set("#endp", { zIndex: 99 }, 0); fin("#endp", TE, .55, { yPercent: 100 }, { yPercent: 0, ease: "power3.inOut" }); cue(TE, "sweep-small.wav", .4);
+fin("#endp h1 .ch", TE + .5, .7, { opacity: 0, y: 60 }, { opacity: 1, y: 0, stagger: .025, ease: "power4.out" }); cue(TE + .5, "bass.wav", .35);
+fin("#endp .r", TE + 1.2, .7, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" }); fin("#endp p", TE + 1.4, .7, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .2 }); cue(TE + 1.6, "sparkle.wav", .25);
+""" % (C0, LD, len(det), TE)
+    body = body.replace('class="click.wav"', '')
+    open(os.path.join(D, "index.html"), "w").write(page("Anatomie Barrel Twist", css, body, js, T, ("m1183", 8)))
+
+elif F == "rythme":
+    BEAT = 60 / 124
+    seq = ["bt2", "bt4", "bt1", "bt3", "bt5", "bt2", "bt4", "bt3", "bt1", "bt5"]
+    labels = {"bt2": "Face", "bt4": "Profil droit", "bt1": "Dessus", "bt3": "Profil gauche", "bt5": "Version courte"}
+    C0 = 2.6; cut = BEAT * 2; TE = round(C0 + cut * len(seq), 2); T = round(TE + 4.2, 2)
+    css = FOCUS_CSS + """
+:root { --bg: #050505; --fg: #ffffff; --gold: #e2b46a; }
+.huge { position: absolute; left: -40px; right: -40px; text-align: center; font: 700 236px/.85 Bodoni; color: transparent; -webkit-text-stroke: 3px rgba(226,180,106,.85); letter-spacing: -.02em; z-index: 22; pointer-events: none; }
+.huge.a { top: 260px; } .huge.b { top: 1360px; font-style: italic; font-weight: 400; }
+.lab { position: absolute; left: 0; right: 0; bottom: 200px; text-align: center; font: 600 34px Corm; letter-spacing: .6em; text-indent: .6em; text-transform: uppercase; color: #fff; z-index: 23; visibility: hidden; }
+.cnt { position: absolute; right: 60px; top: 90px; font: 700 34px Bodoni; color: var(--gold); z-index: 23; }
+.cnt i { font-style: normal; color: #fff; }
+#flash { background: #fff; opacity: 0; z-index: 40; pointer-events: none; }
+#end { background: #050505; visibility: hidden; z-index: 50; }
+.et { position: absolute; left: 60px; right: 60px; top: 560px; text-align: center; }
+.et h1 { font: 700 190px/.9 Bodoni; color: #fff; } .et h1 em { display: block; font-weight: 400; color: var(--gold); }
+.et .r { width: 160px; height: 3px; background: var(--gold); margin: 60px auto; }
+.et p { font: 500 46px/1.55 Corm; color: #fff; letter-spacing: .06em; }
+.et .s { margin-top: 24px; font: 600 32px Corm; letter-spacing: .45em; text-indent: .45em; color: var(--gold); }
+"""
+    body = "".join(focus(i, n, 50, 34) for i, n in enumerate(seq))
+    body += "".join(f'<div id="l{i}" class="lab">{e(labels[n])}</div>' for i, n in enumerate(seq))
+    body += f"""<div class="layer vig"></div>
+<div id="hug" class="txt" style="inset:0"><div class="huge a">{sp("BARREL")}</div><div class="huge b">{sp("twist")}</div></div>
+<div class="cnt txt" id="cnt"><i>0</i><span>1</span> / 10</div>
+<div id="flash" class="layer"></div>
+<div id="end" class="layer"><div class="et"><h1>{sp("BARREL")}<em>{sp("twist")}</em></h1><div class="r"></div><p>Kadio Coiffure<br>615, Antoinette-Robidoux · Longueuil<br>514 919-5970</p><div class="s">KADIOCOIFFURE.COM</div></div></div>"""
+    js = """
+const C0 = %s, CUT = %s, N = %d, TE = %s, B = %s;
+// intro : lettres géantes sur noir puis photo
+show("#hug", .2, TE); fin("#hug .huge.a .ch", .2, .5, { opacity: 0, scale: 1.6 }, { opacity: 1, scale: 1, stagger: .06, ease: "power4.out" }); cue(.2, "bass.wav", .5);
+fin("#hug .huge.b .ch", .9, .5, { opacity: 0, y: 80 }, { opacity: 1, y: 0, stagger: .06, ease: "power4.out" }); cue(.9, "whoosh-cine.wav", .4);
+show("#cnt", C0, TE);
+for (let i = 0; i < N; i++) {
+  const t = C0 + i * CUT;
+  show("#p" + i, t, t + CUT); show("#l" + i, t + .05, t + CUT);
+  kb("#p" + i + " .fx", t, CUT, { scale: 1.22, rotate: i %% 2 ? -2 : 2 }, { scale: 1.06, rotate: 0 });
+  fin("#l" + i, t + .05, .35, { opacity: 0, letterSpacing: "1.2em" }, { opacity: 1, letterSpacing: ".6em", ease: "expo.out" });
+  tl.fromTo("#flash", { opacity: .85 }, { opacity: 0, duration: .22, ease: "power2.out", immediateRender: false }, t);
+  tl.set("#cnt span", { textContent: String(i + 1) }, t);
+  cue(t, i %% 2 ? "shutter.wav" : "shutter-vintage.wav", .35);
+}
+tl.set("#flash", { opacity: 0 }, 0);
+tl.to("#hug .huge.a", { x: -80, duration: TE, ease: "none" }, 0); tl.to("#hug .huge.b", { x: 80, duration: TE, ease: "none" }, 0);
+show("#end", TE, null); fin("#end", TE, .4, { opacity: 0 }, { opacity: 1 }); cue(TE, "bass.wav", .5);
+fin("#end h1 .ch", TE + .1, .6, { opacity: 0, scale: 1.5 }, { opacity: 1, scale: 1, stagger: .05, ease: "power4.out" });
+fin("#end .r", TE + .9, .6, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" }); fin("#end p, #end .s", TE + 1.1, .6, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .2 });
+""" % (C0, cut, len(seq), TE, BEAT)
+    open(os.path.join(D, "index.html"), "w").write(page("Barrel Twist 360", css, body, js, T, ("m623", 15.5)))
 print(F, "ok")

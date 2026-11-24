@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait"><head><meta charset="UTF-8"><meta name="viewport" content="width=1080, height=1920">
+<title>Barrel Twist</title><script src="gsap.min.js"></script><style>
+@font-face { font-family: Corm; src: url(fonts/cormorant-garamond-latin-300-normal.woff2); font-weight: 300; }
+@font-face { font-family: Corm; src: url(fonts/cormorant-garamond-latin-500-normal.woff2); font-weight: 500; }
+@font-face { font-family: Corm; src: url(fonts/cormorant-garamond-latin-600-normal.woff2); font-weight: 600; }
+@font-face { font-family: Corm; src: url(fonts/cormorant-garamond-latin-300-italic.woff2); font-weight: 300; font-style: italic; }
+@font-face { font-family: Corm; src: url(fonts/cormorant-garamond-latin-500-italic.woff2); font-weight: 500; font-style: italic; }
+@font-face { font-family: Vibes; src: url(fonts/great-vibes-latin-400-normal.woff2); }
+@font-face { font-family: Bodoni; src: url(fonts/bodoni-moda-latin-400-normal.woff2); font-weight: 400; }
+@font-face { font-family: Bodoni; src: url(fonts/bodoni-moda-latin-700-normal.woff2); font-weight: 700; }
+@font-face { font-family: Bodoni; src: url(fonts/bodoni-moda-latin-400-italic.woff2); font-weight: 400; font-style: italic; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+#root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); color: var(--fg); }
+.layer { position: absolute; inset: 0; }
+.ch { display: inline-block; white-space: pre; } .w { display: inline-block; white-space: nowrap; }
+.ph { position: absolute; inset: 0; overflow: hidden; visibility: hidden; }
+.ph img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 50%; }
+#grain { background: url(grain.png); opacity: .07; mix-blend-mode: overlay; pointer-events: none; }
+.vig { background: radial-gradient(120% 90% at 50% 50%, transparent 45%, rgba(0,0,0,.75) 100%); pointer-events: none; }
+.leak { position: absolute; width: 1600px; height: 1600px; left: -260px; top: 160px; border-radius: 50%; background: radial-gradient(circle, rgba(255,160,70,.75), rgba(255,90,40,.25) 40%, transparent 68%); mix-blend-mode: screen; opacity: 0; pointer-events: none; }
+.txt { position: absolute; visibility: hidden; z-index: 30; }
+.vig { z-index: 25; } .leak { z-index: 26; } #grain { z-index: 200; }
+
+.fx { position: absolute; inset: 0; transform-origin: 50% 50%; }
+.fx img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.fx .bg { filter: blur(18px) brightness(.32) saturate(.55); transform: scale(1.08); }
+.fx .fg { filter: contrast(1.1) saturate(1.05) brightness(1.02); }
+
+:root { --bg: #070605; --fg: #f3e6cf; --gold: #d9b26f; }
+.bar { position: absolute; left: 0; right: 0; height: 230px; background: #000; z-index: 20; }
+.bar.t { top: 0; } .bar.b { bottom: 0; }
+.open { left: 0; right: 0; top: 760px; text-align: center; }
+.open small { display: block; font: 500 30px Corm; letter-spacing: .6em; text-indent: .6em; color: var(--gold); text-transform: uppercase; }
+.open h1 { margin-top: 30px; font: 400 150px/.95 Bodoni; color: var(--fg); letter-spacing: .02em; }
+.open h1 em { display: block; font-style: italic; color: var(--gold); }
+.word { left: 0; right: 0; top: 1420px; text-align: center; font: italic 300 124px/1 Corm; color: var(--fg); text-shadow: 0 6px 40px rgba(0,0,0,.8); }
+.word.sm { font-size: 84px; line-height: 1.05; }
+.word b { font-weight: 500; color: var(--gold); }
+#end { background: radial-gradient(70% 45% at 50% 42%, #2a1608 0%, #070605 70%); visibility: hidden; }
+.logo { position: absolute; left: 0; right: 0; top: 600px; text-align: center; font: 190px/1 Vibes; color: #ffd9a0;
+  text-shadow: 0 0 8px #ffb35c, 0 0 24px #ff9a2e, 0 0 60px #ff7a00, 0 0 110px rgba(255,120,0,.6); }
+.logo2 { top: 790px; }
+.ring { position: absolute; left: 190px; top: 500px; width: 700px; height: 700px; border-radius: 50%; border: 6px solid #ffd9a0;
+  box-shadow: 0 0 14px #ffb35c, 0 0 40px #ff8a1e, inset 0 0 14px #ffb35c, inset 0 0 40px rgba(255,138,30,.6); }
+.info { position: absolute; left: 0; right: 0; top: 1290px; text-align: center; color: var(--fg); }
+.info h4 { font: italic 400 62px Bodoni; color: var(--gold); margin-bottom: 34px; }
+.info p { font: 500 40px/1.5 Corm; letter-spacing: .12em; }
+.info .s { margin-top: 22px; font: 600 30px Corm; letter-spacing: .5em; text-indent: .5em; color: var(--gold); text-transform: uppercase; }
+</style></head><body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="21.0" data-width="1080" data-height="1920">
+<div id="p0" class="ph"><div class="fx"><img class="bg" src="photos/bt2.jpg"><img class="fg" src="photos/bt2.jpg" style="-webkit-mask-image:radial-gradient(ellipse 46% 30% at 47.3% 52.0%, #000 55%, transparent 100%);mask-image:radial-gradient(ellipse 46% 30% at 47.3% 52.0%, #000 55%, transparent 100%)"></div></div><div id="p1" class="ph"><div class="fx"><img class="bg" src="photos/bt1.jpg"><img class="fg" src="photos/bt1.jpg" style="-webkit-mask-image:radial-gradient(ellipse 46% 30% at 36.7% 50.0%, #000 55%, transparent 100%);mask-image:radial-gradient(ellipse 46% 30% at 36.7% 50.0%, #000 55%, transparent 100%)"></div></div><div id="p2" class="ph"><div class="fx"><img class="bg" src="photos/bt4.jpg"><img class="fg" src="photos/bt4.jpg" style="-webkit-mask-image:radial-gradient(ellipse 46% 30% at 56.7% 55.0%, #000 55%, transparent 100%);mask-image:radial-gradient(ellipse 46% 30% at 56.7% 55.0%, #000 55%, transparent 100%)"></div></div><div id="p3" class="ph"><div class="fx"><img class="bg" src="photos/bt3.jpg"><img class="fg" src="photos/bt3.jpg" style="-webkit-mask-image:radial-gradient(ellipse 46% 30% at 63.3% 50.0%, #000 55%, transparent 100%);mask-image:radial-gradient(ellipse 46% 30% at 63.3% 50.0%, #000 55%, transparent 100%)"></div></div><div id="p4" class="ph"><div class="fx"><img class="bg" src="photos/bt5.jpg"><img class="fg" src="photos/bt5.jpg" style="-webkit-mask-image:radial-gradient(ellipse 46% 30% at 42.0% 42.0%, #000 55%, transparent 100%);mask-image:radial-gradient(ellipse 46% 30% at 42.0% 42.0%, #000 55%, transparent 100%)"></div></div>
+<div class="layer vig"></div><div class="leak"></div>
+<div id="t0" class="txt open"><small>Kadio Coiffure présente</small><h1><span class="w"><span class="ch">B</span><span class="ch">a</span><span class="ch">r</span><span class="ch">r</span><span class="ch">e</span><span class="ch">l</span></span><em><span class="w"><span class="ch">T</span><span class="ch">w</span><span class="ch">i</span><span class="ch">s</span><span class="ch">t</span></span></em></h1></div>
+<div id="w1" class="txt word"><span class="w"><span class="ch">V</span><span class="ch">o</span><span class="ch">l</span><span class="ch">u</span><span class="ch">m</span><span class="ch">e</span><span class="ch">.</span></span></div><div id="w2" class="txt word"><span class="w"><span class="ch">R</span><span class="ch">e</span><span class="ch">l</span><span class="ch">i</span><span class="ch">e</span><span class="ch">f</span><span class="ch">.</span></span></div><div id="w3" class="txt word"><span class="w"><span class="ch">C</span><span class="ch">a</span><span class="ch">r</span><span class="ch">a</span><span class="ch">c</span><span class="ch">t</span><span class="ch">è</span><span class="ch">r</span><span class="ch">e</span><span class="ch">.</span></span></div><div id="w4" class="txt word sm"><span class="w"><span class="ch">C</span><span class="ch">h</span><span class="ch">a</span><span class="ch">q</span><span class="ch">u</span><span class="ch">e</span></span> <span class="w"><span class="ch">t</span><span class="ch">ê</span><span class="ch">t</span><span class="ch">e</span><span class="ch">,</span></span><br><span class="w"><span class="ch">u</span><span class="ch">n</span><span class="ch">e</span></span> <span class="w"><span class="ch">s</span><span class="ch">i</span><span class="ch">g</span><span class="ch">n</span><span class="ch">a</span><span class="ch">t</span><span class="ch">u</span><span class="ch">r</span><span class="ch">e</span><span class="ch">.</span></span></div>
+<div id="end" class="layer"><div class="ring"></div><div class="logo"><span class="w"><span class="ch">K</span><span class="ch">a</span><span class="ch">d</span><span class="ch">i</span><span class="ch">o</span></span></div><div class="logo logo2"><span class="w"><span class="ch">C</span><span class="ch">o</span><span class="ch">i</span><span class="ch">f</span><span class="ch">f</span><span class="ch">u</span><span class="ch">r</span><span class="ch">e</span></span></div>
+  <div class="info"><h4>Réservez votre barrel twist.</h4><p>615, Antoinette-Robidoux · Longueuil</p><p>514 919-5970</p><div class="s">kadiocoiffure.com</div></div></div>
+<div class="bar t"></div><div class="bar b"></div>
+<div id="grain" class="layer"></div>
+</div>
+<script>
+const tl = gsap.timeline({ paused: true }); const CUES = [];
+const cue = (t, f, g) => CUES.push({ t: +Math.max(0, t).toFixed(3), file: f, gain: g == null ? .5 : g });
+function show(sel, t0, t1) { tl.set(sel, { autoAlpha: 0 }, 0); tl.set(sel, { autoAlpha: 1 }, t0); if (t1 != null) tl.set(sel, { autoAlpha: 0 }, t1); }
+function fin(sel, t, d, a, b) { tl.fromTo(sel, a, Object.assign({ duration: d, immediateRender: false }, b), t); tl.set(sel, a, 0); }
+function kb(sel, t, d, a, b) { tl.fromTo(sel, a, Object.assign({ duration: d, ease: "none", immediateRender: false }, b), t); tl.set(sel, a, 0); }
+function grain(T) { let s = 7; for (let k = 0; k * .083 < T; k++) { s = (s * 9301 + 49297) % 233280; const x = s % 512; s = (s * 9301 + 49297) % 233280; tl.set("#grain", { backgroundPosition: x + "px " + (s % 512) + "px" }, k * .083); } }
+function leak(t, d) { tl.fromTo(".leak", { opacity: 0, x: -500, scale: .8 }, { opacity: 1, x: 200, scale: 1.1, duration: d * .5, ease: "sine.in", immediateRender: false }, t); tl.to(".leak", { opacity: 0, x: 700, duration: d * .5, ease: "sine.out" }, t + d * .5); }
+
+const T = 21.0;
+
+const S = [["bt2", 2.2, 6.4, ""], ["bt1", 6.4, 9.2, "Volume."], ["bt4", 9.2, 12.0, "Relief."], ["bt3", 12.0, 14.8, "Caract\u00e8re."], ["bt5", 14.8, 17.4, "Chaque t\u00eate,|une signature."]];
+// ouverture : titre sur noir
+show("#t0", .3, 2.9); fin("#t0 small", .3, 1, { opacity: 0, letterSpacing: "1.3em" }, { opacity: 1, letterSpacing: ".6em", ease: "expo.out" });
+fin("#t0 h1 .ch", .8, .9, { opacity: 0, y: 40, filter: "blur(10px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .06, ease: "power3.out" }); cue(.8, "bass.wav", .4);
+tl.to("#t0", { opacity: 0, y: -30, duration: .6 }, 2.2);
+S.forEach(function (s, i) {
+  show("#p" + i, s[1], s[2] + .6); if (i) fin("#p" + i, s[1], .6, { opacity: 0 }, { opacity: 1, ease: "sine.inOut" });
+  const d = s[2] - s[1] + .6;
+  kb("#p" + i + " .fx", s[1], d, { scale: i % 2 ? 1.18 : 1.05, x: i % 2 ? 30 : -30 }, { scale: i % 2 ? 1.05 : 1.18, x: i % 2 ? -30 : 30 });
+  fin("#p" + i + " .fg", s[1], 1.2, { filter: "blur(14px) contrast(1.1) brightness(.6)" }, { filter: "blur(0px) contrast(1.1) saturate(1.05) brightness(1.02)", ease: "power2.out" });
+  leak(s[1] - .35, 1.0); cue(s[1] - .3, i ? "sweep-small.wav" : "woosh-air.wav", .35);
+  if (s[3]) { show("#w" + i, s[1] + .5, s[2] - .05); fin("#w" + i + " .ch", s[1] + .5, .8, { opacity: 0, y: 24, filter: "blur(8px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .035, ease: "power3.out" }); }
+});
+const te = 17.4; show("#end", te, null); fin("#end", te, .6, { opacity: 0 }, { opacity: 1 });
+show(".ring, .logo", te + .4, null);
+[[.4, .2], [.48, 0], [.6, .9], [.68, .3], [.8, 1]].forEach(function (k) { tl.set(".ring, .logo", { opacity: k[1] }, te + k[0]); });
+cue(te + .38, "neon_flick.wav", .6); cue(te + .8, "bass.wav", .35);
+fin(".info", te + 1.3, 1, { opacity: 0, y: 20 }, { opacity: 1, y: 0 });
+
+grain(T);
+window.__cues = CUES; window.__timelines = window.__timelines || {}; window.__timelines["main"] = tl; tl.seek(0);
+</script></body></html>
