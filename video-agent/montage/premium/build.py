@@ -694,9 +694,11 @@ fin("#endp h1 .ch", TE + .5, .7, { opacity: 0, y: 60 }, { opacity: 1, y: 0, stag
 fin("#endp .r", TE + 1.3, .7, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" }); fin("#endp p", TE + 1.5, .6, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .2 }); cue(TE + 1.7, "chime.wav", .3);
 """ % (C0, LD, len(AV), TE)
     open(os.path.join(D, "index.html"), "w").write(page("Avis clients Kadio", css, body, js, T, ("m657", 60)))
-elif F in ("ligne", "mosaique"):
+elif F in ("ligne", "mosaique", "mosaique2"):
     PAL = ["#ff6b57", "#19b3a6", "#f4b43c", "#7a5cff", "#8fcb3e"]
-    FOC = {"l1": (.80, .35), "l2": (.30, .26), "l3": (.34, .38), "l4": (.73, .50), "l5": (.45, .41)}
+    FOC = {"l1": (.80, .35), "l2": (.30, .26), "l3": (.34, .38), "l4": (.73, .50), "l5": (.45, .41),
+           "b2": (.55, .40), "b4": (.55, .45), "b6": (.55, .42), "b8": (.45, .45), "b3": (.5, .4), "b9": (.5, .45)}
+    M2 = F == "mosaique2"
     BASE = """
 :root { --bg: #f6f1ea; --ink: #15120f; }
 #root { background: var(--bg); color: var(--ink); }
@@ -786,6 +788,12 @@ for (let i = 0; i < N; i++) {
         TILES = [("l1", "Barbe sculptée", None), ("c1", "Dégradé", ("Coupe", "50 $")), ("l2", "Ligne au rasoir", None),
                  ("l3", "Locks + dégradé", None), ("c2", "Contour", ("Coupe + barbe", "60 $")), ("l4", "Contour net", None)]
         TC = {"c1": PAL[0], "c2": PAL[1]}
+        INTRO = [("PROPRE.", PAL[0], "#fff"), ("PRÉCIS.", PAL[1], "#fff"), ("KADIO.", PAL[2], "#15120f")]
+        if M2:
+            TILES = [("b6", "Drop fade", None), ("c1", "Fade", ("Contours", "30 $")), ("b4", "Fade & barbe", None),
+                     ("b8", "Burst fade", None), ("c2", "Club", ("Club Kadio", "19,99 $")), ("b3", "Taper bouclé", None)]
+            TC = {"c1": PAL[3], "c2": PAL[4]}
+            INTRO = [("FRAIS.", PAL[3], "#fff"), ("STYLÉ.", PAL[4], "#15120f"), ("KADIO.", PAL[0], "#fff")]
         G = [(50, 230), (550, 230), (50, 790), (550, 790), (50, 1350), (550, 1350)]
         L0 = [(x, y, 480, 540) for x, y in G]
         photos = [i for i, t in enumerate(TILES) if not t[0].startswith("c")]
@@ -818,7 +826,7 @@ for (let i = 0; i < N; i++) {
                 fx, fy = FOC[k]
                 tiles += f'<div id="t{i}" class="tile"><img src="photos/{k}.jpg" style="object-position:{fx * 100:.0f}% {fy * 100:.0f}%"><div class="tag">{e(lab)}</div></div>'
         body = f"""<div class="head" id="head"><span>KADIO</span>BARBIER</div>{tiles}
-<div id="intro"><div class="blk" style="top:420px;background:{PAL[0]}">{sp("PROPRE.")}</div><div class="blk" style="top:810px;background:{PAL[1]}">{sp("PRÉCIS.")}</div><div class="blk" style="top:1200px;background:{PAL[2]};color:#15120f">{sp("KADIO.")}</div></div>
+<div id="intro">{"".join(f'<div class="blk" style="top:{420 + k * 390}px;background:{bg};color:{fg}">{sp(w)}</div>' for k, (w, bg, fg) in enumerate(INTRO))}</div>
 {END}"""
         js = """
 const C0 = %s, FS = %s, TB = %s, TE = %s, LAY = %s, PH = %s, N = %d, FS_D = FS[1] - FS[0];
@@ -846,5 +854,5 @@ document.querySelectorAll(".ctile").forEach(function (c, k) { const t = TB + .7 
   tl.to(c.querySelector(".pa"), { yPercent: -100, opacity: 0, duration: .4, ease: "power3.in" }, t);
   fin(c.querySelector(".pb"), t + .3, .45, { yPercent: 100, opacity: 0 }, { yPercent: 0, opacity: 1, ease: "back.out(2)" }); cue(t + .3, "notif-positive.wav", .25); });
 """ % (C0, json.dumps(FS), TB, TE, json.dumps(LAY), json.dumps(photos), len(TILES)) + END_JS
-        open(os.path.join(D, "index.html"), "w").write(page("Mosaïque Barbier", css, body, js, T, ("m623", 60)))
+        open(os.path.join(D, "index.html"), "w").write(page("Mosaïque Barbier 2" if M2 else "Mosaïque Barbier", css, body, js, T, ("m1000", 55) if M2 else ("m623", 60)))
 print(F, "ok")
