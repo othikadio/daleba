@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait"><head><meta charset="UTF-8"><meta name="viewport" content="width=1080, height=1920">
+<title>Fiers de nos cheveux 1</title><script src="gsap.min.js"></script><style>
+@font-face { font-family: Corm; src: url(fonts/cormorant-garamond-latin-300-normal.woff2); font-weight: 300; }
+@font-face { font-family: Corm; src: url(fonts/cormorant-garamond-latin-500-normal.woff2); font-weight: 500; }
+@font-face { font-family: Corm; src: url(fonts/cormorant-garamond-latin-600-normal.woff2); font-weight: 600; }
+@font-face { font-family: Corm; src: url(fonts/cormorant-garamond-latin-300-italic.woff2); font-weight: 300; font-style: italic; }
+@font-face { font-family: Corm; src: url(fonts/cormorant-garamond-latin-500-italic.woff2); font-weight: 500; font-style: italic; }
+@font-face { font-family: Outfit; src: url(fonts/outfit-latin-300-normal.woff2); font-weight: 300 500; }
+@font-face { font-family: Outfit; src: url(fonts/outfit-latin-700-normal.woff2); font-weight: 600 800; }
+@font-face { font-family: Outfit; src: url(fonts/outfit-latin-900-normal.woff2); font-weight: 900; }
+@font-face { font-family: Vibes; src: url(fonts/great-vibes-latin-400-normal.woff2); }
+@font-face { font-family: Bodoni; src: url(fonts/bodoni-moda-latin-400-normal.woff2); font-weight: 400; }
+@font-face { font-family: Bodoni; src: url(fonts/bodoni-moda-latin-700-normal.woff2); font-weight: 700; }
+@font-face { font-family: Bodoni; src: url(fonts/bodoni-moda-latin-400-italic.woff2); font-weight: 400; font-style: italic; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+#root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); color: var(--fg); }
+.layer { position: absolute; inset: 0; }
+.ch { display: inline-block; white-space: pre; } .w { display: inline-block; white-space: nowrap; }
+.ph { position: absolute; inset: 0; overflow: hidden; visibility: hidden; }
+.ph img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 50%; }
+#grain { background: url(grain.png); opacity: .07; mix-blend-mode: overlay; pointer-events: none; }
+.vig { background: radial-gradient(120% 90% at 50% 50%, transparent 45%, rgba(0,0,0,.75) 100%); pointer-events: none; }
+.leak { position: absolute; width: 1600px; height: 1600px; left: -260px; top: 160px; border-radius: 50%; background: radial-gradient(circle, rgba(255,160,70,.75), rgba(255,90,40,.25) 40%, transparent 68%); mix-blend-mode: screen; opacity: 0; pointer-events: none; }
+.txt { position: absolute; visibility: hidden; z-index: 30; }
+.vig { z-index: 25; } .leak { z-index: 26; } #grain { z-index: 200; }
+
+:root { --bg: #0b0908; --fg: #f4ece0; --gold: #d9b26f; --red: #e0473a; }
+#root { background: var(--bg); color: var(--fg); }
+.sc { position: absolute; inset: 0; visibility: hidden; }
+.bgph { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(26px) brightness(.28) saturate(.7); transform: scale(1.15); }
+.big { position: absolute; left: 70px; right: 70px; text-align: center; font: 400 170px/1 Bodoni; white-space: nowrap; }
+.q { position: absolute; left: 80px; right: 80px; text-align: center; font: italic 300 64px/1.2 Corm; }
+.rows { position: absolute; left: 80px; right: 80px; top: 380px; display: flex; flex-direction: column; gap: 80px; }
+.row small { display: block; font: 800 38px Outfit; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); }
+.row b { position: relative; display: inline-block; margin-top: 12px; font: italic 400 130px/1 Bodoni; }
+.row b i { position: absolute; left: -12px; right: -12px; top: 52%; height: 14px; background: var(--red); transform-origin: 0 50%; border-radius: 7px; }
+.pic { position: absolute; overflow: hidden; border-radius: 30px; }
+.pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 50%; }
+.lab { position: absolute; left: 22px; bottom: 22px; padding: 10px 24px; border-radius: 999px; background: rgba(11,9,8,.75); font: 800 30px Outfit; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); }
+.key { position: absolute; left: 80px; right: 80px; top: 230px; text-align: center; font: 400 96px/1.05 Bodoni; text-shadow: 0 8px 40px rgba(0,0,0,.8); }
+.key em { font-style: italic; color: var(--gold); }
+.gold { color: var(--gold); }
+.chips { position: absolute; left: 60px; right: 60px; top: 1180px; display: flex; flex-wrap: wrap; justify-content: center; gap: 22px; }
+.chip { padding: 20px 38px; border-radius: 999px; border: 3px solid var(--gold); font: 800 44px Outfit; color: var(--fg); background: rgba(11,9,8,.7); }
+.spiral { position: absolute; left: 240px; top: 470px; width: 600px; height: 760px; overflow: visible; }
+.spiral path { fill: none; stroke: var(--gold); stroke-width: 16; stroke-linecap: round; }
+.drop { position: absolute; width: 46px; height: 60px; background: #f4ece0; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; }
+.eq { position: absolute; left: 0; right: 0; top: 1300px; text-align: center; font: 900 92px Outfit; }
+.eq span { color: var(--red); } .eq b { color: var(--gold); }
+.sub { position: absolute; left: 70px; right: 70px; top: 1610px; text-align: center; visibility: hidden; z-index: 30; }
+.sub span { display: inline; padding: 8px 16px; line-height: 1.5; background: rgba(0,0,0,.66); color: #fff; font: 700 40px Outfit; border-radius: 12px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.tag { position: absolute; left: 0; right: 0; top: 1380px; text-align: center; font: 900 46px Outfit; letter-spacing: .12em; color: var(--gold); }
+.brand { position: absolute; left: 0; right: 0; top: 1470px; text-align: center; font: 500 34px Corm; letter-spacing: .5em; text-indent: .5em; text-transform: uppercase; opacity: .8; }
+.gline { position: absolute; left: 440px; width: 200px; height: 3px; background: var(--gold); }
+</style></head><body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="43.4" data-width="1080" data-height="1920">
+
+<div id="s0" class="sc"><div class="big" style="top:640px"><span class="w"><span class="ch">P</span><span class="ch">R</span><span class="ch">O</span><span class="ch">P</span><span class="ch">R</span><span class="ch">E</span></span> <span class="w"><span class="ch">?</span></span></div><div class="q" style="top:900px"><span class="w"><span class="ch">L</span><span class="ch">e</span><span class="ch">s</span></span> <span class="w"><span class="ch">c</span><span class="ch">h</span><span class="ch">e</span><span class="ch">v</span><span class="ch">e</span><span class="ch">u</span><span class="ch">x</span></span> <span class="w"><span class="ch">c</span><span class="ch">o</span><span class="ch">u</span><span class="ch">r</span><span class="ch">t</span><span class="ch">s</span><span class="ch">,</span></span> <span class="w"><span class="ch">c</span><span class="ch">&#x27;</span><span class="ch">e</span><span class="ch">s</span><span class="ch">t</span></span> <span class="w"><span class="ch">p</span><span class="ch">l</span><span class="ch">u</span><span class="ch">s</span></span> <span class="w"><span class="ch">p</span><span class="ch">r</span><span class="ch">o</span><span class="ch">p</span><span class="ch">r</span><span class="ch">e</span></span> <span class="w"><span class="ch">?</span></span></div></div>
+<div id="s1" class="sc"><img class="bgph" src="photos/l2.jpg">
+ <div class="rows"><div class="row"><small>L'afro ?</small><b>« Négligé. »<i></i></b></div><div class="row"><small>Les locks ?</small><b>« Voyou. »<i></i></b></div><div class="row"><small>Les tresses ?</small><b>« Pas pro. »<i></i></b></div></div></div>
+<div id="s2" class="sc"><div class="pic" style="inset:0;border-radius:0"><img src="photos/b10.jpg" style="object-position:45% 40%"></div><div class="layer" style="background:linear-gradient(180deg,rgba(0,0,0,.75),rgba(0,0,0,0) 35%,rgba(0,0,0,0) 70%,rgba(0,0,0,.6))"></div>
+ <div class="key"><span class="w"><span class="ch">P</span><span class="ch">a</span><span class="ch">s</span></span> <span class="w"><span class="ch">s</span><span class="ch">a</span><span class="ch">l</span><span class="ch">e</span><span class="ch">.</span></span><br><em><span class="w"><span class="ch">D</span><span class="ch">i</span><span class="ch">f</span><span class="ch">f</span><span class="ch">é</span><span class="ch">r</span><span class="ch">e</span><span class="ch">n</span><span class="ch">t</span><span class="ch">.</span></span></em></div></div>
+<div id="s3" class="sc"><div class="key" style="top:200px;font-size:80px"><span class="w"><span class="ch">I</span><span class="ch">l</span></span> <span class="w"><span class="ch">p</span><span class="ch">o</span><span class="ch">u</span><span class="ch">s</span><span class="ch">s</span><span class="ch">e</span></span> <span class="w"><span class="ch">e</span><span class="ch">n</span></span> <span class="w"><span class="ch">s</span><span class="ch">p</span><span class="ch">i</span><span class="ch">r</span><span class="ch">a</span><span class="ch">l</span><span class="ch">e</span></span></div>
+ <svg class="spiral" viewBox="0 0 600 760"><path d="M300 740 Q210 715 300 690 Q384 665 300 640 Q223 615 300 590 Q371 565 300 540 Q236 515 300 490 Q358 465 300 440 Q249 415 300 390 Q345 365 300 340 Q261 315 300 290 Q332 265 300 240 Q274 215 300 190 Q319 165 300 140 Q287 115 300 90 Q306 65 300 40" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg>
+ <i class="drop d1" style="left:520px;top:450px"></i><i class="drop d2" style="left:560px;top:500px"></i>
+ <div class="eq"><span class="w"><span class="ch">P</span><span class="ch">l</span><span class="ch">u</span><span class="ch">s</span></span> <span class="w"><span class="ch">s</span><span class="ch">e</span><span class="ch">c</span></span> <span>≠</span> <b><span class="w"><span class="ch">p</span><span class="ch">l</span><span class="ch">u</span><span class="ch">s</span></span> <span class="w"><span class="ch">s</span><span class="ch">a</span><span class="ch">l</span><span class="ch">e</span></span></b></div></div>
+<div id="s4" class="sc"><div class="pic g" style="left:50px;top:170px;width:480px;height:450px"><img src="photos/h_locks.jpg"><span class="lab">Locks</span></div><div class="pic g" style="left:550px;top:170px;width:480px;height:450px"><img src="photos/h_twists.jpg"><span class="lab">Twists</span></div><div class="pic g" style="left:50px;top:640px;width:480px;height:450px"><img src="photos/bt2.jpg"><span class="lab">Barrel twist</span></div><div class="pic g" style="left:550px;top:640px;width:480px;height:450px"><img src="photos/l2.jpg"><span class="lab">Afro</span></div><div class="pic g" style="left:50px;top:1110px;width:480px;height:450px"><img src="photos/h_nattes.jpg"><span class="lab">Tresses</span></div><div class="pic g" style="left:550px;top:1110px;width:480px;height:450px"><img src="photos/l3.jpg"><span class="lab">Locks</span></div></div>
+<div id="s5" class="sc"><div class="pic" style="inset:0;border-radius:0"><img src="photos/h_locks.jpg"></div><div class="layer" style="background:rgba(0,0,0,.45)"></div>
+ <div class="chips"><span class="chip">Lavées</span><span class="chip">Entretenues</span><span class="chip">Des heures de précision</span></div></div>
+<div id="s6" class="sc"><div class="big" style="top:500px;font-size:118px;line-height:1.08;white-space:normal"><span class="w"><span class="ch">P</span><span class="ch">r</span><span class="ch">o</span><span class="ch">p</span><span class="ch">r</span><span class="ch">e</span><span class="ch">,</span></span><br><span class="w"><span class="ch">c</span><span class="ch">&#x27;</span><span class="ch">e</span><span class="ch">s</span><span class="ch">t</span></span> <span class="w"><span class="ch">u</span><span class="ch">n</span></span> <span class="w"><span class="ch">c</span><span class="ch">h</span><span class="ch">e</span><span class="ch">v</span><span class="ch">e</span><span class="ch">u</span></span><br><span class="gold"><span class="w"><span class="ch">e</span><span class="ch">n</span><span class="ch">t</span><span class="ch">r</span><span class="ch">e</span><span class="ch">t</span><span class="ch">e</span><span class="ch">n</span><span class="ch">u</span><span class="ch">.</span></span></span></div>
+ <div class="gline" style="top:980px"></div><div class="q" style="top:1040px;font-size:84px"><span class="w"><span class="ch">P</span><span class="ch">a</span><span class="ch">s</span></span> <span class="w"><span class="ch">u</span><span class="ch">n</span></span> <span class="w"><span class="ch">c</span><span class="ch">h</span><span class="ch">e</span><span class="ch">v</span><span class="ch">e</span><span class="ch">u</span></span> <span class="w"><span class="ch">c</span><span class="ch">a</span><span class="ch">c</span><span class="ch">h</span><span class="ch">é</span><span class="ch">.</span></span></div></div>
+<div id="s7" class="sc"><div class="q" style="top:420px;font-size:76px;font-style:normal;font-family:Bodoni"><span class="w"><span class="ch">N</span><span class="ch">o</span><span class="ch">s</span></span> <span class="w"><span class="ch">c</span><span class="ch">h</span><span class="ch">e</span><span class="ch">v</span><span class="ch">e</span><span class="ch">u</span><span class="ch">x</span></span> <span class="w"><span class="ch">n</span><span class="ch">e</span></span> <span class="w"><span class="ch">s</span><span class="ch">o</span><span class="ch">n</span><span class="ch">t</span></span> <span class="w"><span class="ch">p</span><span class="ch">a</span><span class="ch">s</span></span><br><span class="w"><span class="ch">u</span><span class="ch">n</span></span> <span class="w"><span class="ch">p</span><span class="ch">r</span><span class="ch">o</span><span class="ch">b</span><span class="ch">l</span><span class="ch">è</span><span class="ch">m</span><span class="ch">e</span></span> <span class="w"><span class="ch">à</span></span> <span class="w"><span class="ch">r</span><span class="ch">é</span><span class="ch">g</span><span class="ch">l</span><span class="ch">e</span><span class="ch">r</span><span class="ch">.</span></span></div>
+ <div class="big" style="top:760px;font-size:150px;font-style:italic;line-height:1.02"><span class="gold"><span class="w"><span class="ch">C</span><span class="ch">e</span></span> <span class="w"><span class="ch">s</span><span class="ch">o</span><span class="ch">n</span><span class="ch">t</span></span><br><span class="w"><span class="ch">n</span><span class="ch">o</span><span class="ch">s</span></span> <span class="w"><span class="ch">r</span><span class="ch">a</span><span class="ch">c</span><span class="ch">i</span><span class="ch">n</span><span class="ch">e</span><span class="ch">s</span><span class="ch">.</span></span></span></div>
+ <div class="tag">#FiersDeNosCheveux</div><div class="brand">Kadio Coiffure · Longueuil</div></div>
+<div class="sub" id="u0"><span>Les cheveux courts, c&#x27;est plus propre ? On l&#x27;entend depuis des siècles.</span></div><div class="sub" id="u1"><span>On dit que l&#x27;afro, c&#x27;est négligé. Que les locks, ça fait voyou. Que les tresses, ce n&#x27;est pas professionnel.</span></div><div class="sub" id="u2"><span>Pourtant, un cheveu crépu n&#x27;est pas un cheveu sale. Il est simplement différent : il pousse en spirale, vers le ciel.</span></div><div class="sub" id="u3"><span>Et parce qu&#x27;il tourne sur lui-même, le sébum descend mal le long de la mèche. Le cheveu crépu est donc souvent plus sec… pas plus sale.</span></div><div class="sub" id="u4"><span>Il a besoin d&#x27;eau, d&#x27;huile, de temps… et de mains qui le connaissent.</span></div><div class="sub" id="u5"><span>Des locks, ça se lave et ça s&#x27;entretient. Des tresses, ce sont des heures de précision.</span></div><div class="sub" id="u6"><span>Alors, propre, c&#x27;est un cheveu entretenu. Pas un cheveu caché.</span></div><div class="sub" id="u7"><span>Nos cheveux ne sont pas un problème à régler. Ce sont nos racines. Chez Kadio Coiffure, on en est fiers.</span></div>
+<div class="layer vig"></div>
+<div id="grain" class="layer"></div>
+</div>
+<script>
+const tl = gsap.timeline({ paused: true }); const CUES = [];
+const cue = (t, f, g) => CUES.push({ t: +Math.max(0, t).toFixed(3), file: f, gain: g == null ? .5 : g });
+function show(sel, t0, t1) { tl.set(sel, { autoAlpha: 0 }, 0); tl.set(sel, { autoAlpha: 1 }, t0); if (t1 != null) tl.set(sel, { autoAlpha: 0 }, t1); }
+function fin(sel, t, d, a, b) { tl.fromTo(sel, a, Object.assign({ duration: d, immediateRender: false }, b), t); tl.set(sel, a, 0); }
+function kb(sel, t, d, a, b) { tl.fromTo(sel, a, Object.assign({ duration: d, ease: "none", immediateRender: false }, b), t); tl.set(sel, a, 0); }
+function grain(T) { let s = 7; for (let k = 0; k * .083 < T; k++) { s = (s * 9301 + 49297) % 233280; const x = s % 512; s = (s * 9301 + 49297) % 233280; tl.set("#grain", { backgroundPosition: x + "px " + (s % 512) + "px" }, k * .083); } }
+function leak(t, d) { tl.fromTo(".leak", { opacity: 0, x: -500, scale: .8 }, { opacity: 1, x: 200, scale: 1.1, duration: d * .5, ease: "sine.in", immediateRender: false }, t); tl.to(".leak", { opacity: 0, x: 700, duration: d * .5, ease: "sine.out" }, t + d * .5); }
+
+const T = 43.4;
+
+const S = [[0.0, 5.1], [5.1, 5.1], [10.2, 5.1], [15.3, 5.1], [20.4, 5.1], [25.5, 5.1], [30.6, 5.1], [35.7, 7.7]], L = 0.25;
+const A = (i) => S[i][0], E = (i) => S[i][0] + S[i][1];
+S.forEach(function (s, i) { show("#s" + i, s[0], i === S.length - 1 ? null : s[0] + s[1]); if (i) fin("#s" + i, s[0], .45, { opacity: 0 }, { opacity: 1, ease: "sine.inOut" }); show("#u" + i, s[0] + L, s[0] + s[1] - .05); fin("#u" + i, s[0] + L, .25, { opacity: 0 }, { opacity: 1 }); });
+S.forEach(function (s, i) { if (i) cue(s[0] - .1, i % 2 ? "woosh-air.wav" : "sweep-small.wav", .2); });
+// 0
+fin("#s0 .big .ch", .2, .6, { opacity: 0, y: 60, filter: "blur(12px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .07, ease: "power3.out" }); cue(.2, "bass.wav", .4);
+fin("#s0 .q .w", 1.2, .5, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .08 });
+// 1 : préjugés barrés au rythme de la voix
+kb("#s1 .bgph", A(1), S[1][1], { scale: 1.25 }, { scale: 1.1 });
+document.querySelectorAll("#s1 .row").forEach(function (r, k) { const t = A(1) + L + k * (S[1][1] - .8) / 3;
+  fin(r, t, .45, { opacity: 0, x: -60 }, { opacity: 1, x: 0, ease: "power3.out" });
+  fin(r.querySelector("i"), t + .7, .3, { scaleX: 0 }, { scaleX: 1, ease: "power3.in" }); cue(t + .85, "cut_hit_sub.wav", .35); });
+// 2
+kb("#s2 img", A(2), S[2][1] + .5, { scale: 1.2, y: 40 }, { scale: 1.04, y: 0 });
+fin("#s2 .key .w", A(2) + .6, .6, { opacity: 0, y: 30, filter: "blur(8px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .25 }); cue(A(2) + .6, "sparkle.wav", .2);
+// 3 : spirale + gouttes qui glissent mal
+fin("#s3 .key .w", A(3) + .2, .5, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .08 });
+fin("#s3 .spiral path", A(3) + .4, Math.min(3, S[3][1] * .45), { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: "power1.inOut" }); cue(A(3) + .4, "swoosh-wind.wav", .25);
+[".d1", ".d2"].forEach(function (d, k) { fin("#s3 " + d, A(3) + 1.2 + k * .5, 1.6, { y: -40, opacity: 0 }, { y: 140, opacity: 1, ease: "power2.in" }); tl.to("#s3 " + d, { opacity: 0, duration: .4 }, A(3) + 3 + k * .5); });
+fin("#s3 .eq .w, #s3 .eq span", A(3) + S[3][1] * .55, .5, { opacity: 0, scale: .6 }, { opacity: 1, scale: 1, stagger: .15, ease: "back.out(2)" }); cue(A(3) + S[3][1] * .55, "pop-hard.wav", .3);
+// 4 : textures
+document.querySelectorAll("#s4 .g").forEach(function (g, k) { const t = A(4) + .1 + k * .2;
+  fin(g, t, .5, { scale: 0, rotate: k % 2 ? 6 : -6 }, { scale: 1, rotate: 0, ease: "back.out(1.6)" }); cue(t, "pop-bubble.wav", .12);
+  kb(g.querySelector("img"), t, S[4][1] + .5, { scale: 1.2 }, { scale: 1.02 }); });
+// 5 : locks et tresses
+kb("#s5 img", A(5), S[5][1] + .5, { scale: 1.2 }, { scale: 1.05 });
+document.querySelectorAll("#s5 .chip").forEach(function (c, k) { const t = A(5) + .5 + k * (S[5][1] - 1) / 3; fin(c, t, .45, { scale: 0 }, { scale: 1, ease: "back.out(2.5)" }); cue(t, "click.wav", .3); });
+// 6
+fin("#s6 .big .w", A(6) + .2, .6, { opacity: 0, y: 50, filter: "blur(10px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .12, ease: "power3.out" }); cue(A(6) + .2, "bass.wav", .35);
+fin("#s6 .gline", A(6) + S[6][1] * .5, .6, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" });
+fin("#s6 .q .w", A(6) + S[6][1] * .55, .5, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .1 });
+// 7
+fin("#s7 .q .w", A(7) + .2, .5, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .07 });
+fin("#s7 .big .ch", A(7) + S[7][1] * .35, .6, { opacity: 0, y: 50, filter: "blur(8px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .04, ease: "power3.out" }); cue(A(7) + S[7][1] * .35, "bass.wav", .4);
+fin("#s7 .tag", E(7) - 2.6, .5, { opacity: 0, letterSpacing: ".5em" }, { opacity: 1, letterSpacing: ".12em", ease: "expo.out" }); cue(E(7) - 2.6, "chime.wav", .3);
+fin("#s7 .brand", E(7) - 2.2, .6, { opacity: 0 }, { opacity: .8 });
+
+grain(T);
+window.__cues = CUES; window.__timelines = window.__timelines || {}; window.__timelines["main"] = tl; tl.seek(0);
+</script></body></html>

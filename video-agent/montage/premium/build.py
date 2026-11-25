@@ -929,4 +929,106 @@ fin("#s5 .tag", 29.0, .5, { opacity: 0, letterSpacing: ".5em" }, { opacity: 1, l
 fin("#s5 .brand", 29.4, .6, { opacity: 0 }, { opacity: .8 });
 """ % ()
     open(os.path.join(D, "index.html"), "w").write(page("Fiers de nos cheveux 1", css, body, js, T, ("m657", 0)))
+elif F == "fiers1v":
+    import soundfile as sf
+    VO = json.load(open(os.path.join(R, "vo", "spec.json")))["fiers1"]["vo"]
+    LEAD, TAIL = .25, .35; SCH, t = [], 0.0
+    for i in range(len(VO)):
+        src = os.path.join(R, "vo", f"fiers1_{i}.wav"); shutil.copy(src, os.path.join(D, f"fiers1_{i}.wav"))
+        d = sf.info(src).duration; dur = LEAD + d + TAIL + (2.6 if i == len(VO) - 1 else 0); SCH.append((round(t, 2), round(dur, 2))); t += dur
+    T = round(t, 2)
+    json.dump([{"t": round(a + LEAD, 2), "file": f"fiers1_{i}.wav"} for i, (a, _) in enumerate(SCH)], open(os.path.join(D, "vo.json"), "w"))
+    subt = lambda x: x.replace("Kadyo", "Kadio")
+    css = """
+:root { --bg: #0b0908; --fg: #f4ece0; --gold: #d9b26f; --red: #e0473a; }
+#root { background: var(--bg); color: var(--fg); }
+.sc { position: absolute; inset: 0; visibility: hidden; }
+.bgph { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(26px) brightness(.28) saturate(.7); transform: scale(1.15); }
+.big { position: absolute; left: 70px; right: 70px; text-align: center; font: 400 170px/1 Bodoni; white-space: nowrap; }
+.q { position: absolute; left: 80px; right: 80px; text-align: center; font: italic 300 64px/1.2 Corm; }
+.rows { position: absolute; left: 80px; right: 80px; top: 380px; display: flex; flex-direction: column; gap: 80px; }
+.row small { display: block; font: 800 38px Outfit; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); }
+.row b { position: relative; display: inline-block; margin-top: 12px; font: italic 400 130px/1 Bodoni; }
+.row b i { position: absolute; left: -12px; right: -12px; top: 52%; height: 14px; background: var(--red); transform-origin: 0 50%; border-radius: 7px; }
+.pic { position: absolute; overflow: hidden; border-radius: 30px; }
+.pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 50%; }
+.lab { position: absolute; left: 22px; bottom: 22px; padding: 10px 24px; border-radius: 999px; background: rgba(11,9,8,.75); font: 800 30px Outfit; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); }
+.key { position: absolute; left: 80px; right: 80px; top: 230px; text-align: center; font: 400 96px/1.05 Bodoni; text-shadow: 0 8px 40px rgba(0,0,0,.8); }
+.key em { font-style: italic; color: var(--gold); }
+.gold { color: var(--gold); }
+.chips { position: absolute; left: 60px; right: 60px; top: 1180px; display: flex; flex-wrap: wrap; justify-content: center; gap: 22px; }
+.chip { padding: 20px 38px; border-radius: 999px; border: 3px solid var(--gold); font: 800 44px Outfit; color: var(--fg); background: rgba(11,9,8,.7); }
+.spiral { position: absolute; left: 240px; top: 470px; width: 600px; height: 760px; overflow: visible; }
+.spiral path { fill: none; stroke: var(--gold); stroke-width: 16; stroke-linecap: round; }
+.drop { position: absolute; width: 46px; height: 60px; background: #f4ece0; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; }
+.eq { position: absolute; left: 0; right: 0; top: 1300px; text-align: center; font: 900 92px Outfit; }
+.eq span { color: var(--red); } .eq b { color: var(--gold); }
+.sub { position: absolute; left: 70px; right: 70px; top: 1610px; text-align: center; visibility: hidden; z-index: 30; }
+.sub span { display: inline; padding: 8px 16px; line-height: 1.5; background: rgba(0,0,0,.66); color: #fff; font: 700 40px Outfit; border-radius: 12px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.tag { position: absolute; left: 0; right: 0; top: 1380px; text-align: center; font: 900 46px Outfit; letter-spacing: .12em; color: var(--gold); }
+.brand { position: absolute; left: 0; right: 0; top: 1470px; text-align: center; font: 500 34px Corm; letter-spacing: .5em; text-indent: .5em; text-transform: uppercase; opacity: .8; }
+.gline { position: absolute; left: 440px; width: 200px; height: 3px; background: var(--gold); }
+"""
+    TX = [("h_locks", "Locks"), ("h_twists", "Twists"), ("bt2", "Barrel twist"), ("l2", "Afro"), ("h_nattes", "Tresses"), ("l3", "Locks")]
+    grid = "".join(f'<div class="pic g" style="left:{50 + (k % 2) * 500}px;top:{170 + (k // 2) * 470}px;width:480px;height:450px"><img src="photos/{n}.jpg"><span class="lab">{e(l)}</span></div>' for k, (n, l) in enumerate(TX))
+    spiral = "M300 740 " + " ".join(f"Q{300 + (200 if k % 2 else -200) * (1 - k / 20):.0f} {740 - k * 50 - 25} {300} {740 - (k + 1) * 50}" for k in range(14))
+    body = f"""
+<div id="s0" class="sc"><div class="big" style="top:640px">{sp("PROPRE ?")}</div><div class="q" style="top:900px">{sp("Les cheveux courts, c'est plus propre ?")}</div></div>
+<div id="s1" class="sc"><img class="bgph" src="photos/l2.jpg">
+ <div class="rows"><div class="row"><small>L'afro ?</small><b>« Négligé. »<i></i></b></div><div class="row"><small>Les locks ?</small><b>« Voyou. »<i></i></b></div><div class="row"><small>Les tresses ?</small><b>« Pas pro. »<i></i></b></div></div></div>
+<div id="s2" class="sc"><div class="pic" style="inset:0;border-radius:0"><img src="photos/b10.jpg" style="object-position:45% 40%"></div><div class="layer" style="background:linear-gradient(180deg,rgba(0,0,0,.75),rgba(0,0,0,0) 35%,rgba(0,0,0,0) 70%,rgba(0,0,0,.6))"></div>
+ <div class="key">{sp("Pas sale.")}<br><em>{sp("Différent.")}</em></div></div>
+<div id="s3" class="sc"><div class="key" style="top:200px;font-size:80px">{sp("Il pousse en spirale")}</div>
+ <svg class="spiral" viewBox="0 0 600 760"><path d="{spiral}" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg>
+ <i class="drop d1" style="left:520px;top:450px"></i><i class="drop d2" style="left:560px;top:500px"></i>
+ <div class="eq">{sp("Plus sec")} <span>≠</span> <b>{sp("plus sale")}</b></div></div>
+<div id="s4" class="sc">{grid}</div>
+<div id="s5" class="sc"><div class="pic" style="inset:0;border-radius:0"><img src="photos/h_locks.jpg"></div><div class="layer" style="background:rgba(0,0,0,.45)"></div>
+ <div class="chips"><span class="chip">Lavées</span><span class="chip">Entretenues</span><span class="chip">Des heures de précision</span></div></div>
+<div id="s6" class="sc"><div class="big" style="top:500px;font-size:118px;line-height:1.08;white-space:normal">{sp("Propre,")}<br>{sp("c'est un cheveu")}<br><span class="gold">{sp("entretenu.")}</span></div>
+ <div class="gline" style="top:980px"></div><div class="q" style="top:1040px;font-size:84px">{sp("Pas un cheveu caché.")}</div></div>
+<div id="s7" class="sc"><div class="q" style="top:420px;font-size:76px;font-style:normal;font-family:Bodoni">{sp("Nos cheveux ne sont pas")}<br>{sp("un problème à régler.")}</div>
+ <div class="big" style="top:760px;font-size:150px;font-style:italic;line-height:1.02"><span class="gold">{sp("Ce sont")}<br>{sp("nos racines.")}</span></div>
+ <div class="tag">#FiersDeNosCheveux</div><div class="brand">Kadio Coiffure · Longueuil</div></div>
+{"".join(f'<div class="sub" id="u{i}"><span>{e(subt(v))}</span></div>' for i, v in enumerate(VO))}
+<div class="layer vig"></div>"""
+    js = """
+const S = %s, L = %s;
+const A = (i) => S[i][0], E = (i) => S[i][0] + S[i][1];
+S.forEach(function (s, i) { show("#s" + i, s[0], i === S.length - 1 ? null : s[0] + s[1]); if (i) fin("#s" + i, s[0], .45, { opacity: 0 }, { opacity: 1, ease: "sine.inOut" }); show("#u" + i, s[0] + L, s[0] + s[1] - .05); fin("#u" + i, s[0] + L, .25, { opacity: 0 }, { opacity: 1 }); });
+S.forEach(function (s, i) { if (i) cue(s[0] - .1, i %% 2 ? "woosh-air.wav" : "sweep-small.wav", .2); });
+// 0
+fin("#s0 .big .ch", .2, .6, { opacity: 0, y: 60, filter: "blur(12px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .07, ease: "power3.out" }); cue(.2, "bass.wav", .4);
+fin("#s0 .q .w", 1.2, .5, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .08 });
+// 1 : préjugés barrés au rythme de la voix
+kb("#s1 .bgph", A(1), S[1][1], { scale: 1.25 }, { scale: 1.1 });
+document.querySelectorAll("#s1 .row").forEach(function (r, k) { const t = A(1) + L + k * (S[1][1] - .8) / 3;
+  fin(r, t, .45, { opacity: 0, x: -60 }, { opacity: 1, x: 0, ease: "power3.out" });
+  fin(r.querySelector("i"), t + .7, .3, { scaleX: 0 }, { scaleX: 1, ease: "power3.in" }); cue(t + .85, "cut_hit_sub.wav", .35); });
+// 2
+kb("#s2 img", A(2), S[2][1] + .5, { scale: 1.2, y: 40 }, { scale: 1.04, y: 0 });
+fin("#s2 .key .w", A(2) + .6, .6, { opacity: 0, y: 30, filter: "blur(8px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .25 }); cue(A(2) + .6, "sparkle.wav", .2);
+// 3 : spirale + gouttes qui glissent mal
+fin("#s3 .key .w", A(3) + .2, .5, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .08 });
+fin("#s3 .spiral path", A(3) + .4, Math.min(3, S[3][1] * .45), { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: "power1.inOut" }); cue(A(3) + .4, "swoosh-wind.wav", .25);
+[".d1", ".d2"].forEach(function (d, k) { fin("#s3 " + d, A(3) + 1.2 + k * .5, 1.6, { y: -40, opacity: 0 }, { y: 140, opacity: 1, ease: "power2.in" }); tl.to("#s3 " + d, { opacity: 0, duration: .4 }, A(3) + 3 + k * .5); });
+fin("#s3 .eq .w, #s3 .eq span", A(3) + S[3][1] * .55, .5, { opacity: 0, scale: .6 }, { opacity: 1, scale: 1, stagger: .15, ease: "back.out(2)" }); cue(A(3) + S[3][1] * .55, "pop-hard.wav", .3);
+// 4 : textures
+document.querySelectorAll("#s4 .g").forEach(function (g, k) { const t = A(4) + .1 + k * .2;
+  fin(g, t, .5, { scale: 0, rotate: k %% 2 ? 6 : -6 }, { scale: 1, rotate: 0, ease: "back.out(1.6)" }); cue(t, "pop-bubble.wav", .12);
+  kb(g.querySelector("img"), t, S[4][1] + .5, { scale: 1.2 }, { scale: 1.02 }); });
+// 5 : locks et tresses
+kb("#s5 img", A(5), S[5][1] + .5, { scale: 1.2 }, { scale: 1.05 });
+document.querySelectorAll("#s5 .chip").forEach(function (c, k) { const t = A(5) + .5 + k * (S[5][1] - 1) / 3; fin(c, t, .45, { scale: 0 }, { scale: 1, ease: "back.out(2.5)" }); cue(t, "click.wav", .3); });
+// 6
+fin("#s6 .big .w", A(6) + .2, .6, { opacity: 0, y: 50, filter: "blur(10px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .12, ease: "power3.out" }); cue(A(6) + .2, "bass.wav", .35);
+fin("#s6 .gline", A(6) + S[6][1] * .5, .6, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" });
+fin("#s6 .q .w", A(6) + S[6][1] * .55, .5, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .1 });
+// 7
+fin("#s7 .q .w", A(7) + .2, .5, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .07 });
+fin("#s7 .big .ch", A(7) + S[7][1] * .35, .6, { opacity: 0, y: 50, filter: "blur(8px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .04, ease: "power3.out" }); cue(A(7) + S[7][1] * .35, "bass.wav", .4);
+fin("#s7 .tag", E(7) - 2.6, .5, { opacity: 0, letterSpacing: ".5em" }, { opacity: 1, letterSpacing: ".12em", ease: "expo.out" }); cue(E(7) - 2.6, "chime.wav", .3);
+fin("#s7 .brand", E(7) - 2.2, .6, { opacity: 0 }, { opacity: .8 });
+""" % (json.dumps(SCH), LEAD)
+    open(os.path.join(D, "index.html"), "w").write(page("Fiers de nos cheveux 1", css, body, js, T, ("m657", 0)))
 print(F, "ok")
