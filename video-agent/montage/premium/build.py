@@ -622,4 +622,73 @@ fin("#endp h1 .ch", TE + .5, .7, { opacity: 0, y: 60 }, { opacity: 1, y: 0, stag
 fin("#endp .r", TE + 1.2, .7, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" }); fin("#endp p", TE + 1.4, .6, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .18 }); cue(TE + 1.6, "notif-positive.wav", .3);
 """ % (C0, QD, RD, len(qs), TE)
         open(os.path.join(D, "index.html"), "w").write(page("Le Quiz Barbier", css, body, js, T, ("m623", 40)))
+elif F == "avis":
+    # avis Google réels (texte exact, extraits), prénom + initiale
+    AV = [("On se sent à la maison, accueil toujours chaleureux.", "Mélanie", "Dreadlocks", "h_locks", "50% 45%"),
+          ("Salon de coiffure professionnel et chic.", "Paoline W.", "", "neon_a", "50% 30%"),
+          ("Service au top, accueil chaleureux… Très professionnel, Kadio il sait bien ce qu'il fait.", "Kattiana C.", "", "b5", "60% 40%"),
+          ("Excellent travail avec les cheveux de mon fils, merci beaucoup.", "Dino et Laurie T.", "", "b12", "45% 40%"),
+          ("Le service est vraiment impeccable et les prix sont super abordables.", "Marianne C.", "Tresses", "h_nattes", "50% 40%"),
+          ("Kadio coiffure c'est l'excellence et le professionnalisme.", "Aliyou H.", "", "h_croises", "50% 40%")]
+    C0, LD = 3.2, 4.0; TE = C0 + LD * len(AV); T = round(TE + 4.8, 2)
+    css = """
+:root { --bg: #f2ebe0; --fg: #17130f; --ac: #b8532a; --gold: #c99a52; }
+.pg { position: absolute; inset: 0; background: var(--bg); visibility: hidden; }
+.frame { position: absolute; left: 70px; right: 70px; top: 250px; height: 860px; overflow: hidden; border-radius: 4px; }
+.frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 50%; filter: contrast(1.06) saturate(1.04); }
+.frame:after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 60%, rgba(23,19,15,.35)); }
+.no { position: absolute; left: 70px; top: 130px; font: 400 38px Bodoni; letter-spacing: .1em; } .no b { font-weight: 700; }
+.brand { position: absolute; right: 70px; top: 142px; font: 500 26px Corm; letter-spacing: .45em; text-transform: uppercase; }
+.rule { position: absolute; left: 70px; right: 70px; top: 210px; height: 2px; background: var(--fg); transform-origin: 0 50%; }
+.qm { position: absolute; left: 50px; top: 1020px; font: 700 300px/1 Bodoni; color: var(--gold); z-index: 3; }
+.qt { position: absolute; left: 90px; right: 90px; top: 1200px; font-family: Bodoni; font-style: italic; font-weight: 400; line-height: 1.12; }
+.stars { position: absolute; left: 90px; top: 1690px; display: flex; gap: 14px; }
+.stars i { width: 54px; height: 54px; background: var(--gold); clip-path: polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); }
+.who { position: absolute; left: 90px; top: 1770px; font: 600 36px Corm; letter-spacing: .18em; text-transform: uppercase; }
+.who span { color: var(--ac); }
+#cover, #endp { background: var(--fg); color: var(--bg); }
+.ct { position: absolute; left: 60px; right: 60px; top: 600px; text-align: center; }
+.ct small { display: block; font: 500 30px Corm; letter-spacing: .6em; text-indent: .6em; text-transform: uppercase; }
+.ct h1 { margin-top: 40px; font: 400 120px/1.02 Bodoni; }
+.ct h1 em { font-style: italic; color: #e6b07c; }
+.ct .r { width: 160px; height: 3px; background: var(--ac); margin: 56px auto 40px; }
+.ct p { font: italic 300 48px Corm; }
+.ct .ad { font: 500 44px/1.55 Corm; font-style: normal; }
+.ct .site { margin-top: 22px; font: 600 32px Corm; font-style: normal; letter-spacing: .45em; color: #e6b07c; }
+.bigstars { display: flex; justify-content: center; gap: 18px; margin: 10px 0 30px; }
+.bigstars i { width: 70px; height: 70px; background: #e6b07c; clip-path: polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); }
+"""
+    pages = ""
+    for i, (q, who, svc, img, pos) in enumerate(AV):
+        fs = 96 if len(q) < 45 else 80 if len(q) < 75 else 66
+        pages += f"""<div id="g{i}" class="pg"><div class="no">Avis <b>0{i + 1}</b></div><div class="brand">Avis Google · Kadio</div><div class="rule"></div>
+<div class="frame"><img src="photos/{img}.jpg" style="object-position:{pos}"></div><div class="qm">“</div>
+<div class="qt" style="font-size:{fs}px">{sp(q)}</div>
+<div class="stars">{"<i></i>" * 5}</div><div class="who">{e(who)}{f" · <span>{e(svc)}</span>" if svc else ""}</div></div>"""
+    body = f"""<div id="cover" class="layer"><div class="ct"><small>Avis Google</small><h1>{sp("Ce que disent")}<br><em>{sp("nos clients.")}</em></h1><div class="r"></div><div class="bigstars">{"<i></i>" * 5}</div></div></div>
+{pages}
+<div id="endp" class="pg"><div class="ct" style="top:560px"><small>Kadio Coiffure</small><h1 style="font-size:104px">{sp("À votre tour")}<br><em>{sp("de vous sentir chez vous.")}</em></h1><div class="r"></div>
+<p class="ad">615, Antoinette-Robidoux · Longueuil<br>514 919-5970</p><p class="site">KADIOCOIFFURE.COM</p></div></div>"""
+    js = """
+const C0 = %s, LD = %s, N = %d, TE = %s;
+fin("#cover small", .2, .8, { opacity: 0, letterSpacing: "1.2em" }, { opacity: 1, letterSpacing: ".6em", ease: "expo.out" });
+fin("#cover h1 .ch", .5, .7, { opacity: 0, y: 70 }, { opacity: 1, y: 0, stagger: .03, ease: "power4.out" }); cue(.5, "bass.wav", .35);
+fin("#cover .r", 1.4, .6, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" });
+fin("#cover .bigstars i", 1.7, .4, { scale: 0, rotate: -90 }, { scale: 1, rotate: 0, stagger: .12, ease: "back.out(2.5)" }); cue(1.7, "sparkle.wav", .3);
+for (let i = 0; i < N; i++) {
+  const t = C0 + i * LD, g = "#g" + i;
+  show(g, t, null); tl.set(g, { zIndex: 10 + i }, 0);
+  fin(g, t, .55, { yPercent: 100 }, { yPercent: 0, ease: "power3.inOut" }); cue(t, "sweep-small.wav", .4);
+  fin(g + " .rule", t + .4, .6, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" });
+  kb(g + " .frame img", t + .3, LD + .6, { scale: 1.14 }, { scale: 1.02 });
+  fin(g + " .qm", t + .5, .5, { opacity: 0, y: 40 }, { opacity: 1, y: 0, ease: "back.out(2)" });
+  fin(g + " .qt .w", t + .6, .5, { opacity: 0, y: 24, filter: "blur(6px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .06, ease: "power3.out" });
+  fin(g + " .stars i", t + 1.5, .35, { scale: 0, rotate: -90 }, { scale: 1, rotate: 0, stagger: .09, ease: "back.out(2.5)" }); cue(t + 1.5, "sparkle.wav", .25);
+  fin(g + " .who", t + 1.9, .5, { opacity: 0, x: -30 }, { opacity: 1, x: 0, ease: "power3.out" });
+}
+show("#endp", TE, null); tl.set("#endp", { zIndex: 99 }, 0); fin("#endp", TE, .55, { yPercent: 100 }, { yPercent: 0, ease: "power3.inOut" }); cue(TE, "sweep-small.wav", .4);
+fin("#endp h1 .ch", TE + .5, .7, { opacity: 0, y: 60 }, { opacity: 1, y: 0, stagger: .02, ease: "power4.out" }); cue(TE + .5, "bass.wav", .35);
+fin("#endp .r", TE + 1.3, .7, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" }); fin("#endp p", TE + 1.5, .6, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .2 }); cue(TE + 1.7, "chime.wav", .3);
+""" % (C0, LD, len(AV), TE)
+    open(os.path.join(D, "index.html"), "w").write(page("Avis clients Kadio", css, body, js, T, ("m657", 60)))
 print(F, "ok")
