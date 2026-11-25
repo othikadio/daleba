@@ -1425,4 +1425,207 @@ S.forEach(function (s, i) {
 });
 """.replace("%%", "%") + CHAR_JS.replace("if (i === 2 || i === 3 || i === 6)", "if (" + json.dumps(GEST) + ".indexOf(i) >= 0)"))
     open(os.path.join(D, "index.html"), "w").write(page("Fiers de nos cheveux · Papier", css, body, js, T, ("m657", 0 if KEY == "fiers1" else 20)))
+elif F in ("ep3", "ep4", "ep5"):
+    import soundfile as sf, numpy as np
+    KEY = {"ep3": "fiers3", "ep4": "fiers4", "ep5": "fiers5"}[F]
+    VO = json.load(open(os.path.join(R, "vo", "spec.json")))[KEY]["vo"]
+    LEAD, TAIL = .3, .45; SCH, t = [], 0.0
+    for i in range(len(VO)):
+        src = os.path.join(R, "vo", f"{KEY}_{i}.wav"); shutil.copy(src, os.path.join(D, f"{KEY}_{i}.wav"))
+        d = sf.info(src).duration; dur = LEAD + d + TAIL + (2.8 if i == len(VO) - 1 else 0); SCH.append((round(t, 2), round(dur, 2))); t += dur
+    T = round(t, 2)
+    json.dump([{"t": round(a + LEAD, 2), "file": f"{KEY}_{i}.wav"} for i, (a, _) in enumerate(SCH)], open(os.path.join(D, "vo.json"), "w"))
+    MOUTH = []
+    for i in range(len(VO)):
+        a, sr = sf.read(os.path.join(R, "vo", f"{KEY}_{i}.wav"), always_2d=True); a = a.mean(1); hop = sr // 15
+        env = np.array([np.sqrt(np.mean(a[k:k + hop] ** 2)) for k in range(0, len(a) - hop, hop)]); env = np.clip(env / (np.percentile(env, 95) + 1e-9), 0, 1)
+        MOUTH += [[round(SCH[i][0] + LEAD + k / 15, 3), round(float(v), 2)] for k, v in enumerate(env)]
+    subt = lambda x: x.replace("Kadyo", "Kadio").replace("loks", "locks").replace("Kraoune Act", "CROWN Act")
+    HEAD = ("const MOUTH = " + json.dumps(MOUTH) + ";\nconst S = " + json.dumps(SCH) + ", L = " + str(LEAD) + ";\n"
+            "const _ex = (q) => typeof q !== 'string' || document.querySelector(q);\n"
+            "const _fin = fin, _kb = kb; fin = function (q, ...r) { if (_ex(q)) _fin(q, ...r); }; kb = function (q, ...r) { if (_ex(q)) _kb(q, ...r); };\n"
+            "const A = (i) => S[i][0], E = (i) => S[i][0] + S[i][1];\n"
+            "S.forEach(function (s, i) { show('#u' + i, s[0] + L, s[0] + s[1] - .05); fin('#u' + i, s[0] + L, .3, { opacity: 0 }, { opacity: 1 }); });\n")
+    subs = "".join(f'<div class="sub" id="u{i}"><span>{e(subt(v))}</span></div>' for i, v in enumerate(VO))
+    FONTS = """
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Bold.otf); font-weight: 700; }
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Black.otf); font-weight: 900; }
+.sc { position: absolute; inset: 0; visibility: hidden; }
+#kadi { right: -10px; bottom: -20px; width: 460px; height: 598px; }
+.sub { position: absolute; left: 70px; right: 450px; top: 1680px; visibility: hidden; z-index: 30; }
+"""
+    css0 = CHAR_CSS.replace(".sub {", ".subx {") + FONTS
+
+    if F == "ep3":
+        SC = [("POURQUOI", "Pourquoi nos cheveux ne seraient pas « propres » ?", None, None),
+              ("NORMES", "Des normes de beauté écrites sans nous.", None, ["l2", "h_twists", "b10"]),
+              ("TIGNON", "Louisiane : la loi du tignon.", "1786", None),
+              ("STYLE", "Elles en ont fait un accessoire de style.", None, ["h_chignon", "bt1", "h_nattes"]),
+              ("CORRIGER", "« Corrige tes cheveux. »", None, ["l3", "l4", "b12"]),
+              ("CROWN", "CROWN Act : des lois qui protègent nos coiffures.", "2019", None),
+              ("HISTOIRE", "Pas une mode. Une histoire.", None, ["h_locks", "bt2", "h_croises"]),
+              ("FIERTÉ", "Et on la porte fièrement.", None, None)]
+        css = css0 + """
+#root { background: #140f0b; color: #f4ece0; font-family: ID; }
+.bw { position: absolute; left: -40px; top: 160px; font: 900 330px/0.85 ID; letter-spacing: -.06em; color: rgba(244,236,224,.06); white-space: nowrap; }
+.yr { position: absolute; left: 70px; top: 420px; font: 900 300px/1 ID; letter-spacing: -.06em; color: #f2c46d; }
+.stk { position: absolute; left: 120px; top: 360px; width: 600px; height: 780px; perspective: 1600px; }
+.stk .c { position: absolute; inset: 0; border-radius: 34px; overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,.65); }
+.stk .c img { width: 100%; height: 100%; object-fit: cover; }
+.sen { position: absolute; left: 70px; right: 70px; top: 1220px; font: 700 76px/1.1 ID; letter-spacing: -.035em; }
+.sen .w { color: rgba(244,236,224,.25); }
+.sc.np .sen { top: 760px; font-size: 104px; }
+.sc.yrs .sen { top: 800px; }
+.leak { position: absolute; width: 1400px; height: 1400px; left: -200px; top: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(255,150,60,.45), rgba(255,90,40,.15) 40%, transparent 68%); mix-blend-mode: screen; opacity: 0; z-index: 20; pointer-events: none; }
+.tag { position: absolute; left: 70px; top: 1100px; font: 900 48px ID; color: #f2c46d; }
+.br { position: absolute; left: 70px; top: 1170px; font: 700 34px ID; color: rgba(244,236,224,.6); }
+.src { position: absolute; left: 70px; top: 1560px; font: 700 24px ID; color: rgba(244,236,224,.45); }
+.sub span { display: inline; padding: 6px 14px; line-height: 1.5; background: rgba(0,0,0,.55); color: #fff; font: 700 34px ID; border-radius: 8px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+"""
+        body = ""
+        for i, (bw, sen, yr, phs) in enumerate(SC):
+            cls = "sc" + (" np" if not phs and not yr else "") + (" yrs" if yr else "")
+            h = f'<div id="s{i}" class="{cls}"><div class="bw">{e(bw)}</div>'
+            if yr: h += f'<div class="yr">{yr}</div>'
+            if phs: h += '<div class="stk">' + "".join(f'<div class="c c{k}"><img src="photos/{p}.jpg"></div>' for k, p in enumerate(phs)) + "</div>"
+            h += f'<div class="sen">{sp(sen)}</div>'
+            if i == 2: h += '<div class="src">Loi du tignon, gouverneur Miró, Louisiane, 1786</div>'
+            if i == 5: h += '<div class="src">CROWN Act : Californie 2019, puis d\'autres États américains</div>'
+            if i == len(SC) - 1: h += '<div class="tag">#FiersDeNosCheveux</div><div class="br">Kadio Coiffure · Longueuil</div>'
+            body += h + "</div>"
+        body += '<div class="leak"></div>' + subs + '<div class="layer vig"></div>' + CHAR_SVG
+        js = HEAD + """
+S.forEach(function (s, i) {
+  const p = "#s" + i, t = s[0], d = s[1];
+  show(p, t, i === S.length - 1 ? null : t + d);
+  if (i) { fin(p, t, .6, { opacity: 0 }, { opacity: 1, ease: "sine.inOut" }); cue(t - .1, "woosh-air.wav", .15); }
+  tl.fromTo(".leak", { opacity: 0, x: -600 }, { opacity: 1, x: 200, duration: .5, ease: "sine.in", immediateRender: false }, t - .3); tl.to(".leak", { opacity: 0, x: 900, duration: .6, ease: "sine.out" }, t + .2);
+  kb(p + " .bw", t, d + .6, { x: 80 }, { x: -220 });
+  fin(p + " .yr", t + .2, 1.1, { opacity: 0, scale: 1.4, filter: "blur(18px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", ease: "power3.out" });
+  if (document.querySelector(p + " .yr")) cue(t + .3, "bass.wav", .4);
+  document.querySelectorAll(p + " .stk .c").forEach(function (c, k) {
+    const z = (2 - k) * -180, x = (2 - k) * 90, yy = (2 - k) * -40;
+    fin(c, t + .2 + k * .2, 1.2, { opacity: 0, x: x + 300, y: yy, z: z - 300, rotateY: -25 }, { opacity: 1, x: x, y: yy, z: z, rotateY: -10, ease: "power3.out" });
+    tl.to(c, { x: x - 60, rotateY: -4, duration: d, ease: "sine.inOut" }, t + 1.4);
+    tl.set(c, { filter: k < 2 ? "brightness(" + (.45 + k * .2) + ") blur(" + (2 - k) + "px)" : "none" }, 0);
+  });
+  const ws = document.querySelectorAll(p + " .sen .w"), n = ws.length, t0 = t + L + .1, span = Math.max(1, d - L - .8);
+  fin(p + " .sen .w", t + .3, .6, { opacity: 0, y: 30 }, { opacity: 1, y: 0, stagger: .04, ease: "power3.out" });
+  ws.forEach(function (w, k) { tl.to(w, { color: "#f4ece0", duration: .25 }, t0 + span * k / n); });
+  fin(p + " .src", t + 1.2, .8, { opacity: 0 }, { opacity: 1 });
+  fin(p + " .tag", E(i) - 3, .7, { opacity: 0, y: 20 }, { opacity: 1, y: 0, ease: "power3.out" });
+  fin(p + " .br", E(i) - 2.6, .7, { opacity: 0 }, { opacity: 1 });
+});
+cue(E(S.length - 1) - 3, "chime.wav", .25);
+""" + CHAR_JS.replace("if (i === 2 || i === 3 || i === 6)", "if ([2, 5, 6].indexOf(i) >= 0)")
+        open(os.path.join(D, "index.html"), "w").write(page("Une histoire de racines", css, body, js, T, ("m288", 10)))
+
+    elif F == "ep4":
+        AUR = [("#ff8fb3", "#ffc36b", "#7b8cff", "#2a1f4f"), ("#6ee7d8", "#7b8cff", "#c084fc", "#14213d"), ("#ffb86b", "#ff6b8a", "#8b5cf6", "#2b1435"),
+               ("#7dd3fc", "#a78bfa", "#f472b6", "#1e1b4b"), ("#fde68a", "#fb923c", "#f472b6", "#3b1d2e"), ("#86efac", "#67e8f9", "#a78bfa", "#132a33")]
+        css = css0 + """
+#root { background: #2a1f4f; color: #fff; font-family: ID; }
+.au { position: absolute; inset: -300px; filter: blur(70px) saturate(1.2); }
+.au i { position: absolute; width: 900px; height: 900px; border-radius: 50%; opacity: .9; }
+.gl { position: absolute; background: rgba(255,255,255,.14); backdrop-filter: blur(30px) saturate(1.6); -webkit-backdrop-filter: blur(30px) saturate(1.6); border: 1.5px solid rgba(255,255,255,.35); border-radius: 52px; box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 30px 60px rgba(0,0,0,.18); }
+.pill { left: 70px; top: 170px; padding: 18px 34px; font: 700 34px ID; border-radius: 999px; }
+.h { position: absolute; left: 70px; right: 70px; top: 300px; font: 700 112px/1.02 ID; letter-spacing: -.045em; }
+.cards { position: absolute; left: 70px; right: 70px; top: 760px; display: flex; flex-wrap: wrap; gap: 26px; }
+.cards .gl { position: relative; padding: 40px 44px; min-width: 420px; }
+.cards small { display: block; font: 700 30px ID; opacity: .75; } .cards b { display: block; margin-top: 10px; font: 700 96px/1 ID; letter-spacing: -.04em; }
+.num { position: absolute; left: 70px; right: 70px; top: 560px; padding: 60px 56px; }
+.num b { display: block; font: 900 260px/0.9 ID; letter-spacing: -.06em; }
+.num p { margin-top: 26px; font: 700 50px/1.18 ID; letter-spacing: -.02em; }
+.num small { display: block; margin-top: 20px; font: 700 28px ID; opacity: .7; }
+.src { position: absolute; left: 70px; top: 1580px; font: 700 26px ID; opacity: .7; }
+.tag { position: absolute; left: 70px; top: 1120px; font: 900 50px ID; }
+.sub span { display: inline; padding: 6px 14px; line-height: 1.5; background: rgba(0,0,0,.35); color: #fff; font: 700 34px ID; border-radius: 10px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+"""
+        au = '<div class="au">' + "".join(f'<i class="a{k}"></i>' for k in range(3)) + "</div>"
+        body = au
+        body += f'<div id="s0" class="sc"><div class="gl pill" style="position:absolute">Étude Dove CROWN · 2019</div><div class="h" style="top:640px;font-size:150px">{sp("Un chiffre")}<br>{sp("pour comprendre.")}</div></div>'
+        body += f'<div id="s1" class="sc"><div class="h">{sp("Les cheveux naturels, traités pareil au travail ?")}</div><div class="cards"><div class="gl"><small>Année</small><b>2019</b></div><div class="gl"><small>Femmes interrogées</small><b>2 000</b></div><div class="gl"><small>Pays</small><b>États-Unis</b></div></div></div>'
+        body += '<div id="s2" class="sc"><div class="gl num"><b><span class="cnt" data-to="1.5" data-dec="1">0</span> ×</b><p>plus susceptibles d\'avoir été renvoyées chez elles à cause de leurs cheveux*</p><small>* ou de connaître quelqu\'un à qui c\'est arrivé</small></div></div>'
+        body += '<div id="s3" class="sc"><div class="gl num"><b><span class="cnt" data-to="80" data-dec="0">0</span> %</b><p>plus nombreuses à penser devoir changer leurs cheveux naturels pour être acceptées au bureau</p></div></div>'
+        body += f'<div id="s4" class="sc"><div class="h" style="top:600px;font-size:130px">{sp("Pas le cheveu.")}<br>{sp("Le regard.")}</div></div>'
+        body += f'<div id="s5" class="sc"><div class="h" style="top:420px;font-size:118px">{sp("Tes cheveux sont les bienvenus.")}<br>{sp("Tels qu’ils sont.")}</div><div class="tag">#FiersDeNosCheveux · Kadio Coiffure</div></div>'
+        body += '<div class="src">Source : Dove CROWN Research Study, 2019 (2 000 femmes, États-Unis)</div>' + subs + CHAR_SVG
+        js = HEAD + "const AUR = " + json.dumps(AUR) + ";\n" + """
+const P = [[-100, -50], [500, 200], [100, 900]];
+document.querySelectorAll(".au i").forEach(function (b, k) { tl.set(b, { left: P[k][0], top: P[k][1], backgroundColor: AUR[0][k] }, 0);
+  tl.to(b, { x: k % 2 ? 260 : -220, y: k ? -260 : 240, duration: S[S.length - 1][0] + S[S.length - 1][1], ease: "sine.inOut" }, 0); });
+tl.set("#root", { backgroundColor: AUR[0][3] }, 0);
+S.forEach(function (s, i) {
+  const p = "#s" + i, t = s[0], d = s[1];
+  show(p, t, i === S.length - 1 ? null : t + d);
+  if (i) { document.querySelectorAll(".au i").forEach(function (b, k) { tl.to(b, { backgroundColor: AUR[i][k], duration: 1.2, ease: "sine.inOut" }, t - .4); }); tl.to("#root", { backgroundColor: AUR[i][3], duration: 1.2 }, t - .4); cue(t - .1, "woosh-air.wav", .12); }
+  fin(p + " .pill", t + .2, .8, { opacity: 0, y: -20 }, { opacity: 1, y: 0, ease: "power3.out" });
+  fin(p + " .h .w", t + .25, .9, { opacity: 0, y: 40, filter: "blur(10px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .05, ease: "power3.out" });
+  document.querySelectorAll(p + " .cards .gl").forEach(function (c, k) { fin(c, t + 1 + k * .5, .9, { opacity: 0, y: 60, scale: .95 }, { opacity: 1, y: 0, scale: 1, ease: "power3.out" }); });
+  fin(p + " .num", t + .2, 1, { opacity: 0, y: 80, scale: .96 }, { opacity: 1, y: 0, scale: 1, ease: "power3.out" });
+  document.querySelectorAll(p + " .cnt").forEach(function (c) { const to = +c.dataset.to, dec = +c.dataset.dec, N = 24;
+    for (let k = 0; k <= N; k++) { const v = to * (1 - Math.pow(1 - k / N, 3)); tl.set(c, { textContent: v.toFixed(dec).replace(".", ",") }, t + .6 + k * .06); } cue(t + .6, "sweep-small.wav", .2); cue(t + 2.1, "bass.wav", .35); });
+  fin(p + " .num p, " + p + " .num small", t + 1.0, .8, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .3, ease: "power3.out" });
+  fin(p + " .tag", E(i) - 3, .7, { opacity: 0, y: 20 }, { opacity: 1, y: 0, ease: "power3.out" });
+});
+fin(".src", A(2), .8, { opacity: 0 }, { opacity: .7 }); tl.to(".src", { opacity: 0, duration: .4 }, A(4));
+tl.set(".src", { opacity: .7 }, A(5) + 1); cue(E(S.length - 1) - 3, "chime.wav", .25);
+""" + CHAR_JS.replace("if (i === 2 || i === 3 || i === 6)", "if ([2, 3, 4].indexOf(i) >= 0)")
+        open(os.path.join(D, "index.html"), "w").write(page("Le chiffre", css, body, js, T, ("m169", 5)))
+
+    else:
+        SC = [("CHAQUE TEXTURE", "est une couronne.", None, "#1d1d1f", "#ffc21a"),
+              ("AFRO", "pousse vers le ciel", "b10", "#ff6a3d", "#1d1d1f"),
+              ("LOCKS", "le temps et la patience", "h_locks", "#2f9e6e", "#fff7e6"),
+              ("TRESSES", "ligne par ligne", "h_nattes", "#3d5afe", "#fff7e6"),
+              ("TWISTS", "légers, en mouvement", "h_twists", "#ff5fa2", "#1d1d1f"),
+              ("COUPES", "tracées au millimètre", "b2", "#ffc21a", "#1d1d1f"),
+              ("LA TIENNE.", "pas une seule façon d'être beau", None, "#fff7e6", "#1d1d1f"),
+              ("PORTE TA", "couronne.", None, "#1d1d1f", "#ffc21a")]
+        css = css0 + """
+#root { background: #1d1d1f; font-family: ID; }
+.blk { position: absolute; inset: 0; }
+.big { position: absolute; left: 60px; right: 40px; top: 210px; font: 900 190px/.86 ID; letter-spacing: -.055em; text-transform: uppercase; white-space: nowrap; }
+.small { position: absolute; left: 66px; top: 420px; font: 700 54px ID; letter-spacing: -.02em; }
+.circ { position: absolute; left: 140px; top: 600px; width: 800px; height: 800px; }
+.circ .ph { position: absolute; inset: 60px; border-radius: 50%; overflow: hidden; visibility: visible; }
+.circ .ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.circ svg { position: absolute; inset: 0; overflow: visible; }
+.circ circle { fill: none; stroke-width: 6; stroke-dasharray: 18 22; }
+.crown { position: absolute; left: 240px; top: 700px; width: 600px; height: 420px; overflow: visible; }
+.crown path { fill: none; stroke-width: 22; stroke-linecap: round; stroke-linejoin: round; }
+.grid { position: absolute; left: 70px; right: 70px; top: 660px; display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
+.grid i { width: 280px; height: 280px; border-radius: 50%; background-size: cover; background-position: center; border: 10px solid; }
+.tag { position: absolute; left: 66px; top: 1240px; font: 900 50px ID; }
+.br { position: absolute; left: 66px; top: 1310px; font: 700 34px ID; opacity: .7; }
+.sub span { display: inline; padding: 6px 14px; line-height: 1.5; background: rgba(0,0,0,.6); color: #fff; font: 700 34px ID; border-radius: 10px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+"""
+        body = ""
+        cols = ["#ff6a3d", "#2f9e6e", "#3d5afe", "#ff5fa2", "#ffc21a", "#1d1d1f"]
+        for i, (big, small, ph, bg, fg) in enumerate(SC):
+            h = f'<div id="s{i}" class="sc" style="color:{fg}"><div class="blk" style="background:{bg}"></div><div class="big" style="font-size:{min(190, int(960 / (0.6 * len(big))))}px">{sp(big)}</div><div class="small">{sp(small)}</div>'
+            if ph: h += f'<div class="circ"><div class="ph"><img src="photos/{ph}.jpg"></div><svg viewBox="0 0 800 800"><circle cx="400" cy="400" r="380" stroke="{fg}"/></svg></div>'
+            if i in (0, 7): h += f'<svg class="crown" viewBox="0 0 600 420"><path d="M40 380 L70 110 L190 240 L300 40 L410 240 L530 110 L560 380 Z" stroke="{fg}" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg>'
+            if i == 6: h += '<div class="grid">' + "".join(f'<i style="background-image:url(photos/{p}.jpg);border-color:{c}"></i>' for p, c in zip(["b10", "h_locks", "h_nattes", "h_twists", "b2", "l3"], cols)) + "</div>"
+            if i == 7: h += f'<div class="tag" style="top:1200px">#FiersDeNosCheveux</div><div class="br" style="top:1270px">Kadio Coiffure · Longueuil</div>'
+            body += h + "</div>"
+        body += subs + CHAR_SVG
+        js = HEAD + """
+S.forEach(function (s, i) {
+  const p = "#s" + i, t = s[0], d = s[1];
+  show(p, t, i === S.length - 1 ? null : t + d + .7); tl.set(p, { zIndex: 5 + i }, 0);
+  if (i) { fin(p + " .blk", t - .05, .65, { clipPath: "polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)" }, { clipPath: "polygon(0% -20%, 100% 0%, 100% 100%, 0% 100%)", ease: "power4.inOut" }); cue(t - .05, "whoosh-fast.wav", .3); }
+  fin(p + " .big .ch", t + .35, .55, { yPercent: 110, opacity: 0 }, { yPercent: 0, opacity: 1, stagger: .03, ease: "power4.out" }); cue(t + .35, "pop-hard.wav", .2);
+  fin(p + " .small .w", t + .8, .6, { opacity: 0, x: -30 }, { opacity: 1, x: 0, stagger: .06, ease: "power3.out" });
+  fin(p + " .circ .ph", t + .5, .9, { scale: 0 }, { scale: 1, ease: "back.out(1.4)" });
+  kb(p + " .circ img", t + .5, d + .8, { scale: 1.25 }, { scale: 1.05 });
+  fin(p + " .circ svg", t + .7, d + .6, { rotate: 0, opacity: 0, transformOrigin: "50% 50%" }, { rotate: 120, opacity: 1, ease: "none" });
+  fin(p + " .crown path", t + .9, 1.4, { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: "power2.inOut" });
+  if (document.querySelector(p + " .crown")) cue(t + .9, "sparkle.wav", .3);
+  document.querySelectorAll(p + " .grid i").forEach(function (g, k) { fin(g, t + .6 + k * .18, .6, { scale: 0, rotate: -40 }, { scale: 1, rotate: 0, ease: "back.out(2)" }); cue(t + .6 + k * .18, "pop-bubble.wav", .15); });
+  fin(p + " .tag", E(i) - 3, .6, { opacity: 0, y: 20 }, { opacity: 1, y: 0, ease: "power3.out" }); fin(p + " .br", E(i) - 2.6, .6, { opacity: 0 }, { opacity: .7 });
+});
+cue(E(S.length - 1) - 3, "chime.wav", .25);
+""" + CHAR_JS.replace("if (i === 2 || i === 3 || i === 6)", "if ([1, 3, 5, 7].indexOf(i) >= 0)")
+        open(os.path.join(D, "index.html"), "w").write(page("Toutes nos couronnes", css, body, js, T, ("m623", 25)))
 print(F, "ok")
