@@ -119,6 +119,78 @@ S.forEach(function (s, i) { if (i === 2 || i === 3 || i === 6) { tl.to("#karm", 
 S.forEach(function (s, i) { if (i === 0 || i === 1) { tl.to("#kbrows", { y: -10, duration: .2 }, s[0] + .4); tl.to("#kbrows", { y: 0, duration: .3 }, s[0] + 1.6); } });
 """
 
+F2_CSS = """
+:root { --bg: #0b0908; --fg: #f4ece0; --gold: #d9b26f; --red: #e5483b; --green: #2fbf71; }
+#root { background: radial-gradient(90% 60% at 50% 35%, #1d1612, #0b0908 70%); color: var(--fg); }
+.sc { position: absolute; inset: 0; visibility: hidden; }
+.ttl { position: absolute; left: 0; right: 0; top: 440px; text-align: center; }
+.ttl .pill { display: inline-block; padding: 26px 64px; border-radius: 999px; font: 900 120px/1 Outfit; letter-spacing: -.02em; color: #fff; }
+.ttl .m { background: var(--red); } .ttl .v { background: var(--green); }
+.ttl .ou { display: block; margin: 30px 0; font: italic 400 90px Bodoni; color: var(--gold); }
+.ttl small { display: block; margin-top: 60px; font: 800 38px Outfit; letter-spacing: .3em; color: var(--gold); text-transform: uppercase; }
+.dots { position: absolute; left: 0; right: 0; top: 230px; display: flex; justify-content: center; gap: 22px; }
+.dots i { width: 26px; height: 26px; border-radius: 50%; border: 4px solid var(--gold); }
+.card { position: absolute; left: 110px; right: 110px; top: 380px; height: 760px; perspective: 2000px; }
+.card .in { position: absolute; inset: 0; border-radius: 48px; background: #f4ece0; color: #15120f; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 60px; box-shadow: 0 40px 80px rgba(0,0,0,.5); }
+.card .in small { font: 900 40px Outfit; letter-spacing: .3em; color: #b8532a; text-transform: uppercase; }
+.card .in b { margin-top: 40px; font: italic 400 94px/1.1 Bodoni; }
+.card .in .qm { position: absolute; right: 40px; bottom: 10px; font: 900 260px/1 Outfit; color: rgba(21,18,15,.08); }
+.vph { position: absolute; left: 60px; right: 60px; top: 180px; height: 760px; border-radius: 40px; overflow: hidden; }
+.vph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 50%; }
+.stamp { position: absolute; left: 0; right: 0; top: 830px; text-align: center; z-index: 5; }
+.stamp span { display: inline-block; padding: 18px 70px; border: 12px solid; border-radius: 24px; font: 900 150px/1 Outfit; letter-spacing: .05em; transform: rotate(-8deg); background: rgba(11,9,8,.85); }
+.stamp.f span { color: var(--red); border-color: var(--red); } .stamp.t span { color: var(--green); border-color: var(--green); }
+.chips { position: absolute; left: 60px; right: 60px; top: 1100px; display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+.chip { padding: 18px 34px; border-radius: 999px; border: 3px solid var(--gold); font: 800 42px Outfit; background: rgba(11,9,8,.7); }
+.chip.x { border-color: var(--red); color: var(--red); text-decoration: line-through; text-decoration-thickness: 5px; }
+.bars { position: absolute; left: 120px; right: 120px; top: 1100px; }
+.bar { margin-bottom: 30px; } .bar small { display: block; font: 800 34px Outfit; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 12px; }
+.bar i { display: block; height: 34px; border-radius: 17px; background: var(--gold); transform-origin: 0 50%; }
+.bar.lo i { background: rgba(244,236,224,.3); }
+.spi { position: absolute; left: 140px; top: 300px; width: 800px; height: 900px; overflow: visible; }
+.spi path { fill: none; stroke: var(--gold); stroke-width: 22; stroke-linecap: round; }
+.spi circle { fill: var(--red); }
+.end { position: absolute; left: 70px; right: 70px; top: 380px; text-align: center; }
+.end h1 { font: 400 110px/1.05 Bodoni; } .end h1 em { font-style: italic; color: var(--gold); }
+.end .tag { margin-top: 70px; font: 900 46px Outfit; letter-spacing: .12em; color: var(--gold); }
+.end .br { margin-top: 24px; font: 500 34px Corm; letter-spacing: .5em; text-transform: uppercase; opacity: .8; }
+.sub { position: absolute; visibility: hidden; z-index: 30; left: 40px; right: 420px; top: 1560px; text-align: left; }
+.sub span { display: inline; padding: 8px 16px; line-height: 1.5; background: rgba(0,0,0,.7); color: #fff; font: 700 38px Outfit; border-radius: 12px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+"""
+F2_JS = """
+const A = (i) => S[i][0], E = (i) => S[i][0] + S[i][1];
+S.forEach(function (s, i) { show("#s" + i, s[0], i === S.length - 1 ? null : s[0] + s[1] + .05); show("#u" + i, s[0] + L, s[0] + s[1] - .05); fin("#u" + i, s[0] + L, .25, { opacity: 0 }, { opacity: 1 }); });
+fin("#s0 .m", .2, .5, { scale: 0, rotate: -12 }, { scale: 1, rotate: -3, ease: "back.out(2.5)" }); cue(.2, "pop-hard.wav", .35);
+fin("#s0 .ou", .7, .4, { opacity: 0 }, { opacity: 1 });
+fin("#s0 .v", 1.0, .5, { scale: 0, rotate: 12 }, { scale: 1, rotate: 3, ease: "back.out(2.5)" }); cue(1.0, "pop-hard.wav", .35);
+fin("#s0 small", 1.7, .5, { opacity: 0, letterSpacing: "1em" }, { opacity: 1, letterSpacing: ".3em", ease: "expo.out" });
+[1, 3, 5, 7].forEach(function (i, k) {
+  fin("#s" + i, A(i), .4, { opacity: 0 }, { opacity: 1 }); cue(A(i), "whoosh-cine.wav", .3);
+  fin("#s" + i + " .card .in", A(i) + .1, .7, { rotationY: -90, scale: .8 }, { rotationY: 0, scale: 1, ease: "back.out(1.4)" });
+  fin("#s" + i + " .card b .w", A(i) + .6, .4, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .06 });
+  document.querySelectorAll("#s" + i + " .dots i").forEach(function (d, j) { tl.set(d, { backgroundColor: j <= k ? "#d9b26f" : "rgba(0,0,0,0)" }, 0); });
+  fin("#s" + i + " .dots i:nth-child(" + (k + 1) + ")", A(i) + .3, .4, { scale: 0 }, { scale: 1, ease: "back.out(3)" }); cue(A(i) + .3, "click.wav", .25);
+  tl.to("#s" + i + " .card .in", { rotationY: 90, duration: .35, ease: "power2.in" }, E(i) - .35);
+});
+function stamp(i, t) { fin("#s" + i + " .stamp span", t, .35, { scale: 2.6, opacity: 0 }, { scale: 1, opacity: 1, ease: "power4.in" }); cue(t + .3, "cut_hit_sub.wav", .5);
+  tl.fromTo("#root", { x: -12 }, { x: 0, duration: .4, ease: "elastic.out(1,.3)", immediateRender: false }, t + .35); }
+[2, 4, 8].forEach(function (i) { fin("#s" + i, A(i), .4, { opacity: 0 }, { opacity: 1 });
+  fin("#s" + i + " .vph", A(i), .6, { y: 200, opacity: 0 }, { y: 0, opacity: 1, ease: "power3.out" }); kb("#s" + i + " .vph img", A(i), S[i][1] + .5, { scale: 1.2 }, { scale: 1.03 });
+  stamp(i, A(i) + .3);
+  document.querySelectorAll("#s" + i + " .chip").forEach(function (c, k) { const t = A(i) + 1.6 + k * Math.max(.5, (S[i][1] - 2.5) / 3); fin(c, t, .4, { scale: 0 }, { scale: 1, ease: "back.out(2.5)" }); cue(t, "pop-bubble.wav", .2); }); });
+document.querySelectorAll("#s2 .bar i").forEach(function (b, k) { fin(b, A(2) + 2 + k * 1.2, .9, { scaleX: 0 }, { scaleX: 1, ease: "power3.out" }); cue(A(2) + 2 + k * 1.2, "sweep-small.wav", .25); });
+document.querySelectorAll("#s2 .bar small").forEach(function (b, k) { fin(b, A(2) + 1.9 + k * 1.2, .4, { opacity: 0 }, { opacity: 1 }); });
+fin("#s6", A(6), .4, { opacity: 0 }, { opacity: 1 }); stamp(6, A(6) + .2);
+fin("#s6 .spi path", A(6) + .4, 2, { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: "power1.inOut" }); cue(A(6) + .4, "swoosh-wind.wav", .25);
+fin("#s6 .spi circle", A(6) + 2.2, .35, { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, stagger: .15, ease: "back.out(3)" });
+tl.to("#s6 .spi circle", { scale: 1.3, duration: .35, yoyo: true, repeat: 5, stagger: .05, transformOrigin: "50% 50%" }, A(6) + 3.4);
+document.querySelectorAll("#s6 .chip").forEach(function (c, k) { fin(c, A(6) + S[6][1] * .6 + k * .5, .4, { scale: 0 }, { scale: 1, ease: "back.out(2.5)" }); });
+fin("#s9", A(9), .5, { opacity: 0 }, { opacity: 1 });
+fin("#s9 h1 .w", A(9) + .3, .6, { opacity: 0, y: 40, filter: "blur(8px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .15, ease: "power3.out" }); cue(A(9) + .3, "bass.wav", .4);
+fin("#s9 .tag", E(9) - 3, .5, { opacity: 0, letterSpacing: ".5em" }, { opacity: 1, letterSpacing: ".12em", ease: "expo.out" }); cue(E(9) - 3, "chime.wav", .3);
+fin("#s9 .br", E(9) - 2.6, .6, { opacity: 0 }, { opacity: .8 });
+"""
+
 if F == "maison":
     T = 21.0
     css = """
@@ -1090,4 +1162,38 @@ fin("#s7 .brand", E(7) - 2.2, .6, { opacity: 0 }, { opacity: .8 });
 """ % (json.dumps(MOUTH), json.dumps(SCH), LEAD) + (CHAR_JS if CH else "")
     if CH: css += CHAR_CSS
     open(os.path.join(D, "index.html"), "w").write(page("Fiers de nos cheveux 1", css, body, js, T, ("m657", 0)))
+elif F == "fiers2":
+    import soundfile as sf, numpy as np
+    VO = json.load(open(os.path.join(R, "vo", "spec.json")))["fiers2"]["vo"]
+    LEAD, TAIL = .25, .35; SCH, t = [], 0.0
+    for i in range(len(VO)):
+        src = os.path.join(R, "vo", f"fiers2_{i}.wav"); shutil.copy(src, os.path.join(D, f"fiers2_{i}.wav"))
+        d = sf.info(src).duration; dur = LEAD + d + TAIL + (2.6 if i == len(VO) - 1 else 0); SCH.append((round(t, 2), round(dur, 2))); t += dur
+    T = round(t, 2)
+    json.dump([{"t": round(a + LEAD, 2), "file": f"fiers2_{i}.wav"} for i, (a, _) in enumerate(SCH)], open(os.path.join(D, "vo.json"), "w"))
+    MOUTH = []
+    for i in range(len(VO)):
+        a, sr = sf.read(os.path.join(R, "vo", f"fiers2_{i}.wav"), always_2d=True); a = a.mean(1); hop = sr // 15
+        env = np.array([np.sqrt(np.mean(a[k:k + hop] ** 2)) for k in range(0, len(a) - hop, hop)]); env = np.clip(env / (np.percentile(env, 95) + 1e-9), 0, 1)
+        MOUTH += [[round(SCH[i][0] + LEAD + k / 15, 3), round(float(v), 2)] for k, v in enumerate(env)]
+    subt = lambda x: x.replace("Kadyo", "Kadio").replace("loks", "locks")
+    css = CHAR_CSS + F2_CSS
+    Q = {1: ("Mythe n°1", "« Les cheveux afro sont sales. »"), 3: ("Mythe n°2", "« Les locks, ce sont des cheveux pas lavés. »"),
+         5: ("Mythe n°3", "« Le cheveu crépu est fragile. »"), 7: ("Mythe n°4", "« Couper court, c'est plus pro. »")}
+    spath = "M400 880 " + " ".join(f"Q{400 + (300 if k % 2 else -300) * (1 - k / 16):.0f} {880 - k * 60 - 30} 400 {880 - (k + 1) * 60}" for k in range(13))
+    weak = "".join(f'<circle cx="{400 + (300 if k % 2 else -300) * (1 - k / 16) * .5:.0f}" cy="{880 - k * 60 - 30}" r="22"/>' for k in range(1, 12, 2))
+    sc = ['<div id="s0" class="sc"><div class="ttl"><span class="pill m">MYTHE</span><span class="ou">ou</span><span class="pill v">VÉRITÉ ?</span><small>Les cheveux afro</small></div></div>']
+    for i in (1, 3, 5, 7):
+        sc.append(f'<div id="s{i}" class="sc"><div class="dots">' + "<i></i>" * 4 + f'</div><div class="card"><div class="in"><small>{Q[i][0]}</small><b>{sp(Q[i][1])}</b><span class="qm">?</span></div></div></div>')
+    sc.append('<div id="s2" class="sc"><div class="vph"><img src="photos/l2.jpg"></div><div class="stamp f"><span>FAUX</span></div>'
+              '<div class="bars"><div class="bar"><small>Besoin d\'hydratation</small><i style="width:100%"></i></div><div class="bar lo"><small>Sébum qui descend</small><i style="width:35%"></i></div></div></div>')
+    sc.append('<div id="s4" class="sc"><div class="vph"><img src="photos/h_locks.jpg"></div><div class="stamp f"><span>FAUX</span></div><div class="chips"><span class="chip">1 · Lavées</span><span class="chip">2 · Séchées</span><span class="chip">3 · Retwist</span></div></div>')
+    sc.append(f'<div id="s6" class="sc"><div class="stamp t" style="top:120px"><span>VRAI</span></div><svg class="spi" viewBox="0 0 800 900"><path d="{spath}" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/>{weak}</svg><div class="chips" style="top:1200px"><span class="chip">Douceur</span><span class="chip">Bonnes mains</span></div></div>')
+    sc.append('<div id="s8" class="sc"><div class="vph"><img src="photos/l3.jpg"></div><div class="stamp f"><span>FAUX</span></div><div class="chips"><span class="chip">Ton travail</span><span class="chip">Ton attitude</span><span class="chip x">La texture</span></div></div>')
+    sc.append(f'<div id="s9" class="sc"><div class="end"><h1>{sp("Ton cheveu")}<br>{sp("n’a rien")}<br><em>{sp("à corriger.")}</em></h1><div class="tag">#FiersDeNosCheveux</div><div class="br">Kadio Coiffure · Longueuil</div></div></div>')
+    subs = "".join(f'<div class="sub" id="u{i}"><span>{e(subt(v))}</span></div>' for i, v in enumerate(VO))
+    body = "".join(sc) + subs + '<div class="layer vig"></div>' + CHAR_SVG
+    js = ("const MOUTH = " + json.dumps(MOUTH) + ";\nconst S = " + json.dumps(SCH) + ", L = " + str(LEAD) + ";\n" + F2_JS
+          + CHAR_JS.replace("if (i === 2 || i === 3 || i === 6)", "if (i === 2 || i === 4 || i === 6 || i === 8)"))
+    open(os.path.join(D, "index.html"), "w").write(page("Fiers de nos cheveux 2", css, body, js, T, ("m1000", 30)))
 print(F, "ok")
