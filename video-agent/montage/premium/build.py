@@ -71,6 +71,54 @@ window.__cues = CUES; window.__timelines = window.__timelines || {{}}; window.__
 </script></body></html>"""
 
 # =====================================================================
+# ---------- Personnage « Kadi » (original) ----------
+CHAR_CSS = """
+#kadi { position: absolute; right: 10px; bottom: -10px; width: 420px; height: 546px; z-index: 40; transform-origin: 50% 100%; }
+#kadi svg { width: 100%; height: 100%; overflow: visible; }
+.sub { right: 420px !important; left: 40px !important; text-align: left !important; top: 1560px !important; }
+"""
+CHAR_SVG = """
+<div id="kadi"><svg viewBox="0 0 400 520">
+ <g id="kbody">
+  <path d="M60 520 C60 430 110 395 200 395 C290 395 340 430 340 520 Z" fill="#d9b26f"/>
+  <path d="M150 400 Q200 440 250 400" fill="none" stroke="#b8893f" stroke-width="10" stroke-linecap="round"/>
+  <text x="200" y="490" text-anchor="middle" font-family="Outfit" font-weight="900" font-size="46" fill="#15120f">K</text>
+ </g>
+ <g id="karm"><path d="M318 470 C350 430 360 380 352 330" fill="none" stroke="#d9b26f" stroke-width="40" stroke-linecap="round"/>
+  <circle cx="352" cy="318" r="26" fill="#7a4a2e"/><rect x="345" y="262" width="15" height="44" rx="7" fill="#7a4a2e"/></g>
+ <g id="khead">
+  <rect x="178" y="330" width="44" height="70" rx="18" fill="#6e4229"/>
+  <g fill="#1d1511">
+   <circle cx="200" cy="150" r="128"/><circle cx="96" cy="190" r="70"/><circle cx="304" cy="190" r="70"/>
+   <circle cx="120" cy="100" r="66"/><circle cx="280" cy="100" r="66"/><circle cx="200" cy="58" r="66"/>
+   <circle cx="88" cy="258" r="46"/><circle cx="312" cy="258" r="46"/>
+  </g>
+  <g fill="#3a2a20" opacity=".55"><circle cx="150" cy="70" r="10"/><circle cx="260" cy="80" r="8"/><circle cx="96" cy="160" r="9"/><circle cx="310" cy="150" r="10"/><circle cx="210" cy="40" r="7"/><circle cx="70" cy="230" r="7"/><circle cx="330" cy="230" r="8"/></g>
+  <circle cx="112" cy="240" r="24" fill="#7a4a2e"/><circle cx="288" cy="240" r="24" fill="#7a4a2e"/>
+  <ellipse cx="200" cy="245" rx="92" ry="104" fill="#8a5636"/>
+  <path d="M112 190 Q200 150 288 190 L288 175 Q200 132 112 175 Z" fill="#1d1511"/>
+  <g id="kbrows" fill="none" stroke="#1d1511" stroke-width="9" stroke-linecap="round"><path d="M140 202 Q160 190 180 200"/><path d="M220 200 Q240 190 260 202"/></g>
+  <g id="keyes"><ellipse cx="162" cy="232" rx="17" ry="20" fill="#fff"/><ellipse cx="238" cy="232" rx="17" ry="20" fill="#fff"/>
+   <circle cx="165" cy="235" r="10" fill="#1d1511"/><circle cx="241" cy="235" r="10" fill="#1d1511"/><circle cx="169" cy="230" r="3.5" fill="#fff"/><circle cx="245" cy="230" r="3.5" fill="#fff"/></g>
+  <g id="klids" fill="#8a5636"><rect x="140" y="208" width="44" height="0" /><rect x="216" y="208" width="44" height="0"/></g>
+  <path d="M196 248 Q186 280 200 284 Q212 286 208 270" fill="none" stroke="#5e3520" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="140" cy="285" r="15" fill="#c7704f" opacity=".35"/><circle cx="260" cy="285" r="15" fill="#c7704f" opacity=".35"/>
+  <path id="ksmile" d="M170 305 Q200 325 230 305" fill="none" stroke="#4a1f14" stroke-width="7" stroke-linecap="round"/>
+  <g id="kmouth" transform="translate(200 312)"><ellipse rx="26" ry="20" fill="#3d1410"/><ellipse cy="10" rx="15" ry="8" fill="#d9605a"/><rect x="-18" y="-20" width="36" height="8" rx="3" fill="#fff"/></g>
+ </g>
+</svg></div>"""
+CHAR_JS = """
+// Kadi : entrée, bouche, clignements, mouvements
+fin("#kadi", .3, .7, { y: 560 }, { y: 0, ease: "back.out(1.4)" }); cue(.3, "pop-long.wav", .2);
+tl.set("#kmouth", { scaleY: 0.05, scaleX: .8, transformOrigin: "50% 0%" }, 0); tl.set("#ksmile", { opacity: 1 }, 0);
+MOUTH.forEach(function (m) { const v = m[1]; tl.set("#kmouth", { scaleY: v < .12 ? .05 : .25 + v * .9, scaleX: .75 + v * .3 }, m[0]); tl.set("#ksmile", { opacity: v < .12 ? 1 : 0 }, m[0]); });
+for (let t = 1.7; t < T; t += 3.1 + ((t * 7) % 1.3)) { tl.to("#klids rect", { attr: { height: 48 }, duration: .07 }, t); tl.to("#klids rect", { attr: { height: 0 }, duration: .09 }, t + .1); }
+for (let t = .9; t < T; t += 1.6) tl.to("#khead", { rotate: ((t * 13) % 2 ? 2.5 : -2.5), y: -4, duration: .8, ease: "sine.inOut", transformOrigin: "50% 80%" }, t);
+tl.set("#karm", { rotate: 50, transformOrigin: "318px 470px" }, 0);
+S.forEach(function (s, i) { if (i === 2 || i === 3 || i === 6) { tl.to("#karm", { rotate: 0, duration: .4, ease: "back.out(2)" }, s[0] + .2); tl.to("#karm", { rotate: 8, duration: .3, yoyo: true, repeat: 3, ease: "sine.inOut" }, s[0] + .7); tl.to("#karm", { rotate: 50, duration: .4, ease: "power2.in" }, s[0] + s[1] - .6); } });
+S.forEach(function (s, i) { if (i === 0 || i === 1) { tl.to("#kbrows", { y: -10, duration: .2 }, s[0] + .4); tl.to("#kbrows", { y: 0, duration: .3 }, s[0] + 1.6); } });
+"""
+
 if F == "maison":
     T = 21.0
     css = """
@@ -929,7 +977,8 @@ fin("#s5 .tag", 29.0, .5, { opacity: 0, letterSpacing: ".5em" }, { opacity: 1, l
 fin("#s5 .brand", 29.4, .6, { opacity: 0 }, { opacity: .8 });
 """ % ()
     open(os.path.join(D, "index.html"), "w").write(page("Fiers de nos cheveux 1", css, body, js, T, ("m657", 0)))
-elif F == "fiers1v":
+elif F in ("fiers1v", "fiers1c"):
+    CH = F == "fiers1c"
     import soundfile as sf
     VO = json.load(open(os.path.join(R, "vo", "spec.json")))["fiers1"]["vo"]
     LEAD, TAIL = .25, .35; SCH, t = [], 0.0
@@ -962,7 +1011,7 @@ elif F == "fiers1v":
 .spiral path { fill: none; stroke: var(--gold); stroke-width: 16; stroke-linecap: round; }
 .drop { position: absolute; width: 46px; height: 60px; background: #f4ece0; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; }
 .eq { position: absolute; left: 0; right: 0; top: 1300px; text-align: center; font: 900 92px Outfit; }
-.eq span { color: var(--red); } .eq b { color: var(--gold); }
+.eq .neq { color: var(--red); } .eq b { color: var(--gold); }
 .sub { position: absolute; left: 70px; right: 70px; top: 1610px; text-align: center; visibility: hidden; z-index: 30; }
 .sub span { display: inline; padding: 8px 16px; line-height: 1.5; background: rgba(0,0,0,.66); color: #fff; font: 700 40px Outfit; border-radius: 12px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
 .tag { position: absolute; left: 0; right: 0; top: 1380px; text-align: center; font: 900 46px Outfit; letter-spacing: .12em; color: var(--gold); }
@@ -981,7 +1030,7 @@ elif F == "fiers1v":
 <div id="s3" class="sc"><div class="key" style="top:200px;font-size:80px">{sp("Il pousse en spirale")}</div>
  <svg class="spiral" viewBox="0 0 600 760"><path d="{spiral}" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg>
  <i class="drop d1" style="left:520px;top:450px"></i><i class="drop d2" style="left:560px;top:500px"></i>
- <div class="eq">{sp("Plus sec")} <span>≠</span> <b>{sp("plus sale")}</b></div></div>
+ <div class="eq">{sp("Plus sec")} <span class="neq">≠</span> <b>{sp("plus sale")}</b></div></div>
 <div id="s4" class="sc">{grid}</div>
 <div id="s5" class="sc"><div class="pic" style="inset:0;border-radius:0"><img src="photos/h_locks.jpg"></div><div class="layer" style="background:rgba(0,0,0,.45)"></div>
  <div class="chips"><span class="chip">Lavées</span><span class="chip">Entretenues</span><span class="chip">Des heures de précision</span></div></div>
@@ -991,8 +1040,17 @@ elif F == "fiers1v":
  <div class="big" style="top:760px;font-size:150px;font-style:italic;line-height:1.02"><span class="gold">{sp("Ce sont")}<br>{sp("nos racines.")}</span></div>
  <div class="tag">#FiersDeNosCheveux</div><div class="brand">Kadio Coiffure · Longueuil</div></div>
 {"".join(f'<div class="sub" id="u{i}"><span>{e(subt(v))}</span></div>' for i, v in enumerate(VO))}
-<div class="layer vig"></div>"""
+<div class="layer vig"></div>""" + (CHAR_SVG if CH else "")
+    MOUTH = []
+    if CH:
+        import numpy as np
+        for i in range(len(VO)):
+            a, sr = sf.read(os.path.join(R, "vo", f"fiers1_{i}.wav"), always_2d=True); a = a.mean(1); hop = sr // 15
+            env = np.array([np.sqrt(np.mean(a[k:k + hop] ** 2)) for k in range(0, len(a) - hop, hop)])
+            env = np.clip(env / (np.percentile(env, 95) + 1e-9), 0, 1)
+            for k, v in enumerate(env): MOUTH.append([round(SCH[i][0] + LEAD + k / 15, 3), round(float(v), 2)])
     js = """
+const MOUTH = %s;
 const S = %s, L = %s;
 const A = (i) => S[i][0], E = (i) => S[i][0] + S[i][1];
 S.forEach(function (s, i) { show("#s" + i, s[0], i === S.length - 1 ? null : s[0] + s[1]); if (i) fin("#s" + i, s[0], .45, { opacity: 0 }, { opacity: 1, ease: "sine.inOut" }); show("#u" + i, s[0] + L, s[0] + s[1] - .05); fin("#u" + i, s[0] + L, .25, { opacity: 0 }, { opacity: 1 }); });
@@ -1012,7 +1070,7 @@ fin("#s2 .key .w", A(2) + .6, .6, { opacity: 0, y: 30, filter: "blur(8px)" }, { 
 fin("#s3 .key .w", A(3) + .2, .5, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .08 });
 fin("#s3 .spiral path", A(3) + .4, Math.min(3, S[3][1] * .45), { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: "power1.inOut" }); cue(A(3) + .4, "swoosh-wind.wav", .25);
 [".d1", ".d2"].forEach(function (d, k) { fin("#s3 " + d, A(3) + 1.2 + k * .5, 1.6, { y: -40, opacity: 0 }, { y: 140, opacity: 1, ease: "power2.in" }); tl.to("#s3 " + d, { opacity: 0, duration: .4 }, A(3) + 3 + k * .5); });
-fin("#s3 .eq .w, #s3 .eq span", A(3) + S[3][1] * .55, .5, { opacity: 0, scale: .6 }, { opacity: 1, scale: 1, stagger: .15, ease: "back.out(2)" }); cue(A(3) + S[3][1] * .55, "pop-hard.wav", .3);
+fin("#s3 .eq .w, #s3 .eq .neq", A(3) + S[3][1] * .55, .5, { opacity: 0, scale: .6 }, { opacity: 1, scale: 1, stagger: .15, ease: "back.out(2)" }); cue(A(3) + S[3][1] * .55, "pop-hard.wav", .3);
 // 4 : textures
 document.querySelectorAll("#s4 .g").forEach(function (g, k) { const t = A(4) + .1 + k * .2;
   fin(g, t, .5, { scale: 0, rotate: k %% 2 ? 6 : -6 }, { scale: 1, rotate: 0, ease: "back.out(1.6)" }); cue(t, "pop-bubble.wav", .12);
@@ -1029,6 +1087,7 @@ fin("#s7 .q .w", A(7) + .2, .5, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagg
 fin("#s7 .big .ch", A(7) + S[7][1] * .35, .6, { opacity: 0, y: 50, filter: "blur(8px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .04, ease: "power3.out" }); cue(A(7) + S[7][1] * .35, "bass.wav", .4);
 fin("#s7 .tag", E(7) - 2.6, .5, { opacity: 0, letterSpacing: ".5em" }, { opacity: 1, letterSpacing: ".12em", ease: "expo.out" }); cue(E(7) - 2.6, "chime.wav", .3);
 fin("#s7 .brand", E(7) - 2.2, .6, { opacity: 0 }, { opacity: .8 });
-""" % (json.dumps(SCH), LEAD)
+""" % (json.dumps(MOUTH), json.dumps(SCH), LEAD) + (CHAR_JS if CH else "")
+    if CH: css += CHAR_CSS
     open(os.path.join(D, "index.html"), "w").write(page("Fiers de nos cheveux 1", css, body, js, T, ("m657", 0)))
 print(F, "ok")
