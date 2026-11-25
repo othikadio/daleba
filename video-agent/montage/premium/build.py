@@ -23,6 +23,9 @@ CSS = """
 @font-face { font-family: Corm; src: url(fonts/cormorant-garamond-latin-600-normal.woff2); font-weight: 600; }
 @font-face { font-family: Corm; src: url(fonts/cormorant-garamond-latin-300-italic.woff2); font-weight: 300; font-style: italic; }
 @font-face { font-family: Corm; src: url(fonts/cormorant-garamond-latin-500-italic.woff2); font-weight: 500; font-style: italic; }
+@font-face { font-family: Outfit; src: url(fonts/outfit-latin-300-normal.woff2); font-weight: 300 500; }
+@font-face { font-family: Outfit; src: url(fonts/outfit-latin-700-normal.woff2); font-weight: 600 800; }
+@font-face { font-family: Outfit; src: url(fonts/outfit-latin-900-normal.woff2); font-weight: 900; }
 @font-face { font-family: Vibes; src: url(fonts/great-vibes-latin-400-normal.woff2); }
 @font-face { font-family: Bodoni; src: url(fonts/bodoni-moda-latin-400-normal.woff2); font-weight: 400; }
 @font-face { font-family: Bodoni; src: url(fonts/bodoni-moda-latin-700-normal.woff2); font-weight: 700; }
@@ -691,4 +694,157 @@ fin("#endp h1 .ch", TE + .5, .7, { opacity: 0, y: 60 }, { opacity: 1, y: 0, stag
 fin("#endp .r", TE + 1.3, .7, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" }); fin("#endp p", TE + 1.5, .6, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .2 }); cue(TE + 1.7, "chime.wav", .3);
 """ % (C0, LD, len(AV), TE)
     open(os.path.join(D, "index.html"), "w").write(page("Avis clients Kadio", css, body, js, T, ("m657", 60)))
+elif F in ("ligne", "mosaique"):
+    PAL = ["#ff6b57", "#19b3a6", "#f4b43c", "#7a5cff", "#8fcb3e"]
+    FOC = {"l1": (.80, .35), "l2": (.30, .26), "l3": (.34, .38), "l4": (.73, .50), "l5": (.45, .41)}
+    BASE = """
+:root { --bg: #f6f1ea; --ink: #15120f; }
+#root { background: var(--bg); color: var(--ink); }
+.ink { font-family: Outfit; }
+#endp { position: absolute; inset: 0; background: var(--ink); color: #f6f1ea; visibility: hidden; z-index: 90; }
+.et { position: absolute; left: 70px; right: 70px; top: 420px; text-align: center; }
+.et small { display: block; font: 900 30px Outfit; letter-spacing: .5em; text-indent: .5em; text-transform: uppercase; color: #f4b43c; }
+.et h1 { margin-top: 30px; font: 900 128px/.95 Outfit; letter-spacing: -.02em; }
+.et h1 em { font-style: normal; color: #ff6b57; }
+.chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; margin: 60px 0 50px; }
+.chip { padding: 18px 34px; border-radius: 999px; font: 800 40px Outfit; color: #15120f; }
+.et p { font: 500 42px/1.5 Outfit; }
+.et .site { margin-top: 20px; font: 900 34px Outfit; letter-spacing: .3em; color: #19b3a6; }
+"""
+    CHIPS = [("Coupe 50 $", PAL[2]), ("Coupe + barbe 60 $", PAL[0]), ("Contours 30 $", PAL[1]), ("Club Kadio 19,99 $/mois", PAL[3])]
+    END = f"""<div id="endp"><div class="et"><small>Kadio Coiffure · Barbier</small><h1>{sp("Ta ligne,")}<br><em>{sp("notre signature.")}</em></h1>
+<div class="chips">{"".join(f'<span class="chip" style="background:{c}">{e(t)}</span>' for t, c in CHIPS)}</div>
+<p>615, Antoinette-Robidoux · Longueuil<br>514 919-5970</p><p class="site">KADIOCOIFFURE.COM</p></div></div>"""
+    END_JS = """
+show("#endp", TE, null); fin("#endp", TE, .6, { clipPath: "circle(0% at 50% 50%)" }, { clipPath: "circle(150% at 50% 50%)", ease: "power3.inOut" }); cue(TE, "whoosh-cine.wav", .4);
+fin("#endp small", TE + .4, .6, { opacity: 0, letterSpacing: "1.2em" }, { opacity: 1, letterSpacing: ".5em", ease: "expo.out" });
+fin("#endp h1 .ch", TE + .5, .5, { opacity: 0, y: 80, rotate: 8 }, { opacity: 1, y: 0, rotate: 0, stagger: .025, ease: "back.out(2)" }); cue(TE + .5, "bass.wav", .4);
+fin("#endp .chip", TE + 1.3, .45, { scale: 0, rotate: -10 }, { scale: 1, rotate: 0, stagger: .14, ease: "back.out(2.5)" });
+for (let k = 0; k < 4; k++) cue(TE + 1.3 + k * .14, "pop-bubble.wav", .25);
+fin("#endp p", TE + 2.0, .5, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .15 }); cue(TE + 2.2, "notif-positive.wav", .3);
+"""
+    def fpos(img, fw, fh, fx0, fy0):
+        W, H = Image.open(os.path.join(R, "photos", img + ".jpg")).size
+        sc = max(fw / W, fh / H); dw, dh = W * sc, H * sc; ox, oy = fx0 + (fw - dw) / 2, fy0 + (fh - dh) / 2
+        cx, cy = FOC[img]; return ox + cx * dw, oy + cy * dh
+
+    if F == "ligne":
+        SL = [("l1", "Net."), ("l2", "Précis."), ("l3", "Tracé."), ("l4", "Sculpté."), ("l5", "Signé.")]
+        C0, LD = 2.8, 2.6; TE = round(C0 + LD * len(SL), 2); T = round(TE + 4.6, 2)
+        css = BASE + """
+.cbg { position: absolute; inset: 0; visibility: hidden; }
+.card { position: absolute; left: 70px; top: 260px; width: 940px; height: 1150px; border-radius: 48px; overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,.25); }
+.card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 50%; }
+.card .bw { filter: grayscale(1) contrast(1.1) brightness(1.05); }
+.card .col { filter: saturate(1.15) contrast(1.05); }
+.ring { position: absolute; width: 300px; height: 300px; margin: -150px 0 0 -150px; z-index: 5; overflow: visible; }
+.ring circle { fill: none; stroke: #fff; stroke-width: 10; stroke-linecap: round; filter: drop-shadow(0 0 14px rgba(255,255,255,.9)); }
+.word { position: absolute; left: 70px; right: 70px; top: 1460px; font: 900 210px/1 Outfit; letter-spacing: -.04em; color: #fff; white-space: nowrap; }
+.num { position: absolute; right: 80px; top: 150px; font: 900 60px Outfit; color: rgba(255,255,255,.9); }
+.lab { position: absolute; left: 80px; top: 160px; font: 800 34px Outfit; letter-spacing: .35em; color: rgba(255,255,255,.95); text-transform: uppercase; }
+.dot { position: absolute; border-radius: 50%; background: rgba(255,255,255,.25); }
+#intro { position: absolute; inset: 0; }
+#intro h1 { position: absolute; left: 70px; right: 70px; top: 640px; font: 900 190px/.92 Outfit; letter-spacing: -.04em; }
+#intro h1 em { font-style: normal; color: #ff6b57; }
+#intro small { position: absolute; left: 76px; top: 560px; font: 800 32px Outfit; letter-spacing: .45em; text-transform: uppercase; color: #19b3a6; }
+#intro svg { position: absolute; left: 70px; top: 1140px; width: 940px; height: 260px; overflow: visible; }
+#intro path { fill: none; stroke: #15120f; stroke-width: 14; stroke-linecap: round; stroke-linejoin: round; }
+"""
+        slides = ""
+        for i, (img, w) in enumerate(SL):
+            X, Y = fpos(img, 940, 1150, 0, 0)
+            slides += f"""<div id="s{i}" class="cbg" style="background:{PAL[i]}"><i class="dot" style="width:520px;height:520px;left:{-180 + i * 90}px;top:{1300 - i * 120}px"></i><i class="dot" style="width:260px;height:260px;left:{760 - i * 40}px;top:{90 + i * 30}px"></i>
+<div class="lab">La ligne Kadio</div><div class="num">0{i + 1}</div>
+<div class="card"><img class="bw" src="photos/{img}.jpg" style="object-position:{FOC[img][0] * 100:.0f}% {FOC[img][1] * 100:.0f}%"><img class="col" src="photos/{img}.jpg" style="object-position:{FOC[img][0] * 100:.0f}% {FOC[img][1] * 100:.0f}%">
+<svg class="ring" viewBox="0 0 300 300" style="left:{X:.0f}px;top:{Y:.0f}px"><circle cx="150" cy="150" r="120" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg></div>
+<div class="word">{sp(w)}</div></div>"""
+        body = f"""<div id="intro"><small>Barbier · Kadio</small><h1>{sp("La ligne")}<br><em>{sp("Kadio.")}</em></h1>
+<svg viewBox="0 0 940 260"><path d="M10 40 L330 40 L330 150 L620 150 L620 230 L930 230" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg></div>
+{slides}{END}"""
+        js = """
+const C0 = %s, LD = %s, N = %d, TE = %s;
+fin("#intro small", .2, .6, { opacity: 0, x: -40 }, { opacity: 1, x: 0, ease: "expo.out" });
+fin("#intro h1 .ch", .35, .5, { opacity: 0, y: 120, rotate: 10 }, { opacity: 1, y: 0, rotate: 0, stagger: .04, ease: "back.out(2)" }); cue(.35, "bass.wav", .4);
+fin("#intro path", 1.2, 1.1, { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: "power2.inOut" }); cue(1.2, "swoosh-wind.wav", .3);
+for (let i = 0; i < N; i++) {
+  const t = C0 + i * LD, s = "#s" + i;
+  show(s, t, null); tl.set(s, { zIndex: 10 + i }, 0);
+  fin(s, t, .5, { clipPath: "inset(0%% 0%% 100%% 0%%)" }, { clipPath: "inset(0%% 0%% 0%% 0%%)", ease: "power4.inOut" }); cue(t, i %% 2 ? "whoosh-fast.wav" : "woosh-air.wav", .4);
+  fin(s + " .card", t + .15, .7, { y: 400, rotate: i %% 2 ? 6 : -6, scale: .85 }, { y: 0, rotate: 0, scale: 1, ease: "back.out(1.4)" });
+  kb(s + " .card img", t + .2, LD + .6, { scale: 1.25 }, { scale: 1.05 });
+  fin(s + " .col", t + .8, .6, { clipPath: "inset(0%% 100%% 0%% 0%%)" }, { clipPath: "inset(0%% 0%% 0%% 0%%)", ease: "power2.inOut" }); cue(t + .8, "sweep-small.wav", .3);
+  fin(s + " .ring circle", t + 1.2, .6, { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: "power2.out" });
+  fin(s + " .ring", t + 1.2, .6, { scale: .6, rotate: -90 }, { scale: 1, rotate: 0, ease: "back.out(2)" }); cue(t + 1.2, "click.wav", .35);
+  tl.to(s + " .ring", { scale: 1.08, duration: .3, yoyo: true, repeat: 1, ease: "sine.inOut" }, t + 1.9);
+  fin(s + " .word .ch", t + .55, .45, { opacity: 0, y: 160, rotate: 12 }, { opacity: 1, y: 0, rotate: 0, stagger: .035, ease: "back.out(2.2)" }); cue(t + .55, "pop-hard.wav", .25);
+  fin(s + " .num", t + .4, .5, { opacity: 0, scale: 2 }, { opacity: 1, scale: 1, ease: "power4.out" });
+  tl.to(s + " .dot", { y: -80, x: 40, duration: LD + .5, ease: "none" }, t);
+}
+""" % (C0, LD, len(SL), TE) + END_JS
+        open(os.path.join(D, "index.html"), "w").write(page("La Ligne Kadio", css, body, js, T, ("m1000", 20)))
+    else:
+        TILES = [("l1", "Barbe sculptée", None), ("c1", "Dégradé", ("Coupe", "50 $")), ("l2", "Ligne au rasoir", None),
+                 ("l3", "Locks + dégradé", None), ("c2", "Contour", ("Coupe + barbe", "60 $")), ("l4", "Contour net", None)]
+        TC = {"c1": PAL[0], "c2": PAL[1]}
+        G = [(50, 230), (550, 230), (50, 790), (550, 790), (50, 1350), (550, 1350)]
+        L0 = [(x, y, 480, 540) for x, y in G]
+        photos = [i for i, t in enumerate(TILES) if not t[0].startswith("c")]
+        def focus_layout(fi):
+            out = [None] * len(TILES); out[fi] = (50, 230, 980, 1220); k = 0; w = (980 - 4 * 20) / 5
+            for i in range(len(TILES)):
+                if i == fi: continue
+                out[i] = (50 + k * (w + 20), 1470, w, 400); k += 1
+            return out
+        C0 = 2.6; FD = 2.2; FS = [C0 + 1.6 + j * FD for j in range(len(photos))]; TB = FS[-1] + FD; TE = round(TB + 2.6, 2); T = round(TE + 4.6, 2)
+        LAY = {"L0": L0, "F": {str(fi): focus_layout(fi) for fi in photos}}
+        css = BASE + """
+.tile { position: absolute; overflow: hidden; border-radius: 36px; visibility: hidden; }
+.tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.tag { position: absolute; left: 24px; bottom: 24px; padding: 14px 26px; border-radius: 999px; background: #fff; font: 800 38px Outfit; color: #15120f; white-space: nowrap; }
+.ctile { display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; text-align: center; }
+.ctile b { font: 900 76px/1 Outfit; letter-spacing: -.02em; }
+.ctile .pa, .ctile .pb { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+.ctile .pb small { font: 800 40px Outfit; } .ctile .pb b { font-size: 120px; }
+.head { position: absolute; left: 50px; right: 50px; top: 80px; display: flex; justify-content: space-between; align-items: center; font: 900 40px Outfit; letter-spacing: .3em; visibility: hidden; }
+.head span { color: #19b3a6; }
+#intro { position: absolute; inset: 0; z-index: 50; }
+.blk { position: absolute; left: 50px; right: 50px; height: 300px; border-radius: 40px; display: flex; align-items: center; justify-content: center; font: 900 170px/1 Outfit; letter-spacing: -.03em; color: #fff; }
+"""
+        tiles = ""
+        for i, (k, lab, pr) in enumerate(TILES):
+            if k.startswith("c"):
+                tiles += f'<div id="t{i}" class="tile ctile" style="background:{TC[k]}"><div class="pa"><b>{e(lab)}</b></div><div class="pb"><small>{e(pr[0])}</small><b>{e(pr[1])}</b></div></div>'
+            else:
+                fx, fy = FOC[k]
+                tiles += f'<div id="t{i}" class="tile"><img src="photos/{k}.jpg" style="object-position:{fx * 100:.0f}% {fy * 100:.0f}%"><div class="tag">{e(lab)}</div></div>'
+        body = f"""<div class="head" id="head"><span>KADIO</span>BARBIER</div>{tiles}
+<div id="intro"><div class="blk" style="top:420px;background:{PAL[0]}">{sp("PROPRE.")}</div><div class="blk" style="top:810px;background:{PAL[1]}">{sp("PRÉCIS.")}</div><div class="blk" style="top:1200px;background:{PAL[2]};color:#15120f">{sp("KADIO.")}</div></div>
+{END}"""
+        js = """
+const C0 = %s, FS = %s, TB = %s, TE = %s, LAY = %s, PH = %s, N = %d, FS_D = FS[1] - FS[0];
+// intro : 3 blocs de couleur
+document.querySelectorAll("#intro .blk").forEach(function (b, k) { fin(b, .15 + k * .35, .5, { xPercent: k %% 2 ? 110 : -110 }, { xPercent: 0, ease: "power4.out" }); cue(.15 + k * .35, "whoosh-fast.wav", .3);
+  fin(b.querySelectorAll(".ch"), .35 + k * .35, .4, { opacity: 0, y: 60 }, { opacity: 1, y: 0, stagger: .03, ease: "back.out(2)" }); });
+cue(1.4, "bass.wav", .4);
+document.querySelectorAll("#intro .blk").forEach(function (b, k) { tl.to(b, { xPercent: k %% 2 ? -110 : 110, duration: .45, ease: "power4.in" }, C0 - .5 + k * .06); });
+show("#head", C0, null); fin("#head", C0, .5, { opacity: 0, y: -30 }, { opacity: 1, y: 0 });
+function place(i, r) { return { left: r[0], top: r[1], width: r[2], height: r[3] }; }
+for (let i = 0; i < N; i++) { const r = LAY.L0[i]; tl.set("#t" + i, place(i, r), 0); show("#t" + i, C0, null);
+  fin("#t" + i, C0 + i * .1, .55, { scale: 0, rotate: i %% 2 ? 8 : -8 }, { scale: 1, rotate: 0, ease: "back.out(1.8)" }); cue(C0 + i * .1, "pop-bubble.wav", .2); }
+PH.forEach(function (fi, j) {
+  const t = FS[j], L = LAY.F[String(fi)];
+  for (let i = 0; i < N; i++) tl.to("#t" + i, Object.assign(place(i, L[i]), { duration: .6, ease: "power3.inOut" }), t);
+  cue(t, "sweep-small.wav", .35);
+  fin("#t" + fi + " .tag", t + .5, .45, { opacity: 0, y: 30, scale: .8 }, { opacity: 1, y: 0, scale: 1, ease: "back.out(2.5)" }); cue(t + .5, "click.wav", .3);
+  tl.fromTo("#t" + fi + " img", { scale: 1.15 }, { scale: 1.02, duration: 1.9, ease: "none", immediateRender: false }, t);
+  tl.to("#t" + fi + " .tag", { opacity: 0, duration: .2 }, t + FS_D - .1);
+});
+tl.to(".ctile .pa", { opacity: 0, duration: .25 }, FS[0]); tl.to(".ctile .pa", { opacity: 1, duration: .3 }, TB + .3);
+for (let i = 0; i < N; i++) tl.to("#t" + i, Object.assign(place(i, LAY.L0[i]), { duration: .6, ease: "power3.inOut" }), TB);
+cue(TB, "whoosh-cine.wav", .35);
+document.querySelectorAll(".ctile").forEach(function (c, k) { const t = TB + .7 + k * .3;
+  tl.to(c.querySelector(".pa"), { yPercent: -100, opacity: 0, duration: .4, ease: "power3.in" }, t);
+  fin(c.querySelector(".pb"), t + .3, .45, { yPercent: 100, opacity: 0 }, { yPercent: 0, opacity: 1, ease: "back.out(2)" }); cue(t + .3, "notif-positive.wav", .25); });
+""" % (C0, json.dumps(FS), TB, TE, json.dumps(LAY), json.dumps(photos), len(TILES)) + END_JS
+        open(os.path.join(D, "index.html"), "w").write(page("Mosaïque Barbier", css, body, js, T, ("m623", 60)))
 print(F, "ok")
