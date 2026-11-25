@@ -1287,4 +1287,142 @@ fin(".kb", .3, 1, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, ease: "power
 """ + CHAR_JS.split("// Kadi : entrée, bouche, clignements, mouvements")[1].replace('fin("#kadi", .3, .7, { y: 560 }, { y: 0, ease: "back.out(1.4)" }); cue(.3, "pop-long.wav", .2);', "")
           .replace("if (i === 2 || i === 3 || i === 6)", "if (i === 2 || i === 4 || i === 6 || i === 8)"))
     open(os.path.join(D, "index.html"), "w").write(page("Mythe ou vérité", css, body, js, T, ("m657", 20)))
+elif F in ("papier1", "papier2"):
+    import soundfile as sf, numpy as np, random, re as _re
+    KEY = "fiers1" if F == "papier1" else "fiers2"
+    VO = json.load(open(os.path.join(R, "vo", "spec.json")))[KEY]["vo"]
+    LEAD, TAIL = .3, .45; SCH, t = [], 0.0
+    for i in range(len(VO)):
+        src = os.path.join(R, "vo", f"{KEY}_{i}.wav"); shutil.copy(src, os.path.join(D, f"{KEY}_{i}.wav"))
+        d = sf.info(src).duration; dur = LEAD + d + TAIL + (2.8 if i == len(VO) - 1 else 0); SCH.append((round(t, 2), round(dur, 2))); t += dur
+    T = round(t, 2)
+    json.dump([{"t": round(a + LEAD, 2), "file": f"{KEY}_{i}.wav"} for i, (a, _) in enumerate(SCH)], open(os.path.join(D, "vo.json"), "w"))
+    MOUTH = []
+    for i in range(len(VO)):
+        a, sr = sf.read(os.path.join(R, "vo", f"{KEY}_{i}.wav"), always_2d=True); a = a.mean(1); hop = sr // 15
+        env = np.array([np.sqrt(np.mean(a[k:k + hop] ** 2)) for k in range(0, len(a) - hop, hop)]); env = np.clip(env / (np.percentile(env, 95) + 1e-9), 0, 1)
+        MOUTH += [[round(SCH[i][0] + LEAD + k / 15, 3), round(float(v), 2)] for k, v in enumerate(env)]
+    subt = lambda x: x.replace("Kadyo", "Kadio").replace("loks", "locks").replace("vwa-you", "voyou")
+    PAPERS = ["#f7e6c8", "#f9d4bd", "#f1e7b8", "#d6ead2", "#f8d2cb", "#f5deae", "#cfe6e2", "#f7d9c6", "#e6dcf0", "#f7e6c8"]
+    if KEY == "fiers2":
+        SC = [dict(ey="Fiers de nos cheveux · Épisode 2", ti="Mythe *ou vérité ?*", circle=True),
+              dict(ey="Mythe n°1", ti="« Les cheveux afro sont *sales.* »", ph="b10"),
+              dict(ey="Verdict", ti="*Faux.*", ph="l2", note="Plus sec, pas plus sale :<br>le sébum descend mal le long des boucles."),
+              dict(ey="Mythe n°2", ti="« Les locks, des cheveux *pas lavés.* »", ph="l3"),
+              dict(ey="Verdict", ti="*Faux.*", ph="h_locks", note="Lavées, bien séchées,<br>entretenues par un retwist régulier."),
+              dict(ey="Mythe n°3", ti="« Le cheveu crépu est *fragile.* »", ph="bt2"),
+              dict(ey="Verdict", ti="*Vrai.*", spiral=True, note="Chaque courbe est un point fragile :<br>douceur et bonnes mains."),
+              dict(ey="Mythe n°4", ti="« Couper court, c'est *plus pro.* »", ph="l4"),
+              dict(ey="Verdict", ti="*Faux.*", ph="h_nattes", note="Le pro, c'est ton travail et ton attitude.<br>Pas la texture de tes cheveux."),
+              dict(ey="Fiers de nos cheveux", ti="Ton cheveu n'a rien *à corriger.*", end=True)]
+        GEST = [2, 4, 6, 8]
+    else:
+        SC = [dict(ey="Fiers de nos cheveux · Épisode 1", ti="*Propre ?*", note="Les cheveux courts, c'est plus propre ?", circle=True),
+              dict(ey="Ce qu'on entend", strikes=["L'afro ? « Négligé. »", "Les locks ? « Voyou. »", "Les tresses ? « Pas pro. »"]),
+              dict(ey="Pourtant", ti="Pas sale. *Différent.*", ph="b10", note="Il pousse en spirale, vers le ciel."),
+              dict(ey="L'explication", ti="Plus sec ≠ *plus sale.*", spiral=True, note="Le sébum descend mal<br>le long de la mèche."),
+              dict(ey="Ce qu'il lui faut", ti="Eau, huile, temps… *savoir-faire.*", phs=["h_twists", "bt2", "h_nattes"]),
+              dict(ey="Locks et tresses", ti="Lavées. Entretenues. *Précises.*", ph="h_locks"),
+              dict(ey="Alors", ti="Propre, c'est un cheveu *entretenu.*", ph="l3", note="Pas un cheveu caché."),
+              dict(ey="Fiers de nos cheveux", ti="Ce sont *nos racines.*", end=True)]
+        GEST = [2, 3, 6]
+    random.seed(11)
+    def torn(top_only=False, n=34, amp=2.2):
+        top = [f"{k * 100 / n:.1f}% {random.uniform(0, amp):.2f}%" for k in range(n + 1)]
+        if top_only: return "polygon(" + ",".join(top + ["100% 100%", "0% 100%"]) + ")"
+        rgt = [f"{random.uniform(100 - amp, 100):.2f}% {k * 100 / n:.1f}%" for k in range(n + 1)]
+        bot = [f"{k * 100 / n:.1f}% {random.uniform(100 - amp, 100):.2f}%" for k in range(n, -1, -1)]
+        lft = [f"{random.uniform(0, amp):.2f}% {k * 100 / n:.1f}%" for k in range(n, -1, -1)]
+        return "polygon(" + ",".join(top + rgt + bot + lft) + ")"
+    def title(s):
+        out = []
+        for part in _re.split(r"(\*[^*]+\*)", s):
+            if part.startswith("*"): out.append(f'<span class="em"><i class="mk"></i>{sp(part[1:-1])}</span>')
+            elif part: out.append(sp(part.strip()))
+        return " ".join(out)
+    css = """
+#root { background: #f1e6d3; color: #2b1d14; }
+.pg { position: absolute; left: 0; right: 0; top: -40px; bottom: 0; visibility: hidden; box-shadow: 0 -18px 40px rgba(60,35,15,.18); }
+.pg .tex { position: absolute; inset: 0; background: url(grain.png); opacity: .16; mix-blend-mode: multiply; }
+.pg .lt { position: absolute; inset: 0; background: radial-gradient(90% 60% at 25% 20%, rgba(255,255,255,.35), transparent 65%); }
+.ey { position: absolute; left: 90px; top: 190px; font: 800 34px Outfit; letter-spacing: .28em; text-transform: uppercase; color: #b5532b; }
+.ti { position: absolute; left: 90px; right: 90px; top: 250px; font: italic 400 112px/1.04 Bodoni; }
+.ti.big { top: 620px; font-size: 180px; }
+.em { position: relative; display: inline-block; white-space: nowrap; }
+.em .mk { position: absolute; left: -14px; right: -14px; top: 50%; height: 48%; background: #f2b33d; opacity: .8; border-radius: 10px 34px 12px 28px; transform: rotate(-1.5deg); transform-origin: 0 50%; z-index: -1; }
+.pol { position: absolute; left: 90px; top: 640px; width: 640px; height: 760px; padding: 20px; background: #fffaf2; box-shadow: 0 24px 50px rgba(60,35,15,.28); }
+.pol img { width: 100%; height: 100%; object-fit: cover; filter: sepia(.12) contrast(1.05) saturate(1.05); }
+.tape { position: absolute; width: 210px; height: 58px; background: rgba(214,190,140,.78); box-shadow: 0 2px 4px rgba(0,0,0,.08); }
+.col { position: absolute; width: 400px; height: 480px; padding: 16px; background: #fffaf2; box-shadow: 0 20px 40px rgba(60,35,15,.25); }
+.col img { width: 100%; height: 100%; object-fit: cover; filter: sepia(.1); }
+.note { position: absolute; left: 90px; width: 560px; top: 1440px; font: 500 50px/1.22 Corm; color: #3a2a1d; }
+.strikes { position: absolute; left: 90px; right: 90px; top: 380px; }
+.strikes div { position: relative; margin-bottom: 80px; font: italic 400 82px/1.1 Bodoni; display: table; white-space: nowrap; }
+.strikes svg { position: absolute; left: -16px; top: 30%; width: calc(100% + 32px); height: 60px; overflow: visible; }
+.strikes path, .ink path, .circ path { fill: none; stroke: #b5532b; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+.ink { position: absolute; left: 160px; top: 600px; width: 560px; height: 820px; overflow: visible; }
+.ink .dr { fill: #6a9fb5; }
+.circ { position: absolute; overflow: visible; }
+.end .tag { position: absolute; left: 90px; top: 1150px; font: 900 48px Outfit; letter-spacing: .06em; color: #b5532b; }
+.end .br { position: absolute; left: 90px; top: 1230px; font: 600 38px Corm; letter-spacing: .3em; text-transform: uppercase; }
+.sub { position: absolute; left: 70px; right: 440px; top: 1690px; visibility: hidden; z-index: 30; }
+.sub span { display: inline; padding: 6px 14px; line-height: 1.5; background: rgba(255,250,242,.92); color: #2b1d14; font: 700 34px Outfit; border-radius: 8px; box-decoration-break: clone; -webkit-box-decoration-break: clone; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+#kadi { right: -10px; bottom: -20px; width: 460px; height: 598px; }
+"""
+    css = CHAR_CSS.replace(".sub {", ".subx {") + css
+    pages = []
+    for i, c in enumerate(SC):
+        bg = PAPERS[i % len(PAPERS)]; inner = f'<div class="tex"></div><div class="lt"></div><div class="ey">{e(c["ey"])}</div>'
+        big = not (c.get("ph") or c.get("phs") or c.get("spiral") or c.get("strikes"))
+        if c.get("ti"): inner += f'<div class="ti{" big" if big else ""}">{title(c["ti"])}</div>'
+        if c.get("ph"):
+            rot = -3 if i % 2 else 2.5
+            inner += f'<div class="pol" style="transform:rotate({rot}deg);clip-path:{torn(n=30, amp=1.2)}"><img src="photos/{c["ph"]}.jpg"></div>'
+            inner += f'<i class="tape" style="left:{80 + (i % 3) * 30}px;top:618px;transform:rotate(-7deg)"></i><i class="tape" style="left:560px;top:1370px;transform:rotate(9deg)"></i>'
+        if c.get("phs"):
+            for k, p in enumerate(c["phs"]):
+                inner += f'<div class="col" style="left:{70 + k * 150}px;top:{620 + k * 120}px;transform:rotate({[-6, 3, -2][k]}deg);clip-path:{torn(n=24, amp=1.4)}"><img src="photos/{p}.jpg"></div>'
+        if c.get("strikes"):
+            inner += '<div class="strikes">' + "".join(f'<div>{e(s)}<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 6 C15 2 30 9 45 5 S75 2 100 6" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" vector-effect="non-scaling-stroke"/></svg></div>' for s in c["strikes"]) + "</div>"
+        if c.get("spiral"):
+            sp_ = "M280 800 " + " ".join(f"Q{280 + (220 if k % 2 else -220) * (1 - k / 18):.0f} {800 - k * 56 - 28} 280 {800 - (k + 1) * 56}" for k in range(13))
+            dr = "".join(f'<ellipse class="dr d{k}" cx="{470 + k * 30}" cy="{120 + k * 40}" rx="16" ry="22"/>' for k in range(2))
+            inner += f'<svg class="ink" viewBox="0 0 560 820"><path d="{sp_}" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/>{dr}</svg>'
+        if c.get("note"): inner += f'<div class="note">{c["note"]}</div>'
+        if c.get("end"): inner += '<div class="end"><div class="tag">#FiersDeNosCheveux</div><div class="br">Kadio Coiffure · Longueuil</div></div>'
+        if c.get("circle"):
+            inner += '<svg class="circ" style="left:60px;top:560px;width:960px;height:420px" viewBox="0 0 960 420"><path d="M120 230 C120 90 840 60 880 200 C910 330 300 380 140 300 C90 270 110 160 260 120" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg>'
+        clip = torn(top_only=True, n=40, amp=1.6)
+        pages.append(f'<div id="p{i}" class="pg" style="background:{bg};clip-path:{clip};z-index:{10 + i}">{inner}</div>')
+    subs = "".join(f'<div class="sub" id="u{i}"><span>{e(subt(v))}</span></div>' for i, v in enumerate(VO))
+    body = "".join(pages) + subs + CHAR_SVG
+    js = ("const MOUTH = " + json.dumps(MOUTH) + ";\nconst S = " + json.dumps(SCH) + ", L = " + str(LEAD) + ";\n" + """
+const A = (i) => S[i][0], E = (i) => S[i][0] + S[i][1];
+S.forEach(function (s, i) {
+  const p = "#p" + i, t = s[0];
+  show(p, t, i === S.length - 1 ? null : s[0] + s[1] + .9);
+  if (i) { fin(p, t - .1, .8, { yPercent: 104, rotate: i %% 2 ? 1.2 : -1.2 }, { yPercent: 0, rotate: 0, ease: "power3.inOut" }); cue(t - .1, "sweep-small.wav", .25); }
+  fin(p + " .ey", t + .4, .7, { opacity: 0, x: -30 }, { opacity: 1, x: 0, ease: "power3.out" });
+  fin(p + " .ti .w", t + .5, .8, { opacity: 0, y: 36 }, { opacity: 1, y: 0, stagger: .07, ease: "power3.out" });
+  const nw = document.querySelectorAll(p + " .ti .w").length;
+  fin(p + " .mk", t + .9 + nw * .07, .6, { scaleX: 0 }, { scaleX: 1, ease: "power2.inOut" });
+  if (document.querySelector(p + " .mk")) cue(t + .9 + nw * .07, "swoosh-wind.wav", .18);
+  fin(p + " .pol", t + .55, 1.0, { y: 160, opacity: 0, rotate: "+=8" }, { y: 0, opacity: 1, rotate: "-=8", ease: "power3.out" });
+  kb(p + " .pol img", t + .55, s[1] + 1, { scale: 1.12 }, { scale: 1.0 });
+  fin(p + " .tape", t + 1.3, .35, { opacity: 0, scale: 1.4 }, { opacity: 1, scale: 1, stagger: .15, ease: "power2.out" });
+  document.querySelectorAll(p + " .col").forEach(function (c, k) { fin(c, t + .6 + k * .45, .9, { y: 200, opacity: 0, rotate: "+=10" }, { y: 0, opacity: 1, rotate: "-=10", ease: "power3.out" }); cue(t + .6 + k * .45, "shutter-vintage.wav", .15); });
+  document.querySelectorAll(p + " .strikes > div").forEach(function (d, k) { const tt = t + .5 + k * (s[1] - 1) / 3;
+    fin(d, tt, .6, { opacity: 0, x: -40 }, { opacity: 1, x: 0, ease: "power3.out" });
+    fin(d.querySelector("path"), tt + .7, .45, { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: "power2.in" }); cue(tt + .8, "swoosh-wind.wav", .2); });
+  fin(p + " .ink path", t + .6, Math.min(3, s[1] * .5), { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: "power1.inOut" });
+  document.querySelectorAll(p + " .ink .dr").forEach(function (d, k) { fin(d, t + 1.4 + k * .5, 1.8, { y: -40, opacity: 0 }, { y: 260, opacity: 1, ease: "power2.in" }); tl.to(d, { opacity: 0, duration: .4 }, t + 3.2 + k * .5); });
+  fin(p + " .circ path", t + 1.6, 1.0, { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: "power2.inOut" });
+  fin(p + " .note", t + Math.min(2.2, s[1] * .45), .8, { opacity: 0, y: 24 }, { opacity: 1, y: 0, ease: "power3.out" });
+  fin(p + " .end .tag", E(i) - 3, .7, { opacity: 0, y: 20 }, { opacity: 1, y: 0, ease: "power3.out" });
+  fin(p + " .end .br", E(i) - 2.6, .7, { opacity: 0 }, { opacity: 1 });
+  if (i === S.length - 1) cue(E(i) - 3, "chime.wav", .25);
+  show("#u" + i, t + L, s[0] + s[1] - .05); fin("#u" + i, t + L, .3, { opacity: 0 }, { opacity: 1 });
+});
+""".replace("%%", "%") + CHAR_JS.replace("if (i === 2 || i === 3 || i === 6)", "if (" + json.dumps(GEST) + ".indexOf(i) >= 0)"))
+    open(os.path.join(D, "index.html"), "w").write(page("Fiers de nos cheveux · Papier", css, body, js, T, ("m657", 0 if KEY == "fiers1" else 20)))
 print(F, "ok")
