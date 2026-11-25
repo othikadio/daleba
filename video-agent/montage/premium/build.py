@@ -1196,4 +1196,95 @@ elif F == "fiers2":
     js = ("const MOUTH = " + json.dumps(MOUTH) + ";\nconst S = " + json.dumps(SCH) + ", L = " + str(LEAD) + ";\n" + F2_JS
           + CHAR_JS.replace("if (i === 2 || i === 3 || i === 6)", "if (i === 2 || i === 4 || i === 6 || i === 8)"))
     open(os.path.join(D, "index.html"), "w").write(page("Fiers de nos cheveux 2", css, body, js, T, ("m1000", 30)))
+elif F == "fiers2a":
+    import soundfile as sf, numpy as np
+    VO = json.load(open(os.path.join(R, "vo", "spec.json")))["fiers2"]["vo"]
+    LEAD, TAIL = .3, .45; SCH, t = [], 0.0
+    for i in range(len(VO)):
+        src = os.path.join(R, "vo", f"fiers2_{i}.wav"); shutil.copy(src, os.path.join(D, f"fiers2_{i}.wav"))
+        d = sf.info(src).duration; dur = LEAD + d + TAIL + (2.6 if i == len(VO) - 1 else 0); SCH.append((round(t, 2), round(dur, 2))); t += dur
+    T = round(t, 2)
+    json.dump([{"t": round(a + LEAD, 2), "file": f"fiers2_{i}.wav"} for i, (a, _) in enumerate(SCH)], open(os.path.join(D, "vo.json"), "w"))
+    MOUTH = []
+    for i in range(len(VO)):
+        a, sr = sf.read(os.path.join(R, "vo", f"fiers2_{i}.wav"), always_2d=True); a = a.mean(1); hop = sr // 15
+        env = np.array([np.sqrt(np.mean(a[k:k + hop] ** 2)) for k in range(0, len(a) - hop, hop)]); env = np.clip(env / (np.percentile(env, 95) + 1e-9), 0, 1)
+        MOUTH += [[round(SCH[i][0] + LEAD + k / 15, 3), round(float(v), 2)] for k, v in enumerate(env)]
+    subt = lambda x: x.replace("Kadyo", "Kadio").replace("loks", "locks")
+    BG = ["#cdbdff", "#ffd3a8", "#ffe38f", "#a9e8cf", "#b6d6ff", "#ffc6d9", "#ffcfae", "#b3eee0", "#d6c9ff", "#ffe6a1"]
+    css = """
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Bold.otf); font-weight: 700; }
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Black.otf); font-weight: 900; }
+#root { background: #cdbdff; color: #1d1d1f; font-family: ID; }
+.sc { position: absolute; inset: 0; visibility: hidden; }
+.ey { position: absolute; left: 90px; top: 210px; font: 700 40px ID; color: rgba(29,29,31,.55); letter-spacing: -.005em; }
+.h { position: absolute; left: 90px; right: 90px; top: 270px; font: 700 132px/1.0 ID; letter-spacing: -.045em; }
+.h .m { color: rgba(29,29,31,.45); }
+.qt { position: absolute; left: 90px; right: 90px; top: 560px; font: 700 118px/1.04 ID; letter-spacing: -.04em; }
+.qt .m { color: rgba(29,29,31,.45); }
+.card { position: absolute; left: 90px; right: 90px; top: 560px; height: 820px; border-radius: 52px; overflow: hidden; background: #fff; box-shadow: 0 40px 90px rgba(29,29,31,.16); }
+.card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 50%; }
+.kv { position: absolute; left: 90px; right: 420px; top: 1450px; display: flex; gap: 56px; }
+.kv div b { display: block; font: 700 72px/1 ID; letter-spacing: -.04em; }
+.kv div small { display: block; margin-top: 10px; font: 700 30px ID; color: rgba(29,29,31,.55); }
+.kv .x b { text-decoration: line-through; text-decoration-thickness: 6px; color: rgba(29,29,31,.4); }
+.spi { position: absolute; left: 190px; top: 560px; width: 700px; height: 820px; overflow: visible; }
+.spi path { fill: none; stroke: #1d1d1f; stroke-width: 14; stroke-linecap: round; }
+.spi circle { fill: #fff; stroke: #1d1d1f; stroke-width: 8; }
+.prog { position: absolute; left: 90px; top: 150px; display: flex; gap: 12px; }
+.prog i { width: 64px; height: 8px; border-radius: 4px; background: rgba(29,29,31,.15); }
+.prog i.on { background: #1d1d1f; }
+.end { position: absolute; left: 90px; right: 90px; top: 420px; }
+.end h1 { font: 700 136px/1.0 ID; letter-spacing: -.045em; } .end h1 .m { color: rgba(29,29,31,.45); }
+.end .tag { margin-top: 80px; font: 700 48px ID; letter-spacing: -.01em; }
+.end .br { margin-top: 16px; font: 700 34px ID; color: rgba(29,29,31,.55); }
+.sub { position: absolute; left: 90px; right: 400px; top: 1640px; visibility: hidden; z-index: 30; font: 700 36px/1.3 ID; color: rgba(29,29,31,.75); letter-spacing: -.01em; }
+.kb { position: absolute; right: 60px; bottom: 70px; width: 290px; height: 290px; border-radius: 50%; overflow: hidden; background: #fff; box-shadow: 0 30px 70px rgba(29,29,31,.2); z-index: 40; }
+.kb #kadi { position: absolute; left: -42px; top: -8px; right: auto; bottom: auto; width: 374px; height: 486px; }
+"""
+    def prog(k):
+        return '<div class="prog">' + "".join(f'<i class="{"on" if j <= k else ""}"></i>' for j in range(4)) + "</div>"
+    Q = {1: (0, "Les cheveux afro", "sont sales."), 3: (1, "Les locks, des cheveux", "pas lavés."), 5: (2, "Le cheveu crépu", "est fragile."), 7: (3, "Couper court,", "c'est plus pro.")}
+    V = {2: ("Faux.", "Plus sec, pas plus sale.", "l2", [("+ sec", "pas + sale"), ("H₂O", "son vrai besoin")]),
+         4: ("Faux.", "Lavées, séchées, entretenues.", "h_locks", [("Lavées", "régulièrement"), ("Retwist", "entretien")]),
+         8: ("Faux.", "Le pro, c'est le travail.", "l3", [("Travail", "✓"), ("Attitude", "✓"), ("Texture", "")])}
+    spath = "M350 800 " + " ".join(f"Q{350 + (260 if k % 2 else -260) * (1 - k / 16):.0f} {800 - k * 56 - 28} 350 {800 - (k + 1) * 56}" for k in range(13))
+    weak = "".join(f'<circle cx="{350 + (260 if k % 2 else -260) * (1 - k / 16) * .5:.0f}" cy="{800 - k * 56 - 28}" r="18"/>' for k in range(1, 12, 2))
+    sc = [f'<div id="s0" class="sc"><div class="ey" style="top:560px">Les cheveux afro</div><div class="h" style="top:630px;font-size:170px">{sp("Mythe")}<br><span class="m">{sp("ou vérité ?")}</span></div></div>']
+    for i, (k, a1, a2) in Q.items():
+        sc.append(f'<div id="s{i}" class="sc">{prog(k)}<div class="ey">Mythe n°{k + 1} sur 4</div><div class="qt">« {sp(a1)} <span class="m">{sp(a2)}</span> »</div></div>')
+    for i, (h, sub, img, kv) in V.items():
+        k = (i - 2) // 2
+        kvh = "".join(f'<div class="{"x" if not s else ""}"><b>{e(b)}</b><small>{e(s)}</small></div>' for b, s in kv)
+        sc.append(f'<div id="s{i}" class="sc">{prog(k)}<div class="ey">{e(sub)}</div><div class="h">{sp(h)}</div><div class="card"><img src="photos/{img}.jpg"></div><div class="kv">{kvh}</div></div>')
+    sc.append(f'<div id="s6" class="sc">{prog(2)}<div class="ey">Chaque courbe est un point fragile.</div><div class="h">{sp("Vrai.")}</div><svg class="spi" viewBox="0 0 700 820"><path d="{spath}" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/>{weak}</svg><div class="kv"><div><b>Douceur</b><small>toujours</small></div><div><b>Expertise</b><small>les bonnes mains</small></div></div></div>')
+    sc.append(f'<div id="s9" class="sc"><div class="end"><h1>{sp("Ton cheveu")}<br>{sp("n’a rien")}<br><span class="m">{sp("à corriger.")}</span></h1><div class="tag">#FiersDeNosCheveux</div><div class="br">Kadio Coiffure · Longueuil</div></div></div>')
+    subs = "".join(f'<div class="sub" id="u{i}">{e(subt(v))}</div>' for i, v in enumerate(VO))
+    body = "".join(sc) + subs + '<div class="kb">' + CHAR_SVG + "</div>"
+    js = ("const MOUTH = " + json.dumps(MOUTH) + ";\nconst S = " + json.dumps(SCH) + ", L = " + str(LEAD) + ", BG = " + json.dumps(BG) + ";\n" + """
+const _ex = (q) => typeof q !== "string" || document.querySelector(q);
+const _fin = fin, _kb = kb; fin = function (q, ...r) { if (_ex(q)) _fin(q, ...r); }; kb = function (q, ...r) { if (_ex(q)) _kb(q, ...r); };
+const A = (i) => S[i][0], E = (i) => S[i][0] + S[i][1];
+tl.set("#root", { backgroundColor: BG[0] }, 0);
+S.forEach(function (s, i) {
+  show("#s" + i, s[0], i === S.length - 1 ? null : s[0] + s[1]);
+  if (i) tl.to("#root", { backgroundColor: BG[i], duration: .7, ease: "power2.inOut" }, s[0] - .2);
+  fin("#s" + i + " .ey", s[0] + .1, .8, { opacity: 0, y: 24 }, { opacity: 1, y: 0, ease: "power3.out" });
+  fin("#s" + i + " .h .w, #s" + i + " .qt .w", s[0] + .2, .9, { opacity: 0, y: 40 }, { opacity: 1, y: 0, stagger: .06, ease: "power3.out" });
+  fin("#s" + i + " .card", s[0] + .35, 1, { opacity: 0, y: 80, scale: .96 }, { opacity: 1, y: 0, scale: 1, ease: "power3.out" });
+  kb("#s" + i + " .card img", s[0] + .35, s[1] + .5, { scale: 1.12 }, { scale: 1.02 });
+  document.querySelectorAll("#s" + i + " .kv > div").forEach(function (d, k) { fin(d, s[0] + 1.2 + k * .35, .8, { opacity: 0, y: 30 }, { opacity: 1, y: 0, ease: "power3.out" }); });
+  fin("#s" + i + " .prog i.on:last-of-type", s[0] + .3, .6, { scaleX: 0, transformOrigin: "0 50%" }, { scaleX: 1, ease: "power3.out" });
+  show("#u" + i, s[0] + L, s[0] + s[1] - .05); fin("#u" + i, s[0] + L, .4, { opacity: 0 }, { opacity: 1 });
+  if (i < S.length - 1) tl.to("#s" + i + " .ey, #s" + i + " .h, #s" + i + " .qt, #s" + i + " .card, #s" + i + " .kv, #s" + i + " .spi", { opacity: 0, duration: .35, ease: "power2.in" }, s[0] + s[1] - .35);
+  if (i) cue(s[0] - .15, "woosh-air.wav", .12);
+});
+fin("#s6 .spi path", A(6) + .4, 2.2, { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: "power2.inOut" });
+fin("#s6 .spi circle", A(6) + 2.4, .5, { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, stagger: .12, ease: "power3.out" });
+fin(".end .tag", E(9) - 3, .8, { opacity: 0, y: 20 }, { opacity: 1, y: 0, ease: "power3.out" }); cue(E(9) - 3, "chime.wav", .25);
+fin(".end .br", E(9) - 2.6, .8, { opacity: 0 }, { opacity: 1 });
+fin(".kb", .3, 1, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, ease: "power3.out" });
+""" + CHAR_JS.split("// Kadi : entrée, bouche, clignements, mouvements")[1].replace('fin("#kadi", .3, .7, { y: 560 }, { y: 0, ease: "back.out(1.4)" }); cue(.3, "pop-long.wav", .2);', "")
+          .replace("if (i === 2 || i === 3 || i === 6)", "if (i === 2 || i === 4 || i === 6 || i === 8)"))
+    open(os.path.join(D, "index.html"), "w").write(page("Mythe ou vérité", css, body, js, T, ("m657", 20)))
 print(F, "ok")
