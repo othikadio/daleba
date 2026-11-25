@@ -1,0 +1,13 @@
+<!-- Boucle vidéo d'arrière-plan : lecture automatique, muette, en boucle, adaptée mobile -->
+<section class="hero">
+  <video autoplay muted loop playsinline preload="auto" poster="headspin-16x9-poster.jpg">
+    <source src="headspin-9x16.webm" type="video/webm" media="(max-aspect-ratio: 3/4)">
+    <source src="headspin-9x16.mp4"  type="video/mp4"  media="(max-aspect-ratio: 3/4)">
+    <source src="headspin-16x9.webm" type="video/webm">
+    <source src="headspin-16x9.mp4"  type="video/mp4">
+  </video>
+</section>
+<style>
+  .hero { position: relative; height: 100vh; overflow: hidden; background: #111; }
+  .hero video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+</style>
