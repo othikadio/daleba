@@ -855,4 +855,78 @@ document.querySelectorAll(".ctile").forEach(function (c, k) { const t = TB + .7 
   fin(c.querySelector(".pb"), t + .3, .45, { yPercent: 100, opacity: 0 }, { yPercent: 0, opacity: 1, ease: "back.out(2)" }); cue(t + .3, "notif-positive.wav", .25); });
 """ % (C0, json.dumps(FS), TB, TE, json.dumps(LAY), json.dumps(photos), len(TILES)) + END_JS
         open(os.path.join(D, "index.html"), "w").write(page("Mosaïque Barbier 2" if M2 else "Mosaïque Barbier", css, body, js, T, ("m1000", 55) if M2 else ("m623", 60)))
+elif F == "fiers1":
+    T = 31.0
+    css = """
+:root { --bg: #0b0908; --fg: #f4ece0; --gold: #d9b26f; --red: #e0473a; }
+#root { background: var(--bg); color: var(--fg); }
+.sc { position: absolute; inset: 0; visibility: hidden; }
+.bgph { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(26px) brightness(.28) saturate(.7); transform: scale(1.15); }
+.big { position: absolute; left: 70px; right: 70px; text-align: center; font: 400 200px/1 Bodoni; letter-spacing: -.01em; }
+.q { position: absolute; left: 80px; right: 80px; text-align: center; font: italic 300 64px/1.2 Corm; }
+.rows { position: absolute; left: 80px; right: 80px; top: 520px; display: flex; flex-direction: column; gap: 90px; }
+.row { position: relative; }
+.row small { display: block; font: 800 38px Outfit; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); }
+.row b { position: relative; display: inline-block; margin-top: 12px; font: italic 400 140px/1 Bodoni; }
+.row b i { position: absolute; left: -12px; right: -12px; top: 52%; height: 14px; background: var(--red); transform-origin: 0 50%; border-radius: 7px; }
+.pic { position: absolute; overflow: hidden; border-radius: 30px; }
+.pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 50%; }
+.cap { position: absolute; left: 80px; right: 80px; text-align: center; font: 400 92px/1.08 Bodoni; text-shadow: 0 8px 40px rgba(0,0,0,.8); }
+.cap em { font-style: italic; color: var(--gold); }
+.lab { position: absolute; left: 22px; bottom: 22px; padding: 10px 24px; border-radius: 999px; background: rgba(11,9,8,.75); font: 800 30px Outfit; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); }
+.gold { color: var(--gold); }
+.tag { position: absolute; left: 0; right: 0; top: 1500px; text-align: center; font: 900 46px Outfit; letter-spacing: .12em; color: var(--gold); }
+.brand { position: absolute; left: 0; right: 0; top: 1640px; text-align: center; font: 500 34px Corm; letter-spacing: .5em; text-indent: .5em; text-transform: uppercase; opacity: .8; }
+.gline { position: absolute; left: 440px; width: 200px; height: 3px; background: var(--gold); transform-origin: 50% 50%; }
+"""
+    TX = [("h_locks", "Locks"), ("h_twists", "Twists"), ("bt2", "Barrel twist"), ("l2", "Afro"), ("h_nattes", "Tresses"), ("l3", "Locks")]
+    grid = "".join(f'<div class="pic g" style="left:{50 + (k % 2) * 500}px;top:{170 + (k // 2) * 560}px;width:480px;height:540px"><img src="photos/{n}.jpg"><span class="lab">{e(l)}</span></div>' for k, (n, l) in enumerate(TX))
+    body = f"""
+<div id="s0" class="sc"><div class="big" style="top:720px;font-size:170px;white-space:nowrap">{sp("PROPRE ?")}</div><div class="q" style="top:1000px">{sp("Les cheveux courts, c'est plus propre ?")}</div></div>
+<div id="s1" class="sc"><img class="bgph" src="photos/l2.jpg">
+ <div class="rows"><div class="row"><small>Ton afro ?</small><b>« Négligé. »<i></i></b></div><div class="row"><small>Tes locks ?</small><b>« Voyou. »<i></i></b></div><div class="row"><small>Tes tresses ?</small><b>« Pas pro. »<i></i></b></div></div></div>
+<div id="s2" class="sc"><div class="pic" style="inset:0;border-radius:0"><img src="photos/b10.jpg" style="object-position:45% 40%"></div><div class="layer" style="background:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.1) 45%,rgba(0,0,0,.8))"></div>
+ <div class="cap" id="c2a" style="top:1240px">{sp("Un cheveu crépu")}<br>{sp("n'est pas un cheveu sale.")}</div>
+ <div class="cap" id="c2b" style="top:1290px"><em>{sp("Il pousse vers le ciel.")}</em></div></div>
+<div id="s3" class="sc">{grid}<div class="layer" style="background:linear-gradient(180deg,transparent 55%,rgba(11,9,8,.95) 85%)"></div>
+ <div class="cap" style="top:1480px;font-size:70px">{sp("De l'eau, de l'huile, du temps…")}<br><em>{sp("et du savoir-faire.")}</em></div></div>
+<div id="s4" class="sc"><div class="big" style="top:560px;font-size:120px;line-height:1.08">{sp("Propre,")}<br>{sp("c'est un cheveu")}<br><span class="gold">{sp("entretenu.")}</span></div>
+ <div class="gline" style="top:1040px"></div><div class="q" style="top:1100px;font-size:84px">{sp("Pas un cheveu caché.")}</div></div>
+<div id="s5" class="sc"><div class="q" style="top:560px;font-size:76px;font-style:normal;font-family:Bodoni">{sp("Nos cheveux ne sont pas")}<br>{sp("un problème à régler.")}</div>
+ <div class="big" style="top:900px;font-size:150px;font-style:italic"><span class="gold">{sp("Ce sont")}<br>{sp("nos racines.")}</span></div>
+ <div class="tag">#FiersDeNosCheveux</div><div class="brand">Kadio Coiffure · Longueuil</div></div>
+<div class="layer vig"></div>"""
+    js = """
+const S = [[0, 3.4], [3.4, 9.0], [9.0, 14.6], [14.6, 21.0], [21.0, 26.0], [26.0, 31.5]];
+S.forEach(function (s, i) { show("#s" + i, s[0], s[1]); if (i) fin("#s" + i, s[0], .5, { opacity: 0 }, { opacity: 1, ease: "sine.inOut" }); });
+// 0
+fin("#s0 .big .ch", .3, .6, { opacity: 0, y: 60, filter: "blur(12px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .07, ease: "power3.out" }); cue(.3, "bass.wav", .45);
+fin("#s0 .q .w", 1.5, .5, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .08 }); cue(1.5, "type-click.wav", .2);
+// 1 : préjugés barrés
+kb("#s1 .bgph", 3.4, 6, { scale: 1.25 }, { scale: 1.1 });
+document.querySelectorAll("#s1 .row").forEach(function (r, k) { const t = 3.8 + k * 1.55;
+  fin(r, t, .5, { opacity: 0, x: -60 }, { opacity: 1, x: 0, ease: "power3.out" }); cue(t, "whoosh-fast.wav", .25);
+  fin(r.querySelector("i"), t + .8, .35, { scaleX: 0 }, { scaleX: 1, ease: "power3.in" }); cue(t + .95, "cut_hit_sub.wav", .4); });
+tl.to("#s1 .row b", { opacity: .35, duration: .5 }, 8.4);
+// 2 : afro
+kb("#s2 img", 9.0, 6, { scale: 1.2, y: 40 }, { scale: 1.04, y: 0 });
+show("#c2a", 9.4, 11.9); fin("#c2a .w", 9.4, .6, { opacity: 0, y: 30, filter: "blur(8px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .09 }); cue(9.4, "sparkle.wav", .2);
+tl.to("#c2a", { opacity: 0, duration: .4 }, 11.5);
+show("#c2b", 12.0, null); fin("#c2b .ch", 12.0, .6, { opacity: 0, y: 40 }, { opacity: 1, y: 0, stagger: .035, ease: "back.out(2)" }); cue(12.0, "woosh-air.wav", .3);
+// 3 : textures
+document.querySelectorAll("#s3 .g").forEach(function (g, k) { const t = 14.7 + k * .22;
+  fin(g, t, .5, { scale: 0, rotate: k %% 2 ? 6 : -6 }, { scale: 1, rotate: 0, ease: "back.out(1.6)" }); cue(t, "pop-bubble.wav", .15);
+  kb(g.querySelector("img"), t, 6.5, { scale: 1.2 }, { scale: 1.02 }); });
+fin("#s3 .cap .w", 16.4, .5, { opacity: 0, y: 24 }, { opacity: 1, y: 0, stagger: .1, ease: "power3.out" });
+// 4
+fin("#s4 .big .w", 21.3, .6, { opacity: 0, y: 50, filter: "blur(10px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .14, ease: "power3.out" }); cue(21.3, "bass.wav", .4);
+fin("#s4 .gline", 23.2, .6, { scaleX: 0 }, { scaleX: 1, ease: "expo.out" });
+fin("#s4 .q .w", 23.5, .6, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .12 }); cue(23.5, "sparkle.wav", .25);
+// 5 : signature
+fin("#s5 .q .w", 26.3, .5, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .08 });
+fin("#s5 .big .ch", 27.6, .6, { opacity: 0, y: 50, filter: "blur(8px)" }, { opacity: 1, y: 0, filter: "blur(0px)", stagger: .04, ease: "power3.out" }); cue(27.6, "bass.wav", .45);
+fin("#s5 .tag", 29.0, .5, { opacity: 0, letterSpacing: ".5em" }, { opacity: 1, letterSpacing: ".12em", ease: "expo.out" }); cue(29.0, "chime.wav", .3);
+fin("#s5 .brand", 29.4, .6, { opacity: 0 }, { opacity: .8 });
+""" % ()
+    open(os.path.join(D, "index.html"), "w").write(page("Fiers de nos cheveux 1", css, body, js, T, ("m657", 0)))
 print(F, "ok")
