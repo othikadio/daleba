@@ -1628,4 +1628,138 @@ S.forEach(function (s, i) {
 cue(E(S.length - 1) - 3, "chime.wav", .25);
 """ + CHAR_JS.replace("if (i === 2 || i === 3 || i === 6)", "if ([1, 3, 5, 7].indexOf(i) >= 0)")
         open(os.path.join(D, "index.html"), "w").write(page("Toutes nos couronnes", css, body, js, T, ("m623", 25)))
+elif F in ("coif1", "coif3"):
+    T = 15.0
+    BR = dict(ink="#1d1611", cream="#fbf4ea", ac="#e0673f", ac2="#2f6f62", soft="#f3d9c6")
+    css = """
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Bold.otf); font-weight: 700; }
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Black.otf); font-weight: 900; }
+:root { --ink: %(ink)s; --cream: %(cream)s; --ac: %(ac)s; --ac2: %(ac2)s; --soft: %(soft)s; }
+#root { background: var(--cream); color: var(--ink); font-family: ID; }
+.sc { position: absolute; inset: 0; visibility: hidden; }
+.cap { position: absolute; left: 80px; right: 80px; top: 200px; font: 900 96px/1.0 ID; letter-spacing: -.045em; z-index: 20; }
+.cap .a { color: var(--ac); }
+.end { position: absolute; inset: 0; background: var(--ink); color: var(--cream); visibility: hidden; z-index: 50; }
+.end h1 { position: absolute; left: 80px; right: 80px; top: 640px; font: 900 116px/1.0 ID; letter-spacing: -.05em; }
+.end h1 .a { color: var(--ac); }
+.logo { position: absolute; left: 80px; top: 200px; font: 900 64px ID; letter-spacing: -.04em; }
+.logo i { font-style: normal; color: var(--ac); }
+.btn { position: absolute; left: 80px; top: 1180px; padding: 34px 60px; border-radius: 999px; background: var(--ac); color: #fff; font: 900 52px ID; letter-spacing: -.02em; }
+.url { position: absolute; left: 84px; top: 1330px; font: 700 40px ID; opacity: .75; }
+.finger { position: absolute; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%%; background: rgba(29,22,17,.22); border: 6px solid #fff; box-shadow: 0 10px 30px rgba(0,0,0,.25); z-index: 30; visibility: hidden; }
+.ring { position: absolute; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%%; border: 6px solid var(--ac); z-index: 29; opacity: 0; }
+.photo { position: absolute; overflow: hidden; border-radius: 40px; }
+.photo img { position: absolute; inset: 0; width: 100%%; height: 100%%; object-fit: cover; transform-origin: 50%% 50%%; }
+""" % BR
+    END = """<div class="end"><div class="logo">Coiff<i>Ici</i></div><h1>%s</h1><div class="btn">Réserver maintenant</div><div class="url">coiffici.codunk.site</div></div>"""
+    END_JS = """
+const TE = 12.8; show(".end", TE, null); fin(".end", TE, .6, { clipPath: "circle(0% at 50% 60%)" }, { clipPath: "circle(150% at 50% 60%)", ease: "power3.inOut" }); cue(TE, "whoosh-cine.wav", .35);
+fin(".end .logo", TE + .4, .5, { opacity: 0, y: -20 }, { opacity: 1, y: 0, ease: "power3.out" });
+fin(".end h1 .w", TE + .5, .6, { opacity: 0, y: 50 }, { opacity: 1, y: 0, stagger: .06, ease: "power3.out" }); cue(TE + .5, "bass.wav", .35);
+fin(".end .btn", TE + 1.1, .5, { scale: 0 }, { scale: 1, ease: "back.out(2.2)" }); cue(TE + 1.1, "pop-bubble.wav", .3);
+tl.to(".end .btn", { scale: 1.05, duration: .3, yoyo: true, repeat: 1, ease: "sine.inOut" }, TE + 1.7);
+fin(".end .url", TE + 1.4, .5, { opacity: 0 }, { opacity: .75 });
+"""
+    def finger_js(pts):
+        # pts: [(t, x, y, tap)]
+        out = 'tl.set(".finger", { autoAlpha: 0 }, 0);\n'
+        t0 = pts[0][0]
+        out += f'tl.set(".finger", {{ autoAlpha: 1, left: {pts[0][1]}, top: {pts[0][2]} }}, {t0});\n'
+        out += f'fin(".finger", {t0}, .4, {{ scale: 0 }}, {{ scale: 1, ease: "back.out(2)" }});\n'
+        for t, x, y, tap in pts[1:]:
+            out += f'tl.to(".finger", {{ left: {x}, top: {y}, duration: .6, ease: "power3.inOut" }}, {t - .6});\n'
+            if tap:
+                out += f'tl.to(".finger", {{ scale: .8, duration: .1, yoyo: true, repeat: 1 }}, {t}); cue({t}, "click.wav", .45);\n'
+                out += f'tl.set(".ring", {{ left: {x}, top: {y} }}, {t}); tl.fromTo(".ring", {{ opacity: .9, scale: .6 }}, {{ opacity: 0, scale: 2.2, duration: .5, ease: "power2.out", immediateRender: false }}, {t});\n'
+        return out
+    if F == "coif1":
+        body = f"""
+<div id="s0" class="sc">
+ <svg style="position:absolute;left:0;top:0;width:1080px;height:1920px" viewBox="0 0 1080 1920">
+  <rect x="0" y="1500" width="1080" height="420" fill="#ead8c3"/>
+  <rect x="240" y="560" width="600" height="940" rx="14" fill="#8a4b2f"/><rect x="255" y="575" width="570" height="925" fill="#fff3e2"/>
+  <g id="door" style="transform-origin:255px 1030px"><rect x="255" y="575" width="570" height="925" rx="8" fill="var(--ac)"/>
+   <rect x="315" y="640" width="450" height="300" rx="10" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="10"/><rect x="315" y="1000" width="450" height="420" rx="10" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="10"/>
+   <circle cx="760" cy="1060" r="24" fill="#f2c46d"/></g>
+  <g id="bell"><rect x="880" y="900" width="90" height="150" rx="20" fill="#2b211b"/><circle cx="925" cy="975" r="26" fill="#f2c46d"/></g>
+  <g id="waves" fill="none" stroke="var(--ac)" stroke-width="8" stroke-linecap="round"><path d="M1000 930 q30 45 0 90"/><path d="M1030 900 q50 75 0 150"/></g>
+ </svg>
+ <svg id="pro" style="position:absolute;left:320px;top:700px;width:440px;height:820px" viewBox="0 0 440 820">
+  <circle cx="220" cy="110" r="88" fill="#1d1511"/><circle cx="220" cy="40" r="50" fill="#1d1511"/>
+  <ellipse cx="220" cy="150" rx="66" ry="78" fill="#7a4a2e"/>
+  <circle cx="196" cy="146" r="7" fill="#1d1511"/><circle cx="244" cy="146" r="7" fill="#1d1511"/><path d="M200 182 q20 16 40 0" stroke="#4a1f14" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M90 820 C90 400 140 260 220 260 C300 260 350 400 350 820 Z" fill="var(--ac2)"/>
+  <g id="case"><rect x="300" y="560" width="140" height="110" rx="16" fill="#2b211b"/><rect x="345" y="535" width="50" height="30" rx="10" fill="none" stroke="#2b211b" stroke-width="10"/><rect x="300" y="600" width="140" height="10" fill="#f2c46d"/></g>
+ </svg>
+ <div class="cap" id="c0">{sp("Ta coiffeuse")}<br><span class="a">{sp("est là.")}</span></div>
+</div>
+<div id="s1" class="sc" style="background:var(--soft)"><div class="photo" id="p1" style="left:90px;top:520px;width:900px;height:1100px"><img src="photos/h_twists.jpg"></div><div class="cap">{sp("Chez toi.")} <span class="a">{sp("Pendant les twists.")}</span></div></div>
+<div id="s2" class="sc" style="background:var(--cream)">
+ <div style="position:absolute;left:150px;top:420px;width:780px;height:1180px;border-radius:390px 390px 40px 40px;background:#d9c2a6;box-shadow:inset 0 0 0 26px #b88a5a"></div>
+ <div class="photo" id="p2" style="left:176px;top:446px;width:728px;height:1128px;border-radius:364px 364px 18px 18px"><img src="photos/bt2.jpg"></div>
+ <div class="cap">{sp("Et le résultat,")} <span class="a">{sp("dans ton miroir.")}</span></div></div>
+{END % (sp("Réserve ta coiffure") + "<br><span class='a'>" + sp("à domicile.") + "</span>")}"""
+        js = """
+show("#s0", 0, 6.4); show("#s1", 6.0, 9.8); show("#s2", 9.4, null);
+cue(.15, "doorbell.wav", .6);
+tl.fromTo("#bell", { rotate: -8, transformOrigin: "925px 975px" }, { rotate: 8, duration: .08, yoyo: true, repeat: 9, ease: "sine.inOut", immediateRender: false }, .15);
+fin("#waves path", .2, .3, { opacity: 0, scale: .6, transformOrigin: "980px 975px" }, { opacity: 1, scale: 1, stagger: .15, ease: "power2.out" }); tl.to("#waves", { opacity: 0, duration: .4 }, 1.6);
+fin("#c0 .w", .5, .6, { opacity: 0, y: 40 }, { opacity: 1, y: 0, stagger: .08, ease: "power3.out" });
+tl.set("#pro", { autoAlpha: 0 }, 0);
+tl.to("#door", { scaleX: .12, skewY: -6, transformOrigin: "255px 1030px", duration: 1, ease: "power3.inOut" }, 3.0); cue(3.0, "woosh-air.wav", .35);
+tl.set("#pro", { autoAlpha: 1 }, 3.6); fin("#pro", 3.6, 1.1, { x: 260, scale: .85, opacity: 0 }, { x: 0, scale: 1, opacity: 1, ease: "power3.out" });
+tl.to("#case", { y: -12, duration: .25, yoyo: true, repeat: 3, ease: "sine.inOut" }, 3.6);
+tl.to("#s0 svg, #pro", { scale: 3, transformOrigin: "60% 70%", duration: 1, ease: "power3.in" }, 5.4);
+fin("#s1", 6.0, .5, { opacity: 0 }, { opacity: 1 }); cue(6.0, "whoosh-cine.wav", .3);
+fin("#p1", 6.0, .8, { clipPath: "circle(0% at 50% 50%)" }, { clipPath: "circle(80% at 50% 50%)", ease: "power3.out" });
+kb("#p1 img", 6.0, 4, { scale: 1.2 }, { scale: 1.02 });
+fin("#s1 .cap .w", 6.3, .6, { opacity: 0, y: 30 }, { opacity: 1, y: 0, stagger: .06, ease: "power3.out" });
+fin("#s2", 9.4, .5, { opacity: 0 }, { opacity: 1 }); cue(9.4, "sparkle.wav", .3);
+fin("#p2", 9.6, 1, { opacity: 0, scale: 1.08 }, { opacity: 1, scale: 1, ease: "power3.out" }); kb("#p2 img", 9.6, 3.6, { scale: 1.15 }, { scale: 1.0 });
+fin("#s2 .cap .w", 9.8, .6, { opacity: 0, y: 30 }, { opacity: 1, y: 0, stagger: .06, ease: "power3.out" });
+""" + END_JS
+        open(os.path.join(D, "index.html"), "w").write(page("CoiffIci 1 · Le salon sonne", css, body, js, T, ("m1000", 30)))
+    else:
+        css += """
+.tile { position: absolute; left: 60px; right: 60px; height: 520px; border-radius: 36px; overflow: hidden; }
+.tile img { width: 100%; height: 100%; object-fit: cover; }
+.tile span { position: absolute; left: 26px; bottom: 26px; padding: 12px 26px; border-radius: 999px; background: rgba(255,255,255,.92); font: 700 36px ID; }
+.card { position: absolute; left: 90px; right: 90px; top: 380px; height: 1180px; border-radius: 48px; background: #fff; box-shadow: 0 40px 90px rgba(29,22,17,.18); overflow: hidden; visibility: hidden; }
+.card .th { position: absolute; left: 40px; right: 40px; top: 40px; height: 480px; border-radius: 30px; overflow: hidden; }
+.card .th img { width: 100%; height: 100%; object-fit: cover; }
+.card h3 { position: absolute; left: 50px; top: 560px; font: 900 72px ID; letter-spacing: -.04em; }
+.card .d { position: absolute; left: 52px; top: 650px; font: 700 36px ID; color: rgba(29,22,17,.55); }
+.slots { position: absolute; left: 50px; right: 50px; top: 740px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.slot { padding: 34px 0; text-align: center; border-radius: 26px; border: 4px solid rgba(29,22,17,.15); font: 900 54px ID; }
+.ok { position: absolute; left: 50px; right: 50px; top: 1040px; padding: 34px 0; text-align: center; border-radius: 999px; background: var(--ac); color: #fff; font: 900 46px ID; }
+"""
+        tiles = [("h_nattes", "Nattes"), ("h_twists", "Twists"), ("h_locks", "Locks")]
+        body = '<div id="s0" class="sc">' + "".join(f'<div class="tile t{k}" style="top:{380 + k * 545}px"><img src="photos/{p}.jpg"><span>{e(n)}</span></div>' for k, (p, n) in enumerate(tiles))
+        body += f'<div class="cap" id="c0" style="top:200px">{sp("Ceux-là.")}</div></div>'
+        body += f"""<div class="card"><div class="th"><img src="photos/h_twists.jpg"></div><h3>Twists</h3><div class="d">À domicile · samedi</div>
+<div class="slots"><div class="slot">10 h</div><div class="slot">12 h</div><div class="slot s14">14 h</div><div class="slot">16 h</div></div><div class="ok">Réserver 14 h</div></div>
+<div id="s2" class="sc"><div class="photo" id="p2" style="inset:0;border-radius:0"><img src="photos/h_twists.jpg" style="object-position:50% 40%"></div>
+<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.45),transparent 30%)"></div><div class="cap" style="color:#fff">{sp("Samedi, 14 h.")}<br><span class="a">{sp("Chez toi.")}</span></div></div>
+<div class="finger"></div><div class="ring"></div>
+{END % (sp("Choisis ta coiffure") + "<br><span class='a'>" + sp("sur CoiffIci.") + "</span>")}"""
+        js = """
+show("#s0", 0, 4.2); show(".card", 3.4, 8.6); show("#s2", 8.2, null);
+document.querySelectorAll("#s0 .tile").forEach(function (t, k) { fin(t, .1 + k * .15, .6, { y: 120, opacity: 0 }, { y: 0, opacity: 1, ease: "power3.out" }); kb(t.querySelector("img"), 0, 4, { scale: 1.15 }, { scale: 1.02 }); });
+cue(.1, "woosh-air.wav", .25);
+""" + finger_js([(1.2, 760, 1500), (2.1, 540, 1185, True), (6.4, 540, 1330, True), (7.4, 540, 1500, True)]) + """
+tl.to("#s0 .t0, #s0 .t2", { opacity: .25, scale: .96, duration: .4 }, 2.2);
+fin("#c0 .w", 2.2, .5, { opacity: 0, y: 30 }, { opacity: 1, y: 0, ease: "back.out(2)" }); cue(2.2, "pop-hard.wav", .25);
+tl.to("#s0 .t1", { top: 420, height: 480, left: 130, right: 130, duration: .8, ease: "power3.inOut" }, 3.0); cue(3.0, "sweep-small.wav", .3);
+fin(".card", 3.4, .7, { opacity: 0, y: 80 }, { opacity: 1, y: 0, ease: "power3.out" });
+fin(".card .slot", 4.2, .4, { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .1, ease: "power3.out" });
+fin(".card .ok", 4.8, .4, { opacity: 0 }, { opacity: .35 });
+tl.set(".card .s14", { backgroundColor: "#fff", color: "#1d1611", borderColor: "rgba(29,22,17,.15)" }, 0);
+tl.set(".card .s14", { backgroundColor: "#1d1611", color: "#fff", borderColor: "#1d1611" }, 6.4);
+tl.to(".card .ok", { opacity: 1, duration: .3 }, 6.5);
+tl.to(".card", { rotationY: 90, duration: .45, ease: "power2.in" }, 7.8); cue(7.9, "whoosh-cine.wav", .3);
+fin("#s2", 8.2, .5, { opacity: 0 }, { opacity: 1 }); kb("#p2 img", 8.2, 5, { scale: 1.25 }, { scale: 1.02 }); cue(8.3, "sparkle.wav", .3);
+fin("#s2 .cap .w", 8.6, .6, { opacity: 0, y: 30 }, { opacity: 1, y: 0, stagger: .06, ease: "power3.out" });
+tl.set(".finger", { autoAlpha: 0 }, 7.8);
+""" + END_JS
+        open(os.path.join(D, "index.html"), "w").write(page("CoiffIci 3 · Ceux-là", css, body, js, T, ("m623", 40)))
 print(F, "ok")
