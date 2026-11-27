@@ -1762,4 +1762,75 @@ fin("#s2 .cap .w", 8.6, .6, { opacity: 0, y: 30 }, { opacity: 1, y: 0, stagger: 
 tl.set(".finger", { autoAlpha: 0 }, 7.8);
 """ + END_JS
         open(os.path.join(D, "index.html"), "w").write(page("CoiffIci 3 · Ceux-là", css, body, js, T, ("m623", 40)))
+elif F == "extlocks":
+    T = 16.0
+    css = """
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Bold.otf); font-weight: 700; }
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Black.otf); font-weight: 900; }
+#root { background: #0f0d0c; color: #fff; font-family: ID; }
+.ph { position: absolute; left: 0; right: 0; top: 140px; height: 1624px; overflow: hidden; visibility: visible; }
+.ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 40%; }
+#after { clip-path: inset(0 0 0 100%); }
+.div { position: absolute; top: 140px; height: 1624px; width: 8px; margin-left: -4px; background: #fff; box-shadow: 0 0 30px rgba(255,255,255,.7); z-index: 5; }
+.knob { position: absolute; top: 880px; width: 110px; height: 110px; margin: -55px 0 0 -55px; border-radius: 50%; background: #fff; z-index: 6; display: flex; align-items: center; justify-content: center; font: 900 44px ID; color: #0f0d0c; }
+.lab { position: absolute; top: 210px; padding: 16px 34px; border-radius: 999px; font: 900 40px ID; letter-spacing: .12em; z-index: 7; }
+.lab.av { left: 50px; background: rgba(15,13,12,.75); }
+.lab.ap { right: 50px; background: #e7a64a; color: #0f0d0c; }
+.top { position: absolute; left: 0; right: 0; top: 0; height: 140px; display: flex; align-items: center; justify-content: space-between; padding: 0 50px; background: #0f0d0c; z-index: 8; font: 900 40px ID; letter-spacing: -.02em; }
+.top small { font: 700 30px ID; color: #e7a64a; letter-spacing: .1em; }
+.bot { position: absolute; left: 0; right: 0; top: 1764px; bottom: 0; background: #0f0d0c; z-index: 8; display: flex; align-items: center; justify-content: center; font: 700 34px ID; color: rgba(255,255,255,.75); }
+.rule { position: absolute; right: 60px; top: 700px; width: 130px; height: 780px; z-index: 7; }
+.rule .bar { position: absolute; left: 0; top: 0; width: 34px; height: 100%; border-radius: 17px; background: rgba(255,255,255,.18); overflow: hidden; }
+.rule .fill { position: absolute; left: 0; bottom: 0; width: 100%; height: 100%; background: linear-gradient(0deg, #e7a64a, #ffd892); transform-origin: 50% 100%; }
+.rule .t { position: absolute; left: 44px; width: 30px; height: 4px; background: rgba(255,255,255,.8); }
+.rule .n { position: absolute; left: -130px; top: -150px; width: 260px; text-align: center; font: 900 120px/1 ID; letter-spacing: -.05em; text-shadow: 0 6px 30px rgba(0,0,0,.6); }
+.rule .u { position: absolute; left: -130px; top: -40px; width: 260px; text-align: center; font: 700 34px ID; color: #e7a64a; }
+.end { position: absolute; inset: 0; background: #0f0d0c; z-index: 20; visibility: hidden; }
+.end .k { position: absolute; left: 70px; right: 70px; top: 560px; font: 900 120px/1 ID; letter-spacing: -.05em; }
+.end .k span { color: #e7a64a; }
+.end .s { position: absolute; left: 74px; top: 900px; font: 700 46px/1.4 ID; color: rgba(255,255,255,.85); }
+.end .c { position: absolute; left: 70px; top: 1150px; padding: 30px 54px; border-radius: 999px; background: #e7a64a; color: #0f0d0c; font: 900 48px ID; }
+.end .a { position: absolute; left: 74px; top: 1310px; font: 700 38px/1.5 ID; color: rgba(255,255,255,.7); }
+"""
+    ticks = "".join(f'<i class="t" style="top:{780 - k * 130 - 2}px"></i>' for k in range(7))
+    body = f"""
+<div class="ph" id="before"><img src="photos/ext_avant.jpg"></div>
+<div class="ph" id="after"><img src="photos/ext_apres.jpg"></div>
+<div class="div"></div><div class="knob">⇆</div>
+<div class="lab av">AVANT</div><div class="lab ap">APRÈS</div>
+<div class="rule"><div class="bar"><div class="fill"></div></div>{ticks}<div class="n"><span class="num">0</span>"</div><div class="u">pouces</div></div>
+<div class="top"><span>Extensions de locks</span><small>6 POUCES</small></div>
+<div class="bot">Kadio Coiffure · Longueuil</div>
+<div class="end"><div class="k">{sp("Des locks")}<br><span>{sp("en une séance.")}</span></div><div class="s">Extensions de locks · 6 pouces<br>Posées une à une, finition naturelle.</div>
+<div class="c">Réserve ta séance</div><div class="a">615, Antoinette-Robidoux · Longueuil<br>514 919-5970 · kadiocoiffure.com</div></div>"""
+    js = """
+const X = (p) => p * 1080;
+function wipe(t, d, a, b, ease) { tl.fromTo("#after", { clipPath: "inset(0 0 0 " + a + "%)" }, { clipPath: "inset(0 0 0 " + b + "%)", duration: d, ease: ease || "power2.inOut", immediateRender: false }, t);
+  tl.fromTo(".div, .knob", { left: X(a / 100) }, { left: X(b / 100), duration: d, ease: ease || "power2.inOut", immediateRender: false }, t); }
+tl.set("#after", { clipPath: "inset(0 0 0 100%)" }, 0); tl.set(".div, .knob", { left: X(1) }, 0);
+kb("#before img", 0, 6, { scale: 1.12 }, { scale: 1.0 });
+fin(".top span", .2, .6, { opacity: 0, y: -20 }, { opacity: 1, y: 0, ease: "power3.out" }); fin(".top small", .5, .6, { opacity: 0 }, { opacity: 1 });
+fin(".lab.av", .4, .5, { opacity: 0, x: -30 }, { opacity: 1, x: 0, ease: "power3.out" }); cue(.4, "click.wav", .3);
+fin(".lab.ap", 2.0, .5, { opacity: 0, x: 30 }, { opacity: 1, x: 0, ease: "power3.out" });
+// balayages : aperçu, retour, puis révélation complète
+wipe(2.0, 1.2, 100, 50); cue(2.0, "sweep-small.wav", .35);
+wipe(3.6, .9, 50, 75); wipe(4.7, .9, 75, 30); cue(4.7, "sweep-small.wav", .3);
+wipe(6.0, 1.0, 30, 0, "power3.inOut"); cue(6.0, "whoosh-cine.wav", .35);
+tl.to(".div, .knob, .lab.av", { opacity: 0, duration: .3 }, 6.9);
+kb("#after img", 6.0, 6.5, { scale: 1.0 }, { scale: 1.12 });
+// règle : 0 -> 6 pouces
+tl.set(".rule", { autoAlpha: 0 }, 0); tl.set(".rule", { autoAlpha: 1 }, 7.3);
+fin(".rule", 7.3, .5, { opacity: 0, x: 40 }, { opacity: 1, x: 0, ease: "power3.out" });
+tl.fromTo(".rule .fill", { scaleY: 0 }, { scaleY: 1, duration: 2.2, ease: "power2.inOut", immediateRender: false }, 7.7); tl.set(".rule .fill", { scaleY: 0 }, 0);
+for (let k = 0; k <= 6; k++) { tl.set(".rule .num", { textContent: String(k) }, 7.7 + k * 2.2 / 6); if (k) cue(7.7 + k * 2.2 / 6, "fit_tick_domino.wav", .25); }
+tl.set(".rule .num", { textContent: "0" }, 0); cue(9.9, "bass.wav", .4);
+tl.to(".rule .n", { scale: 1.12, duration: .25, yoyo: true, repeat: 1 }, 9.9);
+// fin
+const TE = 12.2; show(".end", TE, null); fin(".end", TE, .6, { clipPath: "inset(100% 0 0 0)" }, { clipPath: "inset(0% 0 0 0)", ease: "power3.inOut" }); cue(TE, "whoosh-cine.wav", .3);
+fin(".end .k .w", TE + .4, .6, { opacity: 0, y: 50 }, { opacity: 1, y: 0, stagger: .06, ease: "power3.out" }); cue(TE + .4, "bass.wav", .35);
+fin(".end .s", TE + 1.0, .6, { opacity: 0, y: 20 }, { opacity: 1, y: 0 });
+fin(".end .c", TE + 1.4, .5, { scale: 0 }, { scale: 1, ease: "back.out(2.2)" }); cue(TE + 1.4, "pop-bubble.wav", .3);
+fin(".end .a", TE + 1.8, .6, { opacity: 0 }, { opacity: 1 });
+"""
+    open(os.path.join(D, "index.html"), "w").write(page("Extensions de locks", css, body, js, T, ("m1183", 20)))
 print(F, "ok")
