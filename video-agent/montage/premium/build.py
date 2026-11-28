@@ -1964,14 +1964,14 @@ elif F in ("barbedit", "barbedit2"):
      "[white] Résultat/s | [red] propre=Propre./G | [p:l4:bw] net=Net./G | [p:l4] et/s tu/s repars/s avec/s confiance/I",
      "[white] Coupe/s cinquante=50_$/G dollars=/x | [red] Coupe/s et/s barbe/s soixante=60_$/G | [p:l2:bw] Réserve/s ta/s place/B chez/s Kadio/I Coiffure/s à/s Longueuil/B"]
     SPEC2 = [
-     "[v:barbier] Un/s dégradé/I | [red] chez/s Kadio/B Coiffure/s | [v:chiffre:bw] ça/s se/s passe/s en/s cinq=5/G étapes/i | [v:regarder] regarde/B",
-     "[v:discuter] D'abord/s on/s discute/I | [p:b6:bw] tu/s me/s montres/s ce/s que/s tu/s veux/B | [v:miroir] et/s on/s regarde/s ta/s forme/I de/s tête/B | [red] tes/s épis/B ta/s barbe/I",
-     "[p:b2] Ensuite/s la/s ligne/s de/s base/I | [v:rasoir:bw] tondeuse/s à/s zéro=0/G | [white] en/s bas/B autour/s des/s oreilles/B | [p:b3] et/s sur/s la/s nuque/I",
-     "[red] Puis/s le/s dégradé/B | [v:monter] on/s remonte/s petit/s à/s petit/I | [p:b8:bw] sabot/B après/s sabot/B | [v:invisible] pour/s que/s la/s transition/s soit/s invisible/I",
-     "[v:précision] Après/s le/s contour/I | [p:l1:bw] Au/s rasoir/B | [white] une/s ligne/s nette/B précise/I | [v:signature] C'est/s ça/s la/s signature/I Kadio/B",
-     "[v:barbe] Et/s pour/s finir/s la/s barbe/I | [v:ciseaux:bw] on/s la/s taille/B | [white] on/s la/s dessine/I | [v:huile] on/s l'hydrate/B",
-     "[white] Résultat/s | [v:brillant] propre=Propre./G | [p:l4:bw] net=Net./G | [v:confiance] et/s tu/s repars/s avec/s confiance/I",
-     "[v:argent] Coupe/s cinquante=50_$/G dollars=/x | [red] Coupe/s et/s barbe/s soixante=60_$/G | [v:ville:bw] Réserve/s ta/s place/B chez/s Kadio/I Coiffure/s à/s Longueuil/B"]
+     "[v:barbier] Un/s dégradé/I | [red] chez/s Kadio/B Coiffure/s | [v:4326:bw] ça/s se/s passe/s en/s cinq=5/G étapes/i | [v:regarder] regarde/B",
+     "[v:21296] D'abord/s on/s discute/I | [p:b6:bw] tu/s me/s montres/s ce/s que/s tu/s veux/B | [v:50756] et/s on/s regarde/s ta/s forme/I de/s tête/B | [red] tes/s épis/B ta/s barbe/I",
+     "[p:b2] Ensuite/s la/s ligne/s de/s base/I | [v:47845:bw] tondeuse/s à/s zéro=0/G | [white] en/s bas/B autour/s des/s oreilles/B | [p:b3] et/s sur/s la/s nuque/I",
+     "[red] Puis/s le/s dégradé/B | [v:monter] on/s remonte/s petit/s à/s petit/I | [p:b8:bw] sabot/B après/s sabot/B | [v:45298] pour/s que/s la/s transition/s soit/s invisible/I",
+     "[v:40127] Après/s le/s contour/I | [p:l1:bw] Au/s rasoir/B | [white] une/s ligne/s nette/B précise/I | [v:signature] C'est/s ça/s la/s signature/I Kadio/B",
+     "[v:47603] Et/s pour/s finir/s la/s barbe/I | [v:13122:bw] on/s la/s taille/B | [white] on/s la/s dessine/I | [v:50426] on/s l'hydrate/B",
+     "[white] Résultat/s | [v:46316] propre=Propre./G | [p:l4:bw] net=Net./G | [v:confiance] et/s tu/s repars/s avec/s confiance/I",
+     "[v:18296] Coupe/s cinquante=50_$/G dollars=/x | [red] Coupe/s et/s barbe/s soixante=60_$/G | [v:49878:bw] Réserve/s ta/s place/B chez/s Kadio/I Coiffure/s à/s Longueuil/B"]
     PAL = dict(a1="#f0505c", a2="#c8102e", a3="#8e0016", ai="#e0132b", ap="#ff2b40", as_="#9c0b20")
     PAL["as"] = PAL.pop("as_")
     if F == "barbedit2":
@@ -2078,5 +2078,5 @@ fin("#end .a", TE + 1.4, .5, { opacity: 0 }, { opacity: 1 });
 const _V = JSON.parse('""" + json.dumps(VS) + """');
 cue(_V[2] + 1.4, "tondeuse.wav", .4); cue(_V[3] + 1.6, "tondeuse.wav", .35); cue(_V[5] + 1.6, "ciseaux.wav", .45); cue(_V[6] + .5, "sparkle.wav", .3);
 """
-    open(os.path.join(D, "index.html"), "w").write(page("Barbier, montage dynamique", css, body, js, T, ("m1183", 40)))
+    open(os.path.join(D, "index.html"), "w").write(page("Barbier, montage dynamique", css, body, js, T, ("m839", 0) if F == "barbedit2" else ("m1183", 40)))
 print(F, "ok")

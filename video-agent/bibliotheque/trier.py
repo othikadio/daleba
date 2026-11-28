@@ -5,7 +5,7 @@ faibles = []
 for fr, ids in x["mots"].items():
     qs = [w[:4] for q in mots.get(fr, [fr]) for w in q.split()]
     ok = [v for v in ids if any(k in x["clips"][v]["titre"] for k in qs)]
-    x["mots"][fr] = ok
+    x["mots"][fr] = ok + [v for v in ids if v not in ok]  # pertinents d abord, les autres gardés
     if len(ok) < 3: faibles.append((fr, len(ok)))
 json.dump(x, open(os.path.join(H, "index.json"), "w"), ensure_ascii=False, indent=1)
 print("faibles:", faibles)
