@@ -2089,18 +2089,18 @@ elif F in ("talk1", "talk2"):
     json.dump([{"t": 0, "file": "talk.wav"}], open(os.path.join(D, "vo.json"), "w"))
     TEND = round(DUR - .15, 2); T = round(TEND + 3.4, 2)
     if F == "talk1":
-        SPEC = "[talk] Nos/s formules/B | [talk:z:bw] d'entretien/I de/s LOX=locks/G | [acc] commencent/s à/s 65=65_$/G $=/x | [talk:z] et/s bien/s sûr/s | [v:3672:bw] les/s places/B | [talk] sont/s limitées/I"
+        SPEC = "[talk] Nos/s formules/s d'entretien/I de/s LOX=locks/B | [acc] commencent/s à/s 65=65_$/G $=/x | [talk:z] et/s bien/s sûr/s les/s places/s sont/s limitées/I"
         PAL = {"a1": "#2f8f6e", "a2": "#0f5c45", "a3": "#062e22", "ai": "#e8b04a", "ap": "#f3c76a", "as": "#0f5c45"}
         SERIF = "fonts/cormorant-garamond-latin-600-italic.woff2"; MUS = ("m744", 0)
-        END = ('Entretien <em>locks.</em>', [("65 $", "par mois"), ("Club", "Kadio")], "Places limitées · Réserve ta place")
+        END = ('Entretien <em>locks.</em>', [("65 $", "par mois"), ("Club Kadio", "abonnement")], "Places limitées · Réserve ta place")
     else:
-        SPEC = "[talk] Est-ce/s que/s je/s dois/s | [white] m'abonner/I | [talk:z:bw] avant/s de/s venir/B ?=/x | [talk:z] Pas/s nécessairement/B | [acc] c'est/s une/s option/I | [talk] Un/s abonnement/B reste/s | [talk:z:bw] une/s option/I"
+        SPEC = "[talk] Est-ce/s que/s je/s dois/s m'abonner/I avant/s de/s venir/s ?=/x | [talk:z] Pas/s nécessairement/B | [acc] c'est/s une/s option/I | [talk] Un/s abonnement/s reste/s une/s option/I"
         PAL = {"a1": "#5b7bff", "a2": "#1f3cff", "a3": "#0a1a8f", "ai": "#1f3cff", "ap": "#9fb3ff", "as": "#1f3cff"}
         SERIF = "fonts/bodoni-moda-latin-700-italic.woff2"; MUS = ("m324", 0)
         END = ('Sans <em>obligation.</em>', [("19,99 $", "coupe + barbe /mois"), ("65 $", "entretien locks /mois")], "Viens comme tu es · Abonne-toi si tu veux")
     def fit(st, txt):
         n = max(len(txt), 1)
-        return {"s": 50, "i": 64, "B": min(150, int(1650 / n)), "I": min(180, int(1900 / n)), "G": min(380, int(1450 / n))}[st]
+        return {"s": 58, "i": 64, "B": min(96, int(1500 / n)), "I": min(108, int(1700 / n)), "G": min(300, int(1300 / n))}[st]
     shots, k = [], 0
     for part in SPEC.split("|"):
         part = part.strip(); bg, toks = part[1:part.index("]")], part[part.index("]") + 1:].split(); items = []
@@ -2122,10 +2122,10 @@ elif F in ("talk1", "talk2"):
 .shot { position: absolute; inset: 0; visibility: hidden; overflow: hidden; }
 .shot.acc { background: radial-gradient(120% 90% at 20% 15%, %a1% 0%, %a2% 45%, %a3% 100%); }
 .shot.white { background: #fff; color: %a2%; }
-.shot.talk .stk { top: 70%; }
+.shot.talk .stk { top: 74%; }
 .shot.talk:after, .shot.vid:after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,.45) 85%); z-index: 1; }
 .stk { position: absolute; left: 50px; right: 50px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; text-align: center; z-index: 3; }
-.ln { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; line-height: .95; }
+.ln { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; line-height: 1.12; max-width: 900px; }
 .wd { display: inline-block; opacity: 0; white-space: nowrap; margin: 0 .13em; }
 .talk .wd, .vid .wd { text-shadow: 0 4px 30px rgba(0,0,0,.6); }
 .s { font-weight: 700; letter-spacing: -.01em; }
@@ -2160,7 +2160,7 @@ elif F in ("talk1", "talk2"):
         lines, cur = [], None
         for n, (disp, st, tt) in enumerate(s["items"]):
             if st == "x": continue
-            if cur is None or st != cur[0] or st in "BIG": cur = [st, []]; lines.append(cur)
+            if cur is None or (st == "G"): cur = [st, []]; lines.append(cur)  # version calme : une seule ligne qui se remplit
             cur[1].append((n, disp, st))
         body += f'<div class="shot {cls}" id="h{j}" style="z-index:{5 + j}"><div class="stk">' + "".join('<div class="ln">' + "".join(f'<span class="wd {st}" id="h{j}w{n}" style="font-size:{fit(st, disp)}px">{e(disp)}</span>' for n, disp, st in ws) + "</div>" for st, ws in lines) + "</div></div>"
     body += f'''<div id="end"><div class="logo">KADIO COIFFURE</div><div class="k">{END[0]}</div><div class="pr">{"".join(f"<div>{a}<small>{b}</small></div>" for a, b in END[1])}</div>
@@ -2170,12 +2170,11 @@ elif F in ("talk1", "talk2"):
 SH.forEach(function (s, j) {
   const p = "#h" + j, b = s.bg.split(":"); show(p, s.t, s.end);
   if (b[0] === "talk") { tl.set("#bw", { scale: b.indexOf("z") > 0 ? 1.32 : 1.0 }, s.t); tl.set("#base", { filter: b.indexOf("bw") > 0 ? "grayscale(1) contrast(1.25) brightness(.9)" : "none" }, s.t); }
-  if (j) { tl.fromTo(b[0] === "talk" ? "#bw" : p, { scale: (b[0] === "talk" && b.indexOf("z") > 0 ? 1.32 : 1) * 1.06 }, { scale: b[0] === "talk" && b.indexOf("z") > 0 ? 1.32 : 1, duration: .25, ease: "power3.out", immediateRender: false }, s.t);
-    if (j % 2) cue(s.t - .03, "whoosh-fast.wav", .14); else cue(s.t, "click.wav", .1); }
+  if (j && b[0] !== "talk") { fin(p, s.t, .25, { opacity: 0 }, { opacity: 1, ease: "power2.out" }); cue(s.t - .03, "whoosh-fast.wav", .12); }
   s.w.forEach(function (w) { const q = p + "w" + w[0], big = w[1] !== "s" && w[1] !== "i";
-    tl.fromTo(q, { opacity: 0, scale: big ? 1.35 : 1.15, filter: big ? "blur(10px)" : "blur(0px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: big ? .2 : .1, ease: "power3.out", immediateRender: false }, w[2]);
+    tl.fromTo(q, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .18, ease: "power2.out", immediateRender: false }, w[2]);
     tl.set(q, { opacity: 0 }, 0);
-    if (w[1] === "G") { cue(w[2], "cut_hit_sub.wav", .35); tl.fromTo("#flash", { opacity: .5 }, { opacity: 0, duration: .25, immediateRender: false }, w[2]); }
+    if (w[1] === "G") cue(w[2], "bass.wav", .22);
   });
 });
 tl.set("#flash", { opacity: 0 }, 0); tl.set("#bw", { scale: 1 }, 0);

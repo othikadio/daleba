@@ -32,3 +32,11 @@ Références envoyées par Kadio : deux montages TikTok « 1 € edit / 5 € ed
   - `mot/s` petit, `/B` gros, `/I` serif italique, `/G` géant, `/i` petit italique, `/x` caché ; `mot=Affiché` pour changer le texte (`cinq=5`).
 - Voix : `vo/omni/barb_{i}.wav` + horodatage `vo/omni/barb_words.json`.
 - Rendu : `./produire.sh barbedit`.
+
+## Variante « calme » (face caméra) — retour de Kadio du 28 nov.
+Sur une vidéo où la personne parle face caméra, la version très coupée « en fait un peu trop, on a du mal à suivre ».
+Règles de la variante calme (blocs `talk1` / `talk2`) :
+- la personne reste à l'écran presque tout le temps ; 1 seule carte couleur par vidéo (pour le chiffre ou le mot clé) ;
+- sous-titres sur une ligne qui se remplit mot à mot, en bas (≈ 74 %), mots clés en italique serif ou en gras mais pas géants ;
+- pas de flash, pas de noir et blanc, pas d'effets de zoom brusques (un seul plan resserré possible) ;
+- sons discrets : un whoosh à l'entrée de la carte, une basse douce sur le chiffre.
