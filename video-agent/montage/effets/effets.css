@@ -99,7 +99,7 @@
 .fx-cut .big { position: absolute; left: 0; right: 0; top: 260px; text-align: center; font: 900 330px/0.9 ID; letter-spacing: -.06em; color: #fff; }
 .fx-cut .cl { position: absolute; top: 0; width: 1080px; height: 1920px; object-fit: cover; }
 /* téléphone + écrans d'appli de démonstration */
-.fx-tel { left: 260px; top: 150px; width: 560px; height: 1020px; border-radius: 72px; background: #0b0b0b; padding: 14px; z-index: 66; box-shadow: 0 40px 100px rgba(0,0,0,.5), inset 0 0 0 3px #2a2a2a; }
+.fx-tel { left: 260px; top: 120px; width: 560px; height: 1020px; border-radius: 72px; background: #0b0b0b; padding: 14px; z-index: 66; box-shadow: 0 40px 100px rgba(0,0,0,.5), inset 0 0 0 3px #2a2a2a; }
 .fx-tel .scr { position: absolute; inset: 14px; border-radius: 58px; overflow: hidden; background: #f6f3ec; }
 .fx-tel .notch { position: absolute; left: 50%; top: 26px; width: 150px; height: 40px; margin-left: -75px; border-radius: 20px; background: #0b0b0b; z-index: 9; }
 .fx-tel .ec { position: absolute; inset: 0; visibility: hidden; font-family: ID; color: #14110c; }
