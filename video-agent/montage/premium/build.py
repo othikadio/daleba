@@ -2079,4 +2079,111 @@ const _V = JSON.parse('""" + json.dumps(VS) + """');
 cue(_V[2] + 1.4, "tondeuse.wav", .4); cue(_V[3] + 1.6, "tondeuse.wav", .35); cue(_V[5] + 1.6, "ciseaux.wav", .45); cue(_V[6] + .5, "sparkle.wav", .3);
 """
     open(os.path.join(D, "index.html"), "w").write(page("Barbier, montage dynamique", css, body, js, T, ("m839", 0) if F == "barbedit2" else ("m1183", 40)))
+elif F in ("talk1", "talk2"):
+    # Style « montage dynamique » sur une vidéo face caméra (la vraie voix de la personne)
+    import subprocess
+    RU = os.path.join(R, "rushs"); W = json.load(open(os.path.join(RU, F + "_words.json")))
+    shutil.copy(os.path.join(RU, F + ".mp4"), os.path.join(D, "base.mp4"))
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", os.path.join(RU, F + ".mp4"), "-vn", "-af", "highpass=f=80,acompressor=threshold=-20dB:ratio=2.5:attack=8:release=120:makeup=2,loudnorm=I=-16:TP=-1.5:LRA=9", "-ar", "48000", "-ac", "1", os.path.join(D, "talk.wav")], check=True)
+    DUR = float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", os.path.join(RU, F + ".mp4")]).strip())
+    json.dump([{"t": 0, "file": "talk.wav"}], open(os.path.join(D, "vo.json"), "w"))
+    TEND = round(DUR - .15, 2); T = round(TEND + 3.4, 2)
+    if F == "talk1":
+        SPEC = "[talk] Nos/s formules/B | [talk:z:bw] d'entretien/I de/s LOX=locks/G | [acc] commencent/s à/s 65=65_$/G $=/x | [talk:z] et/s bien/s sûr/s | [v:3672:bw] les/s places/B | [talk] sont/s limitées/I"
+        PAL = {"a1": "#2f8f6e", "a2": "#0f5c45", "a3": "#062e22", "ai": "#e8b04a", "ap": "#f3c76a", "as": "#0f5c45"}
+        SERIF = "fonts/cormorant-garamond-latin-600-italic.woff2"; MUS = ("m744", 0)
+        END = ('Entretien <em>locks.</em>', [("65 $", "par mois"), ("Club", "Kadio")], "Places limitées · Réserve ta place")
+    else:
+        SPEC = "[talk] Est-ce/s que/s je/s dois/s | [white] m'abonner/I | [talk:z:bw] avant/s de/s venir/B ?=/x | [talk:z] Pas/s nécessairement/B | [acc] c'est/s une/s option/I | [talk] Un/s abonnement/B reste/s | [talk:z:bw] une/s option/I"
+        PAL = {"a1": "#5b7bff", "a2": "#1f3cff", "a3": "#0a1a8f", "ai": "#1f3cff", "ap": "#9fb3ff", "as": "#1f3cff"}
+        SERIF = "fonts/bodoni-moda-latin-700-italic.woff2"; MUS = ("m324", 0)
+        END = ('Sans <em>obligation.</em>', [("19,99 $", "coupe + barbe /mois"), ("65 $", "entretien locks /mois")], "Viens comme tu es · Abonne-toi si tu veux")
+    def fit(st, txt):
+        n = max(len(txt), 1)
+        return {"s": 50, "i": 64, "B": min(150, int(1650 / n)), "I": min(180, int(1900 / n)), "G": min(380, int(1450 / n))}[st]
+    shots, k = [], 0
+    for part in SPEC.split("|"):
+        part = part.strip(); bg, toks = part[1:part.index("]")], part[part.index("]") + 1:].split(); items = []
+        for tk in toks:
+            w, st = tk.rsplit("/", 1); disp = (w.split("=", 1)[1] if "=" in w else w).replace("_", " ")
+            items.append((disp, st, round(W[k][1], 2))); k += 1
+        shots.append(dict(bg=bg, items=items, t=items[0][2] if shots else 0.0))
+    assert k == len(W), (k, len(W))
+    for j, s in enumerate(shots): s["end"] = shots[j + 1]["t"] if j + 1 < len(shots) else TEND
+    LIB = os.path.join(R, "..", "..", "bibliotheque"); os.makedirs(os.path.join(D, "clips"), exist_ok=True)
+    css = """
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Bold.otf); font-weight: 700; }
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Black.otf); font-weight: 900; }
+@font-face { font-family: SR; src: url(%SERIF%); font-weight: 700; font-style: italic; }
+#root { background: #000; color: #fff; font-family: ID; }
+#bw { position: absolute; inset: 0; overflow: hidden; z-index: 1; transform-origin: 50% 28%; }
+#bw .v, .v { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.v.gray { filter: grayscale(1) contrast(1.25) brightness(.9); }
+.shot { position: absolute; inset: 0; visibility: hidden; overflow: hidden; }
+.shot.acc { background: radial-gradient(120% 90% at 20% 15%, %a1% 0%, %a2% 45%, %a3% 100%); }
+.shot.white { background: #fff; color: %a2%; }
+.shot.talk .stk { top: 70%; }
+.shot.talk:after, .shot.vid:after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,.45) 85%); z-index: 1; }
+.stk { position: absolute; left: 50px; right: 50px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; text-align: center; z-index: 3; }
+.ln { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; line-height: .95; }
+.wd { display: inline-block; opacity: 0; white-space: nowrap; margin: 0 .13em; }
+.talk .wd, .vid .wd { text-shadow: 0 4px 30px rgba(0,0,0,.6); }
+.s { font-weight: 700; letter-spacing: -.01em; }
+.B, .G { font-weight: 900; letter-spacing: -.045em; }
+.G { line-height: .85; }
+.I, .i { font-family: SR; font-style: italic; font-weight: 700; letter-spacing: -.01em; }
+.talk .I, .vid .I, .talk .i { color: %ap%; }
+.white .I, .white .G, .white .B, .white .i { color: %ai%; }
+.white .s { color: %as%; }
+.acc .I, .acc .i { color: #fff; }
+#flash { position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 60; }
+#end { position: absolute; inset: 0; visibility: hidden; z-index: 50; background: radial-gradient(120% 90% at 20% 15%, %a1% 0%, %a2% 45%, %a3% 100%); }
+#end .k { position: absolute; left: 0; right: 0; top: 520px; text-align: center; font: 900 120px/1 ID; letter-spacing: -.05em; }
+#end .k em { display: block; font: italic 700 170px SR; letter-spacing: -.01em; color: %ap%; }
+#end .pr { position: absolute; left: 80px; right: 80px; top: 960px; display: flex; gap: 24px; }
+#end .pr div { flex: 1; padding: 30px 0; border-radius: 28px; background: #fff; color: %a2%; text-align: center; font: 900 58px/1.15 ID; }
+#end .pr small { display: block; font: 700 28px ID; color: %a3%; }
+#end .n { position: absolute; left: 0; right: 0; top: 1240px; text-align: center; font: 700 42px ID; }
+#end .a { position: absolute; left: 0; right: 0; top: 1360px; text-align: center; font: 700 38px/1.55 ID; color: rgba(255,255,255,.85); }
+#end .logo { position: absolute; left: 0; right: 0; top: 380px; text-align: center; font: 900 40px ID; letter-spacing: .3em; }
+"""
+    for kk, v in PAL.items(): css = css.replace("%" + kk + "%", v)
+    css = css.replace("%SERIF%", SERIF)
+    body = f'<div id="bw"><video id="base" class="v clip" src="base.mp4" muted playsinline data-start="0" data-duration="{TEND}" data-track-index="0"></video></div>'
+    vids = []
+    for j, s in enumerate(shots):
+        parts = s["bg"].split(":"); cls = {"talk": "talk", "acc": "acc", "white": "white", "v": "vid"}[parts[0]]
+        if parts[0] == "v":
+            cid = parts[1]; shutil.copy(os.path.join(LIB, "clips", cid + ".mp4"), os.path.join(D, "clips", cid + ".mp4"))
+            body += f'<video id="vv{j}" class="v clip{" gray" if "bw" in parts else ""}" src="clips/{cid}.mp4" muted playsinline data-start="{s["t"]}" data-duration="{round(s["end"] - s["t"] + .05, 2)}" data-track-index="{1 + len(vids) % 2}" style="z-index:{5 + j}"></video>'
+            vids.append(j)
+        lines, cur = [], None
+        for n, (disp, st, tt) in enumerate(s["items"]):
+            if st == "x": continue
+            if cur is None or st != cur[0] or st in "BIG": cur = [st, []]; lines.append(cur)
+            cur[1].append((n, disp, st))
+        body += f'<div class="shot {cls}" id="h{j}" style="z-index:{5 + j}"><div class="stk">' + "".join('<div class="ln">' + "".join(f'<span class="wd {st}" id="h{j}w{n}" style="font-size:{fit(st, disp)}px">{e(disp)}</span>' for n, disp, st in ws) + "</div>" for st, ws in lines) + "</div></div>"
+    body += f'''<div id="end"><div class="logo">KADIO COIFFURE</div><div class="k">{END[0]}</div><div class="pr">{"".join(f"<div>{a}<small>{b}</small></div>" for a, b in END[1])}</div>
+<div class="n">{END[2]}</div><div class="a">615, Antoinette-Robidoux · Longueuil<br>514 919-5970 · kadiocoiffure.com</div></div><div id="flash"></div>'''
+    SH = [dict(t=s["t"], end=s["end"], bg=s["bg"], w=[(n, st, tt) for n, (d_, st, tt) in enumerate(s["items"]) if st != "x"]) for s in shots]
+    js = "const SH = " + json.dumps(SH) + ", TE = " + str(TEND) + ";\n" + """
+SH.forEach(function (s, j) {
+  const p = "#h" + j, b = s.bg.split(":"); show(p, s.t, s.end);
+  if (b[0] === "talk") { tl.set("#bw", { scale: b.indexOf("z") > 0 ? 1.32 : 1.0 }, s.t); tl.set("#base", { filter: b.indexOf("bw") > 0 ? "grayscale(1) contrast(1.25) brightness(.9)" : "none" }, s.t); }
+  if (j) { tl.fromTo(b[0] === "talk" ? "#bw" : p, { scale: (b[0] === "talk" && b.indexOf("z") > 0 ? 1.32 : 1) * 1.06 }, { scale: b[0] === "talk" && b.indexOf("z") > 0 ? 1.32 : 1, duration: .25, ease: "power3.out", immediateRender: false }, s.t);
+    if (j % 2) cue(s.t - .03, "whoosh-fast.wav", .14); else cue(s.t, "click.wav", .1); }
+  s.w.forEach(function (w) { const q = p + "w" + w[0], big = w[1] !== "s" && w[1] !== "i";
+    tl.fromTo(q, { opacity: 0, scale: big ? 1.35 : 1.15, filter: big ? "blur(10px)" : "blur(0px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: big ? .2 : .1, ease: "power3.out", immediateRender: false }, w[2]);
+    tl.set(q, { opacity: 0 }, 0);
+    if (w[1] === "G") { cue(w[2], "cut_hit_sub.wav", .35); tl.fromTo("#flash", { opacity: .5 }, { opacity: 0, duration: .25, immediateRender: false }, w[2]); }
+  });
+});
+tl.set("#flash", { opacity: 0 }, 0); tl.set("#bw", { scale: 1 }, 0);
+show("#end", TE, null); fin("#end", TE, .45, { clipPath: "inset(100% 0 0 0)" }, { clipPath: "inset(0% 0 0 0)", ease: "power4.inOut" }); cue(TE, "whoosh-cine.wav", .3);
+fin("#end .logo", TE + .3, .4, { opacity: 0 }, { opacity: 1 });
+fin("#end .k", TE + .35, .5, { opacity: 0, scale: 1.2, filter: "blur(12px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", ease: "power3.out" }); cue(TE + .35, "bass.wav", .35);
+fin("#end .pr div", TE + .9, .4, { opacity: 0, y: 40 }, { opacity: 1, y: 0, stagger: .15, ease: "back.out(2)" }); cue(TE + .9, "pop-bubble.wav", .22);
+fin("#end .n", TE + 1.3, .4, { opacity: 0 }, { opacity: 1 }); fin("#end .a", TE + 1.6, .5, { opacity: 0 }, { opacity: 1 });
+"""
+    open(os.path.join(D, "index.html"), "w").write(page("Kadio, montage face caméra", css, body, js, T, MUS))
 print(F, "ok")
