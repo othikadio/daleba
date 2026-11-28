@@ -2280,7 +2280,7 @@ elif F.startswith("serv_"):
     body, vids = "", []
     for j, s in enumerate(shots):
         parts = s["bg"].split(":"); kind = parts[0]
-        cls = {"p": "photo", "v": "vid", "acc": "acc", "white": "white"}[kind] + (" bw" if "bw" in parts else "")
+        cls = {"p": "photo", "v": "vid", "acc": "acc", "white": "white"}[kind] + (" bas" if "bas" in parts else "") + (" bw" if "bw" in parts else "")
         if "focus" in parts: cls += " focus"
         h = f'<div class="shot {cls}" id="h{j}" style="z-index:{5 + j}">'
         if kind == "p":
@@ -2295,7 +2295,7 @@ elif F.startswith("serv_"):
             if st == "x": continue
             if cur is None or st != cur[0] or st in "BIG": cur = [st, []]; lines.append(cur)
             cur[1].append((n, disp, st))
-        h += '<div class="stk">' + "".join('<div class="ln">' + "".join(f'<span class="wd {st}" id="h{j}w{n}" style="font-size:{fit(st, disp)}px">{e(disp)}</span>' for n, disp, st in ws) + "</div>" for st, ws in lines) + "</div></div>"
+        h += '<div class="stk"' + (' style="top:71%"' if "bas" in parts else "") + '>' + "".join('<div class="ln">' + "".join(f'<span class="wd {st}" id="h{j}w{n}" style="font-size:{fit(st, disp)}px">{e(disp)}</span>' for n, disp, st in ws) + "</div>" for st, ws in lines) + "</div></div>"
         body += h
     body += f'''<div id="end"><div class="logo">KADIO COIFFURE</div><div class="k">{e(CF["end"][0])}<em style="font-size:{min(170, int(1700 / max(len(CF["end"][1]), 1)))}px">{e(CF["end"][1])}</em></div>
 <div class="pr">{"".join(f"<div>{e(a)}<small>{e(b)}</small></div>" for a, b in CF["prix"])}</div>

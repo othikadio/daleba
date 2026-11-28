@@ -279,5 +279,57 @@
   "fx": [
    "FX.carte(V[3] + .2, 3.0, { titre: \"Kadio Network\", sous: \"Tresses · locks · barbier\", bouton: \"Réserver\", encours: \"Paiement sécurisé…\", fini: \"Confirmé ✓  QR envoyé\", icone: \"K\", cx: 720, cy: 640 }); (function(){ const c = document.querySelectorAll(\"#root .fx-card\"); const k = c[c.length - 1]; k.style.top = \"230px\"; k.style.background = \"#0E0C09\"; k.style.color = \"#f0d488\"; k.style.border = \"2px solid #B8922A\"; k.querySelector(\".bt\").style.background = \"#B8922A\"; k.querySelector(\".bt\").style.color = \"#0E0C09\"; k.querySelector(\".ic\").style.background = \"#B8922A\"; k.querySelector(\".ic\").style.color = \"#0E0C09\"; k.querySelector(\".t2\").style.color = \"#c9b07a\"; })();"
   ]
+ },
+ "lance": {
+  "pal": [
+   "#2a241a",
+   "#0E0C09",
+   "#000000",
+   "#B8922A",
+   "#f0d488",
+   "#7a5d16"
+  ],
+  "acci": "#e3bf5c",
+  "serif": "cormorant-garamond-latin-600-italic.woff2",
+  "mus": [
+   "m31",
+   0
+  ],
+  "end": [
+   "KADIO",
+   "Network."
+  ],
+  "prix": [
+   [
+    "M’inscrire",
+    "avis de lancement"
+   ],
+   [
+    "Bientôt",
+    "dans ton secteur"
+   ]
+  ],
+  "spec": [
+   "[p:s_design:f=40,30,1.8] Salut/s Est-ce/s que/s tu/s fais/s les/s twists/I | [white:bas] T'aurais/s une/s place/s samedi/B",
+   "[acc:bas] Combien/s de/s fois/B t'as/s envoyé/s ce/s message-là/I",
+   "[p:d_fin:f=50,40,1.0] Moi/s c'est/s Othi/B | [p:neon_a:f=50,50,1.0] de/s Kadio/B Coiffure/s à/s Longueuil/I",
+   "[white] Je/s lance/s Kadio/B Nètwork=Network/I | [acc:bas] un/s réseau/B qui/s réunit/s les/s pros/s de/s la/s coiffure/s afro/I | [white] au/s Québec/B dans/s une/s seule/s application/I",
+   "[white:bas] Tu/s veux/s des/s twists/I pour/s samedi/B | [white:bas] Tu/s choisis/s la/s coiffure/B tu/s vois/s qui/s est/s disponible/I | [white:bas] et/s tu/s réserves/B l'heure/s qui/s te/s convient/s",
+   "[white:bas] En/s salon/B chez/s ton/s coiffeur/I ou/s directement/s chez/s toi/B",
+   "[v:43231] Et/s tu/s sais/s à/s qui/s tu/s confies/s tes/s cheveux/I | [acc] Les/s pros/s du/s réseau/s passent/s par/s la/s certification/B Kadio/I",
+   "[white] Tu/s retrouves/s les/s mêmes/s standards/B | [p:porte:f=50,50,1.0] que/s tu/s pousses/s la/s porte/I du/s salon/B | [v:21812] ou/s que/s tu/s ouvres/s celle/s de/s chez/s toi/B",
+   "[p:s_locks:f=55,40,1.3:bw] Et/s si/s c'est/s toi/B qui/s coiffes/I | [white:bas] les/s clients/s peuvent/s enfin/s te/s trouver/B pour/s ce/s que/s tu/s fais/s de/s mieux/I",
+   "[white:bas] Tu/s choisis/s où/s tu/s travailles/I | [white:bas] et/s tu/s gardes/s tes/s rendez-vous/B | [v:16031] au/s même/s endroit/I",
+   "[p:s_design:f=40,30,1.8] Oui/B C'est/s exactement/s ça/s que/s je/s voulais/I",
+   "[acc] Tu/s veux/s savoir/s quand/s Kadio/B Nètwork=Network/I arrive/s dans/s ton/s secteur/B | [white:bas] Appuie/s sur/s M'inscrire/B pour/s recevoir/s l'avis/s de/s lancement/I"
+  ],
+  "fx": [
+   "FX.ecrans(V[0]+2.0, (V[2]-0.3) - (V[0]+2.0), [{\"t\": V[0]+2.0, \"h\": \"<div class=\\\"ch-h\\\"><i></i>Studio Tresses</div><div class=\\\"ch-b b0\\\" style=\\\"top:200px\\\"><img src=\\\"photos/s_design.jpg\\\"></div><div class=\\\"ch-b v1\\\" style=\\\"top:690px\\\"><div class=\\\"ch-v\\\"><div class=\\\"pl\\\"></div><div class=\\\"wv\\\"></div>0:04</div></div>\", \"pops\": [[\".b0\", V[0]+2.1], [\".v1\", V[0]+2.6, \"whoosh-fast.wav\"]]}, {\"t\": V[1]+0.1, \"h\": \"<div class=\\\"ch-h\\\"><i></i>Nadia \\u00b7 coiffeuse</div><div class=\\\"ch-b v2\\\" style=\\\"top:220px\\\"><div class=\\\"ch-v\\\"><div class=\\\"pl\\\"></div><div class=\\\"wv\\\"></div>0:04</div></div>\", \"pops\": [[\".v2\", V[1]+0.4, \"whoosh-fast.wav\"]]}, {\"t\": V[1]+1.2, \"h\": \"<div class=\\\"ch-h\\\"><i></i>Twists Montr\\u00e9al</div><div class=\\\"ch-b v3\\\" style=\\\"top:220px\\\"><div class=\\\"ch-v\\\"><div class=\\\"pl\\\"></div><div class=\\\"wv\\\"></div>0:04</div></div>\", \"pops\": [[\".v3\", V[1]+1.45, \"whoosh-fast.wav\"]]}]);",
+   "FX.mur(V[3] + 1.5, 2.8, { images: [\"photos/s_stitch.jpg\",\"photos/s_locks.jpg\",\"photos/s_creative.jpg\",\"photos/s_design.jpg\",\"photos/s_coupe.jpg\",\"photos/d_boucles.jpg\",\"photos/d_fin.jpg\",\"photos/b1.jpg\",\"photos/b2.jpg\",\"photos/b4.jpg\",\"photos/b6.jpg\",\"photos/b8.jpg\",\"photos/l1.jpg\",\"photos/l2.jpg\",\"photos/h_twists.jpg\",\"photos/h_locks.jpg\",\"photos/h_nattes.jpg\",\"photos/h_croises.jpg\"], n: 56, total: 0 }); (function(){ const c = document.querySelectorAll(\"#root .fx-count\"); c[c.length-1].style.display = \"none\"; })();",
+   "FX.ecrans(V[4]-0.1, (V[6]-0.15) - (V[4]-0.1), [{\"t\": V[4]-0.1, \"h\": \"<div class=\\\"ap-h\\\">KADIO NETWORK</div><div class=\\\"ap-t\\\">Quelle coiffure ?</div><div class=\\\"ap-chips\\\"><b class=\\\"c1\\\">Twists</b><b>Nattes</b><b>Locks</b><b>Barbier</b><b>D\\u00e9frisage</b><b>Tresses</b></div>\", \"tap\": [110, 330], \"tt\": V[4]+2.5, \"on\": \".c1\"}, {\"t\": V[4]+3.0, \"h\": \"<div class=\\\"ap-h\\\">KADIO NETWORK</div><div class=\\\"ap-t\\\">Disponibles samedi</div><div class=\\\"ap-s\\\">Twists \\u00b7 pr\\u00e8s de toi</div><div class=\\\"ap-row r1\\\"><span style=\\\"width:86px;height:86px;border-radius:50%;background:#c9b07a;display:inline-flex;align-items:center;justify-content:center;font:900 40px ID;color:#0E0C09;flex:none\\\">A</span><div>A\\u00efcha K.<small>Certifi\\u00e9e Kadio \\u2605 \\u00b7 Twists</small></div></div><div class=\\\"ap-row\\\"><span style=\\\"width:86px;height:86px;border-radius:50%;background:#c9b07a;display:inline-flex;align-items:center;justify-content:center;font:900 40px ID;color:#0E0C09;flex:none\\\">M</span><div>Mariam D.<small>Certifi\\u00e9e Kadio \\u2605 \\u00b7 Locks</small></div></div><div class=\\\"ap-row\\\"><span style=\\\"width:86px;height:86px;border-radius:50%;background:#c9b07a;display:inline-flex;align-items:center;justify-content:center;font:900 40px ID;color:#0E0C09;flex:none\\\">G</span><div>Grace T.<small>Certifi\\u00e9e Kadio \\u2605 \\u00b7 Tresses</small></div></div>\", \"tap\": [260, 330], \"tt\": V[4]+4.2, \"on\": \".r1\"}, {\"t\": V[4]+4.5, \"h\": \"<div class=\\\"ap-h\\\">KADIO NETWORK</div><div class=\\\"ap-t\\\">Samedi</div><div class=\\\"ap-s\\\">Choisis ton heure</div><div class=\\\"ap-slots\\\"><b>9 h</b><b class=\\\"s10\\\">10 h</b><b>13 h</b><b>15 h</b><b>16 h 30</b><b>18 h</b></div>\", \"tap\": [400, 330], \"tt\": V[4]+5.6, \"on\": \".s10\"}, {\"t\": V[5]-0.1, \"h\": \"<div class=\\\"ap-h\\\">KADIO NETWORK</div><div class=\\\"ap-t\\\">O\\u00f9 ?</div><div class=\\\"ap-row\\\">En salon</div><div class=\\\"ap-row\\\">Chez ta coiffeuse</div><div class=\\\"ap-row d1\\\">\\u00c0 domicile</div>\", \"tap\": [260, 450], \"tt\": V[5]+2.2, \"on\": \".d1\"}, {\"t\": V[5]+2.7, \"h\": \"<div class=\\\"ap-h\\\">KADIO NETWORK</div><div class=\\\"ap-t\\\">R\\u00e9serv\\u00e9</div><div class=\\\"ap-ok\\\"><i>\\u2713</i>Twists<br>Samedi \\u00b7 10 h<br><span style=\\\"color:#8a7a52\\\">\\u00c0 domicile</span></div>\"}]);",
+   "FX.sceau(V[6] + 3.3, 1.9, { haut: \"CERTIFIÉ\", bas: \"KADIO\", style: \"top:180px\" });",
+   "FX.ecrans(V[8]+1.5, (V[9]+2.9) - (V[8]+1.5), [{\"t\": V[8]+1.5, \"h\": \"<div class=\\\"ap-h\\\">KADIO NETWORK</div><div class=\\\"ap-t\\\">Mon profil</div><div class=\\\"ap-row\\\" style=\\\"border:0\\\"><span style=\\\"width:86px;height:86px;border-radius:50%;background:#c9b07a;display:inline-flex;align-items:center;justify-content:center;font:900 40px ID;color:#0E0C09;flex:none\\\">A</span><div>A\\u00efcha K.<small>Certifi\\u00e9e Kadio \\u2605</small></div></div><div class=\\\"ap-s\\\" style=\\\"padding-top:20px\\\">Sp\\u00e9cialit\\u00e9s</div><div class=\\\"ap-chips\\\"><b class=\\\"on\\\">Twists</b><b class=\\\"on\\\">Locks</b><b>Nattes</b></div>\"}, {\"t\": V[9]-0.1, \"h\": \"<div class=\\\"ap-h\\\">KADIO NETWORK</div><div class=\\\"ap-t\\\">O\\u00f9 je travaille</div><div class=\\\"ap-row w1\\\">\\u2713 Au salon Kadio</div><div class=\\\"ap-row w2\\\">\\u2713 Chez moi</div><div class=\\\"ap-row w3\\\">\\u2713 \\u00c0 domicile</div>\", \"pops\": [[\".w1\", V[9]+0.3], [\".w2\", V[9]+0.6], [\".w3\", V[9]+0.9]]}, {\"t\": V[9]+1.5, \"h\": \"<div class=\\\"ap-h\\\">KADIO NETWORK</div><div class=\\\"ap-t\\\">Mes rendez-vous</div><div class=\\\"ap-row\\\">Sam \\u00b7 10 h<small style=\\\"margin-left:auto\\\">Twists \\u00b7 domicile</small></div><div class=\\\"ap-row\\\">Sam \\u00b7 14 h<small style=\\\"margin-left:auto\\\">Locks \\u00b7 salon</small></div><div class=\\\"ap-row\\\">Dim \\u00b7 11 h<small style=\\\"margin-left:auto\\\">Nattes \\u00b7 chez moi</small></div>\"}]);",
+   "FX.ecrans(V[11]+2.4, (TE + .1) - (V[11]+2.4), [{\"t\": V[11]+2.4, \"h\": \"<div class=\\\"ap-h\\\">KADIO NETWORK</div><div class=\\\"ap-t\\\">Re\\u00e7ois l'avis de lancement</div><div class=\\\"ap-field\\\"><small>Ton secteur</small>Longueuil</div><div class=\\\"ap-field\\\"><small>Ton courriel</small>toi@courriel.com</div><div class=\\\"ap-btn b1\\\">M\\u2019inscrire</div>\", \"tap\": [266, 640], \"tt\": V[11]+3.6, \"on\": \".b1\"}, {\"t\": V[11]+4.1, \"h\": \"<div class=\\\"ap-h\\\">KADIO NETWORK</div><div class=\\\"ap-t\\\">C'est not\\u00e9 !</div><div class=\\\"ap-ok\\\"><i>\\u2713</i>On t\\u2019avertit d\\u00e8s que<br>KADIO Network<br>arrive dans ton secteur.</div>\"}]);"
+  ]
  }
 }

@@ -98,3 +98,35 @@
 .fx-cut .bgi, .fx-cut .fg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .fx-cut .big { position: absolute; left: 0; right: 0; top: 260px; text-align: center; font: 900 330px/0.9 ID; letter-spacing: -.06em; color: #fff; }
 .fx-cut .cl { position: absolute; top: 0; width: 1080px; height: 1920px; object-fit: cover; }
+/* téléphone + écrans d'appli de démonstration */
+.fx-tel { left: 260px; top: 150px; width: 560px; height: 1020px; border-radius: 72px; background: #0b0b0b; padding: 14px; z-index: 66; box-shadow: 0 40px 100px rgba(0,0,0,.5), inset 0 0 0 3px #2a2a2a; }
+.fx-tel .scr { position: absolute; inset: 14px; border-radius: 58px; overflow: hidden; background: #f6f3ec; }
+.fx-tel .notch { position: absolute; left: 50%; top: 26px; width: 150px; height: 40px; margin-left: -75px; border-radius: 20px; background: #0b0b0b; z-index: 9; }
+.fx-tel .ec { position: absolute; inset: 0; visibility: hidden; font-family: ID; color: #14110c; }
+.fx-tel .tap { position: absolute; width: 90px; height: 90px; margin: -45px 0 0 -45px; border-radius: 50%; background: rgba(184,146,42,.35); border: 4px solid #B8922A; z-index: 10; visibility: hidden; }
+.ap-h { height: 150px; padding: 78px 34px 0; background: #0E0C09; color: #e3bf5c; font: 900 30px ID; letter-spacing: .16em; }
+.ap-t { padding: 34px 34px 10px; font: 900 46px/1.1 ID; letter-spacing: -.03em; }
+.ap-s { padding: 0 34px; font: 700 26px ID; color: #6b6458; }
+.ap-chips { display: flex; flex-wrap: wrap; gap: 16px; padding: 26px 34px; }
+.ap-chips b { padding: 20px 28px; border-radius: 999px; background: #fff; border: 2px solid #e2dccf; font: 900 32px ID; }
+.ap-chips b.on, .ap-row.on, .ap-slots b.on { background: #B8922A; border-color: #B8922A; color: #0E0C09; }
+.ap-row { margin: 16px 30px 0; padding: 22px 24px; border-radius: 26px; background: #fff; border: 2px solid #e2dccf; display: flex; align-items: center; gap: 20px; font: 900 32px ID; }
+.ap-row img { width: 86px; height: 86px; border-radius: 50%; object-fit: cover; }
+.ap-row small { display: block; font: 700 24px ID; color: #8a7a52; margin-top: 4px; }
+.ap-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 26px 30px; }
+.ap-slots b { padding: 26px 0; text-align: center; border-radius: 22px; background: #fff; border: 2px solid #e2dccf; font: 900 36px ID; }
+.ap-btn { margin: 30px; padding: 30px 0; text-align: center; border-radius: 999px; background: #0E0C09; color: #e3bf5c; font: 900 36px ID; }
+.ap-ok { margin: 90px 30px 0; text-align: center; font: 900 50px/1.15 ID; }
+.ap-ok i { display: block; margin: 0 auto 26px; width: 150px; height: 150px; border-radius: 50%; background: #B8922A; color: #0E0C09; font: 900 90px/150px ID; font-style: normal; }
+.ap-field { margin: 18px 30px 0; padding: 24px; border-radius: 20px; background: #fff; border: 2px solid #e2dccf; font: 700 32px ID; color: #14110c; }
+.ap-field small { display: block; font: 700 22px ID; color: #8a7a52; margin-bottom: 6px; }
+.ch-h { height: 160px; padding: 84px 30px 0; background: #fff; border-bottom: 2px solid #e8e2d6; font: 900 34px ID; display: flex; align-items: center; gap: 18px; }
+.ch-h i { width: 60px; height: 60px; border-radius: 50%; background: #c9b07a; display: inline-block; }
+.ch-b { position: absolute; right: 26px; max-width: 380px; border-radius: 30px 30px 8px 30px; background: #dcf8c6; padding: 14px; box-shadow: 0 4px 10px rgba(0,0,0,.08); }
+.ch-b img { width: 340px; height: 420px; object-fit: cover; border-radius: 20px; display: block; }
+.ch-v { display: flex; align-items: center; gap: 14px; width: 360px; padding: 10px 8px; font: 700 26px ID; color: #2b6a33; }
+.ch-v .pl { width: 0; height: 0; border-left: 30px solid #2b6a33; border-top: 18px solid transparent; border-bottom: 18px solid transparent; }
+.ch-v .wv { flex: 1; height: 50px; background: repeating-linear-gradient(90deg, #2b6a33 0 5px, transparent 5px 10px); -webkit-mask: linear-gradient(0deg, transparent 20%, #000 20%, #000 80%, transparent 80%); }
+/* sceau de certification */
+.fx-seal { left: 290px; top: 360px; width: 500px; height: 500px; border-radius: 50%; z-index: 70; background: radial-gradient(circle, #e3bf5c 0 58%, #B8922A 59% 64%, #e3bf5c 65% 100%); box-shadow: 0 30px 80px rgba(0,0,0,.45); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #0E0C09; text-align: center; }
+.fx-seal b { font: 900 58px/1 ID; letter-spacing: .06em; } .fx-seal span { font: 900 120px/1 ID; } .fx-seal small { font: 900 30px ID; letter-spacing: .3em; margin-top: 8px; }

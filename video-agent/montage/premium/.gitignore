@@ -50,3 +50,4 @@ vo/brut/*.wav
 vo/brut/jobs.json
 /brut/
 vo/serie/jobs_network.json
+vo/serie/jobs_lance.json

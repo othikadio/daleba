@@ -122,6 +122,21 @@ const FX = (function () {
     for (let i = N - 1; i >= 0; i--) h += `<img class="cl" src="${o.detoure}" style="left:0;transform:translateY(${-i * 300}px) scale(${1 - i * .14});transform-origin:50% 100%">`;
     const s = el("fx-full fx-cut", h); show(s, t, t + dur);
     for (let i = 0; i < N; i++) { const q = s + ` .cl:nth-of-type(${N - i + 1})`; fin(q, t + .1 + i * .2, .35, { opacity: 0 }, { opacity: 1 }); sfx(t + .1 + i * .2, "click.wav", .2); } };
+  // 24 Téléphone avec écrans d'appli de démonstration. ecrans = [{t, h (html de l'écran), tap: [x, y] relatif à l'écran, tt (temps du tap)}]
+  X.ecrans = function (t, dur, ecrans, o) { o = o || {};
+    const s = el("fx fx-tel", '<div class="scr">' + ecrans.map((e, i) => `<div class="ec" data-i="${i}">${e.h}</div>`).join("") + '</div><div class="notch"></div><div class="tap"></div>', o.style || "");
+    show(s, t, t + dur); fin(s, t, .5, { y: 260, opacity: 0, rotate: 4 }, { y: 0, opacity: 1, rotate: 0, ease: "power3.out" }); sfx(t, "whoosh-fast.wav", .2);
+    tl.to(s, { y: 200, opacity: 0, duration: .35, ease: "power2.in" }, t + dur - .35);
+    ecrans.forEach(function (e, i) { const q = s + ` .ec[data-i="${i}"]`, t1 = i + 1 < ecrans.length ? ecrans[i + 1].t : t + dur; show(q, e.t, t1);
+      if (i) { fin(q, e.t, .35, { x: 540 }, { x: 0, ease: "power3.out" }); sfx(e.t, "click.wav", .12); }
+      if (e.tap) { const tp = s + " .tap", tt = e.tt || (t1 - .45); tl.set(tp, { left: e.tap[0] + 14, top: e.tap[1] + 14 }, tt - .01); show(tp, tt, tt + .4); fin(tp, tt, .4, { scale: .3, opacity: 1 }, { scale: 1.4, opacity: 0, ease: "power2.out" }); sfx(tt, "pop-bubble.wav", .22);
+        if (e.on) { tl.set(s + ` .ec[data-i="${i}"] ` + e.on, { backgroundColor: "#B8922A", borderColor: "#B8922A", color: "#0E0C09" }, tt); tl.set(s + ` .ec[data-i="${i}"] ` + e.on, { clearProps: "backgroundColor,borderColor,color" }, 0); } }
+      (e.pops || []).forEach(function (pp) { fin(s + ` .ec[data-i="${i}"] ` + pp[0], pp[1], .35, { opacity: 0, y: 40, scale: .9 }, { opacity: 1, y: 0, scale: 1, ease: "back.out(1.8)" }); sfx(pp[1], pp[2] || "pop-bubble.wav", .25); });
+    }); return s; };
+  // 25 Sceau de certification qui se pose (tampon)
+  X.sceau = function (t, dur, o) { o = o || {}; const s = el("fx fx-seal", `<b>${o.haut || "CERTIFIÉ"}</b><span>★</span><small>${o.bas || "KADIO"}</small>`, o.style || "");
+    show(s, t, t + dur); fin(s, t, .35, { scale: 2.4, opacity: 0, rotate: -25 }, { scale: 1, opacity: 1, rotate: -8, ease: "power4.in" }); sfx(t + .33, "cut_hit_sub.wav", .4);
+    tl.to(s, { scale: 1.04, duration: .12, yoyo: true, repeat: 1 }, t + .35); tl.to(s, { opacity: 0, scale: .9, duration: .3 }, t + dur - .3); };
   // Liste « Dans cette vidéo » qui suit la progression
   X.liste = function (t0, t1, items, temps) { const s = el("fx fx-list", `<div class="hd"><span>DANS CETTE VIDÉO</span><span class="ct">01 / ${String(items.length).padStart(2, "0")}</span></div>` + items.map((x, i) => `<div class="it"><small>${String(i + 1).padStart(2, "0")}</small>${x}</div>`).join(""));
     show(s, t0, t1); fin(s, t0, .4, { opacity: 0, x: 60 }, { opacity: 1, x: 0 });
