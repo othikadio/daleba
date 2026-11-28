@@ -32,5 +32,6 @@
 - Style validé et sauvegardé (STYLES.md + styles/montage-dynamique.md) ; bibliothèque de plans (592) et de musiques (49)
 - Publiés : talk1 (entretien locks 65 $) et talk2 (abonnement) avec couvertures
 - Bibliothèque d'effets : montage/effets (23 effets + détourage) — démo `premium/build.py effets` pas encore rendue
-- EN PAUSE (demande de Kadio) : série services 5 vidéos (nattes, locks, coupe créative, twists, coupe+barbe) —
-  config `premium/vo/serie/config.json`, voix faites : nattes + locks (phrase 3 locks à refaire avec « lok »), couvertures faites
+- Série services 5 vidéos livrée (exports/kadio-serv_<nom>-publication.mp4, couverture incluse) — à valider puis publier.
+  Effets de fin variés : commentaires (nattes), curseur (locks), touches RDV (coupe créative), note vocale (twists), carte app (coupe+barbe).
+  Prononciation : « lock » au singulier sort « loque » → dire « mèche » ; « lok » ne suffit pas.
