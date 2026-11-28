@@ -44,3 +44,4 @@ vo/serie/jobs4.json
 vo/doc/*.wav
 vo/doc/jobs.json
 doc_*/
+vo/doc/jobs_r.json

@@ -2414,7 +2414,7 @@ elif F.startswith("doc_"):
 .fog { position: absolute; left: -20%; right: -20%; height: 700px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,255,255,.75), rgba(255,255,255,0)); filter: blur(30px); }
 .sc { position: absolute; inset: 0; visibility: hidden; overflow: hidden; }
 .ttl { position: absolute; left: 40px; right: 40px; top: 250px; text-align: center; z-index: 2; }
-.ttl .bf, .ttl .af { font: 700 40px/1.3 ID; color: #3a3632; }
+.ttl .bf, .ttl .af { font: 700 40px/1.3 ID; color: #3a3632; text-shadow: 0 0 18px rgba(246,244,240,.9), 0 0 6px rgba(246,244,240,.9); }
 .ttl .bf { margin-bottom: 4px; } .ttl .af { margin-top: 10px; max-width: 760px; margin-left: auto; margin-right: auto; }
 .ttl .tt { font: 400 200px/0.95 BM; color: #b3122a; letter-spacing: -.02em; white-space: nowrap; }
 .w { opacity: 0; display: inline-block; margin: 0 .12em; }
@@ -2437,8 +2437,9 @@ elif F.startswith("doc_"):
         bf = "".join(f'<span class="w" id="s{i}w{k}">{e(items[k][0])}</span>' for k in range(a0))
         af = "".join(f'<span class="w" id="s{i}w{k}">{e(items[k][0])}</span>' for k in range(a1 + 1, len(items)))
         ph = CF["photos"][i]
-        body += f'<div class="sc" id="s{i}"><div class="ttl"><div class="bf">{bf}</div><div class="tt w" id="s{i}t" style="font-size:{fs}px">{e(title)}</div><div class="af">{af}</div></div><img class="cut" src="photos/cut_{ph}.png"><div class="btm"></div>' + (f'<img class="gh" src="photos/cut_{ph}.png">' if CF["fantome"][i] else "") + "</div>"
-        SC.append(dict(t=round(VS[i] - LEAD + (.1 if i else 0), 2), w=[(k, x[2]) for k, x in enumerate(items) if x[1] != "T"], tt=items[a0][2], gh=CF["fantome"][i]))
+        hid = lambda h: h.replace('id="s', 'data-x="s')
+        body += f'<div class="sc" id="s{i}"><div class="ttl"><div class="bf" style="visibility:hidden">{hid(bf)}</div><div class="tt w" id="s{i}t" style="font-size:{fs}px">{e(title)}</div><div class="af" style="visibility:hidden">{hid(af)}</div></div><img class="cut" src="photos/cut_{ph}.png"><div class="btm"></div><div class="ttl" style="z-index:5"><div class="bf">{bf}</div><div class="tt" style="font-size:{fs}px;visibility:hidden">{e(title)}</div><div class="af">{af}</div></div>' + (f'<img class="gh" src="photos/cut_{ph}.png">' if CF["fantome"][i] else "") + "</div>"
+        SC.append(dict(t=round(VS[i] - LEAD + (.1 if i else .02), 2), w=[(k, x[2]) for k, x in enumerate(items) if x[1] != "T"], tt=items[a0][2], gh=CF["fantome"][i]))
     for i, s in enumerate(SC): s["end"] = SC[i + 1]["t"] + .5 if i + 1 < len(SC) else TEND + .4
     body += f'<div id="end"><div class="k">{e(CF["fin"][0])}</div><div class="s">{e(CF["fin"][1])}</div><div class="a">615, Antoinette-Robidoux · Longueuil<br>514 919-5970 · kadiocoiffure.com</div><div class="c">Réserve ta place</div></div>'
     js = "const SC = " + json.dumps(SC) + ", TE = " + str(TEND) + ";\n" + """
