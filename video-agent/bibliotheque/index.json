@@ -1354,7 +1354,8 @@
    "source": "https://mixkit.co/free-stock-video/shaking-hands-and-signing-contract-24047/",
    "licence": "Mixkit Stock Video Free License",
    "mots": [
-    "poignée de main"
+    "poignée de main",
+    "signature"
    ]
   },
   "23115": {
@@ -1363,7 +1364,8 @@
    "source": "https://mixkit.co/free-stock-video/man-signing-off-a-contract-and-handshake-23115/",
    "licence": "Mixkit Stock Video Free License",
    "mots": [
-    "poignée de main"
+    "poignée de main",
+    "signature"
    ]
   },
   "30016": {
@@ -1719,6 +1721,78 @@
    "mots": [
     "écrire"
    ]
+  },
+  "241": {
+   "titre": "signing a contract",
+   "fichier": "clips/241.mp4",
+   "source": "https://mixkit.co/free-stock-video/signing-a-contract-241/",
+   "licence": "Mixkit Stock Video Free License",
+   "mots": [
+    "signature"
+   ]
+  },
+  "23112": {
+   "titre": "three persons signing contracts",
+   "fichier": "clips/23112.mp4",
+   "source": "https://mixkit.co/free-stock-video/three-persons-signing-contracts-23112/",
+   "licence": "Mixkit Stock Video Free License",
+   "mots": [
+    "signature"
+   ]
+  },
+  "307": {
+   "titre": "person signing a contract",
+   "fichier": "clips/307.mp4",
+   "source": "https://mixkit.co/free-stock-video/person-signing-a-contract-307/",
+   "licence": "Mixkit Stock Video Free License",
+   "mots": [
+    "signature"
+   ]
+  },
+  "28897": {
+   "titre": "slowly approaching a clock on a black background",
+   "fichier": "clips/28897.mp4",
+   "source": "https://mixkit.co/free-stock-video/slowly-approaching-a-clock-on-a-black-background-28897/",
+   "licence": "Mixkit Stock Video Free License",
+   "mots": [
+    "temps"
+   ]
+  },
+  "28893": {
+   "titre": "black analog clock in a very close shot",
+   "fichier": "clips/28893.mp4",
+   "source": "https://mixkit.co/free-stock-video/black-analog-clock-in-a-very-close-shot-28893/",
+   "licence": "Mixkit Stock Video Free License",
+   "mots": [
+    "temps"
+   ]
+  },
+  "28886": {
+   "titre": "analog wall clock on a black background in a closed",
+   "fichier": "clips/28886.mp4",
+   "source": "https://mixkit.co/free-stock-video/analog-wall-clock-on-a-black-background-in-a-closed-28886/",
+   "licence": "Mixkit Stock Video Free License",
+   "mots": [
+    "temps"
+   ]
+  },
+  "28901": {
+   "titre": "sand falling from an hourglass on a black background",
+   "fichier": "clips/28901.mp4",
+   "source": "https://mixkit.co/free-stock-video/sand-falling-from-an-hourglass-on-a-black-background-28901/",
+   "licence": "Mixkit Stock Video Free License",
+   "mots": [
+    "temps"
+   ]
+  },
+  "39834": {
+   "titre": "metal bells alarm clock",
+   "fichier": "clips/39834.mp4",
+   "source": "https://mixkit.co/free-stock-video/metal-bells-alarm-clock-39834/",
+   "licence": "Mixkit Stock Video Free License",
+   "mots": [
+    "temps"
+   ]
   }
  },
  "mots": {
@@ -2001,6 +2075,20 @@
    "42655",
    "39855",
    "22855"
+  ],
+  "signature": [
+   "241",
+   "23112",
+   "307",
+   "23115",
+   "24047"
+  ],
+  "temps": [
+   "28897",
+   "28893",
+   "28886",
+   "28901",
+   "39834"
   ]
  }
 }
