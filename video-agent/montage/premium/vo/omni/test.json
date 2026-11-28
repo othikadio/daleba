@@ -1,0 +1,3 @@
+[{"text":"Chez Kadio Coiffure, un dégradé, ce n'est pas juste une coupe… c'est une signature. Regarde bien.","out":"t_male.wav","instruct":"male, young adult, moderate pitch","seed":7},
+ {"text":"Chez Kadio Coiffure, un dégradé, ce n'est pas juste une coupe… c'est une signature. Regarde bien.","out":"t_male_low.wav","instruct":"male, middle-aged, low pitch","seed":3},
+ {"text":"Chez Kadio Coiffure, un dégradé, ce n'est pas juste une coupe… c'est une signature. Regarde bien.","out":"t_female.wav","instruct":"female, young adult, moderate pitch","seed":5}]

@@ -1833,4 +1833,114 @@ fin(".end .c", TE + 1.4, .5, { scale: 0 }, { scale: 1, ease: "back.out(2.2)" });
 fin(".end .a", TE + 1.8, .6, { opacity: 0 }, { opacity: 1 });
 """
     open(os.path.join(D, "index.html"), "w").write(page("Extensions de locks", css, body, js, T, ("m1183", 20)))
+elif F == "barbproc":
+    import soundfile as sf, numpy as np
+    VD = os.path.join(R, "vo", "omni")
+    VO = json.load(open(os.path.join(VD, "spec_barb.json")))["barbier"]["vo"]
+    LEAD, TAIL = .35, .5; SCH, t = [], 0.0
+    for i in range(len(VO)):
+        src = os.path.join(VD, f"barb_{i}.wav"); shutil.copy(src, os.path.join(D, f"barb_{i}.wav"))
+        d = sf.info(src).duration; dur = LEAD + d + TAIL + (2.6 if i == len(VO) - 1 else 0); SCH.append((round(t, 2), round(dur, 2))); t += dur
+    T = round(t, 2)
+    json.dump([{"t": round(a + LEAD, 2), "file": f"barb_{i}.wav"} for i, (a, _) in enumerate(SCH)], open(os.path.join(D, "vo.json"), "w"))
+    subt = lambda x: x.replace("Kadyo", "Kadio").replace("cinquante dollars", "50 $").replace("soixante", "60 $")
+    ICON = {
+     "talk": '<path d="M20 30 h60 a10 10 0 0 1 10 10 v26 a10 10 0 0 1 -10 10 h-34 l-16 14 v-14 h-10 a10 10 0 0 1 -10 -10 v-26 a10 10 0 0 1 10 -10z"/>',
+     "clip": '<rect x="34" y="12" width="32" height="70" rx="10"/><path d="M34 22 h32 M40 12 v-6 M46 12 v-6 M52 12 v-6 M58 12 v-6"/><circle cx="50" cy="60" r="6"/>',
+     "guard": '<path d="M20 30 h60 l-8 50 h-44z"/><path d="M30 42 h40 M32 54 h36 M34 66 h32"/>',
+     "razor": '<path d="M14 64 l52 -40 l14 14 l-52 40z"/><path d="M66 24 l14 -10"/><path d="M22 70 l44 -34"/>',
+     "beard": '<path d="M18 30 q0 50 32 62 q32 -12 32 -62 q-10 18 -32 18 q-22 0 -32 -18z"/>',
+     "star": '<path d="M50 10 l11 26 l28 2 l-22 18 l7 28 l-24 -15 l-24 15 l7 -28 l-22 -18 l28 -2z"/>'}
+    SC = [dict(k="intro", ti="Un dégradé<br><em>en 5 étapes.</em>", ph="l2"),
+          dict(k=1, ti="La consultation", sub="Ta forme de tête, tes épis, ta barbe", ph="b6", ic="talk"),
+          dict(k=2, ti="La ligne de base", sub="Tondeuse à zéro, autour des oreilles", ph="b2", ic="clip"),
+          dict(k=3, ti="Le dégradé", sub="Sabot après sabot, transition invisible", ph="b8", ic="guard", steps=["0", "0,5", "1", "1,5", "2"]),
+          dict(k=4, ti="Le contour", sub="Au rasoir : une ligne nette", ph="l1", ic="razor"),
+          dict(k=5, ti="La barbe", sub="Taillée, dessinée, hydratée", ph="b4", ic="beard"),
+          dict(k="res", ti="Propre. Net.<br><em>Confiant.</em>", ph="l4"),
+          dict(k="end")]
+    css = """
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Bold.otf); font-weight: 700; }
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Black.otf); font-weight: 900; }
+#root { background: #111214; color: #fff; font-family: ID; }
+.sc { position: absolute; inset: 0; visibility: hidden; }
+.bg { position: absolute; inset: 0; overflow: hidden; }
+.bg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 40%; }
+.bg:after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(17,18,20,.55) 0%, rgba(17,18,20,0) 28%, rgba(17,18,20,0) 52%, rgba(17,18,20,.92) 78%); }
+.card { position: absolute; left: 60px; right: 60px; top: 1160px; padding: 44px 46px; border-radius: 40px; background: rgba(17,18,20,.72); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid rgba(255,255,255,.12); }
+.num { display: flex; align-items: center; gap: 22px; font: 900 34px ID; letter-spacing: .2em; color: #ff8a3d; }
+.ring { width: 96px; height: 96px; flex: none; }
+.ring circle { fill: none; stroke-width: 7; } .ring .tr { stroke: rgba(255,255,255,.12); } .ring .pr { stroke: #ff8a3d; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; }
+.ring text { font: 900 30px ID; fill: #fff; }
+.ti { margin-top: 24px; font: 900 92px/1 ID; letter-spacing: -.045em; }
+.su { margin-top: 16px; font: 700 40px/1.25 ID; color: rgba(255,255,255,.72); letter-spacing: -.01em; }
+.ico { position: absolute; right: 46px; top: 40px; width: 110px; height: 110px; color: #ff8a3d; }
+.ico path, .ico rect, .ico circle { fill: none; stroke: currentColor; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+.guards { display: flex; gap: 14px; margin-top: 26px; }
+.guards span { flex: 1; text-align: center; padding: 14px 0; border-radius: 16px; background: rgba(255,255,255,.08); font: 900 34px ID; }
+.big { position: absolute; left: 70px; right: 70px; top: 1180px; font: 900 128px/0.98 ID; letter-spacing: -.05em; }
+.big em { font-style: normal; color: #ff8a3d; }
+.top { position: absolute; left: 60px; right: 60px; top: 90px; display: flex; justify-content: space-between; align-items: center; font: 900 34px ID; letter-spacing: .12em; z-index: 20; }
+.top b { color: #ff8a3d; }
+.rail { position: absolute; left: 60px; right: 60px; top: 150px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.15); z-index: 20; overflow: hidden; }
+.rail i { position: absolute; inset: 0; background: #ff8a3d; transform-origin: 0 50%; transform: scaleX(0); }
+.sub2 { position: absolute; left: 60px; right: 60px; top: 1760px; text-align: center; visibility: hidden; z-index: 30; font: 700 34px/1.35 ID; color: rgba(255,255,255,.85); }
+#end { background: #111214; }
+.eh { position: absolute; left: 70px; right: 70px; top: 520px; font: 900 120px/1 ID; letter-spacing: -.05em; }
+.eh em { font-style: normal; color: #ff8a3d; }
+.pr2 { position: absolute; left: 70px; right: 70px; top: 880px; display: grid; gap: 20px; }
+.pr2 div { display: flex; justify-content: space-between; padding: 30px 40px; border-radius: 28px; background: rgba(255,255,255,.07); font: 900 52px ID; letter-spacing: -.02em; }
+.pr2 b { color: #ff8a3d; }
+.ad { position: absolute; left: 70px; right: 70px; top: 1340px; font: 700 40px/1.5 ID; color: rgba(255,255,255,.75); }
+.cta { position: absolute; left: 70px; top: 1500px; padding: 30px 56px; border-radius: 999px; background: #ff8a3d; color: #111214; font: 900 48px ID; }
+"""
+    def ring(k):
+        c = 2 * 3.1416 * 40
+        return f'<svg class="ring" viewBox="0 0 96 96"><circle class="tr" cx="48" cy="48" r="40"/><circle class="pr" cx="48" cy="48" r="40" stroke-dasharray="{c:.1f}" stroke-dashoffset="{c * (1 - k / 5):.1f}"/><text x="48" y="58" text-anchor="middle">0{k}</text></svg>'
+    body = '<div class="top"><span>KADIO · <b>BARBIER</b></span><span id="cnt">00 / 05</span></div><div class="rail"><i></i></div>'
+    for i, c in enumerate(SC):
+        if c["k"] == "end":
+            body += f'''<div id="s{i}" class="sc"><div class="layer" id="end"></div><div class="eh">{sp("Ta coupe,")}<br><em>{sp("ta signature.")}</em></div>
+<div class="pr2"><div><span>Coupe</span><b>50 $</b></div><div><span>Coupe + barbe</span><b>60 $</b></div><div><span>Club Kadio</span><b>19,99 $/mois</b></div></div>
+<div class="ad">615, Antoinette-Robidoux · Longueuil<br>514 919-5970 · kadiocoiffure.com</div><div class="cta">Réserve ta place</div></div>'''
+            continue
+        h = f'<div id="s{i}" class="sc"><div class="bg"><img src="photos/{c["ph"]}.jpg"></div>'
+        if isinstance(c["k"], int):
+            h += f'<div class="card">{f"<svg class=ico viewBox=\"0 0 100 100\">{ICON[c['ic']]}</svg>"}<div class="num">{ring(c["k"])}ÉTAPE 0{c["k"]}</div><div class="ti">{sp(c["ti"])}</div><div class="su">{e(c["sub"])}</div>'
+            if c.get("steps"): h += '<div class="guards">' + "".join(f"<span>{s}</span>" for s in c["steps"]) + "</div>"
+            h += "</div>"
+        else:
+            h += f'<div class="big">{c["ti"]}</div>'
+        body += h + "</div>"
+    body += "".join(f'<div class="sub2" id="u{i}">{e(subt(v))}</div>' for i, v in enumerate(VO)) + '<div class="layer vig"></div>'
+    js = "const S = " + json.dumps(SCH) + ", L = " + str(LEAD) + ";\n" + """
+const _ex = (q) => typeof q !== "string" || document.querySelector(q);
+const _fin = fin, _kb = kb; fin = function (q, ...r) { if (_ex(q)) _fin(q, ...r); }; kb = function (q, ...r) { if (_ex(q)) _kb(q, ...r); };
+S.forEach(function (s, i) {
+  const p = "#s" + i, t = s[0], d = s[1];
+  show(p, t, i === S.length - 1 ? null : t + d + .5); tl.set(p, { zIndex: 5 + i }, 0);
+  if (i) { fin(p, t - .05, .55, { clipPath: "inset(100% 0 0 0)" }, { clipPath: "inset(0% 0 0 0)", ease: "power4.inOut" }); cue(t - .05, "whoosh-fast.wav", .3); }
+  kb(p + " .bg img", t, d + .6, { scale: 1.18 }, { scale: 1.04 });
+  fin(p + " .card", t + .3, .7, { opacity: 0, y: 120 }, { opacity: 1, y: 0, ease: "power3.out" });
+  fin(p + " .ring .pr", t + .6, .8, { strokeDasharray: "0 999" }, { strokeDasharray: "251.3 999", ease: "power2.out" });
+  fin(p + " .ico", t + .7, .6, { scale: 0, rotate: -40 }, { scale: 1, rotate: 0, ease: "back.out(2)" }); if (document.querySelector(p + " .ico")) cue(t + .7, "click.wav", .3);
+  fin(p + " .ti .w", t + .5, .6, { opacity: 0, y: 40 }, { opacity: 1, y: 0, stagger: .06, ease: "power3.out" });
+  fin(p + " .su", t + .9, .6, { opacity: 0 }, { opacity: 1 });
+  document.querySelectorAll(p + " .guards span").forEach(function (g, k) { const tt = t + 1.4 + k * Math.max(.35, (d - 2) / 5);
+    fin(g, tt, .35, { opacity: 0, y: 20 }, { opacity: 1, y: 0, ease: "back.out(2)" }); tl.set(g, { backgroundColor: "#ff8a3d", color: "#111214" }, tt); tl.set(g, { backgroundColor: "rgba(255,255,255,.08)", color: "#fff" }, 0); cue(tt, "fit_tick_domino.wav", .25); });
+  fin(p + " .big .w, " + p + " .big em", t + .4, .7, { opacity: 0, y: 60 }, { opacity: 1, y: 0, stagger: .08, ease: "power3.out" });
+  fin(p + " .eh .w", t + .4, .6, { opacity: 0, y: 50 }, { opacity: 1, y: 0, stagger: .06, ease: "power3.out" });
+  document.querySelectorAll(p + " .pr2 div").forEach(function (r, k) { fin(r, t + 1.1 + k * .25, .5, { opacity: 0, x: -60 }, { opacity: 1, x: 0, ease: "power3.out" }); cue(t + 1.1 + k * .25, "pop-bubble.wav", .2); });
+  fin(p + " .ad", t + 2, .6, { opacity: 0 }, { opacity: 1 }); fin(p + " .cta", t + 2.3, .5, { scale: 0 }, { scale: 1, ease: "back.out(2.2)" });
+  show("#u" + i, t + L, t + d - .05); fin("#u" + i, t + L, .3, { opacity: 0 }, { opacity: 1 });
+});
+for (let k = 1; k <= 5; k++) { tl.set("#cnt", { textContent: "0" + k + " / 05" }, S[k][0]); tl.to(".rail i", { scaleX: k / 5, duration: .6, ease: "power2.out" }, S[k][0] + .2); }
+tl.set("#cnt", { textContent: "00 / 05" }, 0); tl.to(".top, .rail", { opacity: 0, duration: .4 }, S[S.length - 1][0]);
+// habillage sonore : vrais bruitages de barbier, calés sur chaque étape
+cue(S[2][0] + 1.0, "tondeuse.wav", .55); cue(S[3][0] + 1.0, "tondeuse.wav", .5); cue(S[3][0] + 2.6, "tondeuse.wav", .45);
+cue(S[4][0] + 1.0, "tondeuse.wav", .35); cue(S[5][0] + .9, "ciseaux.wav", .55); cue(S[5][0] + 1.9, "ciseaux.wav", .45);
+cue(S[6][0] + .3, "sparkle.wav", .35);
+cue(S[S.length - 1][0] + .4, "bass.wav", .35);
+"""
+    open(os.path.join(D, "index.html"), "w").write(page("Le dégradé en 5 étapes", css, body, js, T, ("m1183", 40)))
 print(F, "ok")

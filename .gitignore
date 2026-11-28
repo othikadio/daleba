@@ -7,3 +7,5 @@ node_modules/
 .vercel
 video-agent/rushs-drive/
 outils/voicestudio/
+video-agent/voix/presentateurs/*.wav
+video-agent/montage/premium/vo/omni/*.wav
