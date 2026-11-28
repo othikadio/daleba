@@ -35,3 +35,5 @@ talk1/
 talk2/
 rushs/*.mp4
 serv_*/
+vo/serie/*.wav
+vo/serie/retake.json
