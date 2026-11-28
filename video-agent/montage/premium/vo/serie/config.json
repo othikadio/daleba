@@ -1,0 +1,182 @@
+{
+ "stitch": {
+  "pal": [
+   "#2fd3e0",
+   "#0e8fa3",
+   "#064a57",
+   "#0e8fa3",
+   "#7ff0f7",
+   "#0b6f7f"
+  ],
+  "serif": "bodoni-moda-latin-700-italic.woff2",
+  "mus": [
+   "m32",
+   0
+  ],
+  "end": [
+   "Nattes",
+   "design croisé."
+  ],
+  "prix": [
+   [
+    "60 $",
+    "dès"
+   ],
+   [
+    "Sur",
+    "rendez-vous"
+   ]
+  ],
+  "spec": [
+   "[p:s_stitch:f=50,40,1.0] Des/s nattes/I | [acc] mais/s avec/s un/s design/G",
+   "[p:s_stitch:f=55,35,2.2:bw] Chez/s Kadio/B Coiffure/s | [v:5197] on/s trace/s chaque/s séparation/I | [p:s_stitch:f=45,30,2.6] à/s la/s main/B bien/s nette/I",
+   "[white] Puis/s on/s croise/B les/s nattes/s | [p:s_stitch:f=60,40,1.8] pour/s un/s motif/s unique/I",
+   "[p:s_stitch:f=50,60,1.15] Résultat/s un/s style/s propre/B | [v:28901:bw] qui/s tient/s des/s semaines/I",
+   "[acc] Nattes/s design/s croisé/I dès/s soixante=60_$/G dollars=/x | [v:34197] Réserve/s ta/s place/B"
+  ]
+ },
+ "locks": {
+  "pal": [
+   "#d2763a",
+   "#8a3b12",
+   "#3d1606",
+   "#c0612a",
+   "#f0a36b",
+   "#8a3b12"
+  ],
+  "serif": "cormorant-garamond-latin-600-italic.woff2",
+  "mus": [
+   "m134",
+   0
+  ],
+  "end": [
+   "Entretien",
+   "locks."
+  ],
+  "prix": [
+   [
+    "65 $",
+    "par mois"
+   ],
+   [
+    "Retwist",
+    "+ soin"
+   ]
+  ],
+  "spec": [
+   "[p:s_locks:f=60,40,1.0] Tes/s locks/G | [p:s_locks:f=55,35,1.8:bw] méritent/s un/s vrai/s entretien/I",
+   "[acc] Retwist/B | [p:s_locks:f=55,30,2.4] soin/s des/s racines/I | [white] et/s une/s finition/s propre/B",
+   "[p:s_locks:f=75,60,2.0] Chaque/s lock/B est/s travaillée/I | [p:s_locks:f=45,45,1.3:bw] une/s à/s une/B",
+   "[white] Avec/s le/s Club/B Kadio/I | [p:s_locks:f=60,45,1.5] ton/s entretien/s de/s locks/B | [acc] c'est/s soixante-cinq=65_$/G dollars=/x par/s mois/I",
+   "[v:17412] Réserve/B chez/s Kadio/I Coiffure/s | [p:s_locks:f=70,40,1.0] à/s Longueuil/B"
+  ]
+ },
+ "creative": {
+  "pal": [
+   "#ff5fa2",
+   "#c2185b",
+   "#5a0629",
+   "#d81b60",
+   "#ffa3c8",
+   "#9c1249"
+  ],
+  "serif": "cormorant-garamond-latin-600-italic.woff2",
+  "mus": [
+   "m130",
+   0
+  ],
+  "end": [
+   "Coupe",
+   "créative."
+  ],
+  "prix": [
+   [
+    "Design",
+    "à la tondeuse"
+   ],
+   [
+    "Sur",
+    "rendez-vous"
+   ]
+  ],
+  "spec": [
+   "[p:s_creative:f=55,40,1.0] Une/s coupe/s courte/B | [acc] qui/s ne/s passe/s pas/s inaperçue/I",
+   "[p:s_creative:f=60,30,2.0] Des/s boucles/B bien/s définies/I | [white] une/s couleur/s cuivrée/I",
+   "[p:s_creative:f=50,50,1.3] Et/s sur/s le/s côté/B | [white] un/s petit/s détail/I | [p:s_creative:f=55,75,3.0] un/s cœur/G | [p:s_creative:f=55,72,2.2:bw] dessiné/s à/s la/s tondeuse/I",
+   "[acc] Ta/s coupe/B ta/s personnalité/I",
+   "[p:s_creative:f=55,45,1.05] Coupe/s créative/I chez/s Kadio/B Coiffure/s | [v:34197] Réserve/s ta/s place/B"
+  ]
+ },
+ "design": {
+  "pal": [
+   "#f2c94c",
+   "#d4a017",
+   "#5c4300",
+   "#d4a017",
+   "#f7dc7c",
+   "#8a6a00"
+  ],
+  "serif": "bodoni-moda-latin-700-italic.woff2",
+  "mus": [
+   "m369",
+   0
+  ],
+  "end": [
+   "Twists",
+   "& contour."
+  ],
+  "prix": [
+   [
+    "55 $",
+    "dès"
+   ],
+   [
+    "Dégradé",
+    "+ contour"
+   ]
+  ],
+  "spec": [
+   "[p:s_design:f=45,35,1.0] Des/s twists/G | [p:s_design:f=40,30,2.0:bw] avec/s des/s séparations/s parfaites/I",
+   "[white] Chaque/s ligne/s est/s tracée/I | [p:s_design:f=40,25,2.6] chaque/s twist/B est/s serré/s à/s la/s main/I",
+   "[v:40127:bw] Et/s on/s termine/s avec/s un/s dégradé/B | [p:s_design:f=60,50,2.2] et/s un/s contour/s bien/s net/I",
+   "[acc] Twists/s dès/s cinquante-cinq=55_$/G dollars=/x",
+   "[p:s_design:f=50,40,1.0] Réserve/B chez/s Kadio/I Coiffure/s | [v:4915] à/s Longueuil/B"
+  ]
+ },
+ "coupe": {
+  "pal": [
+   "#3d6fd6",
+   "#13294b",
+   "#060f1f",
+   "#4f8cff",
+   "#9cc2ff",
+   "#13294b"
+  ],
+  "serif": "bodoni-moda-latin-700-italic.woff2",
+  "mus": [
+   "m1001",
+   0
+  ],
+  "end": [
+   "Coupe",
+   "& barbe."
+  ],
+  "prix": [
+   [
+    "50 $",
+    "coupe"
+   ],
+   [
+    "60 $",
+    "coupe + barbe"
+   ]
+  ],
+  "spec": [
+   "[p:s_coupe:f=60,30,1.0] Une/s coupe/s nette/B | [p:s_coupe:f=40,45,1.8:bw] Une/s barbe/s dessinée/I",
+   "[v:43242:bw] Le/s dégradé/B | [p:s_coupe:f=75,40,2.0] fondu/s de/s la/s nuque/s jusqu'au/s sommet/I",
+   "[p:s_coupe:f=62,22,2.6] Le/s contour/B | [v:47845] tracé/s au/s rasoir/I",
+   "[white] Et/s la/s barbe/B | [p:s_coupe:f=30,40,2.2] taillée/s et/s alignée/I avec/s le/s contour/s",
+   "[acc] Coupe/s cinquante=50_$/G dollars=/x | [acc] Coupe/s et/s barbe/s soixante=60_$/G | [p:s_coupe:f=55,35,1.0] Réserve/B chez/s Kadio/I Coiffure/s"
+  ]
+ }
+}

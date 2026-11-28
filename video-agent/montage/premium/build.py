@@ -2185,4 +2185,137 @@ fin("#end .pr div", TE + .9, .4, { opacity: 0, y: 40 }, { opacity: 1, y: 0, stag
 fin("#end .n", TE + 1.3, .4, { opacity: 0 }, { opacity: 1 }); fin("#end .a", TE + 1.6, .5, { opacity: 0 }, { opacity: 1 });
 """
     open(os.path.join(D, "index.html"), "w").write(page("Kadio, montage face caméra", css, body, js, T, MUS))
+elif F.startswith("serv_"):
+    # Série services : style « montage dynamique » validé, une voix, palette + musique propres à chaque vidéo
+    import soundfile as sf, subprocess, difflib, re
+    K = F[5:]; VD = os.path.join(R, "vo", "serie"); CF = json.load(open(os.path.join(VD, "config.json")))[K]
+    SCRIPT = json.load(open(os.path.join(VD, "scripts.json")))[K]
+    norm = lambda w: re.sub(r"[^\w'-]", "", w.lower())
+    NUM = {"soixante": "60", "soixante-cinq": "65", "cinquante-cinq": "55", "cinquante": "50", "dollars": "$"}
+    WJ = os.path.join(VD, K + "_words.json")
+    if not os.path.exists(WJ):
+        allw = []
+        for i in range(len(SCRIPT)):
+            tmp = os.path.join(VD, f"_w{i}"); subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", os.path.join(VD, f"{K}_{i}.wav"), "-ar", "16000", "-ac", "1", tmp + ".wav"], check=True)
+            subprocess.run(["whisper-cli", "-m", "/root/.cache/whisper-cpp/ggml-large-v3-turbo-q5_0.bin", "-l", "fr", "-ml", "1", "-sow", "-oj", "-of", tmp, "-np", "-t", "4", "-f", tmp + ".wav"], capture_output=True)
+            j = json.load(open(tmp + ".json")); allw.append([[s["text"].strip(), s["offsets"]["from"] / 1000] for s in j["transcription"] if s["text"].strip()])
+            os.remove(tmp + ".wav"); os.remove(tmp + ".json")
+        json.dump(allw, open(WJ, "w"), ensure_ascii=False)
+    WORDS = json.load(open(WJ))
+    LEAD, TAIL = .35, .4; VS, t = [], 0.0
+    for i in range(len(SCRIPT)):
+        src = os.path.join(VD, f"{K}_{i}.wav"); shutil.copy(src, os.path.join(D, f"v_{i}.wav"))
+        d = sf.info(src).duration; VS.append(round(t + LEAD, 2)); t += LEAD + d + TAIL
+    TEND = round(t + .1, 2); T = round(TEND + 3.6, 2)
+    json.dump([{"t": v, "file": f"v_{i}.wav"} for i, v in enumerate(VS)], open(os.path.join(D, "vo.json"), "w"))
+    def times(i, toks):
+        W = WORDS[i]; a = [NUM.get(norm(x), norm(x)) for x in toks]; b = [norm(w) for w, _ in W]
+        out = [None] * len(a)
+        for blk in difflib.SequenceMatcher(None, a, b, autojunk=False).get_matching_blocks():
+            for q in range(blk.size): out[blk.a + q] = W[blk.b + q][1]
+        known = [(q, v) for q, v in enumerate(out) if v is not None] or [(0, 0.0)]
+        for q in range(len(out)):
+            if out[q] is None:
+                prv = [x for x in known if x[0] < q]; nxt = [x for x in known if x[0] > q]
+                if prv and nxt: out[q] = prv[-1][1] + (nxt[0][1] - prv[-1][1]) * (q - prv[-1][0]) / (nxt[0][0] - prv[-1][0])
+                elif prv: out[q] = prv[-1][1] + .25 * (q - prv[-1][0])
+                else: out[q] = max(0.0, nxt[0][1] - .25 * (nxt[0][0] - q))
+        for q in range(1, len(out)): out[q] = max(out[q], out[q - 1])
+        return out
+    def fit(st, txt):
+        n = max(len(txt), 1)
+        return {"s": 50, "i": 64, "B": min(160, int(1700 / n)), "I": min(190, int(2000 / n)), "G": min(400, int(1500 / n))}[st]
+    shots = []
+    for i, line in enumerate(CF["spec"]):
+        parts = [p.strip() for p in line.split("|")]
+        alltoks = [tk for p in parts for tk in p[p.index("]") + 1:].split()]
+        tt = times(i, [tk.rsplit("/", 1)[0].split("=")[0] for tk in alltoks]); k = 0
+        for p in parts:
+            bg, toks = p[1:p.index("]")], p[p.index("]") + 1:].split(); items = []
+            for tk in toks:
+                w, st = tk.rsplit("/", 1); disp = (w.split("=", 1)[1] if "=" in w else w).replace("_", " ")
+                items.append((disp, st, round(VS[i] + tt[k], 2))); k += 1
+            shots.append(dict(bg=bg, items=items, t=items[0][2] if shots else 0.0))
+    for j, s in enumerate(shots): s["end"] = shots[j + 1]["t"] if j + 1 < len(shots) else TEND
+    a1, a2, a3, ai, ap, as_ = CF["pal"]
+    css = f"""
+@font-face {{ font-family: ID; src: url(fonts/InterDisplay-Bold.otf); font-weight: 700; }}
+@font-face {{ font-family: ID; src: url(fonts/InterDisplay-Black.otf); font-weight: 900; }}
+@font-face {{ font-family: SR; src: url(fonts/{CF['serif']}); font-weight: 700; font-style: italic; }}
+#root {{ background: #000; color: #fff; font-family: ID; }}
+.shot {{ position: absolute; inset: 0; visibility: hidden; overflow: hidden; }}
+.shot.acc {{ background: radial-gradient(120% 90% at 20% 15%, {a1} 0%, {a2} 45%, {a3} 100%); }}
+.shot.white {{ background: #fff; color: {a2}; }}
+.shot .pic {{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }}
+.shot.bw .pic {{ filter: grayscale(1) contrast(1.25) brightness(.9); }}
+.shot.photo:after, .shot.vid:after {{ content: ""; position: absolute; inset: 0; background: radial-gradient(80% 60% at 50% 50%, rgba(0,0,0,.08), rgba(0,0,0,.55)); z-index: 1; }}
+.shot.vid {{ background: transparent; }}
+.v {{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }}
+.v.gray {{ filter: grayscale(1) contrast(1.25) brightness(.9); }}
+.stk {{ position: absolute; left: 50px; right: 50px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; text-align: center; z-index: 3; }}
+.ln {{ display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; line-height: .95; }}
+.wd {{ display: inline-block; opacity: 0; white-space: nowrap; margin: 0 .13em; }}
+.photo .wd, .vid .wd {{ text-shadow: 0 4px 30px rgba(0,0,0,.6); }}
+.s {{ font-weight: 700; letter-spacing: -.01em; }}
+.B, .G {{ font-weight: 900; letter-spacing: -.045em; }}
+.G {{ line-height: .85; }}
+.I, .i {{ font-family: SR; font-style: italic; font-weight: 700; letter-spacing: -.01em; }}
+.photo .I, .vid .I, .photo .i, .vid .i {{ color: {ap}; }}
+.white .I, .white .G, .white .B, .white .i {{ color: {ai}; }}
+.white .s {{ color: {as_}; }}
+.acc .I, .acc .i {{ color: #fff; }}
+#flash {{ position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 60; }}
+#end {{ position: absolute; inset: 0; visibility: hidden; z-index: 50; background: radial-gradient(120% 90% at 20% 15%, {a1} 0%, {a2} 45%, {a3} 100%); }}
+#end .logo {{ position: absolute; left: 0; right: 0; top: 400px; text-align: center; font: 900 40px ID; letter-spacing: .3em; }}
+#end .k {{ position: absolute; left: 0; right: 0; top: 530px; text-align: center; font: 900 150px/0.95 ID; letter-spacing: -.05em; }}
+#end .k em {{ display: block; font: italic 700 170px SR; letter-spacing: -.01em; color: #fff; }}
+#end .pr {{ position: absolute; left: 90px; right: 90px; top: 1000px; display: flex; gap: 24px; }}
+#end .pr div {{ flex: 1; padding: 30px 0; border-radius: 28px; background: #fff; color: {a2}; text-align: center; font: 900 54px/1.15 ID; }}
+#end .pr small {{ display: block; font: 700 28px ID; color: {a3}; }}
+#end .a {{ position: absolute; left: 0; right: 0; top: 1300px; text-align: center; font: 700 40px/1.55 ID; color: rgba(255,255,255,.9); }}
+"""
+    LIB = os.path.join(R, "..", "..", "bibliotheque"); os.makedirs(os.path.join(D, "clips"), exist_ok=True)
+    body, vids = "", []
+    for j, s in enumerate(shots):
+        parts = s["bg"].split(":"); kind = parts[0]
+        cls = {"p": "photo", "v": "vid", "acc": "acc", "white": "white"}[kind] + (" bw" if "bw" in parts else "")
+        h = f'<div class="shot {cls}" id="h{j}" style="z-index:{5 + j}">'
+        if kind == "p":
+            fx = next((x[2:] for x in parts if x.startswith("f=")), "50,50,1").split(",")
+            h += f'<img class="pic" src="photos/{parts[1]}.jpg" style="object-position:{fx[0]}% {fx[1]}%;transform-origin:{fx[0]}% {fx[1]}%" data-s="{fx[2]}">'
+        if kind == "v":
+            cid = parts[1]; shutil.copy(os.path.join(LIB, "clips", cid + ".mp4"), os.path.join(D, "clips", cid + ".mp4"))
+            body += f'<video id="vv{j}" class="v clip{" gray" if "bw" in parts else ""}" src="clips/{cid}.mp4" muted playsinline data-start="{s["t"]}" data-duration="{round(s["end"] - s["t"] + .05, 2)}" data-track-index="{len(vids) % 2}" style="z-index:{5 + j}"></video>'
+            vids.append(j)
+        lines, cur = [], None
+        for n, (disp, st, tt_) in enumerate(s["items"]):
+            if st == "x": continue
+            if cur is None or st != cur[0] or st in "BIG": cur = [st, []]; lines.append(cur)
+            cur[1].append((n, disp, st))
+        h += '<div class="stk">' + "".join('<div class="ln">' + "".join(f'<span class="wd {st}" id="h{j}w{n}" style="font-size:{fit(st, disp)}px">{e(disp)}</span>' for n, disp, st in ws) + "</div>" for st, ws in lines) + "</div></div>"
+        body += h
+    body += f'''<div id="end"><div class="logo">KADIO COIFFURE</div><div class="k">{e(CF["end"][0])}<em>{e(CF["end"][1])}</em></div>
+<div class="pr">{"".join(f"<div>{e(a)}<small>{e(b)}</small></div>" for a, b in CF["prix"])}</div>
+<div class="a">615, Antoinette-Robidoux · Longueuil<br>514 919-5970 · kadiocoiffure.com</div></div><div id="flash"></div>'''
+    SH = [dict(t=s["t"], end=s["end"], w=[(n, st, tt_) for n, (d_, st, tt_) in enumerate(s["items"]) if st != "x"]) for s in shots]
+    js = "const SH = " + json.dumps(SH) + ", TE = " + str(TEND) + ";\n" + """
+SH.forEach(function (s, j) {
+  const p = "#h" + j; show(p, s.t, s.end);
+  if (j) { tl.fromTo(p, { scale: 1.08 }, { scale: 1, duration: .28, ease: "power3.out", immediateRender: false }, s.t);
+    if (j % 3 === 0) cue(s.t - .03, "whoosh-fast.wav", .16); else cue(s.t, "click.wav", .1); }
+  const im = document.querySelector(p + " .pic"); if (im) { const z = parseFloat(im.dataset.s); kb(p + " .pic", s.t, s.end - s.t + .1, { scale: z }, { scale: z * 1.08 }); }
+  s.w.forEach(function (w) { const q = p + "w" + w[0], big = w[1] !== "s" && w[1] !== "i";
+    tl.fromTo(q, { opacity: 0, scale: big ? 1.35 : 1.15, filter: big ? "blur(10px)" : "blur(0px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: big ? .2 : .1, ease: "power3.out", immediateRender: false }, w[2]);
+    tl.set(q, { opacity: 0 }, 0);
+    if (w[1] === "G") { cue(w[2], "cut_hit_sub.wav", .3); tl.fromTo("#flash", { opacity: .45 }, { opacity: 0, duration: .25, immediateRender: false }, w[2]); }
+  });
+});
+tl.set("#flash", { opacity: 0 }, 0);
+show("#end", TE, null); fin("#end", TE, .45, { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", ease: "power4.inOut" }); cue(TE, "whoosh-cine.wav", .3);
+fin("#end .logo", TE + .3, .4, { opacity: 0 }, { opacity: 1 });
+fin("#end .k", TE + .35, .5, { opacity: 0, scale: 1.2, filter: "blur(12px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", ease: "power3.out" }); cue(TE + .35, "bass.wav", .35);
+fin("#end .pr div", TE + .9, .4, { opacity: 0, y: 40 }, { opacity: 1, y: 0, stagger: .15, ease: "back.out(2)" }); cue(TE + .9, "pop-bubble.wav", .22);
+fin("#end .a", TE + 1.4, .5, { opacity: 0 }, { opacity: 1 });
+"""
+    open(os.path.join(D, "index.html"), "w").write(page("Kadio, série services", css, body, js, T, tuple(CF["mus"])))
 print(F, "ok")

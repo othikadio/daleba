@@ -8,9 +8,18 @@ C = {
  "talk2": dict(fond="fond_talk2.jpg", a="#1f3cff", b="#ffffff", serif="bodoni-moda-latin-700-italic.woff2",
    l=[("s", "DOIS-JE"), ("I", "m'abonner"), ("B", "AVANT DE VENIR ?")], pill="La réponse en 5 s"),
 }
+
+PH = "../montage/premium/photos/"
+C.update({
+ "serv_stitch": dict(fond=PH + "s_stitch.jpg", a="#0e8fa3", b="#7ff0f7", serif="bodoni-moda-latin-700-italic.woff2", l=[("s", "NATTES"), ("B", "DESIGN"), ("I", "croisé")], pill="Dès 60 $"),
+ "serv_locks": dict(fond=PH + "s_locks.jpg", a="#8a3b12", b="#f0a36b", serif="cormorant-garamond-latin-600-italic.woff2", l=[("s", "ENTRETIEN"), ("B", "LOCKS"), ("I", "retwist + soin")], pill="65 $ / mois"),
+ "serv_creative": dict(fond=PH + "s_creative.jpg", a="#c2185b", b="#ffa3c8", serif="cormorant-garamond-latin-600-italic.woff2", l=[("s", "COUPE"), ("B", "CRÉATIVE"), ("I", "un cœur tracé")], pill="Sur rendez-vous"),
+ "serv_design": dict(fond=PH + "s_design.jpg", a="#d4a017", b="#f7dc7c", serif="bodoni-moda-latin-700-italic.woff2", l=[("s", "TWISTS"), ("B", "& CONTOUR"), ("I", "lignes parfaites")], pill="Dès 55 $"),
+ "serv_coupe": dict(fond=PH + "s_coupe.jpg", a="#13294b", b="#9cc2ff", serif="bodoni-moda-latin-700-italic.woff2", l=[("s", "COUPE"), ("B", "& BARBE"), ("I", "nette & dessinée")], pill="50 $ · 60 $"),
+})
 n = sys.argv[1]; c = C[n]
-lines = "".join(f'<div class="{k}">{t}</div>' for k, t in c["l"])
-html = f"""<html><head><style>
+lines = "".join(f'<div class="{k}"' + (f' style="font-size:{min(190, int(1550 / len(t)))}px;white-space:nowrap"' if k == "B" else f' style="font-size:{min(150, int(1650 / len(t)))}px;white-space:nowrap"' if k == "I" else "") + f'>{t}</div>' for k, t in c["l"])
+html = f"""<html><head><meta charset="utf-8"><style>
 @font-face {{ font-family: ID; src: url(file://{F}/InterDisplay-Black.otf); font-weight: 900; }}
 @font-face {{ font-family: ID; src: url(file://{F}/InterDisplay-Bold.otf); font-weight: 700; }}
 @font-face {{ font-family: SR; src: url(file://{F}/{c['serif']}); font-style: italic; }}
