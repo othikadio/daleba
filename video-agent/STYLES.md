@@ -1,5 +1,34 @@
 # Studio montage — styles et méthode
 
+## ★ MÉTHODE VALIDÉE PAR KADIO (priorité absolue, nov. 2026)
+
+C'est **la façon de faire les vidéos de Kadio Coiffure**. Toute nouvelle vidéo part d'ici ;
+on varie les couleurs, la musique et 2 à 4 effets, mais on ne change pas la base.
+Fiche détaillée : `styles/montage-dynamique.md`.
+
+1. **Style « montage dynamique » (réf. « 5 € edit »)** — validé : « Là c'est parfait, je trouve ça professionnel. »
+   - Texte **mot à mot calé sur la voix** (horodatage whisper), petits mots en gras fin, mots forts énormes,
+     mots émotion en **serif italique** couleur d'accent, chiffres géants avec flash + coup sourd.
+   - **Coupes rapides** (un plan toutes les 1–2 s), petit zoom d'entrée à chaque coupe.
+   - Alternance : photo couleur / photo noir et blanc / **aplat couleur d'accent** / **aplat blanc**.
+   - **Plans de la bibliothèque** (`bibliotheque/`, 592 plans Mixkit) calés sur le sens des mots ; les photos du salon restent prioritaires pour les sujets cheveux afro.
+   - Carte de fin : nom, prix en pastilles, adresse, téléphone.
+2. **Variante calme pour le face caméra** — « ça en fait un peu trop, on a du mal à suivre » :
+   la personne reste à l'écran, sous-titres sur une ligne en bas, 1 seule carte couleur, pas de flash / N&B / zooms brusques.
+3. **Voix** : une seule voix à la fois (« la voix prend une personne à la fois ») ; en attendant le clone de la voix de Kadio,
+   voix présentateur n° 1 (OmniVoice, réf. 9804), écrire « Kadio » et « lok » (pas « lock ») pour la prononciation.
+   Sur une vidéo face caméra : la vraie voix de Kadio.
+4. **Musique** : une musique de fond **légère sous la voix**, **différente à chaque vidéo** (`bibliotheque/musiques/`, 49 pistes par ambiance).
+5. **Couleurs** : changer la palette à chaque vidéo (rouge, orange Kadio, vert/or, bleu électrique, turquoise, cuivre, rose, moutarde, bleu nuit…).
+6. **Couverture obligatoire** (`couvertures/couverture.py`) : mots-clés en gros, lisibles dans le fil TikTok / Instagram avant le clic,
+   collée en ouverture (0,4 s) + `thumbnailTimestamp: 150` ; 1re ligne de la description = mêmes mots-clés.
+7. **Effets en plus** : `montage/effets/catalogue.md` (23 effets) — 2 à 4 par vidéo, au service du propos, jamais toujours les mêmes.
+
+Ce que Kadio n'aime pas : MODE HIVER, « Ligne Kadio », effets « Apple » A/B/C, voix designées artificielles,
+photos retouchées, trop d'effets sur le face caméra.
+
+---
+
 ## Organisation d'un projet
 
 ```

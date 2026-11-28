@@ -2318,4 +2318,55 @@ fin("#end .pr div", TE + .9, .4, { opacity: 0, y: 40 }, { opacity: 1, y: 0, stag
 fin("#end .a", TE + 1.4, .5, { opacity: 0 }, { opacity: 1 });
 """
     open(os.path.join(D, "index.html"), "w").write(page("Kadio, série services", css, body, js, T, tuple(CF["mus"])))
+elif F == "effets":
+    # Démo de la bibliothèque d'effets (montage/effets) sur les photos du salon
+    FXD = os.path.join(R, "..", "effets")
+    css = open(os.path.join(FXD, "effets.css")).read() + """
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Bold.otf); font-weight: 700; }
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Black.otf); font-weight: 900; }
+@font-face { font-family: SR; src: url(fonts/cormorant-garamond-latin-600-italic.woff2); font-weight: 700; font-style: italic; }
+#root { background: #111; color: #fff; font-family: ID; }
+.bgp { position: absolute; inset: 0; visibility: hidden; overflow: hidden; }
+.bgp img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ttl { position: absolute; left: 50px; top: 70px; padding: 14px 26px; background: #fff; color: #111; font: 900 40px ID; z-index: 95; visibility: hidden; }
+"""
+    E = [("Curseur", "s_coupe"), ("Carte app", "s_stitch"), ("Sous-titre deux tons", "s_locks"), ("Cadran", "s_design"), ("Touches", "s_coupe"),
+         ("Anneau", "s_stitch"), ("Mur de posts", "s_design"), ("Commentaires", "s_locks"), ("Croquis", "s_creative"), ("Lame", "s_coupe"),
+         ("Mise au point", "s_design"), ("Billet", "s_coupe"), ("Note vocale", "s_stitch"), ("Image choc", "s_coupe"), ("Zoom dolly", "s_locks"),
+         ("Une de journal", "s_design"), ("Déchirure", "s_creative"), ("Couches 3D", "s_stitch"), ("Corps en code", "s_stitch"), ("Envol", "s_creative"), ("Texte derrière", "s_stitch"), ("Clones", "s_coupe"), ("Pile de têtes", "s_design")]
+    DU = 2.2; T = round(len(E) * DU + 1.5, 2)
+    body = "".join(f'<div class="bgp" id="bg{i}"><img src="photos/{p}.jpg"></div>' for i, (_, p) in enumerate(E))
+    body += '<div class="ttl">23 effets · Kadio Coiffure</div>'
+    PH = ["photos/" + x for x in ("s_stitch.jpg", "s_locks.jpg", "s_creative.jpg", "s_design.jpg", "s_coupe.jpg", "b1.jpg", "b2.jpg", "b3.jpg", "b4.jpg", "b5.jpg", "b6.jpg", "b8.jpg", "l1.jpg", "l2.jpg")]
+    js = open(os.path.join(FXD, "effets.js")).read() + "\nconst DU = " + str(DU) + ", PH = " + json.dumps(PH) + ";\n" + """
+const NE = 23;
+for (let i = 0; i < NE; i++) { show("#bg" + i, i * DU, i === NE - 1 ? null : (i + 1) * DU); kb("#bg" + i + " img", i * DU, DU, { scale: 1.12 }, { scale: 1.0 }); }
+show(".ttl", 0, 2.0);
+const A = (i) => i * DU + .15, D2 = DU - .2;
+FX.curseur(A(0), D2, { x: 540, y: 820 });
+FX.carte(A(1), D2, { titre: "Kadio Coiffure", sous: "Réservation en ligne", bouton: "Réserver", encours: "Réservation…", fini: "Confirmé ✓", icone: "K" });
+FX.bande([["Une", A(2) + .1], ["coupe", A(2) + .4], ["nette,", A(2) + .7], ["chaque", A(2) + 1.0], ["fois.", A(2) + 1.35]], { par: 5 });
+FX.cadran(A(3), D2, { cible: 5 });
+FX.touches(A(4), D2, { mot: "KADIO" });
+FX.anneau(A(5), D2, { texte: "NATTES · DESIGN · CROISÉ · " });
+FX.mur(A(6), D2, { images: PH, n: 72, total: 1711, suffixe: " clients" });
+FX.commentaires(A(7), D2, { liste: [["kadiocoiffure", "Commente RDV pour réserver 👇"], ["mariama", "RDV"], ["jo.b", "RDV samedi ?"]] });
+FX.croquis(A(8), D2, { mot: "unique", couleur: "#fff", top: 760 });
+FX.lame(A(9), D2, { image: "photos/s_coupe.jpg", etiquettes: ["Dégradé", "Contour", "Barbe"] });
+FX.miseaupoint(A(10), D2, "#bg10 img", { de: 22, a: 0 });
+FX.billet(A(11), D2, { image: "photos/s_coupe.jpg", num: "50", texte: "CLUB KADIO" });
+FX.notevocale(A(12), D2, { top: 300 });
+FX.impact(A(13), D2, { image: "photos/s_coupe.jpg", mot: "NET." });
+FX.dolly(A(14), D2, "#bg14 img");
+FX.journal(A(15), D2, { image: "photos/s_design.jpg", titre: "Twists parfaits", sous: "Séparations tracées à la main" });
+FX.dechirure(A(16), D2);
+FX.couches(A(17), D2, { image: "photos/s_stitch.jpg", libelles: ["PHOTO", "COULEUR", "TEXTE", "SON"] });
+FX.code(A(18), D2, { ascii: "photos/ascii_stitch.png" });
+FX.envol(A(19), D2, { image: "photos/s_creative.jpg" });
+FX.derriere(A(20), D2, { image: "photos/s_stitch.jpg", detoure: "photos/cut_s_stitch.png", mot: "NATTES" });
+FX.clones(A(21), D2, { image: "photos/s_coupe.jpg", detoure: "photos/cut_s_coupe.png", n: 5 });
+FX.pile(A(22), D2 + .6, { image: "photos/s_design.jpg", detoure: "photos/cut_s_design.png", n: 4 });
+FX.liste(.2, T - .3, ["Curseur", "Carte app", "Sous-titre", "Cadran", "Touches", "Anneau", "Mur", "Commentaires", "Croquis", "Lame", "Mise au point", "Billet", "Note vocale", "Image choc", "Zoom dolly", "Journal", "Déchirure", "Couches 3D", "Code", "Envol", "Derrière", "Clones", "Pile"], Array.from({ length: NE }, (_, i) => i * DU));
+"""
+    open(os.path.join(D, "index.html"), "w").write(page("Bibliothèque d'effets Kadio", css, body, js, T, ("m1183", 20)))
 print(F, "ok")
