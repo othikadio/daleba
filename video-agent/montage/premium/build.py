@@ -1943,4 +1943,109 @@ cue(S[6][0] + .3, "sparkle.wav", .35);
 cue(S[S.length - 1][0] + .4, "bass.wav", .35);
 """
     open(os.path.join(D, "index.html"), "w").write(page("Le dégradé en 5 étapes", css, body, js, T, ("m1183", 40)))
+elif F == "barbedit":
+    # Style « montage 5 € » : texte cinétique mot à mot calé sur la voix, coupes rapides, aplats rouge / blanc, serif italique
+    import soundfile as sf
+    VD = os.path.join(R, "vo", "omni")
+    WORDS = json.load(open(os.path.join(VD, "barb_words.json")))
+    LEAD, TAIL = .35, .35; VS, t = [], 0.0
+    for i in range(len(WORDS)):
+        src = os.path.join(VD, f"barb_{i}.wav"); shutil.copy(src, os.path.join(D, f"barb_{i}.wav"))
+        d = sf.info(src).duration; VS.append(round(t + LEAD, 2)); t += LEAD + d + TAIL
+    TEND = round(t + .1, 2); T = round(TEND + 4.2, 2)
+    json.dump([{"t": v, "file": f"barb_{i}.wav"} for i, v in enumerate(VS)], open(os.path.join(D, "vo.json"), "w"))
+    SPEC = [
+     "[p:l2:bw] Un/s dégradé/I | [red] chez/s Kadio/B Coiffure/s | [white] ça/s se/s passe/s en/s cinq=5/G étapes/i | [p:b1] regarde/B",
+     "[p:b6] D'abord/s on/s discute/I | [p:b6:bw] tu/s me/s montres/s ce/s que/s tu/s veux/B | [white] et/s on/s regarde/s ta/s forme/I de/s tête/B | [red] tes/s épis/B ta/s barbe/I",
+     "[p:b2] Ensuite/s la/s ligne/s de/s base/I | [red] tondeuse/s à/s zéro=0/G | [p:b3:bw] en/s bas/B autour/s des/s oreilles/B | [white] et/s sur/s la/s nuque/I",
+     "[red] Puis/s le/s dégradé/B | [p:b8] on/s remonte/s petit/s à/s petit/I | [white] sabot/B après/s sabot/B | [p:b8:bw] pour/s que/s la/s transition/s soit/s invisible/I",
+     "[p:l1] Après/s le/s contour/I | [p:l1:bw] Au/s rasoir/B | [white] une/s ligne/s nette/B précise/I | [red] C'est/s ça/s la/s signature/I Kadio/B",
+     "[p:b4] Et/s pour/s finir/s la/s barbe/I | [red] on/s la/s taille/B | [white] on/s la/s dessine/I | [p:b5] on/s l'hydrate/B",
+     "[white] Résultat/s | [red] propre=Propre./G | [p:l4:bw] net=Net./G | [p:l4] et/s tu/s repars/s avec/s confiance/I",
+     "[white] Coupe/s cinquante=50_$/G dollars=/x | [red] Coupe/s et/s barbe/s soixante=60_$/G | [p:l2:bw] Réserve/s ta/s place/B chez/s Kadio/I Coiffure/s à/s Longueuil/B"]
+    def fit(st, txt):
+        n = max(len(txt), 1)
+        return {"s": 50, "i": 64, "B": min(160, int(1700 / n)), "I": min(190, int(2000 / n)), "G": min(400, int(1500 / n))}[st]
+    shots = []
+    for i, line in enumerate(SPEC):
+        W = WORDS[i]; k = 0
+        for part in line.split("|"):
+            part = part.strip(); bg, toks = part[1:part.index("]")], part[part.index("]") + 1:].split()
+            items = []
+            for tk in toks:
+                w, st = tk.rsplit("/", 1); disp = (w.split("=", 1)[1] if "=" in w else w).replace("_", " ")
+                tt = round(VS[i] + W[k][1], 2); k += 1
+                items.append((disp, st, tt))
+            shots.append(dict(bg=bg, items=items, t=items[0][2] if shots else 0.0))
+        assert k == len(W), (i, k, len(W))
+    for j, s in enumerate(shots): s["end"] = shots[j + 1]["t"] if j + 1 < len(shots) else TEND
+    css = """
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Bold.otf); font-weight: 700; }
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Black.otf); font-weight: 900; }
+@font-face { font-family: BD; src: url(fonts/bodoni-moda-latin-700-italic.woff2); font-weight: 700; font-style: italic; }
+#root { background: #000; color: #fff; font-family: ID; }
+.shot { position: absolute; inset: 0; visibility: hidden; overflow: hidden; }
+.shot.red { background: radial-gradient(120% 90% at 20% 15%, #f0505c 0%, #c8102e 45%, #8e0016 100%); }
+.shot.white { background: #fff; color: #c8102e; }
+.shot .ph { position: absolute; inset: -2%; width: 104%; height: 104%; object-fit: cover; }
+.shot.bw .ph { filter: grayscale(1) contrast(1.25) brightness(.9); }
+.shot.photo:after { content: ""; position: absolute; inset: 0; background: radial-gradient(80% 60% at 50% 50%, rgba(0,0,0,.05), rgba(0,0,0,.55)); }
+.stk { position: absolute; left: 50px; right: 50px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; text-align: center; z-index: 3; }
+.ln { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 0 .28em; line-height: .95; }
+.wd { display: inline-block; opacity: 0; white-space: nowrap; }
+.photo .wd { text-shadow: 0 4px 30px rgba(0,0,0,.55); }
+.s { font-weight: 700; letter-spacing: -.01em; }
+.B, .G { font-weight: 900; letter-spacing: -.045em; }
+.G { line-height: .85; }
+.I, .i { font-family: BD; font-style: italic; font-weight: 700; letter-spacing: -.02em; }
+.photo .I, .white .I, .white .G, .white .B, .photo .i, .white .i { color: #e0132b; }
+.photo .I { color: #ff2b40; }
+.red .I, .red .i { color: #fff; }
+.white .s { color: #9c0b20; }
+#flash { position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 50; }
+#end { position: absolute; inset: 0; visibility: hidden; z-index: 40; background: radial-gradient(120% 90% at 20% 15%, #f0505c 0%, #c8102e 45%, #8e0016 100%); }
+#end .k { position: absolute; left: 0; right: 0; top: 560px; text-align: center; font: 900 150px/0.95 ID; letter-spacing: -.05em; }
+#end .k em { display: block; font: italic 700 170px BD; letter-spacing: -.02em; }
+#end .pr { position: absolute; left: 90px; right: 90px; top: 1000px; display: flex; gap: 24px; }
+#end .pr div { flex: 1; padding: 30px 0; border-radius: 28px; background: #fff; color: #c8102e; text-align: center; font: 900 46px/1.2 ID; }
+#end .pr small { display: block; font: 700 30px ID; color: #9c0b20; }
+#end .a { position: absolute; left: 0; right: 0; top: 1300px; text-align: center; font: 700 40px/1.55 ID; color: rgba(255,255,255,.88); }
+"""
+    body = ""
+    for j, s in enumerate(shots):
+        parts = s["bg"].split(":"); cls = "photo" if parts[0] == "p" else parts[0]
+        if "bw" in parts: cls += " bw"
+        h = f'<div class="shot {cls}" id="h{j}">' + (f'<img class="ph" src="photos/{parts[1]}.jpg">' if parts[0] == "p" else "")
+        lines, cur = [], None
+        for n, (disp, st, tt) in enumerate(s["items"]):
+            if st == "x": continue
+            if cur is None or st != cur[0] or st in "BIG": cur = [st, []]; lines.append(cur)
+            cur[1].append((n, disp, st))
+        h += '<div class="stk">' + "".join('<div class="ln">' + "".join(f'<span class="wd {st}" id="h{j}w{n}" style="font-size:{fit(st, disp)}px">{e(disp)}</span>' for n, disp, st in ws) + "</div>" for st, ws in lines) + "</div></div>"
+        body += h
+    body += f'''<div id="end"><div class="k">Kadio Coiffure<em>Barbier.</em></div>
+<div class="pr"><div>50 $<small>Coupe</small></div><div>60 $<small>Coupe + barbe</small></div></div>
+<div class="a">615, Antoinette-Robidoux · Longueuil<br>514 919-5970 · kadiocoiffure.com</div></div><div id="flash"></div>'''
+    SH = [dict(t=s["t"], end=s["end"], ph=s["bg"].startswith("p"), w=[(n, st, tt) for n, (d_, st, tt) in enumerate(s["items"]) if st != "x"]) for s in shots]
+    js = "const SH = " + json.dumps(SH) + ", TE = " + str(TEND) + ";\n" + """
+SH.forEach(function (s, j) {
+  const p = "#h" + j; show(p, s.t, s.end); tl.set(p, { zIndex: 2 + j }, 0);
+  if (j) { tl.fromTo(p, { scale: 1.08 }, { scale: 1, duration: .28, ease: "power3.out", immediateRender: false }, s.t); }
+  if (s.ph) kb(p + " .ph", s.t, s.end - s.t + .1, { scale: 1.0 }, { scale: 1.1 });
+  if (j && j % 3 === 0) cue(s.t - .03, "whoosh-fast.wav", .16); else if (j) cue(s.t, "click.wav", .1);
+  s.w.forEach(function (w) { const q = p + "w" + w[0], big = w[1] !== "s" && w[1] !== "i";
+    tl.fromTo(q, { opacity: 0, scale: big ? 1.35 : 1.15, filter: big ? "blur(10px)" : "blur(0px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: big ? .2 : .1, ease: "power3.out", immediateRender: false }, w[2]);
+    tl.set(q, { opacity: 0 }, 0);
+    if (w[1] === "G") { cue(w[2], "cut_hit_sub.wav", .35); tl.fromTo("#flash", { opacity: .55 }, { opacity: 0, duration: .25, immediateRender: false }, w[2]); }
+  });
+});
+tl.set("#flash", { opacity: 0 }, 0);
+show("#end", TE, null); fin("#end", TE, .45, { clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)", ease: "power4.inOut" }); cue(TE, "whoosh-cine.wav", .3);
+fin("#end .k", TE + .3, .5, { opacity: 0, scale: 1.2, filter: "blur(12px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", ease: "power3.out" }); cue(TE + .3, "bass.wav", .35);
+fin("#end .pr div", TE + .9, .4, { opacity: 0, y: 40 }, { opacity: 1, y: 0, stagger: .15, ease: "back.out(2)" }); cue(TE + .9, "pop-bubble.wav", .22);
+fin("#end .a", TE + 1.4, .5, { opacity: 0 }, { opacity: 1 });
+const _V = JSON.parse('""" + json.dumps(VS) + """');
+cue(_V[2] + 1.4, "tondeuse.wav", .4); cue(_V[3] + 1.6, "tondeuse.wav", .35); cue(_V[5] + 1.6, "ciseaux.wav", .45); cue(_V[6] + .5, "sparkle.wav", .3);
+"""
+    open(os.path.join(D, "index.html"), "w").write(page("Barbier, montage dynamique", css, body, js, T, ("m1183", 40)))
 print(F, "ok")
