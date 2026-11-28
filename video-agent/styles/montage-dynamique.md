@@ -40,3 +40,11 @@ Règles de la variante calme (blocs `talk1` / `talk2`) :
 - sous-titres sur une ligne qui se remplit mot à mot, en bas (≈ 74 %), mots clés en italique serif ou en gras mais pas géants ;
 - pas de flash, pas de noir et blanc, pas d'effets de zoom brusques (un seul plan resserré possible) ;
 - sons discrets : un whoosh à l'entrée de la carte, une basse douce sur le chiffre.
+
+## Couverture (aperçu dans le fil) — obligatoire à chaque publication
+Demande de Kadio : le client qui défile doit lire de quoi parle la vidéo avant de cliquer.
+- `video-agent/couvertures/couverture.py <nom>` : image 1080x1920 tirée de la vidéo, assombrie, avec 3 lignes en gros
+  (petit mot espacé · MOT CLÉ énorme · accroche en serif italique) + pastille + KADIO COIFFURE.
+- Texte entre ≈ 900 et 1650 px de haut : visible dans la grille Instagram (4:5 et 3:4) et pas caché par l'interface TikTok ; le visage reste visible au-dessus.
+- La couverture est collée en ouverture (0,4 s) et `thumbnailTimestamp: 150` la choisit comme aperçu ; elle sert aussi d'image pour Google.
+- La 1re ligne de la description reprend les mots de la couverture (c'est ce qui s'affiche avant « plus »).
