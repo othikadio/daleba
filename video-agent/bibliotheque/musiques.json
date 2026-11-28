@@ -4,7 +4,8 @@
   "duree": 90.0,
   "ambiances": [
    "émotion",
-   "réflexion"
+   "réflexion",
+   "tendresse"
   ],
   "source": "https://mixkit.co/free-stock-music/ (id 614)",
   "licence": "Mixkit Free License"
@@ -14,7 +15,9 @@
   "duree": 90.0,
   "ambiances": [
    "émotion",
-   "réflexion"
+   "réflexion",
+   "espoir",
+   "tendresse"
   ],
   "source": "https://mixkit.co/free-stock-music/ (id 587)",
   "licence": "Mixkit Free License"
@@ -23,7 +26,8 @@
   "fichier": "musiques/m493.mp3",
   "duree": 90.0,
   "ambiances": [
-   "émotion"
+   "émotion",
+   "tendresse"
   ],
   "source": "https://mixkit.co/free-stock-music/ (id 493)",
   "licence": "Mixkit Free License"
@@ -33,7 +37,11 @@
   "duree": 90.0,
   "ambiances": [
    "émotion",
-   "réflexion"
+   "réflexion",
+   "espoir",
+   "inspirant",
+   "calme",
+   "tendresse"
   ],
   "source": "https://mixkit.co/free-stock-music/ (id 682)",
   "licence": "Mixkit Free License"
@@ -42,9 +50,309 @@
   "fichier": "musiques/m184.mp3",
   "duree": 90.0,
   "ambiances": [
-   "réflexion"
+   "réflexion",
+   "calme",
+   "rêveur",
+   "atmosphère"
   ],
   "source": "https://mixkit.co/free-stock-music/ (id 184)",
+  "licence": "Mixkit Free License"
+ },
+ "32": {
+  "fichier": "musiques/m32.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "espoir",
+   "inspirant",
+   "confiance"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 32)",
+  "licence": "Mixkit Free License"
+ },
+ "148": {
+  "fichier": "musiques/m148.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "espoir",
+   "rêveur"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 148)",
+  "licence": "Mixkit Free License"
+ },
+ "839": {
+  "fichier": "musiques/m839.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "inspirant",
+   "confiance"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 839)",
+  "licence": "Mixkit Free License"
+ },
+ "31": {
+  "fichier": "musiques/m31.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "inspirant",
+   "confiance"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 31)",
+  "licence": "Mixkit Free License"
+ },
+ "288": {
+  "fichier": "musiques/m288.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "motivation",
+   "confiance"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 288)",
+  "licence": "Mixkit Free License"
+ },
+ "989": {
+  "fichier": "musiques/m989.mp3",
+  "duree": 89.2,
+  "ambiances": [
+   "motivation"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 989)",
+  "licence": "Mixkit Free License"
+ },
+ "1001": {
+  "fichier": "musiques/m1001.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "motivation"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 1001)",
+  "licence": "Mixkit Free License"
+ },
+ "1183": {
+  "fichier": "musiques/m1183.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "motivation"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 1183)",
+  "licence": "Mixkit Free License"
+ },
+ "443": {
+  "fichier": "musiques/m443.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "calme",
+   "atmosphère"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 443)",
+  "licence": "Mixkit Free License"
+ },
+ "127": {
+  "fichier": "musiques/m127.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "calme",
+   "atmosphère"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 127)",
+  "licence": "Mixkit Free License"
+ },
+ "657": {
+  "fichier": "musiques/m657.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "rêveur"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 657)",
+  "licence": "Mixkit Free License"
+ },
+ "135": {
+  "fichier": "musiques/m135.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "rêveur"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 135)",
+  "licence": "Mixkit Free License"
+ },
+ "580": {
+  "fichier": "musiques/m580.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "atmosphère"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 580)",
+  "licence": "Mixkit Free License"
+ },
+ "51": {
+  "fichier": "musiques/m51.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "détermination"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 51)",
+  "licence": "Mixkit Free License"
+ },
+ "369": {
+  "fichier": "musiques/m369.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "détermination"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 369)",
+  "licence": "Mixkit Free License"
+ },
+ "1091": {
+  "fichier": "musiques/m1091.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "détermination"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 1091)",
+  "licence": "Mixkit Free License"
+ },
+ "349": {
+  "fichier": "musiques/m349.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "détermination"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 349)",
+  "licence": "Mixkit Free License"
+ },
+ "744": {
+  "fichier": "musiques/m744.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "élégant"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 744)",
+  "licence": "Mixkit Free License"
+ },
+ "134": {
+  "fichier": "musiques/m134.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "élégant"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 134)",
+  "licence": "Mixkit Free License"
+ },
+ "470": {
+  "fichier": "musiques/m470.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "élégant"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 470)",
+  "licence": "Mixkit Free License"
+ },
+ "501": {
+  "fichier": "musiques/m501.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "élégant"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 501)",
+  "licence": "Mixkit Free License"
+ },
+ "324": {
+  "fichier": "musiques/m324.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "smooth"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 324)",
+  "licence": "Mixkit Free License"
+ },
+ "24": {
+  "fichier": "musiques/m24.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "smooth",
+   "nostalgie"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 24)",
+  "licence": "Mixkit Free License"
+ },
+ "640": {
+  "fichier": "musiques/m640.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "smooth"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 640)",
+  "licence": "Mixkit Free License"
+ },
+ "101": {
+  "fichier": "musiques/m101.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "smooth"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 101)",
+  "licence": "Mixkit Free License"
+ },
+ "130": {
+  "fichier": "musiques/m130.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "glamour"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 130)",
+  "licence": "Mixkit Free License"
+ },
+ "33": {
+  "fichier": "musiques/m33.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "glamour"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 33)",
+  "licence": "Mixkit Free License"
+ },
+ "471": {
+  "fichier": "musiques/m471.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "glamour"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 471)",
+  "licence": "Mixkit Free License"
+ },
+ "836": {
+  "fichier": "musiques/m836.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "glamour"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 836)",
+  "licence": "Mixkit Free License"
+ },
+ "40": {
+  "fichier": "musiques/m40.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "nostalgie"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 40)",
+  "licence": "Mixkit Free License"
+ },
+ "649": {
+  "fichier": "musiques/m649.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "nostalgie"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 649)",
+  "licence": "Mixkit Free License"
+ },
+ "23": {
+  "fichier": "musiques/m23.mp3",
+  "duree": 90.0,
+  "ambiances": [
+   "nostalgie"
+  ],
+  "source": "https://mixkit.co/free-stock-music/ (id 23)",
   "licence": "Mixkit Free License"
  }
 }
