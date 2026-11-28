@@ -2206,7 +2206,7 @@ elif F.startswith("serv_"):
     for i in range(len(SCRIPT)):
         src = os.path.join(VD, f"{K}_{i}.wav"); shutil.copy(src, os.path.join(D, f"v_{i}.wav"))
         d = sf.info(src).duration; VS.append(round(t + LEAD, 2)); t += LEAD + d + TAIL
-    TEND = round(t + .1, 2); T = round(TEND + 3.6, 2)
+    TEND = round(t + .1, 2); T = round(TEND + (4.4 if CF.get("fx") else 3.6), 2)
     json.dump([{"t": v, "file": f"v_{i}.wav"} for i, v in enumerate(VS)], open(os.path.join(D, "vo.json"), "w"))
     def times(i, toks):
         W = WORDS[i]; a = [NUM.get(norm(x), norm(x)) for x in toks]; b = [norm(w) for w, _ in W]
@@ -2274,6 +2274,8 @@ elif F.startswith("serv_"):
 #end .pr small {{ display: block; font: 700 28px ID; color: {a3}; }}
 #end .a {{ position: absolute; left: 0; right: 0; top: 1300px; text-align: center; font: 700 40px/1.55 ID; color: rgba(255,255,255,.9); }}
 """
+    FXD = os.path.join(R, "..", "effets")
+    if CF.get("fx"): css += open(os.path.join(FXD, "effets.css")).read()
     LIB = os.path.join(R, "..", "..", "bibliotheque"); os.makedirs(os.path.join(D, "clips"), exist_ok=True)
     body, vids = "", []
     for j, s in enumerate(shots):
@@ -2317,6 +2319,7 @@ fin("#end .k", TE + .35, .5, { opacity: 0, scale: 1.2, filter: "blur(12px)" }, {
 fin("#end .pr div", TE + .9, .4, { opacity: 0, y: 40 }, { opacity: 1, y: 0, stagger: .15, ease: "back.out(2)" }); cue(TE + .9, "pop-bubble.wav", .22);
 fin("#end .a", TE + 1.4, .5, { opacity: 0 }, { opacity: 1 });
 """
+    if CF.get("fx"): js += open(os.path.join(FXD, "effets.js")).read() + "\nconst V = " + json.dumps(VS) + ", TT = " + str(T) + ";\n" + "\n".join(CF["fx"]) + "\n"
     open(os.path.join(D, "index.html"), "w").write(page("Kadio, série services", css, body, js, T, tuple(CF["mus"])))
 elif F == "effets":
     # Démo de la bibliothèque d'effets (montage/effets) sur les photos du salon

@@ -17,7 +17,7 @@ const FX = (function () {
   X.carte = function (t, dur, o) { o = o || {};
     const s = el("fx fx-card", `<div class="hd"><div class="ic">${o.icone || "▶"}</div><div><div class="t1">${o.titre || "Kadio Coiffure"}</div><div class="t2">${o.sous || "Réservation en ligne"}</div></div></div><div class="bt"><span>${o.bouton || "Réserver"}</span></div><div class="pb"><i></i></div>`);
     show(s, t, t + dur); fin(s, t, .5, { opacity: 0, y: -60, scale: .92 }, { opacity: 1, y: 0, scale: 1, ease: "back.out(1.6)" }); sfx(t, "pop-long.wav", .25);
-    const tc = X.curseur(t + .3, dur - .3, { x: 760, y: 700, click: .9 });
+    const tc = X.curseur(t + .3, dur - .3, { x: o.cx || 760, y: o.cy || 700, click: .9 });
     tl.set(s + " .bt span", { textContent: o.bouton || "Réserver" }, 0); tl.set(s + " .bt span", { textContent: o.encours || "Réservation…" }, tc);
     tl.fromTo(s + " .pb i", { scaleX: 0 }, { scaleX: 1, duration: Math.max(.6, dur - 1.6), ease: "power1.inOut", immediateRender: false }, tc + .1); tl.set(s + " .pb i", { scaleX: 0 }, 0);
     if (o.fini) { tl.set(s + " .bt span", { textContent: o.fini }, t + dur - .45); sfx(t + dur - .45, "notif-positive.wav", .3); }
