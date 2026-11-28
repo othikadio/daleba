@@ -29,6 +29,11 @@ Fiche détaillée : `styles/montage-dynamique.md`.
    mot-titre en **grand serif rouge (Bodoni)** placé derrière le sujet, petits mots gris mot à mot autour,
    apparitions par mise au point (flou → net), un calque flou au premier plan qui passe (profondeur), rythme lent, narration une voix.
 
+9. **Message : vendre le résultat, jamais le produit** (consigne de Kadio, 28 nov.) — on ne montre pas l'appli,
+   ses écrans ni ses fonctions ; on parle de ce que ça apporte : à la cliente (plus besoin de courir après une place,
+   quelqu'un qui connaît ses cheveux, près de chez elle, le résultat voulu) et au coiffeur (être vu, clients qui le choisissent,
+   agenda rempli, liberté, ce qu'il garde). Code « Vente » des Codes du Business : le client achète le résultat.
+
 Ce que Kadio n'aime pas : MODE HIVER, « Ligne Kadio », effets « Apple » A/B/C, voix designées artificielles,
 photos retouchées, trop d'effets sur le face caméra.
 
