@@ -45,3 +45,4 @@ vo/doc/*.wav
 vo/doc/jobs.json
 doc_*/
 vo/doc/jobs_r.json
+vo/serie/jobs_defri.json

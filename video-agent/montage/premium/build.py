@@ -2263,7 +2263,7 @@ elif F.startswith("serv_"):
 .photo .I, .vid .I, .photo .i, .vid .i {{ color: {ap}; }}
 .white .I, .white .G, .white .B, .white .i {{ color: {ai}; }}
 .white .s {{ color: {as_}; }}
-.acc .I, .acc .i {{ color: #fff; }}
+.acc .I, .acc .i {{ color: {CF.get('acci', '#fff')}; }}
 #flash {{ position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 60; }}
 #end {{ position: absolute; inset: 0; visibility: hidden; z-index: 50; background: radial-gradient(120% 90% at 20% 15%, {a1} 0%, {a2} 45%, {a3} 100%); }}
 #end .logo {{ position: absolute; left: 0; right: 0; top: 400px; text-align: center; font: 900 40px ID; letter-spacing: .3em; }}
@@ -2281,6 +2281,7 @@ elif F.startswith("serv_"):
     for j, s in enumerate(shots):
         parts = s["bg"].split(":"); kind = parts[0]
         cls = {"p": "photo", "v": "vid", "acc": "acc", "white": "white"}[kind] + (" bw" if "bw" in parts else "")
+        if "focus" in parts: cls += " focus"
         h = f'<div class="shot {cls}" id="h{j}" style="z-index:{5 + j}">'
         if kind == "p":
             fx = next((x[2:] for x in parts if x.startswith("f=")), "50,50,1").split(",")
@@ -2305,6 +2306,7 @@ SH.forEach(function (s, j) {
   const p = "#h" + j; show(p, s.t, s.end);
   if (j) { tl.fromTo(p, { scale: 1.08 }, { scale: 1, duration: .28, ease: "power3.out", immediateRender: false }, s.t);
     if (j % 3 === 0) cue(s.t - .03, "whoosh-fast.wav", .16); else cue(s.t, "click.wav", .1); }
+  if (document.querySelector(p + ".focus")) tl.fromTo(p + " .pic", { filter: "blur(18px)" }, { filter: "blur(0px)", duration: .9, ease: "power2.out", immediateRender: false }, s.t);
   const im = document.querySelector(p + " .pic"); if (im) { const z = parseFloat(im.dataset.s); kb(p + " .pic", s.t, s.end - s.t + .1, { scale: z }, { scale: z * 1.08 }); }
   s.w.forEach(function (w) { const q = p + "w" + w[0], big = w[1] !== "s" && w[1] !== "i";
     tl.fromTo(q, { opacity: 0, scale: big ? 1.35 : 1.15, filter: big ? "blur(10px)" : "blur(0px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: big ? .2 : .1, ease: "power3.out", immediateRender: false }, w[2]);

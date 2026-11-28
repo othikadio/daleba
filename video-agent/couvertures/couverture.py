@@ -16,6 +16,7 @@ C.update({
  "serv_creative": dict(fond=PH + "s_creative.jpg", a="#c2185b", b="#ffa3c8", serif="cormorant-garamond-latin-600-italic.woff2", l=[("s", "COUPE"), ("B", "CRÉATIVE"), ("I", "un cœur tracé")], pill="Sur rendez-vous"),
  "serv_design": dict(fond=PH + "s_design.jpg", a="#d4a017", b="#f7dc7c", serif="bodoni-moda-latin-700-italic.woff2", l=[("s", "TWISTS"), ("B", "& CONTOUR"), ("I", "lignes parfaites")], pill="Dès 55 $"),
  "doc_defri": dict(fond=PH + "d_boucles.jpg", a="#b3122a", b="#ffd9de", serif="bodoni-moda-latin-700-italic.woff2", l=[("s", "DÉFRISAGE"), ("B", "MISE EN PLIS"), ("I", "& boucles souples")], pill="Sur rendez-vous"),
+ "serv_defri": dict(fond=PH + "d_fin.jpg", a="#a8864a", b="#e9cf9a", serif="bodoni-moda-latin-700-italic.woff2", l=[("s", "DÉFRISAGE"), ("B", "MISE EN PLIS"), ("I", "& boucles souples")], pill="Sur rendez-vous"),
  "serv_coupe": dict(fond=PH + "s_coupe.jpg", a="#13294b", b="#9cc2ff", serif="bodoni-moda-latin-700-italic.woff2", l=[("s", "COUPE"), ("B", "& BARBE"), ("I", "nette & dessinée")], pill="50 $ · 60 $"),
 })
 n = sys.argv[1]; c = C[n]
