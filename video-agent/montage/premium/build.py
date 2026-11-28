@@ -2461,4 +2461,83 @@ fin("#end .s", TE + .7, .5, { opacity: 0 }, { opacity: 1 }); fin("#end .a", TE +
 fin("#end .c", TE + 1.4, .5, { opacity: 0, y: 20 }, { opacity: 1, y: 0, ease: "power3.out" });
 """
     open(os.path.join(D, "index.html"), "w").write(page("Kadio, documentaire", css, body, js, T, tuple(CF["mus"])))
+elif F == "brut":
+    # Modèle « BRUT / MONTÉ » : petite carte photo brute à gauche, grande carte montée (titre serif rouge), glissement latéral entre les scènes
+    import soundfile as sf, subprocess, difflib, re
+    VD = os.path.join(R, "vo", "brut"); CF = json.load(open(os.path.join(VD, "brut.json"))); SCRIPT = json.load(open(os.path.join(VD, "script.json")))
+    norm = lambda w: re.sub(r"[^\w'-]", "", w.lower()).replace("cadio", "kadio")
+    WJ = os.path.join(VD, "words.json")
+    if not os.path.exists(WJ):
+        allw = []
+        for i in range(len(SCRIPT)):
+            tmp = os.path.join(VD, f"_w{i}"); subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", os.path.join(VD, f"v_{i}.wav"), "-ar", "16000", "-ac", "1", tmp + ".wav"], check=True)
+            subprocess.run(["whisper-cli", "-m", "/root/.cache/whisper-cpp/ggml-large-v3-turbo-q5_0.bin", "-l", "fr", "-ml", "1", "-sow", "-oj", "-of", tmp, "-np", "-t", "4", "-f", tmp + ".wav"], capture_output=True)
+            j = json.load(open(tmp + ".json")); allw.append([[s["text"].strip(), s["offsets"]["from"] / 1000] for s in j["transcription"] if s["text"].strip()])
+            os.remove(tmp + ".wav"); os.remove(tmp + ".json")
+        json.dump(allw, open(WJ, "w"), ensure_ascii=False)
+    WORDS = json.load(open(WJ))
+    LEAD, TAIL = .45, .5; VS, t = [], 0.0
+    for i in range(len(SCRIPT)):
+        src = os.path.join(VD, f"v_{i}.wav"); shutil.copy(src, os.path.join(D, f"v_{i}.wav"))
+        d = sf.info(src).duration; VS.append(round(t + LEAD, 2)); t += LEAD + d + TAIL
+    T = round(t + 2.2, 2)
+    json.dump([{"t": v, "file": f"v_{i}.wav"} for i, v in enumerate(VS)], open(os.path.join(D, "vo.json"), "w"))
+    def times(i, toks):
+        W = WORDS[i]; a = [norm(x) for x in toks]; b = [norm(w) for w, _ in W]; out = [None] * len(a)
+        for blk in difflib.SequenceMatcher(None, a, b, autojunk=False).get_matching_blocks():
+            for q in range(blk.size): out[blk.a + q] = W[blk.b + q][1]
+        known = [(q, v) for q, v in enumerate(out) if v is not None] or [(0, 0.0)]
+        for q in range(len(out)):
+            if out[q] is None:
+                prv = [x for x in known if x[0] < q]; nxt = [x for x in known if x[0] > q]
+                out[q] = (prv[-1][1] + (nxt[0][1] - prv[-1][1]) * (q - prv[-1][0]) / (nxt[0][0] - prv[-1][0])) if prv and nxt else (prv[-1][1] + .25 * (q - prv[-1][0]) if prv else max(0.0, nxt[0][1] - .25 * (nxt[0][0] - q)))
+        for q in range(1, len(out)): out[q] = max(out[q], out[q - 1])
+        return out
+    css = """
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Bold.otf); font-weight: 700; }
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Black.otf); font-weight: 900; }
+@font-face { font-family: BM; src: url(fonts/bodoni-moda-latin-400-normal.woff2); font-weight: 400; }
+#root { background: radial-gradient(120% 80% at 50% 30%, #1c2333 0%, #0d1220 60%, #070a12 100%); color: #fff; font-family: ID; }
+.card { position: absolute; border: 5px solid #fff; border-radius: 26px; overflow: hidden; background: #e7e4de; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+#raw { left: 50px; top: 700px; width: 330px; height: 600px; z-index: 2; }
+#ed { left: 395px; top: 440px; width: 635px; height: 1080px; z-index: 3; }
+.chip { position: absolute; padding: 6px 18px 8px; background: #fff; color: #0b0b0b; font: 900 40px ID; letter-spacing: .02em; border-radius: 8px; z-index: 5; transform: translateX(-50%); }
+.hd { position: absolute; left: 400px; top: 1545px; font: 700 34px ID; font-style: italic; color: #fff; z-index: 5; }
+.rs, .es { position: absolute; inset: 0; visibility: hidden; overflow: hidden; }
+.rs img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.es { background: linear-gradient(180deg, #f2f0ec 0%, #e4e0d9 55%, #c9c3ba 100%); }
+.es img { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 82%; object-fit: cover; -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 28%, #000 82%, transparent 100%); mask-image: linear-gradient(180deg, transparent 0%, #000 28%, #000 82%, transparent 100%); filter: saturate(.9) contrast(1.05); transform-origin: 50% 60%; }
+.tx { position: absolute; left: 24px; right: 24px; top: 60px; text-align: center; z-index: 2; }
+.tx .bf, .tx .af { font: 700 30px/1.3 ID; color: #2f2c29; }
+.tx .af { margin-top: 8px; }
+.tx .tt { font: 400 130px/0.95 BM; color: #d3121e; letter-spacing: -.02em; }
+.w { opacity: 0; display: inline-block; margin: 0 .12em; }
+"""
+    body = '<div class="chip" style="left:215px;top:665px">BRUT</div><div class="chip" style="left:712px;top:405px">MONTÉ</div><div class="hd">@kadiocoiffure</div>'
+    raw, ed, SC = "", "", []
+    for i, line in enumerate(CF["spec"]):
+        toks = line.split(); tt = times(i, [tk.rsplit("/", 1)[0] for tk in toks])
+        items = [(tk.rsplit("/", 1)[0], tk.rsplit("/", 1)[1], round(VS[i] + tt[k], 2)) for k, tk in enumerate(toks)]
+        ti = [k for k, x in enumerate(items) if x[1] == "T"]; a0, a1 = ti[0], ti[-1]
+        title = " ".join(x[0] for x in items[a0:a1 + 1]); fs = min(130, int(1150 / max(len(title), 1)))
+        bf = "".join(f'<span class="w" id="e{i}w{k}">{e(items[k][0])}</span>' for k in range(a0))
+        af = "".join(f'<span class="w" id="e{i}w{k}">{e(items[k][0])}</span>' for k in range(a1 + 1, len(items)))
+        ph = CF["photos"][i]
+        raw += f'<div class="rs" id="r{i}"><img src="photos/{ph}.jpg"></div>'
+        ed += f'<div class="es" id="e{i}"><img src="photos/{ph}.jpg"><div class="tx"><div class="bf">{bf}</div><div class="tt w" id="e{i}t" style="font-size:{fs}px">{e(title)}</div><div class="af">{af}</div></div></div>'
+        SC.append(dict(t=round(VS[i] - LEAD + (.15 if i else .02), 2), w=[(k, x[2]) for k, x in enumerate(items) if x[1] != "T"], tt=items[a0][2]))
+    for i, s in enumerate(SC): s["end"] = SC[i + 1]["t"] + .6 if i + 1 < len(SC) else T
+    body += f'<div class="card" id="raw">{raw}</div><div class="card" id="ed">{ed}</div>'
+    js = "const SC = " + json.dumps(SC) + ";\n" + """
+fin(".card, .chip, .hd", .02, .6, { opacity: 0, y: 40 }, { opacity: 1, y: 0, stagger: .06, ease: "power3.out" });
+SC.forEach(function (s, i) { const E = "#e" + i, Rr = "#r" + i; show(E, s.t, s.end); show(Rr, s.t, s.end); tl.set(E, { zIndex: 1 + i }, 0); tl.set(Rr, { zIndex: 1 + i }, 0);
+  if (i) { fin(E, s.t, .6, { x: 640 }, { x: 0, ease: "power3.inOut" }); tl.to("#e" + (i - 1), { x: -640, duration: .6, ease: "power3.inOut" }, s.t);
+           fin(Rr, s.t + .08, .6, { x: 340 }, { x: 0, ease: "power3.inOut" }); tl.to("#r" + (i - 1), { x: -340, duration: .6, ease: "power3.inOut" }, s.t + .08);
+           tl.set("#e" + (i - 1) + ", #r" + (i - 1), { x: 0 }, 0); cue(s.t, "whoosh-fast.wav", .2); }
+  tl.fromTo(E + " img", { scale: 1.0 }, { scale: 1.08, duration: s.end - s.t, ease: "none", immediateRender: false }, s.t);
+  fin(E + "t", s.tt, .55, { opacity: 0, filter: "blur(12px)", y: 10 }, { opacity: 1, filter: "blur(0px)", y: 0, ease: "power2.out" }); cue(s.tt, "bass.wav", .14);
+  s.w.forEach(function (w) { fin(E + "w" + w[0], w[1], .22, { opacity: 0, y: 6 }, { opacity: 1, y: 0, ease: "power2.out" }); });
+});
+"""
+    open(os.path.join(D, "index.html"), "w").write(page("Kadio, brut et monté", css, body, js, T, tuple(CF["mus"])))
 print(F, "ok")

@@ -46,3 +46,6 @@ vo/doc/jobs.json
 doc_*/
 vo/doc/jobs_r.json
 vo/serie/jobs_defri.json
+vo/brut/*.wav
+vo/brut/jobs.json
+/brut/
