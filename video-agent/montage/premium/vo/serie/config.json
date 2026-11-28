@@ -236,5 +236,48 @@
    "FX.cadran(V[2] + .9, 2.1, { libelles: [\"PROTECTION\", \"POSE\", \"RINÇAGE\", \"SOIN\", \"PLIS\", \"BOUCLES\"], cible: 1 }); (function(){ const d = document.querySelectorAll(\"#root .fx-dial\"); const k = d[d.length - 1]; k.style.top = \"90px\"; k.style.zoom = \".72\"; k.style.left = \"190px\"; })();",
    "FX.lame(V[5] - .05, 1.6, { image: \"photos/d_boucles.jpg\", etiquettes: [\"Défrisage\", \"Mise en plis\", \"Boucles\"] });"
   ]
+ },
+ "network": {
+  "pal": [
+   "#e3bf5c",
+   "#B8922A",
+   "#6b5112",
+   "#B8922A",
+   "#f0d488",
+   "#7a5d16"
+  ],
+  "acci": "#0E0C09",
+  "serif": "cormorant-garamond-latin-600-italic.woff2",
+  "mus": [
+   "m989",
+   0
+  ],
+  "end": [
+   "Kadio",
+   "Network."
+  ],
+  "prix": [
+   [
+    "60 s",
+    "pour réserver"
+   ],
+   [
+    "4 villes",
+    "au Québec"
+   ]
+  ],
+  "spec": [
+   "[p:s_stitch:f=50,40,1.0] Ton/s coiffeur/s afro/I | [acc] en/s 60=60_s/G secondes=/x",
+   "[white] Voici/s Kadio/B Network/I | [p:s_locks:f=55,40,1.3] le/s réseau/B de/s coiffeurs/s afro/I | [p:s_design:f=45,35,1.2:bw] certifiés/B au/s Québec/I",
+   "[p:d_salon:f=50,40,1.1] En/s salon/B | [p:s_coupe:f=55,35,1.4] chez/s ton/s coiffeur/I | [acc] ou/s à/s domicile/B",
+   "[v:34197] Tu/s réserves/B en/s ligne/I | [white] tu/s paies/s en/s sécurité/I | [p:s_creative:f=55,45,1.2] tu/s reçois/s ton/s code/s QR/B",
+   "[acc] Et/s tu/s cumules/s des/s points/G | [p:s_stitch:f=60,40,1.8] à/s chaque/s visite/I",
+   "[white] Maintenant/B disponible/I | [acc] à/s Longueuil/B | [acc] Saint-Jérôme/B | [v:49878] et/s Montréal/B",
+   "[p:s_coupe:f=60,30,1.0:bw] Et/s pour/s le/s barbier/I | [acc] Brossard/G",
+   "[white] Kadio/B Network/I | [v:4915] Réserve/s sur/s kadiocoiffure=kadiocoiffure.com/B point=/x com=/x"
+  ],
+  "fx": [
+   "FX.carte(V[3] + .2, 3.0, { titre: \"Kadio Network\", sous: \"Tresses · locks · barbier\", bouton: \"Réserver\", encours: \"Paiement sécurisé…\", fini: \"Confirmé ✓  QR envoyé\", icone: \"K\", cx: 720, cy: 640 }); (function(){ const c = document.querySelectorAll(\"#root .fx-card\"); const k = c[c.length - 1]; k.style.top = \"230px\"; })();"
+  ]
  }
 }
