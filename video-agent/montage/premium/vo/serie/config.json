@@ -277,7 +277,7 @@
    "[white] Kadio/B Network/I | [v:4915] Réserve/s sur/s kadiocoiffure=kadiocoiffure.com/B point=/x com=/x"
   ],
   "fx": [
-   "FX.carte(V[3] + .2, 3.0, { titre: \"Kadio Network\", sous: \"Tresses · locks · barbier\", bouton: \"Réserver\", encours: \"Paiement sécurisé…\", fini: \"Confirmé ✓  QR envoyé\", icone: \"K\", cx: 720, cy: 640 }); (function(){ const c = document.querySelectorAll(\"#root .fx-card\"); const k = c[c.length - 1]; k.style.top = \"230px\"; })();"
+   "FX.carte(V[3] + .2, 3.0, { titre: \"Kadio Network\", sous: \"Tresses · locks · barbier\", bouton: \"Réserver\", encours: \"Paiement sécurisé…\", fini: \"Confirmé ✓  QR envoyé\", icone: \"K\", cx: 720, cy: 640 }); (function(){ const c = document.querySelectorAll(\"#root .fx-card\"); const k = c[c.length - 1]; k.style.top = \"230px\"; k.style.background = \"#0E0C09\"; k.style.color = \"#f0d488\"; k.style.border = \"2px solid #B8922A\"; k.querySelector(\".bt\").style.background = \"#B8922A\"; k.querySelector(\".bt\").style.color = \"#0E0C09\"; k.querySelector(\".ic\").style.background = \"#B8922A\"; k.querySelector(\".ic\").style.color = \"#0E0C09\"; k.querySelector(\".t2\").style.color = \"#c9b07a\"; })();"
   ]
  }
 }
