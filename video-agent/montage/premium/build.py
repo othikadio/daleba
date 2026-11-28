@@ -2297,7 +2297,7 @@ elif F.startswith("serv_"):
             cur[1].append((n, disp, st))
         h += '<div class="stk">' + "".join('<div class="ln">' + "".join(f'<span class="wd {st}" id="h{j}w{n}" style="font-size:{fit(st, disp)}px">{e(disp)}</span>' for n, disp, st in ws) + "</div>" for st, ws in lines) + "</div></div>"
         body += h
-    body += f'''<div id="end"><div class="logo">KADIO COIFFURE</div><div class="k">{e(CF["end"][0])}<em>{e(CF["end"][1])}</em></div>
+    body += f'''<div id="end"><div class="logo">KADIO COIFFURE</div><div class="k">{e(CF["end"][0])}<em style="font-size:{min(170, int(1700 / max(len(CF["end"][1]), 1)))}px">{e(CF["end"][1])}</em></div>
 <div class="pr">{"".join(f"<div>{e(a)}<small>{e(b)}</small></div>" for a, b in CF["prix"])}</div>
 <div class="a">615, Antoinette-Robidoux · Longueuil<br>514 919-5970 · kadiocoiffure.com</div></div><div id="flash"></div>'''
     SH = [dict(t=s["t"], end=s["end"], w=[(n, st, tt_) for n, (d_, st, tt_) in enumerate(s["items"]) if st != "x"]) for s in shots]
