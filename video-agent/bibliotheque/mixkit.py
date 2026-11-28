@@ -20,6 +20,7 @@ for fr, recherches in mots.items():
         for slug, vid in re.findall(r'href="/free-stock-video/([a-z0-9-]+)-(\d+)/"', page):
             if len(pris) >= N: break
             if vid in pris: continue
+            if not any(w[:4] in slug for w in q.split()): continue  # titre pertinent seulement
             out = os.path.join(C, vid + ".mp4")
             if vid not in idx["clips"]:
                 tmp = os.path.join(C, vid + ".src.mp4")
