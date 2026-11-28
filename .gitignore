@@ -11,3 +11,4 @@ video-agent/voix/presentateurs/*.wav
 video-agent/montage/premium/vo/omni/*.wav
 video-agent/montage/premium/vo/omni/*.m4a
 video-agent/voix/presentateurs/*.m4a
+video-agent/montage/premium/vo/omni/*.log
