@@ -59,3 +59,9 @@ Studio web de génération IA : 38 modèles (8 images, 30 vidéos : Seedance 2.0
 - Il faut une **clé de plateforme payante** (format `id:secret`, crédits consommés à chaque génération). Le studio est gratuit, la génération non.
 - Pour Kadio : animer une photo de coupe (image → vidéo), faire bouger une photo client avec un mouvement de caméra, créer des plans B-roll de salon, prolonger un clip (Extend).
 - Pas de fichier de licence dans le dépôt : usage interne seulement.
+
+## VoiceStudio (clonage de voix, open source)
+- Projet : github.com/debpalash/VoiceStudio (AGPL-3.0, moteur OmniVoice ; aussi IndexTTS, CosyVoice, VoxCPM, XTTS, Chatterbox).
+- Copie locale : `outils/voicestudio/` (non versionnée, retéléchargeable avec `git clone --depth 1 https://github.com/debpalash/VoiceStudio.git outils/voicestudio`).
+- Usage conseillé : application de bureau (Windows / Mac Apple Silicon / Linux) depuis la page Releases du projet, sur l'ordinateur du salon. Les modèles font plusieurs Go.
+- Pour cloner la voix : enregistrement propre de 1 à 3 min (pièce calme, téléphone à 20 cm), puis « Voice cloning ».

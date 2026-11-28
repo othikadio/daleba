@@ -6,3 +6,4 @@ node_modules/
 .env.production
 .vercel
 video-agent/rushs-drive/
+outils/voicestudio/
