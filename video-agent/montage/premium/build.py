@@ -1987,12 +1987,12 @@ elif F == "barbedit":
 .shot { position: absolute; inset: 0; visibility: hidden; overflow: hidden; }
 .shot.red { background: radial-gradient(120% 90% at 20% 15%, #f0505c 0%, #c8102e 45%, #8e0016 100%); }
 .shot.white { background: #fff; color: #c8102e; }
-.shot .ph { position: absolute; inset: -2%; width: 104%; height: 104%; object-fit: cover; }
-.shot.bw .ph { filter: grayscale(1) contrast(1.25) brightness(.9); }
+.shot .pic { position: absolute; inset: -2%; width: 104%; height: 104%; object-fit: cover; }
+.shot.bw .pic { filter: grayscale(1) contrast(1.25) brightness(.9); }
 .shot.photo:after { content: ""; position: absolute; inset: 0; background: radial-gradient(80% 60% at 50% 50%, rgba(0,0,0,.05), rgba(0,0,0,.55)); }
 .stk { position: absolute; left: 50px; right: 50px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; text-align: center; z-index: 3; }
-.ln { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 0 .28em; line-height: .95; }
-.wd { display: inline-block; opacity: 0; white-space: nowrap; }
+.ln { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; line-height: .95; }
+.wd { display: inline-block; opacity: 0; white-space: nowrap; margin: 0 .13em; }
 .photo .wd { text-shadow: 0 4px 30px rgba(0,0,0,.55); }
 .s { font-weight: 700; letter-spacing: -.01em; }
 .B, .G { font-weight: 900; letter-spacing: -.045em; }
@@ -2015,7 +2015,7 @@ elif F == "barbedit":
     for j, s in enumerate(shots):
         parts = s["bg"].split(":"); cls = "photo" if parts[0] == "p" else parts[0]
         if "bw" in parts: cls += " bw"
-        h = f'<div class="shot {cls}" id="h{j}">' + (f'<img class="ph" src="photos/{parts[1]}.jpg">' if parts[0] == "p" else "")
+        h = f'<div class="shot {cls}" id="h{j}">' + (f'<img class="pic" src="photos/{parts[1]}.jpg">' if parts[0] == "p" else "")
         lines, cur = [], None
         for n, (disp, st, tt) in enumerate(s["items"]):
             if st == "x": continue
@@ -2031,7 +2031,7 @@ elif F == "barbedit":
 SH.forEach(function (s, j) {
   const p = "#h" + j; show(p, s.t, s.end); tl.set(p, { zIndex: 2 + j }, 0);
   if (j) { tl.fromTo(p, { scale: 1.08 }, { scale: 1, duration: .28, ease: "power3.out", immediateRender: false }, s.t); }
-  if (s.ph) kb(p + " .ph", s.t, s.end - s.t + .1, { scale: 1.0 }, { scale: 1.1 });
+  if (s.ph) kb(p + " .pic", s.t, s.end - s.t + .1, { scale: 1.0 }, { scale: 1.1 });
   if (j && j % 3 === 0) cue(s.t - .03, "whoosh-fast.wav", .16); else if (j) cue(s.t, "click.wav", .1);
   s.w.forEach(function (w) { const q = p + "w" + w[0], big = w[1] !== "s" && w[1] !== "i";
     tl.fromTo(q, { opacity: 0, scale: big ? 1.35 : 1.15, filter: big ? "blur(10px)" : "blur(0px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: big ? .2 : .1, ease: "power3.out", immediateRender: false }, w[2]);
