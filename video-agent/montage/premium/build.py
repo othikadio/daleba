@@ -1943,7 +1943,7 @@ cue(S[6][0] + .3, "sparkle.wav", .35);
 cue(S[S.length - 1][0] + .4, "bass.wav", .35);
 """
     open(os.path.join(D, "index.html"), "w").write(page("Le dégradé en 5 étapes", css, body, js, T, ("m1183", 40)))
-elif F == "barbedit":
+elif F in ("barbedit", "barbedit2"):
     # Style « montage 5 € » : texte cinétique mot à mot calé sur la voix, coupes rapides, aplats rouge / blanc, serif italique
     import soundfile as sf
     VD = os.path.join(R, "vo", "omni")
@@ -1963,6 +1963,20 @@ elif F == "barbedit":
      "[p:b4] Et/s pour/s finir/s la/s barbe/I | [red] on/s la/s taille/B | [white] on/s la/s dessine/I | [p:b5] on/s l'hydrate/B",
      "[white] Résultat/s | [red] propre=Propre./G | [p:l4:bw] net=Net./G | [p:l4] et/s tu/s repars/s avec/s confiance/I",
      "[white] Coupe/s cinquante=50_$/G dollars=/x | [red] Coupe/s et/s barbe/s soixante=60_$/G | [p:l2:bw] Réserve/s ta/s place/B chez/s Kadio/I Coiffure/s à/s Longueuil/B"]
+    SPEC2 = [
+     "[v:barbier] Un/s dégradé/I | [red] chez/s Kadio/B Coiffure/s | [v:chiffre:bw] ça/s se/s passe/s en/s cinq=5/G étapes/i | [v:regarder] regarde/B",
+     "[v:discuter] D'abord/s on/s discute/I | [p:b6:bw] tu/s me/s montres/s ce/s que/s tu/s veux/B | [v:miroir] et/s on/s regarde/s ta/s forme/I de/s tête/B | [red] tes/s épis/B ta/s barbe/I",
+     "[p:b2] Ensuite/s la/s ligne/s de/s base/I | [v:rasoir:bw] tondeuse/s à/s zéro=0/G | [white] en/s bas/B autour/s des/s oreilles/B | [p:b3] et/s sur/s la/s nuque/I",
+     "[red] Puis/s le/s dégradé/B | [v:monter] on/s remonte/s petit/s à/s petit/I | [p:b8:bw] sabot/B après/s sabot/B | [v:invisible] pour/s que/s la/s transition/s soit/s invisible/I",
+     "[v:précision] Après/s le/s contour/I | [p:l1:bw] Au/s rasoir/B | [white] une/s ligne/s nette/B précise/I | [v:signature] C'est/s ça/s la/s signature/I Kadio/B",
+     "[v:barbe] Et/s pour/s finir/s la/s barbe/I | [v:ciseaux:bw] on/s la/s taille/B | [white] on/s la/s dessine/I | [v:huile] on/s l'hydrate/B",
+     "[white] Résultat/s | [v:brillant] propre=Propre./G | [p:l4:bw] net=Net./G | [v:confiance] et/s tu/s repars/s avec/s confiance/I",
+     "[v:argent] Coupe/s cinquante=50_$/G dollars=/x | [red] Coupe/s et/s barbe/s soixante=60_$/G | [v:ville:bw] Réserve/s ta/s place/B chez/s Kadio/I Coiffure/s à/s Longueuil/B"]
+    PAL = dict(a1="#f0505c", a2="#c8102e", a3="#8e0016", ai="#e0132b", ap="#ff2b40", as_="#9c0b20")
+    PAL["as"] = PAL.pop("as_")
+    if F == "barbedit2":
+        PAL = {"a1": "#ffb15c", "a2": "#ff6a1a", "a3": "#b8360a", "ai": "#ff6a1a", "ap": "#ff8a3d", "as": "#b8460f"}
+        SPEC = SPEC2
     def fit(st, txt):
         n = max(len(txt), 1)
         return {"s": 50, "i": 64, "B": min(160, int(1700 / n)), "I": min(190, int(2000 / n)), "G": min(400, int(1500 / n))}[st]
@@ -1983,12 +1997,15 @@ elif F == "barbedit":
 @font-face { font-family: ID; src: url(fonts/InterDisplay-Bold.otf); font-weight: 700; }
 @font-face { font-family: ID; src: url(fonts/InterDisplay-Black.otf); font-weight: 900; }
 @font-face { font-family: BD; src: url(fonts/bodoni-moda-latin-700-italic.woff2); font-weight: 700; font-style: italic; }
-#root { background: #000; color: #fff; font-family: ID; }
+#root { --a1: %(a1)s; --a2: %(a2)s; --a3: %(a3)s; --ai: %(ai)s; --ap: %(ap)s; --as: %(as_)s; background: #000; color: #fff; font-family: ID; }
 .shot { position: absolute; inset: 0; visibility: hidden; overflow: hidden; }
-.shot.red { background: radial-gradient(120% 90% at 20% 15%, #f0505c 0%, #c8102e 45%, #8e0016 100%); }
-.shot.white { background: #fff; color: #c8102e; }
+.shot.red { background: radial-gradient(120% 90% at 20% 15%, var(--a1) 0%, var(--a2) 45%, var(--a3) 100%); }
+.shot.white { background: #fff; color: var(--a2); }
 .shot .pic { position: absolute; inset: -2%; width: 104%; height: 104%; object-fit: cover; }
 .shot.bw .pic { filter: grayscale(1) contrast(1.25) brightness(.9); }
+.v { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.v.bw { filter: grayscale(1) contrast(1.25) brightness(.9); }
+.shot.vid { background: transparent; }
 .shot.photo:after { content: ""; position: absolute; inset: 0; background: radial-gradient(80% 60% at 50% 50%, rgba(0,0,0,.05), rgba(0,0,0,.55)); }
 .stk { position: absolute; left: 50px; right: 50px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; text-align: center; z-index: 3; }
 .ln { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; line-height: .95; }
@@ -1998,24 +2015,37 @@ elif F == "barbedit":
 .B, .G { font-weight: 900; letter-spacing: -.045em; }
 .G { line-height: .85; }
 .I, .i { font-family: BD; font-style: italic; font-weight: 700; letter-spacing: -.02em; }
-.photo .I, .white .I, .white .G, .white .B, .photo .i, .white .i { color: #e0132b; }
-.photo .I { color: #ff2b40; }
+.photo .I, .white .I, .white .G, .white .B, .photo .i, .white .i { color: var(--ai); }
+.photo .I { color: var(--ap); }
 .red .I, .red .i { color: #fff; }
-.white .s { color: #9c0b20; }
+.white .s { color: var(--as); }
 #flash { position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 50; }
-#end { position: absolute; inset: 0; visibility: hidden; z-index: 40; background: radial-gradient(120% 90% at 20% 15%, #f0505c 0%, #c8102e 45%, #8e0016 100%); }
+#end { position: absolute; inset: 0; visibility: hidden; z-index: 40; background: radial-gradient(120% 90% at 20% 15%, var(--a1) 0%, var(--a2) 45%, var(--a3) 100%); }
 #end .k { position: absolute; left: 0; right: 0; top: 560px; text-align: center; font: 900 150px/0.95 ID; letter-spacing: -.05em; }
 #end .k em { display: block; font: italic 700 170px BD; letter-spacing: -.02em; }
 #end .pr { position: absolute; left: 90px; right: 90px; top: 1000px; display: flex; gap: 24px; }
-#end .pr div { flex: 1; padding: 30px 0; border-radius: 28px; background: #fff; color: #c8102e; text-align: center; font: 900 46px/1.2 ID; }
-#end .pr small { display: block; font: 700 30px ID; color: #9c0b20; }
+#end .pr div { flex: 1; padding: 30px 0; border-radius: 28px; background: #fff; color: var(--a2); text-align: center; font: 900 46px/1.2 ID; }
+#end .pr small { display: block; font: 700 30px ID; color: var(--as); }
 #end .a { position: absolute; left: 0; right: 0; top: 1300px; text-align: center; font: 700 40px/1.55 ID; color: rgba(255,255,255,.88); }
 """
+    css = css.replace("%(a1)s", PAL["a1"]).replace("%(a2)s", PAL["a2"]).replace("%(a3)s", PAL["a3"]).replace("%(ai)s", PAL["ai"]).replace("%(ap)s", PAL["ap"]).replace("%(as_)s", PAL["as"])
+    LIB = os.path.join(R, "..", "..", "bibliotheque"); LX = json.load(open(os.path.join(LIB, "index.json"))) if os.path.exists(os.path.join(LIB, "index.json")) else {"mots": {}}
+    os.makedirs(os.path.join(D, "clips"), exist_ok=True); vids, used = [], set()
+    def pick(m):
+        if m.isdigit(): return m
+        c = [v for v in LX["mots"].get(m, []) if os.path.exists(os.path.join(LIB, "clips", v + ".mp4"))]
+        f = [v for v in c if v not in used] or c
+        assert f, "aucun plan pour " + m
+        used.add(f[0]); return f[0]
     body = ""
     for j, s in enumerate(shots):
         parts = s["bg"].split(":"); cls = "photo" if parts[0] == "p" else parts[0]
         if "bw" in parts: cls += " bw"
+        if parts[0] == "v": cls = "photo vid" + (" bw" if "bw" in parts else "")
         h = f'<div class="shot {cls}" id="h{j}">' + (f'<img class="pic" src="photos/{parts[1]}.jpg">' if parts[0] == "p" else "")
+        if parts[0] == "v":
+            cid = pick(parts[1]); shutil.copy(os.path.join(LIB, "clips", cid + ".mp4"), os.path.join(D, "clips", cid + ".mp4"))
+            vids.append((j, cid, s["t"], round(s["end"] - s["t"] + .05, 2), "bw" in parts))
         lines, cur = [], None
         for n, (disp, st, tt) in enumerate(s["items"]):
             if st == "x": continue
@@ -2023,6 +2053,7 @@ elif F == "barbedit":
             cur[1].append((n, disp, st))
         h += '<div class="stk">' + "".join('<div class="ln">' + "".join(f'<span class="wd {st}" id="h{j}w{n}" style="font-size:{fit(st, disp)}px">{e(disp)}</span>' for n, disp, st in ws) + "</div>" for st, ws in lines) + "</div></div>"
         body += h
+    body = "".join(f'<video id="vv{j}" class="v clip{" bw" if bw else ""}" src="clips/{cid}.mp4" muted playsinline data-start="{st}" data-duration="{du}" data-track-index="{k % 2}" style="z-index:{2 + j}"></video>' for k, (j, cid, st, du, bw) in enumerate(vids)) + body
     body += f'''<div id="end"><div class="k">Kadio Coiffure<em>Barbier.</em></div>
 <div class="pr"><div>50 $<small>Coupe</small></div><div>60 $<small>Coupe + barbe</small></div></div>
 <div class="a">615, Antoinette-Robidoux · Longueuil<br>514 919-5970 · kadiocoiffure.com</div></div><div id="flash"></div>'''
