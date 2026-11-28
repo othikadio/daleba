@@ -41,3 +41,6 @@ effets/
 vo/serie/jobs2.json
 vo/serie/jobs3.json
 vo/serie/jobs4.json
+vo/doc/*.wav
+vo/doc/jobs.json
+doc_*/

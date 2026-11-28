@@ -2372,4 +2372,90 @@ FX.pile(A(22), D2 + .6, { image: "photos/s_design.jpg", detoure: "photos/cut_s_d
 FX.liste(.2, T - .3, ["Curseur", "Carte app", "Sous-titre", "Cadran", "Touches", "Anneau", "Mur", "Commentaires", "Croquis", "Lame", "Mise au point", "Billet", "Note vocale", "Image choc", "Zoom dolly", "Journal", "Déchirure", "Couches 3D", "Code", "Envol", "Derrière", "Clones", "Pile"], Array.from({ length: NE }, (_, i) => i * DU));
 """
     open(os.path.join(D, "index.html"), "w").write(page("Bibliothèque d'effets Kadio", css, body, js, T, ("m1183", 20)))
+elif F.startswith("doc_"):
+    # Style « documentaire cinéma » : sujet détouré sur fond gris clair brumeux, titre serif rouge derrière le sujet, mise au point, une voix
+    import soundfile as sf, subprocess, difflib, re
+    K = F[4:]; VD = os.path.join(R, "vo", "doc"); CF = json.load(open(os.path.join(VD, K + ".json"))); SCRIPT = json.load(open(os.path.join(VD, "script.json")))
+    norm = lambda w: re.sub(r"[^\w'-]", "", w.lower()).replace("ka-dio", "kadio").replace("cadio", "kadio")
+    WJ = os.path.join(VD, K + "_words.json")
+    if not os.path.exists(WJ):
+        allw = []
+        for i in range(len(SCRIPT)):
+            tmp = os.path.join(VD, f"_w{i}"); subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", os.path.join(VD, f"{K}_{i}.wav"), "-ar", "16000", "-ac", "1", tmp + ".wav"], check=True)
+            subprocess.run(["whisper-cli", "-m", "/root/.cache/whisper-cpp/ggml-large-v3-turbo-q5_0.bin", "-l", "fr", "-ml", "1", "-sow", "-oj", "-of", tmp, "-np", "-t", "4", "-f", tmp + ".wav"], capture_output=True)
+            j = json.load(open(tmp + ".json")); allw.append([[s["text"].strip(), s["offsets"]["from"] / 1000] for s in j["transcription"] if s["text"].strip()])
+            os.remove(tmp + ".wav"); os.remove(tmp + ".json")
+        json.dump(allw, open(WJ, "w"), ensure_ascii=False)
+    WORDS = json.load(open(WJ))
+    LEAD, TAIL = .5, .55; VS, t = [], 0.0
+    for i in range(len(SCRIPT)):
+        src = os.path.join(VD, f"{K}_{i}.wav"); shutil.copy(src, os.path.join(D, f"v_{i}.wav"))
+        d = sf.info(src).duration; VS.append(round(t + LEAD, 2)); t += LEAD + d + TAIL
+    TEND = round(t, 2); T = round(TEND + 3.6, 2)
+    json.dump([{"t": v, "file": f"v_{i}.wav"} for i, v in enumerate(VS)], open(os.path.join(D, "vo.json"), "w"))
+    def times(i, toks):
+        W = WORDS[i]; a = [norm(x) for x in toks]; b = [norm(w) for w, _ in W]; out = [None] * len(a)
+        for blk in difflib.SequenceMatcher(None, a, b, autojunk=False).get_matching_blocks():
+            for q in range(blk.size): out[blk.a + q] = W[blk.b + q][1]
+        known = [(q, v) for q, v in enumerate(out) if v is not None] or [(0, 0.0)]
+        for q in range(len(out)):
+            if out[q] is None:
+                prv = [x for x in known if x[0] < q]; nxt = [x for x in known if x[0] > q]
+                out[q] = (prv[-1][1] + (nxt[0][1] - prv[-1][1]) * (q - prv[-1][0]) / (nxt[0][0] - prv[-1][0])) if prv and nxt else (prv[-1][1] + .25 * (q - prv[-1][0]) if prv else max(0.0, nxt[0][1] - .25 * (nxt[0][0] - q)))
+        for q in range(1, len(out)): out[q] = max(out[q], out[q - 1])
+        return out
+    css = """
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Bold.otf); font-weight: 700; }
+@font-face { font-family: ID; src: url(fonts/InterDisplay-Black.otf); font-weight: 900; }
+@font-face { font-family: BM; src: url(fonts/bodoni-moda-latin-400-normal.woff2); font-weight: 400; }
+@font-face { font-family: BM; src: url(fonts/bodoni-moda-latin-700-normal.woff2); font-weight: 700; }
+#root { background: #e9e6e0; color: #2b2b2b; font-family: ID; }
+.bgd { position: absolute; inset: 0; background: radial-gradient(90% 70% at 50% 42%, #f6f4f0 0%, #dedad3 55%, #a9a49c 100%); }
+.fog { position: absolute; left: -20%; right: -20%; height: 700px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,255,255,.75), rgba(255,255,255,0)); filter: blur(30px); }
+.sc { position: absolute; inset: 0; visibility: hidden; overflow: hidden; }
+.ttl { position: absolute; left: 40px; right: 40px; top: 250px; text-align: center; z-index: 2; }
+.ttl .bf, .ttl .af { font: 700 40px/1.3 ID; color: #3a3632; }
+.ttl .bf { margin-bottom: 4px; } .ttl .af { margin-top: 10px; max-width: 760px; margin-left: auto; margin-right: auto; }
+.ttl .tt { font: 400 200px/0.95 BM; color: #b3122a; letter-spacing: -.02em; white-space: nowrap; }
+.w { opacity: 0; display: inline-block; margin: 0 .12em; }
+.cut { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 3; transform-origin: 50% 60%; filter: saturate(.85) contrast(1.05); }
+.gh { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 6; filter: blur(22px) saturate(.7); opacity: .0; transform-origin: 50% 50%; }
+.btm { position: absolute; left: 0; right: 0; bottom: 0; height: 640px; z-index: 4; background: linear-gradient(180deg, rgba(233,230,224,0) 0%, rgba(233,230,224,.85) 45%, #e9e6e0 75%); }
+#end { position: absolute; inset: 0; visibility: hidden; z-index: 30; }
+#end .k { position: absolute; left: 0; right: 0; top: 640px; text-align: center; font: 400 150px/1 BM; color: #b3122a; letter-spacing: -.02em; }
+#end .s { position: absolute; left: 0; right: 0; top: 860px; text-align: center; font: 700 42px ID; color: #3a3632; }
+#end .a { position: absolute; left: 0; right: 0; top: 1000px; text-align: center; font: 700 38px/1.6 ID; color: #5a554f; }
+#end .c { position: absolute; left: 50%; top: 1220px; transform: translateX(-50%); padding: 28px 56px; border-radius: 999px; background: #b3122a; color: #fff; font: 900 46px ID; white-space: nowrap; }
+"""
+    body = '<div class="bgd"></div><div class="fog" style="top:1050px"></div><div class="fog" style="top:200px;opacity:.6"></div>'
+    SC = []
+    for i, line in enumerate(CF["spec"]):
+        toks = line.split(); tt = times(i, [tk.rsplit("/", 1)[0].split("=")[0] for tk in toks])
+        items = [((tk.rsplit("/", 1)[0].split("=", 1)[1] if "=" in tk.rsplit("/", 1)[0] else tk.rsplit("/", 1)[0]), tk.rsplit("/", 1)[1], round(VS[i] + tt[k], 2)) for k, tk in enumerate(toks)]
+        ti = [k for k, x in enumerate(items) if x[1] == "T"]; a0, a1 = ti[0], ti[-1]
+        title = " ".join(x[0] for x in items[a0:a1 + 1]); fs = min(200, int(1900 / max(len(title), 1)))
+        bf = "".join(f'<span class="w" id="s{i}w{k}">{e(items[k][0])}</span>' for k in range(a0))
+        af = "".join(f'<span class="w" id="s{i}w{k}">{e(items[k][0])}</span>' for k in range(a1 + 1, len(items)))
+        ph = CF["photos"][i]
+        body += f'<div class="sc" id="s{i}"><div class="ttl"><div class="bf">{bf}</div><div class="tt w" id="s{i}t" style="font-size:{fs}px">{e(title)}</div><div class="af">{af}</div></div><img class="cut" src="photos/cut_{ph}.png"><div class="btm"></div>' + (f'<img class="gh" src="photos/cut_{ph}.png">' if CF["fantome"][i] else "") + "</div>"
+        SC.append(dict(t=round(VS[i] - LEAD + (.1 if i else 0), 2), w=[(k, x[2]) for k, x in enumerate(items) if x[1] != "T"], tt=items[a0][2], gh=CF["fantome"][i]))
+    for i, s in enumerate(SC): s["end"] = SC[i + 1]["t"] + .5 if i + 1 < len(SC) else TEND + .4
+    body += f'<div id="end"><div class="k">{e(CF["fin"][0])}</div><div class="s">{e(CF["fin"][1])}</div><div class="a">615, Antoinette-Robidoux · Longueuil<br>514 919-5970 · kadiocoiffure.com</div><div class="c">Réserve ta place</div></div>'
+    js = "const SC = " + json.dumps(SC) + ", TE = " + str(TEND) + ";\n" + """
+tl.to(".fog", { x: 160, duration: T, ease: "none" }, 0);
+SC.forEach(function (s, i) { const p = "#s" + i; show(p, s.t, s.end); tl.set(p, { zIndex: 2 + i }, 0);
+  fin(p, s.t, .55, { opacity: 0 }, { opacity: 1, ease: "power1.inOut" });
+  fin(p + " .cut", s.t, .9, { filter: "blur(16px) saturate(.85)", opacity: 0 }, { filter: "blur(0px) saturate(.85)", opacity: 1, ease: "power2.out" });
+  tl.fromTo(p + " .cut", { scale: 1.0 }, { scale: 1.07, duration: s.end - s.t, ease: "none", immediateRender: false }, s.t);
+  if (s.gh) { tl.fromTo(p + " .gh", { opacity: 0, x: 500, scale: 1.7 }, { opacity: .45, x: -500, scale: 1.7, duration: 2.2, ease: "power1.inOut", immediateRender: false }, s.t + .2); tl.to(p + " .gh", { opacity: 0, duration: .4 }, s.t + 2.2); }
+  fin(p + "t", s.tt, .7, { opacity: 0, filter: "blur(14px)", scale: 1.06 }, { opacity: 1, filter: "blur(0px)", scale: 1, ease: "power2.out" });
+  s.w.forEach(function (w) { fin(p + "w" + w[0], w[1], .25, { opacity: 0, y: 8 }, { opacity: 1, y: 0, ease: "power2.out" }); });
+  if (i) cue(s.t, "swoosh-wind.wav", .12); cue(s.tt, "bass.wav", .16);
+});
+show("#end", TE, null); fin("#end", TE, .7, { opacity: 0 }, { opacity: 1 }); cue(TE, "whoosh-cine.wav", .18);
+fin("#end .k", TE + .2, .8, { opacity: 0, filter: "blur(14px)" }, { opacity: 1, filter: "blur(0px)" });
+fin("#end .s", TE + .7, .5, { opacity: 0 }, { opacity: 1 }); fin("#end .a", TE + 1.0, .5, { opacity: 0 }, { opacity: 1 });
+fin("#end .c", TE + 1.4, .5, { opacity: 0, y: 20 }, { opacity: 1, y: 0, ease: "power3.out" });
+"""
+    open(os.path.join(D, "index.html"), "w").write(page("Kadio, documentaire", css, body, js, T, tuple(CF["mus"])))
 print(F, "ok")

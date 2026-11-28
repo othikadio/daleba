@@ -1,0 +1,10 @@
+{"mus": ["m587", 0],
+ "photos": ["d_salon", "d_raie", "d_peigne", "d_brillance", "d_boucles", "d_fin"],
+ "fantome": [false, false, true, false, true, false],
+ "spec": ["Chez/s Ka-dio=Kadio/s Coiffure/s un/s défrisage/T ce/s n'est/s pas/s qu'une/s question/s de/s produit/s",
+          "On/s protège/T d'abord/s le/s cuir/s chevelu/s mèche/s après/s mèche/s",
+          "Puis/s on/s lisse/T doucement/s sans/s jamais/s brusquer/s la/s fibre/s",
+          "Vient/s ensuite/s la/s mise/T en/T plis/T du/s volume/s du/s mouvement/s de/s la/s brillance/s",
+          "Et/s pour/s finir/s des/s boucles/T souples/s qui/s bougent/s à/s chaque/s pas/s",
+          "Défrisage/T et/s mise/s en/s plis/s Chez/s Ka-dio=Kadio/s Coiffure/s à/s Longueuil/s"],
+ "fin": ["Kadio Coiffure", "Défrisage · mise en plis · boucles"]}
